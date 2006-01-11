@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SimpleConfigurator Plug-in
+Bundle-SymbolicName: org.eclipse.core.simpleConfigurator
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.osgi
+Bundle-Activator: org.eclipse.core.internal.simpleconfigurator.Configurator
+Export-Package: org.eclipse.core.simpleConfigurator
+Eclipse-AutoStart: true
