@@ -54,12 +54,19 @@ public class ConfigurationReader {
 			BufferedReader r = new BufferedReader(new InputStreamReader(new URL(configurationLocation,  CONFIG_LOCATION).openStream()));
 			String line;
 			while ( (line = r.readLine()) != null) {
-				StringTokenizer tok = new StringTokenizer(line, ",");
+				StringTokenizer tok = new StringTokenizer(line, ",", true);
 				BundleInfo bundle = new BundleInfo();
 				bundle.setSymbolicName(tok.nextToken());
+				tok.nextToken(); //,
 				bundle.setVersion(tok.nextToken());
-				bundle.setLocation(tok.nextToken());
+				tok.nextToken(); //,
+				String location = tok.nextToken();
+				if (! location.equals(",")) {
+					bundle.setLocation(location);
+					tok.nextToken(); //,
+				}
 				bundle.setStartLevel(Integer.parseInt(tok.nextToken().trim()));
+				tok.nextToken(); //,
 				bundle.setExpectedState(Integer.parseInt(tok.nextToken()));
 				
 				bundles.add(bundle);
