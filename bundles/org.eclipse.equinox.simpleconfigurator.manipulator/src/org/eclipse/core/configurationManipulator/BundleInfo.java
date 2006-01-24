@@ -75,7 +75,7 @@ public class BundleInfo {
 	public boolean equals(Object toCompare) {
 		if (toCompare instanceof BundleInfo) {
 			BundleInfo info = (BundleInfo) toCompare;
-			if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && info.location.equals(location))
+			if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : info.location.equals(location)))
 				return true;
 		}
 		return false;

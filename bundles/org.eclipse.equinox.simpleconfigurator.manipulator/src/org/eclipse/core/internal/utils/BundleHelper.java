@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.core.internal.utils;
 
+import java.io.File;
+
 import org.osgi.framework.*;
 
 public class BundleHelper implements BundleActivator {
@@ -46,5 +48,9 @@ public class BundleHelper implements BundleActivator {
 
 	public void stop(BundleContext context) throws Exception {
 		shutdown();
+	}
+	
+	public File getDataFile(String fileName) {
+		return context.getDataFile(fileName);
 	}
 }

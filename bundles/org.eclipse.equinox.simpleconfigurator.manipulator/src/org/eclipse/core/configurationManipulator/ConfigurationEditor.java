@@ -10,15 +10,38 @@
  *******************************************************************************/
 package org.eclipse.core.configurationManipulator;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
-import org.eclipse.core.internal.stateBuilder.ConfigurationState;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import org.eclipse.core.internal.utils.AlienStateReader;
 import org.eclipse.core.internal.utils.BundleSearch;
 import org.eclipse.core.simpleConfigurator.ConfigurationConstants;
 import org.osgi.framework.Bundle;
 
+// Do we need to be able to add bundle without having the bytes avaialbe?
 public class ConfigurationEditor {
 	static String CONFIG_LOCATION = ConfigurationConstants.CONFIGURATOR_FOLDER + '/' + ConfigurationConstants.CONFIG_LIST;
 	static String INI_FILE_LOCATION = ConfigurationConstants.CONFIG_INI;
@@ -59,9 +82,11 @@ public class ConfigurationEditor {
 		try {
 			BundleInfo[] existingBundles = new ConfigurationReader(configLocation.toURL()).getExpectedState();
 			bundles.addAll(Arrays.asList(existingBundles));
+			// TODO Need to think about the consequence of adding directly to the bundles collectino directly. Does the order matter?
 			loadConfigIni();
 			spoofupConfigurationDataFromBundleList();
 			loadExeIni();
+			loadStateFile(); 
 		} catch (MalformedURLException e) {
 			//TODO may log something
 			//Ignore
@@ -208,7 +233,7 @@ public class ConfigurationEditor {
 			try {
 				for (Iterator iter = toPersist.iterator(); iter.hasNext();) {
 					BundleInfo toWrite = (BundleInfo) iter.next();
-					writer.write(toWrite.getSymbolicName() + ',' + toWrite.getVersion() + ',' + toWrite.getLocation() + ',' + toWrite.getStartLevel() + ',' + toWrite.expectedState());
+					writer.write(toWrite.getSymbolicName() + ',' + toWrite.getVersion() + ',' + (toWrite.getLocation() == null ? "" : toWrite.getLocation()) + ',' + toWrite.getStartLevel() + ',' + toWrite.expectedState());
 					writer.newLine();
 				}
 				writer.flush();
@@ -311,11 +336,14 @@ public class ConfigurationEditor {
 	}
 
 	private String[] serializeBundleList(Collection toPersist) {
+		//TODO Need to know what to do with the bundles that are loaded from the fwk and do not have a location
 		StringBuffer bundleList = new StringBuffer();
 		StringBuffer bundleListExtraData = new StringBuffer();
 
 		for (Iterator iter = toPersist.iterator(); iter.hasNext();) {
 			BundleInfo toWrite = (BundleInfo) iter.next();
+			if (toWrite.getLocation() == null)
+				continue;
 			String location = toWrite.getLocation();
 			int startLevel = toWrite.getStartLevel();
 			int expected = toWrite.expectedState();
@@ -509,6 +537,21 @@ public class ConfigurationEditor {
 		}
 	}
 
+	private void loadStateFile() {
+		AlienStateReader alienState = new AlienStateReader(configurationLocation, null);
+		BundleInfo[] installedBundles = alienState.getBundles();
+		
+		//Add to the list of bundles the one that are not already present.
+		//We assume that if a bundle is present in the state and in the list it is because 
+		//it has been installed by the configurator
+		for (int i = 0; i < installedBundles.length; i++) {
+			if (! bundles.contains(installedBundles[i]))
+				bundles.add(installedBundles[i]);
+		}
+		//TODO Here we may want to merge the bundle info with ones that would have been loaded in the previous steps in order to have more data
+		//We might want to do a quick bundle search
+	}
+	
 	private static String[] getArrayFromList(String prop, String separator) {
 		if (prop == null || prop.trim().equals("")) //$NON-NLS-1$
 			return new String[0];
@@ -526,20 +569,20 @@ public class ConfigurationEditor {
 		bundles.remove(toRemove);
 	}
 
-	public boolean validate(String os, String ws, String arch, String nl, String jre) {
-		ConfigurationState state = new ConfigurationState();
-		for (Iterator iter = bundles.iterator(); iter.hasNext();) {
-			BundleInfo toAdd = (BundleInfo) iter.next();
-			String location = toAdd.getLocation();
-			if (location.startsWith("reference:file:")) //TODO Need to find a better way to do this
-				location = location.substring(15);
-			state.addBundle(new File(location));
-		}
-		state.resolveState(os, ws, arch, nl, jre);
-		if (state.getState().getResolvedBundles().length != state.getState().getBundles().length)
-			return false;
-		return true;
-	}
+//	public boolean validate(String os, String ws, String arch, String nl, String jre) {
+//		ConfigurationState state = new ConfigurationState();
+//		for (Iterator iter = bundles.iterator(); iter.hasNext();) {
+//			BundleInfo toAdd = (BundleInfo) iter.next();
+//			String location = toAdd.getLocation();
+//			if (location.startsWith("reference:file:")) //TODO Need to find a better way to do this
+//				location = location.substring(15);
+//			state.addBundle(new File(location));
+//		}
+//		state.resolveState(os, ws, arch, nl, jre);
+//		if (state.getState().getResolvedBundles().length != state.getState().getBundles().length)
+//			return false;
+//		return true;
+//	}
 
 	public void setFrameworkLocation(String path) {
 		osgiFramework = path;
