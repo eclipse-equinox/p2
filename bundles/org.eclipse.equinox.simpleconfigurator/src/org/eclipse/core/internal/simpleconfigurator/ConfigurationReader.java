@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+
 import org.eclipse.core.simpleConfigurator.ConfigurationConstants;
 
 public class ConfigurationReader {
@@ -54,13 +55,21 @@ public class ConfigurationReader {
 			String line;
 			try {
 				while ((line = r.readLine()) != null) {
-					StringTokenizer tok = new StringTokenizer(line, ",");
+					StringTokenizer tok = new StringTokenizer(line, ",", true);
 					BundleInfo bundle = new BundleInfo();
 					bundle.setSymbolicName(tok.nextToken());
+					tok.nextToken(); //,
 					bundle.setVersion(tok.nextToken());
-					bundle.setLocation(tok.nextToken());
+					tok.nextToken(); //,
+					String location = tok.nextToken();
+					if (! location.equals(",")) {
+						bundle.setLocation(location);
+						tok.nextToken(); //,
+					}
 					bundle.setStartLevel(Integer.parseInt(tok.nextToken().trim()));
-					bundle.setExpectedState(Integer.parseInt(tok.nextToken().trim()));
+					tok.nextToken(); //,
+					bundle.setExpectedState(Integer.parseInt(tok.nextToken()));
+					
 					bundles.add(bundle);
 				}
 			} finally {

@@ -47,6 +47,11 @@ public class Installer {
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]); 
 			if (current == null) {
 				try {
+					if (finalList[i].getLocation() == null) {
+						System.out.println("Bundle " + finalList[i].getSymbolicName() + " " + finalList[i].getVersion());
+						continue;
+					}
+					//TODO Need to try the install with reference:
 					current = manipulatingContext.installBundle(finalList[i].getLocation());
 					installed.add(current);
 				} catch (BundleException e) {
