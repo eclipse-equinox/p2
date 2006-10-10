@@ -540,7 +540,9 @@ public class ConfigurationEditor {
 	private void loadStateFile() {
 		AlienStateReader alienState = new AlienStateReader(configurationLocation, null);
 		BundleInfo[] installedBundles = alienState.getBundles();
-		
+
+		if(installedBundles == null)
+			return;
 		//Add to the list of bundles the one that are not already present.
 		//We assume that if a bundle is present in the state and in the list it is because 
 		//it has been installed by the configurator
