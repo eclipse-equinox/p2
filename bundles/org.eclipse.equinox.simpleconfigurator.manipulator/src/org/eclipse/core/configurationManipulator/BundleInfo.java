@@ -18,7 +18,8 @@ public class BundleInfo {
 	private String location;
 	private int expectedState;
 	private int startLevel = NO_LEVEL;
-
+	private String manifest;
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -69,6 +70,14 @@ public class BundleInfo {
 		this.location = location;
 	}
 
+	public void setManifest(String manifest) {
+		this.manifest = manifest;
+	}
+	
+	public String getManifest() {
+		return manifest;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -98,3 +107,4 @@ public class BundleInfo {
 		return buffer.toString();
 	}
 }
+ 
