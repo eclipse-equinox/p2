@@ -103,6 +103,7 @@ public class BundleInfo {
 		buffer.append(startLevel);
 		buffer.append(", expectedState="); //$NON-NLS-1$
 		buffer.append(expectedState);
+		buffer.append(',').append(manifest==null?"no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();
 	}

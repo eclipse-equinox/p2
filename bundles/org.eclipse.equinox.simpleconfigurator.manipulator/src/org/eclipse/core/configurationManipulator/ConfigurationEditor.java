@@ -655,4 +655,8 @@ public class ConfigurationEditor {
 	public BundleInfo[] getBundles() {
 		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
 	}
+	
+	public BundleInfo[] resolve() {
+		return null;
+	}
 }
