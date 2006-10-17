@@ -184,6 +184,12 @@ public class ConfigurationEditor {
 			configFile.getParentFile().mkdirs();
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(configFile)));
 			try {
+				if (programArgs != null && programArgs.size() != 0) {
+					for (Iterator iter = programArgs.iterator(); iter.hasNext();) {
+						writer.write(((String) iter.next()).trim());
+						writer.newLine();
+					}
+				}
 				if (vmLocation != null) {
 					writer.write("-vm");
 					writer.newLine();

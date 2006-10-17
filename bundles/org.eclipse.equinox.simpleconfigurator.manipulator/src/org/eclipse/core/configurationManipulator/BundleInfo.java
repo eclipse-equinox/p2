@@ -10,6 +10,15 @@
  *******************************************************************************/
 package org.eclipse.core.configurationManipulator;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.util.jar.Manifest;
+import org.eclipse.osgi.framework.util.Headers;
+import org.eclipse.osgi.util.ManifestElement;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import sun.awt.image.ByteInterleavedRaster;
+
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
 
@@ -106,6 +115,20 @@ public class BundleInfo {
 		buffer.append(',').append(manifest==null?"no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();
+	}
+	
+	public void initFromManifest(String manifest) {
+		try {
+			this.manifest = manifest;
+			Headers headers = Headers.parseManifest(new ByteArrayInputStream(manifest.getBytes()));
+			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME));
+			symbolicName = element[0].getValue();
+			version = (String) headers.get(Constants.BUNDLE_VERSION);
+			
+		} catch (BundleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
  
