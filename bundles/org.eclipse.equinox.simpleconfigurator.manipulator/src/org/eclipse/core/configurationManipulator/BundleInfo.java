@@ -11,13 +11,10 @@
 package org.eclipse.core.configurationManipulator;
 
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.util.jar.Manifest;
 import org.eclipse.osgi.framework.util.Headers;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
-import sun.awt.image.ByteInterleavedRaster;
 
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
