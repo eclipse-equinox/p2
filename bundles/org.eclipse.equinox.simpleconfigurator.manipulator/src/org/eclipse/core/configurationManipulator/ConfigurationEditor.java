@@ -148,7 +148,7 @@ public class ConfigurationEditor {
 		//		} else if ("org.eclipse.platform".equals(bundle.getSymbolicName())) {
 		//			// todo this is hard-coded for now. We need to get the location of the primary
 		//			// feature's plug-in but the bundle info doesn't tell us if we have a plug-in or a feature.
-		//			String location = System.getProperty("cic.eclipse.repoLocation");
+		//			String location = System.getProperty("eclipse.repoLocation");
 		//			if (location != null) {
 		//				location = "file:/" + location + "/plugins/org.eclipse.platform_3.1.0.jar";
 		//				setSplashPath(location);
