@@ -12,6 +12,7 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import org.eclipse.equinox.configurator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
@@ -20,7 +21,6 @@ import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.ServiceTracker;
-
 
 public class EquinoxManipulatorImpl implements Manipulator {
 	private static final String SYSTEMBUNDLE_SYMBOLICNAME = "org.eclipse.osg";
@@ -92,7 +92,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	LauncherData launcherData = new LauncherData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
 
 	BundleContext context = null;
-	BundlesState bundleState = null;
+	Properties properties = new Properties();
 
 	ServiceTracker cmTracker;
 	int trackingCount = -1;
@@ -109,10 +109,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
-		if (EquinoxBundlesState.checkFullySupported())
-			return new EquinoxBundlesState(context, fwAdmin, this);
-		return new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+		if (!EquinoxBundlesState.checkFullySupported())
+			return new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
 
+		if (properties.isEmpty())
+			return new EquinoxBundlesState(context, fwAdmin, this, false);
+		// XXX checking if fwDependent or fwIndependent properties are updated after the properties was created might be required for better implementation.		
+		return new EquinoxBundlesState(context, fwAdmin, this, properties);
 	}
 
 	public ConfigData getConfigData() throws FrameworkAdminRuntimeException {
@@ -171,8 +174,15 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (fwConfigFile.exists())
 			parser.readFwConfig(configData, fwConfigFile);
 
-		BundlesState bundleState = this.getBundlesState();
-		BundleInfo[] newBundleInfos = bundleState.getExpectedState();
+		BundlesState bundlesState = null;
+		if (EquinoxBundlesState.checkFullySupported()) {
+			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true);
+			properties = ((EquinoxBundlesState) bundlesState).getProperties();
+		} else {
+			bundlesState = new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			properties.clear();
+		}
+		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
 		configData.setBundles(newBundleInfos);
 		if (!useConfigurator)
 			return;

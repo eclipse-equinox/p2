@@ -140,13 +140,23 @@ public class EquinoxBundlesState implements BundlesState {
 	BundleContext context;
 
 	Manipulator manipulator = null;
+	Properties properties = new Properties();
 
 	long maxId = -1;
 
 	StateObjectFactory soFactory = null;
 	State state = null;
 
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator) {
+	/**
+	 * This constructor will not take a framework persistent data into account.
+	 * It will create State object based on the specified platformProperties.
+	 * 
+	 * @param context
+	 * @param fwAdmin
+	 * @param manipulator
+	 * @param platformProperties
+	 */
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, Properties platformProperties) {
 		super();
 		this.context = context;
 		this.fwAdmin = fwAdmin;
@@ -154,23 +164,66 @@ public class EquinoxBundlesState implements BundlesState {
 		this.manipulator = fwAdmin.getManipulator();
 		this.manipulator.setConfigData(manipulator.getConfigData());
 		this.manipulator.setLauncherData(manipulator.getLauncherData());
-		initialize();
+		LauncherData launcherData = manipulator.getLauncherData();
+		ConfigData configData = manipulator.getConfigData();
+		BundleInfo[] bInfos = configData.getBundles();
+		this.composeCleanState(launcherData, configData, properties, bInfos);
 	}
 
+	/**
+	 * If useFwPersistentData flag equals false,
+	 * this constructor will not take a framework persistent data into account.	
+	 * Otherwise, it will.
+	 * 
+	 * @param context
+	 * @param fwAdmin
+	 * @param manipulator
+	 * @param useFwPersistentData
+	 */
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, boolean useFwPersistentData) {
+		super();
+		this.context = context;
+		this.fwAdmin = fwAdmin;
+		// copy manipulator object for avoiding modifying the parameters of the manipulator.
+		this.manipulator = fwAdmin.getManipulator();
+		this.manipulator.setConfigData(manipulator.getConfigData());
+		this.manipulator.setLauncherData(manipulator.getLauncherData());
+		initialize(useFwPersistentData);
+	}
+
+	//	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator) {
+	//		this(context, fwAdmin, manipulator, true);
+	//		//		this.context = context;
+	//		//		this.fwAdmin = fwAdmin;
+	//		//		// copy manipulator object for avoiding modifying the parameters of the manipulator.
+	//		//		this.manipulator = fwAdmin.getManipulator();
+	//		//		this.manipulator.setConfigData(manipulator.getConfigData());
+	//		//		this.manipulator.setLauncherData(manipulator.getLauncherData());
+	//		//		initialize();
+	//	}
+
 	private void composeCleanState(LauncherData launcherData, ConfigData configData, BundleInfo[] bInfos) {
-		composeExpectedState(bInfos, configData.getFwDependentProps(), null);
+		this.composeCleanState(launcherData, configData, configData.getFwDependentProps(), bInfos);
+	}
+
+	private void composeCleanState(LauncherData launcherData, ConfigData configData, Properties properties, BundleInfo[] bInfos) {
+		composeExpectedState(bInfos, properties, null);
 		resolve(true);
 		if (getSystemBundle() == null) {
+			File fwJar = getFwJar(launcherData);;
+			if (fwJar == null)
+				throw new IllegalStateException("launcherData.getLauncherConfigFile() == null && fwJar is not set.");
+
 			BundleInfo[] newBInfos = new BundleInfo[bInfos.length + 1];
 			try {
-				newBInfos[0] = new BundleInfo(launcherData.getFwJar().toURL().toExternalForm(), 0, true);
+				newBInfos[0] = new BundleInfo(fwJar.toURL().toExternalForm(), 0, true);
 			} catch (MalformedURLException e) {
 				// Nothign to do because never happens.
 				e.printStackTrace();
 			}
 			System.arraycopy(bInfos, 0, newBInfos, 1, bInfos.length);
 			configData.setBundles(newBInfos);
-			composeExpectedState(bInfos, configData.getFwDependentProps(), null);
+			composeExpectedState(bInfos, properties, null);
 			resolve(true);
 		}
 	}
@@ -183,8 +236,10 @@ public class EquinoxBundlesState implements BundlesState {
 		if (fwPersistentDataLocation != null) {
 			AlienStateReader alienStateReader = new AlienStateReader(fwPersistentDataLocation, null);
 			state = alienStateReader.getState();
-			if (state != null)
+			if (state != null) {
 				cachedInstalledBundles = state.getBundles();
+				getPlatformProperties(state);
+			}
 		}
 		if (state == null) {
 			state = soFactory.createState(true);
@@ -192,6 +247,7 @@ public class EquinoxBundlesState implements BundlesState {
 			if (props == null)
 				return false;
 			this.setPlatformProperties(props);
+			getPlatformProperties(state);
 		}
 
 		// remove initial bundle which were installed but not listed in fwConfigFileBInfos.
@@ -227,12 +283,26 @@ public class EquinoxBundlesState implements BundlesState {
 		return true;
 	}
 
-	public void composeRuntimeState() throws FrameworkAdminRuntimeException {
-		SimpleBundlesState.checkAvailability(fwAdmin);
-		PlatformAdmin platformAdmin = (PlatformAdmin) BundleHelper.getDefault().acquireService(PlatformAdmin.class.getName());
-		State currentState = platformAdmin.getState(false);
-		state = this.soFactory.createState(currentState);
-		state.setPlatformProperties(currentState.getPlatformProperties());
+	//	public void composeRuntimeState() throws FrameworkAdminRuntimeException {
+	//		SimpleBundlesState.checkAvailability(fwAdmin);
+	//		PlatformAdmin platformAdmin = (PlatformAdmin) BundleHelper.getDefault().acquireService(PlatformAdmin.class.getName());
+	//		State currentState = platformAdmin.getState(false);
+	//		state = this.soFactory.createState(currentState);
+	//		state.setPlatformProperties(currentState.getPlatformProperties());
+	//	}
+
+	private void getPlatformProperties(State state) {
+		Dictionary platformProperties = state.getPlatformProperties()[0];
+
+		properties.clear();
+		if (platformProperties != null) {
+			for (Enumeration enumeration = platformProperties.elements(); enumeration.hasMoreElements();) {
+				String key = (String) enumeration.nextElement();
+				Object value = platformProperties.get(key);
+				if (value != null)
+					properties.setProperty(key, (String) value);
+			}
+		}
 	}
 
 	public BundleInfo convert(BundleDescription toConvert) {
@@ -331,23 +401,22 @@ public class EquinoxBundlesState implements BundlesState {
 		return ret;
 	}
 
-	private void initialize() {
+	private void initialize(boolean useFwPersistentData) {
 		LauncherData launcherData = manipulator.getLauncherData();
 		ConfigData configData = manipulator.getConfigData();
-		File fwJar = getFwJar(launcherData);;
-		//		if (launcherData.getLauncherConfigFile() != null) {
-		//			
-		//		}
-		if (fwJar == null)
-			throw new IllegalStateException("launcherData.getLauncherConfigFile() == null && fwJar is not set.");
+		BundleInfo[] bInfos = configData.getBundles();
+
+		if (!useFwPersistentData) {
+			composeCleanState(launcherData, configData, bInfos);
+			return;
+		}
 
 		EquinoxManipulatorImpl.checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
-		BundleInfo[] bInfos = configData.getBundles();
 		if (launcherData.isClean()) {
 			composeCleanState(launcherData, configData, bInfos);
 		} else {
 			if (manipulator.getLauncherData().getFwPersistentDataLocation() != null) {
-				//				 TODO default value should be set more precisely.
+				//	TODO default value should be set more precisely.
 				File installArea = null;
 				String installAreaSt = configData.getFwDependentProp(EquinoxConstants.PROP_INSTALL);
 				if (installAreaSt == null) {
@@ -435,7 +504,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	// "osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", 
 	// Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional"
-	private Properties setDefaultPlatformProperties() {
+	static Properties setDefaultPlatformProperties() {
 		Properties platformProperties = new Properties();
 		// set default value
 
@@ -478,8 +547,8 @@ public class EquinoxBundlesState implements BundlesState {
 	private void setPlatformProperties(Dictionary props) {
 		Properties platformProperties = setDefaultPlatformProperties();
 
-		for (Enumeration enum = props.keys(); enum.hasMoreElements();) {
-			String key = (String) enum.nextElement();
+		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+			String key = (String) enumeration.nextElement();
 			for (int i = 0; i < PROPS.length; i++) {
 				if (key.equals(PROPS[i])) {
 					platformProperties.put(key, props.get(key));
@@ -526,8 +595,8 @@ public class EquinoxBundlesState implements BundlesState {
 		sb.append("PlatformProperties:\n");
 		Dictionary[] dics = state.getPlatformProperties();
 		for (int i = 0; i < dics.length; i++) {
-			for (Enumeration enum = dics[i].keys(); enum.hasMoreElements();) {
-				String key = (String) enum.nextElement();
+			for (Enumeration enumeration = dics[i].keys(); enumeration.hasMoreElements();) {
+				String key = (String) enumeration.nextElement();
 				String value = (String) dics[i].get(key);
 				sb.append(" (" + key + "," + value + ")\n");
 			}
@@ -564,6 +633,10 @@ public class EquinoxBundlesState implements BundlesState {
 
 		}
 
+	}
+
+	Properties getProperties() {
+		return properties;
 	}
 
 }

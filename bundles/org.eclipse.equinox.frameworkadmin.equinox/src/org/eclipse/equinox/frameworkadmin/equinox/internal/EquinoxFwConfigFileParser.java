@@ -144,8 +144,8 @@ class EquinoxFwConfigFileParser {
 			is = null;
 		}
 
-		for (Enumeration enum = props.keys(); enum.hasMoreElements();) {
-			String key = (String) enum.nextElement();
+		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+			String key = (String) enumeration.nextElement();
 			String value = props.getProperty(key);
 			if (key.equals(EquinoxConstants.PROP_BUNDLES_STARTLEVEL))
 				configData.setInitialBundleStartLevel(Integer.parseInt(value));
