@@ -43,22 +43,25 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	 * @return URL
 	 */
 	private static URL getConfigLocation(Manipulator manipulator) throws IllegalStateException {
-		File fwConfigFile = manipulator.getLauncherData().getFwConfigLocation();
-		File home = null;
-		if (fwConfigFile == null) {
-			home = manipulator.getLauncherData().getHome();
-			if (home == null) {
+		File fwConfigLoc = manipulator.getLauncherData().getFwConfigLocation();
+		File baseDir = null;
+		if (fwConfigLoc == null) {
+			baseDir = manipulator.getLauncherData().getHome();
+			if (baseDir == null) {
 				if (manipulator.getLauncherData().getLauncher() != null) {
-					home = manipulator.getLauncherData().getLauncher().getParentFile();
+					baseDir = manipulator.getLauncherData().getLauncher().getParentFile();
 				} else {
 					throw new IllegalStateException("All of fwConfigFile, home, launcher are not set.");
 				}
 			}
 		} else {
-			home = fwConfigFile.getParentFile();
+			if (fwConfigLoc.isDirectory())
+				baseDir = fwConfigLoc;
+			else
+				baseDir = fwConfigLoc.getParentFile();
 		}
 		try {
-			return (new File(home, "SimpleConfigurator.txt").toURL());
+			return (new File(baseDir, "SimpleConfigurator.txt").toURL());
 		} catch (MalformedURLException e) {
 			// Never happen. ignore.
 			e.printStackTrace();
