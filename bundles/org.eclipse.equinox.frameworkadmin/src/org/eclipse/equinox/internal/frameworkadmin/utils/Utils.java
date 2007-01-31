@@ -155,14 +155,6 @@ public class Utils {
 		return ret;
 	}
 
-	public static String getPathFromClause(String clause) {
-		if (clause == null)
-			return null;
-		if (clause.indexOf(";") != -1)
-			clause = clause.substring(0, clause.indexOf(";"));
-		return clause.trim();
-	}
-
 	public static String[] getClauses(String header) {
 		StringTokenizer token = new StringTokenizer(header, ",");
 		List list = new LinkedList();
@@ -187,10 +179,12 @@ public class Utils {
 			String value = attributes.getValue(name);
 			return value == null ? null : value.trim();
 		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
+			// TODO log
+			System.err.println("location=" + location);
 			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO log
+			System.err.println("location=" + location);
 			e.printStackTrace();
 		}
 		return null;
@@ -216,13 +210,23 @@ public class Utils {
 			//	System.out.println("");
 			return table;
 		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
+			// TODO log
+			System.err.println("location=" + location);
 			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO log
+			System.err.println("location=" + location);
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static String getPathFromClause(String clause) {
+		if (clause == null)
+			return null;
+		if (clause.indexOf(";") != -1)
+			clause = clause.substring(0, clause.indexOf(";"));
+		return clause.trim();
 	}
 
 	public static String getRelativePath(File target, File from) {
