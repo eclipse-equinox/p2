@@ -14,16 +14,29 @@ import java.io.*;
 
 public class FileUtils {
 
-	public static boolean copy(File source, File target) {
-		try {
+	public static String getRealLocation(final String location) {
+		String ret = location;
+		if (location.startsWith("reference:"))
+			ret = location.substring("reference:".length());
+		if (location.startsWith("initial@"))
+			ret = location.substring("initial@".length());
+		if (ret == location)
+			return ret;
+		return getRealLocation(ret);
+	}
+
+	public static boolean copy(File source, File target) throws IOException {
+		//try {
 			target.getParentFile().mkdirs();
 			target.createNewFile();
 			transferStreams(new FileInputStream(source), new FileOutputStream(target));
-		} catch (FileNotFoundException e) {
-			return false;
-		} catch (IOException e) {
-			return false;
-		}
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//			return false;
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//			return false;
+//		}
 		return true;
 	}
 
@@ -50,12 +63,13 @@ public class FileUtils {
 			try {
 				source.close();
 			} catch (IOException e) {
+				e.printStackTrace();
 				// ignore
 			}
 			try {
 				destination.close();
 			} catch (IOException e) {
-				// ignore
+				e.printStackTrace();// ignore
 			}
 		}
 	}

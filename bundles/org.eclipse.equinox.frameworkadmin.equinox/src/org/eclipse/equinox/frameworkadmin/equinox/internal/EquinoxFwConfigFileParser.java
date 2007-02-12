@@ -110,7 +110,7 @@ class EquinoxFwConfigFileParser {
 		return props;
 	}
 
-	private boolean isFwDependent(String key) {
+	static boolean isFwDependent(String key) {
 		// TODO This algorithm is temporal. 
 		if (key.startsWith(EquinoxConstants.PROP_EQUINOX_DEPENDENT_PREFIX))
 			return true;
@@ -170,13 +170,22 @@ class EquinoxFwConfigFileParser {
 		File fwJar = EquinoxBundlesState.getFwJar(launcherData);
 
 		File outputFile = launcherData.getFwConfigLocation();
-
-		if (outputFile.isDirectory())
-			outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
+		if (outputFile.exists()) {
+			if (outputFile.isFile()) {
+				if (!outputFile.getName().equals(EquinoxConstants.CONFIG_INI))
+					throw new IllegalStateException("launcherData.getFwConfigLocation() is a File but its name doesn't equal " + EquinoxConstants.CONFIG_INI);
+			} else { // Directory
+				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
+			}
+		} else {
+			if (!outputFile.getName().equals(EquinoxConstants.CONFIG_INI)) {
+				if (!outputFile.mkdir())
+					throw new IOException("Fail to mkdir (" + outputFile + ")");
+				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
+			}
+		}
 		String header = "This properties were written by " + this.getClass().getName();
 
-		//		configData.fwJar = fwJar;
-		//		((EquinoxFwConfigInfoImpl) fwConfigData).validate(relative);
 		Properties configProps = this.getConfigProps(bInfos, configData, relative, fwJar);
 		if (configProps == null || configProps.size() == 0) {
 			Log.log(LogService.LOG_WARNING, this, "saveFwConfig() ", "configProps is empty");
@@ -186,7 +195,6 @@ class EquinoxFwConfigFileParser {
 
 		if (DEBUG)
 			Utils.printoutProperties(System.out, "configProps", configProps);
-		// Properties newProps = reverseProps(configProps);
 
 		if (backup)
 			if (outputFile.exists()) {
@@ -200,13 +208,7 @@ class EquinoxFwConfigFileParser {
 		try {
 			out = new FileOutputStream(outputFile);
 			configProps.store(out, header);
-			Log.log(LogService.LOG_INFO, "configProps is stored successfully.");
-			//} catch (SecurityException se) {
-			//	throw new ManipulatorException("File " + outputFile + " cannot be created because of lack of permission", se, ManipulatorException.OTHERS);
-			//		} catch (FileNotFoundException fnfe) {
-			//			throw new ManipulatorException("File " + outputFile + " cannot be found", fnfe, ManipulatorException.OTHERS);
-			//		} catch (IOException ioe) {
-			//			throw new ManipulatorException("Error occured during writing File " + outputFile, ioe, ManipulatorException.OTHERS);
+			Log.log(LogService.LOG_INFO, "FwConfig is saved successfully into:" + outputFile);
 		} finally {
 			try {
 				out.flush();

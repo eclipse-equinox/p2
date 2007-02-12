@@ -14,27 +14,30 @@ import java.io.File;
 
 import org.osgi.framework.*;
 
-public class BundleHelper implements BundleActivator {
+public class BundleHelper {//implements BundleActivator {
 	private static BundleHelper defaultInstance;
+
 	public static BundleHelper getDefault() {
+		if (defaultInstance == null)
+			defaultInstance = new BundleHelper();
 		return defaultInstance;
 	}
-	
+
 	static void shutdown() {
 		if (defaultInstance != null) {
 			defaultInstance.context = null;
 			defaultInstance = null;
 		}
 	}
-	
-	private BundleContext context;
 
-	public BundleHelper() throws RuntimeException {
+	private static BundleContext context ;
+
+	private BundleHelper() throws RuntimeException {
 		if (defaultInstance != null)
 			throw new RuntimeException("Can not instantiate bundle helper"); //$NON-NLS-1$
 		defaultInstance = this;
 	}
-	
+
 	public Object acquireService(String serviceName) {
 		ServiceReference reference = context.getServiceReference(serviceName);
 		if (reference == null)
@@ -46,11 +49,11 @@ public class BundleHelper implements BundleActivator {
 		return context.getDataFile(fileName);
 	}
 
-	public void start(BundleContext context) throws Exception {
-		defaultInstance.context = context;
+	public static void start(BundleContext context) throws Exception {
+		BundleHelper.context = context;
 	}
-	
-	public void stop(BundleContext context) throws Exception {
+
+	public static void stop(BundleContext context) throws Exception {
 		shutdown();
 	}
 }

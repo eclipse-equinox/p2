@@ -15,6 +15,7 @@ import java.util.Hashtable;
 
 import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.BundleHelper;
 import org.osgi.framework.*;
 
 /**
@@ -23,7 +24,7 @@ import org.osgi.framework.*;
  * This bundle registers {@link Manipulator} object with these service property values.
  *  
  *  FW_NAME = "Equinox";
- * 	FW_VERSION = "3.3M5";
+ * 	FW_VERSION = "3.3";
  *	LAUCNHER_NAME = "Eclipse.exe";
  *  LAUNCHER_VERSION = "3.2";
  * 
@@ -52,7 +53,7 @@ public class Activator implements BundleActivator {
 		props.put(FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME, EquinoxConstants.LAUNCHER_NAME);
 		props.put(FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_VERSION, EquinoxConstants.LAUNCHER_VERSION);
 
-		if (!EquinoxFwAdminImpl.isRunningFw(context)) {
+		if (EquinoxFwAdminImpl.isRunningFw(context)) {
 			props.put(FrameworkAdmin.SERVICE_PROP_KEY_RUNNING_SYSTEM_FLAG, "true");
 			fwAdmin = new EquinoxFwAdminImpl(context, true);
 		} else
@@ -68,6 +69,7 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
+		BundleHelper.start(context);
 		Log.init(context);
 		registerFwAdmin();
 	}
@@ -83,7 +85,8 @@ public class Activator implements BundleActivator {
 			registrationFA.unregister();
 		if (fwAdmin != null)
 			fwAdmin.deactivate();
-
+		BundleHelper.stop(context);
+		
 	}
 
 }

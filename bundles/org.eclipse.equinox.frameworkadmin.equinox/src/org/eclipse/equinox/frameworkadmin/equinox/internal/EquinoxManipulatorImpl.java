@@ -12,14 +12,21 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
 
 import org.eclipse.equinox.configurator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.BundleHelper;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
+import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class EquinoxManipulatorImpl implements Manipulator {
@@ -92,30 +99,39 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	LauncherData launcherData = new LauncherData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
 
 	BundleContext context = null;
-	Properties properties = new Properties();
+	private Properties platformProperties = new Properties();
 
 	ServiceTracker cmTracker;
 	int trackingCount = -1;
+
+	//	private final boolean runtime;
 
 	ConfiguratorManipulator configuratorManipulator;
 
 	EquinoxFwAdminImpl fwAdmin = null;
 
 	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin) {
+		this(context, fwAdmin, false);
+	}
+
+	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, boolean runtime) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
 		cmTracker = new ServiceTracker(context, ConfiguratorManipulator.class.getName(), null);
 		cmTracker.open();
+		//		this.runtime = runtime;
+		if (runtime)
+			initializeRuntime();
 	}
 
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
 		if (!EquinoxBundlesState.checkFullySupported())
 			return new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
 
-		if (properties.isEmpty())
+		if (platformProperties.isEmpty())
 			return new EquinoxBundlesState(context, fwAdmin, this, false);
-		// XXX checking if fwDependent or fwIndependent properties are updated after the properties was created might be required for better implementation.		
-		return new EquinoxBundlesState(context, fwAdmin, this, properties);
+		// XXX checking if fwDependent or fwIndependent platformProperties are updated after the platformProperties was created might be required for better implementation.		
+		return new EquinoxBundlesState(context, fwAdmin, this, platformProperties);
 	}
 
 	public ConfigData getConfigData() throws FrameworkAdminRuntimeException {
@@ -123,7 +139,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	public BundleInfo[] getExpectedState() throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException {
-		Log.log(LogService.LOG_DEBUG, this, "getExpectedState()", "BEGIN");
+		//Log.log(LogService.LOG_DEBUG, this, "getExpectedState()", "BEGIN");
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
 		BundlesState bundleState = this.getBundlesState();
@@ -135,16 +151,147 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return launcherData;
 	}
 
+	/**
+	 * Return the configuration location.
+	 * 
+	 * @see Location
+	 */
+	private File getRunningConfigurationLocation() {
+		ServiceTracker tracker = null;
+		Filter filter = null;
+		try {
+			filter = context.createFilter(Location.CONFIGURATION_FILTER);
+		} catch (InvalidSyntaxException e) {
+			// ignore this. It should never happen as we have tested the above format.
+		}
+		tracker = new ServiceTracker(context, filter, null);
+		tracker.open();
+		Location location = (Location) tracker.getService();
+		URL url = location.getURL();
+		if (!url.getProtocol().equals("file"))
+			return null;
+		return new File(url.getFile());
+	}
+
+	private File getRunningLauncherFile() {
+		File launcherFile = null;
+		String eclipseCommandsSt = context.getProperty(EquinoxConstants.PROP_ECLIPSE_COMMANDS);
+		if (eclipseCommandsSt == null)
+			return null;
+
+		StringTokenizer tokenizer = new StringTokenizer(eclipseCommandsSt, "\n");
+		boolean found = false;
+		String launcherSt = null;
+		while (tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			if (found) {
+				launcherSt = token;
+				break;
+			}
+			if (token.equals("-launcher"))
+				found = true;
+		}
+		if (launcherSt != null)
+			launcherFile = new File(launcherSt);
+		return launcherFile;
+	}
+
+	private Properties getRunningPlatformProperties() {
+		Properties props = new Properties();
+		for (int i = 0; i < EquinoxBundlesState.PROPS.length; i++) {
+			String value = context.getProperty(EquinoxBundlesState.PROPS[i]);
+			if (value != null)
+				props.setProperty(EquinoxBundlesState.PROPS[i], value);
+		}
+		return props;
+	}
+
 	public void initialize() {
 		Log.log(LogService.LOG_DEBUG, this, "initialize()", "BEGIN");
 		configData.initialize();
 		launcherData.initialize();
 	}
 
+	private void initializeRuntime() {
+		//TODO refine the implementation. using some MAGIC dependent on Eclipse.exe and Equinox implementation,
+		// set parameters according to the current running fw.
+
+		// 1. retrieve location data from Location services registered by equinox fw.
+		String fwJarLocation = context.getProperty(EquinoxConstants.PROP_OSGI_FW);
+		if (!fwJarLocation.startsWith("file:"))
+			throw new IllegalStateException("Current implementation assume that property value keyed by " + EquinoxConstants.PROP_OSGI_FW + " must start with \"file:\". But it was not:" + fwJarLocation);
+		File fwJar = new File(fwJarLocation.substring("file:".length()));
+		//System.out.println("fwJar=" + fwJar);
+		File fwConfigLocation = getRunningConfigurationLocation();
+		File launcherFile = getRunningLauncherFile();
+		launcherData.setFwJar(fwJar);
+		launcherData.setFwPersistentDataLocation(fwConfigLocation, false);
+		launcherData.setLauncher(launcherFile);
+		try {
+			this.loadWoFwPersistentData();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// 2. Create a Manipulator object fully initialized to the current running fw.
+
+		ServiceReference reference = context.getServiceReference(StartLevel.class.getName());
+		StartLevel startLevel = (StartLevel) context.getService(reference);
+		Bundle[] bundles = context.getBundles();
+		BundleInfo[] bInfos = new BundleInfo[bundles.length];
+		for (int i = 0; i < bundles.length; i++)
+			if (bundles[i].getBundleId() == 0) // SystemBundle
+				bInfos[i] = new BundleInfo(fwJarLocation, startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
+			else
+				bInfos[i] = new BundleInfo(FileUtils.getRealLocation(bundles[i].getLocation()), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
+		configData.setBundles(bInfos);
+		platformProperties = this.getRunningPlatformProperties();
+
+		// copy system properties to ConfigData
+		Properties props = System.getProperties();
+		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+			String key = (String) enumeration.nextElement();
+			String value = props.getProperty(key);
+			if (toBeEliminated(key))
+				continue;
+			if (EquinoxFwConfigFileParser.isFwDependent(key))
+				configData.setFwDependentProp(key, value);
+			else
+				configData.setFwIndependentProp(key, value);
+		}
+
+		// update initialBundleStartLevel
+		BundleHelper helper = BundleHelper.getDefault();//getBundleHelper();
+		StartLevel slAdmin = (StartLevel) helper.acquireService(StartLevel.class.getName());
+
+		int initialBSL = configData.getInitialBundleStartLevel();
+		if (initialBSL != slAdmin.getInitialBundleStartLevel())
+			configData.setInitialBundleStartLevel(slAdmin.getInitialBundleStartLevel());
+
+//		for (int j = 0; j < bInfos.length; j++)
+//			configData.addBundle(bInfos[j]);
+	}
+
+	/**
+	 * Temporal implementation.
+	 * 
+	 * If a property of the given key should be eliminated
+	 *  from FwDependentProperties and FwIndependentProperties,
+	 *  return true. Otherwise false.
+	 * 
+	 * @param key
+	 * @return true if it should be elimineted from FwDependentProperties and FwIndependentProperties,
+	 */
+	private boolean toBeEliminated(String key) {
+		if (key.startsWith("java."))
+			return true;
+		return false;
+	}
+
 	// Load parameters from LauncherConfigFile, FwConfigFile, and ConfiguratorConfigFile if required.
 	// The parameter has been set will be updated.
 	public void load() throws IOException, FrameworkAdminRuntimeException {
-		Log.log(LogService.LOG_DEBUG, this, "load()", "BEGIN");
 		this.load(true);
 	}
 
@@ -157,8 +304,30 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * @throws FrameworkAdminRuntimeException
 	 */
 	public void load(boolean useConfigurator) throws IOException, FrameworkAdminRuntimeException {
+		Log.log(LogService.LOG_DEBUG, this, "load(" + useConfigurator + ")", "BEGIN");
+		loadWoFwPersistentData();
 
-		Log.log(LogService.LOG_DEBUG, this, "load()", "BEGIN");
+		BundlesState bundlesState = null;
+		if (EquinoxBundlesState.checkFullySupported()) {
+			//	bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true, runtime);
+			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true);
+			platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
+		} else {
+			bundlesState = new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			platformProperties.clear();
+		}
+		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
+		configData.setBundles(newBundleInfos);
+		if (!useConfigurator)
+			return;
+		setConfiguratorManipulator();
+		if (this.configuratorManipulator == null)
+			return;
+		configuratorManipulator.updateBundles(this);
+		return;
+	}
+
+	private void loadWoFwPersistentData() throws IOException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
 		if (launcherConfigFile != null) {
@@ -173,24 +342,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser();
 		if (fwConfigFile.exists())
 			parser.readFwConfig(configData, fwConfigFile);
-
-		BundlesState bundlesState = null;
-		if (EquinoxBundlesState.checkFullySupported()) {
-			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true);
-			properties = ((EquinoxBundlesState) bundlesState).getProperties();
-		} else {
-			bundlesState = new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
-			properties.clear();
-		}
-		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
-		configData.setBundles(newBundleInfos);
-		if (!useConfigurator)
-			return;
-		setConfiguratorManipulator();
-		if (this.configuratorManipulator == null)
-			return;
-		configuratorManipulator.updateBundles(this);
-		return;
 	}
 
 	// Save all parameter in memory into proper config files.
@@ -246,6 +397,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 */
 	private void setConfiguratorManipulator() {
 		ServiceReference[] references = cmTracker.getServiceReferences();
+
 		int count = cmTracker.getTrackingCount();
 		if (count == this.trackingCount)
 			return;
@@ -256,6 +408,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		bInfos = Utils.sortBundleInfos(bInfos, initialBSL);
 		//int index = -1;	
 		configuratorManipulator = null;
+		if (references == null)
+			return;
 		for (int i = 0; i < bInfos.length; i++) {
 			//String location = bInfos[i].getLocation();
 			if (!bInfos[i].isMarkedAsStarted())
@@ -287,4 +441,15 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			}
 	}
 
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("++++++++++++++++++++++++++++++++++++++++++\n" + "Class:" + this.getClass().getName() + "\n");
+		sb.append("------------- LauncherData -----------\n");
+		sb.append(launcherData.toString());
+		sb.append("------------- ConfigData -----------\n");
+		sb.append(configData.toString());
+		sb.append("\n" + Utils.toStringProperties("platformProperties", this.platformProperties));
+		sb.append("++++++++++++++++++++++++++++++++++++++++++\n");
+		return sb.toString();
+	}
 }

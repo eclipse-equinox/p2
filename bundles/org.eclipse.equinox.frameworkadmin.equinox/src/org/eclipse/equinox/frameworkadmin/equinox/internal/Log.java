@@ -63,7 +63,7 @@ public class Log {
 
 			System.err.println("[" + levelSt + "]" + msg);
 			if (e != null)
-				System.err.println(e);
+				e.printStackTrace();
 		}
 	}
 
