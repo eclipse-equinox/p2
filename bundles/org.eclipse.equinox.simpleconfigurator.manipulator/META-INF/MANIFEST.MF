@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SimpleConfiguratorManipulator Bundle
 Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator.manipulator
-Bundle-Version: 1.0.1
+Bundle-Version: 1.0.2
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.equinox.simpleconfigurator.manipulator.internal.Activator
 Eclipse-AutoStart: true

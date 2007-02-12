@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.simpleconfigurator.manipulator.internal;
 
 import java.io.*;
@@ -29,7 +27,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		String[] systemFragmentedBundleLocations = null;
 	}
 
-	final static boolean DEBUG = false;
+	private final static boolean DEBUG = false;
 
 	static String CONFIG_LOCATION = SimpleConfiguratorConstants.CONFIG_LIST;
 
@@ -55,18 +53,37 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 				}
 			}
 		} else {
-			if (fwConfigLoc.isDirectory())
-				baseDir = fwConfigLoc;
-			else
+			if (fwConfigLoc.exists())
+				if (fwConfigLoc.isDirectory())
+					baseDir = fwConfigLoc;
+				else
+					baseDir = fwConfigLoc.getParentFile();
+			else {
+				// TODO LauncherDate might have to have flag to show 
+				// whether FwConfigLocation represents directory or file. 
+				//				if (fwConfigLoc.getName().indexOf(".") == -1)
+				//					baseDir = fwConfigLoc;
+				//				else
 				baseDir = fwConfigLoc.getParentFile();
+			}
 		}
 		try {
-			return (new File(baseDir, "SimpleConfigurator.txt").toURL());
+
+			File targetFile = new File(baseDir, "SimpleConfigurator.txt");
+			try {
+				Utils.createParentDir(targetFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+			return targetFile.toURL();
 		} catch (MalformedURLException e) {
 			// Never happen. ignore.
 			e.printStackTrace();
 			return null;
 		}
+
 	}
 
 	static boolean isPrerequisiteBundles(String location, LocationInfo info) {
@@ -106,6 +123,8 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	private static boolean isTargetConfiguratorBundle(BundleInfo[] bInfos) {
 		boolean found = false;
 		for (int i = 0; i < bInfos.length; i++) {
+			//			if (DEBUG)
+			//				System.out.println("bInfos[" + i + "]=" + bInfos[i]);
 			if (isTargetConfiguratorBundle(bInfos[i].getLocation())) {
 				if (!bInfos[i].isResolved())
 					return false;
@@ -258,6 +277,17 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	}
 
+	private void printoutUnsatisfiedConstraints(BundleInfo bInfo, BundlesState state) {
+		if (DEBUG) {
+			StringBuffer sb = new StringBuffer();
+			sb.append("Missing constraints:\n");
+			String[] missings = state.getUnsatisfiedConstraints(bInfo);
+			for (int i = 0; i < missings.length; i++)
+				sb.append(" " + missings[i] + "\n");
+			System.out.println(sb.toString());
+		}
+	}
+
 	private BundleInfo[] readConfiguration(URL url) throws IOException {
 		if (url == null)
 			return NULL_BUNDLEINFOS;
@@ -274,10 +304,10 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		if (!devideBundleInfos(manipulator, setToInitialConfig, setToSimpleConfig, configData.getInitialBundleStartLevel()))
 			return NULL_BUNDLEINFOS;
 
-		if (DEBUG) {
-			System.out.println("setToInitialConfig=\n" + SimpleConfiguratorUtils.getListSt(setToInitialConfig));
-			System.out.println("setToSimpleConfig=\n" + SimpleConfiguratorUtils.getListSt(setToSimpleConfig));
-		}
+		//		if (DEBUG) {
+		//			System.out.println("setToInitialConfig=\n" + SimpleConfiguratorUtils.getListSt(setToInitialConfig));
+		//			System.out.println("setToSimpleConfig=\n" + SimpleConfiguratorUtils.getListSt(setToSimpleConfig));
+		//		}
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
 		if (!configuratorConfigUrl.getProtocol().equals("file"))
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
@@ -336,17 +366,6 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	}
 
-	private void printoutUnsatisfiedConstraints(BundleInfo bInfo, BundlesState state) {
-		if (DEBUG) {
-			StringBuffer sb = new StringBuffer();
-			sb.append("Missing constraints:\n");
-			String[] missings = state.getUnsatisfiedConstraints(bInfo);
-			for (int i = 0; i < missings.length; i++)
-				sb.append(" " + missings[i] + "\n");
-			System.out.println(sb.toString());
-		}
-	}
-
 	void setSystemBundles(BundlesState state, LocationInfo info) {
 		BundleInfo systemBundleInfo = state.getSystemBundle();
 		if (systemBundleInfo == null) {
@@ -367,8 +386,11 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	}
 
 	public void updateBundles(Manipulator manipulator) throws IOException {
+		if (DEBUG)
+			System.out.println("SimpleConfiguratorManipulatorImpl#updateBundles()");
 
 		BundlesState bundleState = manipulator.getBundlesState();
+
 		if (bundleState == null)
 			return;
 		if (bundleState.isFullySupported())
