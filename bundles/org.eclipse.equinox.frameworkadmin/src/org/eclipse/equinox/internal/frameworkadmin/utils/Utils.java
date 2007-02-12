@@ -401,6 +401,25 @@ public class Utils {
 		}
 	}
 
+	/**
+	 * get String representing the given properties.
+	 * 
+	 * @param name name of properties 
+	 * @param props properties whose keys and values will be printed out.
+	 */
+	public static String toStringProperties(String name, Properties props) {
+		if (props == null || props.size() == 0) {
+			return "Props(" + name + ") is empty\n";
+		}
+		StringBuffer sb = new StringBuffer();
+		sb.append("Props(" + name + ") is \n");
+		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+			String key = (String) enumeration.nextElement();
+			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n");
+		}
+		return sb.toString();
+	}
+
 	public static String removeLastCh(String target, char ch) {
 		while (target.charAt(target.length() - 1) == ch) {
 			target = target.substring(0, target.length() - 1);

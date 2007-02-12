@@ -16,10 +16,13 @@ package org.eclipse.equinox.frameworkadmin;
  */
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
+	public static final int NO_BUNDLEID = -1;
 
 	private String symbolicName = null;
 	private String version = null;
 	private String location;
+	private long bundleId = NO_BUNDLEID;
+
 	private boolean markedAsStarted = false;
 	private int startLevel = NO_LEVEL;
 	private boolean resolved = false;
@@ -47,6 +50,13 @@ public class BundleInfo {
 		this.location = location.trim();
 		this.startLevel = startLevel;
 		this.markedAsStarted = started;
+	}
+
+	public BundleInfo(String location, int startLevel, boolean started, long bundleId) {
+		this.location = location.trim();
+		this.startLevel = startLevel;
+		this.markedAsStarted = started;
+		this.bundleId = bundleId;
 	}
 
 	public BundleInfo(String symbolic, String version, String location, int startLevel, boolean started) {
@@ -152,8 +162,17 @@ public class BundleInfo {
 		buffer.append(markedAsStarted);
 		buffer.append(", resolved=");
 		buffer.append(resolved);
-		//		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
+		buffer.append(", id=");
+		buffer.append(this.bundleId);//		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();
+	}
+
+	public long getBundleId() {
+		return bundleId;
+	}
+
+	public void setBundleId(long bundleId) {
+		this.bundleId = bundleId;
 	}
 }

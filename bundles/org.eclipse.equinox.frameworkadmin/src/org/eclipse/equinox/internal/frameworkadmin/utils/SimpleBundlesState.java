@@ -238,7 +238,7 @@ public class SimpleBundlesState implements BundlesState {
 
 		if (getSystemBundle() == null) {
 			try {
-				BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURL().toExternalForm(), 0, true);
+				BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURL().toExternalForm(), 0, true,0);
 				this.installBundle(sysBInfo);
 
 			} catch (MalformedURLException e) {
