@@ -20,7 +20,6 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
-	private static final boolean DEBUG = false;
 	private BundleContext manipulatingContext;
 	URL configLocationURL = null;
 	private PackageAdmin adminService = null;
@@ -60,6 +59,8 @@ class ConfigApplier {
 
 	private ArrayList installBundles(BundleInfo[] finalList, Collection toStart) {
 		ArrayList installed = new ArrayList();
+		//printSystemBundle();
+
 		for (int i = 0; i < finalList.length; i++) {
 			//TODO here we do not deal with bundles that don't have a symbolic id
 			//TODO Need to handle the case where getBundles return multiple value
@@ -67,15 +68,10 @@ class ConfigApplier {
 			Bundle[] matches = null;
 			Dictionary manifest = Utils.getOSGiManifest(finalList[i].getLocation());
 			String symbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
-			//			if (DEBUG)
-			//				System.out.println("symbolicName:" + symbolicName);
 			if (symbolicName != null && symbolicName.indexOf(";") != -1)
 				symbolicName = symbolicName.substring(0, symbolicName.indexOf(";")).trim();
-			//			if (DEBUG)
-			//				System.out.println("symbolicName:" + symbolicName);
 
 			String version = (String) manifest.get(Constants.BUNDLE_VERSION);
-
 			if (symbolicName != null && version != null)
 				matches = adminService.getBundles(symbolicName, version);
 
@@ -84,12 +80,13 @@ class ConfigApplier {
 				try {
 					if (finalList[i].getLocation() == null)
 						continue;
-
-					//TODO Need to try the install with reference:
+					//TODO Need to eliminate System Bundle.
+					// If a system bundle doesn't have a SymbolicName header, like Knopflerfish 4.0.0,
+					// it will be installed unfortunately. 
 					current = manipulatingContext.installBundle(finalList[i].getLocation());
+					if (Activator.DEBUG)
+						System.out.println("installed bundle:" + finalList[i]);
 					installed.add(current);
-					if (DEBUG)
-						System.out.println("installed Bundle:" + current);
 				} catch (BundleException e) {
 					System.err.println("Can't install " + symbolicName + "/" + version + " from location " + finalList[i].getLocation());
 					continue;
@@ -99,14 +96,31 @@ class ConfigApplier {
 			if (startLevel != BundleInfo.NO_LEVEL)
 				if (current.getBundleId() != 0) {
 					String name = current.getSymbolicName();
-					if (!"org.eclipse.core.simpleConfigurator".equals(name))
-						startLevelService.setBundleStartLevel(current, startLevel);
+					try {
+						if (!"org.eclipse.core.simpleConfigurator".equals(name))
+							startLevelService.setBundleStartLevel(current, startLevel);
+					} catch (IllegalArgumentException ex) {
+						//TODO Log
+						System.err.println("fail to set start level of Bundle:" + finalList[i]);
+						ex.printStackTrace();
+					}
 				}
 			if (finalList[i].isMarkedAsStarted()) {
 				toStart.add(current);
 			}
 		}
 		return installed;
+	}
+
+	private void printSystemBundle() {
+		Bundle bundle = manipulatingContext.getBundle(0);
+		System.out.println("bundle.getSymbolicName()=" + bundle.getSymbolicName());
+		Dictionary headers = bundle.getHeaders();
+		System.out.println(headers.size() + ":Headers=");
+		for (Enumeration enumeration = headers.keys(); enumeration.hasMoreElements();) {
+			Object key = enumeration.nextElement();
+			System.out.println(" (" + key + "," + headers.get(key) + ")");
+		}
 	}
 
 	private void refreshPackages(Bundle[] bundles, BundleContext manipulatingContext) {
@@ -157,8 +171,8 @@ class ConfigApplier {
 
 			try {
 				bundle.start();
-				if (DEBUG)
-					System.out.println("started Bundle:" + bundle);
+				if (Activator.DEBUG)
+					System.out.println("started Bundle:" + bundle.getSymbolicName() + "(" + bundle.getLocation() + ":" + bundle.getBundleId() + ")");
 			} catch (BundleException e) {
 				e.printStackTrace();
 				//				FrameworkLogEntry entry = new FrameworkLogEntry(FrameworkAdaptor.FRAMEWORK_SYMBOLICNAME, NLS.bind(EclipseAdaptorMsg.ECLIPSE_STARTUP_FAILED_START, bundle.getLocation()), 0, e, null);
@@ -184,10 +198,6 @@ class ConfigApplier {
 		for (int i = 0; i < allBundles.length; i++) {
 			if (allBundles[i].getBundleId() == 0)
 				continue;
-			//			if (configurator.isRegisteringBundle(allBundles[i].getLocation()))
-			//				continue;
-			//			if (configurator.isPrerequisiteBundles(allBundles[i].getLocation()))
-			//				continue;
 			installedBundles.add(allBundles[i]);
 		}
 
@@ -203,8 +213,8 @@ class ConfigApplier {
 			try {
 				Bundle bundle = ((Bundle) iter.next());
 				bundle.uninstall();
-				if (DEBUG)
-					System.out.println("started Bundle:" + bundle);
+				if (Activator.DEBUG)
+					System.out.println("uninstalled Bundle:" + bundle.getSymbolicName() + "(" + bundle.getLocation() + ":" + bundle.getBundleId() + ")");
 			} catch (BundleException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

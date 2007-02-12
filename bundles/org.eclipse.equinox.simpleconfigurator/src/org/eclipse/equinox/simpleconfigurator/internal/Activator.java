@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.simpleconfigurator.internal;
 
 import java.net.MalformedURLException;
@@ -41,7 +39,7 @@ import org.osgi.framework.*;
  * 
  */
 public class Activator implements BundleActivator {
-	final static boolean DEBUG = true;
+	final static boolean DEBUG = false;
 	private BundleContext context;
 	private ServiceRegistration registrationConfigurator;
 	SimpleConfiguratorImpl bundleConfigurator = null;
@@ -56,23 +54,10 @@ public class Activator implements BundleActivator {
 			return configLocationURL;
 		try {
 			String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
-//			if (DEBUG)
-//				System.out.println("specifiedURL=" + specifiedURL);
 			if (specifiedURL != null)
 				configLocationURL = new URL(specifiedURL);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			//} finally {
-			//			if (configLocationURL == null) {
-			//				ServiceReference locationRef = null;
-			//				try {
-			//					locationRef = manipulatingContext.getServiceReferences(Location.class.getName(), "(type=osgi.configuration.area)")[0];
-			//				} catch (InvalidSyntaxException e1) {
-			//					//ignore, they are no syntax error here
-			//				}
-			//				Location configLocation = (Location) manipulatingContext.getService(locationRef);
-			//				configLocationURL = configLocation.getURL();
-			//			}
 		}
 		return configLocationURL;
 	}
@@ -80,8 +65,6 @@ public class Activator implements BundleActivator {
 	private void registerConfigurator() {
 
 		Dictionary props = new Hashtable();
-		//Dictionary manifest = context.getBundle().getHeaders();
-		//		String versionSt = (String) manifest.get(Constants.BUNDLE_VERSION);
 		props.put(Constants.SERVICE_VENDOR, "Equinox Project, Eclipse Foundation");
 		registrationConfigurator = context.registerService(Configurator.class.getName(), new ServiceFactory() {
 
@@ -99,21 +82,21 @@ public class Activator implements BundleActivator {
 			}
 
 		}, props);
+		if (DEBUG)
+			System.out.println("registered Configurator");
 
 	}
 
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
-
 		this.registerConfigurator();
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
 		instances.put(context.getBundle(), bundleConfigurator);
 		URL configUrl = this.getConfigUrl();
-//		if (DEBUG)
-//			System.out.println("configUrl=" + configUrl);
+		if (DEBUG)
+			System.out.println("configUrl=" + configUrl);
 		if (configUrl != null)
 			bundleConfigurator.applyConfiguration(configUrl);
-
 	}
 
 	public void stop(BundleContext context) throws Exception {

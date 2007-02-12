@@ -49,10 +49,14 @@ public class SimpleConfiguratorImpl implements Configurator {
 	}
 
 	public void applyConfiguration(URL url) throws IOException {
+		if (Activator.DEBUG)
+			System.out.println("applyConfiguration() URL=" + url);
 		if (url == null)
 			return;
 
 		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
+		if (Activator.DEBUG)
+			System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
 		if (bundleInfoList.size() == 0)
 			return;
 		if (this.configApplier == null)
