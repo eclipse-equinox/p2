@@ -81,7 +81,8 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	}
 
 	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, FrameworkAdminRuntimeException, IOException {
-		return new EclipseLauncherImpl(context, this).launch(manipulator, cwd);
+		//return new EclipseLauncherImpl(context, this).launch(manipulator, cwd);
+		return new EclipseLauncherImpl(this).launch(manipulator, cwd);
 	}
 
 }

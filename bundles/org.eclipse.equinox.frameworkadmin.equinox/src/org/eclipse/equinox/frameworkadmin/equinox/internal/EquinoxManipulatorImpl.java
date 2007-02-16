@@ -117,14 +117,18 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	EquinoxManipulatorImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin, boolean runtime) {
 		this.context = context;
 		this.fwAdmin = fwAdmin;
-		cmTracker = new ServiceTracker(context, ConfiguratorManipulator.class.getName(), null);
-		cmTracker.open();
+		if (context != null) {
+			cmTracker = new ServiceTracker(context, ConfiguratorManipulator.class.getName(), null);
+			cmTracker.open();
+		}
 		//		this.runtime = runtime;
 		if (runtime)
 			initializeRuntime();
 	}
 
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
+		if (context == null)
+			return new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
 		if (!EquinoxBundlesState.checkFullySupported())
 			return new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
 
@@ -143,7 +147,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
 		BundlesState bundleState = this.getBundlesState();
+		if (bundleState instanceof SimpleBundlesState)
+			return new BundleInfo[0];
 		bundleState.resolve(true);
+
 		return bundleState.getExpectedState();
 	}
 
@@ -269,8 +276,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (initialBSL != slAdmin.getInitialBundleStartLevel())
 			configData.setInitialBundleStartLevel(slAdmin.getInitialBundleStartLevel());
 
-//		for (int j = 0; j < bInfos.length; j++)
-//			configData.addBundle(bInfos[j]);
+		//		for (int j = 0; j < bInfos.length; j++)
+		//			configData.addBundle(bInfos[j]);
 	}
 
 	/**
@@ -358,7 +365,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
 
-		setConfiguratorManipulator();
+		if (context != null)
+			setConfiguratorManipulator();
 
 		BundleInfo[] newBInfo = null;
 		if (configuratorManipulator != null) // Optimize BundleInfo[] 

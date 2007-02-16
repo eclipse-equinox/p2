@@ -31,12 +31,13 @@ public class EclipseLauncherImpl {
 		return sb.toString();
 	}
 
-	BundleContext context = null;
+	//	BundleContext context = null;
 
 	EquinoxFwAdminImpl fwAdmin = null;
 
-	EclipseLauncherImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin) {
-		this.context = context;
+	EclipseLauncherImpl(EquinoxFwAdminImpl fwAdmin) {
+		//EclipseLauncherImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin) {
+		//		this.context = context;
 		this.fwAdmin = fwAdmin;
 	}
 
@@ -85,10 +86,10 @@ public class EclipseLauncherImpl {
 		cmdList.add("-jar");
 		cmdList.add(Utils.getRelativePath(launcherData.getFwJar(), cwd));
 
-//		cmdList.add(EquinoxConstants.OPTION_CONSOLE);
-//		cmdList.add("9000");
-//		cmdList.add(EquinoxConstants.OPTION_INSTANCE);
-//		cmdList.add("C:\\ws");
+		//		cmdList.add(EquinoxConstants.OPTION_CONSOLE);
+		//		cmdList.add("9000");
+		//		cmdList.add(EquinoxConstants.OPTION_INSTANCE);
+		//		cmdList.add("C:\\ws");
 
 		EquinoxManipulatorImpl.checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);//checkConsistency(this.launcherCInfo.fwConfigFile, this.launcherCInfo.fwInstancePrivateArea);
 		cmdList.add(EquinoxConstants.OPTION_CONFIGURATION);
