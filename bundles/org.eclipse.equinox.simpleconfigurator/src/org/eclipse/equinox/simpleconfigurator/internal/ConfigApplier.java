@@ -97,8 +97,9 @@ class ConfigApplier {
 				if (current.getBundleId() != 0) {
 					String name = current.getSymbolicName();
 					try {
-						if (!"org.eclipse.core.simpleConfigurator".equals(name))
-							startLevelService.setBundleStartLevel(current, startLevel);
+						if (startLevel > 0)
+							if (!"org.eclipse.core.simpleConfigurator".equals(name))
+								startLevelService.setBundleStartLevel(current, startLevel);
 					} catch (IllegalArgumentException ex) {
 						//TODO Log
 						System.err.println("fail to set start level of Bundle:" + finalList[i]);
