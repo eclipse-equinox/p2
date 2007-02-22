@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
 
+import org.eclipse.equinox.configurator.ConfiguratorManipulator;
+import org.eclipse.equinox.configurator.ConfiguratorManipulatorFactory;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -51,14 +53,37 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	boolean active = false;
 
 	private boolean runningFw = false;
+	private ConfiguratorManipulator configuratorManipulator = null;
+
+	//	private String configuratorManipulatorFactoryName = null;
+
+	EquinoxFwAdminImpl() {
+		this(null, false);
+	}
 
 	EquinoxFwAdminImpl(BundleContext context) {
 		this(context, false);
 	}
 
+	EquinoxFwAdminImpl(String configuratorManipulatorFactoryName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		this.context = null;
+		this.active = true;
+		this.runningFw = false;
+		//		this.configuratorManipulatorFactoryName = configuratorManipulatorFactoryName;
+		loadConfiguratorManipulator(configuratorManipulatorFactoryName);
+	}
+
+	private void loadConfiguratorManipulator(String configuratorManipulatorFactoryName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		if (configuratorManipulatorFactoryName == null)
+			this.configuratorManipulator = null;
+		else
+			this.configuratorManipulator = ConfiguratorManipulatorFactory.getInstance(configuratorManipulatorFactoryName);
+		return;
+	}
+
 	EquinoxFwAdminImpl(BundleContext context, boolean runningFw) {
 		this.context = context;
-		active = true;
+		this.active = true;
 		this.runningFw = runningFw;
 	}
 
@@ -83,6 +108,10 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, FrameworkAdminRuntimeException, IOException {
 		//return new EclipseLauncherImpl(context, this).launch(manipulator, cwd);
 		return new EclipseLauncherImpl(this).launch(manipulator, cwd);
+	}
+
+	public ConfiguratorManipulator getConfiguratorManipulator() {
+		return configuratorManipulator;
 	}
 
 }

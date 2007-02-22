@@ -16,7 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-import org.eclipse.equinox.configurator.ConfiguratorManipulator;
+import org.eclipse.equinox.configurator.*;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.BundleHelper;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
@@ -30,7 +30,7 @@ import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class EquinoxManipulatorImpl implements Manipulator {
-	private static final String SYSTEMBUNDLE_SYMBOLICNAME = "org.eclipse.osg";
+	private static final String SYSTEMBUNDLE_SYMBOLICNAME = "org.eclipse.osgi";
 	public static final String FW_NAME = "Equinox";
 	public static final String FW_VERSION = "3.3M5";
 	public static final String LAUCNHER_NAME = "Eclipse.exe";
@@ -128,9 +128,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
 		if (context == null)
-			return new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			return new SimpleBundlesState(fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+
 		if (!EquinoxBundlesState.checkFullySupported())
-			return new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			return new SimpleBundlesState(fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
 
 		if (platformProperties.isEmpty())
 			return new EquinoxBundlesState(context, fwAdmin, this, false);
@@ -320,13 +321,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true);
 			platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
 		} else {
-			bundlesState = new SimpleBundlesState(context, fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			bundlesState = new SimpleBundlesState(fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
 			platformProperties.clear();
 		}
 		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
 		configData.setBundles(newBundleInfos);
-		if (!useConfigurator)
-			return;
+		//		if (!useConfigurator)
+		//			return;
 		setConfiguratorManipulator();
 		if (this.configuratorManipulator == null)
 			return;
@@ -365,8 +366,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
 
-		if (context != null)
-			setConfiguratorManipulator();
+		//if (context != null)
+		setConfiguratorManipulator();
 
 		BundleInfo[] newBInfo = null;
 		if (configuratorManipulator != null) // Optimize BundleInfo[] 
@@ -404,6 +405,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * 
 	 */
 	private void setConfiguratorManipulator() {
+		if (context == null) {
+			this.configuratorManipulator = this.fwAdmin.getConfiguratorManipulator();
+			return;
+		}
 		ServiceReference[] references = cmTracker.getServiceReferences();
 
 		int count = cmTracker.getTrackingCount();

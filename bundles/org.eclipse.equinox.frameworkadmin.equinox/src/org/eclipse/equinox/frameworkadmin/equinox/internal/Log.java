@@ -40,17 +40,17 @@ public class Log {
 	public static void log(int level, Object obj, String method, String message, Throwable e) {
 		LogService logService = null;
 		String msg = "";
-		if (logTracker != null) {
+		if (method == null) {
+			if (obj != null)
+				msg = "(" + obj.getClass().getName() + ")";
+		} else if (obj == null)
+			msg = "[" + method + "]" + message;
+		else
+			msg = "[" + method + "](" + obj.getClass().getName() + ")";
+		msg += message;
+		if (logTracker != null)
 			logService = (LogService) logTracker.getService();
-			if (method == null) {
-				if (obj != null)
-					msg = "(" + obj.getClass().getName() + ")";
-			} else if (obj == null)
-				msg = "[" + method + "]" + message;
-			else
-				msg = "[" + method + "](" + obj.getClass().getName() + ")";
-			msg += message;
-		}
+
 		if (logService != null) {
 			logService.log(level, msg, e);
 		} else {
@@ -88,4 +88,5 @@ public class Log {
 
 	private Log() {
 	}
+
 }
