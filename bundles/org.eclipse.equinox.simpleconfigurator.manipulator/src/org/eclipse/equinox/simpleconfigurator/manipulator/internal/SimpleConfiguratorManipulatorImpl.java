@@ -302,7 +302,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		ConfigData configData = manipulator.getConfigData();
 
 		if (!devideBundleInfos(manipulator, setToInitialConfig, setToSimpleConfig, configData.getInitialBundleStartLevel()))
-			return NULL_BUNDLEINFOS;
+			return configData.getBundles();
 
 		//		if (DEBUG) {
 		//			System.out.println("setToInitialConfig=\n" + SimpleConfiguratorUtils.getListSt(setToInitialConfig));
