@@ -35,6 +35,7 @@ import org.osgi.framework.Constants;
  */
 public class SimpleBundlesState implements BundlesState {
 	public static final BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
+
 	/**
 	 * Check if the specified FrameworkAdmin is available.
 	 * 
@@ -45,6 +46,7 @@ public class SimpleBundlesState implements BundlesState {
 		if (!fwAdmin.isActive())
 			throw new FrameworkAdminRuntimeException("FrameworkAdmin creates this object is no more available.", FrameworkAdminRuntimeException.FRAMEWORKADMIN_UNAVAILABLE);
 	}
+
 	/**
 	 *  
 	 * @param launcherData
@@ -56,12 +58,12 @@ public class SimpleBundlesState implements BundlesState {
 			return launcherData.getFwJar();
 		return null;
 	}
+
 	private final String systemBundleSymbolicName;
 
 	private final String systemBundleName;
 
 	private final String systemBundleVendor;
-	BundleContext context = null;
 	List bundleInfosList = new LinkedList();
 
 	FrameworkAdmin fwAdmin = null;
@@ -72,14 +74,12 @@ public class SimpleBundlesState implements BundlesState {
 	 * If the manifest of the target fw implementation has Constants.BUNDLE_SYMBOLICNAME header,
 	 * this constructor should be used. 
 	 * 
-	 * @param context
 	 * @param ManipulatorAdmin
 	 * @param Manipulator
 	 * @param systemBundleSymbolicName
 	 */
-	public SimpleBundlesState(BundleContext context, FrameworkAdmin ManipulatorAdmin, Manipulator Manipulator, String systemBundleSymbolicName) {
+	public SimpleBundlesState(FrameworkAdmin ManipulatorAdmin, Manipulator Manipulator, String systemBundleSymbolicName) {
 		super();
-		this.context = context;
 		this.fwAdmin = ManipulatorAdmin;
 		//		 copy Manipulator object for avoiding modifying the parameters of the Manipulator.
 		this.manipulator = ManipulatorAdmin.getManipulator();
@@ -96,15 +96,13 @@ public class SimpleBundlesState implements BundlesState {
 	 * but , Constants.BUNDLE_NAME and BUNDLE_VERSION, 
 	 * this constructor should be used. 
 	 * 
-	 * @param context
 	 * @param ManipulatorAdmin
 	 * @param Manipulator
 	 * @param systemBundleName
 	 * @param systemBundleVender
 	 */
-	public SimpleBundlesState(BundleContext context, FrameworkAdmin ManipulatorAdmin, Manipulator Manipulator, String systemBundleName, String systemBundleVender) {
+	public SimpleBundlesState(FrameworkAdmin ManipulatorAdmin, Manipulator Manipulator, String systemBundleName, String systemBundleVender) {
 		super();
-		this.context = context;
 		this.fwAdmin = ManipulatorAdmin;
 		//		 copy Manipulator object for avoiding modifying the parameters of the Manipulator.
 		this.manipulator = ManipulatorAdmin.getManipulator();
@@ -178,7 +176,7 @@ public class SimpleBundlesState implements BundlesState {
 			BundleInfo bInfo = (BundleInfo) ite.next();
 			String location = bInfo.getLocation();
 			String symbolicName = Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME);
-			symbolicName = Utils.getPathFromClause(symbolicName);			
+			symbolicName = Utils.getPathFromClause(symbolicName);
 			if (this.systemBundleSymbolicName.equals(symbolicName))
 				return bInfo;
 		}
@@ -238,7 +236,7 @@ public class SimpleBundlesState implements BundlesState {
 
 		if (getSystemBundle() == null) {
 			try {
-				BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURL().toExternalForm(), 0, true,0);
+				BundleInfo sysBInfo = new BundleInfo(launcherData.getFwJar().toURL().toExternalForm(), 0, true, 0);
 				this.installBundle(sysBInfo);
 
 			} catch (MalformedURLException e) {

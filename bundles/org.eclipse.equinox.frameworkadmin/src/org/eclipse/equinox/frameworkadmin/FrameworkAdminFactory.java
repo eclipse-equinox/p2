@@ -1,26 +1,24 @@
 package org.eclipse.equinox.frameworkadmin;
 
-/**
- * @author iyamasak
- *
- */
 public abstract class FrameworkAdminFactory {
-	abstract protected FrameworkAdmin createFrameworkAdmin();
+	abstract protected FrameworkAdmin createFrameworkAdmin() throws InstantiationException, IllegalAccessException, ClassNotFoundException;
 
-	public static FrameworkAdmin getInstance(String className) {
-		try {
-			FrameworkAdminFactory factory = (FrameworkAdminFactory) Class.forName(className).newInstance();
-			return (FrameworkAdmin) factory.createFrameworkAdmin();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+	public static FrameworkAdmin getInstance(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+		FrameworkAdminFactory factory = (FrameworkAdminFactory) Class.forName(className).newInstance();
+		return (FrameworkAdmin) factory.createFrameworkAdmin();
 	}
+
+	//	public static FrameworkAdmin getInstance() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	//		String className = System.getProperty("org.eclipse.equinox.frameworkadmin.frameworkAdminFactory");
+	//		if (className == null)
+	//			throw new ClassNotFoundException("System property keyed by \"org.eclipse.equinox.frameworkadmin.frameworkAdminFactory\" is not set.");
+	//		FrameworkAdminFactory factory = (FrameworkAdminFactory) Class.forName(className).newInstance();
+	//		return (FrameworkAdmin) factory.createFrameworkAdmin();
+	//	}
+
+	//	public static FrameworkAdmin getInstance(String className, String configuratorManipulatorFactoryName) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+	//		ExtendedFrameworkAdminFactory factory = (ExtendedFrameworkAdminFactory) Class.forName(className).newInstance();
+	//		return (FrameworkAdmin) factory.createFrameworkAdmin(configuratorManipulatorFactoryName);
+	//	}
+
 }

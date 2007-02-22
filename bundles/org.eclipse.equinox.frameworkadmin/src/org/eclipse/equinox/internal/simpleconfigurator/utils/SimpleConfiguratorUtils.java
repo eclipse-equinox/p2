@@ -26,34 +26,6 @@ public class SimpleConfiguratorUtils {
 
 	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = "org.eclipse.equinox.simpleconfigurator";
 
-	public static boolean checkMatchEclipseJarNaming(String location, final String jarName) {
-		String filename = null;
-		if (location.indexOf(":") == -1)
-			filename = location;
-		else
-			filename = location.substring(location.lastIndexOf(":") + 1);
-
-		if (location.indexOf("/") == -1)
-			filename = location;
-		else
-			filename = location.substring(location.lastIndexOf("/") + 1);
-		// filename must be "jarName"_"version".jar
-		//System.out.println("filename=" + filename);
-		if (!filename.endsWith(".jar"))
-			return false;
-		filename = filename.substring(0, filename.lastIndexOf(".jar"));
-		//System.out.println("filename=" + filename);
-		if (filename.lastIndexOf("_") == -1)
-			return false;
-		filename = filename.substring(0, filename.lastIndexOf("_"));
-		//System.out.println("filename=" + filename);
-		if (filename.indexOf("_") != -1)
-			return false;
-		if (filename.equals(jarName))
-			return true;
-		return false;
-	}
-
 	public static BundleInfo getBundleInfoFromBundle(BundleContext context, StartLevel startLevelService, Bundle bundle) {
 		String symbolicName = bundle.getSymbolicName();
 		Dictionary manifest = context.getBundle().getHeaders();
@@ -182,8 +154,8 @@ public class SimpleConfiguratorUtils {
 						if (!baseUrlSt.endsWith("/"))
 							baseUrlSt += "/";
 						baseUrl = new URL(url, baseUrlSt);
-//						if (DEBUG)
-//							System.out.println("baseUrl=" + baseUrl);
+						//						if (DEBUG)
+						//							System.out.println("baseUrl=" + baseUrl);
 						continue;
 					}
 					StringTokenizer tok = new StringTokenizer(line, ",", true);
@@ -209,12 +181,12 @@ public class SimpleConfiguratorUtils {
 						tok.nextToken(); // ,
 					try {
 						new URL(urlSt);
-//						if (DEBUG)
-//							System.out.println("1 urlSt=" + urlSt);
+						//						if (DEBUG)
+						//							System.out.println("1 urlSt=" + urlSt);
 					} catch (MalformedURLException e) {
 						urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
-//						if (DEBUG)
-//							System.out.println("2 urlSt=" + urlSt);
+						//						if (DEBUG)
+						//							System.out.println("2 urlSt=" + urlSt);
 					}
 
 					int sl = Integer.parseInt(tok.nextToken().trim());

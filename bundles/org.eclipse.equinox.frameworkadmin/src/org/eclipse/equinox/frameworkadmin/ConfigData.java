@@ -180,18 +180,24 @@ public class ConfigData {
 
 		sb.append("============ Fw Independent Props ===============\n");
 		sb.append("fwIndependentProps=");
-		if (fwIndependentProps.size() > 0)
-			sb.append("\n" + fwIndependentProps.toString() + "\n");
-		else
-			sb.append("null\n");
+		setPropsStrings(sb, fwIndependentProps);
 		sb.append("============ Fw Dependent Props ===============\n");
 		sb.append("fwDependentProps=");
-		if (fwDependentProps.size() > 0)
-			sb.append("\n" + fwDependentProps.toString() + "\n");
-		else
-			sb.append("null\n");
-
+		setPropsStrings(sb, fwDependentProps);
 		return sb.toString();
 	}
 
+	private static void setPropsStrings(StringBuffer sb, Properties props) {
+		if (props.size() > 0) {
+			sb.append("\n");
+			for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+				String key = (String) enumeration.nextElement();
+				String value = props.getProperty(key);
+				if (value == null || value.equals(""))
+					continue;
+				sb.append("\t{" + key + " ,\t" + value + "}\n");
+			}
+		} else
+			sb.append("empty\n");
+	}
 }

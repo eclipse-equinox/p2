@@ -506,4 +506,122 @@ public class Utils {
 			throw new IllegalArgumentException("URL(" + url + ") cannot be connected.", e);
 		}
 	}
+
+	/**
+	 * If a bundle of the specified location is in the Eclipse plugin format (plugin-name_version.jar),
+	 * return version string.Otherwise, return null;
+	 * 
+	 * @param url
+	 * @param pluginName
+	 * @return version string. If invalid format, return null. 
+	 */
+	private static String getEclipseJarNamingVersion(URL url, final String pluginName) {
+		String location = Utils.replaceAll(url.getFile(), File.separator, "/");
+		String filename = null;
+		if (location.indexOf(":") == -1)
+			filename = location;
+		else
+			filename = location.substring(location.lastIndexOf(":") + 1);
+
+		if (location.indexOf("/") == -1)
+			filename = location;
+		else
+			filename = location.substring(location.lastIndexOf("/") + 1);
+		// filename must be "jarName"_"version".jar
+		//System.out.println("filename=" + filename);
+		if (!filename.endsWith(".jar"))
+			return null;
+		filename = filename.substring(0, filename.lastIndexOf(".jar"));
+		//System.out.println("filename=" + filename);
+		if (filename.lastIndexOf("_") == -1)
+			return null;
+		String version = filename.substring(filename.lastIndexOf("_") + 1);
+		filename = filename.substring(0, filename.lastIndexOf("_"));
+		//System.out.println("filename=" + filename);
+		if (filename.indexOf("_") != -1)
+			return null;
+		if (!filename.equals(pluginName))
+			return null;
+		return version;
+	}
+
+	public static String getBundleFullLocation(String pluginName, File bundlesDir) {
+		File[] lists = bundlesDir.listFiles();
+		URL ret = null;
+		EclipseVersion maxVersion = null;
+
+		for (int i = 0; i < lists.length; i++) {
+			try {
+				URL url = lists[i].toURL();
+				String version = Utils.getEclipseJarNamingVersion(url, pluginName);
+				if (version != null) {
+					EclipseVersion eclipseVersion = new EclipseVersion(version);
+					if (maxVersion == null || eclipseVersion.compareTo(maxVersion) > 0) {
+						ret = url;
+						maxVersion = eclipseVersion;
+					}
+				}
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return (ret == null ? null : ret.toExternalForm());
+
+		//		File[] files = pluginsDir.listFiles();
+		//		for (int i = 0; i < files.length; i++)
+		//			if (files[i].getName().startsWith("org.eclipse.osgi_")) {
+		//				String version = files[i].getName().substring("org.eclipse.osgi_".length(), files[i].getName().lastIndexOf(".jar"));
+		//				if (ret == null || ((new EclipseVersion(version)).compareTo(maxVersion) > 0)) {
+		//					ret = files[i];
+		//					maxVersion = new EclipseVersion(version);
+		//					continue;
+		//				}
+		//			}
+		//		return ret;
+
+	}
+
+}
+
+class EclipseVersion implements Comparable {
+	int major = 0;
+	int minor = 0;
+	int service = 0;
+	String qualifier = null;
+
+	EclipseVersion(String version) {
+		StringTokenizer tok = new StringTokenizer(version, ".");
+		if (!tok.hasMoreTokens())
+			return;
+		this.major = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.minor = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.service = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.qualifier = tok.nextToken();
+	}
+
+	public int compareTo(Object obj) {
+		EclipseVersion target = (EclipseVersion) obj;
+		if (target.major > this.major)
+			return -1;
+		if (target.major < this.major)
+			return 1;
+		if (target.minor > this.minor)
+			return -1;
+		if (target.minor < this.minor)
+			return 1;
+		if (target.service > this.service)
+			return -1;
+		if (target.service < this.service)
+			return 1;
+		return 0;
+	}
+
 }
