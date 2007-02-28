@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.*;
@@ -49,13 +47,14 @@ public class EclipseLauncherParser {
 
 	private void parseCmdLine(LauncherData launcherData, String[] lines) {
 		//Log.log(LogService.LOG_DEBUG, "inputFile=" + inputFile.getAbsolutePath());
-		final File launcherFile = launcherData.getLauncher();
+		//		final File launcherFile = launcherData.getLauncher();
 		final File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
-		launcherData.initialize(); // reset except launcherFile.
-		launcherData.setLauncher(launcherFile);
+		//launcherData.initialize(); // reset except launcherFile.
 
+		//		launcherData.setLauncher(launcherFile);
 		boolean clean = false;
-		File fwInstancePrivateArea = null;
+		File fwPersistentDataLoc = null;
+		boolean flag = false;
 		boolean vmArgsFlag = false;
 
 		for (int i = 0; i < lines.length; i++) {
@@ -81,12 +80,14 @@ public class EclipseLauncherParser {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
 				if (!file.isAbsolute()) {
-					file = new File(launcherConfigFile.getAbsolutePath() + File.separator + nextLine);
+					file = new File(launcherConfigFile.getParent() + File.separator + nextLine);
 				}
-				fwInstancePrivateArea = file;
+				fwPersistentDataLoc = file;
+				flag = true;
 				continue;
 			} else if (line.startsWith(EquinoxConstants.OPTION_CLEAN)) {
 				clean = true;
+				flag = true;
 				continue;
 			} else if (line.startsWith(EquinoxConstants.OPTION_VM)) {
 				final String nextLine = lines[++i].trim();
@@ -108,7 +109,8 @@ public class EclipseLauncherParser {
 				Log.log(LogService.LOG_WARNING, this, "parseCmdLine(String[] lines, File inputFile)", "Unsupported by current impl:line=" + line);
 			}
 		}
-		launcherData.setFwPersistentDataLocation(fwInstancePrivateArea, clean);
+		if (flag)
+			launcherData.setFwPersistentDataLocation(fwPersistentDataLoc, clean);
 	}
 
 	public void read(LauncherData launcherData) throws IOException {
@@ -132,6 +134,8 @@ public class EclipseLauncherParser {
 			if (br != null)
 				br.close();
 		}
+		Log.log(LogService.LOG_INFO, "Launcher Config file(" + launcherConfigFile.getAbsolutePath() + ") is read successfully.");
+		
 	}
 
 	public void save(LauncherData launcherData, boolean relative, boolean backup) throws IOException {
@@ -159,6 +163,7 @@ public class EclipseLauncherParser {
 				bw.newLine();
 			}
 			bw.flush();
+			Log.log(LogService.LOG_INFO, "Launcher Config file is saved successfully into:" + launcherConfigFile);
 		} finally {
 			if (bw != null)
 				bw.close();

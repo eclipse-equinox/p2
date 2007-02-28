@@ -10,16 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
-import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulatorFactory;
+import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
+import org.eclipse.equinox.frameworkadmin.FrameworkAdminFactory;
 
 public class EquinoxFrameworkAdminFactoryImpl extends FrameworkAdminFactory {
 	public FrameworkAdmin createFrameworkAdmin() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-		String className = System.getProperty("org.eclipse.equinox.frameworkadmin.configuratorManipulatorFactory");
+		String className = System.getProperty(ConfiguratorManipulatorFactory.SYSTEM_PROPERTY_KEY);
 		if (className == null)
 			return new EquinoxFwAdminImpl();;
 		return new EquinoxFwAdminImpl(className);
 	}
-
 	//	public FrameworkAdmin createFrameworkAdmin() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 	//		return new EquinoxFwAdminImpl();;
 	//		

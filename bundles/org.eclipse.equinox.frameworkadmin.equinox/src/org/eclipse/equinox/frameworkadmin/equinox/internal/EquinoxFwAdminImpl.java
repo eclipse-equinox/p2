@@ -14,8 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
 
-import org.eclipse.equinox.configurator.ConfiguratorManipulator;
-import org.eclipse.equinox.configurator.ConfiguratorManipulatorFactory;
+import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
+import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulatorFactory;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;

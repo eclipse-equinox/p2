@@ -12,18 +12,16 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-import org.eclipse.equinox.configurator.*;
+import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.BundleHelper;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.osgi.service.datalocation.Location;
-import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
 import org.osgi.service.startlevel.StartLevel;
@@ -281,22 +279,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//			configData.addBundle(bInfos[j]);
 	}
 
-	/**
-	 * Temporal implementation.
-	 * 
-	 * If a property of the given key should be eliminated
-	 *  from FwDependentProperties and FwIndependentProperties,
-	 *  return true. Otherwise false.
-	 * 
-	 * @param key
-	 * @return true if it should be elimineted from FwDependentProperties and FwIndependentProperties,
-	 */
-	private boolean toBeEliminated(String key) {
-		if (key.startsWith("java."))
-			return true;
-		return false;
-	}
-
 	// Load parameters from LauncherConfigFile, FwConfigFile, and ConfiguratorConfigFile if required.
 	// The parameter has been set will be updated.
 	public void load() throws IOException, FrameworkAdminRuntimeException {
@@ -452,6 +434,22 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				this.launcherData.setLauncher(launcherData.getLauncher());
 				this.launcherData.setLauncherConfigLocation(launcherData.getLauncherConfigLocation());
 			}
+	}
+
+	/**
+	 * Temporal implementation.
+	 * 
+	 * If a property of the given key should be eliminated
+	 *  from FwDependentProperties and FwIndependentProperties,
+	 *  return true. Otherwise false.
+	 * 
+	 * @param key
+	 * @return true if it should be elimineted from FwDependentProperties and FwIndependentProperties,
+	 */
+	private boolean toBeEliminated(String key) {
+		if (key.startsWith("java."))
+			return true;
+		return false;
 	}
 
 	public String toString() {
