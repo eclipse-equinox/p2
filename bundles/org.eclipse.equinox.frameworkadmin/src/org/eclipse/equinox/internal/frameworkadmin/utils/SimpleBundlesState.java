@@ -16,9 +16,6 @@ import java.net.MalformedURLException;
 import java.util.*;
 
 import org.eclipse.equinox.frameworkadmin.*;
-
-import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
 /**
@@ -29,10 +26,7 @@ import org.osgi.framework.Constants;
  * This implementation can be used for those cases.
  *
  */
-/**
- * @author iyamasak
- *
- */
+
 public class SimpleBundlesState implements BundlesState {
 	public static final BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
 

@@ -13,7 +13,7 @@ package org.eclipse.equinox.frameworkadmin;
 import java.io.File;
 import java.io.IOException;
 
-import org.eclipse.equinox.configurator.ConfiguratorManipulator;
+import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 
 /**
  * An object implementing this interface will be gotten by calling 

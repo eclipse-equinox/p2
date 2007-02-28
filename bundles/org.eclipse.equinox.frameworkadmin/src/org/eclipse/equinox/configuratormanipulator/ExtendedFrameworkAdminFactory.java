@@ -1,3 +1,4 @@
+package org.eclipse.equinox.configuratormanipulator;
 ///*******************************************************************************
 // * Copyright (c) 2007 IBM Corporation and others.
 // * All rights reserved. This program and the accompanying materials

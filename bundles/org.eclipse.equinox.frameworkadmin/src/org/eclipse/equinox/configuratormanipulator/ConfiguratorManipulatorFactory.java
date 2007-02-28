@@ -8,9 +8,18 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.configurator;
+package org.eclipse.equinox.configuratormanipulator;
 
+import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
+
+/**
+ * Factory class for creating ConfiguratorManipulator object from Java programs.
+ * 
+ *  @see FrameworkAdmin
+ */
 public abstract class ConfiguratorManipulatorFactory {
+	public final static String SYSTEM_PROPERTY_KEY = "org.eclipse.equinox.configuratorManipulatorFactory";
+
 	abstract protected ConfiguratorManipulator createConfiguratorManipulator();
 
 	public static ConfiguratorManipulator getInstance(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {

@@ -55,6 +55,12 @@ import java.io.IOException;
  * If unregistered, it should stop using any of objects that it got by this service and 
  * release all of them. If it continues to use them, {@link FrameworkAdminRuntimeException} might 
  * be thrown. 
+ * 
+ * *****************************************************************
+ * In addition, FrameworkAdminFactory will creat this object.
+ * This is used by Java programs.
+ * 
+ * @see FrameworkAdminFactory
  *    
  */
 public interface FrameworkAdmin {

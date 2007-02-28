@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.configurator;
+package org.eclipse.equinox.configuratormanipulator;
 
 import java.io.File;
 import java.io.IOException;
