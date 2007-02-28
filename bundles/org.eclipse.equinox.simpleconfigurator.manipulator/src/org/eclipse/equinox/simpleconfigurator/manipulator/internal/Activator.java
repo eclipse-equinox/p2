@@ -13,8 +13,8 @@ package org.eclipse.equinox.simpleconfigurator.manipulator.internal;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import org.eclipse.equinox.configurator.ConfiguratorManipulator;
-import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
+import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
+import org.eclipse.equinox.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
@@ -32,7 +32,7 @@ public class Activator implements BundleActivator {
 	private void registerConfiguratorManipulator() {
 
 		Dictionary props = new Hashtable();
-		props.put(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME, SimpleConfiguratorUtils.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME);
+		props.put(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME, SimpleConfiguratorConstants.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME);
 		props.put(Constants.SERVICE_VENDOR, "Eclipse.org");
 		manipulator = new SimpleConfiguratorManipulatorImpl();
 		registration = context.registerService(ConfiguratorManipulator.class.getName(), manipulator, props);

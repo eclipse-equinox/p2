@@ -13,11 +13,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-import org.eclipse.equinox.configurator.ConfiguratorManipulator;
+import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
+import org.eclipse.equinox.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
-import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
-import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorUtils;
 import org.osgi.framework.Constants;
 
 public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulator {
@@ -138,7 +137,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	private static boolean isTargetConfiguratorBundle(String location) {
 		final String symbolic = Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME);
-		return (SimpleConfiguratorUtils.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
+		return (SimpleConfiguratorConstants.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
 	}
 
 	private void algorithm(int initialSl, SortedMap bslToList, BundleInfo configuratorBInfo, List setToInitialConfig, List setToSimpleConfig, LocationInfo info) {
@@ -288,13 +287,121 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		}
 	}
 
-	private BundleInfo[] readConfiguration(URL url) throws IOException {
+	private BundleInfo[] loadConfiguration(URL url) throws IOException  {
 		if (url == null)
 			return NULL_BUNDLEINFOS;
 
-		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
+		try {
+			url.openStream();
+		} catch (FileNotFoundException e) {
+			return NULL_BUNDLEINFOS;
+		}
+		
+		
+		List bundleInfoList = readConfiguration(url);
 		return Utils.getBundleInfosFromList(bundleInfoList);
 	}
+	
+	/**
+	 * This method is copied from SimpleConfiguratorUtils class.
+	 * 
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 */
+	public static List readConfiguration(URL url) throws IOException {
+		List bundles = new ArrayList();
+		try {
+			// System.out.println("readConfiguration(URL url):url()=" + url);
+			// URL configFileUrl = getConfigFileUrl();
+			// URL configFileUrl = Utils.getUrl("file",null,
+			// inputFile.getAbsolutePath());
+			BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
+			// BufferedReader r = new BufferedReader(new FileReader(inputFile));
+
+			String line;
+			try {
+				URL baseUrl = new URL(url, "./");
+				while ((line = r.readLine()) != null) {
+					if (line.startsWith("#"))
+						continue;
+					line = line.trim();// symbolicName,version,location,startlevel,expectedState
+					if (line.length() == 0)
+						continue;
+
+					// (expectedState is an integer).
+					//System.out.println("line=" + line);
+					if (line.startsWith(SimpleConfiguratorConstants.PARAMETER_BASEURL + "=")) {
+						String baseUrlSt = line.substring((SimpleConfiguratorConstants.PARAMETER_BASEURL + "=").length());
+						if (!baseUrlSt.endsWith("/"))
+							baseUrlSt += "/";
+						baseUrl = new URL(url, baseUrlSt);
+						//						if (DEBUG)
+						//							System.out.println("baseUrl=" + baseUrl);
+						continue;
+					}
+					StringTokenizer tok = new StringTokenizer(line, ",", true);
+					String symbolicName = tok.nextToken();
+					if (symbolicName.equals(","))
+						symbolicName = null;
+					else
+						tok.nextToken(); // ,
+
+					String version = tok.nextToken();
+					if (version.equals(","))
+						version = null;
+					else
+						tok.nextToken(); // ,
+
+					String urlSt = tok.nextToken();
+					if (urlSt.equals(",")) {
+						if (symbolicName != null && version != null)
+							urlSt = symbolicName + "_" + version + ".jar";
+						else
+							urlSt = null;
+					} else
+						tok.nextToken(); // ,
+					try {
+						new URL(urlSt);
+						//						if (DEBUG)
+						//							System.out.println("1 urlSt=" + urlSt);
+					} catch (MalformedURLException e) {
+						urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
+						//						if (DEBUG)
+						//							System.out.println("2 urlSt=" + urlSt);
+					}
+
+					int sl = Integer.parseInt(tok.nextToken().trim());
+					tok.nextToken(); // ,
+					boolean markedAsStarted = Boolean.parseBoolean(tok.nextToken());
+					// URL urlBundle = null;
+					// try {
+					// urlBundle = new URL(urlSt);
+					// } catch (MalformedURLException e) {
+					// urlBundle = Utils.getFullUrl(urlSt, baseUrl);
+					// }
+
+					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
+					bundles.add(bInfo);
+					// System.out.println("tail line=" + line);
+				}
+			} finally {
+				try {
+					r.close();
+				} catch (IOException ex) {
+					// ignore
+				}
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			// TODO log something
+			// bundleInfos = NULL_BUNDLEINFOS;
+		}
+		return bundles;
+		// bundleInfos = (BundleInfo[]) bundles.toArray(new
+		// BundleInfo[bundles.size()]);
+	}
+	
 
 	public BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException {
 		List setToInitialConfig = new LinkedList();
@@ -413,7 +520,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		boolean exclusiveInstallation = Boolean.parseBoolean(properties.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION));
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
 
-		BundleInfo[] toInstall = this.readConfiguration(configuratorConfigUrl);
+		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl);
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)
