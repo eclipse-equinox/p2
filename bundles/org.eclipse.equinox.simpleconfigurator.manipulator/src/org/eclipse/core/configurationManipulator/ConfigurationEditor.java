@@ -148,7 +148,7 @@ public class ConfigurationEditor {
 		//		} else if ("org.eclipse.platform".equals(bundle.getSymbolicName())) {
 		//			// todo this is hard-coded for now. We need to get the location of the primary
 		//			// feature's plug-in but the bundle info doesn't tell us if we have a plug-in or a feature.
-		//			String location = System.getProperty("cic.eclipse.repoLocation");
+		//			String location = System.getProperty("eclipse.repoLocation");
 		//			if (location != null) {
 		//				location = "file:/" + location + "/plugins/org.eclipse.platform_3.1.0.jar";
 		//				setSplashPath(location);
@@ -354,8 +354,13 @@ public class ConfigurationEditor {
 			int startLevel = toWrite.getStartLevel();
 			int expected = toWrite.expectedState();
 			bundleList.append(location);
-			if (startLevel != BundleInfo.NO_LEVEL)
-				bundleList.append('@').append(startLevel).append(expected == Bundle.ACTIVE ? ":start" : "");
+			boolean separatorWritten = false;
+			if (startLevel != BundleInfo.NO_LEVEL) {
+				separatorWritten = true;
+				bundleList.append('@').append(startLevel);
+			}
+			if (expected == Bundle.ACTIVE)
+				bundleList.append(separatorWritten ? ":start" : "@start");
 			bundleList.append(',');
 			bundleListExtraData.append(toWrite.getLocation()).append(',').append(toWrite.getSymbolicName()).append(',').append(toWrite.getVersion()).append(',');
 		}
@@ -660,6 +665,27 @@ public class ConfigurationEditor {
 	
 	public BundleInfo[] getBundles() {
 		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
+	}
+	
+	public BundleInfo getBundle(String symbolicName, String version) {
+		for (Iterator iterator = bundles.iterator(); iterator.hasNext();) {
+			BundleInfo b = (BundleInfo) iterator.next();
+			if ((version == null && b.getSymbolicName().equals(symbolicName)) || (b.getSymbolicName().equals(symbolicName) && b.getVersion().equals(version)))
+				return b;
+		}
+		return null;
+	}
+	
+	public BundleInfo[] getBundle(String location) {
+		ArrayList collected = new ArrayList(1);
+		for (Iterator iterator = bundles.iterator(); iterator.hasNext();) {
+			BundleInfo b = (BundleInfo) iterator.next();
+			if (b.getLocation().equals(location))
+				collected.add(b);
+		}
+		if (collected.size() == 0)
+			return new BundleInfo[0];
+		return (BundleInfo[]) collected.toArray(new BundleInfo[collected.size()]);
 	}
 	
 	public BundleInfo[] resolve() {
