@@ -1,28 +1,27 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 public class EquinoxConstants {
-	public static final String PLUGINS = "plugins";
-	public static final String FW_JAR_PREFIX = "org.eclipse.osgi_";
+	public static final String PLUGINS_DIR = "plugins";
+	public static final String FW_JAR_PLUGIN_NAME = "org.eclipse.osgi";
+	public static final String DEFAULT_CONFIGURATION = "configuration";
 	public static final String CONFIG_INI = "config.ini";
 	final static String PROP_INITIAL = "osgi.clean";
-//	final static String PROP_FW_JAR = "org.eclipse.service.configManipulator.fwJar";
+	//	final static String PROP_FW_JAR = "org.eclipse.service.configManipulator.fwJar";
 
 	//	private final static String DEFAULT_BUNDLE_SEARCH_DIR = "PLUGINS";
 	public final static String FW_VERSION = "3.3";
 	public final static String FW_NAME = "Equinox";
 	public final static String LAUNCHER_VERSION = "3.2";
 	public final static String LAUNCHER_NAME = "Eclipse.exe";
-	
+
 	public final static String FW_SYMBOLIC_NAME = "org.eclipse.osgi";
 	public static final String AOL = "aol";
 
@@ -70,8 +69,7 @@ public class EquinoxConstants {
 	public static final String PROP_ARCH = "osgi.arch"; //$NON-NLS-1$
 	public static final String PROP_ADAPTOR = "osgi.adaptor"; //$NON-NLS-1$
 	public static final String PROP_SYSPATH = "osgi.syspath"; //$NON-NLS-1$
-	
-	
+
 	public static final String PROP_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	public static final String PROP_ECLIPSE_COMMANDS = "eclipse.commands"; //$NON-NLS-1$
 	public static final String PROP_OSGI_FW = "osgi.framework";

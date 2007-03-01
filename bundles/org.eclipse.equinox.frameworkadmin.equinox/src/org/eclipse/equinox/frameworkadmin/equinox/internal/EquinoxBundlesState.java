@@ -11,6 +11,7 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import org.eclipse.core.runtime.internal.adaptor.EclipseEnvironmentInfo;
@@ -107,22 +108,38 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 		if (location != null)
 			return new File(location);
-		if (launcherData.getLauncher() == null)
-			return null;
-		File pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
-		File[] files = pluginsDir.listFiles();
-		File ret = null;
-		EclipseVersion maxVersion = null;
-		for (int i = 0; i < files.length; i++)
-			if (files[i].getName().startsWith("org.eclipse.osgi_")) {
-				String version = files[i].getName().substring("org.eclipse.osgi_".length(), files[i].getName().lastIndexOf(".jar"));
-				if (ret == null || ((new EclipseVersion(version)).compareTo(maxVersion) > 0)) {
-					ret = files[i];
-					maxVersion = new EclipseVersion(version);
-					continue;
-				}
+
+		File pluginsDir;
+		if (launcherData.getLauncher() == null) {
+			if (launcherData.getHome() == null)
+				return null;
+			else {
+				pluginsDir = new File(launcherData.getHome(), "plugins");
 			}
-		return ret;
+		} else
+			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
+
+		URL url = null;
+		try {
+			url = new URL(Utils.getBundleFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir));
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new File(url.getFile());
+		//		File[] files = pluginsDir.listFiles();
+		//		File ret = null;
+		//		EclipseVersion maxVersion = null;
+		//		for (int i = 0; i < files.length; i++)
+		//			if (files[i].getName().startsWith("org.eclipse.osgi_")) {
+		//				String version = files[i].getName().substring("org.eclipse.osgi_".length(), files[i].getName().lastIndexOf(".jar"));
+		//				if (ret == null || ((new EclipseVersion(version)).compareTo(maxVersion) > 0)) {
+		//					ret = files[i];
+		//					maxVersion = new EclipseVersion(version);
+		//					continue;
+		//				}
+		//			}
+		//		return ret;
 	}
 
 	private static long getMaxId(State state) {
@@ -331,6 +348,11 @@ public class EquinoxBundlesState implements BundlesState {
 			//			System.out.println("file=" + file);
 			//			System.out.println("file.equals(fwPersistentDataLocation)=" + file.equals(fwPersistentDataLocation));
 			//			fwPersistentDataLocation = file;
+			File file = new File(fwPersistentDataLocation, "org.eclipse.osgi");
+			if (!file.exists())
+				return false;
+			if (!file.isDirectory())
+				return false;
 
 			AlienStateReader alienStateReader = new AlienStateReader(fwPersistentDataLocation, null);
 

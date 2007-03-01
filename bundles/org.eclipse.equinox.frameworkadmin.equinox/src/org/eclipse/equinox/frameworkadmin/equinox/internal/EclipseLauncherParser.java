@@ -9,6 +9,8 @@
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import org.eclipse.equinox.frameworkadmin.LauncherData;
@@ -49,12 +51,41 @@ public class EclipseLauncherParser {
 		//Log.log(LogService.LOG_DEBUG, "inputFile=" + inputFile.getAbsolutePath());
 		//		final File launcherFile = launcherData.getLauncher();
 		final File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
-		//launcherData.initialize(); // reset except launcherFile.
+
+		boolean clean = false;
+		boolean needToUpdate = false;
+		File fwPersistentDataLoc = launcherData.getFwPersistentDataLocation();
+		File fwConfigLocation = launcherData.getFwConfigLocation();
+		if (fwPersistentDataLoc == null) {
+			if (fwConfigLocation == null) {
+				fwPersistentDataLoc = new File(launcherConfigFile.getParent(), EquinoxConstants.DEFAULT_CONFIGURATION);
+				fwConfigLocation = fwPersistentDataLoc;
+				needToUpdate = true;
+			} else {
+				fwPersistentDataLoc = fwConfigLocation;
+				needToUpdate = true;
+			}
+		} else {
+			if (fwConfigLocation == null) {
+				fwConfigLocation = fwPersistentDataLoc;
+				needToUpdate = true;
+			}
+		}
+		File fwJar = launcherData.getFwJar();
+		if (fwJar == null) {
+			String location = Utils.getBundleFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, new File(launcherConfigFile.getParent(), EquinoxConstants.PLUGINS_DIR));
+			if (location != null)
+				try {
+					fwJar = new File(new URL(location).getFile());
+					launcherData.setFwJar(fwJar);
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		// launcherData.initialize(); // reset except launcherFile.
 
 		//		launcherData.setLauncher(launcherFile);
-		boolean clean = false;
-		File fwPersistentDataLoc = null;
-		boolean flag = false;
 		boolean vmArgsFlag = false;
 
 		for (int i = 0; i < lines.length; i++) {
@@ -83,11 +114,11 @@ public class EclipseLauncherParser {
 					file = new File(launcherConfigFile.getParent() + File.separator + nextLine);
 				}
 				fwPersistentDataLoc = file;
-				flag = true;
+				needToUpdate = true;
 				continue;
 			} else if (line.startsWith(EquinoxConstants.OPTION_CLEAN)) {
 				clean = true;
-				flag = true;
+				needToUpdate = true;
 				continue;
 			} else if (line.startsWith(EquinoxConstants.OPTION_VM)) {
 				final String nextLine = lines[++i].trim();
@@ -109,8 +140,10 @@ public class EclipseLauncherParser {
 				Log.log(LogService.LOG_WARNING, this, "parseCmdLine(String[] lines, File inputFile)", "Unsupported by current impl:line=" + line);
 			}
 		}
-		if (flag)
+		if (needToUpdate) {
 			launcherData.setFwPersistentDataLocation(fwPersistentDataLoc, clean);
+			launcherData.setFwConfigLocation(fwPersistentDataLoc);
+		}
 	}
 
 	public void read(LauncherData launcherData) throws IOException {
@@ -135,7 +168,7 @@ public class EclipseLauncherParser {
 				br.close();
 		}
 		Log.log(LogService.LOG_INFO, "Launcher Config file(" + launcherConfigFile.getAbsolutePath() + ") is read successfully.");
-		
+
 	}
 
 	public void save(LauncherData launcherData, boolean relative, boolean backup) throws IOException {

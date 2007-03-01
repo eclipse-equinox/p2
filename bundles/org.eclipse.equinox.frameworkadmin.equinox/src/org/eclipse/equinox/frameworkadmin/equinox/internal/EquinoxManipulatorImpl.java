@@ -234,7 +234,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		launcherData.setFwPersistentDataLocation(fwConfigLocation, false);
 		launcherData.setLauncher(launcherFile);
 		try {
-			this.loadWoFwPersistentData();
+			this.loadWithoutFwPersistentData();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -279,23 +279,18 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//			configData.addBundle(bInfos[j]);
 	}
 
-	// Load parameters from LauncherConfigFile, FwConfigFile, and ConfiguratorConfigFile if required.
-	// The parameter has been set will be updated.
-	public void load() throws IOException, FrameworkAdminRuntimeException {
-		this.load(true);
-	}
+	//	// 
+	//	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
+	//		this.load(true);
+	//	}
 
-	/**
-	 * If useConfigurator is true, what a ConfiguratorBundle does at its startup will be taken into account.
-	 * Otherwise, it won't. 
-	 * 
-	 * @param useConfigurator
-	 * @throws IOException
-	 * @throws FrameworkAdminRuntimeException
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.frameworkadmin.Manipulator#load()
 	 */
-	public void load(boolean useConfigurator) throws IOException, FrameworkAdminRuntimeException {
-		Log.log(LogService.LOG_DEBUG, this, "load(" + useConfigurator + ")", "BEGIN");
-		loadWoFwPersistentData();
+	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
+		Log.log(LogService.LOG_DEBUG, this, "load()", "BEGIN");
+		loadWithoutFwPersistentData();
 
 		BundlesState bundlesState = null;
 		if (EquinoxBundlesState.checkFullySupported()) {
@@ -317,7 +312,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return;
 	}
 
-	private void loadWoFwPersistentData() throws IOException {
+	private void loadWithoutFwPersistentData() throws IOException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
 		if (launcherConfigFile != null) {
@@ -332,6 +327,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser();
 		if (fwConfigFile.exists())
 			parser.readFwConfig(configData, fwConfigFile);
+
 	}
 
 	// Save all parameter in memory into proper config files.
