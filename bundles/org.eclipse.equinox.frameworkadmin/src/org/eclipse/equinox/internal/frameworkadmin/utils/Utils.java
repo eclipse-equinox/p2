@@ -1,23 +1,63 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.internal.frameworkadmin.utils;
 
 import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
+import java.util.jar.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
+
+class EclipseVersion implements Comparable {
+	int major = 0;
+	int minor = 0;
+	int service = 0;
+	String qualifier = null;
+
+	EclipseVersion(String version) {
+		StringTokenizer tok = new StringTokenizer(version, ".");
+		if (!tok.hasMoreTokens())
+			return;
+		this.major = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.minor = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.service = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.qualifier = tok.nextToken();
+	}
+
+	public int compareTo(Object obj) {
+		EclipseVersion target = (EclipseVersion) obj;
+		if (target.major > this.major)
+			return -1;
+		if (target.major < this.major)
+			return 1;
+		if (target.minor > this.minor)
+			return -1;
+		if (target.minor < this.minor)
+			return 1;
+		if (target.service > this.service)
+			return -1;
+		if (target.service < this.service)
+			return 1;
+		return 0;
+	}
+
+}
 
 public class Utils {
 	private final static String PATH_SEP = "/";
@@ -43,6 +83,52 @@ public class Utils {
 		}
 		//		printoutProperties(System.out, "to", to);
 		return to;
+	}
+
+	//Return a dictionary representing a manifest. The data may result from plugin.xml conversion  
+	private static Dictionary basicLoadManifest(File bundleLocation) {
+		InputStream manifestStream = null;
+		ZipFile jarFile = null;
+		try {
+			String fileExtention = bundleLocation.getName();
+			fileExtention = fileExtention.substring(fileExtention.lastIndexOf('.') + 1);
+			if ("jar".equalsIgnoreCase(fileExtention) && bundleLocation.isFile()) { //$NON-NLS-1$
+				jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
+				ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
+				if (manifestEntry != null) {
+					manifestStream = jarFile.getInputStream(manifestEntry);
+				}
+			} else {
+				manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
+			}
+		} catch (IOException e) {
+			//ignore
+		}
+		Dictionary manifest = null;
+
+		//It is not a manifest, but a plugin or a fragment
+
+		if (manifestStream != null) {
+			try {
+				Manifest m = new Manifest(manifestStream);
+				manifest = manifestToProperties(m.getMainAttributes());
+			} catch (IOException ioe) {
+				return null;
+			} finally {
+				try {
+					manifestStream.close();
+				} catch (IOException e1) {
+					//Ignore
+				}
+				try {
+					if (jarFile != null)
+						jarFile.close();
+				} catch (IOException e2) {
+					//Ignore
+				}
+			}
+		}
+		return manifest;
 	}
 
 	public static void checkAbsoluteDir(File file, String dirName) throws IllegalArgumentException {
@@ -147,6 +233,46 @@ public class Utils {
 		}
 	}
 
+	public static String getBundleFullLocation(String pluginName, File bundlesDir) {
+		File[] lists = bundlesDir.listFiles();
+		URL ret = null;
+		EclipseVersion maxVersion = null;
+		if (lists == null)
+			return null;
+
+		for (int i = 0; i < lists.length; i++) {
+			try {
+				URL url = lists[i].toURL();
+				String version = Utils.getEclipseJarNamingVersion(url, pluginName);
+				if (version != null) {
+					EclipseVersion eclipseVersion = new EclipseVersion(version);
+					if (maxVersion == null || eclipseVersion.compareTo(maxVersion) > 0) {
+						ret = url;
+						maxVersion = eclipseVersion;
+					}
+				}
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return (ret == null ? null : ret.toExternalForm());
+
+		//		File[] files = pluginsDir.listFiles();
+		//		for (int i = 0; i < files.length; i++)
+		//			if (files[i].getName().startsWith("org.eclipse.osgi_")) {
+		//				String version = files[i].getName().substring("org.eclipse.osgi_".length(), files[i].getName().lastIndexOf(".jar"));
+		//				if (ret == null || ((new EclipseVersion(version)).compareTo(maxVersion) > 0)) {
+		//					ret = files[i];
+		//					maxVersion = new EclipseVersion(version);
+		//					continue;
+		//				}
+		//			}
+		//		return ret;
+
+	}
+
 	public static BundleInfo[] getBundleInfosFromList(List list) {
 		if (list == null)
 			return new BundleInfo[0];
@@ -170,27 +296,71 @@ public class Utils {
 		return getClauses(getManifestMainAttributes(location, name));
 	}
 
+	/**
+	 * If a bundle of the specified location is in the Eclipse plugin format (plugin-name_version.jar),
+	 * return version string.Otherwise, return null;
+	 * 
+	 * @param url
+	 * @param pluginName
+	 * @return version string. If invalid format, return null. 
+	 */
+	private static String getEclipseJarNamingVersion(URL url, final String pluginName) {
+		String location = Utils.replaceAll(url.getFile(), File.separator, "/");
+		String filename = null;
+		if (location.indexOf(":") == -1)
+			filename = location;
+		else
+			filename = location.substring(location.lastIndexOf(":") + 1);
+
+		if (location.indexOf("/") == -1)
+			filename = location;
+		else
+			filename = location.substring(location.lastIndexOf("/") + 1);
+		// filename must be "jarName"_"version".jar
+		//System.out.println("filename=" + filename);
+		if (!filename.endsWith(".jar"))
+			return null;
+		filename = filename.substring(0, filename.lastIndexOf(".jar"));
+		//System.out.println("filename=" + filename);
+		if (filename.lastIndexOf("_") == -1)
+			return null;
+		String version = filename.substring(filename.lastIndexOf("_") + 1);
+		filename = filename.substring(0, filename.lastIndexOf("_"));
+		//System.out.println("filename=" + filename);
+		if (filename.indexOf("_") != -1)
+			return null;
+		if (!filename.equals(pluginName))
+			return null;
+		return version;
+	}
+
 	public static String getManifestMainAttributes(String location, String name) {
-		try {
-			URL url = new URL("jar:" + location + "!/");
-			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-			Manifest manifest = jarConnection.getManifest();
-			Attributes attributes = manifest.getMainAttributes();
-			String value = attributes.getValue(name);
-			return value == null ? null : value.trim();
-		} catch (MalformedURLException e1) {
-			// TODO log
-			System.err.println("location=" + location);
-			e1.printStackTrace();
-		} catch (IOException e) {
-			// TODO log
-			System.err.println("location=" + location);
-			e.printStackTrace();
-		}
-		return null;
+		return (String) Utils.getOSGiManifest(location).get(name);
+
+		//		try {
+		//			Manifest manifest = Utils.getOSGiManifest(location);
+		//			//			URL url = new URL("jar:" + location + "!/");
+		//			//			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+		//			//			Manifest manifest = jarConnection.getManifest();
+		//			Attributes attributes = manifest.getMainAttributes();
+		//			String value = attributes.getValue(name);
+		//			return value == null ? null : value.trim();
+		//		} catch (MalformedURLException e1) {
+		//			// TODO log
+		//			System.err.println("location=" + location);
+		//			e1.printStackTrace();
+		//		} catch (IOException e) {
+		//			// TODO log
+		//			System.err.println("location=" + location);
+		//			e.printStackTrace();
+		//		}
+		//		return null;
 	}
 
 	public static Dictionary getOSGiManifest(String location) {
+		if (location.startsWith("file:") && !location.endsWith(".jar"))
+			return basicLoadManifest(new File(location.substring("file:".length())));
+
 		try {
 			URL url = new URL("jar:" + location + "!/");
 			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
@@ -296,26 +466,6 @@ public class Utils {
 		return sb.toString();
 	}
 
-	/**
-	 * This method will be called for create a backup file.
-	 * 
-	 * @param file target file
-	 * @return File backup file whose filename consists of "hogehoge.yyyyMMddHHmmss.ext" or 
-	 * 	"hogehoge.yyyyMMddHHmmss".
-	 */
-	public static File getSimpleDataFormattedFile(File file) {
-		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-		String date = df.format(new Date());
-		String filename = file.getName();
-		int index = filename.lastIndexOf(".");
-		if (index != -1)
-			filename = filename.substring(0, index) + "." + date + "." + filename.substring(index + 1);
-		else
-			filename = filename + "." + date;
-		File dest = new File(file.getParentFile(), filename);
-		return dest;
-	}
-
 	//	public static URL getAbsoluteUrl(String relativePath, URL baseUrl) throws FwLauncherException {
 	//		relativePath = Utils.replaceAll(relativePath, File.separator, "/");
 	//		try {
@@ -347,6 +497,26 @@ public class Utils {
 	//			throw new ManipulatorException("key=" + key + ",value=" + value, nfe, ManipulatorException.OTHERS);
 	//		}
 	//	}
+
+	/**
+	 * This method will be called for create a backup file.
+	 * 
+	 * @param file target file
+	 * @return File backup file whose filename consists of "hogehoge.yyyyMMddHHmmss.ext" or 
+	 * 	"hogehoge.yyyyMMddHHmmss".
+	 */
+	public static File getSimpleDataFormattedFile(File file) {
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+		String date = df.format(new Date());
+		String filename = file.getName();
+		int index = filename.lastIndexOf(".");
+		if (index != -1)
+			filename = filename.substring(0, index) + "." + date + "." + filename.substring(index + 1);
+		else
+			filename = filename + "." + date;
+		File dest = new File(file.getParentFile(), filename);
+		return dest;
+	}
 
 	public static String[] getTokens(String msg, String delim) {
 		return getTokens(msg, delim, false);
@@ -381,6 +551,16 @@ public class Utils {
 		return new URL(fromSt + "/" + path);
 	}
 
+	private static Properties manifestToProperties(Attributes d) {
+		Iterator iter = d.keySet().iterator();
+		Properties result = new Properties();
+		while (iter.hasNext()) {
+			Attributes.Name key = (Attributes.Name) iter.next();
+			result.put(key.toString(), d.get(key));
+		}
+		return result;
+	}
+
 	/**
 	 * Just used for debug.
 	 * 
@@ -399,25 +579,6 @@ public class Utils {
 			ps.print("\tkey=" + key);
 			ps.println("\tvalue=" + props.getProperty(key));
 		}
-	}
-
-	/**
-	 * get String representing the given properties.
-	 * 
-	 * @param name name of properties 
-	 * @param props properties whose keys and values will be printed out.
-	 */
-	public static String toStringProperties(String name, Properties props) {
-		if (props == null || props.size() == 0) {
-			return "Props(" + name + ") is empty\n";
-		}
-		StringBuffer sb = new StringBuffer();
-		sb.append("Props(" + name + ") is \n");
-		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
-			String key = (String) enumeration.nextElement();
-			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n");
-		}
-		return sb.toString();
 	}
 
 	public static String removeLastCh(String target, char ch) {
@@ -498,6 +659,25 @@ public class Utils {
 		return getBundleInfosFromList(bundleInfoList);
 	}
 
+	/**
+	 * get String representing the given properties.
+	 * 
+	 * @param name name of properties 
+	 * @param props properties whose keys and values will be printed out.
+	 */
+	public static String toStringProperties(String name, Properties props) {
+		if (props == null || props.size() == 0) {
+			return "Props(" + name + ") is empty\n";
+		}
+		StringBuffer sb = new StringBuffer();
+		sb.append("Props(" + name + ") is \n");
+		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
+			String key = (String) enumeration.nextElement();
+			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n");
+		}
+		return sb.toString();
+	}
+
 	public static void validateUrl(URL url) {//throws ManipulatorException {
 		try {//test
 			URLConnection connection = url.openConnection();
@@ -505,123 +685,6 @@ public class Utils {
 		} catch (IOException e) {
 			throw new IllegalArgumentException("URL(" + url + ") cannot be connected.", e);
 		}
-	}
-
-	/**
-	 * If a bundle of the specified location is in the Eclipse plugin format (plugin-name_version.jar),
-	 * return version string.Otherwise, return null;
-	 * 
-	 * @param url
-	 * @param pluginName
-	 * @return version string. If invalid format, return null. 
-	 */
-	private static String getEclipseJarNamingVersion(URL url, final String pluginName) {
-		String location = Utils.replaceAll(url.getFile(), File.separator, "/");
-		String filename = null;
-		if (location.indexOf(":") == -1)
-			filename = location;
-		else
-			filename = location.substring(location.lastIndexOf(":") + 1);
-
-		if (location.indexOf("/") == -1)
-			filename = location;
-		else
-			filename = location.substring(location.lastIndexOf("/") + 1);
-		// filename must be "jarName"_"version".jar
-		//System.out.println("filename=" + filename);
-		if (!filename.endsWith(".jar"))
-			return null;
-		filename = filename.substring(0, filename.lastIndexOf(".jar"));
-		//System.out.println("filename=" + filename);
-		if (filename.lastIndexOf("_") == -1)
-			return null;
-		String version = filename.substring(filename.lastIndexOf("_") + 1);
-		filename = filename.substring(0, filename.lastIndexOf("_"));
-		//System.out.println("filename=" + filename);
-		if (filename.indexOf("_") != -1)
-			return null;
-		if (!filename.equals(pluginName))
-			return null;
-		return version;
-	}
-
-	public static String getBundleFullLocation(String pluginName, File bundlesDir) {
-		File[] lists = bundlesDir.listFiles();
-		URL ret = null;
-		EclipseVersion maxVersion = null;
-
-		for (int i = 0; i < lists.length; i++) {
-			try {
-				URL url = lists[i].toURL();
-				String version = Utils.getEclipseJarNamingVersion(url, pluginName);
-				if (version != null) {
-					EclipseVersion eclipseVersion = new EclipseVersion(version);
-					if (maxVersion == null || eclipseVersion.compareTo(maxVersion) > 0) {
-						ret = url;
-						maxVersion = eclipseVersion;
-					}
-				}
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
-			}
-		}
-		return (ret == null ? null : ret.toExternalForm());
-
-		//		File[] files = pluginsDir.listFiles();
-		//		for (int i = 0; i < files.length; i++)
-		//			if (files[i].getName().startsWith("org.eclipse.osgi_")) {
-		//				String version = files[i].getName().substring("org.eclipse.osgi_".length(), files[i].getName().lastIndexOf(".jar"));
-		//				if (ret == null || ((new EclipseVersion(version)).compareTo(maxVersion) > 0)) {
-		//					ret = files[i];
-		//					maxVersion = new EclipseVersion(version);
-		//					continue;
-		//				}
-		//			}
-		//		return ret;
-
-	}
-
-}
-
-class EclipseVersion implements Comparable {
-	int major = 0;
-	int minor = 0;
-	int service = 0;
-	String qualifier = null;
-
-	EclipseVersion(String version) {
-		StringTokenizer tok = new StringTokenizer(version, ".");
-		if (!tok.hasMoreTokens())
-			return;
-		this.major = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.minor = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.service = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.qualifier = tok.nextToken();
-	}
-
-	public int compareTo(Object obj) {
-		EclipseVersion target = (EclipseVersion) obj;
-		if (target.major > this.major)
-			return -1;
-		if (target.major < this.major)
-			return 1;
-		if (target.minor > this.minor)
-			return -1;
-		if (target.minor < this.minor)
-			return 1;
-		if (target.service > this.service)
-			return -1;
-		if (target.service < this.service)
-			return 1;
-		return 0;
 	}
 
 }

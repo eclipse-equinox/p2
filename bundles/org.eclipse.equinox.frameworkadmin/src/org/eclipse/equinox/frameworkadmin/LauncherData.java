@@ -1,16 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin;
 
 import java.io.File;
+import java.util.*;
 
 /**
  * This object is instantiated by {@link Manipulator#getLauncherData()};
@@ -22,10 +21,12 @@ import java.io.File;
  * @see Manipulator
  */
 public class LauncherData {
-	private static final String[] NULL_STRINGS = new String[0];
+	//private static final String[] NULL_STRINGS = new String[0];
 	private File fwPersistentDataLocation = null;
 	private File jvm = null;
-	private String[] jvmArgs;
+	private List jvmArgs = new LinkedList();
+	private List programArgs = new LinkedList();
+
 	private boolean clean;
 	private File fwConfigLocation;
 	private File homeLocation = null;
@@ -47,17 +48,16 @@ public class LauncherData {
 		this.initialize();
 	}
 
-	public void addJvmArgs(String[] args) {
-		if (args == null) {
-			jvmArgs = NULL_STRINGS;
+	public void addJvmArg(String arg) {
+		if (arg == null)
 			return;
-		}
-		if (jvmArgs.length == 0)
-			this.setJvmArgs(args);
-		String[] newArgs = new String[jvmArgs.length + args.length];
-		System.arraycopy(jvmArgs, 0, newArgs, 0, jvmArgs.length);
-		System.arraycopy(args, 0, newArgs, jvmArgs.length, args.length);
-		jvmArgs = newArgs;
+		jvmArgs.add(arg);
+	}
+
+	public void addProgramArg(String arg) {
+		if (arg == null)
+			return;
+		programArgs.add(arg);
 	}
 
 	public File getFwConfigLocation() {
@@ -89,7 +89,9 @@ public class LauncherData {
 	}
 
 	public String[] getJvmArgs() {
-		return jvmArgs;
+		String[] args = new String[jvmArgs.size()];
+		jvmArgs.toArray(args);
+		return args;
 	}
 
 	public File getLauncher() {
@@ -108,10 +110,17 @@ public class LauncherData {
 		return launcherVersion;
 	}
 
+	public String[] getProgramArgs() {
+		String[] args = new String[programArgs.size()];
+		programArgs.toArray(args);
+		return args;
+	}
+
 	public void initialize() {
 		fwPersistentDataLocation = null;
 		jvm = null;
-		jvmArgs = NULL_STRINGS;
+		jvmArgs.clear();
+		programArgs.clear();
 		clean = false;
 		fwConfigLocation = null;
 		fwJar = null;
@@ -120,6 +129,14 @@ public class LauncherData {
 
 	public boolean isClean() {
 		return clean;
+	}
+
+	public void removeJvmArg(String arg) {
+		jvmArgs.remove(arg);
+	}
+
+	public void removeProgramArg(String arg) {
+		programArgs.remove(arg);
 	}
 
 	public void setFwConfigLocation(File fwConfigLocation) {
@@ -144,12 +161,12 @@ public class LauncherData {
 	}
 
 	public void setJvmArgs(String[] args) {
-		if (args == null) {
-			jvmArgs = NULL_STRINGS;
+		if (args == null || args.length == 0) {
+			jvmArgs.clear();
 			return;
 		}
-		String[] jvmArgs = new String[args.length];
-		System.arraycopy(args, 0, jvmArgs, 0, args.length);
+		for (int i = 0; i < args.length; i++)
+			this.addJvmArg(args[i]);
 	}
 
 	public void setLauncher(File launcherFile) {
@@ -158,6 +175,15 @@ public class LauncherData {
 
 	public void setLauncherConfigLocation(File launcherConfigLocation) {
 		this.launcherConfigLocation = launcherConfigLocation;
+	}
+
+	public void setProgramArgs(String[] args) {
+		if (args == null || args.length == 0) {
+			programArgs.clear();
+			return;
+		}
+		for (int i = 0; i < args.length; i++)
+			this.addProgramArg(args[i]);
 	}
 
 	public String toString() {
@@ -169,14 +195,23 @@ public class LauncherData {
 		sb.append("launcherVersion=" + this.launcherVersion + "\n");
 
 		sb.append("jvm=" + this.jvm + "\n");
-		if (this.jvmArgs.length == 0)
+		if (this.jvmArgs.size() == 0)
 			sb.append("jvmArgs = null\n");
 		else {
 			sb.append("jvmArgs=\n");
-			for (int i = 0; i < this.jvmArgs.length; i++)
-				sb.append("\tjvmArgs[" + i + "]=" + jvmArgs[i] + "\n");
-		}
+			int i = 0;
+			for (Iterator iterator = jvmArgs.iterator(); iterator.hasNext(); iterator.next())
+				sb.append("\tjvmArgs[" + i++ + "]=" + iterator + "\n");
 
+		}
+		if (this.programArgs.size() == 0)
+			sb.append("programArgs = null\n");
+		else {
+			sb.append("programArgs=\n");
+			int i = 0;
+			for (Iterator iterator = programArgs.iterator(); iterator.hasNext(); iterator.next())
+				sb.append("\tprogramArgs[" + i++ + "]=" + iterator + "\n");
+		}
 		sb.append("fwConfigLocation=" + this.fwConfigLocation + "\n");
 		sb.append("fwJar=" + this.fwJar + "\n");
 		sb.append("fwPersistentDataLocation=" + this.fwPersistentDataLocation + "\n");

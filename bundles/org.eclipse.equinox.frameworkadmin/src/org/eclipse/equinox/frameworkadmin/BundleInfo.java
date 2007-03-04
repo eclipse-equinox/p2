@@ -27,7 +27,7 @@ public class BundleInfo {
 	private int startLevel = NO_LEVEL;
 	private boolean resolved = false;
 
-	//	private Dictionary manifest;
+	private String manifest;
 
 	public BundleInfo() {
 	}
@@ -84,8 +84,16 @@ public class BundleInfo {
 		return false;
 	}
 
+	public long getBundleId() {
+		return bundleId;
+	}
+
 	public String getLocation() {
 		return location;
+	}
+
+	public String getManifest() {
+		return manifest;
 	}
 
 	public int getStartLevel() {
@@ -118,8 +126,16 @@ public class BundleInfo {
 		return resolved;
 	}
 
+	public void setBundleId(long bundleId) {
+		this.bundleId = bundleId;
+	}
+
 	public void setLocation(String location) {
 		this.location = location.trim();
+	}
+
+	public void setManifest(String manifest) {
+		this.manifest = manifest;
 	}
 
 	public void setMarkedAsStarted(boolean markedAsStarted) {
@@ -166,13 +182,5 @@ public class BundleInfo {
 		buffer.append(this.bundleId);//		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();
-	}
-
-	public long getBundleId() {
-		return bundleId;
-	}
-
-	public void setBundleId(long bundleId) {
-		this.bundleId = bundleId;
 	}
 }
