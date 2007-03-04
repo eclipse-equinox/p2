@@ -11,8 +11,7 @@ package org.eclipse.equinox.simpleconfigurator.internal;
 import java.net.URL;
 import java.util.*;
 
-import org.eclipse.equinox.internal.simpleconfigurator.utils.BundleInfo;
-import org.eclipse.equinox.internal.simpleconfigurator.utils.Utils;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
@@ -65,7 +64,14 @@ class ConfigApplier {
 
 			Bundle[] matches = null;
 			Dictionary manifest = Utils.getOSGiManifest(finalList[i].getLocation());
-			String symbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+			String symbolicName = null;
+			//if (manifest != null)
+			try {
+				symbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+			} catch (RuntimeException re) {
+				System.err.println("cannot get Manifest :" + finalList[i]);
+				throw re;
+			}
 			if (symbolicName != null && symbolicName.indexOf(";") != -1)
 				symbolicName = symbolicName.substring(0, symbolicName.indexOf(";")).trim();
 
@@ -96,7 +102,7 @@ class ConfigApplier {
 					String name = current.getSymbolicName();
 					try {
 						if (startLevel > 0)
-							if (!"org.eclipse.core.simpleConfigurator".equals(name))
+							if (!SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(name))
 								startLevelService.setBundleStartLevel(current, startLevel);
 					} catch (IllegalArgumentException ex) {
 						//TODO Log

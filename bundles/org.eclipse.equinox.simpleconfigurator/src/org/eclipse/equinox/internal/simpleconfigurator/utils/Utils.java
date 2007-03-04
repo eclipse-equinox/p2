@@ -12,15 +12,20 @@ import java.io.*;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-
+import java.util.jar.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * This class was copied from 
  * org.eclipse.equinox.internal.frameworkadmin.utils package of
- * org.eclipse.equinox.frameworkadmin plugin on Feb 28 2007.
+ * org.eclipse.equinox.frameworkadmin plugin on March 3 2007.
+ * 
+ * The reason why it was copied is to make simpleconfigurator dependent on 
+ * any bundles(org.eclipse.equinox.framework).
+ * 
  */
+
 public class Utils {
 	private final static String PATH_SEP = "/";
 
@@ -173,26 +178,32 @@ public class Utils {
 	}
 
 	public static String getManifestMainAttributes(String location, String name) {
-		try {
-			URL url = new URL("jar:" + location + "!/");
-			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-			Manifest manifest = jarConnection.getManifest();
-			Attributes attributes = manifest.getMainAttributes();
-			String value = attributes.getValue(name);
-			return value == null ? null : value.trim();
-		} catch (MalformedURLException e1) {
-			// TODO log
-			System.err.println("location=" + location);
-			e1.printStackTrace();
-		} catch (IOException e) {
-			// TODO log
-			System.err.println("location=" + location);
-			e.printStackTrace();
-		}
-		return null;
+		return (String) Utils.getOSGiManifest(location).get(name);
+
+		//		try {
+		//			Manifest manifest = Utils.getOSGiManifest(location);
+		//			//			URL url = new URL("jar:" + location + "!/");
+		//			//			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+		//			//			Manifest manifest = jarConnection.getManifest();
+		//			Attributes attributes = manifest.getMainAttributes();
+		//			String value = attributes.getValue(name);
+		//			return value == null ? null : value.trim();
+		//		} catch (MalformedURLException e1) {
+		//			// TODO log
+		//			System.err.println("location=" + location);
+		//			e1.printStackTrace();
+		//		} catch (IOException e) {
+		//			// TODO log
+		//			System.err.println("location=" + location);
+		//			e.printStackTrace();
+		//		}
+		//		return null;
 	}
 
 	public static Dictionary getOSGiManifest(String location) {
+		if (location.startsWith("file:") && !location.endsWith(".jar"))
+			return basicLoadManifest(new File(location.substring("file:".length())));
+
 		try {
 			URL url = new URL("jar:" + location + "!/");
 			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
@@ -221,6 +232,62 @@ public class Utils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	//Return a dictionary representing a manifest. The data may result from plugin.xml conversion  
+	private static Dictionary basicLoadManifest(File bundleLocation) {
+		InputStream manifestStream = null;
+		ZipFile jarFile = null;
+		try {
+			String fileExtention = bundleLocation.getName();
+			fileExtention = fileExtention.substring(fileExtention.lastIndexOf('.') + 1);
+			if ("jar".equalsIgnoreCase(fileExtention) && bundleLocation.isFile()) { //$NON-NLS-1$
+				jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
+				ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
+				if (manifestEntry != null) {
+					manifestStream = jarFile.getInputStream(manifestEntry);
+				}
+			} else {
+				manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
+			}
+		} catch (IOException e) {
+			//ignore
+		}
+		Dictionary manifest = null;
+
+		//It is not a manifest, but a plugin or a fragment
+
+		if (manifestStream != null) {
+			try {
+				Manifest m = new Manifest(manifestStream);
+				manifest = manifestToProperties(m.getMainAttributes());
+			} catch (IOException ioe) {
+				return null;
+			} finally {
+				try {
+					manifestStream.close();
+				} catch (IOException e1) {
+					//Ignore
+				}
+				try {
+					if (jarFile != null)
+						jarFile.close();
+				} catch (IOException e2) {
+					//Ignore
+				}
+			}
+		}
+		return manifest;
+	}
+
+	private static Properties manifestToProperties(Attributes d) {
+		Iterator iter = d.keySet().iterator();
+		Properties result = new Properties();
+		while (iter.hasNext()) {
+			Attributes.Name key = (Attributes.Name) iter.next();
+			result.put(key.toString(), d.get(key));
+		}
+		return result;
 	}
 
 	public static String getPathFromClause(String clause) {
@@ -551,6 +618,8 @@ public class Utils {
 		File[] lists = bundlesDir.listFiles();
 		URL ret = null;
 		EclipseVersion maxVersion = null;
+		if (lists == null)
+			return null;
 
 		for (int i = 0; i < lists.length; i++) {
 			try {
