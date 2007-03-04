@@ -21,26 +21,61 @@ public class EclipseLauncherParser {
 
 	private String[] getConfigFileLines(LauncherData launcherData, File outputFile, boolean relative) {
 		List lines = new LinkedList();
+
+		boolean startUpFlag = false;
+		final String[] programArgs = launcherData.getProgramArgs();
+		if (programArgs != null && programArgs.length != 0)
+			for (int i = 0; i < programArgs.length; i++) {
+				if (programArgs[i].equals(EquinoxConstants.OPTION_STARTUP) || programArgs[i + 1] != null || programArgs[i + 1].length() != 0) {
+					lines.add(programArgs[i]);
+					lines.add(programArgs[++i]);
+					startUpFlag = true;
+				} else
+					lines.add(programArgs[i]);
+			}
 		if (launcherData.isClean())
 			lines.add(EquinoxConstants.OPTION_CLEAN);
-		if (launcherData.getFwPersistentDataLocation() != null) {
+		File fwPersistentDataLocation = launcherData.getFwPersistentDataLocation();
+		File fwConfigLocation = launcherData.getFwConfigLocation();
+		if (fwPersistentDataLocation != null) {
+			if (fwConfigLocation != null) {
+				if (!fwPersistentDataLocation.equals(fwConfigLocation))
+					throw new IllegalStateException();
+			}
+			launcherData.setFwConfigLocation(fwPersistentDataLocation);
+		} else if (fwConfigLocation != null)
+			launcherData.setFwPersistentDataLocation(fwConfigLocation, launcherData.isClean());
+
+		if (launcherData.getFwConfigLocation() != null) {
 			lines.add(EquinoxConstants.OPTION_CONFIGURATION);
 			String path = "";
 			if (relative)
-				path = Utils.getRelativePath(launcherData.getFwPersistentDataLocation(), outputFile.getParentFile());
+				path = Utils.getRelativePath(launcherData.getFwConfigLocation(), outputFile.getParentFile());
 			else
-				path = launcherData.getFwPersistentDataLocation().getAbsolutePath();
+				path = launcherData.getFwConfigLocation().getAbsolutePath();
 			lines.add(path);
 		}
+
+		if (!startUpFlag)
+			if (launcherData.getFwJar() != null) {
+				lines.add(EquinoxConstants.OPTION_FW);
+				String path = "";
+				//if (relative)
+				//	path = Utils.getRelativePath(launcherData.getFwJar(), outputFile.getParentFile());
+				//else
+				path = launcherData.getFwJar().getAbsolutePath();
+				lines.add(path);
+			}
 
 		if (launcherData.getJvm() != null) {
 			lines.add(EquinoxConstants.OPTION_VM);
 			lines.add(launcherData.getJvm().getAbsolutePath());
 		}
-		if (launcherData.getJvmArgs() != null && launcherData.getJvmArgs().length != 0) {
+		final String[] jvmArgs = launcherData.getJvmArgs();
+		if (jvmArgs != null && jvmArgs.length != 0) {
 			lines.add(EquinoxConstants.OPTION_VMARGS);
-			for (int i = 0; i < launcherData.getJvmArgs().length; i++)
-				lines.add(launcherData.getJvmArgs()[i]);
+			for (int i = 0; i < jvmArgs.length; i++)
+				lines.add(jvmArgs[i]);
 		}
 		String[] ret = new String[lines.size()];
 		lines.toArray(ret);
@@ -71,6 +106,7 @@ public class EclipseLauncherParser {
 				needToUpdate = true;
 			}
 		}
+
 		File fwJar = launcherData.getFwJar();
 		if (fwJar == null) {
 			String location = Utils.getBundleFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, new File(launcherConfigFile.getParent(), EquinoxConstants.PLUGINS_DIR));
@@ -100,7 +136,7 @@ public class EclipseLauncherParser {
 				//throw new IOException("Illegal Format:line=" + line + "tokenizer.countTokens()=" + tokenizer.countTokens());
 			}
 			if (vmArgsFlag) {
-				launcherData.addJvmArgs(new String[] {line});
+				launcherData.addJvmArg(line);
 				continue;
 			}
 			if (line.startsWith("-vmargs")) {
@@ -110,9 +146,8 @@ public class EclipseLauncherParser {
 			if (line.startsWith(EquinoxConstants.OPTION_CONFIGURATION)) {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
-				if (!file.isAbsolute()) {
+				if (!file.isAbsolute())
 					file = new File(launcherConfigFile.getParent() + File.separator + nextLine);
-				}
 				fwPersistentDataLoc = file;
 				needToUpdate = true;
 				continue;
@@ -137,7 +172,8 @@ public class EclipseLauncherParser {
 				launcherData.setFwJar(file);
 				continue;
 			} else {
-				Log.log(LogService.LOG_WARNING, this, "parseCmdLine(String[] lines, File inputFile)", "Unsupported by current impl:line=" + line);
+				launcherData.addProgramArg(lines[i]);
+				//				Log.log(LogService.LOG_WARNING, this, "parseCmdLine(String[] lines, File inputFile)", "Unsupported by current impl:line=" + line);
 			}
 		}
 		if (needToUpdate) {
@@ -177,6 +213,7 @@ public class EclipseLauncherParser {
 
 		if (launcherConfigFile == null)
 			throw new IllegalStateException("launcherConfigFile cannot be set. launcher file should be set in advance.");
+		Utils.createParentDir(launcherConfigFile);
 		// backup file if exists.		
 		if (backup)
 			if (launcherConfigFile.exists()) {

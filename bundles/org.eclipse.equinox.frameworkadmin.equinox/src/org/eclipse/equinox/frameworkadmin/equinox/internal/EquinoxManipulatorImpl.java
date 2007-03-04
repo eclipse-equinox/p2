@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.File;
@@ -122,6 +120,12 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//		this.runtime = runtime;
 		if (runtime)
 			initializeRuntime();
+		// XXX For Equinox, default value of Initial Bundle Start Level is 4.
+		// Precisely speaking, it's not correct. 
+		// Equinox doesn't support setting initial bundle start level as an OSGi terminology.
+		// Only bundles installed by config.ini and updateconfigurator will have that start level(4).
+		// Others has a start level of 1.
+		configData.setInitialBundleStartLevel(4);
 	}
 
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
@@ -284,7 +288,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	//		this.load(true);
 	//	}
 
-	
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.frameworkadmin.Manipulator#load()
 	 */
@@ -326,7 +329,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		File fwConfigFile = new File(launcherData.getFwConfigLocation(), EquinoxConstants.CONFIG_INI);
 		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser();
 		if (fwConfigFile.exists())
-			parser.readFwConfig(configData, fwConfigFile);
+			parser.readFwConfig(this, fwConfigFile);
 
 	}
 
@@ -334,6 +337,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	public void save(boolean backup) throws IOException, FrameworkAdminRuntimeException {
 		Log.log(LogService.LOG_DEBUG, this, "save()", "BEGIN");
 		SimpleBundlesState.checkAvailability(fwAdmin);
+		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
+		if (fwJar != null)
+			launcherData.setFwJar(fwJar);
 
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
 		if (launcherConfigFile != null) {
@@ -348,9 +354,15 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		setConfiguratorManipulator();
 
 		BundleInfo[] newBInfo = null;
-		if (configuratorManipulator != null) // Optimize BundleInfo[] 
-			newBInfo = configuratorManipulator.save(this, backup);
-		else
+		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
+			try {
+				newBInfo = configuratorManipulator.save(this, backup);
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				Log.log(LogService.LOG_WARNING, this, "save()", e);
+				newBInfo = configData.getBundles();
+			}
+		} else
 			newBInfo = configData.getBundles();
 		// Save FwConfigFile
 		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser();
@@ -402,7 +414,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (references == null)
 			return;
 		for (int i = 0; i < bInfos.length; i++) {
-			//String location = bInfos[i].getLocation();
+			String location = bInfos[i].getLocation();
 			if (!bInfos[i].isMarkedAsStarted())
 				continue;
 			for (int j = 0; j < references.length; j++)

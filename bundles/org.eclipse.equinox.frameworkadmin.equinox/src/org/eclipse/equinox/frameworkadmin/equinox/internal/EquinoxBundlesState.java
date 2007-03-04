@@ -88,10 +88,10 @@ public class EquinoxBundlesState implements BundlesState {
 	 * eclipse.exe will launch a fw where plugins/org.eclipse.osgi_*.*.*.*.jar is an implementation of fw.
 	 * 
 	 * @param launcherData
+	 * @param configData
 	 * @return File of fwJar to be used.
-	 * @throws IOException 
 	 */
-	static File getFwJar(LauncherData launcherData) {
+	static File getFwJar(LauncherData launcherData, ConfigData configData) {
 
 		//		EclipseLauncherParser launcherParser = new EclipseLauncherParser(launcherData);
 		//		launcherParser.read();
@@ -109,6 +109,18 @@ public class EquinoxBundlesState implements BundlesState {
 		if (location != null)
 			return new File(location);
 
+		BundleInfo[] bundleInfos = configData.getBundles();
+		for (int i = 0; i < bundleInfos.length; i++) {
+			if (bundleInfos[i].getLocation().startsWith("file:")) {
+				String[] clauses = Utils.getClausesManifestMainAttributes(bundleInfos[i].getLocation(), Constants.BUNDLE_SYMBOLICNAME);
+				if (bundleInfos[i].getLocation().indexOf(EquinoxConstants.FW_JAR_PLUGIN_NAME) > 0) {
+					if ("org.eclipse.osgi".equals(Utils.getPathFromClause(clauses[0]))) {
+						return new File(bundleInfos[i].getLocation().substring("file:".length()));
+					}
+				}
+			}
+		}
+
 		File pluginsDir;
 		if (launcherData.getLauncher() == null) {
 			if (launcherData.getHome() == null)
@@ -119,14 +131,17 @@ public class EquinoxBundlesState implements BundlesState {
 		} else
 			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
 
+		String fullLocation = Utils.getBundleFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir);
+		if (fullLocation == null)
+			return null;
 		URL url = null;
 		try {
-			url = new URL(Utils.getBundleFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir));
+			url = new URL(fullLocation);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.log(LogService.LOG_WARNING, "fullLocation is not in proper format:" + fullLocation);
 		}
-		return new File(url.getFile());
+		return url == null ? null : new File(url.getFile());
 		//		File[] files = pluginsDir.listFiles();
 		//		File ret = null;
 		//		EclipseVersion maxVersion = null;
@@ -306,7 +321,7 @@ public class EquinoxBundlesState implements BundlesState {
 		composeState(bInfos, properties, null);
 		resolve(true);
 		if (getSystemBundle() == null) {
-			File fwJar = getFwJar(launcherData);;
+			File fwJar = getFwJar(launcherData, configData);
 			if (fwJar == null)
 				throw new IllegalStateException("fwJar cannot be set.");
 
