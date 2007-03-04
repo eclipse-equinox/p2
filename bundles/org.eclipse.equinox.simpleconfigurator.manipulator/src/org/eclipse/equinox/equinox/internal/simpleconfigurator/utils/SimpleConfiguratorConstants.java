@@ -10,8 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.equinox.internal.simpleconfigurator.utils;
 
+
+/**
+ * Copied from org.eclipse.equinox.simpleconfigurator.
+ * 
+ */
 public class SimpleConfiguratorConstants {
-	public static final String PARAMETER_BASEURL = "eclipse.simpleConfigurator.baseUrl";
+	public static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl";
 	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation";
 
 	public static final String LAST_CONFIG_STAMP = "last.config.stamps"; //$NON-NLS-1$
@@ -19,6 +24,6 @@ public class SimpleConfiguratorConstants {
 	public static final String CONFIGURATOR_FOLDER = "simpleConfiguration"; //$NON-NLS-1$
 	public static final String CONFIG_INI = "config.ini"; //$NON-NLS-1$
 	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl";
-	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = "org.eclipse.equinox.simpleconfigurator";
-	
+	public static final String TARGET_CONFIGURATOR_NAME = "org.eclipse.equinox.simpleconfigurator";
+	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = TARGET_CONFIGURATOR_NAME;
 }

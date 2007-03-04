@@ -67,8 +67,8 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			}
 		}
 		try {
-
-			File targetFile = new File(baseDir, "SimpleConfigurator.txt");
+			baseDir = new File(baseDir, SimpleConfiguratorConstants.CONFIGURATOR_FOLDER);
+			File targetFile = new File(baseDir, SimpleConfiguratorConstants.CONFIG_LIST);
 			try {
 				Utils.createParentDir(targetFile);
 			} catch (IOException e) {
@@ -211,7 +211,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		return true;
 	}
 
-	private boolean devideBundleInfos(Manipulator manipulator, List setToInitialConfig, List setToSimpleConfig, int initialBSL) throws IOException {
+	private boolean devideBundleInfos(Manipulator manipulator, List setToInitialConfig, List setToSimpleConfig, final int initialBSL) throws IOException {
 		BundlesState state = manipulator.getBundlesState();
 		BundleInfo[] targetBundleInfos = null;
 		if (state.isFullySupported())
@@ -287,7 +287,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		}
 	}
 
-	private BundleInfo[] loadConfiguration(URL url) throws IOException  {
+	private BundleInfo[] loadConfiguration(URL url) throws IOException {
 		if (url == null)
 			return NULL_BUNDLEINFOS;
 
@@ -296,12 +296,11 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		} catch (FileNotFoundException e) {
 			return NULL_BUNDLEINFOS;
 		}
-		
-		
+
 		List bundleInfoList = readConfiguration(url);
 		return Utils.getBundleInfosFromList(bundleInfoList);
 	}
-	
+
 	/**
 	 * This method is copied from SimpleConfiguratorUtils class.
 	 * 
@@ -401,7 +400,6 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		// bundleInfos = (BundleInfo[]) bundles.toArray(new
 		// BundleInfo[bundles.size()]);
 	}
-	
 
 	public BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException {
 		List setToInitialConfig = new LinkedList();
