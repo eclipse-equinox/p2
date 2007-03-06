@@ -14,7 +14,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
-import org.eclipse.equinox.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {

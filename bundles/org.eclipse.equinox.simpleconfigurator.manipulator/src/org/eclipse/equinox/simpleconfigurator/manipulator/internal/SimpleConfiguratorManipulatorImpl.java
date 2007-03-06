@@ -14,9 +14,9 @@ import java.net.URL;
 import java.util.*;
 
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
-import org.eclipse.equinox.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.osgi.framework.Constants;
 
 public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulator {

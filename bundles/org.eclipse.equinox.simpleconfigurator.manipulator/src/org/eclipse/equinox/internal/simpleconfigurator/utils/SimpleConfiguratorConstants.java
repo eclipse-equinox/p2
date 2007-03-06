@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.equinox.internal.simpleconfigurator.utils;
+package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
 
 /**
