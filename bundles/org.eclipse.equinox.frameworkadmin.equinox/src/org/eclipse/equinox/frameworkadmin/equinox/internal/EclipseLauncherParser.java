@@ -109,7 +109,7 @@ public class EclipseLauncherParser {
 
 		File fwJar = launcherData.getFwJar();
 		if (fwJar == null) {
-			String location = Utils.getBundleFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, new File(launcherConfigFile.getParent(), EquinoxConstants.PLUGINS_DIR));
+			String location = Utils.getEclipsePluginFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, new File(launcherConfigFile.getParent(), EquinoxConstants.PLUGINS_DIR));
 			if (location != null)
 				try {
 					fwJar = new File(new URL(location).getFile());
@@ -184,9 +184,11 @@ public class EclipseLauncherParser {
 
 	public void read(LauncherData launcherData) throws IOException {
 		final File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
-		if (launcherConfigFile == null)
+		if (launcherConfigFile == null || !launcherConfigFile.exists())
 			throw new IllegalStateException("launcherData.getLauncherConfigFile() should be set in advance");
 
+		
+		
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(launcherConfigFile));

@@ -31,6 +31,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	public static final String FW_VERSION = "3.3M5";
 	public static final String LAUCNHER_NAME = "Eclipse.exe";
 	public static final String LAUNCHER_VERSION = "3.2";
+	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;
 
 	/**
 	 * If the fwConfigLocation is a file and its name does not equal "config.ini",
@@ -254,7 +255,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			if (bundles[i].getBundleId() == 0) // SystemBundle
 				bInfos[i] = new BundleInfo(fwJarLocation, startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
 			else
-				bInfos[i] = new BundleInfo(FileUtils.getRealLocation(bundles[i].getLocation()), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
+				bInfos[i] = new BundleInfo(FileUtils.getRealLocation(this, bundles[i].getLocation()), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
 		configData.setBundles(bInfos);
 		platformProperties = this.getRunningPlatformProperties();
 
@@ -305,6 +306,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			platformProperties.clear();
 		}
 		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
+		File newFwJar = ((EquinoxBundlesState) bundlesState).getFwJar();
+		if (launcherData.getFwJar() == null && newFwJar != null)
+			launcherData.setFwJar(newFwJar);
+
 		configData.setBundles(newBundleInfos);
 		//		if (!useConfigurator)
 		//			return;
@@ -359,7 +364,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				newBInfo = configuratorManipulator.save(this, backup);
 			} catch (IllegalStateException e) {
 				// TODO Auto-generated catch block
-				Log.log(LogService.LOG_WARNING, this, "save()", e);
+				if (LOG_ILLEGALSTATEEXCEPTION)
+					Log.log(LogService.LOG_WARNING, this, "save()", e);
 				newBInfo = configData.getBundles();
 			}
 		} else
@@ -439,6 +445,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 				//	getLauncherName()/getLauncherVersion() might be taken into consideration
 				//  for copying . 
 				this.launcherData.setFwJar(launcherData.getFwJar());
+				this.launcherData.setHome(launcherData.getHome());
 				this.launcherData.setLauncher(launcherData.getLauncher());
 				this.launcherData.setLauncherConfigLocation(launcherData.getLauncherConfigLocation());
 			}

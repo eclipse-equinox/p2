@@ -131,7 +131,7 @@ public class EquinoxBundlesState implements BundlesState {
 		} else
 			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
 
-		String fullLocation = Utils.getBundleFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir);
+		String fullLocation = Utils.getEclipsePluginFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir);
 		if (fullLocation == null)
 			return null;
 		URL url = null;
@@ -324,6 +324,7 @@ public class EquinoxBundlesState implements BundlesState {
 			File fwJar = getFwJar(launcherData, configData);
 			if (fwJar == null)
 				throw new IllegalStateException("fwJar cannot be set.");
+			launcherData.setFwJar(fwJar);
 
 			BundleInfo[] newBInfos = new BundleInfo[bInfos.length + 1];
 			try {
@@ -351,6 +352,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @throws FrameworkAdminRuntimeException
 	 */
 	private boolean composeState(BundleInfo[] bInfos, Dictionary props, File fwPersistentDataLocation) throws IllegalArgumentException, FrameworkAdminRuntimeException {
+		this.manipulator.getConfigData().setBundles(null);
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		this.setStateObjectFactory();
 		BundleDescription[] cachedInstalledBundles = null;
@@ -421,7 +423,7 @@ public class EquinoxBundlesState implements BundlesState {
 		//bundleList.addAll(Arrays.asList(cachedInstalledBundles));
 		for (int i = 0; i < cachedInstalledBundles.length; i++) {
 			if (cachedInstalledBundles[i].getLocation().startsWith("initial@")) {
-				String location = FileUtils.getRealLocation(cachedInstalledBundles[i].getLocation());
+				String location = FileUtils.getRealLocation(manipulator, cachedInstalledBundles[i].getLocation());
 				boolean found = false;
 				for (int j = 0; j < bInfos.length; j++) {
 					if (location.equals(bInfos[j].getLocation())) {
@@ -461,7 +463,7 @@ public class EquinoxBundlesState implements BundlesState {
 	public BundleInfo convert(BundleDescription toConvert) {
 		boolean markedAsStarted = false;
 		int sl = BundleInfo.NO_LEVEL;
-
+		
 		String location = null;
 		// This algorithm is not sophicificated.
 		if (toConvert.getBundleId() == 0) {//System Bundle
@@ -472,8 +474,10 @@ public class EquinoxBundlesState implements BundlesState {
 				String[] clauses = Utils.getClausesManifestMainAttributes(fwJarLocation, Constants.BUNDLE_SYMBOLICNAME);
 				String fwJarSymbolicName = Utils.getPathFromClause(clauses[0]);
 				String fwJarVersionSt = Utils.getManifestMainAttributes(fwJarLocation, Constants.BUNDLE_VERSION);
-				if (fwJarSymbolicName.equals(symbolicNameTarget) && fwJarVersionSt.equals(versionTarget.toString()))
+				if (fwJarSymbolicName.equals(symbolicNameTarget) && fwJarVersionSt.equals(versionTarget.toString())){
 					location = fwJarLocation;
+					 markedAsStarted=true;
+				}
 			} catch (MalformedURLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -482,7 +486,7 @@ public class EquinoxBundlesState implements BundlesState {
 				e1.printStackTrace();
 			}
 		} else {
-			location = FileUtils.getRealLocation(toConvert.getLocation());
+			location = FileUtils.getEclipseRealLocation(manipulator, toConvert.getLocation());
 			BundleInfo[] originalBInfos = manipulator.getConfigData().getBundles();
 			//			if (DEBUG)
 			//				System.out.println("toConvert=" + location);
@@ -714,12 +718,15 @@ public class EquinoxBundlesState implements BundlesState {
 		boolean found = false;
 
 		BundleDescription[] currentInstalledBundles = state.getBundles();
-		String newLocation = FileUtils.getRealLocation(bInfo.getLocation());
+		String newLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation());
 		Dictionary manifest = Utils.getOSGiManifest(newLocation);
 		String newSymbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+		int position = newSymbolicName.indexOf(";");
+		if(position >=0)
+			newSymbolicName=newSymbolicName.substring(0,position).trim();
 		String newVersion = (String) manifest.get(Constants.BUNDLE_VERSION);
 		for (int i = 0; i < currentInstalledBundles.length; i++) {
-			String location = FileUtils.getRealLocation(currentInstalledBundles[i].getLocation());
+			String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation());
 			if (newLocation.equals(location)) {
 				found = true;
 				break;
@@ -884,6 +891,10 @@ public class EquinoxBundlesState implements BundlesState {
 				//throw new ManipulatorException("Fail to createBundleDescription of bInfo:" + bInfo.toString(), e, ManipulatorException.OTHERS);
 			}
 		}
+	}
+
+	public File getFwJar() {
+		return manipulator.getLauncherData().getFwJar();
 	}
 
 }

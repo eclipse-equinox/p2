@@ -15,6 +15,7 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.osgi.service.log.LogService;
 
@@ -149,25 +150,38 @@ class EquinoxFwConfigFileParser {
 	 * @param value
 	 * @throws ManipulatorException
 	 */
-	private static void setInstallingBundles(ConfigData configData, String value) throws NumberFormatException {
+	private static void setInstallingBundles(Manipulator manipulator, String value) throws NumberFormatException {
+		ConfigData configData = manipulator.getConfigData();
 		if (value != null) {
 			String[] bInfoStrings = Utils.getTokens(value, ",");
 			configData.setBundles(null);
 			for (int i = 0; i < bInfoStrings.length; i++) {
-				int indexI = bInfoStrings[i].indexOf("@");
+				String token = bInfoStrings[i].trim();
+				int index = 0;
+				while (true) {
+					if (token.charAt(index) == ' ')
+						index++;
+					else
+						break;
+				}
+				if (index != 0)
+					token = token.substring(index);
+
+				int indexI = token.indexOf("@");
 				if (indexI == -1) {
-					configData.addBundle(new BundleInfo(bInfoStrings[i]));
+					configData.addBundle(new BundleInfo(token));
 					//	configData.installingBundlesList.add(new BundleInfo(this.convertUrl(bInfoStrings[i])));
 					continue;
 				}
-				String location = bInfoStrings[i].substring(0, indexI);
+				String location = token.substring(0, indexI);
+				location = FileUtils.getEclipseRealLocation(manipulator, location);
 				//					URL url = this.convertUrl(bInfoStrings[i].substring(0, indexI));
-				String slAndFlag = bInfoStrings[i].substring(indexI + "@".length());
+				String slAndFlag = token.substring(indexI + "@".length());
 				boolean markedAsStarted = false;
 				int startLevel = -1;
 				int indexJ = slAndFlag.indexOf(":");
 				if (indexJ == -1) {
-					markedAsStarted = getMarkedAsStartedFormat(slAndFlag, bInfoStrings[i]);
+					markedAsStarted = getMarkedAsStartedFormat(slAndFlag, token);
 					// 3 or start
 					//					try {
 					//startLevel = Integer.parseInt(slAndFlag);
@@ -177,7 +191,7 @@ class EquinoxFwConfigFileParser {
 					//						throw new ManipulatorException("Invalid Format of bInfoStrings[" + i + "]=" + bInfoStrings[i], nfe, ManipulatorException.OTHERS);
 					//					}
 				} else if (indexJ == 0) {
-					markedAsStarted = getMarkedAsStartedFormat(slAndFlag.substring(indexJ + ":".length()), bInfoStrings[i]);
+					markedAsStarted = getMarkedAsStartedFormat(slAndFlag.substring(indexJ + ":".length()), token);
 					configData.addBundle(new BundleInfo(location, startLevel, markedAsStarted));
 					continue;
 				}
@@ -243,7 +257,7 @@ class EquinoxFwConfigFileParser {
 			else if (key.equals(EquinoxConstants.PROP_INITIAL_STARTLEVEL)) {
 				configData.setBeginningFwStartLevel(Integer.parseInt(value));
 			} else if (key.equals(EquinoxConstants.PROP_BUNDLES)) {
-				setInstallingBundles(configData, value);
+				setInstallingBundles(manipulator, value);
 			} else {
 				if (isFwDependent(key)) {
 					configData.setFwDependentProp(key, value);
