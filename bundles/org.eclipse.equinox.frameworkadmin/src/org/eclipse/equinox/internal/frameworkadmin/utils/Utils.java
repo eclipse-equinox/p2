@@ -233,7 +233,7 @@ public class Utils {
 		}
 	}
 
-	public static String getBundleFullLocation(String pluginName, File bundlesDir) {
+	public static String getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
 		File[] lists = bundlesDir.listFiles();
 		URL ret = null;
 		EclipseVersion maxVersion = null;

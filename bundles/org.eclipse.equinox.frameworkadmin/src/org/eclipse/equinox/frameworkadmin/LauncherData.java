@@ -29,7 +29,7 @@ public class LauncherData {
 
 	private boolean clean;
 	private File fwConfigLocation;
-	private File homeLocation = null;
+	private File home = null;
 	private File fwJar = null;
 
 	private File launcher = null;
@@ -81,7 +81,7 @@ public class LauncherData {
 	}
 
 	public File getHome() {
-		return homeLocation;
+		return home;
 	}
 
 	public File getJvm() {
@@ -152,8 +152,8 @@ public class LauncherData {
 		this.clean = clean;
 	}
 
-	public void setHomeLocation(File homeLocation) {
-		this.homeLocation = homeLocation;
+	public void setHome(File home) {
+		this.home = home;
 	}
 
 	public void setJvm(File file) {
@@ -215,7 +215,7 @@ public class LauncherData {
 		sb.append("fwConfigLocation=" + this.fwConfigLocation + "\n");
 		sb.append("fwJar=" + this.fwJar + "\n");
 		sb.append("fwPersistentDataLocation=" + this.fwPersistentDataLocation + "\n");
-		sb.append("homeLocation=" + this.homeLocation + "\n");
+		sb.append("home=" + this.home + "\n");
 		sb.append("launcher=" + this.launcher + "\n");
 		sb.append("launcherConfigLocation=" + this.launcherConfigLocation + "\n");
 		sb.append("clean=" + this.isClean() + "\n");

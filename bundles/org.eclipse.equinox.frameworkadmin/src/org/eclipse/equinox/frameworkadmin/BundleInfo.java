@@ -180,6 +180,7 @@ public class BundleInfo {
 		buffer.append(resolved);
 		buffer.append(", id=");
 		buffer.append(this.bundleId);//		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
+		buffer.append(',').append(manifest==null?"no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();
 	}
