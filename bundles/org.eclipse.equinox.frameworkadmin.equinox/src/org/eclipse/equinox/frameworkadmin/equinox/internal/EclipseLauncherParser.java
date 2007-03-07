@@ -87,7 +87,7 @@ public class EclipseLauncherParser {
 		//		final File launcherFile = launcherData.getLauncher();
 		final File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
 
-		boolean clean = false;
+		boolean clean = launcherData.isClean();
 		boolean needToUpdate = false;
 		File fwPersistentDataLoc = launcherData.getFwPersistentDataLocation();
 		File fwConfigLocation = launcherData.getFwConfigLocation();

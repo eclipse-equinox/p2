@@ -299,7 +299,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		BundlesState bundlesState = null;
 		if (EquinoxBundlesState.checkFullySupported()) {
 			//	bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true, runtime);
-			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true);
+			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, !launcherData.isClean());
 			platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
 		} else {
 			bundlesState = new SimpleBundlesState(fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
