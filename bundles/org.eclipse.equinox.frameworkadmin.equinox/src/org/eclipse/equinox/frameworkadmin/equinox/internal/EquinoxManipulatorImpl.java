@@ -255,7 +255,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			if (bundles[i].getBundleId() == 0) // SystemBundle
 				bInfos[i] = new BundleInfo(fwJarLocation, startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
 			else
-				bInfos[i] = new BundleInfo(FileUtils.getRealLocation(this, bundles[i].getLocation()), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
+				bInfos[i] = new BundleInfo(FileUtils.getRealLocation(this, bundles[i].getLocation(), true), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
 		configData.setBundles(bInfos);
 		platformProperties = this.getRunningPlatformProperties();
 
@@ -332,7 +332,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
 
 		File fwConfigFile = new File(launcherData.getFwConfigLocation(), EquinoxConstants.CONFIG_INI);
-		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser();
+		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
 		if (fwConfigFile.exists())
 			parser.readFwConfig(this, fwConfigFile);
 
@@ -371,7 +371,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		} else
 			newBInfo = configData.getBundles();
 		// Save FwConfigFile
-		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser();
+		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
 		parser.saveFwConfig(newBInfo, this, backup, false);
 	}
 
@@ -421,10 +421,11 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			return;
 		for (int i = 0; i < bInfos.length; i++) {
 			String location = bInfos[i].getLocation();
+			location = FileUtils.getRealLocation(this, location, true);
 			if (!bInfos[i].isMarkedAsStarted())
 				continue;
 			for (int j = 0; j < references.length; j++)
-				if (references[j].getProperty(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME).equals(Utils.getManifestMainAttributes(bInfos[i].getLocation(), Constants.BUNDLE_SYMBOLICNAME))) {
+				if (references[j].getProperty(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME).equals(Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME))) {
 					configuratorManipulator = (ConfiguratorManipulator) cmTracker.getService(references[j]);
 					break;
 				}

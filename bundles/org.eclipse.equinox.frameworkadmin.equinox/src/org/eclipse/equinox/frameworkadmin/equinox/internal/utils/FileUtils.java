@@ -53,7 +53,7 @@ public class FileUtils {
 		//		return getRealLocation(ret);
 	}
 
-	public static String getRealLocation(Manipulator manipulator, final String location) {
+	public static String getRealLocation(Manipulator manipulator, final String location, boolean useEclipse) {
 		String ret = location;
 		if (location.startsWith("reference:"))
 			ret = location.substring("reference:".length());
@@ -61,8 +61,11 @@ public class FileUtils {
 			ret = location.substring("initial@".length());
 
 		if (ret == location)
-			return FileUtils.getEclipseRealLocation(manipulator, location);
-		return getRealLocation(manipulator, ret);
+			if (useEclipse)
+				return FileUtils.getEclipseRealLocation(manipulator, location);
+			else
+				return location;
+		return getRealLocation(manipulator, ret, useEclipse);
 	}
 
 	public static boolean copy(File source, File target) throws IOException {

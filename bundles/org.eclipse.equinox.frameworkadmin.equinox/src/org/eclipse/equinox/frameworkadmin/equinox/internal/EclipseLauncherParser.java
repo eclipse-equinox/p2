@@ -26,7 +26,7 @@ public class EclipseLauncherParser {
 		final String[] programArgs = launcherData.getProgramArgs();
 		if (programArgs != null && programArgs.length != 0)
 			for (int i = 0; i < programArgs.length; i++) {
-				if (programArgs[i].equals(EquinoxConstants.OPTION_STARTUP) || programArgs[i + 1] != null || programArgs[i + 1].length() != 0) {
+				if (programArgs[i].equals(EquinoxConstants.OPTION_STARTUP) && (programArgs[i + 1] != null || programArgs[i + 1].length() != 0)) {
 					lines.add(programArgs[i]);
 					lines.add(programArgs[++i]);
 					startUpFlag = true;
@@ -187,8 +187,6 @@ public class EclipseLauncherParser {
 		if (launcherConfigFile == null || !launcherConfigFile.exists())
 			throw new IllegalStateException("launcherData.getLauncherConfigFile() should be set in advance");
 
-		
-		
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new FileReader(launcherConfigFile));

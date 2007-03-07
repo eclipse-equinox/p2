@@ -9,6 +9,7 @@
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 public class EquinoxConstants {
+	public static final String PROP_KEY_USE_REFERENCE = "org.eclipse.equinox.frameworkadmin.equinox.useReference";
 	public static final String PLUGINS_DIR = "plugins";
 	public static final String FW_JAR_PLUGIN_NAME = "org.eclipse.osgi";
 	public static final String DEFAULT_CONFIGURATION = "configuration";
@@ -85,5 +86,6 @@ public class EquinoxConstants {
 	public static final String EXE_EXTENSION = ".exe";
 
 	public static final String PROP_EQUINOX_DEPENDENT_PREFIX = "osgi.";
+	static final String REFERENCE = "reference:";
 
 }

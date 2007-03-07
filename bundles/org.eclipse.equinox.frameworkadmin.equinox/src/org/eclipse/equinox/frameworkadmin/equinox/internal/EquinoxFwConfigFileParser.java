@@ -17,19 +17,39 @@ import java.util.Properties;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 class EquinoxFwConfigFileParser {
 	private static boolean DEBUG = false;
+	private final BundleContext context;
+	private static String USE_REFERENCE_STRING;
+
+	public EquinoxFwConfigFileParser(BundleContext context) {
+		this.context = context;
+		USE_REFERENCE_STRING = context.getProperty(EquinoxConstants.PROP_KEY_USE_REFERENCE);
+	}
 
 	private static String getCommandLine(BundleInfo bundleInfo, final URL baseUrl) {
-		URL bundleUrl = null;
+		String location = bundleInfo.getLocation();
+		if (location == null)
+			return null;
+		boolean useReference = true;
+		if (location.startsWith("file:")) {
+			if (USE_REFERENCE_STRING != null && USE_REFERENCE_STRING.equals("false"))
+				useReference = false;
+		}
+
 		try {
-			bundleUrl = new URL(bundleInfo.getLocation());
+			new URL(location);
 		} catch (MalformedURLException e) {
 			Log.log(LogService.LOG_ERROR, "EquinoxFwConfigFileParser.getCommandLine():bundleInfo=" + bundleInfo, e);
 			//			Never happen. ignore.
 		}
+		if (useReference)
+			if (!location.startsWith("reference:"))
+				location = "reference:" + location;
+
 		int startLevel = bundleInfo.getStartLevel();
 		boolean toBeStarted = bundleInfo.isMarkedAsStarted();
 
@@ -39,7 +59,7 @@ class EquinoxFwConfigFileParser {
 		//			bundlePath = Utils.getRelativePath(bundleUrl, baseUrl);
 		//			sb.append(bundlePath);
 		//		} else
-		sb.append(bundleUrl.toString());
+		sb.append(location);
 		if (startLevel == BundleInfo.NO_LEVEL && !toBeStarted)
 			return sb.toString();
 		sb.append("@");
@@ -157,6 +177,7 @@ class EquinoxFwConfigFileParser {
 			configData.setBundles(null);
 			for (int i = 0; i < bInfoStrings.length; i++) {
 				String token = bInfoStrings[i].trim();
+				token = FileUtils.getRealLocation(manipulator, token, false);
 				int index = 0;
 				while (true) {
 					if (token.charAt(index) == ' ')
@@ -303,7 +324,7 @@ class EquinoxFwConfigFileParser {
 		}
 		String header = "This properties were written by " + this.getClass().getName();
 
-		Properties configProps = this.getConfigProps(bInfos, configData, launcherData, relative, fwJar);
+		Properties configProps = getConfigProps(bInfos, configData, launcherData, relative, fwJar);
 		if (configProps == null || configProps.size() == 0) {
 			Log.log(LogService.LOG_WARNING, this, "saveFwConfig() ", "configProps is empty");
 			return;
