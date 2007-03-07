@@ -20,6 +20,7 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 public class Log {
 	static private ServiceTracker logTracker;
+	static private boolean useLog = false;
 
 	static void dispose() {
 		if (logTracker != null) {
@@ -61,12 +62,15 @@ public class Log {
 				levelSt = "INFO";
 			else if (level == LogService.LOG_WARNING)
 				levelSt = "WARNING";
-			else if (level == LogService.LOG_ERROR)
+			else if (level == LogService.LOG_ERROR) {
 				levelSt = "ERROR";
-
-			System.err.println("[" + levelSt + "]" + msg);
-			if (e != null)
-				e.printStackTrace();
+				useLog = true;
+			}
+			if (useLog) {
+				System.err.println("[" + levelSt + "]" + msg);
+				if (e != null)
+					e.printStackTrace();
+			}
 		}
 	}
 
