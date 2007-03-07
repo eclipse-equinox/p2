@@ -82,12 +82,22 @@ class ConfigApplier {
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
 				try {
-					if (finalList[i].getLocation() == null)
+					String location = finalList[i].getLocation();
+					if (location == null)
 						continue;
+					boolean useReference = true;
+					if (location.startsWith("file:")) {
+						String value = this.manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE);
+						if (value != null && value.equals("false"))
+							useReference = false;
+					}
+					if (useReference)
+						if (!location.startsWith("reference:"))
+							location = "reference:" + location;
 					//TODO Need to eliminate System Bundle.
 					// If a system bundle doesn't have a SymbolicName header, like Knopflerfish 4.0.0,
 					// it will be installed unfortunately. 
-					current = manipulatingContext.installBundle(finalList[i].getLocation());
+					current = manipulatingContext.installBundle(location);
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]);
 					installed.add(current);

@@ -406,9 +406,13 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		List setToSimpleConfig = new LinkedList();
 		ConfigData configData = manipulator.getConfigData();
 
+		//try {
 		if (!devideBundleInfos(manipulator, setToInitialConfig, setToSimpleConfig, configData.getInitialBundleStartLevel()))
 			return configData.getBundles();
-
+		//} catch (Exception e) {
+		//	e.printStackTrace();
+		//	System.exit(-1);
+		//}
 		//		if (DEBUG) {
 		//			System.out.println("setToInitialConfig=\n" + SimpleConfiguratorUtils.getListSt(setToInitialConfig));
 		//			System.out.println("setToSimpleConfig=\n" + SimpleConfiguratorUtils.getListSt(setToSimpleConfig));
@@ -433,6 +437,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 					throw new IOException("Fail to rename from (" + outputFile + ") to (" + dest + ")");
 			}
 
+		Utils.createParentDir(outputFile);
 		bw = new BufferedWriter(new FileWriter(outputFile));
 
 		for (Iterator ite = bundleInfoList.iterator(); ite.hasNext();) {
