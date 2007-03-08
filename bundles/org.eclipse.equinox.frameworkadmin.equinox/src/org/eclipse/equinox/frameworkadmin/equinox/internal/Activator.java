@@ -15,7 +15,7 @@ import java.util.Hashtable;
 
 import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
-import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.BundleHelper;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.BundleHelper;
 import org.osgi.framework.*;
 
 /**

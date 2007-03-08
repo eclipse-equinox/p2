@@ -8,11 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.frameworkadmin.equinox.internal.utils;
+package org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state;
 
 import java.io.File;
 
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 public class BundleHelper {//implements BundleActivator {
 	private static BundleHelper defaultInstance;
@@ -30,7 +31,7 @@ public class BundleHelper {//implements BundleActivator {
 		}
 	}
 
-	private static BundleContext context ;
+	private static BundleContext context;
 
 	private BundleHelper() throws RuntimeException {
 		if (defaultInstance != null)

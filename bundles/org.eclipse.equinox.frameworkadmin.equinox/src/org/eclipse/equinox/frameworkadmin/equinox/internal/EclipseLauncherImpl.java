@@ -18,7 +18,6 @@ import java.util.List;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class EclipseLauncherImpl {

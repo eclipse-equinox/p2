@@ -16,7 +16,9 @@ import java.util.*;
 
 import org.eclipse.core.runtime.internal.adaptor.EclipseEnvironmentInfo;
 import org.eclipse.equinox.frameworkadmin.*;
-import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.*;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.AlienStateReader;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.BundleHelper;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.osgi.framework.internal.core.FrameworkProperties;
@@ -132,7 +134,7 @@ public class EquinoxBundlesState implements BundlesState {
 		} else
 			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
 
-		String fullLocation = Utils.getEclipsePluginFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir);
+		String fullLocation = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir);
 		if (fullLocation == null)
 			return null;
 		URL url = null;
@@ -143,19 +145,6 @@ public class EquinoxBundlesState implements BundlesState {
 			Log.log(LogService.LOG_WARNING, "fullLocation is not in proper format:" + fullLocation);
 		}
 		return url == null ? null : new File(url.getFile());
-		//		File[] files = pluginsDir.listFiles();
-		//		File ret = null;
-		//		EclipseVersion maxVersion = null;
-		//		for (int i = 0; i < files.length; i++)
-		//			if (files[i].getName().startsWith("org.eclipse.osgi_")) {
-		//				String version = files[i].getName().substring("org.eclipse.osgi_".length(), files[i].getName().lastIndexOf(".jar"));
-		//				if (ret == null || ((new EclipseVersion(version)).compareTo(maxVersion) > 0)) {
-		//					ret = files[i];
-		//					maxVersion = new EclipseVersion(version);
-		//					continue;
-		//				}
-		//			}
-		//		return ret;
 	}
 
 	private static long getMaxId(State state) {

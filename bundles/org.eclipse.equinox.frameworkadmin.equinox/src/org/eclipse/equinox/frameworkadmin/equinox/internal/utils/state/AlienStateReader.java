@@ -6,12 +6,14 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.frameworkadmin.equinox.internal.utils;
+package org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.runtime.adaptor.LocationManager;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.Log;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.osgi.framework.adaptor.FrameworkAdaptor;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.storagemanager.StorageManager;

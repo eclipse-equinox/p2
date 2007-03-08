@@ -15,8 +15,8 @@ import java.util.*;
 
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
-import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.BundleHelper;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.BundleHelper;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -251,11 +251,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		StartLevel startLevel = (StartLevel) context.getService(reference);
 		Bundle[] bundles = context.getBundles();
 		BundleInfo[] bInfos = new BundleInfo[bundles.length];
-		for (int i = 0; i < bundles.length; i++)
+		for (int i = 0; i < bundles.length; i++) {
+			//			System.out.println("bundles[" + i + "]=" + bundles[i]);
 			if (bundles[i].getBundleId() == 0) // SystemBundle
 				bInfos[i] = new BundleInfo(fwJarLocation, startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
 			else
 				bInfos[i] = new BundleInfo(FileUtils.getRealLocation(this, bundles[i].getLocation(), true), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
+		}
 		configData.setBundles(bInfos);
 		platformProperties = this.getRunningPlatformProperties();
 

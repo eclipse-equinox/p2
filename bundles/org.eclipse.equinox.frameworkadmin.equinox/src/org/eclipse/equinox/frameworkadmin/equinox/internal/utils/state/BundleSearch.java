@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.frameworkadmin.equinox.internal.utils;
+package org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state;
 
 import java.io.File;
 import java.io.IOException;

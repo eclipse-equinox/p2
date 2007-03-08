@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.*;
 
 import org.eclipse.equinox.frameworkadmin.LauncherData;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.osgi.service.log.LogService;
 
@@ -109,7 +110,7 @@ public class EclipseLauncherParser {
 
 		File fwJar = launcherData.getFwJar();
 		if (fwJar == null) {
-			String location = Utils.getEclipsePluginFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, new File(launcherConfigFile.getParent(), EquinoxConstants.PLUGINS_DIR));
+			String location = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, new File(launcherConfigFile.getParent(), EquinoxConstants.PLUGINS_DIR));
 			if (location != null)
 				try {
 					fwJar = new File(new URL(location).getFile());

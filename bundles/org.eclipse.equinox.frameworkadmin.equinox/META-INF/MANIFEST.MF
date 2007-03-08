@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FrameworkAdmin Service for Equinox
 Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin.equinox
-Bundle-Version: 1.3.3
+Bundle-Version: 1.3.4
 Bundle-Activator: org.eclipse.equinox.frameworkadmin.equinox.internal.Activator
 Bundle-Vendor: Eclipse.org
 Bundle-Localization: plugin
@@ -23,3 +23,4 @@ Import-Package: org.eclipse.core.runtime,
  org.osgi.service.log;version="1.3.0",
  org.osgi.service.startlevel;version="1.0.0",
  org.osgi.util.tracker;version="1.3.2"
+Export-Package: org.eclipse.equinox.frameworkadmin.equinox.internal.utils

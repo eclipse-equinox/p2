@@ -13,6 +13,7 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal.utils;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.StringTokenizer;
 
 import org.eclipse.equinox.frameworkadmin.LauncherData;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
@@ -26,8 +27,7 @@ public class FileUtils {
 			new URL(location);
 			return location;
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			// just ignore.
 		}
 		if (location.indexOf(":") >= 0)
 			return location;
@@ -41,22 +41,31 @@ public class FileUtils {
 			pluginsDir = new File(launcherData.getLauncher().getParentFile(), EquinoxConstants.PLUGINS_DIR);
 		else if (launcherData.getFwJar() != null)
 			pluginsDir = launcherData.getFwJar().getParentFile();
+		String pluginName = getPluginName(location);
+		String ret = getEclipsePluginFullLocation(pluginName, pluginsDir);
+		return ret;
+	}
 
-		return Utils.getEclipsePluginFullLocation(location, pluginsDir);
-		//		String ret = location;
-		//		if (location.startsWith("reference:"))
-		//			ret = location.substring("reference:".length());
-		//		if (location.startsWith("initial@"))
-		//			ret = location.substring("initial@".length());
-		//		if (ret == location)
-		//			return ret;
-		//		return getRealLocation(ret);
+	private static String getPluginName(final String location) {
+		int position = location.indexOf("_");
+		String pluginName = location;
+		if (position >= 0)
+			pluginName = location.substring(0, position);
+		return pluginName;
 	}
 
 	public static String getRealLocation(Manipulator manipulator, final String location, boolean useEclipse) {
+		if (location == null)
+			return null;
 		String ret = location;
-		if (location.startsWith("reference:"))
+		if (location.startsWith("reference:")) {
 			ret = location.substring("reference:".length());
+			if (ret.endsWith(".jar/")) {
+				ret = ret.substring(0, ret.length() - "/".length());
+				if (ret.startsWith("file:"))
+					ret = ret.substring("file:".length());
+			}
+		}
 		if (location.startsWith("initial@"))
 			ret = location.substring("initial@".length());
 
@@ -116,4 +125,110 @@ public class FileUtils {
 			}
 		}
 	}
+
+	/**
+	 * If a bundle of the specified location is in the Eclipse plugin format (plugin-name_version.jar),
+	 * return version string.Otherwise, return null;
+	 * 
+	 * @param url
+	 * @param pluginName
+	 * @return version string. If invalid format, return null. 
+	 */
+	private static String getEclipseJarNamingVersion(URL url, final String pluginName) {
+		String location = Utils.replaceAll(url.getFile(), File.separator, "/");
+		String filename = null;
+		if (location.indexOf(":") == -1)
+			filename = location;
+		else
+			filename = location.substring(location.lastIndexOf(":") + 1);
+
+		if (location.indexOf("/") == -1)
+			filename = location;
+		else
+			filename = location.substring(location.lastIndexOf("/") + 1);
+		// filename must be "jarName"_"version".jar
+		//System.out.println("filename=" + filename);
+		if (!filename.endsWith(".jar"))
+			return null;
+		filename = filename.substring(0, filename.lastIndexOf(".jar"));
+		//System.out.println("filename=" + filename);
+		if (filename.lastIndexOf("_") == -1)
+			return null;
+		String version = filename.substring(filename.lastIndexOf("_") + 1);
+		filename = filename.substring(0, filename.lastIndexOf("_"));
+		//System.out.println("filename=" + filename);
+		if (filename.indexOf("_") != -1)
+			return null;
+		if (!filename.equals(pluginName))
+			return null;
+		return version;
+	}
+
+	public static String getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
+		File[] lists = bundlesDir.listFiles();
+		URL ret = null;
+		EclipseVersion maxVersion = null;
+		if (lists == null)
+			return null;
+
+		for (int i = 0; i < lists.length; i++) {
+			try {
+				URL url = lists[i].toURL();
+				String version = getEclipseJarNamingVersion(url, pluginName);
+				if (version != null) {
+					EclipseVersion eclipseVersion = new EclipseVersion(version);
+					if (maxVersion == null || eclipseVersion.compareTo(maxVersion) > 0) {
+						ret = url;
+						maxVersion = eclipseVersion;
+					}
+				}
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return (ret == null ? null : ret.toExternalForm());
+	}
+}
+
+class EclipseVersion implements Comparable {
+	int major = 0;
+	int minor = 0;
+	int service = 0;
+	String qualifier = null;
+
+	EclipseVersion(String version) {
+		StringTokenizer tok = new StringTokenizer(version, ".");
+		if (!tok.hasMoreTokens())
+			return;
+		this.major = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.minor = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.service = Integer.parseInt(tok.nextToken());
+		if (!tok.hasMoreTokens())
+			return;
+		this.qualifier = tok.nextToken();
+	}
+
+	public int compareTo(Object obj) {
+		EclipseVersion target = (EclipseVersion) obj;
+		if (target.major > this.major)
+			return -1;
+		if (target.major < this.major)
+			return 1;
+		if (target.minor > this.minor)
+			return -1;
+		if (target.minor < this.minor)
+			return 1;
+		if (target.service > this.service)
+			return -1;
+		if (target.service < this.service)
+			return 1;
+		return 0;
+	}
+
 }

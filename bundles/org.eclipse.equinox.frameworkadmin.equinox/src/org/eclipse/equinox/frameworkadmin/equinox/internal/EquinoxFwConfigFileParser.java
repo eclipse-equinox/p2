@@ -23,11 +23,13 @@ import org.osgi.service.log.LogService;
 class EquinoxFwConfigFileParser {
 	private static boolean DEBUG = false;
 	private final BundleContext context;
-	private static String USE_REFERENCE_STRING;
+	private static String USE_REFERENCE_STRING = null;
 
 	public EquinoxFwConfigFileParser(BundleContext context) {
 		this.context = context;
-		USE_REFERENCE_STRING = context.getProperty(EquinoxConstants.PROP_KEY_USE_REFERENCE);
+		if (context != null)
+			USE_REFERENCE_STRING = context.getProperty(EquinoxConstants.PROP_KEY_USE_REFERENCE);
+
 	}
 
 	private static String getCommandLine(BundleInfo bundleInfo, final URL baseUrl) {
