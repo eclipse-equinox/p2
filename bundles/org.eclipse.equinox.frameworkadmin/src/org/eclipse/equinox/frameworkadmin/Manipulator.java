@@ -113,6 +113,16 @@ public interface Manipulator {
 	LauncherData getLauncherData() throws FrameworkAdminRuntimeException;
 
 	/**
+	 * Return timestamp of configurations which will be loaded by load() method
+	 * according to the parameters set to this manipulator in long value.
+	 * 
+	 * This method will check last modified time of all laucnher config file, framework config file,
+	 * and framework persistent storage according to the parameters set.
+	 * @return
+	 */
+	long getTimeStamp();
+
+	/**
 	 * Initialize all information that this object keeps at that time.
 	 */
 	void initialize();

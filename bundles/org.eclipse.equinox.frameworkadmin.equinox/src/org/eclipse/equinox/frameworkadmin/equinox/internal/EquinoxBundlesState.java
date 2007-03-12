@@ -68,6 +68,7 @@ class EclipseVersion implements Comparable {
 }
 
 public class EquinoxBundlesState implements BundlesState {
+	static final long DEFAULT_TIMESTAMP = 0L;
 	private static final boolean DEBUG = false;
 	// While we recognize the amd64 architecture, we change
 	// this internally to be x86_64.
@@ -94,6 +95,31 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @return File of fwJar to be used.
 	 */
 	static File getFwJar(LauncherData launcherData, ConfigData configData) {
+		return getFwJar(launcherData, configData, true);
+		//
+		//		//		EclipseLauncherParser launcherParser = new EclipseLauncherParser(launcherData);
+		//		//		launcherParser.read();
+		//		if (launcherData.getFwJar() != null)
+		//			return launcherData.getFwJar();
+		//
+		//		// check -D arguments of jvmArgs ?
+		//		String[] jvmArgs = launcherData.getJvmArgs();
+		//		String location = null;
+		//		for (int i = 0; i < jvmArgs.length; i++) {
+		//			if (jvmArgs[i].endsWith("-D" + "osgi.framework=")) {
+		//				location = jvmArgs[i].substring(("-D" + "osgi.framework=").length());
+		//			}
+		//		}
+		//		if (location != null)
+		//			return new File(location);
+		//
+		//		File ret = getSystemBundleFromBundleInfos(launcherData, configData);
+		//		if (ret != null)
+		//			return ret;
+		//		return getSystemBundleBySearching(launcherData);
+	}
+
+	static File getFwJar(LauncherData launcherData, ConfigData configData, boolean checkBundleInfos) {
 
 		//		EclipseLauncherParser launcherParser = new EclipseLauncherParser(launcherData);
 		//		launcherParser.read();
@@ -111,45 +137,17 @@ public class EquinoxBundlesState implements BundlesState {
 		if (location != null)
 			return new File(location);
 
-		BundleInfo[] bundleInfos = configData.getBundles();
-		for (int i = 0; i < bundleInfos.length; i++) {
-			String bundleLocation = bundleInfos[i].getLocation();
-			if (bundleLocation.startsWith(EquinoxConstants.REFERENCE))
-				bundleLocation = bundleLocation.substring(EquinoxConstants.REFERENCE.length());
-			if (bundleLocation.startsWith("file:")) {
-				String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
-				if (bundleLocation.indexOf(EquinoxConstants.FW_JAR_PLUGIN_NAME) > 0)
-					if ("org.eclipse.osgi".equals(Utils.getPathFromClause(clauses[0])))
-						return new File(bundleLocation.substring("file:".length()));
-			}
+		if (checkBundleInfos) {
+			File ret = getSystemBundleFromBundleInfos(configData);
+			if (ret != null)
+				return ret;
 		}
-
-		File pluginsDir;
-		if (launcherData.getLauncher() == null) {
-			if (launcherData.getHome() == null)
-				return null;
-			else {
-				pluginsDir = new File(launcherData.getHome(), "plugins");
-			}
-		} else
-			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
-
-		String fullLocation = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_JAR_PLUGIN_NAME, pluginsDir);
-		if (fullLocation == null)
-			return null;
-		URL url = null;
-		try {
-			url = new URL(fullLocation);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			Log.log(LogService.LOG_WARNING, "fullLocation is not in proper format:" + fullLocation);
-		}
-		return url == null ? null : new File(url.getFile());
+		return getSystemBundleBySearching(launcherData);
 	}
 
 	private static long getMaxId(State state) {
 		BundleDescription[] bundleDescriptions = state.getBundles();
-		long maxId = -1;
+		long maxId = DEFAULT_TIMESTAMP;
 		for (int i = 0; i < bundleDescriptions.length; i++)
 			if (maxId < bundleDescriptions[i].getBundleId())
 				maxId = bundleDescriptions[i].getBundleId();
@@ -163,6 +161,87 @@ public class EquinoxBundlesState implements BundlesState {
 		for (int i = 0; i < descriptions.length; i++)
 			sb.append("# " + descriptions[i].toString() + "\n");
 		return sb.toString();
+	}
+
+	private static File getSystemBundleBySearching(LauncherData launcherData) {
+		File pluginsDir;
+		if (launcherData.getLauncher() == null) {
+			if (launcherData.getHome() == null)
+				return null;
+			else {
+				pluginsDir = new File(launcherData.getHome(), "plugins");
+			}
+		} else
+			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
+
+		String fullLocation = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, pluginsDir);
+		if (fullLocation == null)
+			return null;
+		URL url = null;
+		try {
+			url = new URL(fullLocation);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			Log.log(LogService.LOG_WARNING, "fullLocation is not in proper format:" + fullLocation);
+		}
+		return url == null ? null : new File(url.getFile());
+	}
+
+	public static File getSystemBundleFromBundleInfos(BundleInfo[] bundleInfos) {
+
+		for (int i = 0; i < bundleInfos.length; i++) {
+			String bundleLocation = bundleInfos[i].getLocation();
+			if (bundleLocation.startsWith(EquinoxConstants.REFERENCE))
+				bundleLocation = bundleLocation.substring(EquinoxConstants.REFERENCE.length());
+			if (bundleLocation.startsWith("file:")) {
+				String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
+				if (bundleLocation.indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
+					if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
+						return new File(bundleLocation.substring("file:".length()));
+			}
+		}
+		return null;
+	}
+
+	public static File getSystemBundleFromBundleInfos(ConfigData configData) {
+		BundleInfo[] bundleInfos = configData.getBundles();
+		return getSystemBundleFromBundleInfos(bundleInfos);
+	}
+
+	static long getTimeStamp(File fwPersistentDataLocation) {
+		if (fwPersistentDataLocation == null)
+			return DEFAULT_TIMESTAMP;
+
+		//			// TODO just for test. it should be removed.
+		//			File file = new File("C:/eclipse/3.3M3/configuration2");
+		//			System.out.println("file=" + file);
+		//			System.out.println("file.equals(fwPersistentDataLocation)=" + file.equals(fwPersistentDataLocation));
+		//			fwPersistentDataLocation = file;
+		File file = new File(fwPersistentDataLocation, EquinoxConstants.PERSISTENT_DIR_NAME);
+		if (!file.exists() || !file.isDirectory())
+			return DEFAULT_TIMESTAMP;
+		long ret = file.lastModified();
+		File[] lists = file.listFiles();
+		if (lists == null)
+			return ret;
+		for (int i = 0; i < lists.length; i++)
+			if (ret < lists[i].lastModified())
+				ret = lists[i].lastModified();
+		return ret;
+	}
+
+	public static boolean isSystemBundle(BundleInfo bundleInfo) {
+		String bundleLocation = bundleInfo.getLocation();
+		if (bundleLocation.startsWith(EquinoxConstants.REFERENCE))
+			bundleLocation = bundleLocation.substring(EquinoxConstants.REFERENCE.length());
+		if (bundleLocation.startsWith("file:")) {
+			String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
+			if (bundleLocation.indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
+				if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
+					return true;
+		}
+
+		return false;
 	}
 
 	// "osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", 
@@ -202,36 +281,17 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	EquinoxFwAdminImpl fwAdmin = null;
+
 	BundleContext context;
 
 	Manipulator manipulator = null;
-
 	Properties platfromProperties = new Properties();
-	long maxId = -1;
+
+	long maxId = DEFAULT_TIMESTAMP;
 
 	StateObjectFactory soFactory = null;
 
 	State state = null;
-
-	/**
-	 * If useFwPersistentData flag equals false,
-	 * this constructor will not take a framework persistent data into account.	
-	 * Otherwise, it will.
-	 * 
-	 * @param context
-	 * @param fwAdmin
-	 * @param manipulator
-	 * @param useFwPersistentData
-	 */
-	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, boolean useFwPersistentData) {
-		this.context = context;
-		this.fwAdmin = fwAdmin;
-		// copy manipulator object for avoiding modifying the parameters of the manipulator.
-		this.manipulator = fwAdmin.getManipulator();
-		this.manipulator.setConfigData(manipulator.getConfigData());
-		this.manipulator.setLauncherData(manipulator.getLauncherData());
-		initialize(useFwPersistentData);
-	}
 
 	//	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator) {
 	//		this(context, fwAdmin, manipulator, true);
@@ -261,6 +321,26 @@ public class EquinoxBundlesState implements BundlesState {
 	//			initialize(useFwPersistentData);
 	//		}
 	//	}
+
+	/**
+	 * If useFwPersistentData flag equals false,
+	 * this constructor will not take a framework persistent data into account.	
+	 * Otherwise, it will.
+	 * 
+	 * @param context
+	 * @param fwAdmin
+	 * @param manipulator
+	 * @param useFwPersistentData
+	 */
+	EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin, Manipulator manipulator, boolean useFwPersistentData) {
+		this.context = context;
+		this.fwAdmin = fwAdmin;
+		// copy manipulator object for avoiding modifying the parameters of the manipulator.
+		this.manipulator = fwAdmin.getManipulator();
+		this.manipulator.setConfigData(manipulator.getConfigData());
+		this.manipulator.setLauncherData(manipulator.getLauncherData());
+		initialize(useFwPersistentData);
+	}
 
 	/**
 	 * This constructor does NOT take a framework persistent data into account.
@@ -308,26 +388,51 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @param bInfos
 	 */
 	private void composeNewState(LauncherData launcherData, ConfigData configData, Properties properties, BundleInfo[] bInfos) {
-		composeState(bInfos, properties, null);
-		resolve(true);
-		if (getSystemBundle() == null) {
-			File fwJar = getFwJar(launcherData, configData);
+		File fwJar = getSystemBundleFromBundleInfos(configData);
+		if (fwJar == null) {
+			fwJar = getFwJar(launcherData, configData, false);
 			if (fwJar == null)
 				throw new IllegalStateException("fwJar cannot be set.");
-			launcherData.setFwJar(fwJar);
+			if (launcherData.getFwJar() != null)
+				launcherData.setFwJar(fwJar);
 
-			BundleInfo[] newBInfos = new BundleInfo[bInfos.length + 1];
+			configData.setBundles(null);
+
 			try {
-				newBInfos[0] = new BundleInfo(fwJar.toURL().toExternalForm(), 0, true, 0);
+				BundleInfo systemBundleInfo = new BundleInfo(fwJar.toURL().toExternalForm(), 0, true, 0);
+				configData.addBundle(systemBundleInfo);
 			} catch (MalformedURLException e) {
 				// Nothign to do because never happens.
 				e.printStackTrace();
 			}
-			System.arraycopy(bInfos, 0, newBInfos, 1, bInfos.length);
-			configData.setBundles(newBInfos);
-			composeState(newBInfos, properties, null);
-			resolve(true);
+
+			for (int i = 0; i < bInfos.length; i++)
+				configData.addBundle(bInfos[i]);
+		} else {
+			if (this.getFwJar() == null)
+				this.setFwJar(fwJar);
+
 		}
+
+		//		composeState(bInfos, properties, null);
+		//		resolve(true);
+		//		if (getSystemBundle() == null) {
+		//			File fwJar = getFwJar(launcherData, configData);
+		//			if (fwJar == null)
+		//				throw new IllegalStateException("fwJar cannot be set.");
+		//			launcherData.setFwJar(fwJar);
+		//
+		//			BundleInfo[] newBInfos = new BundleInfo[bInfos.length + 1];
+		//			try {
+		//				newBInfos[0] = new BundleInfo(fwJar.toURL().toExternalForm(), 0, true, 0);
+		//			} catch (MalformedURLException e) {
+		//				// Nothign to do because never happens.
+		//				e.printStackTrace();
+		//			}
+		//			System.arraycopy(bInfos, 0, newBInfos, 1, bInfos.length);
+		//			configData.setBundles(newBInfos);
+		composeState(configData.getBundles(), properties, null);
+		resolve(true);
 	}
 
 	/**
@@ -347,6 +452,7 @@ public class EquinoxBundlesState implements BundlesState {
 		this.setStateObjectFactory();
 		BundleDescription[] cachedInstalledBundles = null;
 		state = null;
+		boolean flagNewState = false;
 		if (fwPersistentDataLocation != null) {
 			if (DEBUG)
 				Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "fwPersistentDataLocation=" + fwPersistentDataLocation);
@@ -355,7 +461,7 @@ public class EquinoxBundlesState implements BundlesState {
 			//			System.out.println("file=" + file);
 			//			System.out.println("file.equals(fwPersistentDataLocation)=" + file.equals(fwPersistentDataLocation));
 			//			fwPersistentDataLocation = file;
-			File file = new File(fwPersistentDataLocation, "org.eclipse.osgi");
+			File file = new File(fwPersistentDataLocation, EquinoxConstants.PERSISTENT_DIR_NAME);
 			if (!file.exists())
 				return false;
 			if (!file.isDirectory())
@@ -402,6 +508,7 @@ public class EquinoxBundlesState implements BundlesState {
 		} else {
 			//return false;
 			state = soFactory.createState(true);
+			flagNewState = true;
 			cachedInstalledBundles = new BundleDescription[0];
 			if (props == null)
 				return false;
@@ -434,6 +541,23 @@ public class EquinoxBundlesState implements BundlesState {
 		if (DEBUG) {
 			System.out.println("");
 			Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "installBundle():");
+		}
+		if (flagNewState) {
+			int indexSystemBundle = -1;
+			for (int j = 0; j < bInfos.length; j++)
+				if (isSystemBundle(bInfos[j])) {
+					indexSystemBundle = j;
+					break;
+				}
+
+			if (indexSystemBundle > 0) {
+				BundleInfo[] newBundleInfos = new BundleInfo[bInfos.length];
+				newBundleInfos[0] = bInfos[indexSystemBundle];
+				System.arraycopy(bInfos, 0, newBundleInfos, 1, indexSystemBundle);
+				if (indexSystemBundle < bInfos.length - 1)
+					System.arraycopy(bInfos, indexSystemBundle + 1, newBundleInfos, indexSystemBundle, bInfos.length - indexSystemBundle - 1);
+				bInfos = newBundleInfos;
+			}
 		}
 		for (int j = 0; j < bInfos.length; j++) {
 			if (DEBUG)
@@ -542,6 +666,10 @@ public class EquinoxBundlesState implements BundlesState {
 		return convertState(state);
 	}
 
+	public File getFwJar() {
+		return manipulator.getLauncherData().getFwJar();
+	}
+
 	Properties getPlatformProperties() {
 		return platfromProperties;
 	}
@@ -610,48 +738,6 @@ public class EquinoxBundlesState implements BundlesState {
 		return ret;
 	}
 
-	private void initialize(boolean useFwPersistentData) {
-		LauncherData launcherData = manipulator.getLauncherData();
-		ConfigData configData = manipulator.getConfigData();
-		BundleInfo[] bInfos = configData.getBundles();
-
-		if (!useFwPersistentData) {
-			composeNewState(launcherData, configData, bInfos);
-			return;
-		}
-
-		EquinoxManipulatorImpl.checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
-		if (launcherData.isClean()) {
-			composeNewState(launcherData, configData, bInfos);
-		} else {
-			if (manipulator.getLauncherData().getFwPersistentDataLocation() == null) {
-				//	TODO default value should be set more precisely.
-				File installArea = null;
-				String installAreaSt = configData.getFwDependentProp(EquinoxConstants.PROP_INSTALL);
-				if (installAreaSt == null) {
-					if (manipulator.getLauncherData().getLauncher() == null) {
-						// TODO implement
-					} else {
-						installArea = manipulator.getLauncherData().getLauncher().getParentFile();
-					}
-				} else {
-					if (installAreaSt.startsWith("file:"))
-						installArea = new File(installAreaSt.substring("file:".length()));
-					else
-						throw new IllegalStateException("Current implementation assume that property value keyed by " + EquinoxConstants.PROP_INSTALL + " must start with \"file:\". But it was not:" + installAreaSt);
-				}
-				if (DEBUG)
-					Log.log(LogService.LOG_DEBUG, this, "initialize(useFwPersistentDat)", "installArea=" + installArea);
-				File fwPersistentDataLocation = new File(installArea, "configuration");
-				manipulator.getLauncherData().setFwPersistentDataLocation(fwPersistentDataLocation, false);
-			}
-			if (!composeState(bInfos, null, manipulator.getLauncherData().getFwPersistentDataLocation()))
-				composeNewState(launcherData, configData, bInfos);
-			resolve(true);
-			//if(this.getSystemBundle()==null)
-		}
-	}
-
 	//	private void initializeRuntime() {
 	//		ServiceReference reference = context.getServiceReference(StartLevel.class.getName());
 	//		StartLevel startLevel = (StartLevel) context.getService(reference);
@@ -702,6 +788,48 @@ public class EquinoxBundlesState implements BundlesState {
 	//		}
 	//		resolve(true);
 	//	}
+
+	private void initialize(boolean useFwPersistentData) {
+		LauncherData launcherData = manipulator.getLauncherData();
+		ConfigData configData = manipulator.getConfigData();
+		BundleInfo[] bInfos = configData.getBundles();
+
+		if (!useFwPersistentData) {
+			composeNewState(launcherData, configData, bInfos);
+			return;
+		}
+
+		EquinoxManipulatorImpl.checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
+		if (launcherData.isClean()) {
+			composeNewState(launcherData, configData, bInfos);
+		} else {
+			if (manipulator.getLauncherData().getFwPersistentDataLocation() == null) {
+				//	TODO default value should be set more precisely.
+				File installArea = null;
+				String installAreaSt = configData.getFwDependentProp(EquinoxConstants.PROP_INSTALL);
+				if (installAreaSt == null) {
+					if (manipulator.getLauncherData().getLauncher() == null) {
+						// TODO implement
+					} else {
+						installArea = manipulator.getLauncherData().getLauncher().getParentFile();
+					}
+				} else {
+					if (installAreaSt.startsWith("file:"))
+						installArea = new File(installAreaSt.substring("file:".length()));
+					else
+						throw new IllegalStateException("Current implementation assume that property value keyed by " + EquinoxConstants.PROP_INSTALL + " must start with \"file:\". But it was not:" + installAreaSt);
+				}
+				if (DEBUG)
+					Log.log(LogService.LOG_DEBUG, this, "initialize(useFwPersistentDat)", "installArea=" + installArea);
+				File fwPersistentDataLocation = new File(installArea, "configuration");
+				manipulator.getLauncherData().setFwPersistentDataLocation(fwPersistentDataLocation, false);
+			}
+			if (!composeState(bInfos, null, manipulator.getLauncherData().getFwPersistentDataLocation()))
+				composeNewState(launcherData, configData, bInfos);
+			resolve(true);
+			//if(this.getSystemBundle()==null)
+		}
+	}
 
 	public void installBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
@@ -766,6 +894,10 @@ public class EquinoxBundlesState implements BundlesState {
 		state.resolve(increment);
 	}
 
+	void setFwJar(File fwJar) {
+		manipulator.getLauncherData().setFwJar(fwJar);
+	}
+
 	/**
 	 * get platforme properties from the given state.
 	 * 
@@ -784,6 +916,19 @@ public class EquinoxBundlesState implements BundlesState {
 		if (DEBUG)
 			Utils.printoutProperties(System.out, "PlatformProperties[0]", platfromProperties);
 	}
+
+	//	public BundleHelper getBundleHelper() {
+	//		BundleHelper helper = BundleHelper.getDefault();
+	//		if (helper == null) {
+	//			helper = new BundleHelper();
+	//			try {
+	//				helper.start(context);
+	//			} catch (Exception e) {
+	//				Log.log(LogService.LOG_WARNING, this, "setStateObjectFactory()", e);
+	//			}
+	//		}
+	//		return helper;
+	//	}
 
 	/**
 	 * set platfromProperties required to compose state object
@@ -815,19 +960,6 @@ public class EquinoxBundlesState implements BundlesState {
 		soFactory = platformAdmin.getFactory();
 	}
 
-	//	public BundleHelper getBundleHelper() {
-	//		BundleHelper helper = BundleHelper.getDefault();
-	//		if (helper == null) {
-	//			helper = new BundleHelper();
-	//			try {
-	//				helper.start(context);
-	//			} catch (Exception e) {
-	//				Log.log(LogService.LOG_WARNING, this, "setStateObjectFactory()", e);
-	//			}
-	//		}
-	//		return helper;
-	//	}
-
 	public String toString() {
 		if (state == null)
 			return null;
@@ -857,7 +989,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	public void uninstallBundle(BundleInfo bInfo) throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
-		long id = -1;
+		long id = DEFAULT_TIMESTAMP;
 		String targetLocation = bInfo.getLocation();
 		BundleDescription[] currentInstalledBundles = state.getBundles();
 		for (int i = 0; i < currentInstalledBundles.length; i++) {
@@ -870,7 +1002,7 @@ public class EquinoxBundlesState implements BundlesState {
 				break;
 			}
 		}
-		if (id != -1) {
+		if (id != DEFAULT_TIMESTAMP) {
 
 			try {
 				BundleDescription bundleDescription = soFactory.createBundleDescription(state, Utils.getOSGiManifest(bInfo.getLocation()), bInfo.getLocation(), id);
@@ -881,10 +1013,6 @@ public class EquinoxBundlesState implements BundlesState {
 				//throw new ManipulatorException("Fail to createBundleDescription of bInfo:" + bInfo.toString(), e, ManipulatorException.OTHERS);
 			}
 		}
-	}
-
-	public File getFwJar() {
-		return manipulator.getLauncherData().getFwJar();
 	}
 
 }

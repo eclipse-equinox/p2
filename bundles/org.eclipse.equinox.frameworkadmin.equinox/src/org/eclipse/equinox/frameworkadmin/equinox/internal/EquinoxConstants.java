@@ -11,7 +11,8 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 public class EquinoxConstants {
 	public static final String PROP_KEY_USE_REFERENCE = "org.eclipse.equinox.frameworkadmin.equinox.useReference";
 	public static final String PLUGINS_DIR = "plugins";
-	public static final String FW_JAR_PLUGIN_NAME = "org.eclipse.osgi";
+	public final static String FW_SYMBOLIC_NAME = "org.eclipse.osgi";
+	//public static final String FW_JAR_PLUGIN_NAME = "org.eclipse.osgi";
 	public static final String DEFAULT_CONFIGURATION = "configuration";
 	public static final String CONFIG_INI = "config.ini";
 	final static String PROP_INITIAL = "osgi.clean";
@@ -23,7 +24,6 @@ public class EquinoxConstants {
 	public final static String LAUNCHER_VERSION = "3.2";
 	public final static String LAUNCHER_NAME = "Eclipse.exe";
 
-	public final static String FW_SYMBOLIC_NAME = "org.eclipse.osgi";
 	public static final String AOL = "aol";
 
 	public static final String OPTION_CONFIGURATION = "-configuration";
@@ -86,5 +86,6 @@ public class EquinoxConstants {
 
 	public static final String PROP_EQUINOX_DEPENDENT_PREFIX = "osgi.";
 	static final String REFERENCE = "reference:";
+	public static final String PERSISTENT_DIR_NAME = "org.eclipse.osgi";
 
 }

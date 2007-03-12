@@ -26,7 +26,7 @@ import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class EquinoxManipulatorImpl implements Manipulator {
-	private static final String SYSTEMBUNDLE_SYMBOLICNAME = "org.eclipse.osgi";
+	private static final long DEFAULT_LASTMODIFIED = 0L;
 	public static final String FW_NAME = "Equinox";
 	public static final String FW_VERSION = "3.3M5";
 	public static final String LAUCNHER_NAME = "Eclipse.exe";
@@ -131,10 +131,10 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 	public BundlesState getBundlesState() throws FrameworkAdminRuntimeException {
 		if (context == null)
-			return new SimpleBundlesState(fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			return new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 
 		if (!EquinoxBundlesState.checkFullySupported())
-			return new SimpleBundlesState(fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			return new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 
 		if (platformProperties.isEmpty())
 			return new EquinoxBundlesState(context, fwAdmin, this, false);
@@ -217,6 +217,38 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return props;
 	}
 
+	public long getTimeStamp() {
+		long ret = this.getTimeStampWithoutFwPersistentData();
+		if (this.launcherData.isClean())
+			return ret;
+		long lastModifiedFwPersistent = EquinoxBundlesState.getTimeStamp(launcherData.getFwPersistentDataLocation());
+		return Math.max(ret, lastModifiedFwPersistent);
+	}
+
+	private long getTimeStampWithoutFwPersistentData() {
+		SimpleBundlesState.checkAvailability(fwAdmin);
+		File launcherConfigFile = getLauncherConfigLocation(launcherData);
+		long lastModifiedLauncherConfigFile = DEFAULT_LASTMODIFIED;
+		long lastModifiedFwConfigFile = DEFAULT_LASTMODIFIED;
+		if (launcherConfigFile != null) {
+			// use launcher. -- > load from LaucnherConfig file.
+			lastModifiedLauncherConfigFile = launcherConfigFile.lastModified();
+		}
+		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
+
+		if (launcherData.getFwConfigLocation() != null) {
+			File fwConfigFile = new File(launcherData.getFwConfigLocation(), EquinoxConstants.CONFIG_INI);
+			lastModifiedFwConfigFile = fwConfigFile.lastModified();
+		}
+		long ret = Math.max(lastModifiedLauncherConfigFile, lastModifiedFwConfigFile);
+		return ret;
+	}
+
+	//	// 
+	//	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
+	//		this.load(true);
+	//	}
+
 	public void initialize() {
 		Log.log(LogService.LOG_DEBUG, this, "initialize()", "BEGIN");
 		configData.initialize();
@@ -286,11 +318,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//			configData.addBundle(bInfos[j]);
 	}
 
-	//	// 
-	//	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
-	//		this.load(true);
-	//	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.frameworkadmin.Manipulator#load()
 	 */
@@ -303,16 +330,12 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			//	bundlesState = new EquinoxBundlesState(context, fwAdmin, this, true, runtime);
 			bundlesState = new EquinoxBundlesState(context, fwAdmin, this, !launcherData.isClean());
 			platformProperties = ((EquinoxBundlesState) bundlesState).getPlatformProperties();
+
 		} else {
-			bundlesState = new SimpleBundlesState(fwAdmin, this, SYSTEMBUNDLE_SYMBOLICNAME);
+			bundlesState = new SimpleBundlesState(fwAdmin, this, EquinoxConstants.FW_SYMBOLIC_NAME);
 			platformProperties.clear();
 		}
-		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
-		File newFwJar = ((EquinoxBundlesState) bundlesState).getFwJar();
-		if (launcherData.getFwJar() == null && newFwJar != null)
-			launcherData.setFwJar(newFwJar);
-
-		configData.setBundles(newBundleInfos);
+		updateAccordingToExpectedState(bundlesState);
 		//		if (!useConfigurator)
 		//			return;
 		setConfiguratorManipulator();
@@ -344,9 +367,15 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	public void save(boolean backup) throws IOException, FrameworkAdminRuntimeException {
 		Log.log(LogService.LOG_DEBUG, this, "save()", "BEGIN");
 		SimpleBundlesState.checkAvailability(fwAdmin);
-		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
-		if (fwJar != null)
-			launcherData.setFwJar(fwJar);
+
+		try {
+			updateAccordingToExpectedState(this.getBundlesState());
+		} catch (IllegalStateException e) {
+			// ignore.
+		}
+		//		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
+		//		if (fwJar != null)
+		//			launcherData.setFwJar(fwJar);
 
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
 		if (launcherConfigFile != null) {
@@ -360,21 +389,21 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//if (context != null)
 		setConfiguratorManipulator();
 
-		BundleInfo[] newBInfo = null;
+		BundleInfo[] newBInfos = null;
 		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
 			try {
-				newBInfo = configuratorManipulator.save(this, backup);
+				newBInfos = configuratorManipulator.save(this, backup);
 			} catch (IllegalStateException e) {
 				// TODO Auto-generated catch block
 				if (LOG_ILLEGALSTATEEXCEPTION)
 					Log.log(LogService.LOG_WARNING, this, "save()", e);
-				newBInfo = configData.getBundles();
+				newBInfos = configData.getBundles();
 			}
 		} else
-			newBInfo = configData.getBundles();
+			newBInfos = configData.getBundles();
 		// Save FwConfigFile
 		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
-		parser.saveFwConfig(newBInfo, this, backup, false);
+		parser.saveFwConfig(newBInfos, this, backup, false);
 	}
 
 	public void setConfigData(ConfigData configData) {
@@ -480,5 +509,16 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		sb.append("\n" + Utils.toStringProperties("platformProperties", this.platformProperties));
 		sb.append("++++++++++++++++++++++++++++++++++++++++++\n");
 		return sb.toString();
+	}
+
+	private void updateAccordingToExpectedState(BundlesState bundlesState) {
+		File newFwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
+		if (bundlesState instanceof EquinoxBundlesState)
+			((EquinoxBundlesState) bundlesState).setFwJar(newFwJar);
+
+		if (launcherData.getFwJar() == null && newFwJar != null)
+			launcherData.setFwJar(newFwJar);
+		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
+		configData.setBundles(newBundleInfos);
 	}
 }
