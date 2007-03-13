@@ -41,6 +41,22 @@ public interface Configurator {
 	 */
 	void applyConfiguration(URL url) throws IOException;
 
+	/**
+	 * Apply configuration read from the previously used url to the OSGi 
+	 * environment currently running. If it is never used, do nothing.
+	 * 
+	 * @throws IOException - If reading information from the specified url fails. 
+	 */
+	void applyConfiguration() throws IOException;
+
+	/**
+	 * Return the url in use.
+	 * If it is never used, return null.
+	 * 
+	 * @return
+	 */
+	URL getUrlInUse();
+
 	
 //	/**
 //	 * Return expected bundle states (as an array of BundleInfo) 

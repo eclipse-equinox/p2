@@ -33,13 +33,15 @@ import org.osgi.framework.*;
 public class SimpleConfiguratorImpl implements Configurator {
 
 	final static BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
-//	final static String FILTER_RUNNING_SYSTEM = "(" + FrameworkAdmin.SERVICE_PROP_KEY_RUNNING_SYSTEM_FLAG + "=true)";
-//	final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
-//	final static String FILTER_FRAMEWORKADMIN = "(&" + FILTER_OBJECTCLASS + FILTER_RUNNING_SYSTEM + ")";
+	//	final static String FILTER_RUNNING_SYSTEM = "(" + FrameworkAdmin.SERVICE_PROP_KEY_RUNNING_SYSTEM_FLAG + "=true)";
+	//	final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
+	//	final static String FILTER_FRAMEWORKADMIN = "(&" + FILTER_OBJECTCLASS + FILTER_RUNNING_SYSTEM + ")";
 
 	BundleContext context;
 
 	ConfigApplier configApplier;
+
+	private URL url = null;
 
 	SimpleConfiguratorImpl(BundleContext context) {
 		this.context = context;
@@ -50,6 +52,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 			System.out.println("applyConfiguration() URL=" + url);
 		if (url == null)
 			return;
+		this.url = url;
 
 		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
 		if (Activator.DEBUG)
@@ -61,57 +64,65 @@ public class SimpleConfiguratorImpl implements Configurator {
 		configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), this.isExclusiveInstallation());
 	}
 
-//	public BundleInfo[] getExpectedStateRuntime(URL url) throws IOException {
-//		ServiceReference[] references = null;
-//		try {
-//			references = context.getServiceReferences(FrameworkAdmin.class.getName(), FILTER_RUNNING_SYSTEM);
-//		} catch (InvalidSyntaxException e) {
-//			// TODO Never happens.
-//			e.printStackTrace();
-//		}
-//		if (references == null)
-//			return new BundleInfo[0];
-//		FrameworkAdmin fwAdmin = (FrameworkAdmin) context.getService(references[0]);
-//		BundlesState state = fwAdmin.getManipulator().getBundlesState();
-//		return this.getExpectedStateRuntime(url, state);
-//	}
-//
-//	private BundleInfo[] getExpectedStateRuntime(URL url, BundlesState state) throws IOException {
-//		if (!state.isFullySupported())
-//			throw new IllegalArgumentException("getExpectedStateRuntime(url,state) is not supported for this state implementation");
-//
-//		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
-//		BundleInfo[] toInstall = Utils.getBundleInfosFromList(bundleInfoList);
-//		BundleInfo[] currentBInfos = state.getExpectedState();
-//		List toUninstall = new LinkedList();
-//		boolean exclusiveInstallation = this.isExclusiveInstallation();
-//		if (exclusiveInstallation)
-//			for (int i = 0; i < currentBInfos.length; i++) {
-//				boolean install = false;
-//				for (int j = 0; j < toInstall.length; j++)
-//					if (currentBInfos[i].getLocation().equals(toInstall[j].getLocation())) {
-//						install = true;
-//						break;
-//					}
-//				if (!install)
-//					toUninstall.add(currentBInfos[i]);
-//			}
-//
-//		for (int i = 0; i < toInstall.length; i++)
-//			state.installBundle(toInstall[i]);
-//
-//		if (exclusiveInstallation)
-//			for (Iterator ite = toUninstall.iterator(); ite.hasNext();) {
-//				BundleInfo bInfo = (BundleInfo) ite.next();
-//				state.uninstallBundle(bInfo);
-//			}
-//
-//		state.resolve(true);
-//
-//		return state.getExpectedState();
-//	}
+	//	public BundleInfo[] getExpectedStateRuntime(URL url) throws IOException {
+	//		ServiceReference[] references = null;
+	//		try {
+	//			references = context.getServiceReferences(FrameworkAdmin.class.getName(), FILTER_RUNNING_SYSTEM);
+	//		} catch (InvalidSyntaxException e) {
+	//			// TODO Never happens.
+	//			e.printStackTrace();
+	//		}
+	//		if (references == null)
+	//			return new BundleInfo[0];
+	//		FrameworkAdmin fwAdmin = (FrameworkAdmin) context.getService(references[0]);
+	//		BundlesState state = fwAdmin.getManipulator().getBundlesState();
+	//		return this.getExpectedStateRuntime(url, state);
+	//	}
+	//
+	//	private BundleInfo[] getExpectedStateRuntime(URL url, BundlesState state) throws IOException {
+	//		if (!state.isFullySupported())
+	//			throw new IllegalArgumentException("getExpectedStateRuntime(url,state) is not supported for this state implementation");
+	//
+	//		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
+	//		BundleInfo[] toInstall = Utils.getBundleInfosFromList(bundleInfoList);
+	//		BundleInfo[] currentBInfos = state.getExpectedState();
+	//		List toUninstall = new LinkedList();
+	//		boolean exclusiveInstallation = this.isExclusiveInstallation();
+	//		if (exclusiveInstallation)
+	//			for (int i = 0; i < currentBInfos.length; i++) {
+	//				boolean install = false;
+	//				for (int j = 0; j < toInstall.length; j++)
+	//					if (currentBInfos[i].getLocation().equals(toInstall[j].getLocation())) {
+	//						install = true;
+	//						break;
+	//					}
+	//				if (!install)
+	//					toUninstall.add(currentBInfos[i]);
+	//			}
+	//
+	//		for (int i = 0; i < toInstall.length; i++)
+	//			state.installBundle(toInstall[i]);
+	//
+	//		if (exclusiveInstallation)
+	//			for (Iterator ite = toUninstall.iterator(); ite.hasNext();) {
+	//				BundleInfo bInfo = (BundleInfo) ite.next();
+	//				state.uninstallBundle(bInfo);
+	//			}
+	//
+	//		state.resolve(true);
+	//
+	//		return state.getExpectedState();
+	//	}
 
 	private boolean isExclusiveInstallation() {
-		return Boolean.parseBoolean(context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION));
+		return Boolean.getBoolean(context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION));
+	}
+
+	public void applyConfiguration() throws IOException {
+		this.applyConfiguration(url);
+	}
+
+	public URL getUrlInUse() {
+		return url;
 	}
 }

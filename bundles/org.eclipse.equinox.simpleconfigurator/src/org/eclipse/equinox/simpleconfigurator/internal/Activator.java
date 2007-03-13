@@ -50,8 +50,9 @@ public class Activator implements BundleActivator {
 	 * @return URL
 	 */
 	private URL getConfigUrl() {
-		if (configLocationURL != null)
-			return configLocationURL;
+		//if (configLocationURL != null)
+		//	return configLocationURL;
+		configLocationURL = null;
 		try {
 			String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
 			if (specifiedURL != null)
@@ -65,7 +66,8 @@ public class Activator implements BundleActivator {
 	private void registerConfigurator() {
 
 		Dictionary props = new Hashtable();
-		props.put(Constants.SERVICE_VENDOR, "Equinox Project, Eclipse Foundation");
+		props.put(Constants.SERVICE_VENDOR, "Eclipse");
+		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
 		registrationConfigurator = context.registerService(Configurator.class.getName(), new ServiceFactory() {
 
 			public Object getService(Bundle bundle, ServiceRegistration registration) {

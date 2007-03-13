@@ -11,14 +11,42 @@
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
 public class SimpleConfiguratorConstants {
-	public static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl";
+	/**
+	 * If BundleContext#getProperty(PROP_KEY_EXCLUSIVE_INSTALLATION) equals "true" ignoring case, 
+	 * Configurator.applyConfiguration(url) will uninstall the installed bundles which are not 
+	 * listed in the simpleconfigurator config file after install bundles listed.
+	 * Otherwise, it never uninstall any bundles. 
+	 * 
+     * Default: false
+	 */
 	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation";
+
+	/**
+	 * If BundleContext#getProperty(PROP_KEY_USE_REFERENCE) does not equal "false" ignoring case, 
+	 * when a SimpleConfigurator installs a bundle, "reference:" is added to its bundle location in order to avoid
+	 * caching its bundle jar.  Otherwise, it will add nothing to any bundle location.
+	 * 	 
+	 * Default: true
+	 */
 	public static final String PROP_KEY_USE_REFERENCE = "org.eclipse.equinox.simpleconfigurator.useReference";
+	
+	
+	/**
+	 * BundleContext#getProperty(PROP_KEY_CONFIGURL) is used for SimpleConfigurator to do life cycle control of bundles.
+	 * The file specified by the returned url is read by SimpleConfigurator and do life cycle control according to it.
+	 * If improper value or null is returned, SimpleConfigurator doesn't do it.
+	 * 
+	 * Default: null
+	 */
+	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl";
 
 	public static final String LAST_CONFIG_STAMP = "last.config.stamps"; //$NON-NLS-1$
 	public static final String CONFIG_LIST = "bundles.txt"; //$NON-NLS-1$
 	public static final String CONFIGURATOR_FOLDER = "simpleConfiguration"; //$NON-NLS-1$
-	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl";
+
 	public static final String TARGET_CONFIGURATOR_NAME = "org.eclipse.equinox.simpleconfigurator";
 	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = TARGET_CONFIGURATOR_NAME;
+
+	public static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl";
+
 }
