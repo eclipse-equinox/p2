@@ -9,7 +9,15 @@
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 public class EquinoxConstants {
+	
+	/**
+	 * If BundleContext#getProperty(PROP_KEY_USE_REFERENCE) does not equal "false", 
+	 * Manipulator#save() will add "reference:" to any bundle location specified osgi.bundles in order to avoid
+	 * caching its bundle jar.  Otherwise, it will add nothing to any bundle location.
+	 */
 	public static final String PROP_KEY_USE_REFERENCE = "org.eclipse.equinox.frameworkadmin.equinox.useReference";
+
+	
 	public static final String PLUGINS_DIR = "plugins";
 	public final static String FW_SYMBOLIC_NAME = "org.eclipse.osgi";
 	//public static final String FW_JAR_PLUGIN_NAME = "org.eclipse.osgi";
