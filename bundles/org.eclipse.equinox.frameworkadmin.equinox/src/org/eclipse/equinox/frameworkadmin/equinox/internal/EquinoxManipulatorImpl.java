@@ -439,7 +439,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		ServiceReference[] references = cmTracker.getServiceReferences();
 
 		int count = cmTracker.getTrackingCount();
-		if (count == this.trackingCount)
+		if (count == this.trackingCount && configuratorManipulator != null)
 			return;
 		this.trackingCount = count;
 
