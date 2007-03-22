@@ -276,7 +276,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 		platformProperties.setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, FrameworkProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES));
 		platformProperties.setProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, FrameworkProperties.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT));
-		platformProperties.setProperty("osgi.resolveOptional", Boolean.toString("true".equals(FrameworkProperties.getProperty("osgi.resolveOptional"))));
+		platformProperties.setProperty("osgi.resolveOptional", "" + "true".equals(FrameworkProperties.getProperty("osgi.resolveOptional")));
 		return platformProperties;
 	}
 

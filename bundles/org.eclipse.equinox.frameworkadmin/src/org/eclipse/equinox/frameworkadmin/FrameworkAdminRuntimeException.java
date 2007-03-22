@@ -18,6 +18,7 @@ public class FrameworkAdminRuntimeException extends RuntimeException {
 	public static final String UNSUPPORTED_OPERATION = "This implementation doesn't support this method.";
 
 	private final String reason;
+	private Throwable cause;
 
 	/**
 	 * @param message
@@ -25,6 +26,7 @@ public class FrameworkAdminRuntimeException extends RuntimeException {
 	public FrameworkAdminRuntimeException(String message, String reason) {
 		super(message);
 		this.reason = reason;
+		this.cause = null;
 	}
 
 	/**
@@ -32,20 +34,25 @@ public class FrameworkAdminRuntimeException extends RuntimeException {
 	 * @param cause
 	 */
 	public FrameworkAdminRuntimeException(String message, Throwable cause, String reason) {
-		super(message, cause);
+		super(message);
 		this.reason = reason;
+		this.cause  = cause;
 	}
 
 	/**
 	 * @param cause
 	 */
 	public FrameworkAdminRuntimeException(Throwable cause, String reason) {
-		super(cause);
+		super(cause.getLocalizedMessage());
 		this.reason = reason;
+		this.cause = cause;
 	}
 
 	public String getReason() {
 		return reason;
 	}
 
+	public Throwable getCause() {
+		return cause;
+	}
 }

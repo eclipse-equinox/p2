@@ -83,7 +83,7 @@ public class Utils {
 		try {
 			return getUrl("file", null, PATH_SEP + file.getAbsolutePath());
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified", e);
+			throw new IllegalArgumentException(urlName + "(" + "file:" + PATH_SEP + file.getAbsolutePath() + ") is not fully quallified");
 		}
 	}
 
@@ -543,7 +543,7 @@ public class Utils {
 	public static BundleInfo[] sortBundleInfos(BundleInfo[] bInfos, int initialBSL) {
 		SortedMap bslToList = new TreeMap();
 		for (int i = 0; i < bInfos.length; i++) {
-			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
+			Integer sL = new Integer(bInfos[i].getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
 				sL = new Integer(initialBSL);
 			List list = (List) bslToList.get(sL);
@@ -572,7 +572,7 @@ public class Utils {
 			URLConnection connection = url.openConnection();
 			connection.connect();
 		} catch (IOException e) {
-			throw new IllegalArgumentException("URL(" + url + ") cannot be connected.", e);
+			throw new IllegalArgumentException("URL(" + url + ") cannot be connected.");
 		}
 	}
 

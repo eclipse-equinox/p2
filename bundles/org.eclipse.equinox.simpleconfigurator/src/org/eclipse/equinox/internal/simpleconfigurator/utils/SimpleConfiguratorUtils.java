@@ -185,7 +185,7 @@ public class SimpleConfiguratorUtils {
 
 					int sl = Integer.parseInt(tok.nextToken().trim());
 					tok.nextToken(); // ,
-					boolean markedAsStarted = Boolean.parseBoolean(tok.nextToken());
+					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 					// URL urlBundle = null;
 					// try {
 					// urlBundle = new URL(urlSt);

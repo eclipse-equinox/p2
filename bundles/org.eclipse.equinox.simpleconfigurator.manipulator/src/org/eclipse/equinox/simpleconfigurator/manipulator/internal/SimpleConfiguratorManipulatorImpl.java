@@ -246,7 +246,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	private SortedMap getSortedMap(int initialSl, BundleInfo[] bInfos) {
 		SortedMap bslToList = new TreeMap();
 		for (int i = 0; i < bInfos.length; i++) {
-			Integer sL = Integer.valueOf(bInfos[i].getStartLevel());
+			Integer sL = new Integer(bInfos[i].getStartLevel());
 			if (sL.intValue() == BundleInfo.NO_LEVEL)
 				sL = new Integer(initialSl);
 			List list = (List) bslToList.get(sL);
@@ -372,7 +372,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 					int sl = Integer.parseInt(tok.nextToken().trim());
 					tok.nextToken(); // ,
-					boolean markedAsStarted = Boolean.parseBoolean(tok.nextToken());
+					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 					// URL urlBundle = null;
 					// try {
 					// urlBundle = new URL(urlSt);
@@ -520,7 +520,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			}
 
 		Utils.appendProperties(properties, manipulator.getConfigData().getFwIndependentProps());
-		boolean exclusiveInstallation = Boolean.parseBoolean(properties.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION));
+		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
 
 		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl);
