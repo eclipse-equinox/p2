@@ -6,8 +6,7 @@ Bundle-Version: 1.5.1
 Bundle-Activator: org.eclipse.equinox.frameworkadmin.equinox.internal.Activator
 Bundle-Vendor: Eclipse.org
 Bundle-Localization: plugin
-Import-Package: org.eclipse.core.runtime,
- org.eclipse.core.runtime.adaptor,
+Import-Package: org.eclipse.core.runtime.adaptor,
  org.eclipse.core.runtime.internal.adaptor,
  org.eclipse.equinox.configuratormanipulator,
  org.eclipse.equinox.frameworkadmin,
