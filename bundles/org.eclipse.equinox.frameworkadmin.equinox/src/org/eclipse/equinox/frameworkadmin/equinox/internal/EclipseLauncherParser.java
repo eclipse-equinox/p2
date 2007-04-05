@@ -188,7 +188,7 @@ public class EclipseLauncherParser {
 		if (launcherConfigFile == null)
 			throw new IllegalStateException("launcherData.getLauncherConfigFile() should be set in advance.");
 		if (!launcherConfigFile.exists())
-			throw new IllegalStateException("launcherData.getLauncherConfigFile() doesn't exist.");
+			return;
 
 		BufferedReader br = null;
 		try {
