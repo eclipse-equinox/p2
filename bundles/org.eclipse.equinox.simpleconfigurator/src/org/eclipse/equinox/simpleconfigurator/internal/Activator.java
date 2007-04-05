@@ -14,7 +14,9 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.equinox.configurator.Configurator;
+import org.eclipse.equinox.internal.simpleconfigurator.console.ConfiguratorCommandProvider;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
+import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.*;
 
 /**
@@ -41,70 +43,54 @@ import org.osgi.framework.*;
 public class Activator implements BundleActivator {
 	final static boolean DEBUG = false;
 	private BundleContext context;
-	private ServiceRegistration registrationConfigurator;
-	SimpleConfiguratorImpl bundleConfigurator = null;
-	Hashtable instances = new Hashtable();
-	URL configLocationURL = null;
+	private SimpleConfiguratorImpl bundleConfigurator;
+	private ServiceRegistration configuratorRegistration;
+	private ServiceRegistration commandRegistration;
 
 	/**
 	 * @return URL
 	 */
 	private URL getConfigUrl() {
-		//if (configLocationURL != null)
-		//	return configLocationURL;
-		configLocationURL = null;
 		try {
 			String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
 			if (specifiedURL != null)
-				configLocationURL = new URL(specifiedURL);
+				return new URL(specifiedURL);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
-		return configLocationURL;
-	}
-
-	private void registerConfigurator() {
-
-		Dictionary props = new Hashtable();
-		props.put(Constants.SERVICE_VENDOR, "Eclipse");
-		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
-		registrationConfigurator = context.registerService(Configurator.class.getName(), new ServiceFactory() {
-
-			public Object getService(Bundle bundle, ServiceRegistration registration) {
-				Configurator installer = (Configurator) instances.get(bundle);
-				if (installer == null) {
-					installer = new SimpleConfiguratorImpl(context);
-					instances.put(bundle, installer);
-				}
-				return installer;
-			}
-
-			public void ungetService(Bundle bundle, ServiceRegistration registration, Object service) {
-				instances.remove(bundle);
-			}
-
-		}, props);
-		if (DEBUG)
-			System.out.println("registered Configurator");
-
+		return null;
 	}
 
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
-		this.registerConfigurator();
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
-		instances.put(context.getBundle(), bundleConfigurator);
-		URL configUrl = this.getConfigUrl();
+		URL configUrl = getConfigUrl();
 		if (DEBUG)
 			System.out.println("configUrl=" + configUrl);
 		if (configUrl != null)
-			bundleConfigurator.applyConfiguration(configUrl);
+			bundleConfigurator.applyConfiguration(configUrl);		
+		
+		Dictionary props = new Hashtable();
+		props.put(Constants.SERVICE_VENDOR, "Eclipse");
+		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
+		configuratorRegistration = context.registerService(Configurator.class.getName(), bundleConfigurator, props);
+
+		commandRegistration = context.registerService(CommandProvider.class.getName(), new ConfiguratorCommandProvider(context), null);
+		
+		if (DEBUG)
+			System.out.println("registered Configurator");
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		if (registrationConfigurator != null)
-			registrationConfigurator.unregister();
+		if (configuratorRegistration != null) {
+			configuratorRegistration.unregister();
+			configuratorRegistration = null;
+		}
+		if (commandRegistration != null) {
+			commandRegistration.unregister();
+			commandRegistration = null;
+		}
+		this.bundleConfigurator = null;
 		this.context = null;
 	}
-
 }

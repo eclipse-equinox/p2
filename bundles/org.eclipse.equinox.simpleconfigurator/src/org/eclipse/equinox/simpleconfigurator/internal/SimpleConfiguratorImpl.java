@@ -47,7 +47,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 		this.context = context;
 	}
 
-	public void applyConfiguration(URL url) throws IOException {
+	public synchronized void applyConfiguration(URL url) throws IOException {
 		if (Activator.DEBUG)
 			System.out.println("applyConfiguration() URL=" + url);
 		if (url == null)
@@ -61,9 +61,21 @@ public class SimpleConfiguratorImpl implements Configurator {
 			return;
 		if (this.configApplier == null)
 			configApplier = new ConfigApplier(context, this);
-		configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), this.isExclusiveInstallation());
+		configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), isExclusiveInstallation());
 	}
 
+	private boolean isExclusiveInstallation() {
+		return Boolean.getBoolean(context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION));
+	}
+
+	public synchronized void applyConfiguration() throws IOException {
+		this.applyConfiguration(url);
+	}
+
+	public synchronized URL getUrlInUse() {
+		return url;
+	}
+	
 	//	public BundleInfo[] getExpectedStateRuntime(URL url) throws IOException {
 	//		ServiceReference[] references = null;
 	//		try {
@@ -113,16 +125,4 @@ public class SimpleConfiguratorImpl implements Configurator {
 	//
 	//		return state.getExpectedState();
 	//	}
-
-	private boolean isExclusiveInstallation() {
-		return Boolean.getBoolean(context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION));
-	}
-
-	public void applyConfiguration() throws IOException {
-		this.applyConfiguration(url);
-	}
-
-	public URL getUrlInUse() {
-		return url;
-	}
 }
