@@ -287,8 +287,19 @@ class EquinoxFwConfigFileParser {
 				} else
 					configData.setFwIndependentProp(key, value);
 				if (key.equals(EquinoxConstants.PROP_OSGI_FW))
-					if (launcherData.getFwJar() == null)
-						launcherData.setFwJar(new File(value));
+					if (launcherData.getFwJar() == null) {
+						URL fwkUrl = null;
+						try {
+							fwkUrl = new URL(value);
+						} catch (MalformedURLException e) {
+							Log.log(LogService.LOG_ERROR, "Framework admin can configure a framework not reachable on a file URL", e);
+						}
+						if (! fwkUrl.getProtocol().equalsIgnoreCase("file")) {
+							Log.log(LogService.LOG_ERROR, "Framework admin can configure a framework not reachable on a file URL");
+							return;
+						}
+						launcherData.setFwJar(new File(fwkUrl.getFile()).getCanonicalFile());
+					}
 				if (key.equals(EquinoxConstants.PROP_LAUNCHER_NAME))
 					if (launcherData.getLauncher() == null)
 						launcherName = value;
