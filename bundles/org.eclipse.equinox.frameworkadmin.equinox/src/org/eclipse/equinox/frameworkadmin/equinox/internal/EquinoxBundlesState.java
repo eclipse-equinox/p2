@@ -523,7 +523,7 @@ public class EquinoxBundlesState implements BundlesState {
 				String location = FileUtils.getRealLocation(manipulator, cachedInstalledBundles[i].getLocation(), true);
 				boolean found = false;
 				for (int j = 0; j < bInfos.length; j++) {
-					if (location.equals(bInfos[j].getLocation())) {
+					if (bInfos[j].getLocation().equals(location)) {
 						found = true;
 						break;
 					}
