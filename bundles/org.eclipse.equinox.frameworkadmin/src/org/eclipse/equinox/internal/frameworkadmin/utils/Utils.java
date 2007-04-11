@@ -474,6 +474,8 @@ public class Utils {
 	}
 
 	public static String replaceAll(String st, String oldSt, String newSt) {
+		if (oldSt.equals(newSt))
+			return st;
 		int index = -1;
 		while ((index = st.indexOf(oldSt)) != -1) {
 			st = st.substring(0, index) + newSt + st.substring(index + oldSt.length());

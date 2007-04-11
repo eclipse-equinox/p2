@@ -136,8 +136,7 @@ public class FileUtils {
 	 */
 	private static String getEclipseJarNamingVersion(URL url, final String pluginName) {
 		String location = url.getFile();
-		if (!File.separator.equals("/"))
-			location = Utils.replaceAll(location, File.separator, "/");
+		location = Utils.replaceAll(location, File.separator, "/");
 		String filename = null;
 		if (location.indexOf(":") == -1)
 			filename = location;
