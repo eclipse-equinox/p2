@@ -150,19 +150,19 @@ public class BundleInfo {
 		buffer.append("BundleInfo("); //$NON-NLS-1$
 		if (symbolicName != null)
 			buffer.append(symbolicName);
-		buffer.append(", ");
+		buffer.append(", "); //$NON-NLS-1$
 		if (version != null)
 			buffer.append(version);
-		buffer.append(", ");
-		buffer.append("location=");
+		buffer.append(", "); //$NON-NLS-1$
+		buffer.append("location="); //$NON-NLS-1$
 		buffer.append(location);
 		buffer.append(", startLevel="); //$NON-NLS-1$
 		buffer.append(startLevel);
-		buffer.append(", toBeStarted=");
+		buffer.append(", toBeStarted="); //$NON-NLS-1$
 		buffer.append(markedAsStarted);
-		buffer.append(", resolved=");
+		buffer.append(", resolved="); //$NON-NLS-1$
 		buffer.append(resolved);
-		buffer.append(", id=");
+		buffer.append(", id="); //$NON-NLS-1$
 		buffer.append(this.bundleId);//		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();

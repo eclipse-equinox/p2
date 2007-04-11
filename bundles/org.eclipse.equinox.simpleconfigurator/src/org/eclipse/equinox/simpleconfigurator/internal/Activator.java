@@ -66,19 +66,19 @@ public class Activator implements BundleActivator {
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
 		URL configUrl = getConfigUrl();
 		if (DEBUG)
-			System.out.println("configUrl=" + configUrl);
+			System.out.println("configUrl=" + configUrl); //$NON-NLS-1$
 		if (configUrl != null)
 			bundleConfigurator.applyConfiguration(configUrl);		
 		
 		Dictionary props = new Hashtable();
-		props.put(Constants.SERVICE_VENDOR, "Eclipse");
+		props.put(Constants.SERVICE_VENDOR, "Eclipse"); //$NON-NLS-1$
 		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
 		configuratorRegistration = context.registerService(Configurator.class.getName(), bundleConfigurator, props);
 
 		commandRegistration = context.registerService(CommandProvider.class.getName(), new ConfiguratorCommandProvider(context), null);
 		
 		if (DEBUG)
-			System.out.println("registered Configurator");
+			System.out.println("registered Configurator"); //$NON-NLS-1$
 	}
 
 	public void stop(BundleContext context) throws Exception {

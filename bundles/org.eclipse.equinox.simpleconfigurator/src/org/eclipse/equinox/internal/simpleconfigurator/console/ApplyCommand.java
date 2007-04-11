@@ -48,7 +48,7 @@ public class ApplyCommand {
 				interpreter.println(e.getMessage());
 			}
 		} else {	
-			interpreter.println("No configurator registered");
+			interpreter.println("No configurator registered"); //$NON-NLS-1$
 		}
 		tracker.close();
 	}

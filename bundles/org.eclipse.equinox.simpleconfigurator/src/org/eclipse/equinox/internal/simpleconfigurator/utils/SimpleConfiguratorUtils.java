@@ -32,25 +32,25 @@ public class SimpleConfiguratorUtils {
 	public static String getBundleStateString(Bundle bundle) {
 		StringBuffer sb = new StringBuffer();
 		sb.append(bundle.getLocation());
-		sb.append(" : ");
+		sb.append(" : "); //$NON-NLS-1$
 		switch (bundle.getState()) {
 			case Bundle.INSTALLED :
-				sb.append("INSTALLED");
+				sb.append("INSTALLED"); //$NON-NLS-1$
 				break;
 			case Bundle.ACTIVE :
-				sb.append("ACTIVE");
+				sb.append("ACTIVE"); //$NON-NLS-1$
 				break;
 			case Bundle.RESOLVED :
-				sb.append("RESOLVED");
+				sb.append("RESOLVED"); //$NON-NLS-1$
 				break;
 			case Bundle.STARTING :
-				sb.append("STARTING");
+				sb.append("STARTING"); //$NON-NLS-1$
 				break;
 			case Bundle.STOPPING :
-				sb.append("STOPPING");
+				sb.append("STOPPING"); //$NON-NLS-1$
 				break;
 			case Bundle.UNINSTALLED :
-				sb.append("UNINSTALLED");
+				sb.append("UNINSTALLED"); //$NON-NLS-1$
 				break;
 		}
 		return sb.toString();
@@ -80,7 +80,7 @@ public class SimpleConfiguratorUtils {
 		StringBuffer sb = new StringBuffer();
 		for (Iterator ite2 = list.iterator(); ite2.hasNext();) {
 			BundleInfo bInfo = (BundleInfo) ite2.next();
-			sb.append(bInfo.toString() + "\n");
+			sb.append(bInfo.toString() + "\n"); //$NON-NLS-1$
 		}
 		return sb.toString();
 	}
@@ -90,7 +90,7 @@ public class SimpleConfiguratorUtils {
 		String symbolicNameSystem = context.getBundle(0).getSymbolicName();
 		String fragmentHost = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
 		if (fragmentHost != null) {
-			String symbolic = fragmentHost.substring(0, fragmentHost.indexOf(";")).trim();
+			String symbolic = fragmentHost.substring(0, fragmentHost.indexOf(";")).trim(); //$NON-NLS-1$
 			if (symbolic.equals(symbolicNameSystem))
 				return true;
 			if (symbolic.equals(Constants.SYSTEM_BUNDLE_SYMBOLICNAME))
@@ -133,9 +133,9 @@ public class SimpleConfiguratorUtils {
 
 			String line;
 			try {
-				URL baseUrl = new URL(url, "./");
+				URL baseUrl = new URL(url, "./"); //$NON-NLS-1$
 				while ((line = r.readLine()) != null) {
-					if (line.startsWith("#"))
+					if (line.startsWith("#")) //$NON-NLS-1$
 						continue;
 					line = line.trim();// symbolicName,version,location,startlevel,expectedState
 					if (line.length() == 0)
@@ -143,32 +143,32 @@ public class SimpleConfiguratorUtils {
 
 					// (expectedState is an integer).
 					//System.out.println("line=" + line);
-					if (line.startsWith(SimpleConfiguratorConstants.PARAMETER_BASEURL + "=")) {
-						String baseUrlSt = line.substring((SimpleConfiguratorConstants.PARAMETER_BASEURL + "=").length());
-						if (!baseUrlSt.endsWith("/"))
-							baseUrlSt += "/";
+					if (line.startsWith(SimpleConfiguratorConstants.PARAMETER_BASEURL + "=")) { //$NON-NLS-1$
+						String baseUrlSt = line.substring((SimpleConfiguratorConstants.PARAMETER_BASEURL + "=").length()); //$NON-NLS-1$
+						if (!baseUrlSt.endsWith("/")) //$NON-NLS-1$
+							baseUrlSt += "/"; //$NON-NLS-1$
 						baseUrl = new URL(url, baseUrlSt);
 						//						if (DEBUG)
 						//							System.out.println("baseUrl=" + baseUrl);
 						continue;
 					}
-					StringTokenizer tok = new StringTokenizer(line, ",", true);
+					StringTokenizer tok = new StringTokenizer(line, ",", true); //$NON-NLS-1$
 					String symbolicName = tok.nextToken();
-					if (symbolicName.equals(","))
+					if (symbolicName.equals(",")) //$NON-NLS-1$
 						symbolicName = null;
 					else
 						tok.nextToken(); // ,
 
 					String version = tok.nextToken();
-					if (version.equals(","))
+					if (version.equals(",")) //$NON-NLS-1$
 						version = null;
 					else
 						tok.nextToken(); // ,
 
 					String urlSt = tok.nextToken();
-					if (urlSt.equals(",")) {
+					if (urlSt.equals(",")) { //$NON-NLS-1$
 						if (symbolicName != null && version != null)
-							urlSt = symbolicName + "_" + version + ".jar";
+							urlSt = symbolicName + "_" + version + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
 						else
 							urlSt = null;
 					} else

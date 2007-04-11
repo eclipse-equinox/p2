@@ -27,7 +27,7 @@ import java.util.zip.ZipFile;
  */
 
 public class Utils {
-	private final static String PATH_SEP = "/";
+	private final static String PATH_SEP = "/"; //$NON-NLS-1$
 
 	/**
 	 * Overwrite all properties of from to the properties of to. Return the result of to.
@@ -215,7 +215,7 @@ public class Utils {
 				//				Object obj =  ite.next();
 				//System.out.println(obj.getClass().getName());
 
-				String key = (String) ite.next().toString();
+				String key = ite.next().toString();
 				// While table contains non OSGiManifest, it doesn't matter.
 				table.put(key, attributes.getValue(key));
 				//	System.out.println("key=" + key + " value=" + value);

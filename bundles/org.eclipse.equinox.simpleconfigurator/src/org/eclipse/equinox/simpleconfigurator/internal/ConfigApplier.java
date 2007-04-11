@@ -27,7 +27,7 @@ class ConfigApplier {
 		this.manipulatingContext = context;
 		//String vendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
 		//System.out.println("vendor=" + vendor);
-		this.runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR));
+		this.runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
 		ServiceReference packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available.");
