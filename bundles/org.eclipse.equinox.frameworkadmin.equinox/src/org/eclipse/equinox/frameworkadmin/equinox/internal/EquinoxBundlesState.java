@@ -212,11 +212,6 @@ public class EquinoxBundlesState implements BundlesState {
 		if (fwPersistentDataLocation == null)
 			return DEFAULT_TIMESTAMP;
 
-		//			// TODO just for test. it should be removed.
-		//			File file = new File("C:/eclipse/3.3M3/configuration2");
-		//			System.out.println("file=" + file);
-		//			System.out.println("file.equals(fwPersistentDataLocation)=" + file.equals(fwPersistentDataLocation));
-		//			fwPersistentDataLocation = file;
 		File file = new File(fwPersistentDataLocation, EquinoxConstants.PERSISTENT_DIR_NAME);
 		if (!file.exists() || !file.isDirectory())
 			return DEFAULT_TIMESTAMP;
@@ -555,7 +550,7 @@ public class EquinoxBundlesState implements BundlesState {
 				newBundleInfos[0] = bInfos[indexSystemBundle];
 				System.arraycopy(bInfos, 0, newBundleInfos, 1, indexSystemBundle);
 				if (indexSystemBundle < bInfos.length - 1)
-					System.arraycopy(bInfos, indexSystemBundle + 1, newBundleInfos, indexSystemBundle, bInfos.length - indexSystemBundle - 1);
+					System.arraycopy(bInfos, indexSystemBundle + 1, newBundleInfos, indexSystemBundle + 1, bInfos.length - indexSystemBundle - 1);
 				bInfos = newBundleInfos;
 			}
 		}
