@@ -65,7 +65,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 	}
 
 	private boolean isExclusiveInstallation() {
-		return Boolean.getBoolean(context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION));
+		return Boolean.valueOf(context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 	}
 
 	public synchronized void applyConfiguration() throws IOException {
