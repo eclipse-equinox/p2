@@ -14,9 +14,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.eclipse.equinox.configurator.Configurator;
-import org.eclipse.equinox.internal.simpleconfigurator.console.ConfiguratorCommandProvider;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.EquinoxUtils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
-import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.*;
 
 /**
@@ -50,7 +49,7 @@ public class Activator implements BundleActivator {
 	/**
 	 * @return URL
 	 */
-	private URL getConfigUrl() {
+	private URL getConfigURL() {
 		try {
 			String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
 			if (specifiedURL != null)
@@ -58,13 +57,24 @@ public class Activator implements BundleActivator {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
+
+		try {
+			if (null != context.getBundle().loadClass("org.eclipse.osgi.service.datalocation.Location")) {
+				URL configURL = EquinoxUtils.getDefaultConfigURL(context);
+				if (configURL != null)
+					return configURL;
+			}
+		} catch (ClassNotFoundException e) {
+			// Location is not available
+			// Ok -- optional
+		}
 		return null;
 	}
-
+	
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
-		URL configUrl = getConfigUrl();
+		URL configUrl = getConfigURL();
 		if (DEBUG)
 			System.out.println("configUrl=" + configUrl); //$NON-NLS-1$
 		if (configUrl != null)
@@ -75,8 +85,14 @@ public class Activator implements BundleActivator {
 		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
 		configuratorRegistration = context.registerService(Configurator.class.getName(), bundleConfigurator, props);
 
-		commandRegistration = context.registerService(CommandProvider.class.getName(), new ConfiguratorCommandProvider(context), null);
-		
+		try {
+			if (null != context.getBundle().loadClass("org.eclipse.osgi.framework.console.CommandProvider"))
+				commandRegistration = EquinoxUtils.registerConsoleCommands(context);
+		} catch (ClassNotFoundException e) {
+			// CommandProvider is not available
+			// Ok -- optional
+		}
+
 		if (DEBUG)
 			System.out.println("registered Configurator"); //$NON-NLS-1$
 	}
@@ -90,6 +106,7 @@ public class Activator implements BundleActivator {
 			commandRegistration.unregister();
 			commandRegistration = null;
 		}
+		
 		this.bundleConfigurator = null;
 		this.context = null;
 	}
