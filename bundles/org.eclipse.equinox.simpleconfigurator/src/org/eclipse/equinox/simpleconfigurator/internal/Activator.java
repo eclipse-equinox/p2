@@ -70,7 +70,7 @@ public class Activator implements BundleActivator {
 		}
 		return null;
 	}
-	
+
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
@@ -78,8 +78,8 @@ public class Activator implements BundleActivator {
 		if (DEBUG)
 			System.out.println("configUrl=" + configUrl); //$NON-NLS-1$
 		if (configUrl != null)
-			bundleConfigurator.applyConfiguration(configUrl);		
-		
+			bundleConfigurator.applyConfiguration(configUrl);
+
 		Dictionary props = new Hashtable();
 		props.put(Constants.SERVICE_VENDOR, "Eclipse"); //$NON-NLS-1$
 		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
@@ -106,7 +106,7 @@ public class Activator implements BundleActivator {
 			commandRegistration.unregister();
 			commandRegistration = null;
 		}
-		
+
 		this.bundleConfigurator = null;
 		this.context = null;
 	}

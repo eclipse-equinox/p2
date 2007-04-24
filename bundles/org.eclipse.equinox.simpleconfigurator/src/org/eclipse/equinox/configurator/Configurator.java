@@ -55,24 +55,4 @@ public interface Configurator {
 	 * @return
 	 */
 	URL getUrlInUse();
-
-	
-//	/**
-//	 * Return expected bundle states (as an array of BundleInfo) 
-//	 * as if {@link Configurator#applyConfiguration(URL)} with an argument of the specified
-//	 * url will be called now.
-//	 * 
-//	 * If there are no ManipulatorAdmin services which create a Manipulator initialized according to
-//	 * the running fw state, null will be returned.
-//	 * 
-//	 * This method can be used to check what kinds of bundles will be 
-//	 * installed on the system in advance to calling {@link Configurator#applyConfiguration(URL)}.
-//	 *  
-//	 * @param url URL to be referred.
-//	 * @return Array of BundleInfo representing the expected state. null 
-//	 * if there are no ManipulatorAdmin services which create a Manipulator initialized according to
-//	 * the running fw state.
-//	 * @throws IOException - If reading information from the specified url fails. 
-//	 */
-//	BundleInfo[] getExpectedStateRuntime(URL url) throws IOException;
 }

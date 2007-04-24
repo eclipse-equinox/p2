@@ -42,14 +42,14 @@ public class ApplyCommand {
 			try {
 				if (configURL != null)
 					configurator.applyConfiguration(configURL);
-				else if(configurator.getUrlInUse() == null)
+				else if (configurator.getUrlInUse() == null)
 					interpreter.println("Config URL not set.");
 				else
 					configurator.applyConfiguration();
 			} catch (IOException e) {
 				interpreter.println(e.getMessage());
 			}
-		} else {	
+		} else {
 			interpreter.println("No configurator registered"); //$NON-NLS-1$
 		}
 		tracker.close();

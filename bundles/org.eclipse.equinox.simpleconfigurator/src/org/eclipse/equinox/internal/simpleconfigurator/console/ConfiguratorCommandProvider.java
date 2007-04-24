@@ -9,13 +9,13 @@ import org.osgi.framework.BundleContext;
 
 public class ConfiguratorCommandProvider implements CommandProvider {
 	public static final String NEW_LINE = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-	
+
 	private BundleContext context;
 
 	public ConfiguratorCommandProvider(BundleContext context) {
 		this.context = context;
 	}
-	
+
 	/**
 	 * Returns the given string as an URL, or <code>null</code> if
 	 * the string could not be interpreted as an URL.
@@ -33,15 +33,15 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 	 * Apply the current configuration
 	 * @param configuration URL (optional)
 	 */
-	public void _confapply(CommandInterpreter interpreter) {	
+	public void _confapply(CommandInterpreter interpreter) {
 		String parameter = interpreter.nextArgument();
 		URL configURL = null;
 		if (parameter != null)
-			configURL  = toURL(interpreter, parameter);
-		
+			configURL = toURL(interpreter, parameter);
+
 		new ApplyCommand(interpreter, context, configURL).run();
 	}
-	
+
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
 		help.append(NEW_LINE);
@@ -49,7 +49,7 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 		help.append("Configurator Commands"); //$NON-NLS-1$
 		help.append("---"); //$NON-NLS-1$
 		help.append(NEW_LINE);
-		help.append("\tconfapply [<config URL>] - Applies a configuration");		 //$NON-NLS-1$
+		help.append("\tconfapply [<config URL>] - Applies a configuration"); //$NON-NLS-1$
 		return help.toString();
 	}
 }
