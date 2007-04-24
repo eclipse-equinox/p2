@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: SimpleConfiguratorManipulator Bundle
+Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator.manipulator
 Bundle-Version: 1.2.2
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.equinox.simpleconfigurator.manipulator.internal.Activator
-Eclipse-AutoStart: true
+Eclipse-LazyStart: true
 Import-Package: org.eclipse.equinox.configuratormanipulator,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.internal.frameworkadmin.utils,
@@ -13,4 +13,4 @@ Import-Package: org.eclipse.equinox.configuratormanipulator,
  org.osgi.service.packageadmin;version="1.2.0",
  org.osgi.service.startlevel;version="1.0.0",
  org.osgi.util.tracker
-Bundle-Vendor: Eclipse.org
+Bundle-Vendor: %providerName
