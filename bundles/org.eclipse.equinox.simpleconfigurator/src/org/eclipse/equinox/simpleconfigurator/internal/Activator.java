@@ -59,7 +59,7 @@ public class Activator implements BundleActivator {
 		}
 
 		try {
-			if (null != context.getBundle().loadClass("org.eclipse.osgi.service.datalocation.Location")) {
+			if (null != context.getBundle().loadClass("org.eclipse.osgi.service.datalocation.Location")) { //$NON-NLS-1$
 				URL configURL = EquinoxUtils.getDefaultConfigURL(context);
 				if (configURL != null)
 					return configURL;
@@ -86,7 +86,7 @@ public class Activator implements BundleActivator {
 		configuratorRegistration = context.registerService(Configurator.class.getName(), bundleConfigurator, props);
 
 		try {
-			if (null != context.getBundle().loadClass("org.eclipse.osgi.framework.console.CommandProvider"))
+			if (null != context.getBundle().loadClass("org.eclipse.osgi.framework.console.CommandProvider")) //$NON-NLS-1$
 				commandRegistration = EquinoxUtils.registerConsoleCommands(context);
 		} catch (ClassNotFoundException e) {
 			// CommandProvider is not available
