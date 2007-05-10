@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.configuratormanipulator;
 
-import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
-
 /**
  * Factory class for creating ConfiguratorManipulator object from Java programs.
  * 
