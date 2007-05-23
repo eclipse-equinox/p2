@@ -192,7 +192,8 @@ class EquinoxFwConfigFileParser {
 
 				int indexI = token.indexOf("@");
 				if (indexI == -1) {
-					configData.addBundle(new BundleInfo(token));
+					String location = FileUtils.getEclipseRealLocation(manipulator, token);
+					configData.addBundle(new BundleInfo(location));
 					//	configData.installingBundlesList.add(new BundleInfo(this.convertUrl(bInfoStrings[i])));
 					continue;
 				}
