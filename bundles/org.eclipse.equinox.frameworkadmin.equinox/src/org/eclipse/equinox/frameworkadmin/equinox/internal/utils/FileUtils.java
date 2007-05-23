@@ -127,14 +127,14 @@ public class FileUtils {
 	}
 
 	/**
-	 * If a bundle of the specified location is in the Eclipse plugin format (plugin-name_version.jar),
-	 * return version string.Otherwise, return null;
+	 * If a bundle of the specified location is in the Eclipse plugin format (either plugin-name_version.jar 
+	 * or as a folder named plugin-name_version ), return version string.Otherwise, return null;
 	 * 
 	 * @param url
 	 * @param pluginName
 	 * @return version string. If invalid format, return null. 
 	 */
-	private static String getEclipseJarNamingVersion(URL url, final String pluginName) {
+	private static String getEclipseNamingVersion(URL url, final String pluginName, boolean isFile) {
 		String location = url.getFile();
 		location = Utils.replaceAll(location, File.separator, "/");
 		String filename = null;
@@ -143,15 +143,19 @@ public class FileUtils {
 		else
 			filename = location.substring(location.lastIndexOf(":") + 1);
 
-		if (location.indexOf("/") == -1)
-			filename = location;
-		else
-			filename = location.substring(location.lastIndexOf("/") + 1);
 		// filename must be "jarName"_"version".jar
 		//System.out.println("filename=" + filename);
-		if (!filename.endsWith(".jar"))
-			return null;
-		filename = filename.substring(0, filename.lastIndexOf(".jar"));
+		if (isFile) {
+			if (!filename.endsWith(".jar"))
+				return null;
+			filename = filename.substring(0, filename.lastIndexOf(".jar"));
+		} else {
+			// directory - remove trailing slash
+			filename = filename.substring(0, filename.length()-1);
+		}
+		
+		if (filename.indexOf("/") != -1)
+			filename = filename.substring(filename.lastIndexOf("/") + 1);
 		//System.out.println("filename=" + filename);
 		if (filename.lastIndexOf("_") == -1)
 			return null;
@@ -175,7 +179,7 @@ public class FileUtils {
 		for (int i = 0; i < lists.length; i++) {
 			try {
 				URL url = lists[i].toURL();
-				String version = getEclipseJarNamingVersion(url, pluginName);
+				String version = getEclipseNamingVersion(url, pluginName, lists[i].isFile());
 				if (version != null) {
 					EclipseVersion eclipseVersion = new EclipseVersion(version);
 					if (maxVersion == null || eclipseVersion.compareTo(maxVersion) > 0) {
