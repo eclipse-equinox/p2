@@ -42,10 +42,11 @@ public class ApplyCommand {
 			try {
 				if (configURL != null)
 					configurator.applyConfiguration(configURL);
-				else if (configurator.getUrlInUse() == null)
-					interpreter.println("Config URL not set.");
 				else
 					configurator.applyConfiguration();
+				
+				if (configurator.getUrlInUse() == null)
+					interpreter.println("Config URL not set.");
 			} catch (IOException e) {
 				interpreter.println(e.getMessage());
 			}

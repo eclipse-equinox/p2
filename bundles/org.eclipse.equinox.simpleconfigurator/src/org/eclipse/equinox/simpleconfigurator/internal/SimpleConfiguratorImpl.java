@@ -9,6 +9,7 @@
 package org.eclipse.equinox.simpleconfigurator.internal;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import org.eclipse.equinox.configurator.Configurator;
@@ -40,6 +41,31 @@ public class SimpleConfiguratorImpl implements Configurator {
 		this.context = context;
 	}
 
+	/**
+	 * @return URL
+	 */
+	private URL getConfigurationURL() {
+		try {
+			String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
+			if (specifiedURL != null)
+				return new URL(specifiedURL);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			if (null != context.getBundle().loadClass("org.eclipse.osgi.service.datalocation.Location")) { //$NON-NLS-1$
+				URL configURL = EquinoxUtils.getDefaultConfigURL(context);
+				if (configURL != null)
+					return configURL;
+			}
+		} catch (ClassNotFoundException e) {
+			// Location is not available
+			// Ok -- optional
+		}
+		return null;
+	}
+	
 	public synchronized void applyConfiguration(URL url) throws IOException {
 		if (Activator.DEBUG)
 			System.out.println("applyConfiguration() URL=" + url);
@@ -62,7 +88,10 @@ public class SimpleConfiguratorImpl implements Configurator {
 	}
 
 	public synchronized void applyConfiguration() throws IOException {
-		this.applyConfiguration(url);
+		if (url == null)
+			url = getConfigurationURL();
+			
+		applyConfiguration(url);
 	}
 
 	public synchronized URL getUrlInUse() {

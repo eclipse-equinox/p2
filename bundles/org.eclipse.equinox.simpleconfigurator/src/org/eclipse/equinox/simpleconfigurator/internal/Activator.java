@@ -46,39 +46,11 @@ public class Activator implements BundleActivator {
 	private ServiceRegistration configuratorRegistration;
 	private ServiceRegistration commandRegistration;
 
-	/**
-	 * @return URL
-	 */
-	private URL getConfigURL() {
-		try {
-			String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
-			if (specifiedURL != null)
-				return new URL(specifiedURL);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			if (null != context.getBundle().loadClass("org.eclipse.osgi.service.datalocation.Location")) { //$NON-NLS-1$
-				URL configURL = EquinoxUtils.getDefaultConfigURL(context);
-				if (configURL != null)
-					return configURL;
-			}
-		} catch (ClassNotFoundException e) {
-			// Location is not available
-			// Ok -- optional
-		}
-		return null;
-	}
 
 	public void start(BundleContext context) throws Exception {
 		this.context = context;
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
-		URL configUrl = getConfigURL();
-		if (DEBUG)
-			System.out.println("configUrl=" + configUrl); //$NON-NLS-1$
-		if (configUrl != null)
-			bundleConfigurator.applyConfiguration(configUrl);
+		bundleConfigurator.applyConfiguration();
 
 		Dictionary props = new Hashtable();
 		props.put(Constants.SERVICE_VENDOR, "Eclipse"); //$NON-NLS-1$
