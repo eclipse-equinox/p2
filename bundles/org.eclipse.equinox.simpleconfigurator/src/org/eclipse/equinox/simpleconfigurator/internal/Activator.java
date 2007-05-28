@@ -41,14 +41,12 @@ import org.osgi.framework.*;
  */
 public class Activator implements BundleActivator {
 	final static boolean DEBUG = false;
-	private BundleContext context;
 	private SimpleConfiguratorImpl bundleConfigurator;
 	private ServiceRegistration configuratorRegistration;
 	private ServiceRegistration commandRegistration;
 
 
 	public void start(BundleContext context) throws Exception {
-		this.context = context;
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
 		bundleConfigurator.applyConfiguration();
 
@@ -80,6 +78,5 @@ public class Activator implements BundleActivator {
 		}
 
 		this.bundleConfigurator = null;
-		this.context = null;
 	}
 }

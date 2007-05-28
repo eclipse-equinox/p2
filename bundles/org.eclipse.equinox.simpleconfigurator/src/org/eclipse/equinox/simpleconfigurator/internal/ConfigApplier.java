@@ -125,16 +125,16 @@ class ConfigApplier {
 		return installed;
 	}
 
-	private void printSystemBundle() {
-		Bundle bundle = manipulatingContext.getBundle(0);
-		System.out.println("bundle.getSymbolicName()=" + bundle.getSymbolicName());
-		Dictionary headers = bundle.getHeaders();
-		System.out.println(headers.size() + ":Headers=");
-		for (Enumeration enumeration = headers.keys(); enumeration.hasMoreElements();) {
-			Object key = enumeration.nextElement();
-			System.out.println(" (" + key + "," + headers.get(key) + ")");
-		}
-	}
+//	private void printSystemBundle() {
+//		Bundle bundle = manipulatingContext.getBundle(0);
+//		System.out.println("bundle.getSymbolicName()=" + bundle.getSymbolicName());
+//		Dictionary headers = bundle.getHeaders();
+//		System.out.println(headers.size() + ":Headers=");
+//		for (Enumeration enumeration = headers.keys(); enumeration.hasMoreElements();) {
+//			Object key = enumeration.nextElement();
+//			System.out.println(" (" + key + "," + headers.get(key) + ")");
+//		}
+//	}
 
 	private void refreshPackages(Bundle[] bundles, BundleContext manipulatingContext) {
 		if (bundles.length == 0)
