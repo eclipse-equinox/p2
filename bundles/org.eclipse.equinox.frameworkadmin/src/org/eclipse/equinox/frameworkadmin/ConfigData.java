@@ -46,7 +46,7 @@ public class ConfigData {
 	private int beginningFwStartLevel = BundleInfo.NO_LEVEL;
 	private int initialBundleStartLevel = BundleInfo.NO_LEVEL;
 	// List of BundleInfo
-	private List bundlesList = new LinkedList();
+	private LinkedHashSet bundlesList = new LinkedHashSet();
 	private Properties fwIndependentProps = new Properties();
 
 	private Properties fwDependentProps = new Properties();
@@ -174,8 +174,11 @@ public class ConfigData {
 			sb.append("bundlesList=null\n");
 		else {
 			sb.append("bundlesList=\n");
-			for (int i = 0; i < this.bundlesList.size(); i++)
-				sb.append("\tbundlesList[" + i + "]=" + bundlesList.get(i).toString() + "\n");
+			int i = 0;
+			for (Iterator iter = this.bundlesList.iterator(); iter.hasNext();) {
+				sb.append("\tbundlesList[" + i + "]=" + iter.next().toString() + "\n");
+				i++;
+			}
 		}
 
 		sb.append("============ Fw Independent Props ===============\n");

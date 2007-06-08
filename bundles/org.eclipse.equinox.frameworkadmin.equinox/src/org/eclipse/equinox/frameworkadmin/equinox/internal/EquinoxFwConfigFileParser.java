@@ -80,7 +80,7 @@ class EquinoxFwConfigFileParser {
 			props.setProperty(EquinoxConstants.PROP_BUNDLES_STARTLEVEL, Integer.toString(configData.getInitialBundleStartLevel()));
 		if (configData.getBeginingFwStartLevel() != BundleInfo.NO_LEVEL)
 			props.setProperty(EquinoxConstants.PROP_INITIAL_STARTLEVEL, Integer.toString(configData.getBeginingFwStartLevel()));
-		String fwJarSt = null;
+
 		if (fwJar != null) {
 			URL fwJarUrl = null;
 			try {
@@ -89,11 +89,11 @@ class EquinoxFwConfigFileParser {
 				// Never happens
 				e.printStackTrace();
 			}
-			fwJarSt = fwJarUrl.getFile();
-
-			if (!fwJarSt.startsWith("/"))
-				fwJarSt = "/" + fwJarSt;
-			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJar.getAbsolutePath());
+			String fwJarSt = fwJarUrl.toExternalForm();
+			if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
+				fwJarSt = "file:/" + fwJarUrl.getFile();
+			}
+			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJarSt /* fwJar.getAbsolutePath() */);
 		}
 
 		final File launcher = launcherData.getLauncher();
@@ -294,8 +294,9 @@ class EquinoxFwConfigFileParser {
 							fwkUrl = new URL(value);
 						} catch (MalformedURLException e) {
 							Log.log(LogService.LOG_ERROR, "Framework admin can configure a framework not reachable on a file URL", e);
+							return;
 						}
-						if (! fwkUrl.getProtocol().equalsIgnoreCase("file")) {
+						if (!fwkUrl.getProtocol().equalsIgnoreCase("file")) {
 							Log.log(LogService.LOG_ERROR, "Framework admin can configure a framework not reachable on a file URL");
 							return;
 						}
@@ -309,8 +310,9 @@ class EquinoxFwConfigFileParser {
 						launcherPath = value;
 			}
 		}
-		if (launcherName != null && launcherPath != null)
+		if (launcherName != null && launcherPath != null) {
 			launcherData.setLauncher(new File(launcherPath, launcherName + EquinoxConstants.EXE_EXTENSION));
+		}
 
 		Log.log(LogService.LOG_INFO, "Config file(" + inputFile.getAbsolutePath() + ") is read successfully.");
 	}

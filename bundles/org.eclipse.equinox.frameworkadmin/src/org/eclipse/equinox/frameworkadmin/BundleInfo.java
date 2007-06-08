@@ -75,7 +75,9 @@ public class BundleInfo {
 			BundleInfo info = (BundleInfo) toCompare;
 			//if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.url == null || url == null ? true : info.url.equals(url)))
 			if (info.symbolicName != null && info.version != null && symbolicName != null && version != null) {
-				if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : info.location.equals(location)))
+				// TODO: the equalsIgnoreCase for location comparison is a bug;
+				//		 need a platform sensitive location comparison method
+				if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : info.location.equalsIgnoreCase(location)))
 					return true;
 			} else {
 				return (info.location == null || location == null ? false : info.location.equals(location));
@@ -114,7 +116,7 @@ public class BundleInfo {
 	public int hashCode() {
 		int result = symbolicName == null ? 0 : symbolicName.hashCode();
 		result = result + (version == null ? 0 : version.hashCode());
-		result = result + (location == null ? 0 : location.hashCode());
+		result = result + (location == null ? 0 : location.toLowerCase().hashCode());
 		return result;
 	}
 
