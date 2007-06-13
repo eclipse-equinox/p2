@@ -157,16 +157,15 @@ public class FileUtils {
 		if (filename.indexOf("/") != -1)
 			filename = filename.substring(filename.lastIndexOf("/") + 1);
 		//System.out.println("filename=" + filename);
-		if (filename.lastIndexOf("_") == -1)
+		
+		if (! filename.startsWith(pluginName))
 			return null;
-		String version = filename.substring(filename.lastIndexOf("_") + 1);
-		filename = filename.substring(0, filename.lastIndexOf("_"));
-		//System.out.println("filename=" + filename);
-		if (filename.indexOf("_") != -1)
+		
+		int pluginnameLength = pluginName.length();
+		if (filename.length() <= pluginnameLength || filename.charAt(pluginName.length()) != '_')
 			return null;
-		if (!filename.equals(pluginName))
-			return null;
-		return version;
+		
+		return filename.substring(pluginnameLength + 1);	
 	}
 
 	public static String getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
