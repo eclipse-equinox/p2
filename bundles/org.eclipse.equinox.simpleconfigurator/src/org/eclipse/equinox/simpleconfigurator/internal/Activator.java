@@ -8,11 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.simpleconfigurator.internal;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
-
 import org.eclipse.equinox.configurator.Configurator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.EquinoxUtils;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
@@ -44,7 +41,6 @@ public class Activator implements BundleActivator {
 	private SimpleConfiguratorImpl bundleConfigurator;
 	private ServiceRegistration configuratorRegistration;
 	private ServiceRegistration commandRegistration;
-
 
 	public void start(BundleContext context) throws Exception {
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
