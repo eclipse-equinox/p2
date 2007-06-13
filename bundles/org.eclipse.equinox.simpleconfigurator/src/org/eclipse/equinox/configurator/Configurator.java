@@ -17,7 +17,7 @@ import java.net.URL;
  * **********************************************
  * Current Definition of Configurator Bundle: 
  * 
- * Configurator Bundle will do the followinig operation at its startup.
+ * Configurator Bundle will do the following operation at its startup.
  * 
  * 1. Create a Configurator object.
  * 2. Register it as a service to the service registry.
