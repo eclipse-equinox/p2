@@ -88,7 +88,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (launcher == null)
 			return null;
 		String launcherName = launcher.getName();
-		launcherName = launcherName.substring(0, launcherName.lastIndexOf("."));
+		int dotLocation = launcherName.lastIndexOf(".");
+		if (dotLocation != -1)
+			launcherName = launcherName.substring(0, dotLocation);
 		return new File(launcher.getParent() + File.separator + launcherName + EquinoxConstants.INI_EXTENSION);
 	}
 
