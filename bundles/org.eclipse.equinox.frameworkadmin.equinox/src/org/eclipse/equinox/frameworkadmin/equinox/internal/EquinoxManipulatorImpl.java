@@ -29,7 +29,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	private static final long DEFAULT_LASTMODIFIED = 0L;
 	public static final String FW_NAME = "Equinox";
 	public static final String FW_VERSION = "3.3M5";
-	public static final String LAUCNHER_NAME = "Eclipse.exe";
+	public static final String LAUNCHER_NAME = "Eclipse.exe";
 	public static final String LAUNCHER_VERSION = "3.2";
 	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;
 
@@ -378,16 +378,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
 		//		if (fwJar != null)
 		//			launcherData.setFwJar(fwJar);
-
-		File launcherConfigFile = getLauncherConfigLocation(launcherData);
-		if (launcherConfigFile != null) {
-			// Use launcher. -- > save LaucnherConfig file.
-			EclipseLauncherParser launcherParser = new EclipseLauncherParser();
-			launcherParser.save(launcherData, true, backup);
-		}
-
-		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
-
+		
 		//if (context != null)
 		setConfiguratorManipulator();
 
@@ -401,11 +392,57 @@ public class EquinoxManipulatorImpl implements Manipulator {
 					Log.log(LogService.LOG_WARNING, this, "save()", e);
 				newBInfos = configData.getBundles();
 			}
-		} else
+		} else {
 			newBInfos = configData.getBundles();
-		// Save FwConfigFile
-		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
-		parser.saveFwConfig(newBInfos, this, backup, false);
+		}
+				
+		boolean stateIsEmpty = (newBInfos.length == 0 ? true : false);
+
+		File launcherConfigFile = getLauncherConfigLocation(launcherData);
+		if (launcherConfigFile != null) {
+			if (!stateIsEmpty) {
+				// Use launcher. -- > save LauncherConfig file.
+				EclipseLauncherParser launcherParser = new EclipseLauncherParser();
+				launcherParser.save(launcherData, true, backup);
+			} else {
+				// No bundles in configuration, so delete the launcher config file
+				launcherConfigFile.delete();
+			}
+		}
+
+		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
+
+//		//if (context != null)
+//		setConfiguratorManipulator();
+//
+//		BundleInfo[] newBInfos = null;
+//		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
+//			try {
+//				newBInfos = configuratorManipulator.save(this, backup);
+//			} catch (IllegalStateException e) {
+//				// TODO Auto-generated catch block
+//				if (LOG_ILLEGALSTATEEXCEPTION)
+//					Log.log(LogService.LOG_WARNING, this, "save()", e);
+//				newBInfos = configData.getBundles();
+//			}
+//		} else {
+//			newBInfos = configData.getBundles();
+//		}
+		
+		if (!stateIsEmpty) {
+			// Save FwConfigFile
+			EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
+			parser.saveFwConfig(newBInfos, this, backup, false);
+		} else {
+			File configDir  = launcherData.getFwConfigLocation();
+			File outputFile = new File(configDir, EquinoxConstants.CONFIG_INI);
+			if (outputFile != null && outputFile.exists()) {
+				outputFile.delete();
+			}
+			if (configDir != null && configDir.exists()) {
+				configDir.delete();
+			}
+		}
 	}
 
 	public void setConfigData(ConfigData configData) {

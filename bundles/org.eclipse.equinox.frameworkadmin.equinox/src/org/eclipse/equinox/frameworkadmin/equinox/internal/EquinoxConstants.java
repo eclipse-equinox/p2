@@ -15,35 +15,32 @@ public class EquinoxConstants {
 	 * Manipulator#save() will add "reference:" to any bundle location specified osgi.bundles in order to avoid
 	 * caching its bundle jar.  Otherwise, it will add nothing to any bundle location.
 	 */
-	public static final String PROP_KEY_USE_REFERENCE = "org.eclipse.equinox.frameworkadmin.equinox.useReference";
+	public static final String PROP_KEY_USE_REFERENCE = "org.eclipse.equinox.frameworkadmin.equinox.useReference"; //$NON-NLS-1$
 
 	
-	public static final String PLUGINS_DIR = "plugins";
-	public final static String FW_SYMBOLIC_NAME = "org.eclipse.osgi";
-	//public static final String FW_JAR_PLUGIN_NAME = "org.eclipse.osgi";
-	public static final String DEFAULT_CONFIGURATION = "configuration";
-	public static final String CONFIG_INI = "config.ini";
-	final static String PROP_INITIAL = "osgi.clean";
-	//	final static String PROP_FW_JAR = "org.eclipse.service.configManipulator.fwJar";
+	public static final String PLUGINS_DIR = "plugins"; //$NON-NLS-1$
+	public final static String FW_SYMBOLIC_NAME = "org.eclipse.osgi"; //$NON-NLS-1$
+	public static final String DEFAULT_CONFIGURATION = "configuration"; //$NON-NLS-1$
+	public static final String CONFIG_INI = "config.ini"; //$NON-NLS-1$
+	final static String PROP_INITIAL = "osgi.clean"; //$NON-NLS-1$
 
-	//	private final static String DEFAULT_BUNDLE_SEARCH_DIR = "PLUGINS";
-	public final static String FW_VERSION = "3.3";
-	public final static String FW_NAME = "Equinox";
-	public final static String LAUNCHER_VERSION = "3.2";
-	public final static String LAUNCHER_NAME = "Eclipse.exe";
+	public final static String FW_VERSION = "3.3"; //$NON-NLS-1$
+	public final static String FW_NAME = "Equinox"; //$NON-NLS-1$
+	public final static String LAUNCHER_VERSION = "3.2"; //$NON-NLS-1$
+	public final static String LAUNCHER_NAME = "Eclipse.exe"; //$NON-NLS-1$
 
-	public static final String AOL = "aol";
+	public static final String AOL = "aol"; //$NON-NLS-1$
 
-	public static final String OPTION_CONFIGURATION = "-configuration";
-	public static final String OPTION_FW = "-framework";
-	public static final String OPTION_VM = "-vm";
-	public static final String OPTION_VMARGS = "-vmargs";
-	public static final String OPTION_INSTANCE = "-data";
-	public static final String OPTION_INSTALL = "-install";
-	public static final String OPTION_CONSOLE = "-console";
-	public static final String CONSOLE_PORT_VALUE = "9000";
-	public static final String OPTION_CLEAN = "-clean";
-	public static final String OPTION_STARTUP = "-startup";
+	public static final String OPTION_CONFIGURATION = "-configuration"; //$NON-NLS-1$
+	public static final String OPTION_FW = "-framework"; //$NON-NLS-1$
+	public static final String OPTION_VM = "-vm"; //$NON-NLS-1$
+	public static final String OPTION_VMARGS = "-vmargs"; //$NON-NLS-1$
+	public static final String OPTION_INSTANCE = "-data"; //$NON-NLS-1$
+	public static final String OPTION_INSTALL = "-install"; //$NON-NLS-1$
+	public static final String OPTION_CONSOLE = "-console"; //$NON-NLS-1$
+	public static final String CONSOLE_PORT_VALUE = "9000"; //$NON-NLS-1$
+	public static final String OPTION_CLEAN = "-clean"; //$NON-NLS-1$
+	public static final String OPTION_STARTUP = "-startup"; //$NON-NLS-1$
 
 	//	private static final String CONSOLE_LOG = "-consoleLog"; //$NON-NLS-1$
 	//	private static final String DEBUG = "-debug"; //$NON-NLS-1$
@@ -82,18 +79,18 @@ public class EquinoxConstants {
 
 	public static final String PROP_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	public static final String PROP_ECLIPSE_COMMANDS = "eclipse.commands"; //$NON-NLS-1$
-	public static final String PROP_OSGI_FW = "osgi.framework";
+	public static final String PROP_OSGI_FW = "osgi.framework"; //$NON-NLS-1$
 
 	public static final String PROP_BUNDLES_EXTRADATA = "osgi.bundles.extraData"; //$NON-NLS-1$
 
 	public static final String PROP_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
 	public static final String PROP_LAUNCHER_NAME = "osgi.launcherIni"; //$NON-NLS-1$
 
-	public static final String INI_EXTENSION = ".ini";
-	public static final String EXE_EXTENSION = ".exe";
+	public static final String INI_EXTENSION = ".ini"; //$NON-NLS-1$
+	public static final String EXE_EXTENSION = ".exe"; //$NON-NLS-1$
 
-	public static final String PROP_EQUINOX_DEPENDENT_PREFIX = "osgi.";
-	static final String REFERENCE = "reference:";
-	public static final String PERSISTENT_DIR_NAME = "org.eclipse.osgi";
+	public static final String PROP_EQUINOX_DEPENDENT_PREFIX = "osgi."; //$NON-NLS-1$
+	static final String REFERENCE = "reference:"; //$NON-NLS-1$
+	public static final String PERSISTENT_DIR_NAME = "org.eclipse.osgi"; //$NON-NLS-1$
 
 }

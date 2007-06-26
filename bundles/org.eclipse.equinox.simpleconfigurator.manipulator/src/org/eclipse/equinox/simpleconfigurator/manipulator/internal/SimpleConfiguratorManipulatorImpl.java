@@ -31,6 +31,8 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	static String CONFIG_LOCATION = SimpleConfiguratorConstants.CONFIG_LIST;
 
 	private static final BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
+	
+	private Set manipulators = new HashSet();
 
 	/**	
 	 * Return the ConfiguratorConfigLocation which is determined 
@@ -211,13 +213,15 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		return true;
 	}
 
-	private boolean devideBundleInfos(Manipulator manipulator, List setToInitialConfig, List setToSimpleConfig, final int initialBSL) throws IOException {
+	private boolean divideBundleInfos(Manipulator manipulator, List setToInitialConfig, List setToSimpleConfig, final int initialBSL) throws IOException {
 		BundlesState state = manipulator.getBundlesState();
 		BundleInfo[] targetBundleInfos = null;
-		if (state.isFullySupported())
+		if (state.isFullySupported()) {
 			targetBundleInfos = state.getExpectedState();
-		else
+		}
+		else {
 			targetBundleInfos = manipulator.getConfigData().getBundles();
+		}
 		BundleInfo configuratorBInfo = null;
 		for (int i = 0; i < targetBundleInfos.length; i++) {
 			if (isTargetConfiguratorBundle(targetBundleInfos[i].getLocation())) {
@@ -227,19 +231,33 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 				}
 			}
 		}
-		if (configuratorBInfo == null)
+		if (configuratorBInfo == null &&
+			!manipulators.contains(manipulator)) {
 			return false;
+		}
+		else if (manipulators.contains(manipulator) &&
+				 targetBundleInfos.length == 0) {
+			// Resulting state will have no bundles - so is an uninstall, including
+			// uninstall of the configurator. However, we have seen this manipulator
+			// before with a target configurator bundle, so allow uninstall to proceed,
+			// but only get one chance.
+			manipulators.remove(manipulator);
+		}
+		else if (!manipulators.contains(manipulator)) {
+			manipulators.add(manipulator);
+		}
 
-		if (state.isFullySupported())
+		if (state.isFullySupported()) {
 			state.resolve(false);
+		}
 
 		LocationInfo info = new LocationInfo();
 		setSystemBundles(state, info);
-		setPrerequisiteBundles(configuratorBInfo, state, info);
-
-		SortedMap bslToList = getSortedMap(initialBSL, targetBundleInfos);
-
-		algorithm(initialBSL, bslToList, configuratorBInfo, setToInitialConfig, setToSimpleConfig, info);
+		if (configuratorBInfo != null) {
+			setPrerequisiteBundles(configuratorBInfo, state, info);
+			SortedMap bslToList = getSortedMap(initialBSL, targetBundleInfos);
+			algorithm(initialBSL, bslToList, configuratorBInfo, setToInitialConfig, setToSimpleConfig, info);
+		}
 		return true;
 	}
 
@@ -407,7 +425,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		ConfigData configData = manipulator.getConfigData();
 
 		//try {
-		if (!devideBundleInfos(manipulator, setToInitialConfig, setToSimpleConfig, configData.getInitialBundleStartLevel()))
+		if (!divideBundleInfos(manipulator, setToInitialConfig, setToSimpleConfig, configData.getInitialBundleStartLevel()))
 			return configData.getBundles();
 		//} catch (Exception e) {
 		//	e.printStackTrace();
@@ -427,38 +445,51 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	}
 
 	private void saveConfiguration(List bundleInfoList, File outputFile, boolean backup) throws IOException {
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("saveConfiguration(List bundleInfoList, File outputFile, boolean backup): outFile=" + outputFile.getAbsolutePath());
+		}
 		BufferedWriter bw;
 		if (backup)
 			if (outputFile.exists()) {
 				File dest = Utils.getSimpleDataFormattedFile(outputFile);
-				if (!outputFile.renameTo(dest))
+				if (!outputFile.renameTo(dest)) {
 					throw new IOException("Fail to rename from (" + outputFile + ") to (" + dest + ")");
+				}
 			}
 
-		Utils.createParentDir(outputFile);
-		bw = new BufferedWriter(new FileWriter(outputFile));
-
-		for (Iterator ite = bundleInfoList.iterator(); ite.hasNext();) {
-			BundleInfo bInfo = (BundleInfo) ite.next();
-			String location = bInfo.getLocation();
-
-			if (bInfo.getSymbolicName() == null)
-				bw.write(",");
-			else
-				bw.write(bInfo.getSymbolicName() + ",");
-			if (bInfo.getVersion() == null)
-				bw.write(",");
-			else
-				bw.write(bInfo.getVersion() + ",");
-
-			bw.write(location + ",");
-			bw.write(bInfo.getStartLevel() + "," + bInfo.isMarkedAsStarted());
-			bw.newLine();
+		if (bundleInfoList.size() > 0) {
+			Utils.createParentDir(outputFile);
+			bw = new BufferedWriter(new FileWriter(outputFile));
+	
+			for (Iterator ite = bundleInfoList.iterator(); ite.hasNext();) {
+				BundleInfo bInfo = (BundleInfo) ite.next();
+				String location = bInfo.getLocation();
+	
+				if (bInfo.getSymbolicName() == null)
+					bw.write(",");
+				else
+					bw.write(bInfo.getSymbolicName() + ",");
+				if (bInfo.getVersion() == null)
+					bw.write(",");
+				else
+					bw.write(bInfo.getVersion() + ",");
+	
+				bw.write(location + ",");
+				bw.write(bInfo.getStartLevel() + "," + bInfo.isMarkedAsStarted());
+				bw.newLine();
+			}
+			bw.flush();
+			bw.close();
 		}
-		bw.flush();
-		bw.close();
+		else {
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+			File parentDir = outputFile.getParentFile();
+			if (parentDir.exists()) {
+				parentDir.delete();
+			}
+		}
 
 	}
 
