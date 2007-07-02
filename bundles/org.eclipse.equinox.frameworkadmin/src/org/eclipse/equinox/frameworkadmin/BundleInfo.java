@@ -133,7 +133,8 @@ public class BundleInfo {
 	}
 
 	public void setLocation(String location) {
-		this.location = location.trim();
+		this.location = (location != null ? location.trim() : null);
+			
 	}
 
 	public void setManifest(String manifest) {
