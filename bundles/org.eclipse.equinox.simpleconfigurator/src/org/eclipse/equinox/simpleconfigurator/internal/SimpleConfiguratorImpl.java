@@ -85,7 +85,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 
 	private boolean isExclusiveInstallation() {
 		String value = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION);
-		if (value.trim().length() == 0)
+		if (value == null || value.trim().length() == 0)
 			value = "true";
 		return Boolean.valueOf(value).booleanValue();
 	}
