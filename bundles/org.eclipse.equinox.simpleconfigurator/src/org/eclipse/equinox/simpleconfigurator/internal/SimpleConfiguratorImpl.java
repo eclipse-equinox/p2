@@ -65,7 +65,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 		}
 		return null;
 	}
-	
+
 	public synchronized void applyConfiguration(URL url) throws IOException {
 		if (Activator.DEBUG)
 			System.out.println("applyConfiguration() URL=" + url);
@@ -84,13 +84,16 @@ public class SimpleConfiguratorImpl implements Configurator {
 	}
 
 	private boolean isExclusiveInstallation() {
-		return Boolean.valueOf(context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
+		String value = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION);
+		if (value.trim().length() == 0)
+			value = "true";
+		return Boolean.valueOf(value).booleanValue();
 	}
 
 	public synchronized void applyConfiguration() throws IOException {
 		if (url == null)
 			url = getConfigurationURL();
-			
+
 		applyConfiguration(url);
 	}
 
