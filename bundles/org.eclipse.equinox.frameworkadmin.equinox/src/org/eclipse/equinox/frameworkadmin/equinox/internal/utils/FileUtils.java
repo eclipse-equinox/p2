@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.equinox.internal.utils;
 
 import java.io.*;
@@ -151,21 +149,21 @@ public class FileUtils {
 			filename = filename.substring(0, filename.lastIndexOf(".jar"));
 		} else {
 			// directory - remove trailing slash
-			filename = filename.substring(0, filename.length()-1);
+			filename = filename.substring(0, filename.length() - 1);
 		}
-		
+
 		if (filename.indexOf("/") != -1)
 			filename = filename.substring(filename.lastIndexOf("/") + 1);
 		//System.out.println("filename=" + filename);
-		
-		if (! filename.startsWith(pluginName))
+
+		if (!filename.startsWith(pluginName))
 			return null;
-		
+
 		int pluginnameLength = pluginName.length();
 		if (filename.length() <= pluginnameLength || filename.charAt(pluginName.length()) != '_')
 			return null;
-		
-		return filename.substring(pluginnameLength + 1);	
+
+		return filename.substring(pluginnameLength + 1);
 	}
 
 	public static String getEclipsePluginFullLocation(String pluginName, File bundlesDir) {

@@ -9,7 +9,7 @@
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 public class EquinoxConstants {
-	
+
 	/**
 	 * If BundleContext#getProperty(PROP_KEY_USE_REFERENCE) does not equal "false", 
 	 * Manipulator#save() will add "reference:" to any bundle location specified osgi.bundles in order to avoid
@@ -17,7 +17,6 @@ public class EquinoxConstants {
 	 */
 	public static final String PROP_KEY_USE_REFERENCE = "org.eclipse.equinox.frameworkadmin.equinox.useReference"; //$NON-NLS-1$
 
-	
 	public static final String PLUGINS_DIR = "plugins"; //$NON-NLS-1$
 	public final static String FW_SYMBOLIC_NAME = "org.eclipse.osgi"; //$NON-NLS-1$
 	public static final String DEFAULT_CONFIGURATION = "configuration"; //$NON-NLS-1$

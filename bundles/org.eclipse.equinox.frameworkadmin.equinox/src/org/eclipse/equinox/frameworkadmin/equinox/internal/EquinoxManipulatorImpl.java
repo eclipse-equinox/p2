@@ -378,7 +378,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
 		//		if (fwJar != null)
 		//			launcherData.setFwJar(fwJar);
-		
+
 		//if (context != null)
 		setConfiguratorManipulator();
 
@@ -395,7 +395,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		} else {
 			newBInfos = configData.getBundles();
 		}
-				
+
 		boolean stateIsEmpty = (newBInfos.length == 0 ? true : false);
 
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
@@ -428,13 +428,13 @@ public class EquinoxManipulatorImpl implements Manipulator {
 //		} else {
 //			newBInfos = configData.getBundles();
 //		}
-		
+
 		if (!stateIsEmpty) {
 			// Save FwConfigFile
 			EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
 			parser.saveFwConfig(newBInfos, this, backup, false);
 		} else {
-			File configDir  = launcherData.getFwConfigLocation();
+			File configDir = launcherData.getFwConfigLocation();
 			File outputFile = new File(configDir, EquinoxConstants.CONFIG_INI);
 			if (outputFile != null && outputFile.exists()) {
 				outputFile.delete();

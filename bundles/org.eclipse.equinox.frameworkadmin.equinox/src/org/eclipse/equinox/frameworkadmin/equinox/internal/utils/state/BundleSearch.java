@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state;
 
 import java.io.File;
@@ -19,7 +17,7 @@ import org.osgi.framework.Version;
 public class BundleSearch {
 	private static final String REFERENCE_PROTOCOL = "reference"; //$NON-NLS-1$
 	private static final String FILE_SCHEME = "file:"; //$NON-NLS-1$
-	
+
 	/**
 	 * Searches for the given target directory immediately under
 	 * the given start location.  If one is found then this location is returned; 
@@ -41,12 +39,12 @@ public class BundleSearch {
 			String name = candidate.getName();
 			if (name.endsWith(".jar"))
 				name = name.substring(0, name.length() - 4);
-			
+
 			String version = ""; //$NON-NLS-1$ // Note: directory with version suffix is always > than directory without version suffix
 			int index = name.indexOf('_');
 			if (index != -1)
 				version = name.substring(index + 1);
-			
+
 			try {
 				Version currentVersion = new Version(version);
 				if (maxVersion == null) {
@@ -58,7 +56,7 @@ public class BundleSearch {
 						maxVersion = currentVersion;
 					}
 				}
-			} catch(IllegalArgumentException e) {
+			} catch (IllegalArgumentException e) {
 				result = candidate;
 			}
 		}
@@ -66,12 +64,12 @@ public class BundleSearch {
 			return null;
 		return result.getAbsolutePath().replace(File.separatorChar, '/') + (result.isDirectory() ? "/" : ""); //$NON-NLS-1$
 	}
-	
+
 	public static URL searchForBundle(String name, String parent) throws MalformedURLException {
 		URL url = null;
 		File fileLocation = null;
 		boolean reference = false;
-		if (parent != null) { 	
+		if (parent != null) {
 			try {
 				new URL(name);
 				url = new URL(new File(parent).toURL(), name);
@@ -86,7 +84,7 @@ public class BundleSearch {
 				reference = true;
 			}
 		}
-		
+
 		// if the name was a URL then see if it is relative.  If so, insert syspath.
 		if (!reference) {
 			URL baseURL = url;
