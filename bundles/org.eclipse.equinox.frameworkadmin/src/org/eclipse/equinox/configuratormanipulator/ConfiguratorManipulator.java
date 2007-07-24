@@ -49,7 +49,7 @@ public interface ConfiguratorManipulator {
 	 * @param backup if files exists at the location to save, it will be copied as a backup.
 	 * @throws IOException - If fail to save configuration for the corresponding Configurator Bundle.
 	 */
-	BundleInfo[] save(Manipulator Manipulator, boolean backup) throws IOException;
+	BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException;
 
 	/**
 	 * Update bundles kept by the specified {@link Manipulator} object into installed bundles
@@ -66,6 +66,6 @@ public interface ConfiguratorManipulator {
 	 * @param Manipulator {@link Manipulator} object to be used and updated.
 	 * @throws IOException - If fail to read configuration for the corresponding Configurator Bundle.
 	 */
-	void updateBundles(Manipulator Manipulator) throws IOException;
+	void updateBundles(Manipulator manipulator) throws IOException;
 
 }
