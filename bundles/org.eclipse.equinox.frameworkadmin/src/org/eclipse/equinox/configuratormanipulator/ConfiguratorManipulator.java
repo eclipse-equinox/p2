@@ -45,7 +45,7 @@ public interface ConfiguratorManipulator {
 	 * We assume that the implementation of {@link Manipulator#save(boolean)} will call this method.
 	 *  
 	 * @return array of BundleInfo to be saved as installing bundles in fw config files.
-	 * @param Manipulator {@link Manipulator} object which contains the bundles to be installed finally.
+	 * @param manipulator {@link Manipulator} object which contains the bundles to be installed finally.
 	 * @param backup if files exists at the location to save, it will be copied as a backup.
 	 * @throws IOException - If fail to save configuration for the corresponding Configurator Bundle.
 	 */
@@ -63,7 +63,7 @@ public interface ConfiguratorManipulator {
 	 *
 	 * This method is assumed to be called from {@link Manipulator#load()}.
 	 *  
-	 * @param Manipulator {@link Manipulator} object to be used and updated.
+	 * @param manipulator {@link Manipulator} object to be used and updated.
 	 * @throws IOException - If fail to read configuration for the corresponding Configurator Bundle.
 	 */
 	void updateBundles(Manipulator manipulator) throws IOException;
