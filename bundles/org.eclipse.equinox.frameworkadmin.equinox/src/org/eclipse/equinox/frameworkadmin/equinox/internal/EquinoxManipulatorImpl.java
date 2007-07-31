@@ -91,7 +91,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		int dotLocation = launcherName.lastIndexOf(".");
 		if (dotLocation != -1)
 			launcherName = launcherName.substring(0, dotLocation);
-		return new File(launcher.getParent() + File.separator + launcherName + EquinoxConstants.INI_EXTENSION);
+		File result = new File(launcher.getParent() + File.separator + launcherName + EquinoxConstants.INI_EXTENSION);
+//		launcherData.setLauncherConfigLocation(result);
+		return result;
 	}
 
 	ConfigData configData = new ConfigData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
@@ -504,21 +506,21 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 	}
 
-	public void setLauncherData(LauncherData launcherData) {
-		this.launcherData.initialize();
-		this.launcherData.setFwConfigLocation(launcherData.getFwConfigLocation());
-		this.launcherData.setFwPersistentDataLocation(launcherData.getFwPersistentDataLocation(), launcherData.isClean());
-		this.launcherData.setJvm(launcherData.getJvm());
-		this.launcherData.setJvmArgs(launcherData.getJvmArgs());
-		if (this.launcherData.getFwName().equals(launcherData.getFwName()))
-			if (this.launcherData.getFwVersion().equals(launcherData.getFwVersion())) {
+	public void setLauncherData(LauncherData value) {
+		launcherData.initialize();
+		launcherData.setFwConfigLocation(value.getFwConfigLocation());
+		launcherData.setFwPersistentDataLocation(value.getFwPersistentDataLocation(), value.isClean());
+		launcherData.setJvm(value.getJvm());
+		launcherData.setJvmArgs(value.getJvmArgs());
+		if (launcherData.getFwName().equals(value.getFwName()))
+			if (launcherData.getFwVersion().equals(value.getFwVersion())) {
 				// TODO launcherData.getFwName()/getFwVersion()/
 				//	getLauncherName()/getLauncherVersion() might be taken into consideration
 				//  for copying . 
-				this.launcherData.setFwJar(launcherData.getFwJar());
-				this.launcherData.setHome(launcherData.getHome());
-				this.launcherData.setLauncher(launcherData.getLauncher());
-				this.launcherData.setLauncherConfigLocation(launcherData.getLauncherConfigLocation());
+				launcherData.setFwJar(value.getFwJar());
+				launcherData.setHome(value.getHome());
+				launcherData.setLauncher(value.getLauncher());
+				launcherData.setLauncherConfigLocation(value.getLauncherConfigLocation());
 			}
 	}
 

@@ -157,8 +157,8 @@ public class BundleInfo {
 		this.symbolicName = symbolicName;
 	}
 
-	public void setVersion(String vertion) {
-		this.version = vertion;
+	public void setVersion(String value) {
+		this.version = value;
 	}
 
 	/* (non-Javadoc)
