@@ -20,6 +20,7 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
 
 public class Utils {
 	private final static String PATH_SEP = "/";
+	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
 	/**
 	 * Overwrite all properties of from to the properties of to. Return the result of to.
@@ -126,46 +127,56 @@ public class Utils {
 	}
 
 	public static void createParentDir(File file) throws IOException {
-		//		try {
-		createParentDir(file, new Stack());
-		//		} catch (IOException e) {
-		//	throw new IOException("Fail to createParentDir(" + file.getAbsolutePath() + ")", e);
-		//Fs	}
-	}
-
-	private static void createParentDir(File file, Stack stack) throws IOException {
-		//		file.getParent()
-		//		
-		//		URL url = getUrl("file",null,file.getAbsolutePath());
-		//		StringTokenizer tokenizer = new StringTokenizer(url.getFile(),"/");
-		//		
-
 		File parent = file.getParentFile();
-		if (parent.exists()) {
-			while (!stack.empty()) {
-				File child = (File) stack.pop();
-				if (!child.mkdir())
-					throw new IOException("Fail to mkdir of " + child.toString());
-			}
+		if (parent == null)
 			return;
-		}
-		stack.push(parent);
-		createParentDir(parent, stack);
+		parent.mkdirs();
 	}
 
-	public static void deleteDir(File file) throws IOException {
-		if (file.isFile()) {
-			if (!file.delete())
-				throw new IOException("Fail to delete File(" + file.getAbsolutePath() + ")");
-			return;
+
+	/**
+	 * Deletes the given file recursively, adding failure info to
+	 * the provided status object.  The filePath is passed as a parameter
+	 * to optimize java.io.File object creation.
+	 */
+	// Implementation taken from the Eclipse File sytem bundle class LocalFile.
+	//  TODO consider putting back the progress and cancelation support.
+	private static boolean internalDelete(File target, String pathToDelete) {
+		//first try to delete - this should succeed for files and symbolic links to directories
+		if (target.delete() || !target.exists())
+			return true;
+		if (target.isDirectory()) {
+			String[] list = target.list();
+			if (list == null)
+				list = EMPTY_STRING_ARRAY;
+			int parentLength = pathToDelete.length();
+			boolean failedRecursive = false;
+			for (int i = 0, imax = list.length; i < imax; i++) {			
+				//optimized creation of child path object
+				StringBuffer childBuffer = new StringBuffer(parentLength + list[i].length() + 1);
+				childBuffer.append(pathToDelete);
+				childBuffer.append(File.separatorChar);
+				childBuffer.append(list[i]);
+				String childName = childBuffer.toString();
+				// try best effort on all children so put logical OR at end
+				failedRecursive = !internalDelete(new java.io.File(childName), childName) || failedRecursive;
+			}
+			try {
+				// don't try to delete the root if one of the children failed
+				if (!failedRecursive && target.delete())
+					return true;
+			} catch (Exception e) {
+				// we caught a runtime exception so log it
+				return false;
+			}
 		}
-		File[] children = file.listFiles();
-		for (int i = 0; i < children.length; i++) {
-			deleteDir(children[i]);
-		}
-		if (!file.delete())
-			throw new IOException("Fail to delete Dir(" + file.getAbsolutePath() + ")");
-		return;
+//		message = NLS.bind(Messages.couldnotDelete, target.getAbsolutePath());
+		return false;
+	}
+
+	public static void deleteDir(File target) throws IOException {
+		internalDelete(target, target.getAbsolutePath());
+		throw new IOException("Fail to delete Dir(" + target.getAbsolutePath() + ")");
 	}
 
 	/**
