@@ -15,11 +15,9 @@ import java.util.*;
 import java.util.jar.*;
 import org.eclipse.equinox.internal.p2.jarprocessor.*;
 
-/**
- * @author aniefer@ca.ibm.com
- *
- */
 public class JarProcessor {
+	public static final String PACKED_SUFFIX = "pack.gz"; //$NON-NLS-1$
+	
 	private List steps = new ArrayList();
 	private String workingDirectory = ""; //$NON-NLS-1$
 	private int depth = -1;
@@ -105,11 +103,11 @@ public class JarProcessor {
 							} catch (Exception e) {
 								if (verbose) {
 									e.printStackTrace();
-									System.out.println("Warning: Problem reading " +replacement.getPath() + ", using " + jar.getName() + File.separator + entry.getName()  + " instead.");
+									System.out.println("Warning: Problem reading " +replacement.getPath() + ", using " + jar.getName() + File.separator + entry.getName()  + " instead."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 								}
 							}
 						} else if (verbose) {
-							System.out.println("Warning: " + replacement.getPath() + " not found, using " + jar.getName() + File.separator + entry.getName() + " instead.");	
+							System.out.println("Warning: " + replacement.getPath() + " not found, using " + jar.getName() + File.separator + entry.getName() + " instead.");	 //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						}
 					}
 				}
@@ -120,7 +118,7 @@ public class JarProcessor {
 					} catch( Exception e ) {
 						if(verbose) {
 							e.printStackTrace();
-							System.out.println("ERROR: problem reading " + entry.getName() + " from " + jar.getName());
+							System.out.println("ERROR: problem reading " + entry.getName() + " from " + jar.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						continue;
 					}
@@ -176,7 +174,7 @@ public class JarProcessor {
 					if(verbose){
 						for(int i = 0; i <= depth; i++)
 							System.out.print("  "); //$NON-NLS-1$
-						System.out.println("Children of " + jar.getName() + "are excluded from processing.");
+						System.out.println("Children of " + jar.getName() + "are excluded from processing."); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					return;
 			}
