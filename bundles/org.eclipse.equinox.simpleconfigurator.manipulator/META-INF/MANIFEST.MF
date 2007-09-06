@@ -14,3 +14,5 @@ Import-Package: org.eclipse.equinox.configuratormanipulator,
  org.osgi.service.startlevel;version="1.0.0",
  org.osgi.util.tracker
 Bundle-Vendor: %providerName
+Export-Package: org.eclipse.equinox.internal.simpleconfigurator.utils;x-internal:=true,
+ org.eclipse.equinox.simpleconfigurator.manipulator.internal;x-internal:=true
