@@ -16,17 +16,6 @@ import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor;
 
 public class Main {
 
-	public static class Options {
-		public String outputDir = "."; //$NON-NLS-1$
-		public String signCommand = null;
-		public boolean pack = false;
-		public boolean repack = false;
-		public boolean unpack = false;
-		public boolean verbose = false;
-		public boolean processAll = false;
-		public File input = null;
-	}
-
 	private static void printUsage() {
 		System.out.println("[-option ...]... input"); //$NON-NLS-1$
 		System.out.println("The following options are supported:"); //$NON-NLS-1$
@@ -43,13 +32,13 @@ public class Main {
 		System.out.println("-verbose        verbose mode "); //$NON-NLS-1$
 	}
 
-	public static Options processArguments(String[] args) {
+	public static JarProcessorExecutor.Options processArguments(String[] args) {
 		if (args.length == 0) {
 			printUsage();
 			return null;
 		}
 
-		Options options = new Options();
+		JarProcessorExecutor.Options options = new JarProcessorExecutor.Options();
 		int i = 0;
 		for (; i < args.length - 1; i++) {
 			if (args[i].equals("-pack")) {//$NON-NLS-1$
@@ -110,7 +99,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Options options = processArguments(args);
+		JarProcessorExecutor.Options options = processArguments(args);
 		if (options == null)
 			return;
 		new JarProcessorExecutor().runJarProcessor(options);

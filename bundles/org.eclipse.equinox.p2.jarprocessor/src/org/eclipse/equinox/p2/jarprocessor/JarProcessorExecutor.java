@@ -15,9 +15,19 @@ import java.io.*;
 import java.util.Properties;
 import java.util.zip.ZipException;
 import org.eclipse.equinox.internal.p2.jarprocessor.*;
-import org.eclipse.equinox.internal.p2.jarprocessor.Main.Options;
 
 public class JarProcessorExecutor {
+	public static class Options {
+		public String outputDir = "."; //$NON-NLS-1$
+		public String signCommand = null;
+		public boolean pack = false;
+		public boolean repack = false;
+		public boolean unpack = false;
+		public boolean verbose = false;
+		public boolean processAll = false;
+		public File input = null;
+	}
+
 	public void runJarProcessor(Options options) {
 		if (options.input.isFile() && options.input.getName().endsWith(".zip")) { //$NON-NLS-1$
 			ZipProcessor processor = new ZipProcessor();
@@ -48,7 +58,7 @@ public class JarProcessorExecutor {
 			//load options file
 			Properties properties = new Properties();
 			if (options.input.isDirectory()) {
-				File packProperties = new File(options.input, "pack.properties");
+				File packProperties = new File(options.input, "pack.properties"); //$NON-NLS-1$
 				if (packProperties.exists() && packProperties.isFile()) {
 					InputStream in = null;
 					try {
@@ -104,7 +114,7 @@ public class JarProcessorExecutor {
 				String dir = processor.getWorkingDirectory();
 				processor.setWorkingDirectory(dir + "/" + files[i].getName()); //$NON-NLS-1$
 				if (packProcessor != null)
-					packProcessor.setWorkingDirectory(dir + "/" + files[i].getName());
+					packProcessor.setWorkingDirectory(dir + "/" + files[i].getName()); //$NON-NLS-1$
 				process(files[i], filter, verbose, processor, packProcessor);
 				processor.setWorkingDirectory(dir);
 				if (packProcessor != null)
@@ -123,19 +133,19 @@ public class JarProcessorExecutor {
 		}
 	}
 
-	public void addPackUnpackStep(JarProcessor processor, Properties properties, Options options) {
+	public void addPackUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
 		processor.addProcessStep(new PackUnpackStep(properties, options.verbose));
 	}
 
-	public void addSignStep(JarProcessor processor, Properties properties, Options options) {
+	public void addSignStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
 		processor.addProcessStep(new SignCommandStep(properties, options.signCommand, options.verbose));
 	}
 
-	public void addPackStep(JarProcessor processor, Properties properties, Options options) {
+	public void addPackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
 		processor.addProcessStep(new PackStep(properties, options.verbose));
 	}
 
-	public void addUnpackStep(JarProcessor processor, Properties properties, Options options) {
+	public void addUnpackStep(JarProcessor processor, Properties properties, JarProcessorExecutor.Options options) {
 		processor.addProcessStep(new UnpackStep(properties, options.verbose));
 	}
 }

@@ -16,6 +16,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
 
+import org.eclipse.equinox.p2.jarprocessor.JarProcessor;
+
 /**
  * @author aniefer@ca.ibm.com
  *
@@ -52,11 +54,11 @@ public class Utils {
 	//Exclude this jar from signing
 	public static final String MARK_EXCLUDE_SIGN = "jarprocessor.exclude.sign"; //$NON-NLS-1$
 	//Exclude this jar's children from processing
-	public static final String MARK_EXCLUDE_CHILDREN = "jarprocessor.exclude.children";
+	public static final String MARK_EXCLUDE_CHILDREN = "jarprocessor.exclude.children"; //$NON-NLS-1$
 	//Exclude this jar's children from pack200
-	public static final String MARK_EXCLUDE_CHILDREN_PACK = "jarprocessor.exclude.children.pack";
+	public static final String MARK_EXCLUDE_CHILDREN_PACK = "jarprocessor.exclude.children.pack"; //$NON-NLS-1$
 	//Exclude this jar's children from signing
-	public static final String MARK_EXCLUDE_CHILDREN_SIGN = "jarprocessor.exclude.children.sign";
+	public static final String MARK_EXCLUDE_CHILDREN_SIGN = "jarprocessor.exclude.children.sign"; //$NON-NLS-1$
 	//Arguments used in pack200 for this jar
 	public static final String PACK_ARGS = "pack200.args"; //$NON-NLS-1$
 
@@ -76,7 +78,7 @@ public class Utils {
 
 	public static final FileFilter PACK_GZ_FILTER = new FileFilter() {
 		public boolean accept(File pathname) {
-			return pathname.isFile() && pathname.getName().endsWith(PACKED_SUFFIX);
+			return pathname.isFile() && pathname.getName().endsWith(JarProcessor.PACKED_SUFFIX);
 		}
 	};
 
@@ -246,7 +248,7 @@ public class Utils {
 	public static Properties getEclipseInf(File jarFile, boolean verbose) {
 		if (jarFile == null || !jarFile.exists()) {
 			if (verbose)
-				System.out.println("Failed to obtain eclipse.inf due to missing jar file: " + jarFile);
+				System.out.println("Failed to obtain eclipse.inf due to missing jar file: " + jarFile); //$NON-NLS-1$
 			return null;
 		}
 		JarFile jar = null;
@@ -257,7 +259,7 @@ public class Utils {
 			return null;
 		} catch (IOException e) {
 			if (verbose) {
-				System.out.println("Failed to obtain eclipse.inf due to IOException: " + jarFile);
+				System.out.println("Failed to obtain eclipse.inf due to IOException: " + jarFile); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 			return null;
@@ -274,7 +276,7 @@ public class Utils {
 			return new Properties();
 		} catch (IOException e) {
 			if (verbose) {
-				System.out.println("Failed to obtain eclipse.inf due to IOException: " + jarFile);
+				System.out.println("Failed to obtain eclipse.inf due to IOException: " + jarFile); //$NON-NLS-1$
 				e.printStackTrace();
 			}
 			return null;
@@ -319,7 +321,7 @@ public class Utils {
 			printStream.print(key);
 			printStream.print(" = "); //$NON-NLS-1$
 			printStream.print(sorted.get(key));
-			printStream.print("\n");
+			printStream.print("\n"); //$NON-NLS-1$
 
 		}
 		printStream.flush();

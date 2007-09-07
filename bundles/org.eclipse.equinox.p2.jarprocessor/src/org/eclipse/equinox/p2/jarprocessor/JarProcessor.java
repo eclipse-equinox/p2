@@ -347,13 +347,13 @@ public class JarProcessor {
 		return result;
 	}
 	
-	private void normalize(File input, File workingDirectory) {
-		if(input.getName().endsWith(Utils.PACKED_SUFFIX)) {
+	private void normalize(File input, File directory) {
+		if(input.getName().endsWith(JarProcessor.PACKED_SUFFIX)) {
 			//not a jar
 			return;
 		}
 		try {
-			File tempJar = new File(workingDirectory, "temp_" + input.getName()); //$NON-NLS-1$
+			File tempJar = new File(directory, "temp_" + input.getName()); //$NON-NLS-1$
 			JarFile jar = null;
 			try {
 				jar = new JarFile(input, false);
