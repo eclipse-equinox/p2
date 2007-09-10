@@ -133,7 +133,6 @@ public class Utils {
 		parent.mkdirs();
 	}
 
-
 	/**
 	 * Deletes the given file recursively, adding failure info to
 	 * the provided status object.  The filePath is passed as a parameter
@@ -151,7 +150,7 @@ public class Utils {
 				list = EMPTY_STRING_ARRAY;
 			int parentLength = pathToDelete.length();
 			boolean failedRecursive = false;
-			for (int i = 0, imax = list.length; i < imax; i++) {			
+			for (int i = 0, imax = list.length; i < imax; i++) {
 				//optimized creation of child path object
 				StringBuffer childBuffer = new StringBuffer(parentLength + list[i].length() + 1);
 				childBuffer.append(pathToDelete);
@@ -170,7 +169,7 @@ public class Utils {
 				return false;
 			}
 		}
-//		message = NLS.bind(Messages.couldnotDelete, target.getAbsolutePath());
+		//		message = NLS.bind(Messages.couldnotDelete, target.getAbsolutePath());
 		return false;
 	}
 
@@ -203,8 +202,6 @@ public class Utils {
 		}
 	}
 
-
-
 	public static BundleInfo[] getBundleInfosFromList(List list) {
 		if (list == null)
 			return new BundleInfo[0];
@@ -228,29 +225,11 @@ public class Utils {
 		return getClauses(getManifestMainAttributes(location, name));
 	}
 
-	
-
 	public static String getManifestMainAttributes(String location, String name) {
-		return (String) Utils.getOSGiManifest(location).get(name);
-
-		//		try {
-		//			Manifest manifest = Utils.getOSGiManifest(location);
-		//			//			URL url = new URL("jar:" + location + "!/");
-		//			//			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-		//			//			Manifest manifest = jarConnection.getManifest();
-		//			Attributes attributes = manifest.getMainAttributes();
-		//			String value = attributes.getValue(name);
-		//			return value == null ? null : value.trim();
-		//		} catch (MalformedURLException e1) {
-		//			// TODO log
-		//			System.err.println("location=" + location);
-		//			e1.printStackTrace();
-		//		} catch (IOException e) {
-		//			// TODO log
-		//			System.err.println("location=" + location);
-		//			e.printStackTrace();
-		//		}
-		//		return null;
+		Dictionary manifest = Utils.getOSGiManifest(location);
+		if (manifest == null)
+			throw new RuntimeException("Unable to locate bundle manifest: " + location);
+		return (String) manifest.get(name);
 	}
 
 	public static Dictionary getOSGiManifest(String location) {
