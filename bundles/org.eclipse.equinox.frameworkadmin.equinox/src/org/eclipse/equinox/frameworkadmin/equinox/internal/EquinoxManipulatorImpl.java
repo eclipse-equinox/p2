@@ -553,12 +553,12 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	private void updateAccordingToExpectedState(BundlesState bundlesState) {
-		File newFwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
-		if (bundlesState instanceof EquinoxBundlesState)
-			((EquinoxBundlesState) bundlesState).setFwJar(newFwJar);
-
-		if (launcherData.getFwJar() == null && newFwJar != null)
-			launcherData.setFwJar(newFwJar);
+//		File newFwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
+//		if (bundlesState instanceof EquinoxBundlesState)
+//			((EquinoxBundlesState) bundlesState).setFwJar(newFwJar);
+//
+//		if (launcherData.getFwJar() == null && newFwJar != null)
+//			launcherData.setFwJar(newFwJar);
 		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
 		configData.setBundles(newBundleInfos);
 	}

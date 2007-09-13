@@ -425,9 +425,9 @@ public class EquinoxBundlesState implements BundlesState {
 			for (int i = 0; i < bInfos.length; i++)
 				configData.addBundle(bInfos[i]);
 		} else {
-			if (this.getFwJar() == null) {
-				this.setFwJar(fwJar);
-			}
+//			if (this.getFwJar() == null) {
+			this.setFwJar(fwJar);
+//			}
 		}
 
 		// composeState(bInfos, properties, null);
