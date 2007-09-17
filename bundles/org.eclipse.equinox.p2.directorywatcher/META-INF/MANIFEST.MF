@@ -4,9 +4,11 @@ Bundle-Name: Directorywatcher Bundle
 Bundle-SymbolicName: org.eclipse.equinox.p2.directorywatcher
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.directorywatcher.Activator
-Import-Package: org.eclipse.equinox.prov.core.helpers,
+Import-Package: org.eclipse.equinox.prov.artifact.repository,
+ org.eclipse.equinox.prov.core.helpers,
  org.eclipse.equinox.prov.metadata.generator,
  org.eclipse.equinox.prov.metadata.repository,
+ org.eclipse.equinox.prov.query,
  org.osgi.framework;version="1.4.0",
  org.osgi.service.cm;version="1.2.0";resolution:=optional,
  org.osgi.service.packageadmin;version="1.2.0",

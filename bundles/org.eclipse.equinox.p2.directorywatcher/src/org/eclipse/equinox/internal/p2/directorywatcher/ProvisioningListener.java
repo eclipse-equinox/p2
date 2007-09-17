@@ -15,10 +15,10 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener;
+import org.eclipse.equinox.prov.artifact.repository.*;
 import org.eclipse.equinox.prov.core.helpers.ServiceHelper;
 import org.eclipse.equinox.prov.metadata.generator.*;
-import org.eclipse.equinox.prov.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.prov.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.prov.metadata.repository.*;
 
 public class ProvisioningListener implements IDirectoryChangeListener {
 
@@ -33,7 +33,6 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 	private Set toInstall;
 	private Set toGenerate;
 	private DirectoryWatcher watcher;
-	private IMetadataRepository metadataRepository;
 	private Map seenFiles;
 
 	public ProvisioningListener(DirectoryWatcher watcher) {
@@ -113,8 +112,13 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 	private IGeneratorInfo getProvider(File[] locations, File destination) {
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		provider.initialize(null, null, null, locations, null);
-		provider.setMetadataLocation(new File(destination, "content.xml")); //$NON-NLS-1$
-		provider.setArtifactLocation(new File(destination, "artifacts.xml")); //$NON-NLS-1$
+		try {
+			initializeMetadataRepository(provider, destination.toURL());
+			initializeArtifactRepository(provider, destination.toURL());
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		provider.setPublishArtifactRepository(true);
 		provider.setPublishArtifacts(false);
 		provider.setMappingRules(INPLACE_MAPPING_RULES);
@@ -125,30 +129,56 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 	}
 
 	private void generate() {
-		IMetadataRepository repo = getMetadataRepository();
 		IGeneratorInfo info = getProvider(new File[] {watcher.getTargetDirectory()}, watcher.getTargetDirectory());
-		info.setMetadataLocation(new File(repo.getURL().toExternalForm().substring(5)));
 		new Generator(info).generate();
-	}
-
-	private IMetadataRepository getMetadataRepository() {
-		if (metadataRepository != null)
-			return metadataRepository;
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
-		if (manager != null)
-			return null;
-		URL location = null;
-		try {
-			location = new URL(watcher.getTargetDirectory().toURL(), "content.xml");
-		} catch (MalformedURLException e) {
-			// should never happen...
-			return null;
-		}
-		metadataRepository = manager.getRepository(location);
-		return metadataRepository;
 	}
 
 	public Long getSeenFile(File file) {
 		return (Long) seenFiles.get(file);
 	}
+
+	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider, URL location) {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepository repository = manager.loadRepository(location, null);
+		if (repository != null) {
+			IWritableArtifactRepository result = (IWritableArtifactRepository) repository.getAdapter(IWritableArtifactRepository.class);
+			if (result != null) {
+				provider.setArtifactRepository(result);
+				if (!provider.append())
+					result.removeAll();
+				return;
+			}
+			throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
+		}
+
+		// 	the given repo location is not an existing repo so we have to create something
+		// TODO for now create a Simple repo by default.
+		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
+		IWritableArtifactRepository result = (IWritableArtifactRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.prov.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		if (result != null)
+			provider.setArtifactRepository(result);
+	}
+
+	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider, URL location) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		IMetadataRepository repository = manager.loadRepository(location, null);
+		if (repository != null) {
+			IWritableMetadataRepository result = (IWritableMetadataRepository) repository.getAdapter(IWritableMetadataRepository.class);
+			if (result != null) {
+				provider.setMetadataRepository(result);
+				if (!provider.append())
+					result.removeAll();
+				return;
+			}
+			throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
+		}
+
+		// 	the given repo location is not an existing repo so we have to create something
+		// TODO for now create a random repo by default.
+		String repositoryName = location + " - metadata"; //$NON-NLS-1$
+		IWritableMetadataRepository result = (IWritableMetadataRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.prov.metadata.repository.simpleRepository"); //$NON-NLS-1$
+		if (result != null)
+			provider.setMetadataRepository(result);
+	}
+
 }
