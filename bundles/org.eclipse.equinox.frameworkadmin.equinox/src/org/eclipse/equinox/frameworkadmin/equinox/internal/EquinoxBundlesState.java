@@ -9,15 +9,12 @@
 package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-
 import org.eclipse.core.runtime.internal.adaptor.EclipseEnvironmentInfo;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
-import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.AlienStateReader;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.BundleHelper;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -463,6 +460,7 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @throws FrameworkAdminRuntimeException
 	 */
 	private boolean composeState(BundleInfo[] bInfos, Dictionary props, File fwPersistentDataLocation) throws IllegalArgumentException, FrameworkAdminRuntimeException {
+		BundleInfo[] infos = manipulator.getConfigData().getBundles();
 		this.manipulator.getConfigData().setBundles(null);
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		this.setStateObjectFactory();
@@ -470,66 +468,19 @@ public class EquinoxBundlesState implements BundlesState {
 		state = null;
 		boolean flagNewState = false;
 		if (fwPersistentDataLocation != null) {
-			if (DEBUG)
-				Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "fwPersistentDataLocation=" + fwPersistentDataLocation);
-			// // TODO just for test. it should be removed.
-			// File file = new File("C:/eclipse/3.3M3/configuration2");
-			// System.out.println("file=" + file);
-			// System.out.println("file.equals(fwPersistentDataLocation)=" +
-			// file.equals(fwPersistentDataLocation));
-			// fwPersistentDataLocation = file;
-			File file = new File(fwPersistentDataLocation, EquinoxConstants.PERSISTENT_DIR_NAME);
-			if (!file.exists())
-				return false;
-			if (!file.isDirectory())
-				return false;
-
-			AlienStateReader alienStateReader = new AlienStateReader(fwPersistentDataLocation, null);
-
-			// Current Equinox (3.3M5) doesn't write state into persistently
-			// immediately.
-			// Therefore, repeat readState certain times.
-			int count = 0;
-			while (true) {
-				try {
-					state = alienStateReader.readState();
-					if (state != null)
-						break;
-					count++;
-					if (count >= MAX_COUNT_LOOP) {
-						Log.log(LogService.LOG_WARNING, this, "composeState()", "Fail to readState");
-						break;
-					}
-				} catch (IOException e) {
-					count++;
-					if (count >= MAX_COUNT_LOOP) {
-						Log.log(LogService.LOG_WARNING, this, "composeState()", "Fail to readState", e);
-						break;
-					}
-				}
-				try {
-					Log.log(LogService.LOG_INFO, this, "composeState()", "readState failed(" + count + "):Retry after " + PERIOD_TO_SLEEP + " msec.");
-					Thread.sleep(PERIOD_TO_SLEEP);
-				} catch (InterruptedException e1) {
-					// Nothing to do.
-				}
-			}
-			if (state == null)
-				return false;
-			cachedInstalledBundles = state.getBundles();
-			if (DEBUG) {
-				Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "state!=null");
-				for (int i = 0; i < cachedInstalledBundles.length; i++)
-					Log.log(LogService.LOG_DEBUG, "cachedInstalledBundles[" + i + "]=" + cachedInstalledBundles[i]);
-			}
-			setPlatformProperties(state);
+		    //NOTE Here there was a big chunk of code reading the framework state persisted on disk
+		    // and I removed it because it was causing various problems. See in previous revision
+			this.manipulator.getConfigData().setBundles(infos);
+			return false;
 		} else {
 			// return false;
 			state = soFactory.createState(true);
 			flagNewState = true;
 			cachedInstalledBundles = new BundleDescription[0];
-			if (props == null)
+			if (props == null) {
+				this.manipulator.getConfigData().setBundles(infos);
 				return false;
+			}
 			setPlatformPropertiesToState(props);
 			setPlatformProperties(state);
 		}
