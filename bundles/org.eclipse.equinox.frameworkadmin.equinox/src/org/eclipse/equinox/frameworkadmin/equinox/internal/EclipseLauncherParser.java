@@ -217,11 +217,13 @@ public class EclipseLauncherParser {
 	}
 
 	private boolean needsPathResolution(String entry) {
-		if (EquinoxConstants.OPTION_CONFIGURATION.equals(entry))
+		if (EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(entry))
 			return true;
-		if ("--launcher.library".equals(entry))
+		if ("--launcher.library".equalsIgnoreCase(entry))
 			return true;
-		if (EquinoxConstants.OPTION_STARTUP.equals(entry))
+		if (EquinoxConstants.OPTION_STARTUP.equalsIgnoreCase(entry))
+			return true;
+		if (EquinoxConstants.OPTION_FW.equalsIgnoreCase(entry))
 			return true;
 		return false;
 	}
@@ -249,7 +251,7 @@ public class EclipseLauncherParser {
 			boolean resolveNextLine = false;
 			for (int i = 0; i < lines.length; i++) {
 				if (resolveNextLine) {
-					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], launcherData.getLauncher().getParentFile().getAbsolutePath() + "\\");
+					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
 					resolveNextLine = false;
 				} else {
 					resolveNextLine = needsPathResolution(lines[i]);
