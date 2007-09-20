@@ -12,7 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
@@ -32,6 +33,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	public static final String LAUNCHER_NAME = "Eclipse.exe";
 	public static final String LAUNCHER_VERSION = "3.2";
 	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;
+	private static final String COMMA = ","; //$NON-NLS-1$
+	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 
 	/**
 	 * If the fwConfigLocation is a file and its name does not equal "config.ini",
@@ -561,5 +564,132 @@ public class EquinoxManipulatorImpl implements Manipulator {
 //			launcherData.setFwJar(newFwJar);
 		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
 		configData.setBundles(newBundleInfos);
+	}
+
+	/*
+	 * Make the given path relative to the specified root, if applicable. If not, then
+	 * return the path as-is.
+	 * 
+	 * Method similar to one from SimpleConfigurationManipulatorImpl.
+	 */
+	public static String makeRelative(String original, String rootPath) {
+		IPath path = new Path(original);
+		// ensure we have an absolute path to start with
+		if (!path.isAbsolute())
+			return original;
+		int index = commonPrefixEnd(original, rootPath, 0, 0);
+		return index == 0 ? original : original.substring(index);
+	}
+
+	public static String makeRelative(String urlString, URL rootURL) {
+		// we only traffic in file: URLs
+		int index = urlString.indexOf(FILE_PROTOCOL);
+		if (index == -1)
+			return urlString;
+		index = index + 5;
+
+		// ensure we have an absolute path to start with
+		boolean done = false;
+		URL url = null;
+		String file = urlString;
+		while (!done) {
+			try {
+				url = new URL(file);
+				file = url.getFile();
+			} catch (java.net.MalformedURLException e) {
+				done = true;
+			}
+		}
+		if (url == null || !new File(url.getFile()).isAbsolute())
+			return urlString;
+
+		String rootString = rootURL.toExternalForm();
+		int common = commonPrefixEnd(urlString, rootString, index, rootString.indexOf(FILE_PROTOCOL) + 5);
+		if (common == 0)
+			return urlString;
+		return urlString.substring(0, index) + urlString.substring(common);
+	}
+
+	public static String makeArrayRelative(String array, URL rootURL) {
+		StringBuffer buffer = new StringBuffer();
+		for (StringTokenizer tokenizer = new StringTokenizer(array, COMMA); tokenizer.hasMoreTokens();) {
+			String token = tokenizer.nextToken();
+			String relative = makeRelative(token, rootURL);
+			buffer.append(relative);
+			if (tokenizer.hasMoreTokens())
+				buffer.append(',');
+		}
+		return buffer.toString();
+	}
+
+	public static String makeArrayAbsolute(String array, URL rootURL) {
+		StringBuffer buffer = new StringBuffer();
+		for (StringTokenizer tokenizer = new StringTokenizer(array, COMMA); tokenizer.hasMoreTokens();) {
+			String token = tokenizer.nextToken();
+			String absolute = makeAbsolute(token, rootURL);
+			buffer.append(absolute);
+			if (tokenizer.hasMoreTokens())
+				buffer.append(',');
+		}
+		return buffer.toString();
+	}
+
+	/*
+	 * Make the given path absolute to the specified root, if applicable. If not, then
+	 * return the path as-is.
+	 * 
+	 * Method similar to one from SimpleConfigurationManipulatorImpl.
+	 */
+	public static String makeAbsolute(String original, String rootPath) {
+		IPath path = new Path(original);
+		// ensure we have a relative path to start with
+		if (path.isAbsolute())
+			return original;
+		IPath root = new Path(rootPath);
+		return root.addTrailingSeparator().append(path).toOSString();
+	}
+
+	public static String makeAbsolute(String urlString, URL rootURL) {
+		// we only traffic in file: URLs
+		int index = urlString.indexOf(FILE_PROTOCOL);
+		if (index == -1)
+			return urlString;
+		index = index + 5;
+
+		// ensure we have a relative path to start with
+		boolean done = false;
+		URL url = null;
+		String file = urlString;
+		while (!done) {
+			try {
+				url = new URL(file);
+				file = url.getFile();
+			} catch (java.net.MalformedURLException e) {
+				done = true;
+			}
+		}
+		if (url == null || new File(url.getFile()).isAbsolute())
+			return urlString;
+
+		String pre = urlString.substring(0, index - 5);
+		String post = urlString.substring(index);
+		return pre + rootURL.toExternalForm() + post;
+	}
+
+	/*
+	 * Look at the given strings and return the index of the first character which isn't the same.
+	 * 
+	 * Method similar to one from SimpleConfigurationManipulatorImpl.
+	 */
+	private static int commonPrefixEnd(String path, String root, int startIndex, int rootStart) {
+		if (startIndex > path.length() || rootStart > root.length())
+			return 0;
+		int index = startIndex;
+		int rootIndex = rootStart;
+		while (index < path.length() + startIndex && rootIndex < root.length() && path.charAt(index) == root.charAt(rootIndex)) {
+			index++;
+			rootIndex++;
+		}
+		return rootIndex == root.length() ? index : 0;
 	}
 }

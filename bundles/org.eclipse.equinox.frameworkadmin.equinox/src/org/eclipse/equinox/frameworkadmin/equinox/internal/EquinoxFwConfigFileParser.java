@@ -11,16 +11,24 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Properties;
-
+import java.util.*;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
-class EquinoxFwConfigFileParser {
+public class EquinoxFwConfigFileParser {
+	private static final String KEY_ECLIPSE_PROV_CACHE = "eclipse.prov.cache"; //$NON-NLS-1$
+	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
+	private static final String KEY_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
+	private static final String KEY_OSGI_BUNDLES_EXTRA_DATA = "osgi.bundles.extraData"; //$NON-NLS-1$
+	private static final String KEY_OSGI_FRAMEWORK = "osgi.framework"; //$NON-NLS-1$
+	private static final String KEY_OSGI_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
+	private static final String[] PATHS = new String[] {KEY_OSGI_LAUNCHER_PATH, KEY_ECLIPSE_PROV_CACHE};
+	private static final String[] URLS = new String[] {KEY_OSGI_FRAMEWORK, KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL};
+	private static final String[] URL_ARRAYS = new String[] {KEY_OSGI_BUNDLES, KEY_OSGI_BUNDLES_EXTRA_DATA};
+
 	private static boolean DEBUG = false;
 	private final BundleContext context;
 	private static String USE_REFERENCE_STRING = null;
@@ -176,7 +184,6 @@ class EquinoxFwConfigFileParser {
 		ConfigData configData = manipulator.getConfigData();
 		if (value != null) {
 			String[] bInfoStrings = Utils.getTokens(value, ",");
-			configData.setBundles(null);
 			for (int i = 0; i < bInfoStrings.length; i++) {
 				String token = bInfoStrings[i].trim();
 				token = FileUtils.getRealLocation(manipulator, token, false);
@@ -273,6 +280,8 @@ class EquinoxFwConfigFileParser {
 
 		String launcherName = null;
 		String launcherPath = null;
+		configData.setBundles(null);
+		props = makeAbsolute(props, launcherData.getLauncher().getParentFile().toURL());
 		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			String value = props.getProperty(key);
@@ -287,21 +296,11 @@ class EquinoxFwConfigFileParser {
 					configData.setFwDependentProp(key, value);
 				} else
 					configData.setFwIndependentProp(key, value);
-				if (key.equals(EquinoxConstants.PROP_OSGI_FW))
-					if (launcherData.getFwJar() == null) {
-						URL fwkUrl = null;
-						try {
-							fwkUrl = new URL(value);
-						} catch (MalformedURLException e) {
-							Log.log(LogService.LOG_ERROR, "Framework admin can configure a framework not reachable on a file URL", e);
-							return;
-						}
-						if (!fwkUrl.getProtocol().equalsIgnoreCase("file")) {
-							Log.log(LogService.LOG_ERROR, "Framework admin can configure a framework not reachable on a file URL");
-							return;
-						}
-						launcherData.setFwJar(new File(fwkUrl.getFile()).getCanonicalFile());
-					}
+				if (key.equals(EquinoxConstants.PROP_OSGI_FW)) {
+					File f = new File(new URL(value).getFile());
+					launcherData.setFwJar(f);
+					configData.addBundle(new BundleInfo(value));
+				}
 				if (key.equals(EquinoxConstants.PROP_LAUNCHER_NAME))
 					if (launcherData.getLauncher() == null)
 						launcherName = value;
@@ -315,6 +314,79 @@ class EquinoxFwConfigFileParser {
 		}
 
 		Log.log(LogService.LOG_INFO, "Config file(" + inputFile.getAbsolutePath() + ") is read successfully.");
+	}
+
+	private static Properties makeRelative(Properties props, URL rootURL) throws IOException {
+		for (int i = 0; i < PATHS.length; i++) {
+			String path = props.getProperty(PATHS[i]);
+			if (path != null)
+				props.put(PATHS[i], EquinoxManipulatorImpl.makeRelative(path, rootURL.getFile()));
+		}
+
+		for (int i = 0; i < URLS.length; i++) {
+			String url = props.getProperty(URLS[i]);
+			if (url != null)
+				props.put(URLS[i], EquinoxManipulatorImpl.makeRelative(url, rootURL));
+		}
+
+		String value = props.getProperty(KEY_OSGI_BUNDLES);
+		if (value != null)
+			props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeRelative(value, new URL(rootURL, "plugins/")));
+
+		String extra = props.getProperty(KEY_OSGI_BUNDLES_EXTRA_DATA);
+		if (extra != null) {
+			StringBuffer buffer = new StringBuffer();
+			for (StringTokenizer tokenizer = new StringTokenizer(extra, ","); tokenizer.hasMoreTokens();) {
+				String token = tokenizer.nextToken();
+				String absolute = EquinoxManipulatorImpl.makeRelative(token, rootURL);
+				buffer.append(absolute);
+				buffer.append(',');
+				buffer.append(tokenizer.nextToken());
+				buffer.append(',');
+				buffer.append(tokenizer.nextToken());
+				if (tokenizer.hasMoreTokens())
+					buffer.append(',');
+			}
+			props.setProperty(KEY_OSGI_BUNDLES_EXTRA_DATA, buffer.toString());
+		}
+		return props;
+	}
+
+	private static Properties makeAbsolute(Properties props, URL rootURL) throws IOException {
+		for (int i = 0; i < PATHS.length; i++) {
+			String path = props.getProperty(PATHS[i]);
+			if (path != null)
+				props.setProperty(PATHS[i], EquinoxManipulatorImpl.makeAbsolute(path, rootURL.getFile()));
+		}
+
+		for (int i = 0; i < URLS.length; i++) {
+			String url = props.getProperty(URLS[i]);
+			if (url != null)
+				props.put(URLS[i], EquinoxManipulatorImpl.makeAbsolute(url, rootURL));
+		}
+
+		String value = props.getProperty(KEY_OSGI_BUNDLES);
+		if (value != null)
+			props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayAbsolute(value, new URL(rootURL, "plugins/")));
+
+		String extra = props.getProperty(KEY_OSGI_BUNDLES_EXTRA_DATA);
+		if (extra != null) {
+			StringBuffer buffer = new StringBuffer();
+			for (StringTokenizer tokenizer = new StringTokenizer(extra, ","); tokenizer.hasMoreTokens();) {
+				String token = tokenizer.nextToken();
+				String absolute = EquinoxManipulatorImpl.makeAbsolute(token, rootURL);
+				buffer.append(absolute);
+				buffer.append(',');
+				buffer.append(tokenizer.nextToken());
+				buffer.append(',');
+				buffer.append(tokenizer.nextToken());
+				if (tokenizer.hasMoreTokens())
+					buffer.append(',');
+			}
+			props.setProperty(KEY_OSGI_BUNDLES_EXTRA_DATA, buffer.toString());
+		}
+
+		return props;
 	}
 
 	public void saveFwConfig(BundleInfo[] bInfos, Manipulator manipulator, boolean backup, boolean relative) throws IOException {//{
@@ -361,6 +433,7 @@ class EquinoxFwConfigFileParser {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outputFile);
+			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURL());
 			configProps.store(out, header);
 			Log.log(LogService.LOG_INFO, "FwConfig is saved successfully into:" + outputFile);
 		} finally {

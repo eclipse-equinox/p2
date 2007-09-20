@@ -12,43 +12,42 @@ package org.eclipse.equinox.simpleconfigurator.manipulator.internal;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
-
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.osgi.framework.*;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
 	final static boolean DEBUG = true;
-	static private BundleContext context;
+	private static BundleContext context;
+	private static ServiceTracker installLocationTracker;
+	private ServiceRegistration registration;
+	SimpleConfiguratorManipulatorImpl manipulator = null;
 
 	static BundleContext getContext() {
 		return context;
 	}
 
-	private ServiceRegistration registration;
-
-	SimpleConfiguratorManipulatorImpl manipulator = null;
-
 	private void registerConfiguratorManipulator() {
-
 		Dictionary props = new Hashtable();
 		props.put(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME, SimpleConfiguratorConstants.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME);
 		props.put(Constants.SERVICE_VENDOR, "Eclipse.org");
 		manipulator = new SimpleConfiguratorManipulatorImpl();
 		registration = context.registerService(ConfiguratorManipulator.class.getName(), manipulator, props);
-
 	}
 
-	public void start(BundleContext context) throws Exception {
-		Activator.context = context;
-
+	public void start(BundleContext bundleContext) throws Exception {
+		Activator.context = bundleContext;
 		this.registerConfiguratorManipulator();
 	}
 
-	public void stop(BundleContext context) throws Exception {
-		if (registration != null) //{
+	public void stop(BundleContext bundleContext) throws Exception {
+		if (registration != null)
 			registration.unregister();
+		if (installLocationTracker != null) {
+			installLocationTracker.close();
+			installLocationTracker = null;
+		}
 		Activator.context = null;
 	}
-
 }

@@ -22,4 +22,7 @@ Import-Package: org.eclipse.core.runtime.adaptor,
  org.osgi.service.log;version="1.3.0",
  org.osgi.service.startlevel;version="1.0.0",
  org.osgi.util.tracker;version="1.3.2"
-Export-Package: org.eclipse.equinox.frameworkadmin.equinox.internal.utils
+Export-Package: org.eclipse.equinox.frameworkadmin.equinox.internal,
+ org.eclipse.equinox.frameworkadmin.equinox.internal.utils,
+ org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state
+Require-Bundle: org.eclipse.equinox.common

@@ -12,7 +12,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-
 import org.eclipse.equinox.frameworkadmin.LauncherData;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -196,7 +195,14 @@ public class EclipseLauncherParser {
 
 			String line;
 			List list = new LinkedList();
+			boolean resolveNextLine = false;
 			while ((line = br.readLine()) != null) {
+				if (resolveNextLine) {
+					line = EquinoxManipulatorImpl.makeAbsolute(line, launcherData.getLauncher().getParentFile().getAbsolutePath());
+					resolveNextLine = false;
+				} else {
+					resolveNextLine = needsPathResolution(line);
+				}
 				list.add(line);
 			}
 			String[] lines = new String[list.size()];
@@ -210,8 +216,17 @@ public class EclipseLauncherParser {
 
 	}
 
-	public void save(LauncherData launcherData, boolean relative, boolean backup) throws IOException {
+	private boolean needsPathResolution(String entry) {
+		if (EquinoxConstants.OPTION_CONFIGURATION.equals(entry))
+			return true;
+		if ("--launcher.library".equals(entry))
+			return true;
+		if (EquinoxConstants.OPTION_STARTUP.equals(entry))
+			return true;
+		return false;
+	}
 
+	public void save(LauncherData launcherData, boolean relative, boolean backup) throws IOException {
 		File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
 
 		if (launcherConfigFile == null)
@@ -231,7 +246,14 @@ public class EclipseLauncherParser {
 			bw = new BufferedWriter(new FileWriter(launcherConfigFile));
 
 			String[] lines = this.getConfigFileLines(launcherData, launcherConfigFile, relative);
+			boolean resolveNextLine = false;
 			for (int i = 0; i < lines.length; i++) {
+				if (resolveNextLine) {
+					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], launcherData.getLauncher().getParentFile().getAbsolutePath() + "\\");
+					resolveNextLine = false;
+				} else {
+					resolveNextLine = needsPathResolution(lines[i]);
+				}
 				bw.write(lines[i]);
 				bw.newLine();
 			}
