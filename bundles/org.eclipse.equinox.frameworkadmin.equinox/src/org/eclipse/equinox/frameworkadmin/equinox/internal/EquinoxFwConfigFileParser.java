@@ -20,13 +20,17 @@ import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
 	private static final String KEY_ECLIPSE_PROV_CACHE = "eclipse.prov.cache"; //$NON-NLS-1$
+	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.prov.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String KEY_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
 	private static final String KEY_OSGI_BUNDLES_EXTRA_DATA = "osgi.bundles.extraData"; //$NON-NLS-1$
 	private static final String KEY_OSGI_FRAMEWORK = "osgi.framework"; //$NON-NLS-1$
 	private static final String KEY_OSGI_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
 	private static final String[] PATHS = new String[] {KEY_OSGI_LAUNCHER_PATH, KEY_ECLIPSE_PROV_CACHE};
-	private static final String[] URLS = new String[] {KEY_OSGI_FRAMEWORK, KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL};
+	private static final String[] URLS = new String[] { //
+	KEY_OSGI_FRAMEWORK, //
+			KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, //
+			KEY_ECLIPSE_PROV_DATA_AREA};
 	private static final String[] URL_ARRAYS = new String[] {KEY_OSGI_BUNDLES, KEY_OSGI_BUNDLES_EXTRA_DATA};
 
 	private static boolean DEBUG = false;
