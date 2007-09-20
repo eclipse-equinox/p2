@@ -102,8 +102,13 @@ public class EquinoxFwConfigFileParser {
 				e.printStackTrace();
 			}
 			String fwJarSt = fwJarUrl.toExternalForm();
-			if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
-				fwJarSt = "file:/" + fwJarUrl.getFile();
+			// TODO I just added this "if" stmt because we were seeing an extra slash
+			// appearing in the resulting URL. was this the right thing to do? the indexes 
+			// seem off in the loop below. (I'm on linux if that makes a difference)
+			if (!fwJarSt.startsWith("file:")) {
+				if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
+					fwJarSt = "file:/" + fwJarUrl.getFile();
+				}
 			}
 			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJarSt /* fwJar.getAbsolutePath() */);
 		}
