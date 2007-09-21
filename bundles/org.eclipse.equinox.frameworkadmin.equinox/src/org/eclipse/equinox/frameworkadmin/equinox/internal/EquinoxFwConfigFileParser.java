@@ -334,7 +334,7 @@ public class EquinoxFwConfigFileParser {
 		Log.log(LogService.LOG_INFO, "Config file(" + inputFile.getAbsolutePath() + ") is read successfully.");
 	}
 
-	private static Properties makeRelative(Properties props, URL rootURL) throws IOException {
+	private static Properties makeRelative(Properties props, URL rootURL, File fwJar) throws IOException {
 		for (int i = 0; i < PATHS.length; i++) {
 			String path = props.getProperty(PATHS[i]);
 			if (path != null)
@@ -348,8 +348,11 @@ public class EquinoxFwConfigFileParser {
 		}
 
 		String value = props.getProperty(KEY_OSGI_BUNDLES);
-		if (value != null)
-			props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeRelative(value, new URL(rootURL, "plugins/")));
+		if (value != null && fwJar != null) {
+			File parent = fwJar.getParentFile();
+			if (parent != null)
+				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeRelative(value, parent.toURL()));
+		}
 
 		String extra = props.getProperty(KEY_OSGI_BUNDLES_EXTRA_DATA);
 		if (extra != null) {
@@ -451,7 +454,7 @@ public class EquinoxFwConfigFileParser {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outputFile);
-			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURL());
+			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURL(), fwJar);
 			configProps.store(out, header);
 			Log.log(LogService.LOG_INFO, "FwConfig is saved successfully into:" + outputFile);
 		} finally {

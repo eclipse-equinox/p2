@@ -10,7 +10,6 @@ package org.eclipse.equinox.simpleconfigurator.internal;
 
 import java.net.URL;
 import java.util.*;
-
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -217,7 +216,7 @@ class ConfigApplier {
 		//Remove all the bundles appearing in the final list from the set of installed bundles
 		for (int i = 0; i < finalList.length; i++) {
 			Bundle[] toAdd = adminService.getBundles(finalList[i].getSymbolicName(), finalList[i].getVersion());
-			for (int j = 0; j < toAdd.length; j++) {
+			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
 				installedBundles.remove(toAdd[j]);
 			}
 		}
