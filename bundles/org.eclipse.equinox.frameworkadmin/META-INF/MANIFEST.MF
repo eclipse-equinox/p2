@@ -9,4 +9,5 @@ Import-Package: org.osgi.framework;version="1.3.0",
 Export-Package: org.eclipse.equinox.configuratormanipulator,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.internal.frameworkadmin.utils
-Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.4,
+ CDC-1.1/Foundation-1.1
