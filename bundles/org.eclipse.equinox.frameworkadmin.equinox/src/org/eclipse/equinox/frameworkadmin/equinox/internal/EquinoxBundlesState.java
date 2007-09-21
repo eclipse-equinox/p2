@@ -468,8 +468,8 @@ public class EquinoxBundlesState implements BundlesState {
 		state = null;
 		boolean flagNewState = false;
 		if (fwPersistentDataLocation != null) {
-		    //NOTE Here there was a big chunk of code reading the framework state persisted on disk
-		    // and I removed it because it was causing various problems. See in previous revision
+			//NOTE Here there was a big chunk of code reading the framework state persisted on disk
+			// and I removed it because it was causing various problems. See in previous revision
 			this.manipulator.getConfigData().setBundles(infos);
 			return false;
 		} else {
@@ -843,14 +843,8 @@ public class EquinoxBundlesState implements BundlesState {
 		if (!found) {
 			BundleDescription newBundleDescription = null;
 			try {
-				long bundleId = bInfo.getBundleId();
-				if (bundleId == BundleInfo.NO_BUNDLEID)
-					newBundleDescription = soFactory.createBundleDescription(state, Utils.getOSGiManifest(newLocation), newLocation, ++maxId);
-				else {
-					if (bundleId > maxId)
-						maxId = bundleId;
-					newBundleDescription = soFactory.createBundleDescription(state, Utils.getOSGiManifest(newLocation), newLocation, bundleId);
-				}
+				bInfo.setBundleId(++maxId);
+				newBundleDescription = soFactory.createBundleDescription(state, Utils.getOSGiManifest(newLocation), newLocation, bInfo.getBundleId());
 				state.addBundle(newBundleDescription);
 				manipulator.getConfigData().addBundle(bInfo);
 			} catch (BundleException e) {
