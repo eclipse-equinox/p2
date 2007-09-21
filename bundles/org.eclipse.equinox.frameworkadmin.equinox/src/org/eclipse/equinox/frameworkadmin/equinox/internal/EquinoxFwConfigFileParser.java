@@ -96,7 +96,7 @@ public class EquinoxFwConfigFileParser {
 		if (fwJar != null) {
 			URL fwJarUrl = null;
 			try {
-				fwJarUrl = Utils.getUrl("file", null, fwJar.getAbsolutePath());
+				fwJarUrl = fwJar.toURL();
 			} catch (MalformedURLException e) {
 				// Never happens
 				e.printStackTrace();
@@ -105,11 +105,11 @@ public class EquinoxFwConfigFileParser {
 			// TODO I just added this "if" stmt because we were seeing an extra slash
 			// appearing in the resulting URL. was this the right thing to do? the indexes 
 			// seem off in the loop below. (I'm on linux if that makes a difference)
-			if (!fwJarSt.startsWith("file:")) {
-				if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
-					fwJarSt = "file:/" + fwJarUrl.getFile();
-				}
-			}
+//			if (!fwJarSt.startsWith("file:")) {
+//				if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
+//					fwJarSt = "file:/" + fwJarUrl.getFile();
+//				}
+//			}
 			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJarSt /* fwJar.getAbsolutePath() */);
 		}
 
@@ -170,19 +170,28 @@ public class EquinoxFwConfigFileParser {
 
 	private static void normalizeLocation(BundleInfo bInfo) {
 		String location = bInfo.getLocation();
-		if (location.startsWith("file:")) {
-			location = location.substring("file:".length());
-			if (!location.startsWith("/"))
-				location = "/" + location;
-			//		if (fwJarSt != null)
-			//			if (fwJarSt.equals(location))
-			//				continue;
-			location = Utils.replaceAll(location, File.separator, "/");
-			//String jarName = location.substring(location.lastIndexOf("/") + 1);
-			//		if (jarName.startsWith(EquinoxConstants.FW_JAR_PLUGIN_NAME))
-			//			continue;
-			bInfo.setLocation("file:" + location);
+		try {
+			if (location.startsWith("file:")) {
+				bInfo.setLocation(new URL(location).toExternalForm());
+			} else {
+				bInfo.setLocation(new File(location).toURL().toExternalForm());
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+//			location = location.substring("file:".length());
+//			if (!location.startsWith("/"))
+//				location = "/" + location;
+//			//		if (fwJarSt != null)
+//			//			if (fwJarSt.equals(location))
+//			//				continue;
+//			location = Utils.replaceAll(location, File.separator, "/");
+//			//String jarName = location.substring(location.lastIndexOf("/") + 1);
+//			//		if (jarName.startsWith(EquinoxConstants.FW_JAR_PLUGIN_NAME))
+//			//			continue;
+//			bInfo.setLocation("file:" + location);
+//		}
 	}
 
 	/**
