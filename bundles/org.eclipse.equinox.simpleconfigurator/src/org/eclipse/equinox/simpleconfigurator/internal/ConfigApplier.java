@@ -100,6 +100,7 @@ class ConfigApplier {
 					installed.add(current);
 				} catch (BundleException e) {
 					System.err.println("Can't install " + symbolicName + "/" + version + " from location " + finalList[i].getLocation());
+					e.printStackTrace();
 					continue;
 				}
 			}
