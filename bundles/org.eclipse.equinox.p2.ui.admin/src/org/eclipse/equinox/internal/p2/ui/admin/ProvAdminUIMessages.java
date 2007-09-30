@@ -19,7 +19,7 @@ import org.eclipse.osgi.util.NLS;
  * @since 3.4
  */
 public class ProvAdminUIMessages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.p2.ui.admin.internal.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.ui.admin.messages"; //$NON-NLS-1$
 	static {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvAdminUIMessages.class);

@@ -85,7 +85,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		// infrastructure
 		// because the Eclipse Application launch config won't let me specify
 		// bundles to start.
-		getBundle("org.eclipse.equinox.p2.examplarysetup").start(); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(); //$NON-NLS-1$
 
