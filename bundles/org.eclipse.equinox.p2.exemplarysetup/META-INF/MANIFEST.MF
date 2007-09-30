@@ -18,3 +18,4 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.exemplarysetup.Activator
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common
+Export-Package: org.eclipse.equinox.internal.p2.exemplarysetup;x-internal:=true

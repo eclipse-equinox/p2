@@ -14,3 +14,4 @@ Import-Package: org.eclipse.equinox.app;version="1.0.0",
  org.osgi.framework;version="1.4.0"
 Require-Bundle: org.eclipse.equinox.common
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
+Export-Package: org.eclipse.equinox.p2.tools
