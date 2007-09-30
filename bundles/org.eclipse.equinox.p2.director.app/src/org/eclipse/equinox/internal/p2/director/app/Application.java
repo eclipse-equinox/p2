@@ -156,16 +156,16 @@ public class Application implements IApplication {
 				install = false;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-prov.os")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.os")) {
 				os = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-prov.ws")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.ws")) {
 				ws = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-prov.nl")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.nl")) {
 				nl = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-prov.arch")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.arch")) {
 				arch = arg;
 			}
 		}

@@ -218,7 +218,7 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-rootVersion"))
 				provider.setRootVersion(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-prov.os"))
+			if (args[i - 1].equalsIgnoreCase("-p2.os"))
 				provider.setOS(arg);
 		}
 	}
