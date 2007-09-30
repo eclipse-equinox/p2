@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+	<extension
+			point="org.eclipse.equinox.prov.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.prov.processing.ByteShifter">
+		<step class="org.eclipse.equinox.prov.tests.artifact.repository.processing.ByteShifter"/>
+	</extension>
+
+	<extension
+			point="org.eclipse.equinox.prov.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.prov.processing.MD5Verifier">
+		<step class="org.eclipse.equinox.prov.tests.artifact.repository.processing.MD5Verifier"/>
+	</extension>
+
+	<extension
+			point="org.eclipse.equinox.prov.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.prov.processing.Adder">
+		<step class="org.eclipse.equinox.prov.tests.artifact.repository.processing.Adder"/>
+	</extension>
+
+	<extension
+			point="org.eclipse.equinox.prov.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.prov.processing.Multiplier">
+		<step class="org.eclipse.equinox.prov.tests.artifact.repository.processing.Multiplier"/>
+	</extension>
+
+	<extension
+			point="org.eclipse.equinox.prov.artifact.repository.processingSteps"
+			id="org.eclipse.equinox.prov.processing.Pack200Unpacker">
+		<step class="org.eclipse.equinox.prov.tests.artifact.repository.processing.Pack200Unpacker"/>
+	</extension>
+
+</plugin>

@@ -1,0 +1,14 @@
+<plugin>
+   <extension
+         id="queryableApp"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="1"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.equinox.prov.tools.MetadataCompareApplication">
+         </run>
+      </application>
+   </extension>
+</plugin>

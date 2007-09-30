@@ -1,0 +1,77 @@
+/*******************************************************************************
+ * Copyright (c) 2007 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.equinox.internal.prov.console;
+
+import org.eclipse.equinox.prov.engine.IProfileRegistry;
+import org.osgi.framework.*;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
+
+public class Activator implements BundleActivator, ServiceTrackerCustomizer {
+	// The plug-in ID
+	public static final String PLUGIN_ID = "org.eclipse.equinox.prov.console"; //$NON-NLS-1$
+	private static final String PROVIDER_NAME = "org.eclipse.osgi.framework.console.CommandProvider"; //$NON-NLS-1$
+	private static BundleContext context;
+
+	private ServiceTracker profileTracker;
+	private ProvCommandProvider provider;
+	private ServiceRegistration providerRegistration = null;
+
+	public static BundleContext getContext() {
+		return context;
+	}
+
+	public Activator() {
+		super();
+	}
+
+	public void start(BundleContext context) throws Exception {
+		Activator.context = context;
+		boolean registerCommands = true;
+		try {
+			Class.forName(PROVIDER_NAME);
+		} catch (ClassNotFoundException e) {
+			registerCommands = false;
+		}
+
+		if (registerCommands) {
+			profileTracker = new ServiceTracker(context, IProfileRegistry.class.getName(), this);
+			profileTracker.open();
+		}
+	}
+
+	public void stop(BundleContext context) throws Exception {
+		profileTracker.close();
+		if (providerRegistration != null)
+			providerRegistration.unregister();
+		providerRegistration = null;
+		Activator.context = null;
+	}
+
+	public Object addingService(ServiceReference reference) {
+		BundleContext context = Activator.getContext();
+		IProfileRegistry registry = (IProfileRegistry) context.getService(reference);
+		provider = new ProvCommandProvider(context.getProperty("eclipse.prov.profile"), registry);
+		providerRegistration = context.registerService(PROVIDER_NAME, provider, null);
+		return registry;
+	}
+
+	public void modifiedService(ServiceReference reference, Object service) {
+		// TODO Auto-generated method stub
+	}
+
+	public void removedService(ServiceReference reference, Object service) {
+		if (providerRegistration != null)
+			providerRegistration.unregister();
+		providerRegistration = null;
+	}
+
+}

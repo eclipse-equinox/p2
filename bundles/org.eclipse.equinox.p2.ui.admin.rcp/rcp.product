@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.1"?>
+
+<product name="%productName" id="org.eclipse.equinox.prov.ui.admin.rcp.product" application="org.eclipse.equinox.prov.ui.admin.rcp.application" useFeatures="false">
+
+   <aboutInfo>
+      <text>
+         %aboutText
+      </text>
+   </aboutInfo>
+
+   <configIni use="custom" path="/org.eclipse.equinox.prov.ui.admin.rcp/config.ini"/>
+
+   <launcherArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
+   </launcherArgs>
+
+   <windowImages i16="/org.eclipse.equinox.prov.ui.admin/icons/provision.gif"/>
+
+   <launcher name="eclipse">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
+   <plugins>
+      <plugin id="com.ibm.icu"/>
+      <plugin id="com.thoughtworks.xstream"/>
+      <plugin id="org.eclipse.core.commands"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.databinding"/>
+      <plugin id="org.eclipse.core.expressions"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.ecf"/>
+      <plugin id="org.eclipse.ecf.filetransfer"/>
+      <plugin id="org.eclipse.ecf.identity"/>
+      <plugin id="org.eclipse.ecf.provider.filetransfer"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin"/>
+      <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
+      <plugin id="org.eclipse.equinox.launcher"/>
+      <plugin id="org.eclipse.equinox.launcher.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.prov.artifact.repository"/>
+      <plugin id="org.eclipse.equinox.prov.console"/>
+      <plugin id="org.eclipse.equinox.prov.core"/>
+      <plugin id="org.eclipse.equinox.prov.director"/>
+      <plugin id="org.eclipse.equinox.prov.download"/>
+      <plugin id="org.eclipse.equinox.prov.engine"/>
+      <plugin id="org.eclipse.equinox.prov.examplarysetup"/>
+      <plugin id="org.eclipse.equinox.prov.metadata"/>
+      <plugin id="org.eclipse.equinox.prov.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.prov.touchpoint.eclipse"/>
+      <plugin id="org.eclipse.equinox.prov.touchpoint.natives"/>
+      <plugin id="org.eclipse.equinox.prov.ui"/>
+      <plugin id="org.eclipse.equinox.prov.ui.admin"/>
+      <plugin id="org.eclipse.equinox.prov.ui.admin.rcp"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator"/>
+      <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
+      <plugin id="org.eclipse.help"/>
+      <plugin id="org.eclipse.jface"/>
+      <plugin id="org.eclipse.jface.databinding"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.eclipse.swt"/>
+      <plugin id="org.eclipse.swt.win32.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.ui"/>
+      <plugin id="org.eclipse.ui.workbench"/>
+      <plugin id="org.mozilla.rhino"/>
+   </plugins>
+
+</product>

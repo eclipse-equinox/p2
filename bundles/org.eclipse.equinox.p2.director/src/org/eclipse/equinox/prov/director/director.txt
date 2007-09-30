@@ -1,0 +1,30 @@
+install
+  --> IU, causes an IU to be added to the targeted profile
+  --> ProfileIU, causes the profile IU to be merged in the profile?
+  --> Entry point, causes the entry point entities to be added as an entry point (no nested entry points)
+
+be
+ Put the system in a state we know. The profile may or not be changed.
+  --> IU, create an empty profile with a new ????
+  --> ProfileIU, replace the given profile with the current profile
+  --> EntryPoint, remove everything, and just installs all these IUs from the Entry point into the proi
+
+uninstall
+  It can only uninstall something that is already in the profile.
+  --> IU, causes the IU to be uninstalled, but leave the system in a consistent state. For example uninstall registry will not cause any IU to be uninstalled
+  --> ProfileIU --> nothing to do
+  --> entry point, like for IU
+
+update
+  You can only update a thing that is already in the profile
+  --> IU, causes the IU to be updated.... who decides what to update it to?
+  --> Profile??? --> nothing to do
+  --> Entry point --> we need to check for an update of the children of the entry point
+
+
+
+
+add
+remove
+become
+update
