@@ -19,8 +19,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
-	private static final String KEY_ECLIPSE_PROV_CACHE = "eclipse.prov.cache"; //$NON-NLS-1$
-	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.prov.data.area"; //$NON-NLS-1$
+	private static final String KEY_ECLIPSE_PROV_CACHE = "eclipse.p2.cache"; //$NON-NLS-1$
+	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String KEY_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
 	private static final String KEY_OSGI_BUNDLES_EXTRA_DATA = "osgi.bundles.extraData"; //$NON-NLS-1$

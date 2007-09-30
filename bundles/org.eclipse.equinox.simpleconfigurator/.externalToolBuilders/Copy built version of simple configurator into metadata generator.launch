@@ -12,7 +12,7 @@
 <mapEntry key="buildDirectory" value="${build_project}/trash"/>
 <mapEntry key="eclipse.pdebuild.scripts" value="/D:/eclipse/plugins/org.eclipse.pde.build_3.3.0.v20070312/scripts/"/>
 <mapEntry key="thisPlugin" value="${resource_loc:/org.eclipse.equinox.simpleconfigurator}"/>
-<mapEntry key="targetFolder" value="${resource_loc:/org.eclipse.equinox.prov.metadata.generator}"/>
+<mapEntry key="targetFolder" value="${resource_loc:/org.eclipse.equinox.p2.metadata.generator}"/>
 <mapEntry key="eclipse.running" value="true"/>
 <mapEntry key="eclipse.pdebuild.home" value="/D:/eclipse/plugins/org.eclipse.pde.build_3.3.0.v20070312/./"/>
 <mapEntry key="baseLocation" value="${target_home}"/>
