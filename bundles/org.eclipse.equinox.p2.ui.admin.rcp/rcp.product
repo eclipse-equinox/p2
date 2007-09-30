@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.1"?>
 
-<product name="%productName" id="org.eclipse.equinox.prov.ui.admin.rcp.product" application="org.eclipse.equinox.prov.ui.admin.rcp.application" useFeatures="false">
+<product name="%productName" id="org.eclipse.equinox.p2.ui.admin.rcp.product" application="org.eclipse.equinox.p2.ui.admin.rcp.application" useFeatures="false">
 
    <aboutInfo>
       <text>
@@ -9,13 +9,13 @@
       </text>
    </aboutInfo>
 
-   <configIni use="custom" path="/org.eclipse.equinox.prov.ui.admin.rcp/config.ini"/>
+   <configIni use="custom" path="/org.eclipse.equinox.p2.ui.admin.rcp/config.ini"/>
 
    <launcherArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
-   <windowImages i16="/org.eclipse.equinox.prov.ui.admin/icons/provision.gif"/>
+   <windowImages i16="/org.eclipse.equinox.p2.ui.admin/icons/provision.gif"/>
 
    <launcher name="eclipse">
       <solaris/>
@@ -47,20 +47,20 @@
       <plugin id="org.eclipse.equinox.launcher"/>
       <plugin id="org.eclipse.equinox.launcher.win32.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.equinox.preferences"/>
-      <plugin id="org.eclipse.equinox.prov.artifact.repository"/>
-      <plugin id="org.eclipse.equinox.prov.console"/>
-      <plugin id="org.eclipse.equinox.prov.core"/>
-      <plugin id="org.eclipse.equinox.prov.director"/>
-      <plugin id="org.eclipse.equinox.prov.download"/>
-      <plugin id="org.eclipse.equinox.prov.engine"/>
-      <plugin id="org.eclipse.equinox.prov.examplarysetup"/>
-      <plugin id="org.eclipse.equinox.prov.metadata"/>
-      <plugin id="org.eclipse.equinox.prov.metadata.repository"/>
-      <plugin id="org.eclipse.equinox.prov.touchpoint.eclipse"/>
-      <plugin id="org.eclipse.equinox.prov.touchpoint.natives"/>
-      <plugin id="org.eclipse.equinox.prov.ui"/>
-      <plugin id="org.eclipse.equinox.prov.ui.admin"/>
-      <plugin id="org.eclipse.equinox.prov.ui.admin.rcp"/>
+      <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
+      <plugin id="org.eclipse.equinox.p2.console"/>
+      <plugin id="org.eclipse.equinox.p2.core"/>
+      <plugin id="org.eclipse.equinox.p2.director"/>
+      <plugin id="org.eclipse.equinox.p2.download"/>
+      <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.examplarysetup"/>
+      <plugin id="org.eclipse.equinox.p2.metadata"/>
+      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
+      <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
+      <plugin id="org.eclipse.equinox.p2.ui"/>
+      <plugin id="org.eclipse.equinox.p2.ui.admin"/>
+      <plugin id="org.eclipse.equinox.p2.ui.admin.rcp"/>
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>

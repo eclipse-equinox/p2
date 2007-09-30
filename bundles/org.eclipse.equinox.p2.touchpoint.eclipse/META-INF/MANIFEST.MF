@@ -1,18 +1,18 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse Adaptor Plug-in (Incubation)
-Bundle-SymbolicName: org.eclipse.equinox.prov.touchpoint.eclipse;singleton:=true
+Bundle-SymbolicName: org.eclipse.equinox.p2.touchpoint.eclipse;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.core.runtime;common=split,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.internal.frameworkadmin.utils,
- org.eclipse.equinox.prov.artifact.repository,
- org.eclipse.equinox.prov.core.helpers,
- org.eclipse.equinox.prov.core.location,
- org.eclipse.equinox.prov.core.repository,
- org.eclipse.equinox.prov.download,
- org.eclipse.equinox.prov.engine,
- org.eclipse.equinox.prov.metadata,
+ org.eclipse.equinox.p2.artifact.repository,
+ org.eclipse.equinox.p2.core.helpers,
+ org.eclipse.equinox.p2.core.location,
+ org.eclipse.equinox.p2.core.repository,
+ org.eclipse.equinox.p2.download,
+ org.eclipse.equinox.p2.engine,
+ org.eclipse.equinox.p2.metadata,
  org.eclipse.osgi.framework.util,
  org.eclipse.osgi.service.datalocation;version="1.0.0",
  org.eclipse.osgi.service.environment;version="1.0.0",
@@ -23,4 +23,4 @@ Import-Package: org.eclipse.core.runtime;common=split,
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Eclipse-LazyStart: true
-Bundle-Activator: org.eclipse.equinox.internal.prov.touchpoint.eclipse.Activator
+Bundle-Activator: org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator

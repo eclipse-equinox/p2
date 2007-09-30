@@ -3,19 +3,19 @@
 <plugin>
    <extension-point id="artifactRepositories" name="Artifact Repositories" schema="schema/artifactRepositories.exsd"/>
    <extension-point id="processingSteps" name="Processing Steps" schema="schema/processingSteps.exsd"/>
-   <extension id="simpleRepository"  point="org.eclipse.equinox.prov.artifact.repository.artifactRepositories">
+   <extension id="simpleRepository"  point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
 		<filter suffix="artifacts.xml"/>
-		<factory class="org.eclipse.equinox.internal.prov.artifact.repository.SimpleArtifactRepositoryFactory"/>
+		<factory class="org.eclipse.equinox.internal.p2.artifact.repository.SimpleArtifactRepositoryFactory"/>
    </extension>
 
 	<extension
-			point="org.eclipse.equinox.prov.artifact.repository.processingSteps"
+			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.Pack200Unpacker">
-		<step class="org.eclipse.equinox.internal.prov.artifact.repository.Unpack200Step"/>
+		<step class="org.eclipse.equinox.internal.p2.artifact.repository.Unpack200Step"/>
 	</extension>
 	<extension
-			point="org.eclipse.equinox.prov.artifact.repository.processingSteps"
+			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.SignatureVerifier">
-		<step class="org.eclipse.equinox.internal.prov.artifact.repository.SignatureVerifier"/>
+		<step class="org.eclipse.equinox.internal.p2.artifact.repository.SignatureVerifier"/>
 	</extension>
 </plugin>

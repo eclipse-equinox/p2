@@ -5,25 +5,25 @@
          point="org.eclipse.ui.propertyPages">
       <page
             name="%Profile.name"
-            class="org.eclipse.equinox.prov.ui.dialogs.ProfilePropertyPage"
-            id="org.eclipse.equinox.prov.ui.internal.sdk.ProfilePropertyPage">
+            class="org.eclipse.equinox.p2.ui.dialogs.ProfilePropertyPage"
+            id="org.eclipse.equinox.p2.ui.internal.sdk.ProfilePropertyPage">
             <enabledWhen>
              <instanceof
-                  value="org.eclipse.equinox.prov.engine.Profile">
+                  value="org.eclipse.equinox.p2.engine.Profile">
              </instanceof>
           </enabledWhen>
       </page>
       <page
             name="%IU.name"
-            class="org.eclipse.equinox.prov.ui.dialogs.IUPropertyPage"
-            id="org.eclipse.equinox.prov.ui.internal.sdk.IUPropertyPage">
+            class="org.eclipse.equinox.p2.ui.dialogs.IUPropertyPage"
+            id="org.eclipse.equinox.p2.ui.internal.sdk.IUPropertyPage">
             <enabledWhen>
             <or>
              <instanceof
-                  value="org.eclipse.equinox.prov.metadata.InstallableUnit">
+                  value="org.eclipse.equinox.p2.metadata.InstallableUnit">
              </instanceof>
              <instanceof
-                  value="org.eclipse.equinox.prov.ui.model.InstalledIUElement">
+                  value="org.eclipse.equinox.p2.ui.model.InstalledIUElement">
              </instanceof>
  
              </or>
@@ -32,11 +32,11 @@
       
       <page
             name="%Repository.name"
-            class="org.eclipse.equinox.prov.ui.dialogs.ColocatedRepositoryPropertyPage"
-            id="org.eclipse.equinox.prov.ui.internal.sdk.ColocatedRepositoryPropertyPage">
+            class="org.eclipse.equinox.p2.ui.dialogs.ColocatedRepositoryPropertyPage"
+            id="org.eclipse.equinox.p2.ui.internal.sdk.ColocatedRepositoryPropertyPage">
             <enabledWhen>
              <instanceof
-                  value="org.eclipse.equinox.prov.metadata.repository.IMetadataRepository">
+                  value="org.eclipse.equinox.p2.metadata.repository.IMetadataRepository">
              </instanceof>
          </enabledWhen>
       </page>
@@ -48,14 +48,14 @@
          point="org.eclipse.ui.commands">
       <command
             name="%Update.command"
-            id="org.eclipse.equinox.prov.ui.sdk.update">
+            id="org.eclipse.equinox.p2.ui.sdk.update">
       </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            commandId="org.eclipse.equinox.prov.ui.sdk.update"
-            class="org.eclipse.equinox.prov.ui.internal.sdk.UpdateHandler">
+            commandId="org.eclipse.equinox.p2.ui.sdk.update"
+            class="org.eclipse.equinox.internal.p2.ui.sdk.UpdateHandler">
       </handler>
    </extension>
    <extension
@@ -63,8 +63,8 @@
       <menuContribution
             locationURI="menu:help?after=additions">
             <command
-                  commandId="org.eclipse.equinox.prov.ui.sdk.update"
-                  id="org.eclipse.equinox.prov.ui.sdk.update">
+                  commandId="org.eclipse.equinox.p2.ui.sdk.update"
+                  id="org.eclipse.equinox.p2.ui.sdk.update">
             </command>
       </menuContribution>
    </extension>

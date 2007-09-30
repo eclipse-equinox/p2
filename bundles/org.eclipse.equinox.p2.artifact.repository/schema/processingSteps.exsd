@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.equinox.prov.artifact.repository">
+<schema targetNamespace="org.eclipse.equinox.p2.artifact.repository">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.eclipse.equinox.prov.artifact.repository" id="processingSteps" name="Processing Steps"/>
+         <meta.schema plugin="org.eclipse.equinox.p2.artifact.repository" id="processingSteps" name="Processing Steps"/>
       </appInfo>
       <documentation>
          This extension point is used to provide processing step implementations
@@ -50,7 +50,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn=":org.eclipse.equinox.prov.artifact.repository.processing.IProcessingStep"/>
+                  <meta.attribute kind="java" basedOn=":org.eclipse.equinox.p2.artifact.repository.processing.IProcessingStep"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -62,7 +62,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         org.eclipse.equinox.prov.artifact.repository ?.?.?
+         org.eclipse.equinox.p2.artifact.repository ?.?.?
       </documentation>
    </annotation>
 
@@ -81,7 +81,7 @@
       </appInfo>
       <documentation>
          The value of the class attribute must represent an 
-implementor of &lt;tt&gt;org.eclipse.equinox.prov.artifact.processing.IProcessingStep&lt;/tt&gt;
+implementor of &lt;tt&gt;org.eclipse.equinox.p2.artifact.processing.IProcessingStep&lt;/tt&gt;
       </documentation>
    </annotation>
 

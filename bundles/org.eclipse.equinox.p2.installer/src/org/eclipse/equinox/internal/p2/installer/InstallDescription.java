@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.installer;
 import java.net.URL;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.equinox.p2.installer.IInstallDescription;
-import org.eclipse.equinox.prov.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * An editable implementation of {@link IInstallDescription}.

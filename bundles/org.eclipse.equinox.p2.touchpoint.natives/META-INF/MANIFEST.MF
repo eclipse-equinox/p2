@@ -1,16 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Native Adatpor Plug-in (Incubation)
-Bundle-SymbolicName: org.eclipse.equinox.prov.touchpoint.natives;singleton:=true
+Bundle-SymbolicName: org.eclipse.equinox.p2.touchpoint.natives;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Bundle-Activator: org.eclipse.equinox.internal.prov.touchpoint.natives.Activator
-Import-Package: org.eclipse.equinox.prov.artifact.repository,
- org.eclipse.equinox.prov.core.helpers,
- org.eclipse.equinox.prov.core.location,
- org.eclipse.equinox.prov.core.repository,
- org.eclipse.equinox.prov.download,
- org.eclipse.equinox.prov.engine,
- org.eclipse.equinox.prov.metadata,
+Bundle-Activator: org.eclipse.equinox.internal.p2.touchpoint.natives.Activator
+Import-Package: org.eclipse.equinox.p2.artifact.repository,
+ org.eclipse.equinox.p2.core.helpers,
+ org.eclipse.equinox.p2.core.location,
+ org.eclipse.equinox.p2.core.repository,
+ org.eclipse.equinox.p2.download,
+ org.eclipse.equinox.p2.engine,
+ org.eclipse.equinox.p2.metadata,
  org.eclipse.osgi.service.datalocation;version="1.0.0",
  org.eclipse.osgi.util;version="1.0.0",
  org.mozilla.javascript,

@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.installer;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.equinox.prov.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
  * An install information captures all the data needed to perform a product install.

@@ -7,7 +7,7 @@
             thread="main"
             visible="true">
          <run
-               class="org.eclipse.equinox.prov.tools.MetadataCompareApplication">
+               class="org.eclipse.equinox.p2.tools.MetadataCompareApplication">
          </run>
       </application>
    </extension>

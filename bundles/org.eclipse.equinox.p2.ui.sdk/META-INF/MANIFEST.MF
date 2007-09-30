@@ -3,30 +3,30 @@ Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-SymbolicName: org.eclipse.equinox.prov.ui.sdk;singleton:=true
+Bundle-SymbolicName: org.eclipse.equinox.p2.ui.sdk;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Bundle-Activator: org.eclipse.equinox.prov.ui.internal.sdk.ProvSDKUIActivator
-Import-Package: org.eclipse.equinox.prov.artifact.repository,
- org.eclipse.equinox.prov.core,
- org.eclipse.equinox.prov.core.eventbus,
- org.eclipse.equinox.prov.core.helpers,
- org.eclipse.equinox.prov.core.repository,
- org.eclipse.equinox.prov.director,
- org.eclipse.equinox.prov.engine,
- org.eclipse.equinox.prov.metadata,
- org.eclipse.equinox.prov.metadata.repository,
- org.eclipse.equinox.prov.query,
- org.eclipse.equinox.prov.ui,
- org.eclipse.equinox.prov.ui.actions,
- org.eclipse.equinox.prov.ui.dialogs,
- org.eclipse.equinox.prov.ui.model,
- org.eclipse.equinox.prov.ui.operations,
- org.eclipse.equinox.prov.ui.viewers,
+Bundle-Activator: org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator
+Import-Package: org.eclipse.equinox.p2.artifact.repository,
+ org.eclipse.equinox.p2.core,
+ org.eclipse.equinox.p2.core.eventbus,
+ org.eclipse.equinox.p2.core.helpers,
+ org.eclipse.equinox.p2.core.repository,
+ org.eclipse.equinox.p2.director,
+ org.eclipse.equinox.p2.engine,
+ org.eclipse.equinox.p2.metadata,
+ org.eclipse.equinox.p2.metadata.repository,
+ org.eclipse.equinox.p2.query,
+ org.eclipse.equinox.p2.ui,
+ org.eclipse.equinox.p2.ui.actions,
+ org.eclipse.equinox.p2.ui.dialogs,
+ org.eclipse.equinox.p2.ui.model,
+ org.eclipse.equinox.p2.ui.operations,
+ org.eclipse.equinox.p2.ui.viewers,
  org.eclipse.osgi.service.resolver;version="1.1.0",
  org.eclipse.osgi.util;version="1.1.0",
  org.osgi.framework;version="1.3.0",
  org.osgi.service.packageadmin;version="1.2.0"
-Export-Package: org.eclipse.equinox.prov.ui.internal.sdk;x-internal:=true
+Export-Package: org.eclipse.equinox.internal.p2.ui.sdk;x-internal:=true
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Eclipse-LazyStart: true

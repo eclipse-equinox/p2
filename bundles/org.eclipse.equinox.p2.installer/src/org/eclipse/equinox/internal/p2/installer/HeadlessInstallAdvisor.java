@@ -14,9 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.installer.IInstallAdvisor;
 import org.eclipse.equinox.p2.installer.IInstallDescription;
-import org.eclipse.equinox.prov.core.helpers.LogHelper;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 

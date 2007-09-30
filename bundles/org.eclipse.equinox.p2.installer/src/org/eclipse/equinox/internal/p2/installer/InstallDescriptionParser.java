@@ -18,7 +18,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.p2.installer.IInstallDescription;
-import org.eclipse.equinox.prov.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.osgi.framework.Version;
 
 /**

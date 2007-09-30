@@ -13,12 +13,12 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener;
-import org.eclipse.equinox.prov.artifact.repository.*;
-import org.eclipse.equinox.prov.core.helpers.ServiceHelper;
-import org.eclipse.equinox.prov.metadata.generator.*;
-import org.eclipse.equinox.prov.metadata.repository.*;
+import org.eclipse.equinox.p2.metadata.generator.*;
+import org.eclipse.equinox.p2.metadata.repository.*;
 
 public class ProvisioningListener implements IDirectoryChangeListener {
 
@@ -154,7 +154,7 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
-		IWritableArtifactRepository result = (IWritableArtifactRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.prov.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		IWritableArtifactRepository result = (IWritableArtifactRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
 		if (result != null)
 			provider.setArtifactRepository(result);
 	}
@@ -176,7 +176,7 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = location + " - metadata"; //$NON-NLS-1$
-		IWritableMetadataRepository result = (IWritableMetadataRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.prov.metadata.repository.simpleRepository"); //$NON-NLS-1$
+		IWritableMetadataRepository result = (IWritableMetadataRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
 		if (result != null)
 			provider.setMetadataRepository(result);
 	}

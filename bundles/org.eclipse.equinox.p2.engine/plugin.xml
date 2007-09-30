@@ -4,10 +4,10 @@
 		name="Touchpoints" 
 		schema="schema/touchpoints.exsd"/>
 		
-	<extension point="org.eclipse.equinox.prov.engine.touchpoints" id="null" name="Null Touchpoint">
+	<extension point="org.eclipse.equinox.p2.engine.touchpoints" id="null" name="Null Touchpoint">
 		<touchpoint 
 			type="null" 
-			class="org.eclipse.equinox.internal.prov.engine.NullTouchpoint"
+			class="org.eclipse.equinox.internal.p2.engine.NullTouchpoint"
 			version="1.0.0"/>
 	</extension>
 </plugin>

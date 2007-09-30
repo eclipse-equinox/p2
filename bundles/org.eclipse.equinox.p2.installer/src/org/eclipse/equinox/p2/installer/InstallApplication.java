@@ -26,7 +26,7 @@ import org.eclipse.equinox.internal.p2.installer.GraphicalInstallAdvisor;
 import org.eclipse.equinox.internal.p2.installer.InstallDescription;
 import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
 import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
-import org.eclipse.equinox.prov.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.core.helpers.LogHelper;
 
 /**
  * This is a simple installer application built using P2.  The application must be given

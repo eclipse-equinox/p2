@@ -7,7 +7,7 @@
             thread="main"
             visible="true">
          <run
-               class="org.eclipse.equinox.internal.prov.metadata.generator.EclipseGeneratorApplication">
+               class="org.eclipse.equinox.internal.p2.metadata.generator.EclipseGeneratorApplication">
          </run>
       </application>
    </extension>
@@ -15,7 +15,7 @@
          id="product"
          point="org.eclipse.core.runtime.products">
       <product
-            application="org.eclipse.equinox.prov.metadata.generator.EclipseGenerator"
+            application="org.eclipse.equinox.p2.metadata.generator.EclipseGenerator"
             name="Equinox Provisioning Metadata Generator">
       </product>
    </extension>

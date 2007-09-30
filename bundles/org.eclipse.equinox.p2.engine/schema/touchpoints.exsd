@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.equinox.prov.engine">
+<schema targetNamespace="org.eclipse.equinox.p2.engine">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.eclipse.equinox.prov.engine" id="touchpoints" name="Touchpoints"/>
+         <meta.schema plugin="org.eclipse.equinox.p2.engine" id="touchpoints" name="Touchpoints"/>
       </appInfo>
       <documentation>
          [Enter description of this extension point.]
@@ -58,7 +58,7 @@
                   
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.prov.engine.ITouchpoint"/>
+                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.p2.engine.ITouchpoint"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -117,10 +117,10 @@
       <documentation>
          &lt;p&gt;
    &lt;pre&gt;
- &lt;extension point=&quot;org.eclipse.equinox.prov.engine.installAdaptors&quot; id=&quot;eclipse&quot; name=&quot;Eclipse Install Adaptor&quot;&gt;
+ &lt;extension point=&quot;org.eclipse.equinox.p2.engine.installAdaptors&quot; id=&quot;eclipse&quot; name=&quot;Eclipse Install Adaptor&quot;&gt;
   &lt;installAdaptor 
    type=&quot;eclipse&quot; 
-   class=&quot;org.eclipse.equinox.internal.prov.eclipseAdaptor.EclipseInstallAdaptor&quot;
+   class=&quot;org.eclipse.equinox.internal.p2.eclipseAdaptor.EclipseInstallAdaptor&quot;
    version=&quot;1.0.0&quot;/&gt;
  &lt;/extension&gt;
    &lt;/pre&gt;

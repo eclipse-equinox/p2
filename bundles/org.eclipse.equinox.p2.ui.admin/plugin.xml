@@ -5,28 +5,28 @@
          point="org.eclipse.ui.preferencePages">
       <page
             name="%Provisioning.title"
-            class="org.eclipse.equinox.prov.ui.admin.internal.preferences.ProvisioningPrefPage"
-            id="org.eclipse.prov.ui.preferences.ProvisioningPrefPage">
+            class="org.eclipse.equinox.internal.p2.ui.admin.preferences.ProvisioningPrefPage"
+            id="org.eclipse.p2.ui.preferences.ProvisioningPrefPage">
       </page>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="org.eclipse.equinox.prov.ui.admin.internal.preferences.ProvUIPreferenceInitializer">
+            class="org.eclipse.equinox.internal.p2.ui.admin.preferences.ProvUIPreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.views">
       <category
             name="%viewCategoryName"
-            id="org.eclipse.prov.ui.admin">
+            id="org.eclipse.p2.ui.admin">
       </category>
       <view
             name="%MetadataRepositories.name"
             icon="$nl$/icons/obj/metadata_repo_obj.gif"
-            category="org.eclipse.prov.ui.admin"
-            class="org.eclipse.equinox.prov.ui.admin.internal.MetadataRepositoriesView"
-            id="org.eclipse.prov.ui.admin.MetadataRepositoriesView">
+            category="org.eclipse.p2.ui.admin"
+            class="org.eclipse.equinox.internal.p2.ui.admin.MetadataRepositoriesView"
+            id="org.eclipse.p2.ui.admin.MetadataRepositoriesView">
       </view>
    </extension>
    <extension
@@ -34,9 +34,9 @@
      <view
             name="%ArtifactRepositories.name"
             icon="$nl$/icons/obj/artifact_repo_obj.gif"
-            category="org.eclipse.prov.ui.admin"
-            class="org.eclipse.equinox.prov.ui.admin.internal.ArtifactRepositoriesView"
-            id="org.eclipse.prov.ui.admin.ArtifactRepositoriesView">
+            category="org.eclipse.p2.ui.admin"
+            class="org.eclipse.equinox.internal.p2.ui.admin.ArtifactRepositoriesView"
+            id="org.eclipse.p2.ui.admin.ArtifactRepositoriesView">
       </view>
    </extension>
    <extension
@@ -44,9 +44,9 @@
      <view
             name="%Profiles.name"
             icon="$nl$/icons/obj/profile_obj.gif"
-            category="org.eclipse.prov.ui.admin"
-            class="org.eclipse.equinox.prov.ui.admin.internal.ProfilesView"
-            id="org.eclipse.prov.ui.admin.ProfilesView">
+            category="org.eclipse.p2.ui.admin"
+            class="org.eclipse.equinox.internal.p2.ui.admin.ProfilesView"
+            id="org.eclipse.p2.ui.admin.ProfilesView">
       </view>
    </extension>
    
@@ -55,33 +55,33 @@
       <perspective
             name="%perspectiveName"
             icon="$nl$/icons/provision.gif"
-            class="org.eclipse.equinox.prov.ui.admin.internal.ProvisioningPerspective"
-            id="org.eclipse.equinox.prov.ui.admin.ProvisioningPerspective">
+            class="org.eclipse.equinox.internal.p2.ui.admin.ProvisioningPerspective"
+            id="org.eclipse.equinox.p2.ui.admin.ProvisioningPerspective">
       </perspective>
    </extension>
  <extension
          point="org.eclipse.ui.propertyPages">
       <page
             name="%Profile.name"
-            class="org.eclipse.equinox.prov.ui.dialogs.ProfilePropertyPage"
-            id="org.eclipse.equinox.prov.ui.admin.internal.dialogs.ProfilePropertyPage">
+            class="org.eclipse.equinox.p2.ui.dialogs.ProfilePropertyPage"
+            id="org.eclipse.equinox.p2.ui.admin.internal.dialogs.ProfilePropertyPage">
             <enabledWhen>
              <instanceof
-                  value="org.eclipse.equinox.prov.engine.Profile">
+                  value="org.eclipse.equinox.p2.engine.Profile">
              </instanceof>
           </enabledWhen>
       </page>
       <page
             name="%IU.name"
-            class="org.eclipse.equinox.prov.ui.dialogs.IUImplementationPropertyPage"
-            id="org.eclipse.equinox.prov.ui.admin.internal.dialogs.IUPropertyPage">
+            class="org.eclipse.equinox.p2.ui.dialogs.IUImplementationPropertyPage"
+            id="org.eclipse.equinox.p2.ui.admin.internal.dialogs.IUPropertyPage">
             <enabledWhen>
             <or>
              <instanceof
-                  value="org.eclipse.equinox.prov.metadata.InstallableUnit">
+                  value="org.eclipse.equinox.p2.metadata.InstallableUnit">
              </instanceof>
              <instanceof
-                  value="org.eclipse.equinox.prov.ui.model.InstalledIUElement">
+                  value="org.eclipse.equinox.p2.ui.model.InstalledIUElement">
              </instanceof>
  
              </or>
@@ -90,15 +90,15 @@
       
       <page
             name="%Repository.name"
-            class="org.eclipse.equinox.prov.ui.dialogs.RepositoryImplementationPropertyPage"
-            id="org.eclipse.equinox.prov.ui.admin.internal.dialogs.RepositoryPropertyPage">
+            class="org.eclipse.equinox.p2.ui.dialogs.RepositoryImplementationPropertyPage"
+            id="org.eclipse.equinox.p2.ui.admin.internal.dialogs.RepositoryPropertyPage">
             <enabledWhen>
             <or>
              <instanceof
-                  value="org.eclipse.equinox.prov.metadata.repository.IMetadataRepository">
+                  value="org.eclipse.equinox.p2.metadata.repository.IMetadataRepository">
              </instanceof>
              <instanceof
-                  value="org.eclipse.equinox.prov.artifact.repository.IArtifactRepository">
+                  value="org.eclipse.equinox.p2.artifact.repository.IArtifactRepository">
              </instanceof>
  
              </or>

@@ -15,7 +15,7 @@
 <booleanAttribute key="includeOptional" value="true"/>
 <stringAttribute key="location" value="${workspace_loc}/../junit-workspace"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/org.eclipse.equinox.prov.test/src/org/eclipse/equinox/prov/tests/director/DirectorTest.java"/>
+<listEntry value="/org.eclipse.equinox.p2.test/src/org/eclipse/equinox/prov/tests/director/DirectorTest.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -25,11 +25,11 @@
 <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
 <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
 <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit4"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.eclipse.equinox.prov.tests.director.DirectorTest"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.eclipse.equinox.p2.tests.director.DirectorTest"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-os ${target.os} -ws ${target.ws} -arch ${target.arch} -nl ${target.nl}"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.eclipse.equinox.prov.test"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="org.eclipse.equinox.p2.test"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.prov.data.area=c:/temp/equinox.prov/agent/&#13;&#10;-Declipse.prov.metadataRepository=file:c:/temp/equinox.prov/servers/CDTmetadataRepository/ &#13;&#10;-Declipse.prov.artifactRepository=file:c:/temp/equinox.prov/servers/artifactRepository/&#13;&#10;-Declipse.prov.installFolder=c:/temp/equinox.prov/eclipseInstall/ &#13;&#10;-Declipse.prov.configurationFlavor=tooling&#13;&#10;-Declipse.prov.autoInstall=cdt&#13;&#10;-Declipse.prov.doUninstall=true"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.p2.data.area=c:/temp/equinox.p2/agent/&#13;&#10;-Declipse.p2.metadataRepository=file:c:/temp/equinox.p2/servers/CDTmetadataRepository/ &#13;&#10;-Declipse.p2.artifactRepository=file:c:/temp/equinox.p2/servers/artifactRepository/&#13;&#10;-Declipse.p2.installFolder=c:/temp/equinox.p2/eclipseInstall/ &#13;&#10;-Declipse.p2.configurationFlavor=tooling&#13;&#10;-Declipse.p2.autoInstall=cdt&#13;&#10;-Declipse.p2.doUninstall=true"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <stringAttribute key="product" value="org.eclipse.platform.ide"/>
 <booleanAttribute key="tracing" value="false"/>

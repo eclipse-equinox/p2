@@ -3,11 +3,11 @@
 <plugin>
 
    <extension
-         id="org.eclipse.equinox.prov.ui.admin.rcp.application"
+         id="org.eclipse.equinox.p2.ui.admin.rcp.application"
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="org.eclipse.equinox.prov.ui.admin.rcp.Application">
+               class="org.eclipse.equinox.p2.ui.admin.rcp.Application">
          </run>
       </application>
    </extension>
@@ -16,7 +16,7 @@
          id="product">
       <product
             name="%productName"
-            application="org.eclipse.equinox.prov.ui.admin.rcp.application">
+            application="org.eclipse.equinox.p2.ui.admin.rcp.application">
          <property
                name="appName"
                value="%productName"/>
@@ -25,7 +25,7 @@
                value="%aboutText"/>
          <property
                name="windowImages"
-               value="platform:/plugin/org.eclipse.equinox.prov.ui.admin/icons/provision.gif"/>
+               value="platform:/plugin/org.eclipse.equinox.p2.ui.admin/icons/provision.gif"/>
                
     </product>
     </extension>
@@ -34,8 +34,8 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="%perspectiveName"
-            class="org.eclipse.equinox.prov.ui.admin.rcp.ProvisioningRCPPerspective"
-            id="org.eclipse.equinox.prov.ui.admin.rcp.ProvisioningRCPPerspective">
+            class="org.eclipse.equinox.p2.ui.admin.rcp.ProvisioningRCPPerspective"
+            id="org.eclipse.equinox.p2.ui.admin.rcp.ProvisioningRCPPerspective">
       </perspective>
    </extension>
    

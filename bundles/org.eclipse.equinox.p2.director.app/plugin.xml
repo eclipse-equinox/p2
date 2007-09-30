@@ -3,14 +3,14 @@
 <plugin>
 	<extension id="application" point="org.eclipse.core.runtime.applications"> 
       <application> 
-         <run class="org.eclipse.equinox.prov.internal.director.app.Application"/> 
+         <run class="org.eclipse.equinox.internal.p2.director.app.Application"/> 
       </application> 
    </extension>
  <extension
        id="product"
        point="org.eclipse.core.runtime.products">
     <product
-          application="org.eclipse.equinox.prov.director.app.application"
+          application="org.eclipse.equinox.p2.director.app.application"
           name="Equinox Provisioning Director">
     </product>
  </extension> 

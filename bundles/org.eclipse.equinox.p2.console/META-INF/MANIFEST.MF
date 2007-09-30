@@ -1,25 +1,25 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Provisioning Console Plug-in (Incubation)
-Bundle-SymbolicName: org.eclipse.equinox.prov.console
+Bundle-SymbolicName: org.eclipse.equinox.p2.console
 Bundle-Version: 0.1.0.qualifier
-Bundle-Activator: org.eclipse.equinox.internal.prov.console.Activator
+Bundle-Activator: org.eclipse.equinox.internal.p2.console.Activator
 Bundle-Vendor: IBM
 Eclipse-LazyStart: true
-Export-Package: org.eclipse.equinox.internal.prov.console;x-friends:="org.eclipse.equinox.prov.director.app,org.eclipse.equinox.prov.tools"
+Export-Package: org.eclipse.equinox.internal.p2.console;x-friends:="org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.tools"
 Import-Package: org.eclipse.core.runtime;common=split,
  org.eclipse.equinox.configurator,
- org.eclipse.equinox.prov.artifact.repository,
- org.eclipse.equinox.prov.core,
- org.eclipse.equinox.prov.core.helpers,
- org.eclipse.equinox.prov.core.location,
- org.eclipse.equinox.prov.core.repository,
- org.eclipse.equinox.prov.director,
- org.eclipse.equinox.prov.engine,
- org.eclipse.equinox.prov.installregistry,
- org.eclipse.equinox.prov.metadata,
- org.eclipse.equinox.prov.metadata.repository,
- org.eclipse.equinox.prov.query,
+ org.eclipse.equinox.p2.artifact.repository,
+ org.eclipse.equinox.p2.core,
+ org.eclipse.equinox.p2.core.helpers,
+ org.eclipse.equinox.p2.core.location,
+ org.eclipse.equinox.p2.core.repository,
+ org.eclipse.equinox.p2.director,
+ org.eclipse.equinox.p2.engine,
+ org.eclipse.equinox.p2.installregistry,
+ org.eclipse.equinox.p2.metadata,
+ org.eclipse.equinox.p2.metadata.repository,
+ org.eclipse.equinox.p2.query,
  org.eclipse.osgi.framework.console;version="1.0.0";resolution:=optional,
  org.eclipse.osgi.service.environment;version="1.0.0",
  org.eclipse.osgi.service.resolver;version="1.1.0",

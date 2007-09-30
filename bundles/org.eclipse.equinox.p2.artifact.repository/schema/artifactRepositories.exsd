@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!-- Schema file written by PDE -->
-<schema targetNamespace="org.eclipse.equinox.prov.artifact.repository">
+<schema targetNamespace="org.eclipse.equinox.p2.artifact.repository">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.eclipse.equinox.prov.artifact.repository" id="artifactRepositories" name="Artifact Repositories"/>
+         <meta.schema plugin="org.eclipse.equinox.p2.artifact.repository" id="artifactRepositories" name="Artifact Repositories"/>
       </appInfo>
       <documentation>
          This extension point is used to provide artifact repository implementations
@@ -49,10 +49,10 @@
             <annotation>
                <documentation>
                   the fully-qualified name of a class which implements 
-&lt;samp&gt;org.eclipse.equinox.prov.artifact.repository.IArtifactRepository&lt;/samp&gt;.
+&lt;samp&gt;org.eclipse.equinox.p2.artifact.repository.IArtifactRepository&lt;/samp&gt;.
                </documentation>
                <appInfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.prov.artifact.repository.IArtifactRepository"/>
+                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.p2.artifact.repository.IArtifactRepository"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -76,7 +76,7 @@
          <meta.section type="since"/>
       </appInfo>
       <documentation>
-         org.eclipse.equinox.prov.artifact.repository 0.1.0
+         org.eclipse.equinox.p2.artifact.repository 0.1.0
       </documentation>
    </annotation>
 
@@ -95,7 +95,7 @@
       </appInfo>
       <documentation>
          The value of the class attribute must represent an 
-implementor of &lt;tt&gt;org.eclipse.equinox.prov.artifact.repository.IArtifactRepository&lt;/tt&gt;
+implementor of &lt;tt&gt;org.eclipse.equinox.p2.artifact.repository.IArtifactRepository&lt;/tt&gt;
       </documentation>
    </annotation>
 
