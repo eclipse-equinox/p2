@@ -51,10 +51,9 @@ public class InstallRegistry implements IInstallRegistry {
 					if (event.isPre() || !event.getResult().isOK())
 						return;
 					IProfileInstallRegistry registry = getProfileInstallRegistry(event.getProfile());
-					if (event.getOperand().second() != null) {
+					if (event.isInstall() && event.getOperand().second() != null) {
 						registry.addInstallableUnits(event.getOperand().second().getOriginal());
-					}
-					if (event.getOperand().first() != null) {
+					} else if (event.isUninstall() && event.getOperand().first() != null) {
 						registry.removeInstallableUnits(event.getOperand().first().getOriginal());
 					}
 				} else if (o instanceof CommitOperationEvent) {

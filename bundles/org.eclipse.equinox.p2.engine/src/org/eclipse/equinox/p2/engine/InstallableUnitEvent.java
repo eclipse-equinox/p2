@@ -15,6 +15,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
 public class InstallableUnitEvent extends EventObject {
+	public static final int UNINSTALL = 0;
+	public static final int INSTALL = 1;
 	private static final long serialVersionUID = 3318712818811459886L;
 
 	private String phaseId;
@@ -24,18 +26,23 @@ public class InstallableUnitEvent extends EventObject {
 	private Operand operand;
 	private ITouchpoint touchpoint;
 	private IStatus result;
+	private int type;
 
-	public InstallableUnitEvent(String phaseId, boolean prePhase, Profile profile, Operand operand, ITouchpoint touchpoint) {
-		this(phaseId, prePhase, profile, operand, touchpoint, null);
+	public InstallableUnitEvent(String phaseId, boolean prePhase, Profile profile, Operand operand, int type, ITouchpoint touchpoint) {
+		this(phaseId, prePhase, profile, operand, type, touchpoint, null);
 	}
 
-	public InstallableUnitEvent(String phaseId, boolean prePhase, Profile profile, Operand operand, ITouchpoint touchpoint, IStatus result) {
+	public InstallableUnitEvent(String phaseId, boolean prePhase, Profile profile, Operand operand, int type, ITouchpoint touchpoint, IStatus result) {
 		super(touchpoint); //TODO not sure if the touchpoint should be the source
 		this.phaseId = phaseId;
 		this.prePhase = prePhase;
 		this.profile = profile;
 		this.operand = operand;
+		if (type != UNINSTALL && type != INSTALL)
+			throw new IllegalArgumentException("type must be either UNINSTALL(0) or INSTALL(1)");
+		this.type = type;
 		this.result = result;
+
 	}
 
 	public ITouchpoint getTouchpoint() {
@@ -64,5 +71,13 @@ public class InstallableUnitEvent extends EventObject {
 
 	public IStatus getResult() {
 		return (result != null ? result : Status.OK_STATUS);
+	}
+
+	public boolean isInstall() {
+		return type == INSTALL;
+	}
+
+	public boolean isUninstall() {
+		return type == UNINSTALL;
 	}
 }

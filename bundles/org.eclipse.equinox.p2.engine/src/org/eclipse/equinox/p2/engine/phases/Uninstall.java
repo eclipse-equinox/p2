@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.phases;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
@@ -35,8 +34,10 @@ public class Uninstall extends IUPhase {
 		monitor.subTask(NLS.bind(Messages.Engine_Uninstalling_IU, unit.getId()));
 
 		ITouchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
-		if (touchpoint.supports(PHASE_ID))
-			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, touchpoint));
+		if (!touchpoint.supports(PHASE_ID))
+			return Status.OK_STATUS;
+
+		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 
 		//TODO need to protect the actual operation on a try / catch to ensure the delivery of event. 
 		ITouchpointAction[] actions = touchpoint.getActions(PHASE_ID, profile, operand);
@@ -46,7 +47,7 @@ public class Uninstall extends IUPhase {
 			session.record(actions[i]);
 		}
 
-		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, false, profile, operand, touchpoint, result));
+		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint, result));
 		return result;
 	}
 

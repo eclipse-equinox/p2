@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine.phases;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
@@ -36,7 +35,9 @@ public class Install extends IUPhase {
 
 		ITouchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
 		if (!touchpoint.supports(PHASE_ID))
-			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, touchpoint));
+			return Status.OK_STATUS;
+
+		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 
 		ITouchpointAction[] actions = touchpoint.getActions(PHASE_ID, profile, operand);
 		MultiStatus result = new MultiStatus();
@@ -48,7 +49,7 @@ public class Install extends IUPhase {
 
 			session.record(actions[i]);
 		}
-		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, false, profile, operand, touchpoint, result));
+		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint, result));
 		return result;
 	}
 

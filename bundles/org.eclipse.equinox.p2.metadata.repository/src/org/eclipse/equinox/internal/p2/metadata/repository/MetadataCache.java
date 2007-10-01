@@ -47,8 +47,8 @@ public class MetadataCache extends URLMetadataRepository {
 					InstallableUnitEvent event = (InstallableUnitEvent) o;
 					if (event.isPre())
 						return;
-					//TODO what about update and uninstall??
-					if (event.isPost() && event.getResult().isOK()) {
+					//TODO what about uninstall??
+					if (event.isPost() && event.getResult().isOK() && event.isInstall()) {
 						IResolvedInstallableUnit installedIU = event.getOperand().second();
 						if (installedIU != null)
 							units.add(installedIU.getOriginal());
