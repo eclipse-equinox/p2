@@ -7,7 +7,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="org.eclipse.equinox.p2.installer.InstallApplication">
+               class="org.eclipse.equinox.internal.p2.installer.InstallApplication">
          </run>
       </application>
    </extension>

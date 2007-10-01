@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.installer;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.installer.IInstallAdvisor;
+import org.eclipse.equinox.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.p2.installer.IInstallDescription;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * Install context that creates a GUI and interacts with a user.
  */
-public class GraphicalInstallAdvisor implements IInstallAdvisor {
+public class GraphicalInstallAdvisor extends InstallAdvisor {
 	private ProgressMonitorDialog window;
 	private boolean stopped = false;
 	private boolean started = false;

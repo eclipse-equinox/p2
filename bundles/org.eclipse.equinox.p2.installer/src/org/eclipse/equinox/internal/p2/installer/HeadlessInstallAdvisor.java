@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.p2.installer.IInstallAdvisor;
+import org.eclipse.equinox.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.p2.installer.IInstallDescription;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -23,7 +23,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 /**
  * A headless install advisor that prints everything to a log.
  */
-public class HeadlessInstallAdvisor implements IInstallAdvisor {
+public class HeadlessInstallAdvisor extends InstallAdvisor {
 	class HeadlessProgressMonitor implements IProgressMonitor {
 		private boolean canceled;
 

@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.installer;
+package org.eclipse.equinox.internal.p2.installer;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -22,11 +22,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.installer.GraphicalInstallAdvisor;
-import org.eclipse.equinox.internal.p2.installer.InstallDescription;
-import org.eclipse.equinox.internal.p2.installer.InstallDescriptionParser;
-import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.installer.IInstallDescription;
+import org.eclipse.equinox.p2.installer.InstallAdvisor;
 
 /**
  * This is a simple installer application built using P2.  The application must be given
@@ -45,12 +43,12 @@ public class InstallApplication implements IApplication {
 	 * A property whose value is the URL of an install description. An install description is a file
 	 * that contains all the information required to complete the install.
 	 */
-	private static final String SYS_PROP_INSTALL_DESCRIPTION = "org.eclipse.equinox.p2.installDescription";
+	private static final String SYS_PROP_INSTALL_DESCRIPTION = "org.eclipse.equinox.p2.installDescription"; //$NON-NLS-1$
 
 	/**
 	 * The install advisor. This field is non null while the install application is running.
 	 */
-	private IInstallAdvisor advisor;
+	private InstallAdvisor advisor;
 
 	/**
 	 * Throws an exception of severity error with the given error message.
@@ -81,9 +79,9 @@ public class InstallApplication implements IApplication {
 		return description;
 	}
 
-	private IInstallAdvisor createInstallContext() {
+	private InstallAdvisor createInstallContext() {
 		//TODO create an appropriate advisor depending on whether headless or GUI install is desired.
-		IInstallAdvisor result = new GraphicalInstallAdvisor();
+		InstallAdvisor result = new GraphicalInstallAdvisor();
 		result.start();
 		return result;
 	}
@@ -184,7 +182,7 @@ public class InstallApplication implements IApplication {
 	 */
 	public void stop() {
 		//note this method can be called from another thread
-		IInstallAdvisor tempContext = advisor;
+		InstallAdvisor tempContext = advisor;
 		if (tempContext != null) {
 			tempContext.stop();
 			advisor = null;

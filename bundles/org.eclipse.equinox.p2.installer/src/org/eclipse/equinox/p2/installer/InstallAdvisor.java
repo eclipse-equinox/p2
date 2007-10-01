@@ -17,32 +17,32 @@ import org.eclipse.jface.operation.IRunnableContext;
  * The install advisor helps to make decisions during install, and is the conduit
  * for reporting progress and results back to an end user or log.
  */
-public interface IInstallAdvisor {
+public abstract class InstallAdvisor {
 	/**
 	 * Updates a local file system location in which to install. Returns <code>null</code>
 	 * if no location could be determined
 	 * @return The install location.
 	 */
-	public String getInstallLocation(IInstallDescription description);
+	public abstract String getInstallLocation(IInstallDescription description);
 
-	public IRunnableContext getRunnableContext();
+	public abstract IRunnableContext getRunnableContext();
 
 	/**
 	 * Reports some result information to the context.  The status may be
 	 * information, warning, or an error.
 	 */
-	public void reportStatus(IStatus status);
+	public abstract void reportStatus(IStatus status);
 
 	/**
 	 * Initializes the install advisor.  This method must be called before calling any 
 	 * other methods on the advisor are called.  Subsequent invocations of this
 	 * method are ignored.
 	 */
-	public void start();
+	public abstract void start();
 
 	/**
-	 * Stops the install context. The advisor becomes invalid after it has been
+	 * Stops the install advisor. The advisor becomes invalid after it has been
 	 * stopped; a stopped advisor cannot be restarted.
 	 */
-	public void stop();
+	public abstract void stop();
 }
