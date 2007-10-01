@@ -25,7 +25,7 @@ import org.osgi.framework.Version;
  * Simple test of the engine API.
  * 
  * Note:
- * Currently you MUST have previously generated metadata from a 3.3.0 install.
+ * Currently you MUST have previously generated metadata from a 3.3.1 install.
  * There are ordering dependencies for the tests temporarily 
  */
 public class EngineTest extends TestCase {
@@ -178,7 +178,7 @@ public class EngineTest extends TestCase {
 	private IResolvedInstallableUnit createOSGiIU() {
 		InstallableUnit iu = new InstallableUnit();
 		iu.setId("org.eclipse.osgi");
-		iu.setVersion(new Version("3.3.0.v20070530"));
+		iu.setVersion(new Version("3.3.1.R33x_v20070828"));
 		iu.setTouchpointType(new TouchpointType("eclipse", new Version("1.0.0")));
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
@@ -195,7 +195,7 @@ public class EngineTest extends TestCase {
 		tmp.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		cus[0] = tmp.getResolved();
 
-		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.0.v20070530"));
+		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		iu.setArtifacts(new IArtifactKey[] {key});
 
 		ResolvedInstallableUnit result = (ResolvedInstallableUnit) iu.getResolved();
@@ -207,7 +207,7 @@ public class EngineTest extends TestCase {
 	private IResolvedInstallableUnit createBadIU() {
 		InstallableUnit iu = new InstallableUnit();
 		iu.setId("org.eclipse.osgi.bad");
-		iu.setVersion(new Version("3.3.0.v20070530"));
+		iu.setVersion(new Version("3.3.1.R33x_v20070828"));
 		iu.setTouchpointType(new TouchpointType("eclipse", new Version("1.0.0")));
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
@@ -223,7 +223,7 @@ public class EngineTest extends TestCase {
 		tmp.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		cus[0] = tmp.getResolved();
 
-		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.0.v20070530"));
+		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		iu.setArtifacts(new IArtifactKey[] {key});
 
 		ResolvedInstallableUnit result = (ResolvedInstallableUnit) iu.getResolved();
