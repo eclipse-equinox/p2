@@ -129,7 +129,7 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 			destination = handler.createAndLink(descriptor.getProcessingSteps(), descriptor, destination, monitor);
 			destination = addPreSteps(handler, descriptor, destination, monitor);
 			IStatus status = handler.validateSteps(destination);
-			if (status.getCode() == IStatus.OK || status.getCode() == IStatus.INFO)
+			if (status.isOK() || status.getSeverity() == IStatus.INFO)
 				return getTransport().download(basicGetArtifactLocation(descriptor), destination, monitor);
 			return status;
 		} finally {
