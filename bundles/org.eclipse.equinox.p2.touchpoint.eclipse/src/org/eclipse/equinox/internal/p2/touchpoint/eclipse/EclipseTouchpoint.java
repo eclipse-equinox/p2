@@ -311,12 +311,10 @@ public class EclipseTouchpoint implements ITouchpoint {
 			try {
 				manipulator.save(false);
 				lastModifiedMap.put(getConfigurationFolder(profile), new Long(manipulator.getTimeStamp()));
-			} catch (FrameworkAdminRuntimeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (RuntimeException e) {
+				return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
 			}
 		}
 		return Status.OK_STATUS;
