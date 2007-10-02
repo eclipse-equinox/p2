@@ -21,9 +21,8 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.director.*;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
@@ -228,11 +227,18 @@ public class ProvisioningHelper {
 			throw new ProvisionException(error.toString());
 		}
 
-		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
+		IDirector2 director = (IDirector2) ServiceHelper.getService(Activator.getContext(), IDirector2.class.getName());
 		if (director == null)
 			throw new ProvisionException("No director service found.");
 
-		return director.install(new IInstallableUnit[] {toInstall}, profile, null, progress);
+		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
+		if (engine == null)
+			throw new ProvisionException("No director service found.");
+		DirectorResult result = director.install(new IInstallableUnit[] {toInstall}, profile, null, progress);
+		if (!result.getStatus().isOK())
+			return result.getStatus();
+
+		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), progress);
 	}
 
 	/**

@@ -14,8 +14,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryMan
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
-import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.director.NewSimpleDirector;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
@@ -44,6 +43,9 @@ public class Activator implements BundleActivator {
 
 	private IDirector director;
 	private ServiceRegistration registrationDirector;
+
+	private IDirector2 director2;
+	private ServiceRegistration registrationDirector2;
 
 	public void start(BundleContext context) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
@@ -77,11 +79,17 @@ public class Activator implements BundleActivator {
 	private void registerDirector() {
 		director = new NewSimpleDirector();
 		registrationDirector = context.registerService(IDirector.class.getName(), director, null);
+
+		director2 = new SimpleDirector2();
+		registrationDirector2 = context.registerService(IDirector2.class.getName(), director2, null);
 	}
 
 	private void unregisterDirector() {
 		registrationDirector.unregister();
 		director = null;
+
+		registrationDirector2.unregister();
+		director2 = null;
 	}
 
 	private void registerProfileRegistry() {
