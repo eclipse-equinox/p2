@@ -19,8 +19,8 @@ public abstract class IUPhase extends Phase {
 	protected int PERFORM_WORK = 10000;
 	protected int POST_PERFORM_WORK = 1000;
 
-	protected IUPhase(String phaseId, int weight, String phaseName) {
-		super(phaseId, weight, phaseName);
+	protected IUPhase(int weight, String phaseName) {
+		super(weight, phaseName);
 	}
 
 	protected void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) { //TODO Maybe should we do some kind of adaptable

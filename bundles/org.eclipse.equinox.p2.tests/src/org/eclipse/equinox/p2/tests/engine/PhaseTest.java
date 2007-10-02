@@ -84,7 +84,7 @@ public class PhaseTest extends TestCase {
 	public static class TestPhase extends Phase {
 
 		protected TestPhase(String phaseId, int weight, String phaseName) {
-			super(phaseId, weight, phaseName);
+			super(weight, phaseName);
 		}
 
 		protected void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] deltas, IProgressMonitor monitor) {

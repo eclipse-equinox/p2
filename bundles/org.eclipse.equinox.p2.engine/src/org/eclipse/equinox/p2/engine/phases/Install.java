@@ -25,7 +25,7 @@ public class Install extends IUPhase {
 	private static final String PHASE_ID = "install"; //$NON-NLS-1$
 
 	public Install(int weight) {
-		super(PHASE_ID, weight, Messages.Engine_Install_Phase);
+		super(weight, Messages.Engine_Install_Phase);
 	}
 
 	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {

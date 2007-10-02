@@ -17,15 +17,10 @@ import org.eclipse.equinox.p2.core.helpers.MultiStatus;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
-	protected final String phaseId;
 	protected final int weight;
 	protected final String phaseName;
 
-	protected Phase(String phaseId, int weight, String phaseName) {
-		if (phaseId == null || phaseId.length() == 0) {
-			throw new IllegalArgumentException("Phase id must be set.");
-		}
-
+	protected Phase(int weight, String phaseName) {
 		if (weight <= 0) {
 			throw new IllegalArgumentException("Phase weight must be positive.");
 		}
@@ -36,7 +31,6 @@ public abstract class Phase {
 
 		this.weight = weight;
 		this.phaseName = phaseName;
-		this.phaseId = phaseId;
 	}
 
 	public String toString() {

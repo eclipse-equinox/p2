@@ -25,7 +25,7 @@ public class Collect extends IUPhase {
 	private DownloadManager dm = null;
 
 	public Collect(int weight) {
-		super(PHASE_ID, weight, Messages.Engine_Collect_Phase);
+		super(weight, Messages.Engine_Collect_Phase);
 		//re-balance work since postPerform will do almost all the time-consuming work
 		PRE_PERFORM_WORK = 0;
 		PERFORM_WORK = 100;

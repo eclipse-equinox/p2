@@ -25,7 +25,7 @@ public class Uninstall extends IUPhase {
 	private static final String PHASE_ID = "uninstall"; //$NON-NLS-1$
 
 	public Uninstall(int weight) {
-		super(PHASE_ID, weight, Messages.Engine_Uninstall_Phase);
+		super(weight, Messages.Engine_Uninstall_Phase);
 	}
 
 	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {
