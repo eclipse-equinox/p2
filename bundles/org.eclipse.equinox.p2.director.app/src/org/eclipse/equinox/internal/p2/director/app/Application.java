@@ -16,8 +16,10 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.director.DirectorResult;
+import org.eclipse.equinox.p2.director.IDirector2;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.phases.SizingPhase;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -73,18 +75,34 @@ public class Application implements IApplication {
 		if (currentFlavor != null && !currentFlavor.endsWith(flavor))
 			throw new RuntimeException("Install flavor not consistent with profile flavor");
 
-		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
+		IDirector2 director = (IDirector2) ServiceHelper.getService(Activator.getContext(), IDirector2.class.getName());
 		if (director == null)
 			throw new RuntimeException("Director could not be loaded");
+
+		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
+		if (engine == null)
+			throw new RuntimeException("Engine could not be loaded");
+
 		ProvisioningHelper.addArtifactRepository(artifactRepositoryLocation);
 		IMetadataRepository metadataRepository = ProvisioningHelper.addMetadataRepository(metadataRepositoryLocation);
 		IInstallableUnit[] roots = Query.query(new IQueryable[] {metadataRepository}, root, version == null ? null : new VersionRange(version, true, version, true), null, false, null);
+		DirectorResult result = null;
 		IStatus operationStatus = null;
 		if (roots.length > 0) {
 			if (install) {
-				operationStatus = director.install(roots, profile, null, new NullProgressMonitor());
+				result = director.install(roots, profile, null, new NullProgressMonitor());
 			} else {
-				operationStatus = director.uninstall(roots, profile, new NullProgressMonitor());
+				result = director.uninstall(roots, profile, new NullProgressMonitor());
+			}
+			if (!result.getStatus().isOK())
+				operationStatus = result.getStatus();
+			else {
+				SizingPhase sizeComputer = new SizingPhase(100, "Compute sizes"); //$NON-NLS-1$
+				PhaseSet set = new PhaseSet(new Phase[] {sizeComputer}) {};
+				operationStatus = engine.perform(profile, set, result.getOperands(), new NullProgressMonitor());
+				System.out.println("Estimated size on disk " + sizeComputer.getDiskSize());
+				System.out.println("Estimated download size " + sizeComputer.getDlSize());
+				operationStatus = engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), new NullProgressMonitor());
 			}
 		} else {
 			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.p2.director.test", "The installable unit '" + root + "' has not been found");
