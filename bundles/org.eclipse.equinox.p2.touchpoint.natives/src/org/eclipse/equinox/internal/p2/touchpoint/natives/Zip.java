@@ -52,7 +52,8 @@ public class Zip {
 					BackupFiles backupFiles = new BackupFiles(new File(backupDir));
 					backupFiles.backupFilesInZip(backupDir, zipFile.toURL(), new File(destination), null);
 				} catch (IOException e) {
-					System.out.println(this.getClass().getName() + " something went wrong when bakcing up the files");
+					System.out.println(this.getClass().getName() + " something went wrong when backing up the files");
+					e.printStackTrace();
 					//				throw Util.coreException(e, NLS.bind(Messages.error_backing_up, zipFile));
 				} finally {
 					//				backupPM.done();
@@ -63,6 +64,9 @@ public class Zip {
 				FileUtils.unzipFile(zipFile, new File(destination), taskName, new NullProgressMonitor());
 			} catch (IOException e) {
 				System.out.println(this.getClass().getName() + " something went wrong when unzipping");
+				System.out.println("zipfile: " + zipFile.getAbsolutePath());
+				System.out.println("destination: " + destination);
+				e.printStackTrace();
 				//				throw Util.coreException(e.getMessage());
 			} finally {
 				//				unzipPM.done();
