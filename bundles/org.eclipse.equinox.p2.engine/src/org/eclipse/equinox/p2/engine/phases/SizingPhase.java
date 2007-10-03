@@ -31,7 +31,9 @@ public class SizingPhase extends IUPhase {
 	}
 
 	protected boolean isApplicable(Operand op) {
-		return true;
+		if (op.second() != null)
+			return true;
+		return false;
 	}
 
 	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {
