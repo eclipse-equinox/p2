@@ -16,13 +16,10 @@ import java.io.IOException;
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 
 /**
- * An object implementing this interface will be gotten by calling 
- * {@link FrameworkAdmin#getManipulator()}. 
+ * A manipulator is used to query and modify the state of a framework instance. 
+ * A manipulator instance is obtained by calling {@link FrameworkAdmin#getManipulator()}.
  * 
- * The object plays main roles for handling a framework, such as configuring a framework
- * and launching.
- * 
- * The typical use-cases of this method:
+ * The typical use-cases of this interface:
  * 
  * Usecase 1: set parameters, check the expected state, save them into configuration files, and launch. 
  * 	A. create a {@link Manipulator} object from a {@link FrameworkAdmin}.
@@ -43,7 +40,6 @@ import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
  * @see ConfigData
  * @see LauncherData
  */
-
 public interface Manipulator {
 
 	/**
@@ -75,7 +71,7 @@ public interface Manipulator {
 	ConfigData getConfigData() throws FrameworkAdminRuntimeException;
 
 	/**
-	 * Return the expected BundldInfo array representing state of bundles,
+	 * Return the expected BundleInfo array representing state of bundles,
 	 * according to the parameters set to this object "in memory".
 	 * 
 	 * None of launcher config file, framework config file and configurator config file
