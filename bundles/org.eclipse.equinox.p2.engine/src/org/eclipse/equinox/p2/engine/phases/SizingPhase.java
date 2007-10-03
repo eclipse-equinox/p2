@@ -72,11 +72,11 @@ public class SizingPhase extends IUPhase {
 			for (int i = 0; i < repositories.length; i++) {
 				IArtifactDescriptor[] descriptors = repositories[i].getArtifactDescriptors(((IArtifactRequest) iterator.next()).getArtifactKey());
 				if (descriptors.length > 0) {
-					if (descriptors[i].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
-						sizeOnDisk += Long.parseLong(descriptors[i].getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
+					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
+						sizeOnDisk += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
 
-					if (descriptors[i].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE) != null)
-						dlSize += Long.parseLong(descriptors[i].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
+					if (descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE) != null)
+						dlSize += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
 
 					break;
 				}
