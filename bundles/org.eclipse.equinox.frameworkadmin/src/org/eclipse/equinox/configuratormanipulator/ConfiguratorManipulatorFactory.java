@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.configuratormanipulator;
 
+import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
+
 /**
  * Factory class for creating ConfiguratorManipulator object from Java programs.
  * 
@@ -22,6 +24,6 @@ public abstract class ConfiguratorManipulatorFactory {
 
 	public static ConfiguratorManipulator getInstance(String className) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
 		ConfiguratorManipulatorFactory factory = (ConfiguratorManipulatorFactory) Class.forName(className).newInstance();
-		return (ConfiguratorManipulator) factory.createConfiguratorManipulator();
+		return factory.createConfiguratorManipulator();
 	}
 }
