@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import java.util.Map;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 
 /**
@@ -23,4 +26,8 @@ public interface ITouchpoint {
 	public boolean supports(String phaseId);
 
 	public ITouchpointAction[] getActions(String phaseId, Profile profile, Operand operand);
+
+	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters);
+
+	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters);
 }

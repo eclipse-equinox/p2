@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
 import org.eclipse.equinox.p2.core.helpers.MultiStatus;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 // An operation that is applied to a set of IUs.
 public abstract class IUPhase extends Phase {
@@ -19,11 +23,14 @@ public abstract class IUPhase extends Phase {
 	protected int PERFORM_WORK = 10000;
 	protected int POST_PERFORM_WORK = 1000;
 
-	protected IUPhase(int weight, String phaseName) {
-		super(weight, phaseName);
+	private Map phaseParameters = new HashMap();
+	private Map touchpoints = new HashMap();
+
+	protected IUPhase(String phaseId, int weight, String phaseName) {
+		super(phaseId, weight, phaseName);
 	}
 
-	protected void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) { //TODO Maybe should we do some kind of adaptable
+	protected void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, PRE_PERFORM_WORK + PERFORM_WORK + POST_PERFORM_WORK);
 		prePerform(status, profile, operands, subMonitor.newChild(PRE_PERFORM_WORK));
 		if (status.isErrorOrCancel())
@@ -42,59 +49,79 @@ public abstract class IUPhase extends Phase {
 		subMonitor.done();
 	}
 
-	protected void mainPerform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, SubMonitor subMonitor) {
-		int operandWork = PERFORM_WORK / operands.length;
-		for (int i = 0; i < operands.length; ++i) {
+	private void prePerform(MultiStatus status, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
+		status.add(initializePhase(monitor, profile, phaseParameters));
+		// TODO: Consider moving touchpoint discovery up -- perhaps to session??
+		// TODO: Support Monitor
+		for (int i = 0; i < deltas.length; i++) {
+			ITouchpoint touchpoint = getTouchpoint(deltas[i]);
+			if (touchpoint == null)
+				continue;
+
+			if (!touchpoints.containsKey(touchpoint) && touchpoint.supports(phaseId)) {
+				Map touchpointParameters = new HashMap(phaseParameters);
+				status.add(touchpoint.initializePhase(monitor, profile, phaseId, touchpointParameters));
+				touchpoints.put(touchpoint, touchpointParameters);
+			}
+		}
+	}
+
+	private void mainPerform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, SubMonitor subMonitor) {
+		// TODO: Support Monitor
+		// int operandWork = PERFORM_WORK / operands.length;
+		for (int i = 0; i < operands.length; i++) {
 			if (subMonitor.isCanceled())
 				throw new OperationCanceledException();
 			Operand currentOperand = operands[i];
 			if (!isApplicable(currentOperand))
 				continue;
-			IStatus result = performOperand(session, profile, currentOperand, subMonitor.newChild(operandWork));
-			status.add(result);
-			if (status.isErrorOrCancel())
-				return;
+
+			ITouchpoint touchpoint = getTouchpoint(currentOperand);
+			if (touchpoint == null || !touchpoint.supports(phaseId))
+				continue;
+
+			ITouchpointAction[] actions = getActions(touchpoint, profile, currentOperand);
+			Map touchpointParameters = (Map) touchpoints.get(touchpoint);
+			Map parameters = new HashMap(touchpointParameters);
+			for (int j = 0; j < actions.length; j++) {
+				ITouchpointAction action = actions[j];
+				IStatus actionStatus = action.execute(parameters);
+				status.add(actionStatus);
+				if (actionStatus != null && !actionStatus.isOK())
+					return;
+
+				session.record(action);
+			}
 		}
+	}
+
+	private void postPerform(MultiStatus status, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
+		for (Iterator it = touchpoints.entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			ITouchpoint touchpoint = (ITouchpoint) entry.getKey();
+			Map touchpointParameters = (Map) entry.getValue();
+			status.add(touchpoint.completePhase(monitor, profile, phaseId, touchpointParameters));
+		}
+		status.add(completePhase(monitor, profile, phaseParameters));
+	}
+
+	protected ITouchpoint getTouchpoint(Operand operand) {
+		IInstallableUnit unit = operand.second();
+		if (unit == null)
+			unit = operand.first();
+
+		if (unit == null)
+			return null;
+		TouchpointManager touchpointManager = TouchpointManager.getInstance();
+		ITouchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
+		return touchpoint;
 	}
 
 	protected abstract boolean isApplicable(Operand op);
 
-	//			ITouchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(currentOperand.getTouchpointType());
-	//			if (touchpoint == null) { //TODO Should we throw an exception instead?
-	//				status.add(new Status(IStatus.ERROR, "org.eclipse.equinox.p2.engine", "The touchpoint " + currentOperand.getTouchpointType() + " is not available."));
-	//				return;
-	//			}
-	//			if (touchpoint.supports(phaseId)) {
-	//				status.add(performIU(touchpoint, currentOperand, subMonitor.newChild(operandWork)));
-	//			}
-	//			if (status.isErrorOrCancel() || sub.isCanceled()) {
-	//				undoPerform(status, ius, i, context);
-	//				return;
-	//			}
+	protected abstract IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters);
 
-	// Error or cancel: undo IUs that were done.
-	//	private void undoPerform(MultiStatus status, InstallableUnitPair[] ius, int currentIU, InstallContext context) {
-	//		if (!status.isErrorOrCancel()) {
-	//			status.setCanceled(); // first time we noticed cancelation
-	//			currentIU += 1; // currentIU was completed so it must be undone
-	//		}
-	//		InstallableUnitPair[] undoIUs = new InstallableUnitPair[currentIU];
-	//		for (int i = 0; i < currentIU; i += 1) {
-	//			log.debug("Undo {0} phase for {1}", super.phaseName, ius[i]); //$NON-NLS-1$
-	//			undoIUs[i] = ius[currentIU - (i + 1)].reverse();
-	//		}
-	//		// 1 unit to undo this phase, 10 for preceding phases
-	//		SplitProgressMonitor pm = new SplitProgressMonitor(getUndoProgressMonitor(), new int[] {1, 10});
-	//		doPerform(status, /*undoable*/false, undoIUs, context, pm.next());
-	//		setUndoProgressMonitor(pm.next());
-	//	}
-	protected abstract IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor);
+	protected abstract IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters);
 
-	protected void prePerform(MultiStatus status, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
-		//Nothing to do.
-	}
-
-	protected void postPerform(MultiStatus status, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
-		//Nothing to do.
-	}
+	protected abstract ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand);
 }

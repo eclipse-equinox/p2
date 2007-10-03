@@ -12,10 +12,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
 import java.io.File;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.util.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
@@ -42,11 +40,14 @@ public class NativeTouchpoint implements ITouchpoint {
 	public ITouchpointAction[] getActions(String phaseID, final Profile profile, final Operand operand) {
 		if (phaseID.equals("collect")) {
 			ITouchpointAction action = new ITouchpointAction() {
-				public Object execute() {
-					return collect(operand.second(), profile);
+				public IStatus execute(Map parameters) {
+					IArtifactRequest[] requests = collect(operand.second(), profile);
+					Collection artifactRequests = (Collection) parameters.get("artifactRequests");
+					artifactRequests.add(requests);
+					return null;
 				}
 
-				public Object undo() {
+				public IStatus undo(Map parameters) {
 					return null;
 				}
 			};
@@ -55,11 +56,11 @@ public class NativeTouchpoint implements ITouchpoint {
 
 		if (phaseID.equals("install")) {
 			ITouchpointAction action = new ITouchpointAction() {
-				public Object execute() {
+				public IStatus execute(Map parameters) {
 					return doInstall(operand.second(), profile);
 				}
 
-				public Object undo() {
+				public IStatus undo(Map parameters) {
 					return doUninstall(operand.second(), profile);
 				}
 			};
@@ -67,11 +68,11 @@ public class NativeTouchpoint implements ITouchpoint {
 		}
 		if (phaseID.equals("uninstall")) {
 			ITouchpointAction action = new ITouchpointAction() {
-				public Object execute() {
+				public IStatus execute(Map parameters) {
 					return doUninstall(operand.first(), profile);
 				}
 
-				public Object undo() {
+				public IStatus undo(Map parameters) {
 					return doInstall(operand.first(), profile);
 				}
 			};
@@ -173,6 +174,14 @@ public class NativeTouchpoint implements ITouchpoint {
 		if (location == null)
 			return null;
 		return location.getArtifactRepositoryURL();
+	}
+
+	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+		return null;
+	}
+
+	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+		return null;
 	}
 
 }

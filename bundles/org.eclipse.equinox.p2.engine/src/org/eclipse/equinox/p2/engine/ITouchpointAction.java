@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import java.util.Map;
+import org.eclipse.core.runtime.IStatus;
+
 public interface ITouchpointAction {
 
-	Object execute();
+	IStatus execute(Map parameters);
 
-	Object undo();
+	IStatus undo(Map parameters);
 }

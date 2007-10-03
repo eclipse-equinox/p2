@@ -52,9 +52,7 @@ public class Engine {
 			if (result.isOK()) {
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 				session.commit();
-			}
-
-			if (result.isErrorOrCancel()) {
+			} else if (result.isErrorOrCancel()) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 				session.rollback();
 			}

@@ -26,7 +26,7 @@ public class EngineSession {
 	public void rollback() {
 		for (ListIterator it = actions.listIterator(actions.size()); it.hasPrevious();) {
 			ITouchpointAction action = (ITouchpointAction) it.previous();
-			action.undo();
+			action.undo(null);
 		}
 	}
 

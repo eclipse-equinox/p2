@@ -37,8 +37,7 @@ public abstract class PhaseSet {
 				}
 				Phase phase = phases[i];
 				result.add(phase.perform(session, profile, deltas, pm.newChild(weights[i])));
-				if (result.isErrorOrCancel())// || sub.isCanceled()) {
-					//TODO Need to perform the undo if we don't we use transactions
+				if (result.isErrorOrCancel())
 					return result;
 			}
 		} finally {

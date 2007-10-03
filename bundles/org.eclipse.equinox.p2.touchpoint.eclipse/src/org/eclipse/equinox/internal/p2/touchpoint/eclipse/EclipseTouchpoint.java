@@ -57,11 +57,14 @@ public class EclipseTouchpoint implements ITouchpoint {
 	public ITouchpointAction[] getActions(String phaseID, final Profile profile, final Operand operand) {
 		if (phaseID.equals("collect")) {
 			ITouchpointAction action = new ITouchpointAction() {
-				public Object execute() {
-					return collect(operand.second(), profile);
+				public IStatus execute(Map parameters) {
+					IArtifactRequest[] requests = collect(operand.second(), profile);
+					Collection artifactRequests = (Collection) parameters.get("artifactRequests");
+					artifactRequests.add(requests);
+					return null;
 				}
 
-				public Object undo() {
+				public IStatus undo(Map parameters) {
 					return null;
 				}
 			};
@@ -69,24 +72,24 @@ public class EclipseTouchpoint implements ITouchpoint {
 		}
 		if (phaseID.equals("install")) {
 			ITouchpointAction action = new ITouchpointAction() {
-				public Object execute() {
-					return configure(operand.second(), profile, true);
+				public IStatus execute(Map parameters) {
+					return configure(operand.second(), profile, true, parameters);
 				}
 
-				public Object undo() {
-					return configure(operand.second(), profile, false);
+				public IStatus undo(Map parameters) {
+					return configure(operand.second(), profile, false, parameters);
 				}
 			};
 			return new ITouchpointAction[] {action};
 		}
 		if (phaseID.equals("uninstall")) {
 			ITouchpointAction action = new ITouchpointAction() {
-				public Object execute() {
-					return configure(operand.first(), profile, false);
+				public IStatus execute(Map parameters) {
+					return configure(operand.first(), profile, false, parameters);
 				}
 
-				public Object undo() {
-					return configure(operand.first(), profile, true);
+				public IStatus undo(Map parameters) {
+					return configure(operand.first(), profile, true, parameters);
 				}
 			};
 			return new ITouchpointAction[] {action};
@@ -208,7 +211,7 @@ public class EclipseTouchpoint implements ITouchpoint {
 		return false;
 	}
 
-	private IStatus configure(IInstallableUnit unit, Profile profile, boolean isInstall) {
+	private IStatus configure(IInstallableUnit unit, Profile profile, boolean isInstall, Map parameters) {
 		if (unit.isFragment())
 			return Status.OK_STATUS;
 
@@ -216,23 +219,14 @@ public class EclipseTouchpoint implements ITouchpoint {
 		Context cx = Context.enter();
 		Scriptable scope = cx.initStandardObjects();
 
-		// Construct and wrap the manipulator for the configuration in the profile
-		Manipulator manipulator = null;
-		try {
-			manipulator = getManipulator(profile);
-		} catch (CoreException ce) {
-			return ce.getStatus();
-		}
-		//TODO These values should be inserted by a configuration unit (bug 204124)
-		manipulator.getConfigData().setFwDependentProp("eclipse.p2.profile", profile.getProfileId());
-		manipulator.getConfigData().setFwDependentProp("eclipse.p2.data.area", computeRelativeAgentLocation(profile));
+		Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+		// wrap the manipulator for the configuration in the profile
 		Object wrappedOut = Context.javaToJS(manipulator, scope);
 		ScriptableObject.putProperty(scope, "manipulator", wrappedOut);
 
 		// Get the touchpoint data from the installable unit
 		TouchpointData[] touchpointData = unit.getTouchpointData();
 
-		boolean flag = false;
 		if (touchpointData.length > 0 && unit.getArtifacts() != null && unit.getArtifacts().length > 0) {
 			boolean zippedPlugin = isZipped(touchpointData);
 			boolean alreadyInCache = false;
@@ -300,21 +294,9 @@ public class EclipseTouchpoint implements ITouchpoint {
 			logConfiguation(unit, instructions[i], isInstall);
 			try {
 				cx.evaluateString(scope, instructions[i], unit.getId(), 1, null);
-				flag = true;
 				//TODO Need to get the result of the operations
 			} catch (RuntimeException ex) {
 				return new Status(IStatus.ERROR, Activator.ID, "Exception while executing " + instructions[i], ex);
-			}
-		}
-
-		if (flag) {
-			try {
-				manipulator.save(false);
-				lastModifiedMap.put(getConfigurationFolder(profile), new Long(manipulator.getTimeStamp()));
-			} catch (RuntimeException e) {
-				return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
-			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
 			}
 		}
 		return Status.OK_STATUS;
@@ -484,5 +466,32 @@ public class EclipseTouchpoint implements ITouchpoint {
 			}
 			iuCount++;
 		}
+	}
+
+	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+		Manipulator manipulator = (Manipulator) touchpointParameters.get("manipulator");
+		try {
+			manipulator.save(false);
+			lastModifiedMap.put(getConfigurationFolder(profile), new Long(manipulator.getTimeStamp()));
+		} catch (RuntimeException e) {
+			return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
+		} catch (IOException e) {
+			return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
+		}
+		return null;
+	}
+
+	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+		Manipulator manipulator = null;
+		try {
+			manipulator = getManipulator(profile);
+		} catch (CoreException ce) {
+			return ce.getStatus();
+		}
+		//TODO These values should be inserted by a configuration unit (bug 204124)
+		manipulator.getConfigData().setFwDependentProp("eclipse.p2.profile", profile.getProfileId());
+		manipulator.getConfigData().setFwDependentProp("eclipse.p2.data.area", computeRelativeAgentLocation(profile));
+		touchpointParameters.put("manipulator", manipulator);
+		return null;
 	}
 }
