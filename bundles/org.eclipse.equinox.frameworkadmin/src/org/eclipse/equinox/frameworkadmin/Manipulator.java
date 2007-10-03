@@ -19,10 +19,10 @@ import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
  * An object implementing this interface will be gotten by calling 
  * {@link FrameworkAdmin#getManipulator()}. 
  * 
- * The object plays main roles for handling a framwork, such as configuring a framework
+ * The object plays main roles for handling a framework, such as configuring a framework
  * and launching.
  * 
- * The typical usecases of this method:
+ * The typical use-cases of this method:
  * 
  * Usecase 1: set parameters, check the expected state, save them into configuration files, and launch. 
  * 	A. create a {@link Manipulator} object from a {@link FrameworkAdmin}.
@@ -35,7 +35,7 @@ import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
  * Usecase 2: set parameters required for loading, load parameters from configuration files,
  * 		  check the expected state, and launch. 
  * 	A. create a {@link Manipulator} object from a {@link FrameworkAdmin}.
- *  B. set parameters about launcher or fw config file to the {@link Manipulator} object.
+ *  B. set parameters about launcher or framework configuration file to the {@link Manipulator} object.
  *  C. load parameters from configuration files by {@link Manipulator#load()};
  *  D. getExpectedState() and check what bundle state will be realized.
  *  E. launch the framework by {@link FrameworkAdmin#launch(Manipulator, File)}.
@@ -51,22 +51,22 @@ public interface Manipulator {
 	 * according to the parameters set to this object "in memory".
 	 * 
 	 * None of launcher config file, framework config file and configurator config file
-	 * will be read by this method. However, the fw persistent data location should be
+	 * will be read by this method. However, the framework persistent data location should be
 	 * taken into consideration. In other words, this method will return 
 	 * the expected {@link BundlesState} object assuming that the current parameters were saved and 
 	 * {@link FrameworkAdmin#launch(Manipulator, File)} with an argument of this object 
-	 * were called. (It would read the fw persistent data location if required).
+	 * were called. (It would read the framework persistent data location if required).
 	 *  
 	 * This method should not modify the parameters in this {@link Manipulator} object.
 	 * 
-	 * @return fw bundle state object created according to he current parameters set.
+	 * @return framework bundle state object created according to he current parameters set.
 	 * @throws FrameworkAdminRuntimeException - If the {@link FrameworkAdmin} service created this object is unregistered or this implementation doesn't support this method. 
 	 */
 	BundlesState getBundlesState() throws FrameworkAdminRuntimeException;
 
 	/**
 	 * The reference of {@link ConfigData} object representing configuration information related with framework settings will be returned.
-	 * Remind that manipulating returned object will affect this Manipulator behaivior.
+	 * Remind that manipulating returned object will affect this Manipulator behavior.
 	 *  
 	 * @return ConfigData object representing configuration information related with framework setting 
 	 * @throws FrameworkAdminRuntimeException - If the {@link FrameworkAdmin} service created this object is unregistered or this implementation doesn't support this method. 
@@ -79,11 +79,11 @@ public interface Manipulator {
 	 * according to the parameters set to this object "in memory".
 	 * 
 	 * None of launcher config file, framework config file and configurator config file
-	 * will be read by this method. However, the fw persistent data location should be
+	 * will be read by this method. However, the framework persistent data location should be
 	 * taken into consideration. In other words, this method will return 
 	 * the expected bundles state assuming that the current parameters were saved and 
 	 * {@link FrameworkAdmin#launch(Manipulator, File)} with an argument of this object 
-	 * were called. (It would read the fw persistent data location if required).
+	 * were called. (It would read the framework persistent data location if required).
 	 * 
 	 * Returned BundleInfos must have resolved flag set.
 	 * This method should not modify the parameters in this {@link Manipulator} object. 
@@ -95,7 +95,7 @@ public interface Manipulator {
 	 *  
 	 * @return array of BundleInfo representing expected state of all bundles installed.
 	 * @throws IllegalArgumentException - If either of fwJar or cwd doesn't exist.
-	 * @throws IOException - If reading fw configuration file or reading persitently recorded information 
+	 * @throws IOException - If reading fw configuration file or reading persistently recorded information 
 	 *   of fw fails. 
 	 * @throws FrameworkAdminRuntimeException - If the {@link FrameworkAdmin} service created this object is unregistered or this implementation doesn't support this method. 
 	 */
@@ -104,7 +104,7 @@ public interface Manipulator {
 	/**
 	 * The reference of {@link LauncherData} object representing configuration information
 	 * related with launcher settings will be returned. 
-	 * Remember that manipulating returned object will affect this Manipulator object behaivior.
+	 * Remember that manipulating returned object will affect this Manipulator object behavior.
 	 * 
 	 * @return LauncherData object representing configuration information related with launcher setting 
 	 * @throws FrameworkAdminRuntimeException - If the ManipulatorAdmin service created this object is unregistered or this implementation doesn't support this method. 
@@ -116,7 +116,7 @@ public interface Manipulator {
 	 * Return timestamp of configurations which will be loaded by load() method
 	 * according to the parameters set to this manipulator in long value.
 	 * 
-	 * This method will check last modified time of all laucnher config file, framework config file,
+	 * This method will check last modified time of all launcher configuration file, framework configuration file,
 	 * and framework persistent storage according to the parameters set.
 	 * @return
 	 */
@@ -158,11 +158,11 @@ public interface Manipulator {
 	void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException;
 
 	/**
-	 * Save parameters that this object keeps at that time into appropriate config files, 
-	 * which include launcher config file, fw config file, and configurator config files
+	 * Save parameters that this object keeps at that time into appropriate configuration files, 
+	 * which include launcher configuration file, framework configuration file, and configurator configuration files
 	 * (if required and implementation of this object supports), according to the current setting and situation. 
 	 * 
-	 * The followins procedure contains the matters of implementation detail.
+	 * The following procedure contains the matters of implementation detail.
 	 * However, it is an example how it works.
 	 * 
 	 * 1. if a launcher file is set,
@@ -177,10 +177,10 @@ public interface Manipulator {
 	 *  
 	 * 3. call {@link ConfiguratorManipulator#save(Manipulator, boolean)} of 
 	 * the ConfiguratorManipulator that can manipulate the chosen ConfiguratorBudnle. 
-	 * This method will save configs for ConfiguratorBundle to read appropriately  
+	 * This method will save configurations for ConfiguratorBundle to read appropriately  
 	 * and return BundleInfo[] to be saved in the FwConfigFile, which is determined by the parameters set.
 	 * 
-	 * 4. Save the rerurned BundleInfo[] in the FwConfigFile, which is determined by the parameters set.
+	 * 4. Save the returned BundleInfo[] in the FwConfigFile, which is determined by the parameters set.
 	 * 	   
 	 * @param backup - if true, keep old file by renaming if exists. 
 	 * @throws IOException - If writing info into configuration files fails. 

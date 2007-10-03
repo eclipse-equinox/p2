@@ -20,20 +20,21 @@ import java.io.IOException;
  * *****************************************************************
  * 1. For developers who implement bundles that register this service.
  * 
- * At the registration, the following 
- *  service properties must be set for client to search the FrameworkAdmin object
- *  which will create BundlesState / ConfigData / LauncherData objects.
+ * Upon registration, the following service properties must be set to allow clients to 
+ * search the FrameworkAdmin object, which will create BundlesState / ConfigData / LauncherData objects.
  * 
  * {@link FrameworkAdmin#SERVICE_PROP_KEY_FW_NAME}: String; name of the framework 
  * {@link FrameworkAdmin#SERVICE_PROP_KEY_FW_VERSION}: String; version of the framework
  * {@link FrameworkAdmin#SERVICE_PROP_KEY_LAUNCHER_NAME}: String; name of the launcher 
  * {@link FrameworkAdmin#SERVICE_PROP_KEY_LAUNCHER_VERSION}: String; version of the launcher 
  *
- * Bundles register this service will check if the currently runnning system can be manipulated by 
+ * Bundles that register this service will check if the currently running system can be manipulated by 
  * this FrameworkAdmin. If yes and this implementation can create an initialized Manipulator object
- * according to the running fw and launcher, add the service property keyed by 
+ * according to the running framework and launcher, add the service property keyed by 
  * 
- * {@link FrameworkAdmin#SERVICE_PROP_KEY_RUNNING_SYSTEM_FLAG}: String; if "true", this service that will be returned by getRunningManipulator() is fully initialized so as to represent the state of running system.
+ * {@link FrameworkAdmin#SERVICE_PROP_KEY_RUNNING_SYSTEM_FLAG}: String; if "true", 
+ * the service that will be returned by getRunningManipulator() is fully initialized to 
+ * represent the state of the running system.
  *     
  * It is recommended to implement Manipulator objects created by calling methods of this interface
  * so that they cannot be used after this service is unregistered.  
@@ -41,24 +42,23 @@ import java.io.IOException;
  * *****************************************************************
  * 2. For developers who implement client bundles that use this service.
  * 
- * A client bundle of this service can get new Manipulator object 
- * by calling its method.
+ * A client of this service can obtain a Manipulator object by calling the {@link #getManipulator()} method.
  * 
- * A client bundle can search among services registered in a service registry
- * and can get the desired FrameworkAdmin service object so that the bundle 
- * can get the desired {@link Manipulator} object for desired framework type with version and launcher type with version.
+ * A client can search among services registered in a service registry to find the 
+ * desired FrameworkAdmin implementation that matches the desired framework 
+ * type, framework version, launcher type, and launcher version.
  * 
- * Especially, in order for a client bundle to manipulate the {@link Manipulator} object of the running fw and laucher,
- * filtering (FrameworkAdmin#SERVICE_PROP_KEY_RUNNING_FW_FLAG=true) is used.   
+ * In order for a client bundle to manipulate the {@link Manipulator} object 
+ * of the running framework and launcher, the service filter (FrameworkAdmin#SERVICE_PROP_KEY_RUNNING_FW_FLAG=true) 
+ * should be used.   
  * 
- * As generally speaking about OSGi service, the client bundle should track this service state.
- * If unregistered, it should stop using any of objects that it got by this service and 
- * release all of them. If it continues to use them, {@link FrameworkAdminRuntimeException} might 
+ * As with all OSGi services, the client bundle should track this service state.
+ * If the service is unregistered, it should stop using any of the objects obtained from this service and 
+ * release them. If it continues to use them, {@link FrameworkAdminRuntimeException} might 
  * be thrown. 
  * 
  * *****************************************************************
- * In addition, FrameworkAdminFactory will creat this object.
- * This is used by Java programs.
+ * In addition, FrameworkAdminFactory will create this object. This is used by Java programs.
  * 
  * @see FrameworkAdminFactory
  *    
@@ -77,7 +77,7 @@ public interface FrameworkAdmin {
 	 * 
 	 * @return new instance of Manipulator.
 	 */
-	Manipulator getManipulator();
+	public Manipulator getManipulator();
 
 	/**
 	 * Create new instance of {@link Manipulator} for running system 
@@ -86,11 +86,10 @@ public interface FrameworkAdmin {
 	 * 
 	 * @return new instance of Manipulator.
 	 */
-	Manipulator getRunningManipulator();
+	public Manipulator getRunningManipulator();
 
 	/**
 	 * Launch a framework instance under the specified current working directory. 
-	 * 
 	 * 
 	 * @param manipulator {@link Manipulator} object to be launched.
 	 * @param cwd current working directory to be used for launching.
@@ -100,11 +99,11 @@ public interface FrameworkAdmin {
 	 * @throws FrameworkAdminRuntimeException if the FrameworkAdmin service object
 	 * 		 that created the specified Manipulator object is unregistered.
 	 */
-	Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException;
+	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException;
 
 	/**
 	 * 	
 	 * @return true if this object is active. false otherwise.
 	 */
-	boolean isActive();
+	public boolean isActive();
 }
