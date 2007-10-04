@@ -73,7 +73,7 @@ public class EngineSession {
 		return result;
 	}
 
-	public void recordPhaseStart(Phase phase) {
+	void recordPhaseStart(Phase phase) {
 		if (phase == null)
 			throw new IllegalArgumentException("Phase must not be null.");
 
@@ -84,7 +84,7 @@ public class EngineSession {
 		currentActionRecords = new ArrayList();
 	}
 
-	public void recordPhaseEnd(Phase phase) {
+	void recordPhaseEnd(Phase phase) {
 		if (currentPhase == null)
 			throw new IllegalStateException("There is no phase to end.");
 
@@ -94,9 +94,10 @@ public class EngineSession {
 		phaseActionRecordsPairs.add(new Object[] {currentPhase, currentActionRecords});
 		currentPhase = null;
 		currentActionRecords = null;
+		currentRecord = null;
 	}
 
-	public void recordAction(ITouchpointAction action, Operand operand) {
+	void recordAction(ITouchpointAction action, Operand operand) {
 		if (action == null || operand == null)
 			throw new IllegalArgumentException("Action and Operand must not be null.");
 
