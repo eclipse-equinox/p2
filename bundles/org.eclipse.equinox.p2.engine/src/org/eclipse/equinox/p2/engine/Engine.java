@@ -47,7 +47,7 @@ public class Engine {
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
 
-			EngineSession session = new EngineSession();
+			EngineSession session = new EngineSession(profile);
 			MultiStatus result = phaseSet.perform(session, profile, operands, monitor);
 			if (result.isOK()) {
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));

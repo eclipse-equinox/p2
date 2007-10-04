@@ -162,8 +162,7 @@ public class EngineTest extends TestCase {
 		assertFalse(ius.hasNext());
 	}
 
-	// temporarily broken until we can rollback completed phases
-	public void BROKENtestPerformRollback() {
+	public void testPerformRollback() {
 
 		Profile profile = new Profile("test");
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, "c:/tmp/testProvisioning/");

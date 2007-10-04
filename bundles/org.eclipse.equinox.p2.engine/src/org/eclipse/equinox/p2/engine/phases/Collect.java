@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.engine.*;
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
  */
-public class Collect extends IUPhase {
+public class Collect extends Phase {
 	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
 
 	public Collect(int weight) {

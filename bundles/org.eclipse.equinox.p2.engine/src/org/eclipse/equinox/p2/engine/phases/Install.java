@@ -11,14 +11,13 @@
 package org.eclipse.equinox.p2.engine.phases;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.engine.*;
 
-public class Install extends IUPhase {
+public class Install extends Phase {
 
 	private static final String PHASE_ID = "install"; //$NON-NLS-1$
 
@@ -55,14 +54,6 @@ public class Install extends IUPhase {
 		if (op.second() != null)
 			return true;
 		return false;
-	}
-
-	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		return null;
-	}
-
-	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		return null;
 	}
 
 	protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {

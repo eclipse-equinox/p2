@@ -24,7 +24,7 @@ public abstract class PhaseSet {
 		this.phases = phases;
 	}
 
-	public MultiStatus perform(EngineSession session, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
+	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
 		MultiStatus result = new MultiStatus();
 		int[] weights = getProgressWeights();
 		int totalWork = getTotalWork(weights);

@@ -48,7 +48,7 @@ public class PhaseSetTest extends TestCase {
 		Operand op = new Operand(new ResolvedInstallableUnit(new InstallableUnit()), null);
 		Operand[] operands = new Operand[] {op};
 
-		IStatus result = phaseSet.perform(new EngineSession(), profile, operands, new NullProgressMonitor());
+		IStatus result = phaseSet.perform(new EngineSession(profile), profile, operands, new NullProgressMonitor());
 		assertTrue(result.isOK());
 	}
 }

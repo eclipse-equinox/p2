@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import java.util.Map;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.core.helpers.MultiStatus;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.*;
 
 /**
@@ -87,8 +88,22 @@ public class PhaseTest extends TestCase {
 			super(phaseId, weight, phaseName);
 		}
 
-		protected void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
-			//empty
+		protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {
+			return null;
+		}
+
+		protected boolean isApplicable(Operand op) {
+			return false;
+		}
+
+		protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 }

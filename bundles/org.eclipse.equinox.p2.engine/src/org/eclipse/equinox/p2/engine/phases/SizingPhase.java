@@ -16,7 +16,7 @@ import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.engine.*;
 
-public class SizingPhase extends IUPhase {
+public class SizingPhase extends Phase {
 	private static final String TP_DATA = "collect"; //$NON-NLS-1$
 
 	private long sizeOnDisk;
