@@ -54,47 +54,55 @@ public class EclipseTouchpoint implements ITouchpoint {
 		supportedPhases.add("uninstall");
 	}
 
-	public ITouchpointAction[] getActions(String phaseID, final Profile profile, final Operand operand) {
-		if (phaseID.equals("collect")) {
-			ITouchpointAction action = new ITouchpointAction() {
+	public ITouchpointAction getAction(String actionId) {
+		if (actionId.equals("collect")) {
+			return new ITouchpointAction() {
 				public IStatus execute(Map parameters) {
+					Profile profile = (Profile) parameters.get("profile");
+					Operand operand = (Operand) parameters.get("operand");
 					IArtifactRequest[] requests = collect(operand.second(), profile);
 					Collection artifactRequests = (Collection) parameters.get("artifactRequests");
 					artifactRequests.add(requests);
-					return null;
+					return Status.OK_STATUS;
 				}
 
 				public IStatus undo(Map parameters) {
-					return null;
+					// nothing to do for now
+					return Status.OK_STATUS;
 				}
 			};
-			return new ITouchpointAction[] {action};
 		}
-		if (phaseID.equals("install")) {
-			ITouchpointAction action = new ITouchpointAction() {
+		if (actionId.equals("install")) {
+			return new ITouchpointAction() {
 				public IStatus execute(Map parameters) {
+					Profile profile = (Profile) parameters.get("profile");
+					Operand operand = (Operand) parameters.get("operand");
 					return configure(operand.second(), profile, true, parameters);
 				}
 
 				public IStatus undo(Map parameters) {
+					Profile profile = (Profile) parameters.get("profile");
+					Operand operand = (Operand) parameters.get("operand");
 					return configure(operand.second(), profile, false, parameters);
 				}
 			};
-			return new ITouchpointAction[] {action};
 		}
-		if (phaseID.equals("uninstall")) {
-			ITouchpointAction action = new ITouchpointAction() {
+		if (actionId.equals("uninstall")) {
+			return new ITouchpointAction() {
 				public IStatus execute(Map parameters) {
+					Profile profile = (Profile) parameters.get("profile");
+					Operand operand = (Operand) parameters.get("operand");
 					return configure(operand.first(), profile, false, parameters);
 				}
 
 				public IStatus undo(Map parameters) {
+					Profile profile = (Profile) parameters.get("profile");
+					Operand operand = (Operand) parameters.get("operand");
 					return configure(operand.first(), profile, true, parameters);
 				}
 			};
-			return new ITouchpointAction[] {action};
 		}
-		throw new IllegalStateException("The phase: " + phaseID + "should not have been dispatched here.");
+		return null;
 	}
 
 	private URL getBundlePoolLocation(Profile profile) {

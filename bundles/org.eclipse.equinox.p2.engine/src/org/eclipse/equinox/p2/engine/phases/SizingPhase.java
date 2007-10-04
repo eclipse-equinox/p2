@@ -97,7 +97,8 @@ public class SizingPhase extends Phase {
 	}
 
 	protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {
-		return touchpoint.getActions(TP_DATA, profile, currentOperand);
+		ITouchpointAction action = touchpoint.getAction("collect");
+		return new ITouchpointAction[] {action};
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {

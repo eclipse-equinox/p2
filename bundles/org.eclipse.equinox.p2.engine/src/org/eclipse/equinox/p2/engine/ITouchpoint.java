@@ -25,7 +25,7 @@ public interface ITouchpoint {
 
 	public boolean supports(String phaseId);
 
-	public ITouchpointAction[] getActions(String phaseId, Profile profile, Operand operand);
+	public ITouchpointAction getAction(String actionId);
 
 	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters);
 

@@ -63,7 +63,8 @@ public class Collect extends Phase {
 	}
 
 	protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {
-		return touchpoint.getActions(PHASE_ID, profile, currentOperand);
+		ITouchpointAction action = touchpoint.getAction("collect");
+		return new ITouchpointAction[] {action};
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {

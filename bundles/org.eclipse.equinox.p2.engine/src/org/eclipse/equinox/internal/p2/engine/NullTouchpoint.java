@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 
@@ -39,8 +38,16 @@ public class NullTouchpoint implements ITouchpoint {
 		return false;
 	}
 
-	public ITouchpointAction[] getActions(String phaseID, Profile profile, Operand operand) {
-		return new ITouchpointAction[] {};
+	public ITouchpointAction getAction(String actionId) {
+		return new ITouchpointAction() {
+			public IStatus execute(Map parameters) {
+				return Status.OK_STATUS;
+			}
+
+			public IStatus undo(Map parameters) {
+				return Status.OK_STATUS;
+			}
+		};
 	}
 
 	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {

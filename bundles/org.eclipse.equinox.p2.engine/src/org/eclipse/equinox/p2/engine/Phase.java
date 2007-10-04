@@ -117,6 +117,7 @@ public abstract class Phase {
 			Entry entry = (Entry) it.next();
 			ITouchpoint touchpoint = (ITouchpoint) entry.getKey();
 			Map touchpointParameters = new HashMap(phaseParameters);
+			touchpointParameters.put("touchpoint", touchpoint);
 			status.add(touchpoint.initializePhase(monitor, profile, phaseId, touchpointParameters));
 			entry.setValue(touchpointParameters);
 		}

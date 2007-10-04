@@ -19,6 +19,46 @@ import org.eclipse.equinox.p2.engine.*;
 
 public class Uninstall extends Phase {
 
+	final static class BeforeUninstallEventAction implements ITouchpointAction {
+		public IStatus execute(Map parameters) {
+			Profile profile = (Profile) parameters.get("profile");
+			String phaseId = (String) parameters.get("phaseId");
+			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Operand operand = (Operand) parameters.get("operand");
+			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
+			return null;
+		}
+
+		public IStatus undo(Map parameters) {
+			Profile profile = (Profile) parameters.get("profile");
+			String phaseId = (String) parameters.get("phaseId");
+			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Operand operand = (Operand) parameters.get("operand");
+			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
+			return null;
+		}
+	}
+
+	final static class AfterUninstallEventAction implements ITouchpointAction {
+		public IStatus execute(Map parameters) {
+			Profile profile = (Profile) parameters.get("profile");
+			String phaseId = (String) parameters.get("phaseId");
+			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Operand operand = (Operand) parameters.get("operand");
+			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
+			return null;
+		}
+
+		public IStatus undo(Map parameters) {
+			Profile profile = (Profile) parameters.get("profile");
+			String phaseId = (String) parameters.get("phaseId");
+			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Operand operand = (Operand) parameters.get("operand");
+			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
+			return null;
+		}
+	}
+
 	private static final String PHASE_ID = "uninstall"; //$NON-NLS-1$
 
 	public Uninstall(int weight) {
@@ -57,37 +97,10 @@ public class Uninstall extends Phase {
 	protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Uninstalling_IU, unit.getId()));
 
-		ITouchpointAction[] touchpointActions = touchpoint.getActions(PHASE_ID, profile, currentOperand);
-		ITouchpointAction[] actions = new ITouchpointAction[touchpointActions.length + 2];
-		actions[0] = beforeAction(profile, currentOperand, touchpoint);
-		System.arraycopy(touchpointActions, 0, actions, 1, touchpointActions.length);
-		actions[actions.length - 1] = afterAction(profile, currentOperand, touchpoint);
+		ITouchpointAction[] actions = new ITouchpointAction[3];
+		actions[0] = new BeforeUninstallEventAction();
+		actions[1] = touchpoint.getAction("uninstall");
+		actions[2] = new AfterUninstallEventAction();
 		return actions;
-	}
-
-	protected ITouchpointAction beforeAction(final Profile profile, final Operand operand, final ITouchpoint touchpoint) {
-		return new ITouchpointAction() {
-			public IStatus execute(Map parameters) {
-				((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
-				return null;
-			}
-
-			public IStatus undo(Map parameters) {
-				return null;
-			}
-		};
-	}
-
-	protected ITouchpointAction afterAction(final Profile profile, final Operand operand, final ITouchpoint touchpoint) {
-		return new ITouchpointAction() {
-			public IStatus execute(Map parameters) {
-				((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
-				return null;
-			}
-
-			public IStatus undo(Map parameters) {
-				return null;
-			}
-		};
 	}
 }
