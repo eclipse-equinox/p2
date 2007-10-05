@@ -32,6 +32,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					((URLMetadataRepository) result).initializeAfterLoad(location);
 				return result;
 			} catch (RepositoryCreationException e) {
+				System.out.println("SimpleMetadataRepositoryFactory#load location: " + location);
 				// TODO Auto-generated catch block
 				return null;
 			} finally {
@@ -39,6 +40,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					descriptorStream.close();
 			}
 		} catch (IOException e) {
+			System.out.println("SimpleMetadataRepositoryFactory#load location2: " + location);
 			//TODO: log and throw? 
 		}
 		return null;
