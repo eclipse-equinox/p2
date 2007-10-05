@@ -18,6 +18,7 @@ import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.helpers.*;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -62,7 +63,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "Malformed extension"));
 	}
 
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IWritableArtifactRepository destination) {
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination) {
 		return new MirrorRequest(key, destination);
 	}
 

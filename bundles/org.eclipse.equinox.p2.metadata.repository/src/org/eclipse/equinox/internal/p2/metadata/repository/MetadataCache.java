@@ -31,12 +31,11 @@ public class MetadataCache extends URLMetadataRepository {
 
 	// These are always created with file: URLs.  At least for now...
 	public MetadataCache(URL repoPath) throws RepositoryCreationException {
-		super(REPOSITORY_NAME, REPOSITORY_TYPE, REPOSITORY_VERSION.toString());
-		this.location = repoPath;
+		super(REPOSITORY_NAME, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), repoPath, null, null);
 		content = getActualLocation(location);
 		new SimpleMetadataRepositoryFactory().load(location);
 		// Set property indicating that the metadata cache is an implementation detail.
-		this.properties.setProperty(IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		getModifiableProperties().setProperty(IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 
 		// TODO: We should check for writing permission here, otherwise it may be too late
 		busReference = Activator.getContext().getServiceReference(ProvisioningEventBus.class.getName());

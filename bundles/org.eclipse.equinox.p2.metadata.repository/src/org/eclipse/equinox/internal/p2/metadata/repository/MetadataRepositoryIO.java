@@ -43,7 +43,7 @@ class MetadataRepositoryIO {
 		}
 	}
 
-	public static void write(AbstractMetadataRepository repository, OutputStream output) {
+	public static void write(IMetadataRepository repository, OutputStream output) {
 		XStream stream = new XStream();
 		OutputStream bufferedOutput = null;
 		try {

@@ -11,16 +11,15 @@
 package org.eclipse.equinox.p2.artifact.repository;
 
 import java.io.OutputStream;
-import java.net.URI;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /**
  * TODO: Convert to abstract class
  */
-public interface IArtifactRepository extends IRepositoryInfo {
+public interface IArtifactRepository extends IRepository {
 	/** 
 	 * Returns true if this repository contains the given descriptor.
 	 * @param descriptor the descriptor to query
@@ -64,10 +63,39 @@ public interface IArtifactRepository extends IRepositoryInfo {
 	 */
 	public IArtifactKey[] getArtifactKeys();
 
-	// TODO move this to a local repo interface and change to return a file
 	/**
-	 * Return a URI to the given key, or null if not available 
+	 * Open an output stream to which a client can write the data for the given 
+	 * artifact descriptor.
+	 * @param descriptor the descriptor describing the artifact data to be written to the 
+	 * resultant stream
+	 * @return the stream to which the artifact content can be written
 	 */
-	public URI getArtifact(IArtifactKey key);
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor);
+
+	/**
+	 * Add the given descriptor to the set of descriptors in this repository.  This is 
+	 * a relatively low-level operation that should be used only when the actual related 
+	 * content is in this repository and the given descriptor accurately describes 
+	 * that content.
+	 * @param descriptor the descriptor to add.
+	 */
+	public void addDescriptor(IArtifactDescriptor descriptor);
+
+	/**
+	 * Remove the given descriptor from the set of descriptors in this repository.  
+	 * @param descriptor the descriptor to remove.
+	 */
+	public void removeDescriptor(IArtifactDescriptor descriptor);
+
+	/**
+	 * Remove the given key and all related descriptors from this repository.  
+	 * @param key the key to remove.
+	 */
+	public void removeDescriptor(IArtifactKey key);
+
+	/**
+	 * Remove the all key and descriptor information from this repository.  
+	 */
+	public void removeAll();
 
 }

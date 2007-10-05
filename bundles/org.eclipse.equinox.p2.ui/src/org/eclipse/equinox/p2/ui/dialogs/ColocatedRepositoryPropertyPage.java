@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ColocatedRepositoryInfo;
 
@@ -20,8 +20,8 @@ import org.eclipse.equinox.p2.ui.ColocatedRepositoryInfo;
  * @since 3.4
  */
 public class ColocatedRepositoryPropertyPage extends RepositoryPropertyPage {
-	protected IRepositoryInfo getRepository() {
-		IRepositoryInfo repo = super.getRepository();
+	protected IRepository getRepository() {
+		IRepository repo = super.getRepository();
 		if (repo instanceof IMetadataRepository)
 			return new ColocatedRepositoryInfo((IMetadataRepository) repo);
 		return repo;

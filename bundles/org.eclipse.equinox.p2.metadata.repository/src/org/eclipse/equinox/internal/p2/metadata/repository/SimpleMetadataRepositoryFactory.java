@@ -14,7 +14,8 @@ import java.io.*;
 import java.net.URL;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
@@ -54,14 +55,13 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		}
 	}
 
-	public void restore(AbstractMetadataRepository repository, URL location) {
-		AbstractMetadataRepository source = (AbstractMetadataRepository) load(location);
-		repository.description = source.description;
-		repository.name = source.name;
-		repository.properties = source.properties;
-		repository.provider = source.provider;
-		repository.type = source.type;
-		repository.version = source.version;
-		repository.units = source.units;
+	public void restore(AbstractRepository repository, URL location) {
+		AbstractRepository source = (AbstractRepository) load(location);
+		if (repository.getClass() != source.getClass())
+			throw new IllegalArgumentException("Repository type mismatch");
+		if (repository instanceof LocalMetadataRepository)
+			((LocalMetadataRepository) repository).initializeAfterLoad((LocalMetadataRepository) source);
+		else if (repository instanceof URLMetadataRepository)
+			((URLMetadataRepository) repository).initializeAfterLoad((URLMetadataRepository) source);
 	}
 }

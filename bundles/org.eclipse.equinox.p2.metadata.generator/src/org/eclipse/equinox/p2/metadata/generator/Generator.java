@@ -17,7 +17,7 @@ import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IWritableArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.metadata.*;
@@ -137,7 +137,7 @@ public class Generator {
 		resultantIUs.add(createTopLevelIU(resultantIUs, rootIUId, rootIUVersion));
 	}
 
-	protected void generateNativeIUs(File executableLocation, Set resultantIUs, IWritableArtifactRepository destination) {
+	protected void generateNativeIUs(File executableLocation, Set resultantIUs, IArtifactRepository destination) {
 		if (executableLocation == null)
 			return;
 		HashSet newArtifacts = new HashSet();
@@ -202,7 +202,7 @@ public class Generator {
 		return null;
 	}
 
-	protected void generateBundleIUs(BundleDescription[] bundles, Set resultantIUs, IWritableArtifactRepository destination) {
+	protected void generateBundleIUs(BundleDescription[] bundles, Set resultantIUs, IArtifactRepository destination) {
 		for (int i = 0; i < bundles.length; i++) {
 			BundleDescription bd = bundles[i];
 			// A bundle may be null if the associated plug-in does not have a manifest file -
@@ -287,7 +287,7 @@ public class Generator {
 	}
 
 	// Put the artifact on the server
-	protected void publishArtifact(IArtifactDescriptor descriptor, File bundlePath, IWritableArtifactRepository destination, boolean asIs, boolean recurse) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File bundlePath, IArtifactRepository destination, boolean asIs, boolean recurse) {
 		//		key.getClassifier(), key.getId() + '_' + key.getVersion().toString()
 		if (asIs) {
 			try {

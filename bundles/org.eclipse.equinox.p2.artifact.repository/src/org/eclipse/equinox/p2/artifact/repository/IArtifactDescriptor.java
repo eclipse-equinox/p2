@@ -20,10 +20,26 @@ public interface IArtifactDescriptor {
 	public static final String DOWNLOAD_MD5 = "download.md5"; //$NON-NLS-1$
 	public static final String ARTIFACT_MD5 = "artifact.md5"; //$NON-NLS-1$
 
+	/**
+	 * Return the key for the artifact described by this descriptor.
+	 * @return the key associated with this descriptor
+	 */
 	public abstract IArtifactKey getArtifactKey();
 
+	/**
+	 * Return the value of the given property in this descriptor  <code>null</code> 
+	 * is returned if no such property exists
+	 * @param key the proerty key to look for
+	 * @return the value of the given property or <code>null</code>
+	 */
 	public abstract String getProperty(String key);
 
+	/** 
+	 * Return the list of processing steps associated with this descriptor.
+	 * An empty set of steps implies that this descriptor describes a complete
+	 * copy of the artifact in its native form.
+	 * @return the list of processing steps for this descriptor
+	 */
 	public abstract ProcessingStepDescriptor[] getProcessingSteps();
 
 }

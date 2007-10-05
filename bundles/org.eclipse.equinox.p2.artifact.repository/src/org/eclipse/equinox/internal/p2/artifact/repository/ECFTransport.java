@@ -17,7 +17,6 @@ import org.eclipse.ecf.filetransfer.events.*;
 import org.eclipse.ecf.filetransfer.identity.FileCreateException;
 import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.equinox.p2.artifact.repository.Transport;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.osgi.util.tracker.ServiceTracker;

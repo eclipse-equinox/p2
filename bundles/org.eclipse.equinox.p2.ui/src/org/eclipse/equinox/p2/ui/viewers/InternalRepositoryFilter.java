@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -24,15 +24,15 @@ import org.eclipse.jface.viewers.ViewerFilter;
 public class InternalRepositoryFilter extends ViewerFilter {
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		IRepositoryInfo repo = null;
-		if (element instanceof IRepositoryInfo) {
-			repo = (IRepositoryInfo) element;
+		IRepository repo = null;
+		if (element instanceof IRepository) {
+			repo = (IRepository) element;
 		} else if (element instanceof IAdaptable) {
-			repo = (IRepositoryInfo) ((IAdaptable) element).getAdapter(IRepositoryInfo.class);
+			repo = (IRepository) ((IAdaptable) element).getAdapter(IRepository.class);
 		}
 		if (repo == null) {
 			return true;
 		}
-		return !(Boolean.valueOf(repo.getProperties().getProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY, "false"))).booleanValue(); //$NON-NLS-1$
+		return !(Boolean.valueOf(repo.getProperties().getProperty(IRepository.IMPLEMENTATION_ONLY_KEY, "false"))).booleanValue(); //$NON-NLS-1$
 	}
 }

@@ -8,13 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.metadata.repository;
+package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import java.net.URL;
+import java.io.OutputStream;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 
-public interface IMetadataRepositoryFactory {
-
-	public IMetadataRepository load(URL location);
-
-	public IMetadataRepository create(URL location, String name, String type);
+public abstract class Transport {
+	public abstract IStatus download(String toDownload, OutputStream target, IProgressMonitor pm);
 }

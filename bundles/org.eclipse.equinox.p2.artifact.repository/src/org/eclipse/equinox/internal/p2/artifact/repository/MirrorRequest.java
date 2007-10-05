@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IWritableArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 public class MirrorRequest extends ArtifactRequest {
-	private IWritableArtifactRepository target;
+	private IArtifactRepository target;
 
-	public MirrorRequest(IArtifactKey key, IWritableArtifactRepository targetRepository) {
+	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository) {
 		super(key);
 		target = targetRepository;
 	}

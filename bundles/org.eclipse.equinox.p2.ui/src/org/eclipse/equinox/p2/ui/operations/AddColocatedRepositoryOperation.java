@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.operations;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ColocatedRepositoryUtil;
 import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
@@ -34,7 +34,7 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			URL metadataRepoURL = ColocatedRepositoryUtil.makeMetadataRepositoryURL(urls[i]);
-			IRepositoryInfo repo = ProvisioningUtil.addMetadataRepository(metadataRepoURL, monitor, uiInfo);
+			IRepository repo = ProvisioningUtil.addMetadataRepository(metadataRepoURL, monitor, uiInfo);
 			if (repo == null) {
 				return failureStatus();
 			}

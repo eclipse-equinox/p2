@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
-import org.eclipse.equinox.p2.core.repository.IWritableRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
@@ -35,9 +34,9 @@ public class RepositoryGroup {
 	private Composite composite;
 	Text name;
 	Text url;
-	IRepositoryInfo repository;
+	IRepository repository;
 
-	public RepositoryGroup(Composite parent, IRepositoryInfo repository, ModifyListener listener, boolean chooseFile, String dirPath, String fileName) {
+	public RepositoryGroup(Composite parent, IRepository repository, ModifyListener listener, boolean chooseFile, String dirPath, String fileName) {
 		this.repository = repository;
 		createGroupComposite(parent, listener, chooseFile, dirPath, fileName);
 	}
@@ -59,10 +58,7 @@ public class RepositoryGroup {
 		data.horizontalSpan = 2;
 		name.setLayoutData(data);
 		name.addModifyListener(listener);
-		// TODO: this may not be the right computation for determining
-		// writability
-		// of the name and other properties of a repository.
-		boolean readOnlyInfo = (repository != null && repository.getAdapter(IWritableRepositoryInfo.class) == null);
+		boolean readOnlyInfo = (repository != null && !repository.isModifiable());
 		if (readOnlyInfo) {
 			name.setEditable(false);
 		}

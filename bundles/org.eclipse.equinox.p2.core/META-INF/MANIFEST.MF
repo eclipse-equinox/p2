@@ -18,7 +18,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-internal:=true,
  org.eclipse.equinox.p2.core.eventbus,
  org.eclipse.equinox.p2.core.helpers,
  org.eclipse.equinox.p2.core.location,
- org.eclipse.equinox.p2.core.repository
+ org.eclipse.equinox.p2.core.repository,
+ org.eclipse.equinox.spi.p2.core.repository
 Eclipse-LazyStart: true
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,

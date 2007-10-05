@@ -9,30 +9,34 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.*;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.core.helpers.MultiStatus;
-import org.eclipse.equinox.p2.core.repository.AbstractRepository;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
 
-public class SimpleArtifactRepository extends AbstractRepository implements IWritableArtifactRepository {
+public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
 
+	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
 	static final private String CONTENT_FILENAME = "artifacts.xml"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = SimpleArtifactRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final public String[][] DEFAULT_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
+	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 
 	transient private Mapper mapper = new Mapper();
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 	protected Set artifactDescriptors = new HashSet();
 	private boolean signatureVerification = false;
+	private BlobStore blobStore;
 
 	public static URL getActualLocation(URL base) {
 		String spec = base.toExternalForm();
@@ -49,9 +53,23 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 		}
 	}
 
+	public static URL getBlobStoreLocation(URL base) {
+		String spec = base.toExternalForm();
+		if (spec.endsWith("/")) //$NON-NLS-1$
+			spec += BLOBSTORE;
+		else
+			spec += "/" + BLOBSTORE; //$NON-NLS-1$
+		try {
+			return new URL(spec);
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
+
 	public SimpleArtifactRepository(String repositoryName, URL location) {
-		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location);
+		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
 		mapper.initialize(Activator.getContext(), mappingRules);
+		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
 	}
 
 	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
@@ -75,24 +93,52 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 		}
 	}
 
-	private String basicGetArtifactLocation(IArtifactDescriptor descriptor) {
-		return computeLocation(descriptor.getArtifactKey());
-	}
-
-	private String basicGetArtifactLocation(IArtifactKey key) {
-		boolean found = false;
+	private IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
 		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
-			if (desc.getArtifactKey().equals(key)) { //TODO This should probably be a lookup in the set
-				found = true;
-				break;
-			}
+			// look for a descriptor that matches the key and is "complete"
+			if (desc.getArtifactKey().equals(key) && desc.getProcessingSteps().length == 0)
+				return desc;
 		}
-		return (found ? computeLocation(key) : null);
+		return null;
 	}
 
-	String computeLocation(IArtifactKey key) {
-		return mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString());
+	private String getLocation(IArtifactDescriptor descriptor) {
+		// if the artifact has a uuid then use it
+		String uuid = descriptor.getProperty(ARTIFACT_UUID);
+		if (uuid != null)
+			try {
+				return blobStore.fileFor(uuid.getBytes("UTF8")); //$NON-NLS-1$
+			} catch (UnsupportedEncodingException e) {
+				// We have more serious problems if UTF8 is not supported...
+			}
+
+		// if the descriptor is complete then use the mapping rules...
+		if (descriptor.getProcessingSteps().length == 0) {
+			IArtifactKey key = descriptor.getArtifactKey();
+			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString());
+			if (result != null)
+				return result;
+		}
+
+		// in the end there is not enough information so return null 
+		return null;
+	}
+
+	private String createLocation(ArtifactDescriptor descriptor) {
+		String result = getLocation(descriptor);
+		if (result != null)
+			return result;
+		// Generate a location by creating a UUID, remembering it in the properties 
+		// and computing the location
+		try {
+			byte[] bytes = new UniversalUniqueIdentifier().toBytes();
+			descriptor.setProperty(ARTIFACT_UUID, new String(bytes, "UTF8")); //$NON-NLS-1$)
+			return blobStore.fileFor(bytes);
+		} catch (UnsupportedEncodingException e) {
+			// We have more serious problems if UTF8 is not supported...
+			return null;
+		}
 	}
 
 	public IArtifactKey[] getArtifactKeys() {
@@ -103,19 +149,18 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 		return (IArtifactKey[]) result.toArray(new IArtifactKey[result.size()]);
 	}
 
-	public URI getArtifact(IArtifactKey key) {
-		String result = basicGetArtifactLocation(key);
-		return (result != null ? URI.create(result) : null);
-		//			if (location == null)
-		//				return null;
-		//			try {
-		//				URL url = new URL(location);
-		//				return new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery());
-		//			} catch (MalformedURLException e) {
-		//				throw new IllegalArgumentException(e);
-		//			} catch (URISyntaxException e) {
-		//				throw new IllegalArgumentException(e);
-		//			}
+	public File getArtifactFile(IArtifactDescriptor descriptor) {
+		String result = getLocation(descriptor);
+		if (result == null || !result.startsWith("file:"))
+			return null;
+		return new File(result.substring(5));
+	}
+
+	public File getArtifactFile(IArtifactKey key) {
+		IArtifactDescriptor descriptor = getCompleteArtifactDescriptor(key);
+		if (descriptor == null)
+			return null;
+		return getArtifactFile(descriptor);
 	}
 
 	public String toString() {
@@ -130,7 +175,7 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 			destination = addPreSteps(handler, descriptor, destination, monitor);
 			IStatus status = handler.validateSteps(destination);
 			if (status.isOK() || status.getSeverity() == IStatus.INFO)
-				return getTransport().download(basicGetArtifactLocation(descriptor), destination, monitor);
+				return getTransport().download(getLocation(descriptor), destination, monitor);
 			return status;
 		} finally {
 			try {
@@ -235,12 +280,13 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 		if (contains(descriptor))
 			return null;
 
+		// create a copy of the original descriptor that we can manipulate
+		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
 		// Determine writing location
-		String location = computeLocation(descriptor.getArtifactKey());
+		String location = createLocation(newDescriptor);
 		if (location == null)
 			// TODO: Log an error, or throw an exception?
 			return null;
-
 		String file = null;
 		try {
 			file = new URL(location).getFile();
@@ -248,16 +294,20 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 			// This should not happen
 		}
 
+		// TODO at this point we have to assume that the repo is file-based.  Eventually 
+		// we should end up with writeable URLs...
+		// Make sure that the file does not exist and that the parents do
 		File outputFile = new File(file);
 		if (outputFile.exists())
 			System.err.println("Artifact repository out of synch. Overwriting " + outputFile.getAbsoluteFile());
-
 		if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
 			// TODO: Log an error, or throw an exception?
 			return null;
 
+		// finally create and return an output stream suitably wrapped so that when it is 
+		// closed the repository is updated with the descriptor
 		try {
-			return new ArtifactOutputStream(new BufferedOutputStream(new FileOutputStream(file)), descriptor);
+			return new ArtifactOutputStream(new BufferedOutputStream(new FileOutputStream(file)), newDescriptor);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -277,11 +327,6 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 		return false;
 	}
 
-	/**
-	 * Return the set of descriptors in this repository.  
-	 * <b>NOTE:</b> this is NOT part of the API
-	 * @return the set of descriptors
-	 */
 	public Set getDescriptors() {
 		return artifactDescriptors;
 	}
@@ -295,7 +340,7 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 	}
 
 	public void tagAsImplementation() {
-		properties.setProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		properties.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 	}
 
 	public void removeAll() {
@@ -329,5 +374,17 @@ public class SimpleArtifactRepository extends AbstractRepository implements IWri
 
 	public void setSignatureVerification(boolean value) {
 		signatureVerification = value;
+	}
+
+	public Object getAdapter(Class adapter) {
+		// if we are adapting to file or writable repos then make sure we have a file location
+		if (adapter == IFileArtifactRepository.class)
+			if (!"file".equalsIgnoreCase(location.getProtocol()))
+				return null;
+		return super.getAdapter(adapter);
+	}
+
+	public boolean isModifiable() {
+		return true;
 	}
 }

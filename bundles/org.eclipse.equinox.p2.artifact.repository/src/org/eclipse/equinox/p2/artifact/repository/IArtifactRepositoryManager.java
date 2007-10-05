@@ -80,6 +80,6 @@ public interface IArtifactRepositoryManager {
 	 * @param destination the destination where the artifact will be mirrored
 	 * @return the newly created request object
 	 */
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IWritableArtifactRepository destination);
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination);
 
 }

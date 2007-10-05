@@ -19,12 +19,14 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.p2.metadata.generator.Generator;
-import org.eclipse.equinox.p2.metadata.repository.*;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.ServiceRegistration;
 
 public class EclipseGeneratorApplication implements IApplication {
@@ -233,19 +235,18 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		IArtifactRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
-			IWritableArtifactRepository result = (IWritableArtifactRepository) repository.getAdapter(IWritableArtifactRepository.class);
-			if (result == null)
+			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
-			provider.setArtifactRepository(result);
+			provider.setArtifactRepository(repository);
 			if (!provider.append())
-				result.removeAll();
+				repository.removeAll();
 			return;
 		}
 
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = artifactLocation + " - artifacts"; //$NON-NLS-1$
-		IWritableArtifactRepository result = (IWritableArtifactRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
 		if (result != null)
 			provider.setArtifactRepository(result);
 	}
@@ -260,19 +261,18 @@ public class EclipseGeneratorApplication implements IApplication {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		IMetadataRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
-			IWritableMetadataRepository result = (IWritableMetadataRepository) repository.getAdapter(IWritableMetadataRepository.class);
-			if (result == null)
+			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
-			provider.setMetadataRepository(result);
+			provider.setMetadataRepository(repository);
 			if (!provider.append())
-				result.removeAll();
+				repository.removeAll();
 			return;
 		}
 
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = metadataLocation + " - metadata"; //$NON-NLS-1$
-		IWritableMetadataRepository result = (IWritableMetadataRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
+		IMetadataRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
 		if (result != null)
 			provider.setMetadataRepository(result);
 	}

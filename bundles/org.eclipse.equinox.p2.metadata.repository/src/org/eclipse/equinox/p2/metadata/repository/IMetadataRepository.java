@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata.repository;
 
-import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 
@@ -21,23 +20,31 @@ import org.eclipse.equinox.p2.query.IQueryable;
  * <p>
  * Clients may implement this interface.
  * </p>
- * TODO: This should be an abstract class so methods can be added in the future
- * without breaking clients.
  */
-public interface IMetadataRepository extends IRepositoryInfo, IQueryable {
+public interface IMetadataRepository extends IRepository, IQueryable {
+
 	/**
 	 * Returns all installable units known to this repository.
 	 * @param monitor TODO
 	 * @return the installable units known to this repository
-	 *TODO: Progress monitor? Is the repository expected to be local?
 	 */
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor);
 
-	/**
-	 * Returns the URL of this repository.
-	 * TODO: Should we use URL or URI? URL requires a protocol handler to be installed
-	 * in Java.  Can the URL have any protocol?  Why are we exposing this at all?
-	 * @return the URL of this repository.
+	/** 
+	 * Add the given installable units to this repository
+	 * @param installableUnits the installable unts to add
 	 */
-	public URL getLocation();
+	public void addInstallableUnits(IInstallableUnit[] installableUnits);
+
+	/**
+	 * Remove the given installable units from this repository
+	 * @param installableUnits the installable units to remove
+	 */
+	public void removeInstallableUnits(IInstallableUnit[] installableUnits);
+
+	/**
+	 * Remove all installable units from this repository.  
+	 */
+	public void removeAll();
+
 }

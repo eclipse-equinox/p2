@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.core.repository;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
 
 /**
@@ -24,7 +25,11 @@ import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
  *       without breaking clients.
  * TODO: Do we want additional properties - time zone, copyrights, security etc.. 
  */
-public interface IRepositoryInfo extends IAdaptable {
+public interface IRepository extends IAdaptable {
+	// The property key for a boolean property indicating that the repository
+	// is an implementation detail, not subject to general access, hidden
+	// from the typical user, etc.
+	static public String IMPLEMENTATION_ONLY_KEY = "implementationOnly"; //$NON-NLS-1$
 
 	/**
 	 * Returns the URL of the repository.
@@ -71,12 +76,29 @@ public interface IRepositoryInfo extends IAdaptable {
 	public UnmodifiableProperties getProperties();
 
 	/**
-	 * Definitions of common property keys
+	 * Returns <code>true</code> if this repository can be modified.
+	 * @return whether or not this repository can be modified
 	 */
+	public boolean isModifiable();
 
-	// The property key for a boolean property indicating that the repository
-	// is an implementation detail, not subject to general access, hidden
-	// from the typical user, etc.
-	static public String IMPLEMENTATION_ONLY_KEY = "implementationOnly"; //$NON-NLS-1$
+	/**
+	 * Set the name of the repository.
+	 */
+	public void setName(String name);
 
+	/**
+	 * Returns a brief description of the repository.
+	 */
+	public void setDescription(String description);
+
+	/**
+	 * Set the name of the provider of the repository.
+	 */
+	public void setProvider(String provider);
+
+	/**
+	 * Returns the modifiable collection of the properties of the repository.
+	 * @return the properties of this repository.
+	 */
+	public OrderedProperties getModifiableProperties();
 }

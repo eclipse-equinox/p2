@@ -8,13 +8,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.artifact.repository;
+package org.eclipse.equinox.spi.p2.metadata.repository;
 
 import java.net.URL;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 
-public interface IArtifactRepositoryFactory {
+public interface IMetadataRepositoryFactory {
 
-	public IArtifactRepository load(URL location);
+	public IMetadataRepository load(URL location);
 
-	public IArtifactRepository create(URL location, String name, String type);
+	public IMetadataRepository create(URL location, String name, String type);
 }

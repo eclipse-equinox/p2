@@ -9,7 +9,8 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.*;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.*;
@@ -134,7 +135,7 @@ public class EclipseTouchpoint implements ITouchpoint {
 
 	// TODO: Here we may want to consult multiple caches
 	private IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) {
-		IWritableArtifactRepository targetRepo = null;
+		IArtifactRepository targetRepo = null;
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
@@ -240,20 +241,20 @@ public class EclipseTouchpoint implements ITouchpoint {
 			boolean alreadyInCache = false;
 
 			//Always try to check in the cache first
-			IWritableArtifactRepository repoToCheck = getBundlePoolRepo(getBundlePoolLocation(profile));
+			IArtifactRepository baseRepo = getBundlePoolRepo(getBundlePoolLocation(profile));
+			IFileArtifactRepository repoToCheck = (IFileArtifactRepository) baseRepo.getAdapter(IFileArtifactRepository.class);
 			IArtifactKey artifactKey = unit.getArtifacts()[0];
-			URI artifact = repoToCheck.getArtifact(artifactKey);
-			if (artifact != null) {
+			File fileLocation = repoToCheck.getArtifactFile(artifactKey);
+			if (fileLocation != null) {
 				alreadyInCache = true;
 			} else if (zippedPlugin) {
-				repoToCheck = getDownloadCacheRepo();
-				artifact = repoToCheck.getArtifact(artifactKey);
+				baseRepo = getDownloadCacheRepo();
+				repoToCheck = (IFileArtifactRepository) baseRepo.getAdapter(IFileArtifactRepository.class);
+				fileLocation = repoToCheck.getArtifactFile(artifactKey);
 			}
 
 			// TODO: Needs fixing - See Bug 204161 
-			File fileLocation = null;
-			if (artifact != null) {
-				fileLocation = new File(artifact);
+			if (fileLocation != null) {
 				if (!fileLocation.exists())
 					return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
 			} else if (isInstall) {
@@ -409,19 +410,18 @@ public class EclipseTouchpoint implements ITouchpoint {
 		return "eclipse"; //$NON-NLS-1$
 	}
 
-	private IWritableArtifactRepository getBundlePoolRepo(URL location) {
+	private IArtifactRepository getBundlePoolRepo(URL location) {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		IArtifactRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
-			IWritableArtifactRepository result = (IWritableArtifactRepository) repository.getAdapter(IWritableArtifactRepository.class);
-			if (result != null)
-				return result;
-			throw new IllegalArgumentException("BundlePool repository not writeable: " + location); //$NON-NLS-1$
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException("BundlePool repository not writeable: " + location); //$NON-NLS-1$
+			return repository;
 		}
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
-		IWritableArtifactRepository result = (IWritableArtifactRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
 		return tagAsImplementation(result);
 	}
 
@@ -429,20 +429,19 @@ public class EclipseTouchpoint implements ITouchpoint {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	private IWritableArtifactRepository getDownloadCacheRepo() {
+	private IArtifactRepository getDownloadCacheRepo() {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		URL location = getDownloadCacheLocation();
 		IArtifactRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
-			IWritableArtifactRepository result = (IWritableArtifactRepository) repository.getAdapter(IWritableArtifactRepository.class);
-			if (result != null)
-				return result;
-			throw new IllegalArgumentException("Agent download cache not writeable: " + location); //$NON-NLS-1$
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException("Agent download cache not writeable: " + location); //$NON-NLS-1$
+			return repository;
 		}
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
-		IWritableArtifactRepository result = (IWritableArtifactRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
 		return tagAsImplementation(result);
 	}
 
@@ -453,7 +452,7 @@ public class EclipseTouchpoint implements ITouchpoint {
 
 	// TODO: Will there be other repositories to tag as implementation?  Should this
 	//		 method to some utility?
-	static private IWritableArtifactRepository tagAsImplementation(IWritableArtifactRepository repository) {
+	static private IArtifactRepository tagAsImplementation(IArtifactRepository repository) {
 		//		if (repository != null && repository.getProperties().getProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY) == null) {
 		//			IWritableRepositoryInfo writableInfo = (IWritableRepositoryInfo) repository.getAdapter(IWritableRepositoryInfo.class);
 		//			if (writableInfo != null) {

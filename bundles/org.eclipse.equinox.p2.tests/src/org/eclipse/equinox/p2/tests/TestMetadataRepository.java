@@ -15,34 +15,41 @@ import java.net.URL;
 import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 /**
  * A simple metadata repository used for testing purposes.  All metadata
  * is kept in memory.
  */
-public class TestMetadataRepository extends Assert implements IMetadataRepository {
+public class TestMetadataRepository extends AbstractMetadataRepository {
 
-	private static final String SCHEME = "testmetadatarepo"; //$NON-NLS-1$
+	private static final String NAME = "ATestMetadataRepository"; //$NON-NLS-1$
+	private static final String TYPE = "testmetadatarepo"; //$NON-NLS-1$
+	private static final String VERSION = "1"; //$NON-NLS-1$
+	private static final String PROVIDER = "org.eclipse"; //$NON-NLS-1$
+	private static final String DESCRIPTION = "A Test Metadata Repository"; //$NON-NLS-1$
 	private final List units = new ArrayList();
-	private URL url;
 
 	public TestMetadataRepository(IInstallableUnit[] ius) {
+		super(NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER);
 		units.addAll(Arrays.asList(ius));
+	}
+
+	private static URL createLocation() {
 		try {
-			url = File.createTempFile("TestMetadataRepository", Long.toString(System.currentTimeMillis())).toURL();
+			return File.createTempFile("TestMetadataRepository", Long.toString(System.currentTimeMillis())).toURL();
 		} catch (MalformedURLException e) {
-			fail(e.getMessage());
+			Assert.fail(e.getMessage());
 		} catch (IOException e) {
-			fail(e.getMessage());
+			Assert.fail(e.getMessage());
 		}
+		return null;
 	}
 
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
@@ -54,40 +61,12 @@ public class TestMetadataRepository extends Assert implements IMetadataRepositor
 		return new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and);
 	}
 
-	public URL getLocation() {
-		return url;
-	}
-
 	public IInstallableUnit[] query(String id, VersionRange range, RequiredCapability[] requirements, boolean and, IProgressMonitor monitor) {
 		return CompoundIterator.asArray(new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and), null);
 	}
 
-	public String getDescription() {
-		return "A Test Metadata Repository"; //$NON-NLS-1$;
-	}
-
-	public String getName() {
-		return "ATestMetadataRepository"; //$NON-NLS-1$;
-	}
-
-	public String getProvider() {
-		return "org.eclipse"; //$NON-NLS-1$
-	}
-
-	public String getType() {
-		return SCHEME;
-	}
-
-	public String getVersion() {
-		return "1"; //$NON-NLS-1$
-	}
-
-	public UnmodifiableProperties getProperties() {
-		return new UnmodifiableProperties(new OrderedProperties());
-	}
-
 	public Object getAdapter(Class adapter) {
-		if (adapter == TestMetadataRepository.class || adapter == IMetadataRepository.class || adapter == IRepositoryInfo.class) {
+		if (adapter == TestMetadataRepository.class || adapter == IMetadataRepository.class || adapter == IRepository.class) {
 			return this;
 		}
 		return null;

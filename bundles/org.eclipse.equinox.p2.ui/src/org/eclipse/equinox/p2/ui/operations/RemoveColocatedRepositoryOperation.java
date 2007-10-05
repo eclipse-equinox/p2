@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.operations;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ColocatedRepositoryUtil;
 import org.eclipse.equinox.p2.ui.ProvisioningUtil;
@@ -65,7 +65,7 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			URL metadataURL = ColocatedRepositoryUtil.makeMetadataRepositoryURL(urls[i]);
-			IRepositoryInfo repo = ProvisioningUtil.addMetadataRepository(metadataURL, monitor, uiInfo);
+			IRepository repo = ProvisioningUtil.addMetadataRepository(metadataURL, monitor, uiInfo);
 			if (repo == null) {
 				return failureStatus();
 			}

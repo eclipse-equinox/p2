@@ -13,12 +13,14 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener;
 import org.eclipse.equinox.p2.metadata.generator.*;
-import org.eclipse.equinox.p2.metadata.repository.*;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 
 public class ProvisioningListener implements IDirectoryChangeListener {
 
@@ -141,11 +143,10 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		IArtifactRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
-			IWritableArtifactRepository result = (IWritableArtifactRepository) repository.getAdapter(IWritableArtifactRepository.class);
-			if (result != null) {
-				provider.setArtifactRepository(result);
+			if (repository.isModifiable()) {
+				provider.setArtifactRepository(repository);
 				if (!provider.append())
-					result.removeAll();
+					repository.removeAll();
 				return;
 			}
 			throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
@@ -154,7 +155,7 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
-		IWritableArtifactRepository result = (IWritableArtifactRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
 		if (result != null)
 			provider.setArtifactRepository(result);
 	}
@@ -163,11 +164,10 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		IMetadataRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
-			IWritableMetadataRepository result = (IWritableMetadataRepository) repository.getAdapter(IWritableMetadataRepository.class);
-			if (result != null) {
-				provider.setMetadataRepository(result);
+			if (repository.isModifiable()) {
+				provider.setMetadataRepository(repository);
 				if (!provider.append())
-					result.removeAll();
+					repository.removeAll();
 				return;
 			}
 			throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
@@ -176,7 +176,7 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = location + " - metadata"; //$NON-NLS-1$
-		IWritableMetadataRepository result = (IWritableMetadataRepository) manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
+		IMetadataRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
 		if (result != null)
 			provider.setMetadataRepository(result);
 	}

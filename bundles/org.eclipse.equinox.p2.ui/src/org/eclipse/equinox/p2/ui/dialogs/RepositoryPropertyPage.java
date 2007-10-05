@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -28,7 +28,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
  */
 public class RepositoryPropertyPage extends PropertyPage {
 
-	IRepositoryInfo repository;
+	IRepository repository;
 	private RepositoryGroup repoGroup;
 
 	protected Control createContents(Composite parent) {
@@ -73,7 +73,7 @@ public class RepositoryPropertyPage extends PropertyPage {
 		setValid(status.isOK());
 	}
 
-	protected IRepositoryInfo getRepository() {
-		return (IRepositoryInfo) getElement().getAdapter(IRepositoryInfo.class);
+	protected IRepository getRepository() {
+		return (IRepository) getElement().getAdapter(IRepository.class);
 	}
 }

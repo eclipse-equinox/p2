@@ -8,12 +8,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.core.repository;
+package org.eclipse.equinox.spi.p2.core.repository;
 
 import java.net.URL;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 
 /**
 * AbstractRepository defines common properties that may be provided by various kinds
@@ -24,30 +25,23 @@ import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
 * TODO: Do we want additional properties - time zone, copyrights, security etc.. 
 */
 
-public abstract class AbstractRepository extends PlatformObject {
-
+public abstract class AbstractRepository extends PlatformObject implements IRepository {
 	protected String name;
 	protected String type;
 	protected String version;
 	protected String description;
 	protected String provider;
 	// TODO make sure that this is transiaent.  NO point in storing the location in the repo itself.
-	protected URL location;
+	protected transient URL location;
 	protected OrderedProperties properties = new OrderedProperties();
 
-	protected AbstractRepository(String name, String type, String version, URL location) {
+	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider) {
 		this.name = name;
 		this.type = type;
 		this.version = version;
-		this.description = ""; //$NON-NLS-1$
-		this.provider = ""; //$NON-NLS-1$
 		this.location = location;
-	}
-
-	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider) {
-		this(name, type, version, location);
-		this.description = description;
-		this.provider = provider;
+		this.description = description == null ? "" : description; //$NON-NLS-1$
+		this.provider = provider == null ? "" : provider; //$NON-NLS-1$
 	}
 
 	/**
@@ -106,5 +100,25 @@ public abstract class AbstractRepository extends PlatformObject {
 	 */
 	public UnmodifiableProperties getProperties() {
 		return new UnmodifiableProperties(properties);
+	}
+
+	public void setName(String value) {
+		name = value;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setProvider(String provider) {
+		this.provider = provider;
+	}
+
+	public OrderedProperties getModifiableProperties() {
+		return properties;
+	}
+
+	public boolean isModifiable() {
+		return false;
 	}
 }

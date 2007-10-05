@@ -13,17 +13,14 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.core.repository.IWritableRepositoryInfo;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.metadata.repository.IWritableMetadataRepository;
 import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
@@ -32,13 +29,13 @@ import org.eclipse.osgi.util.NLS;
  * location is a directory, this implementation will traverse the directory structure
  * and combine any metadata repository files that are found.
  */
-public class LocalMetadataRepository extends AbstractMetadataRepository implements IWritableMetadataRepository {
+public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	static final private String REPOSITORY_TYPE = LocalMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final private String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 
-	transient private URL location;
+	protected HashSet units = new HashSet();
 
 	public static File getActualLocation(URL location) {
 		String spec = location.getFile();
@@ -52,10 +49,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	}
 
 	public LocalMetadataRepository(URL location, String name) throws RepositoryCreationException {
-		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString());
+		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
 		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location);
-		this.location = location;
 	}
 
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
@@ -70,10 +66,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 
 	public Iterator getIterator(String id, VersionRange range, RequiredCapability[] requirements, boolean and) {
 		return new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and);
-	}
-
-	public URL getLocation() {
-		return location;
 	}
 
 	public IInstallableUnit[] query(String id, VersionRange range, RequiredCapability[] requirements, boolean and, IProgressMonitor monitor) {
@@ -108,36 +100,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 		save();
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setType(String type) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("The type of a local metadata repository cannot be changed."); //$NON-NLS-1$
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public void setProvider(String provider) {
-		this.provider = provider;
-	}
-
-	public OrderedProperties getModifiableProperties() {
-		return properties;
-	}
-
-	public Object getAdapter(Class adapter) {
-		if (adapter == LocalMetadataRepository.class || adapter == IWritableMetadataRepository.class || adapter == IWritableRepositoryInfo.class)
-			return this;
-		return super.getAdapter(adapter);
-	}
-
 	public void removeAll() {
 		units.clear();
 		save();
@@ -146,5 +108,20 @@ public class LocalMetadataRepository extends AbstractMetadataRepository implemen
 	// use this method to setup any transient fields etc after the object has been restored from a stream
 	public void initializeAfterLoad(URL location) {
 		this.location = location;
+	}
+
+	public void initializeAfterLoad(LocalMetadataRepository source) {
+		name = source.name;
+		type = source.type;
+		version = source.version;
+		location = source.location;
+		description = source.description;
+		provider = source.provider;
+		properties = source.properties;
+		units = source.units;
+	}
+
+	public boolean isModifiable() {
+		return true;
 	}
 }

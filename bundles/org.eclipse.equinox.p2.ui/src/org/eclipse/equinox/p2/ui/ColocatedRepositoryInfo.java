@@ -11,21 +11,21 @@
 
 package org.eclipse.equinox.p2.ui;
 
-import java.net.URL;
 import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 
 /**
  * Repository info for a colocated repository.
  * 
  * @since 3.4
  */
-public class ColocatedRepositoryInfo implements IRepositoryInfo {
+public class ColocatedRepositoryInfo extends AbstractRepository {
 
 	private IMetadataRepository repo;
 
 	public ColocatedRepositoryInfo(IMetadataRepository repo) {
+		super(repo.getName(), repo.getType(), repo.getVersion(), ColocatedRepositoryUtil.makeColocatedRepositoryURL(repo.getLocation()), repo.getDescription(), repo.getProvider());
 		this.repo = repo;
 	}
 
@@ -43,18 +43,6 @@ public class ColocatedRepositoryInfo implements IRepositoryInfo {
 
 	public String getProvider() {
 		return repo.getProvider();
-	}
-
-	public String getType() {
-		return repo.getType();
-	}
-
-	public URL getLocation() {
-		return ColocatedRepositoryUtil.makeColocatedRepositoryURL(repo.getLocation());
-	}
-
-	public String getVersion() {
-		return repo.getVersion();
 	}
 
 	public Object getAdapter(Class adapter) {

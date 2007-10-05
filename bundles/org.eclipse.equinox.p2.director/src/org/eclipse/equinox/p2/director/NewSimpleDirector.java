@@ -16,11 +16,11 @@ import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
-import org.eclipse.equinox.p2.core.repository.IWritableRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.repository.*;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -31,11 +31,10 @@ public class NewSimpleDirector implements IDirector {
 	static final int OperationWork = 100;
 	private Engine engine;
 
-	public static void tagAsImplementation(IWritableMetadataRepository repository) {
-		if (repository != null && repository.getProperties().getProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY) == null) {
-			IWritableRepositoryInfo writableInfo = (IWritableRepositoryInfo) repository.getAdapter(IWritableRepositoryInfo.class);
-			if (writableInfo != null)
-				writableInfo.getModifiableProperties().setProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+	public static void tagAsImplementation(IMetadataRepository repository) {
+		if (repository != null && repository.getProperties().getProperty(IRepository.IMPLEMENTATION_ONLY_KEY) == null) {
+			if (repository.isModifiable())
+				repository.getModifiableProperties().setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 		}
 	}
 
@@ -45,9 +44,9 @@ public class NewSimpleDirector implements IDirector {
 		rollbackLocation = agentLocation.getTouchpointDataArea("director");
 		ProvisioningEventBus eventBus = (ProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, ProvisioningEventBus.class.getName());
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		IWritableMetadataRepository rollbackRepo = (IWritableMetadataRepository) manager.loadRepository(rollbackLocation, null);
+		IMetadataRepository rollbackRepo = manager.loadRepository(rollbackLocation, null);
 		if (rollbackRepo == null)
-			rollbackRepo = (IWritableMetadataRepository) manager.createRepository(rollbackLocation, "Agent rollback repo", "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$//$NON-NLS-2$
+			rollbackRepo = manager.createRepository(rollbackLocation, "Agent rollback repo", "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$//$NON-NLS-2$
 		if (rollbackRepo == null)
 			throw new IllegalStateException("Unable to open or create Agent's rollback repository");
 		tagAsImplementation(rollbackRepo);

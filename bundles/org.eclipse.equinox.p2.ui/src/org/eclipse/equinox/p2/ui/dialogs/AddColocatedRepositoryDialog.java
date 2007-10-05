@@ -14,7 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.operations.AddColocatedRepositoryOperation;
 import org.eclipse.swt.widgets.Shell;
@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 
-	public AddColocatedRepositoryDialog(Shell parentShell, IRepositoryInfo[] knownRepositories) {
+	public AddColocatedRepositoryDialog(Shell parentShell, IRepository[] knownRepositories) {
 		super(parentShell, knownRepositories);
 
 	}

@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.core.helpers.*;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.repository.*;
+import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;

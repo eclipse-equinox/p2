@@ -6,6 +6,7 @@ Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.directorywatcher.Activator
 Import-Package: org.eclipse.equinox.p2.artifact.repository,
  org.eclipse.equinox.p2.core.helpers,
+ org.eclipse.equinox.p2.core.repository,
  org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.p2.metadata.repository,
  org.eclipse.equinox.p2.query,

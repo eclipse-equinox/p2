@@ -13,27 +13,30 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 /**
  * A metadata repository backed by an arbitrary URL.
  */
-public class URLMetadataRepository extends AbstractMetadataRepository {
+public class URLMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository {
 
 	static final private String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final protected String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 
-	transient protected URL location;
 	transient protected URL content;
+	protected HashSet units = new HashSet();
 
 	public static URL getActualLocation(URL base) {
 		String spec = base.toExternalForm();
@@ -50,13 +53,12 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		}
 	}
 
-	protected URLMetadataRepository(String name, String type, String version) {
-		super(name, type, version);
+	protected URLMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
+		super(name, type, version, location, description, provider);
 	}
 
 	public URLMetadataRepository(URL location, String name) {
-		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString());
-		this.location = location;
+		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
 		content = getActualLocation(location);
 	}
 
@@ -73,10 +75,6 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return result;
 	}
 
-	public URL getLocation() {
-		return location;
-	}
-
 	protected URL getContentURL() {
 		return content;
 	}
@@ -89,15 +87,23 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return CompoundIterator.asArray(new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and), null);
 	}
 
-	public Object getAdapter(Class adapter) {
-		if (adapter == URLMetadataRepository.class)
-			return this;
-		else
-			return super.getAdapter(adapter);
-	}
-
 	// use this method to setup any transient fields etc after the object has been restored from a stream
 	public void initializeAfterLoad(URL location) {
 		this.location = location;
+	}
+
+	public void initializeAfterLoad(URLMetadataRepository source) {
+		name = source.name;
+		type = source.type;
+		version = source.version;
+		location = source.location;
+		description = source.description;
+		provider = source.provider;
+		properties = source.properties;
+		units = source.units;
+	}
+
+	public boolean isModifiable() {
+		return false;
 	}
 }

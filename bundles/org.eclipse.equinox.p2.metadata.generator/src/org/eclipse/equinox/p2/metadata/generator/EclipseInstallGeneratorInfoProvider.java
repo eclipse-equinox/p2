@@ -15,11 +15,11 @@ import java.io.IOException;
 import java.util.*;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
-import org.eclipse.equinox.p2.artifact.repository.IWritableArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.p2.metadata.repository.IWritableMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
@@ -51,8 +51,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private boolean append = false;
 	private String[][] mappingRules;
 	private boolean addDefaultIUs = true;
-	private IWritableMetadataRepository metadataRepository;
-	private IWritableArtifactRepository artifactRepository;
+	private IMetadataRepository metadataRepository;
+	private IArtifactRepository artifactRepository;
 	private static String os;
 
 	public EclipseInstallGeneratorInfoProvider() {
@@ -292,11 +292,11 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return flavor;
 	}
 
-	public void setMetadataRepository(IWritableMetadataRepository value) {
+	public void setMetadataRepository(IMetadataRepository value) {
 		metadataRepository = value;
 	}
 
-	public void setArtifactRepository(IWritableArtifactRepository value) {
+	public void setArtifactRepository(IArtifactRepository value) {
 		artifactRepository = value;
 	}
 
@@ -344,11 +344,11 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		addDefaultIUs = value;
 	}
 
-	public IWritableArtifactRepository getArtifactRepository() {
+	public IArtifactRepository getArtifactRepository() {
 		return artifactRepository;
 	}
 
-	public IWritableMetadataRepository getMetadataRepository() {
+	public IMetadataRepository getMetadataRepository() {
 		return metadataRepository;
 	}
 

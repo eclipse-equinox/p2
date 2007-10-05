@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.*;
 import java.net.URL;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryFactory;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
+import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 
 public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 

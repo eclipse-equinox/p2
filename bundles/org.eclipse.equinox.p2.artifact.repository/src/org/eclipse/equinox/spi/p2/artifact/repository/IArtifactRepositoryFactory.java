@@ -8,12 +8,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.artifact.repository;
+package org.eclipse.equinox.spi.p2.artifact.repository;
 
-import java.io.OutputStream;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import java.net.URL;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 
-public abstract class Transport {
-	public abstract IStatus download(String toDownload, OutputStream target, IProgressMonitor pm);
+public interface IArtifactRepositoryFactory {
+
+	public IArtifactRepository load(URL location);
+
+	public IArtifactRepository create(URL location, String name, String type);
 }

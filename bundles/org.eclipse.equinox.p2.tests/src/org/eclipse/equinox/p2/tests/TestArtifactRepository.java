@@ -15,20 +15,26 @@ import java.util.Map;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
+import org.eclipse.equinox.internal.p2.artifact.repository.Transport;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.p2.core.helpers.*;
 import org.eclipse.equinox.p2.core.helpers.MultiStatus;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
 
 /**
  * A simple artifact repository implementation used for testing purposes.
  * All artifacts are kept in memory.
  */
-public class TestArtifactRepository extends Assert implements IArtifactRepository {
+public class TestArtifactRepository extends AbstractArtifactRepository {
 	private static final String SCHEME = "testartifactrepo";
+	private static final String NAME = "ATestArtifactRepository"; //$NON-NLS-1$
+	private static final String TYPE = "testartifactrepo"; //$NON-NLS-1$
+	private static final String VERSION = "1"; //$NON-NLS-1$
+	private static final String PROVIDER = "org.eclipse"; //$NON-NLS-1$
+	private static final String DESCRIPTION = "A Test Artifact Repository"; //$NON-NLS-1$
+
 	/**
 	 * Map of IArtifactKey -> String (location)
 	 */
@@ -42,17 +48,20 @@ public class TestArtifactRepository extends Assert implements IArtifactRepositor
 		public IStatus download(String toDownload, OutputStream target, IProgressMonitor pm) {
 			byte[] contents = (byte[]) locationsToContents.get(toDownload);
 			if (contents == null)
-				fail("Attempt to download missing artifact in TestArtifactRepository: " + toDownload);
+				Assert.fail("Attempt to download missing artifact in TestArtifactRepository: " + toDownload);
 			try {
 				target.write(contents);
 			} catch (IOException e) {
 				e.printStackTrace();
-				fail("Unexpected exception in TestArtifactRepository" + e.getMessage());
+				Assert.fail("Unexpected exception in TestArtifactRepository" + e.getMessage());
 			}
 			return Status.OK_STATUS;
 		}
 	};
-	private URL url;
+
+	public TestArtifactRepository() {
+		super(NAME, TYPE, VERSION, null, DESCRIPTION, PROVIDER);
+	}
 
 	public void addArtifact(IArtifactKey key, byte[] contents) {
 		String location = key.toString();
@@ -67,7 +76,7 @@ public class TestArtifactRepository extends Assert implements IArtifactRepositor
 		try {
 			return new URI(SCHEME, location, null);
 		} catch (URISyntaxException e) {
-			fail("Invalid URI in TestArtifactRepository: " + e.getMessage());
+			Assert.fail("Invalid URI in TestArtifactRepository: " + e.getMessage());
 			return null;
 		}
 	}
@@ -95,43 +104,8 @@ public class TestArtifactRepository extends Assert implements IArtifactRepositor
 		}
 	}
 
-	public String getType() {
-		return SCHEME;
-	}
-
-	public URL getLocation() {
-		return url;
-	}
-
 	public void initialize(URL repoURL, InputStream descriptorFile) throws RepositoryCreationException {
-		this.url = repoURL;
-	}
-
-	public String getDescription() {
-		return "A Test Artifact Repository"; //$NON-NLS-1$
-	}
-
-	public String getName() {
-		return "ATestArtifactRepository"; //$NON-NLS-1$
-	}
-
-	public String getProvider() {
-		return "org.eclipse"; //$NON-NLS-1$
-	}
-
-	public String getVersion() {
-		return "1"; //$NON-NLS-1$
-	}
-
-	public UnmodifiableProperties getProperties() {
-		return new UnmodifiableProperties(new OrderedProperties());
-	}
-
-	public Object getAdapter(Class adapter) {
-		if (adapter == TestArtifactRepository.class || adapter == IArtifactRepository.class || adapter == IRepositoryInfo.class) {
-			return this;
-		}
-		return null;
+		location = repoURL;
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {

@@ -16,7 +16,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.jface.dialogs.*;
@@ -41,10 +41,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public abstract class AddRepositoryDialog extends StatusDialog {
 
 	private Button okButton;
-	private IRepositoryInfo[] knownRepositories;
+	private IRepository[] knownRepositories;
 	private RepositoryGroup repoGroup;
 
-	public AddRepositoryDialog(Shell parentShell, IRepositoryInfo[] knownRepositories) {
+	public AddRepositoryDialog(Shell parentShell, IRepository[] knownRepositories) {
 
 		super(parentShell);
 		this.knownRepositories = knownRepositories;

@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -29,7 +29,7 @@ public class RepositoryImplementationGroup extends RepositoryGroup {
 
 	Table propertiesTable;
 
-	public RepositoryImplementationGroup(final Composite parent, IRepositoryInfo repository, ModifyListener listener, final boolean chooseFile, final String dirPath, final String fileName) {
+	public RepositoryImplementationGroup(final Composite parent, IRepository repository, ModifyListener listener, final boolean chooseFile, final String dirPath, final String fileName) {
 		super(parent, repository, listener, chooseFile, dirPath, fileName);
 	}
 

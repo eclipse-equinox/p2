@@ -96,7 +96,8 @@ public class NativeTouchpoint implements ITouchpoint {
 		if (unitToInstall.getArtifacts() == null || unitToInstall.getArtifacts().length == 0)
 			return Status.OK_STATUS;
 
-		File fileLocation = new File(dlCache.getArtifact(unitToInstall.getArtifacts()[0]));
+		IFileArtifactRepository repoToCheck = (IFileArtifactRepository) dlCache.getAdapter(IFileArtifactRepository.class);
+		File fileLocation = repoToCheck.getArtifactFile(unitToInstall.getArtifacts()[0]);
 		if (!fileLocation.exists())
 			return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
 
@@ -143,7 +144,7 @@ public class NativeTouchpoint implements ITouchpoint {
 	}
 
 	private IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) {
-		IWritableArtifactRepository destination = getDownloadCacheRepo();
+		IArtifactRepository destination = getDownloadCacheRepo();
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return new IArtifactRequest[0];
@@ -169,12 +170,11 @@ public class NativeTouchpoint implements ITouchpoint {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	private IWritableArtifactRepository getDownloadCacheRepo() {
-		IArtifactRepository repo = getArtifactRepositoryManager().getRepository(getDownloadCacheLocation());
-		IWritableArtifactRepository result = (IWritableArtifactRepository) repo.getAdapter(IWritableArtifactRepository.class);
-		if (result == null)
-			throw new IllegalStateException("Download cache is not writable: " + repo.getLocation()); //$NON-NLS-1$
-		return result;
+	private IArtifactRepository getDownloadCacheRepo() {
+		IArtifactRepository repository = getArtifactRepositoryManager().getRepository(getDownloadCacheLocation());
+		if (!repository.isModifiable())
+			throw new IllegalStateException("Download cache is not writable: " + repository.getLocation()); //$NON-NLS-1$
+		return repository;
 	}
 
 	private URL getDownloadCacheLocation() {

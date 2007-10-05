@@ -15,15 +15,15 @@ import java.util.ArrayList;
 import java.util.Set;
 import org.eclipse.equinox.frameworkadmin.ConfigData;
 import org.eclipse.equinox.frameworkadmin.LauncherData;
-import org.eclipse.equinox.p2.artifact.repository.IWritableArtifactRepository;
-import org.eclipse.equinox.p2.metadata.repository.IWritableMetadataRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 
 public interface IGeneratorInfo {
 	public boolean addDefaultIUs();
 
 	public boolean append();
 
-	public IWritableArtifactRepository getArtifactRepository();
+	public IArtifactRepository getArtifactRepository();
 
 	public File[] getBundleLocations();
 
@@ -43,21 +43,21 @@ public interface IGeneratorInfo {
 
 	public String[][] getMappingRules();
 
-	public IWritableMetadataRepository getMetadataRepository();
+	public IMetadataRepository getMetadataRepository();
 
 	public String getRootId();
 
 	public String getRootVersion();
-	
+
 	public boolean publishArtifactRepository();
 
 	public boolean publishArtifacts();
 
-	public void setArtifactRepository(IWritableArtifactRepository value);
+	public void setArtifactRepository(IArtifactRepository value);
 
 	public void setFlavor(String value);
 
-	public void setMetadataRepository(IWritableMetadataRepository value);
+	public void setMetadataRepository(IMetadataRepository value);
 
 	public void setPublishArtifacts(boolean value);
 

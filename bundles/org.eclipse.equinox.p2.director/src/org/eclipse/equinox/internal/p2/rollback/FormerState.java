@@ -15,15 +15,15 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.repository.IWritableMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.osgi.framework.Version;
 
 public class FormerState {
-	IWritableMetadataRepository storage = null;
+	IMetadataRepository storage = null;
 
 	Hashtable generatedIUs = new Hashtable(); //key profile id, value the iu representing this profile
 
-	public FormerState(ProvisioningEventBus bus, IWritableMetadataRepository repo) {
+	public FormerState(ProvisioningEventBus bus, IMetadataRepository repo) {
 		if (bus == null || repo == null) {
 			throw new IllegalArgumentException("bus and storage can' be null"); //$NON-NLS-1$
 		}

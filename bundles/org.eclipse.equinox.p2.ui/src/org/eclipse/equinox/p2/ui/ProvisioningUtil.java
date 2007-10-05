@@ -22,8 +22,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.core.repository.IRepositoryInfo;
-import org.eclipse.equinox.p2.core.repository.IWritableRepositoryInfo;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.Oracle;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -331,10 +330,9 @@ public class ProvisioningUtil {
 	// TODO This method is only in the util class so that I can generate an
 	// event. If the setName API generated this event, callers could just do
 	// it directly (and I could make this class/package truly internal....)
-	public static IStatus setRepositoryName(IRepositoryInfo repository, String name) {
-		IWritableRepositoryInfo writableInfo = (IWritableRepositoryInfo) repository.getAdapter(IWritableRepositoryInfo.class);
-		if (writableInfo != null) {
-			writableInfo.setName(name);
+	public static IStatus setRepositoryName(IRepository repository, String name) {
+		if (repository.isModifiable()) {
+			repository.setName(name);
 			PropertyChangeEvent event = new PropertyChangeEvent(repository, IProvisioningProperties.REPO_NAME, null, name);
 			ProvUIActivator.getDefault().notifyListeners(event);
 			return Status.OK_STATUS;

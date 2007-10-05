@@ -8,11 +8,13 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
-import java.net.*;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -231,8 +233,18 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Repository has no artifacts");
 			return;
 		}
-		for (int i = 0; i < keys.length; i++)
-			println(interpreter, keys[i], repo.getArtifact(keys[i]));
+		IFileArtifactRepository fileRepo = (IFileArtifactRepository) repo.getAdapter(IFileArtifactRepository.class);
+		for (int i = 0; i < keys.length; i++) {
+			IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(keys[i]);
+			for (int j = 0; j < descriptors.length; j++) {
+				IArtifactDescriptor descriptor = descriptors[j];
+				File location = null;
+				if (fileRepo != null)
+					location = fileRepo.getArtifactFile(descriptor);
+				println(interpreter, keys[i], location);
+			}
+
+		}
 	}
 
 	/**
@@ -338,8 +350,8 @@ public class ProvCommandProvider implements CommandProvider {
 		interpreter.println();
 	}
 
-	private void println(CommandInterpreter interpreter, IArtifactKey artifactKey, URI artifact) {
-		interpreter.print(artifactKey.toString() + ' ' + artifact);
+	private void println(CommandInterpreter interpreter, IArtifactKey artifactKey, File location) {
+		interpreter.print(artifactKey.toString() + ' ' + location);
 		interpreter.println();
 	}
 }
