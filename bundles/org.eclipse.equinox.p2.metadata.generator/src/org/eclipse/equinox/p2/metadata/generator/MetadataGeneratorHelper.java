@@ -40,8 +40,10 @@ public class MetadataGeneratorHelper {
 	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
 	private static final String ECLIPSE_ARTIFACT_CLASSIFIER = "plugin"; //$NON-NLS-1$
 
-	private static final String ORG_ECLIPSE_EXECUTABLE = "org.eclipse.executable"; //$NON-NLS-1$
-	private static final Version ORG_ECLIPSE_EXECUTABLE_VERSION = new Version(1, 0, 0);
+	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
+
+	//TODO - need to come up with a way to infer launcher version
+	private static final Version LAUNCHER_VERSION = new Version(1, 0, 0);
 	private static final String IU_NAMESPACE = IInstallableUnit.IU_NAMESPACE;
 
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnitConstants.NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnitConstants.DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnitConstants.PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnitConstants.CONTACT, Constants.BUNDLE_COPYRIGHT, IInstallableUnitConstants.COPYRIGHT, Constants.BUNDLE_DOCURL, IInstallableUnitConstants.DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnitConstants.UPDATE_SITE};
@@ -120,7 +122,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	/**
-	 * Creates IUs and artifacts for the Eclipse executable, and adds them to the given
+	 * Creates IUs and artifacts for the Launcher executable, and adds them to the given
 	 * sets.
 	 */
 	public static void createLauncherData(File launcher, String configurationFlavor, Set resultantIUs, Set resultantArtifactDescriptors) {
@@ -130,10 +132,11 @@ public class MetadataGeneratorHelper {
 		//Create the IU
 		InstallableUnit iu = new InstallableUnit();
 		iu.setSingleton(true);
-		iu.setId(ORG_ECLIPSE_EXECUTABLE);
-		iu.setVersion(ORG_ECLIPSE_EXECUTABLE_VERSION);
+		String launcherId = LAUNCHER_ID_PREFIX + '_' + launcher.getName();
+		iu.setId(launcherId);
+		iu.setVersion(LAUNCHER_VERSION);
 
-		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, ORG_ECLIPSE_EXECUTABLE, ORG_ECLIPSE_EXECUTABLE_VERSION);
+		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, new Version(1, 0, 0)));
 		resultantIUs.add(iu);
@@ -156,7 +159,7 @@ public class MetadataGeneratorHelper {
 		resultantIUs.add(cu);
 
 		//Create the artifact descriptor
-		IArtifactDescriptor descriptor = createArtifactDescriptor(new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, ORG_ECLIPSE_EXECUTABLE, ORG_ECLIPSE_EXECUTABLE_VERSION), launcher, false, true);
+		IArtifactDescriptor descriptor = createArtifactDescriptor(new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION), launcher, false, true);
 		resultantArtifactDescriptors.add(descriptor);
 	}
 

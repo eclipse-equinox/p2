@@ -151,6 +151,15 @@ public class Generator {
 		//generate data for executable launcher
 		MetadataGeneratorHelper.createLauncherData(executableLocation, info.getFlavor(), resultantIUs, newArtifacts);
 		publishArtifact(executableLocation, newArtifacts);
+		newArtifacts.clear();
+
+		//generate data for eclipsec.exe if applicable
+		//hard-coded name is ok, since console launcher is not branded, and appears on Windows only
+		File consoleLauncher = new File(executableLocation.getParentFile(), "eclipsec.exe");
+		if (consoleLauncher.exists()) {
+			MetadataGeneratorHelper.createLauncherData(consoleLauncher, info.getFlavor(), resultantIUs, newArtifacts);
+			publishArtifact(consoleLauncher, newArtifacts);
+		}
 	}
 
 	private void publishArtifact(File location, Set artifacts) {
