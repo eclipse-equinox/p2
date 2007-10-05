@@ -285,6 +285,11 @@ public class EclipseTouchpoint implements ITouchpoint {
 				//if it does not create the folder and extract the archive... Be careful here with the permissions.... We may need to have a proper unzip technology here that supports file permissions for linux
 				//				request.getProfile().getValue(CACHE_PATH);
 			}
+
+			// TODO: We need to separate install and uninstall actions
+			if (!isInstall && fileLocation == null)
+				return new Status(IStatus.ERROR, ID, "The artifact " + artifactKey.toString() + " to uninstall has not been found.");
+
 			ScriptableObject.putProperty(scope, "artifact", fileLocation.getAbsolutePath());
 			BundleInfo bundle = new BundleInfo();
 			try {
