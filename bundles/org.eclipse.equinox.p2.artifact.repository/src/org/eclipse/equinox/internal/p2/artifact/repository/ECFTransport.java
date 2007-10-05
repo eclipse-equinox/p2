@@ -22,19 +22,19 @@ import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
- * A request handler that implements file transfer using ECF API.
+ * A transport implementation that uses ECF file transfer API.
  */
 public class ECFTransport extends Transport {
 
 	/**
-	 * The singleton handler instance.
+	 * The singleton transport instance.
 	 */
 	private static ECFTransport instance;
 
 	private final ServiceTracker retrievalFactoryTracker;
 
 	/**
-	 * Returns an initialized instance of ECFHandler
+	 * Returns an initialized instance of ECFTransport
 	 */
 	public static synchronized ECFTransport getInstance() {
 		if (instance == null) {
