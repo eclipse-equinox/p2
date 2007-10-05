@@ -98,11 +98,11 @@ public abstract class Phase {
 		if (status.isErrorOrCancel())
 			return;
 
+		session.recordPhaseEnd(this);
 		subMonitor.setWorkRemaining(POST_PERFORM_WORK);
 		postPerform(status, profile, subMonitor.newChild(POST_PERFORM_WORK));
 		if (status.isErrorOrCancel())
 			return;
-		session.recordPhaseEnd(this);
 
 		subMonitor.done();
 	}

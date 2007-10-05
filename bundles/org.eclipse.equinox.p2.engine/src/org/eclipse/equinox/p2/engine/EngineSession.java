@@ -43,10 +43,12 @@ public class EngineSession {
 
 	public MultiStatus rollback() {
 		MultiStatus result = new MultiStatus();
-		rollBackPhase(currentPhase, currentActionRecords);
-		currentPhase = null;
-		currentActionRecords = null;
-		currentRecord = null;
+		if (currentPhase != null) {
+			rollBackPhase(currentPhase, currentActionRecords);
+			currentPhase = null;
+			currentActionRecords = null;
+			currentRecord = null;
+		}
 
 		for (ListIterator it = phaseActionRecordsPairs.listIterator(phaseActionRecordsPairs.size()); it.hasPrevious();) {
 			Object[] pair = (Object[]) it.previous();
