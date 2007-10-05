@@ -31,8 +31,9 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 				if (result instanceof URLMetadataRepository)
 					((URLMetadataRepository) result).initializeAfterLoad(location);
 				return result;
+			} catch (RuntimeException e) {
+				System.out.println("Location: " + location);
 			} catch (RepositoryCreationException e) {
-				System.out.println("SimpleMetadataRepositoryFactory#load location: " + location);
 				// TODO Auto-generated catch block
 				return null;
 			} finally {
@@ -40,7 +41,6 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					descriptorStream.close();
 			}
 		} catch (IOException e) {
-			System.out.println("SimpleMetadataRepositoryFactory#load location2: " + location);
 			//TODO: log and throw? 
 		}
 		return null;
