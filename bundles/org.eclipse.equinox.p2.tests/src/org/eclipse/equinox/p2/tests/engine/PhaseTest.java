@@ -88,7 +88,7 @@ public class PhaseTest extends TestCase {
 			super(phaseId, weight, phaseName);
 		}
 
-		protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {
+		protected ProvisioningAction[] getActions(Touchpoint touchpoint, Profile profile, Operand currentOperand) {
 			return null;
 		}
 

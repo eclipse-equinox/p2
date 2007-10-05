@@ -25,7 +25,7 @@ import org.mozilla.javascript.*;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
-public class EclipseTouchpoint implements ITouchpoint {
+public class EclipseTouchpoint extends Touchpoint {
 	private final static String ID = "org.eclipse.equinox.p2.touchpoint.eclipse"; //$NON-NLS-1$
 	private final static String CONFIG_FOLDER = "eclipse.configurationFolder";
 	private final static String CACHE_PATH = "eclipse.p2.cache";
@@ -55,9 +55,9 @@ public class EclipseTouchpoint implements ITouchpoint {
 		supportedPhases.add("uninstall");
 	}
 
-	public ITouchpointAction getAction(String actionId) {
+	public ProvisioningAction getAction(String actionId) {
 		if (actionId.equals("collect")) {
-			return new ITouchpointAction() {
+			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					Profile profile = (Profile) parameters.get("profile");
 					Operand operand = (Operand) parameters.get("operand");
@@ -74,7 +74,7 @@ public class EclipseTouchpoint implements ITouchpoint {
 			};
 		}
 		if (actionId.equals("install")) {
-			return new ITouchpointAction() {
+			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					Profile profile = (Profile) parameters.get("profile");
 					Operand operand = (Operand) parameters.get("operand");
@@ -89,7 +89,7 @@ public class EclipseTouchpoint implements ITouchpoint {
 			};
 		}
 		if (actionId.equals("uninstall")) {
-			return new ITouchpointAction() {
+			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					Profile profile = (Profile) parameters.get("profile");
 					Operand operand = (Operand) parameters.get("operand");

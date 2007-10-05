@@ -14,7 +14,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.helpers.MultiStatus;
-import org.eclipse.equinox.p2.engine.ITouchpoint;
+import org.eclipse.equinox.p2.engine.Touchpoint;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 import org.eclipse.osgi.util.NLS;
 
@@ -40,7 +40,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 		private IConfigurationElement element;
 		private boolean createdExtension;
-		private ITouchpoint touchpoint;
+		private Touchpoint touchpoint;
 
 		public TouchpointEntry(IConfigurationElement element) {
 			super();
@@ -49,7 +49,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 			this.createdExtension = false;
 		}
 
-		public TouchpointEntry(IConfigurationElement element, ITouchpoint touchpoint) {
+		public TouchpointEntry(IConfigurationElement element, Touchpoint touchpoint) {
 			super();
 			this.element = element;
 			this.touchpoint = touchpoint;
@@ -60,11 +60,11 @@ public class TouchpointManager implements IRegistryChangeListener {
 			return (this.touchpoint != null);
 		}
 
-		public ITouchpoint getTouchpoint() {
+		public Touchpoint getTouchpoint() {
 			if (!createdExtension) {
 				String id = element.getAttribute(ATTRIBUTE_TYPE);
 				try {
-					ITouchpoint touchpoint = (ITouchpoint) element.createExecutableExtension(ATTRIBUTE_CLASS);
+					Touchpoint touchpoint = (Touchpoint) element.createExecutableExtension(ATTRIBUTE_CLASS);
 					if (touchpoint != null) {
 						if (!id.equals(touchpoint.getTouchpointType().getId())) {
 							reportError(NLS.bind(Messages.TouchpointManager_Touchpoint_Type_Mismatch, id, touchpoint.getTouchpointType().getId()), null);
@@ -109,7 +109,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	 * Return the touchpoint which is registered for the given id,
 	 * or <code>null</code> if none are registered.
 	 */
-	public ITouchpoint getTouchpoint(TouchpointType id) {
+	public Touchpoint getTouchpoint(TouchpointType id) {
 		if (id == null || CommonDef.EmptyString.equals(id.getId()))
 			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
 		if (touchpointEntries == null) {
@@ -119,7 +119,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 		return entry == null ? null : entry.getTouchpoint();
 	}
 
-	public ITouchpoint[] getAllTouchpoints() {
+	public Touchpoint[] getAllTouchpoints() {
 		if (touchpointEntries == null) {
 			initializeTouchpoints();
 		}
@@ -128,30 +128,30 @@ public class TouchpointManager implements IRegistryChangeListener {
 		ArrayList touchpoints = new ArrayList(adapters.size());
 		for (Iterator iter = adapters.iterator(); iter.hasNext();) {
 			TouchpointEntry entry = (TouchpointEntry) iter.next();
-			ITouchpoint touchpoint = entry.getTouchpoint();
+			Touchpoint touchpoint = entry.getTouchpoint();
 			if (touchpoint != null) {
 				touchpoints.add(touchpoint);
 			}
 		}
-		return (ITouchpoint[]) touchpoints.toArray(new ITouchpoint[touchpoints.size()]);
+		return (Touchpoint[]) touchpoints.toArray(new Touchpoint[touchpoints.size()]);
 	}
 
-	public ITouchpoint[] getCreatedTouchpoints() {
+	public Touchpoint[] getCreatedTouchpoints() {
 		if (touchpointEntries == null)
-			return new ITouchpoint[0];
+			return new Touchpoint[0];
 		Collection adapters = touchpointEntries.values();
 
 		ArrayList touchpoints = new ArrayList(adapters.size());
 		for (Iterator iter = adapters.iterator(); iter.hasNext();) {
 			TouchpointEntry entry = (TouchpointEntry) iter.next();
 			if (entry.hasTouchpoint()) {
-				ITouchpoint touchpoint = entry.getTouchpoint();
+				Touchpoint touchpoint = entry.getTouchpoint();
 				if (touchpoint != null) {
 					touchpoints.add(touchpoint);
 				}
 			}
 		}
-		return (ITouchpoint[]) touchpoints.toArray(new ITouchpoint[touchpoints.size()]);
+		return (Touchpoint[]) touchpoints.toArray(new Touchpoint[touchpoints.size()]);
 	}
 
 	public IStatus validateTouchpoints(String[] requiredTypes) {

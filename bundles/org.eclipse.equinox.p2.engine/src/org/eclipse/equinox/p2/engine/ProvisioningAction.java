@@ -13,9 +13,9 @@ package org.eclipse.equinox.p2.engine;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 
-public interface ITouchpointAction {
+public abstract class ProvisioningAction {
 
-	IStatus execute(Map parameters);
+	public abstract IStatus execute(Map parameters);
 
-	IStatus undo(Map parameters);
+	public abstract IStatus undo(Map parameters);
 }

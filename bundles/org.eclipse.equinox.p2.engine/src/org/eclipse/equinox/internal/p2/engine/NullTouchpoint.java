@@ -11,15 +11,17 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.Map;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.p2.engine.Touchpoint;
+import org.eclipse.equinox.p2.engine.ProvisioningAction;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 
 /**
  * A touchpoint that performs no processing.
  */
-public class NullTouchpoint implements ITouchpoint {
-	public static final ITouchpoint INSTANCE = new NullTouchpoint();
+public class NullTouchpoint extends Touchpoint {
+	public static final Touchpoint INSTANCE = new NullTouchpoint();
 
 	/**
 	 * Public constructor only intended to be called by extension registry.
@@ -38,8 +40,8 @@ public class NullTouchpoint implements ITouchpoint {
 		return false;
 	}
 
-	public ITouchpointAction getAction(String actionId) {
-		return new ITouchpointAction() {
+	public ProvisioningAction getAction(String actionId) {
+		return new ProvisioningAction() {
 			public IStatus execute(Map parameters) {
 				return Status.OK_STATUS;
 			}
@@ -48,13 +50,5 @@ public class NullTouchpoint implements ITouchpoint {
 				return Status.OK_STATUS;
 			}
 		};
-	}
-
-	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
-		return null;
-	}
-
-	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
-		return null;
 	}
 }

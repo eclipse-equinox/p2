@@ -62,14 +62,14 @@ public abstract class Phase {
 		return status;
 	}
 
-	void undoActions(MultiStatus status, ITouchpointAction[] actions, Operand operand) {
-		ITouchpoint touchpoint = getTouchpoint(operand);
+	void undoActions(MultiStatus status, ProvisioningAction[] actions, Operand operand) {
+		Touchpoint touchpoint = getTouchpoint(operand);
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
 		parameters.put("operand", operand);
 		parameters = Collections.unmodifiableMap(parameters);
 		for (int j = 0; j < actions.length; j++) {
-			ITouchpointAction action = actions[j];
+			ProvisioningAction action = actions[j];
 			IStatus actionStatus = action.undo(parameters);
 			status.add(actionStatus);
 		}
@@ -78,7 +78,7 @@ public abstract class Phase {
 	void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
 		touchpointToTouchpointParameters = new HashMap();
 		for (int i = 0; i < operands.length; i++) {
-			ITouchpoint touchpoint = getTouchpoint(operands[i]);
+			Touchpoint touchpoint = getTouchpoint(operands[i]);
 			if (touchpoint == null)
 				continue;
 
@@ -115,7 +115,7 @@ public abstract class Phase {
 
 		for (Iterator it = touchpointToTouchpointParameters.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
-			ITouchpoint touchpoint = (ITouchpoint) entry.getKey();
+			Touchpoint touchpoint = (Touchpoint) entry.getKey();
 			Map touchpointParameters = new HashMap(phaseParameters);
 			touchpointParameters.put("touchpoint", touchpoint);
 			status.add(touchpoint.initializePhase(monitor, profile, phaseId, touchpointParameters));
@@ -133,7 +133,7 @@ public abstract class Phase {
 			if (!isApplicable(operand))
 				continue;
 
-			ITouchpoint touchpoint = getTouchpoint(operand);
+			Touchpoint touchpoint = getTouchpoint(operand);
 			if (touchpoint == null || !touchpoint.supports(phaseId))
 				continue;
 
@@ -141,9 +141,9 @@ public abstract class Phase {
 			Map parameters = new HashMap(touchpointParameters);
 			parameters.put("operand", operand);
 			parameters = Collections.unmodifiableMap(parameters);
-			ITouchpointAction[] actions = getActions(touchpoint, profile, operand);
+			ProvisioningAction[] actions = getActions(touchpoint, profile, operand);
 			for (int j = 0; j < actions.length; j++) {
-				ITouchpointAction action = actions[j];
+				ProvisioningAction action = actions[j];
 				IStatus actionStatus = action.execute(parameters);
 				status.add(actionStatus);
 				if (actionStatus != null && !actionStatus.isOK())
@@ -157,7 +157,7 @@ public abstract class Phase {
 	void postPerform(MultiStatus status, Profile profile, IProgressMonitor monitor) {
 		for (Iterator it = touchpointToTouchpointParameters.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
-			ITouchpoint touchpoint = (ITouchpoint) entry.getKey();
+			Touchpoint touchpoint = (Touchpoint) entry.getKey();
 			Map touchpointParameters = (Map) entry.getValue();
 			status.add(touchpoint.completePhase(monitor, profile, phaseId, touchpointParameters));
 			entry.setValue(null);
@@ -166,7 +166,7 @@ public abstract class Phase {
 		phaseParameters = null;
 	}
 
-	private static ITouchpoint getTouchpoint(Operand operand) {
+	private static Touchpoint getTouchpoint(Operand operand) {
 		IInstallableUnit unit = operand.second();
 		if (unit == null)
 			unit = operand.first();
@@ -174,7 +174,7 @@ public abstract class Phase {
 		if (unit == null)
 			return null;
 		TouchpointManager touchpointManager = TouchpointManager.getInstance();
-		ITouchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
+		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
 		return touchpoint;
 	}
 
@@ -190,6 +190,6 @@ public abstract class Phase {
 		return Status.OK_STATUS;
 	}
 
-	protected abstract ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand);
+	protected abstract ProvisioningAction[] getActions(Touchpoint touchpoint, Profile profile, Operand currentOperand);
 
 }

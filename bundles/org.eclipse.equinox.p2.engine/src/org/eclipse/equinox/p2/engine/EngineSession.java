@@ -68,7 +68,7 @@ public class EngineSession {
 
 		for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 			ActionsRecord record = (ActionsRecord) it.previous();
-			ITouchpointAction[] actions = (ITouchpointAction[]) record.actions.toArray(new ITouchpointAction[record.actions.size()]);
+			ProvisioningAction[] actions = (ProvisioningAction[]) record.actions.toArray(new ProvisioningAction[record.actions.size()]);
 			phase.undoActions(result, actions, record.operand);
 		}
 		phase.postPerform(result, profile, new NullProgressMonitor());
@@ -99,7 +99,7 @@ public class EngineSession {
 		currentRecord = null;
 	}
 
-	void recordAction(ITouchpointAction action, Operand operand) {
+	void recordAction(ProvisioningAction action, Operand operand) {
 		if (action == null || operand == null)
 			throw new IllegalArgumentException("Action and Operand must not be null.");
 

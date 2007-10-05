@@ -11,23 +11,26 @@
 package org.eclipse.equinox.p2.engine;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 
 /**
  * A touchpoint is responsible for executing a given phase for a given 
  * targeted system (eclipse, native). The order of phases is defined in the {@link PhaseSet}.  
  */
-public interface ITouchpoint {
+public abstract class Touchpoint {
 
-	public TouchpointType getTouchpointType();
+	public abstract TouchpointType getTouchpointType();
 
-	public boolean supports(String phaseId);
+	public abstract boolean supports(String phaseId);
 
-	public ITouchpointAction getAction(String actionId);
+	public abstract ProvisioningAction getAction(String actionId);
 
-	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters);
+	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+		return Status.OK_STATUS;
+	}
 
-	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters);
+	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+		return Status.OK_STATUS;
+	}
 }

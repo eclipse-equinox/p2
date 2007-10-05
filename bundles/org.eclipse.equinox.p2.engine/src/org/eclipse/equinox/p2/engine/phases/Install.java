@@ -19,11 +19,11 @@ import org.eclipse.equinox.p2.engine.*;
 
 public class Install extends Phase {
 
-	final static class BeforeInstallEventAction implements ITouchpointAction {
+	final static class BeforeInstallEventAction extends ProvisioningAction {
 		public IStatus execute(Map parameters) {
 			Profile profile = (Profile) parameters.get("profile");
 			String phaseId = (String) parameters.get("phaseId");
-			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
 			Operand operand = (Operand) parameters.get("operand");
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
@@ -32,18 +32,18 @@ public class Install extends Phase {
 		public IStatus undo(Map parameters) {
 			Profile profile = (Profile) parameters.get("profile");
 			String phaseId = (String) parameters.get("phaseId");
-			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
 			Operand operand = (Operand) parameters.get("operand");
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
 	}
 
-	final static class AfterInstallEventAction implements ITouchpointAction {
+	final static class AfterInstallEventAction extends ProvisioningAction {
 		public IStatus execute(Map parameters) {
 			Profile profile = (Profile) parameters.get("profile");
 			String phaseId = (String) parameters.get("phaseId");
-			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
 			Operand operand = (Operand) parameters.get("operand");
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
@@ -52,7 +52,7 @@ public class Install extends Phase {
 		public IStatus undo(Map parameters) {
 			Profile profile = (Profile) parameters.get("profile");
 			String phaseId = (String) parameters.get("phaseId");
-			ITouchpoint touchpoint = (ITouchpoint) parameters.get("touchpoint");
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
 			Operand operand = (Operand) parameters.get("operand");
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
@@ -70,13 +70,13 @@ public class Install extends Phase {
 	//
 	//		monitor.subTask(NLS.bind(Messages.Engine_Installing_IU, unit.getId()));
 	//
-	//		ITouchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
+	//		Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
 	//		if (!touchpoint.supports(PHASE_ID))
 	//			return Status.OK_STATUS;
 	//
 	//		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 	//
-	//		ITouchpointAction[] actions = getActions();
+	//		ProvisioningAction[] actions = getActions();
 	//		MultiStatus result = new MultiStatus();
 	//		for (int i = 0; i < actions.length; i++) {
 	//			IStatus actionStatus = (IStatus) actions[i].execute();
@@ -96,10 +96,10 @@ public class Install extends Phase {
 		return false;
 	}
 
-	protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {
+	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Profile profile, Operand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Installing_IU, unit.getId()));
 
-		ITouchpointAction[] actions = new ITouchpointAction[3];
+		ProvisioningAction[] actions = new ProvisioningAction[3];
 		actions[0] = new BeforeInstallEventAction();
 		actions[1] = touchpoint.getAction("install");
 		actions[2] = new AfterInstallEventAction();

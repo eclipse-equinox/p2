@@ -41,9 +41,9 @@ public class SizingPhase extends Phase {
 	//			// TODO: Need do progress reporting
 	//
 	//			// Ask all the touchpoints if they need to download an artifact
-	//			ITouchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
+	//			Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
 	//			if (touchpoint.supports(TP_DATA)) {
-	//				ITouchpointAction[] actions = touchpoint.getActions(TP_DATA, profile, operand);
+	//				ProvisioningAction[] actions = touchpoint.getActions(TP_DATA, profile, operand);
 	//				for (int i = 0; i < actions.length; i++) {
 	//					Object result = actions[i].execute();
 	//					if (result != null) {
@@ -96,9 +96,9 @@ public class SizingPhase extends Phase {
 		return dlSize;
 	}
 
-	protected ITouchpointAction[] getActions(ITouchpoint touchpoint, Profile profile, Operand currentOperand) {
-		ITouchpointAction action = touchpoint.getAction("collect");
-		return new ITouchpointAction[] {action};
+	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Profile profile, Operand currentOperand) {
+		ProvisioningAction action = touchpoint.getAction("collect");
+		return new ProvisioningAction[] {action};
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
