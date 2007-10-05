@@ -60,12 +60,11 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 				else
 					baseDir = fwConfigLoc.getParentFile();
 			else {
-				// TODO LauncherDate might have to have flag to show 
-				// whether FwConfigLocation represents directory or file. 
-				//				if (fwConfigLoc.getName().indexOf(".") == -1)
-				//					baseDir = fwConfigLoc;
-				//				else
-				baseDir = fwConfigLoc.getParentFile();
+				// TODO We need to decide whether launcher data configLocation is the location of a file or a directory 
+				if (fwConfigLoc.getName().endsWith(".ini"))
+					baseDir = fwConfigLoc.getParentFile();
+				else
+					baseDir = fwConfigLoc;
 			}
 		}
 		try {
