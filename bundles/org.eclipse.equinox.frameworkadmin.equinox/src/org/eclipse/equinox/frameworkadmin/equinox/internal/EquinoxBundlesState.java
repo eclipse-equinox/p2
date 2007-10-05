@@ -400,7 +400,7 @@ public class EquinoxBundlesState implements BundlesState {
 		if (fwJar == null) {
 			fwJar = getFwJar(launcherData, configData, false);
 			if (fwJar == null) {
-				throw new IllegalStateException("fwJar cannot be set.");
+				throw new IllegalStateException("Framework JAR location has not been set");
 			}
 			if (launcherData.getFwJar() != null) {
 				launcherData.setFwJar(fwJar);
