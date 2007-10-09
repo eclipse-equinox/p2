@@ -40,7 +40,7 @@ public class BlobStore {
 	public BlobStore(URL store, int limit) {
 		Assert.isNotNull(store);
 		this.store = store;
-		fileBased = "file:".equalsIgnoreCase(store.getProtocol()); //$NON-NLS-1$
+		fileBased = "file".equalsIgnoreCase(store.getProtocol()); //$NON-NLS-1$
 		if (fileBased)
 			Assert.isTrue(new File(store.getPath()).isDirectory());
 		Assert.isTrue(limit == 256 || limit == 128 || limit == 64 || limit == 32 || limit == 16 || limit == 8 || limit == 4 || limit == 2 || limit == 1);
