@@ -71,21 +71,21 @@ public class PickerTest extends TestCase {
 
 		//in middle of range
 		RequiredCapability[] required = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,6.0)"), null);
-		IInstallableUnit[][] result = picker.findInstallableUnit(null, null, required, false);
+		IInstallableUnit[] result = picker.findInstallableUnit(null, null, required, false)[1];
 		assertEquals("1.0", 1, result.length);
 		assertEquals("1.1", unitVersion5, result[0]);
 
 		//on lower bound
 		required = createRequiredCapabilities("test.capability", "test", new VersionRange("[5.0,6.0)"), null);
-		result = picker.findInstallableUnit(null, null, required, false);
-		assertEquals("1.0", 1, result[0].length + result[1].length);
-		assertEquals("1.1", unitVersion5, result[1][0]);
+		result = picker.findInstallableUnit(null, null, required, false)[1];
+		assertEquals("1.0", 1, result.length);
+		assertEquals("1.1", unitVersion5, result[0]);
 
 		//on upper bound
 		required = createRequiredCapabilities("test.capability", "test", new VersionRange("[1.0,5.0]"), null);
-		result = picker.findInstallableUnit(null, null, required, false);
-		assertEquals("1.0", 1, result[0].length + result[1].length);
-		assertEquals("1.1", unitVersion5, result[1][0]);
+		result = picker.findInstallableUnit(null, null, required, false)[1];
+		assertEquals("1.0", 1, result.length);
+		assertEquals("1.1", unitVersion5, result[0]);
 	}
 
 	/**
