@@ -16,14 +16,10 @@ import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
 
 /**
- * IRepositoryInfo defines common properties that may be provided by various kinds
- * of repositories.
+ * Base interface that defines common properties that may be provided by 
+ * various kinds of repositories.
  * <p>
- * Clients may implement this interface.
- * </p>
- * TODO: This should be an abstract class so methods can be added in the future
- *       without breaking clients.
- * TODO: Do we want additional properties - time zone, copyrights, security etc.. 
+ * This interface is not intended to be implemented by clients.
  */
 public interface IRepository extends IAdaptable {
 	// The property key for a boolean property indicating that the repository
