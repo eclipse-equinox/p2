@@ -41,11 +41,8 @@ public class BlobStore {
 		Assert.isNotNull(store);
 		this.store = store;
 		fileBased = "file".equalsIgnoreCase(store.getProtocol()); //$NON-NLS-1$
-		if (fileBased) {
-			File file = new File(store.getPath());
-			if (file.exists())
-				Assert.isTrue(file.isDirectory());
-		}
+		if (fileBased)
+			Assert.isTrue(!new File(store.getPath()).isFile());
 		Assert.isTrue(limit == 256 || limit == 128 || limit == 64 || limit == 32 || limit == 16 || limit == 8 || limit == 4 || limit == 2 || limit == 1);
 		mask = (byte) (limit - 1);
 	}
