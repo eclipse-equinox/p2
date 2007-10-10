@@ -12,6 +12,7 @@
 package org.eclipse.equinox.p2.ui;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -19,11 +20,13 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * Generic provisioning UI utility methods
+ * Generic provisioning UI utility and policy methods.
  * 
  * @since 3.4
  */
 public class ProvUI {
+
+	private static int[] iuColumnConfig = new int[] {IUDetailsLabelProvider.COLUMN_ID, IUDetailsLabelProvider.COLUMN_VERSION};
 
 	/**
 	 * Make an <code>IAdaptable</code> that adapts to the specified shell,
@@ -77,5 +80,17 @@ public class ProvUI {
 		}
 		IStatus status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, t);
 		StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
+	}
+
+	public static void reportStatus(IStatus status) {
+		StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
+	}
+
+	public static int[] getIUDetailsColumns() {
+		return iuColumnConfig;
+	}
+
+	public static void setIUDetailsColumns(int[] columnConfig) {
+		iuColumnConfig = columnConfig;
 	}
 }

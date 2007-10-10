@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -37,7 +38,7 @@ public class IUDetailsLabelProvider extends LabelProvider implements ITableLabel
 	final static int PRIMARY_COLUMN = 0;
 	final static String BLANK = ""; //$NON-NLS-1$
 
-	private int[] columnConfig = {COLUMN_ID, COLUMN_VERSION};
+	private int[] columnConfig = ProvUI.getIUDetailsColumns();
 
 	public IUDetailsLabelProvider() {
 		// use default column config
