@@ -8,26 +8,19 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.installer;
+package org.eclipse.equinox.internal.p2.installer.ui;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.installer.InstallAdvisor;
-import org.eclipse.equinox.p2.installer.IInstallDescription;
-import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.dialogs.ProgressMonitorDialog;
-import org.eclipse.jface.operation.IRunnableContext;
-import org.eclipse.jface.window.Window;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.installer.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 /**
- * Install context that creates a GUI and interacts with a user.
+ * Install context that creates a simple SWT-based UI and interacts with a user.
  */
-public class GraphicalInstallAdvisor extends InstallAdvisor {
-	private ProgressMonitorDialog window;
+public class SWTInstallAdvisor extends InstallAdvisor {
+	private InstallDialog dialog;
 	private boolean stopped = false;
 	private boolean started = false;
 
@@ -38,39 +31,39 @@ public class GraphicalInstallAdvisor extends InstallAdvisor {
 		Display display = Display.getCurrent();
 		if (display == null)
 			display = new Display();
-		Shell shell = new Shell(display);
-		shell.setBounds(300, 200, 600, 400);
-		window = new ProgressMonitorDialog(shell);
+		dialog = new InstallDialog();
 	}
 
 	public synchronized void stop() {
 		if (stopped || !started)
 			return;
 		stopped = true;
-		final Window activeWindow = window;
-		if (activeWindow == null)
+		final InstallDialog activeDialog = dialog;
+		if (activeDialog == null)
 			return;
 		//clear the window now, so the reference is gone no matter what happens during cleanup
-		window = null;
-		final Display display = activeWindow.getShell().getDisplay();
+		dialog = null;
+		final Display display = activeDialog.getDisplay();
 		if (display == null || display.isDisposed())
 			return;
 		display.syncExec(new Runnable() {
 			public void run() {
-				activeWindow.close();
+				activeDialog.close();
 			}
 		});
 		display.dispose();
 	}
 
-	public IRunnableContext getRunnableContext() {
-		return window;
-	}
-
-	public String getInstallLocation(IInstallDescription description) {
-		DirectoryDialog dialog = new DirectoryDialog(window.getShell());
-		dialog.setMessage(NLS.bind("Where do you want to install {0}?", description.getProductName()));
-		return dialog.open();
+	public InstallDescription prepareInstallDescription(InstallDescription description) {
+		if (description.getInstallLocation() == null) {
+			DirectoryDialog dirDialog = new DirectoryDialog(dialog.getShell());
+			dirDialog.setMessage(NLS.bind("Where do you want to install {0}?", description.getProductName()));
+			String location = dirDialog.open();
+			if (location == null)
+				throw new OperationCanceledException();
+			description.setInstallLocation(new Path(location));
+		}
+		return description;
 	}
 
 	public void reportStatus(IStatus status) {
@@ -78,12 +71,22 @@ public class GraphicalInstallAdvisor extends InstallAdvisor {
 			case IStatus.OK :
 				break;
 			case IStatus.INFO :
-				MessageDialog.openInformation(window.getShell(), null, status.getMessage());
+				dialog.setMessage(status.getMessage());
 				break;
 			case IStatus.WARNING :
 			case IStatus.ERROR :
-				ErrorDialog.openError(window.getShell(), null, null, status);
+				dialog.setMessage(status.getMessage());
+				dialog.promptForClose();
+				break;
+			case IStatus.CANCEL :
+				dialog.setMessage("Install canceled");
+				dialog.promptForClose();
+				break;
 		}
+	}
+
+	public IStatus performInstall(IInstallOperation operation) {
+		return dialog.run(operation);
 	}
 
 }

@@ -10,15 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import java.lang.reflect.InvocationTargetException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.p2.installer.InstallAdvisor;
-import org.eclipse.equinox.p2.installer.IInstallDescription;
-import org.eclipse.jface.operation.IRunnableContext;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.equinox.p2.installer.*;
 
 /**
  * A headless install advisor that prints everything to a log.
@@ -60,19 +54,13 @@ public class HeadlessInstallAdvisor extends InstallAdvisor {
 		}
 	}
 
-	class HeadlessRunnableContext implements IRunnableContext {
-		public void run(boolean fork, boolean cancelable, IRunnableWithProgress runnable) throws InvocationTargetException, InterruptedException {
-			runnable.run(new HeadlessProgressMonitor());
-		}
-	}
-
-	public String getInstallLocation(IInstallDescription description) {
+	public InstallDescription prepareInstallDescription(InstallDescription description) {
 		// The headless advisor has no further input on the install location.
-		return null;
+		return description;
 	}
 
-	public IRunnableContext getRunnableContext() {
-		return new HeadlessRunnableContext();
+	public IStatus performInstall(IInstallOperation operation) {
+		return operation.install(new HeadlessProgressMonitor());
 	}
 
 	public void reportStatus(IStatus status) {

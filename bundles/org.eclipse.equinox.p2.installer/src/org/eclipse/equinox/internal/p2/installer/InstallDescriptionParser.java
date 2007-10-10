@@ -17,7 +17,7 @@ import java.net.URL;
 import java.util.Properties;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.equinox.p2.installer.IInstallDescription;
+import org.eclipse.equinox.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.osgi.framework.Version;
 
@@ -42,7 +42,7 @@ public class InstallDescriptionParser {
 	 * will be closed prior to this method returning, whether the description is
 	 * read successfully or not.
 	 */
-	public static IInstallDescription loadFromProperties(InputStream stream, SubMonitor monitor) throws IOException {
+	public static InstallDescription loadFromProperties(InputStream stream, SubMonitor monitor) throws IOException {
 		BufferedInputStream in = null;
 		try {
 			Properties properties = new Properties();

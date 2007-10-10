@@ -10,43 +10,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
+import java.util.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.installer.IInstallDescription;
+import org.eclipse.equinox.p2.installer.IInstallOperation;
+import org.eclipse.equinox.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.Version;
+import org.osgi.framework.*;
 
 /**
  * This operation performs installation or update of an Eclipse-based product.
  */
-public class InstallUpdateProductOperation implements IRunnableWithProgress {
+public class InstallUpdateProductOperation implements IInstallOperation {
 
 	/**
 	 * This constant comes from value of FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME.
@@ -62,7 +48,7 @@ public class InstallUpdateProductOperation implements IRunnableWithProgress {
 	private IArtifactRepositoryManager artifactRepoMan;
 	private BundleContext bundleContext;
 	private IDirector director;
-	private final IInstallDescription installDescription;
+	private final InstallDescription installDescription;
 	private boolean isInstall = true;
 	private IMetadataRepositoryManager metadataRepoMan;
 	private IProfileRegistry profileRegistry;
@@ -70,7 +56,7 @@ public class InstallUpdateProductOperation implements IRunnableWithProgress {
 
 	private ArrayList serviceReferences = new ArrayList();
 
-	public InstallUpdateProductOperation(BundleContext context, IInstallDescription description) {
+	public InstallUpdateProductOperation(BundleContext context, InstallDescription description) {
 		this.bundleContext = context;
 		this.installDescription = description;
 	}
@@ -165,7 +151,7 @@ public class InstallUpdateProductOperation implements IRunnableWithProgress {
 	/**
 	 * Performs the actual product install or update.
 	 */
-	private void install(SubMonitor monitor) throws CoreException {
+	private void doInstall(SubMonitor monitor) throws CoreException {
 		prepareMetadataRepository();
 		prepareArtifactRepository();
 		Profile p = createProfile();
@@ -291,10 +277,11 @@ public class InstallUpdateProductOperation implements IRunnableWithProgress {
 		return launcherName + output.toString();
 	}
 
+
 	/* (non-Javadoc)
-	 * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.p2.installer.IInstallOperation#install(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void run(IProgressMonitor pm) throws InvocationTargetException {
+	public IStatus install(IProgressMonitor pm) {
 		SubMonitor monitor = SubMonitor.convert(pm, "Preparing to install", 100);
 		try {
 			try {
@@ -302,7 +289,7 @@ public class InstallUpdateProductOperation implements IRunnableWithProgress {
 				isInstall = getProfile() == null;
 				String taskName = isInstall ? "Installing {0}" : "Updating {0}";
 				monitor.setTaskName(NLS.bind(taskName, installDescription.getProductName()));
-				install(monitor);
+				doInstall(monitor);
 				result = new Status(IStatus.OK, InstallerActivator.PI_INSTALLER, isInstall ? "Install complete" : "Update complete", null);
 				monitor.setTaskName("Some final housekeeping");
 				if (isInstall)
@@ -311,10 +298,10 @@ public class InstallUpdateProductOperation implements IRunnableWithProgress {
 				postInstall();
 			}
 		} catch (CoreException e) {
-			this.result = e.getStatus();
-			throw new InvocationTargetException(e);
+			result = e.getStatus();
 		} finally {
 			monitor.done();
 		}
+		return result;
 	}
 }

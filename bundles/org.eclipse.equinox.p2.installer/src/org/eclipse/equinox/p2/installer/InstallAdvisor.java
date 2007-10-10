@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.installer;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jface.operation.IRunnableContext;
+import org.eclipse.core.runtime.*;
 
 /**
  * The install advisor helps to make decisions during install, and is the conduit
@@ -19,13 +18,25 @@ import org.eclipse.jface.operation.IRunnableContext;
  */
 public abstract class InstallAdvisor {
 	/**
-	 * Updates a local file system location in which to install. Returns <code>null</code>
-	 * if no location could be determined
-	 * @return The install location.
+	 * Allows the advisor to modify or fill in missing values in the install description.  
+	 * @param description The initial install description
+	 * @return The install description to be used for the install.
+	 * @exception OperationCanceledException if the install should be canceled.
 	 */
-	public abstract String getInstallLocation(IInstallDescription description);
+	public abstract InstallDescription prepareInstallDescription(InstallDescription description);
 
-	public abstract IRunnableContext getRunnableContext();
+	/**
+	 * Performs the actual install. The advisor is responsible for handling progress
+	 * monitoring and cancelation. The advisor may perform the install in
+	 * another thread, but must block the calling thread until the install
+	 * completes.
+	 * 
+	 * @param operation The install operation to run
+	 * @return IStatus The result of the install operation. This is typically
+	 * just the return value of {@link IInstallOperation#install(IProgressMonitor)},
+	 * but the advisor may alter the result status if desired.
+	 */
+	public abstract IStatus performInstall(IInstallOperation operation);
 
 	/**
 	 * Reports some result information to the context.  The status may be

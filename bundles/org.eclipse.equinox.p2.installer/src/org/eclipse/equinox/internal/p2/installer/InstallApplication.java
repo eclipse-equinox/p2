@@ -14,17 +14,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.p2.installer.IInstallDescription;
 import org.eclipse.equinox.p2.installer.InstallAdvisor;
+import org.eclipse.equinox.p2.installer.InstallDescription;
 
 /**
  * This is a simple installer application built using P2.  The application must be given
@@ -67,21 +63,14 @@ public class InstallApplication implements IApplication {
 	/**
 	 * Loads the install description, filling in any missing data if needed.
 	 */
-	private IInstallDescription computeInstallDescription() throws CoreException {
+	private InstallDescription computeInstallDescription() throws CoreException {
 		InstallDescription description = fetchInstallDescription(SubMonitor.convert(null));
-		//prompt user for install location if the description did not provide one
-		if (description.getInstallLocation() == null) {
-			String location = advisor.getInstallLocation(description);
-			if (location == null)
-				return null;
-			description.setInstallLocation(new Path(location));
-		}
-		return description;
+		return advisor.prepareInstallDescription(description);
 	}
 
 	private InstallAdvisor createInstallContext() {
 		//TODO create an appropriate advisor depending on whether headless or GUI install is desired.
-		InstallAdvisor result = new GraphicalInstallAdvisor();
+		InstallAdvisor result = new SWTInstallAdvisor();
 		result.start();
 		return result;
 	}
@@ -123,7 +112,7 @@ public class InstallApplication implements IApplication {
 		advisor.reportStatus(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, message));
 	}
 
-	private void launchProduct(IInstallDescription description) throws CoreException {
+	private void launchProduct(InstallDescription description) throws CoreException {
 		IPath toRun = description.getInstallLocation().append(description.getLauncherName());
 		try {
 			Runtime.getRuntime().exec(toRun.toString());
@@ -139,16 +128,12 @@ public class InstallApplication implements IApplication {
 		try {
 			advisor = createInstallContext();
 			//fetch description of what to install
-			IInstallDescription description = null;
+			InstallDescription description = null;
 			try {
 				description = computeInstallDescription();
-				if (description == null) {
-					info("Install aborted");
-					return IApplication.EXIT_OK;
-				}
 				//perform long running install operation
 				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(InstallerActivator.getDefault().getContext(), description);
-				advisor.getRunnableContext().run(true, true, operation);
+				advisor.performInstall(operation);
 				IStatus result = operation.getResult();
 				if (!result.isOK()) {
 					info(result.getMessage());
@@ -164,8 +149,8 @@ public class InstallApplication implements IApplication {
 					//TODO present the user an option to immediately start the product
 					info(result.getMessage());
 				}
-			} catch (InterruptedException e) {
-				//Nothing to do if the install was canceled
+			} catch (OperationCanceledException e) {
+				advisor.reportStatus(Status.CANCEL_STATUS);
 			} catch (Exception e) {
 				IStatus error = getStatus(e);
 				advisor.reportStatus(error);
