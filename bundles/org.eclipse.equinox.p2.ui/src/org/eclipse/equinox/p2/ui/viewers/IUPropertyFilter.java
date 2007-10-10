@@ -33,17 +33,24 @@ public class IUPropertyFilter extends ViewerFilter {
 	}
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		IInstallableUnit iu = null;
-		if (element instanceof IInstallableUnit) {
-			iu = (IInstallableUnit) element;
-		} else if (element instanceof IAdaptable) {
-			iu = (IInstallableUnit) ((IAdaptable) element).getAdapter(IInstallableUnit.class);
-		}
+		IInstallableUnit iu = getIU(element);
 		if (iu == null)
 			return false;
-		String prop = iu.getProperty(propertyName);
+		String prop = getProperty(iu, parentElement, propertyName);
 		if (prop == null)
 			return false;
 		return prop.equals(propertyValue);
+	}
+
+	protected IInstallableUnit getIU(Object element) {
+		if (element instanceof IInstallableUnit)
+			return (IInstallableUnit) element;
+		if (element instanceof IAdaptable)
+			return (IInstallableUnit) ((IAdaptable) element).getAdapter(IInstallableUnit.class);
+		return null;
+	}
+
+	protected String getProperty(IInstallableUnit iu, Object parentElement, String key) {
+		return iu.getProperty(key);
 	}
 }

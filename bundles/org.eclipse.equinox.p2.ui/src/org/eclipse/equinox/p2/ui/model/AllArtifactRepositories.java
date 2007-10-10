@@ -49,7 +49,7 @@ public class AllArtifactRepositories extends ProvElement {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getParent(java.lang.Object)
+	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getParent(java.lang.Object)
 	 */
 	public Object getParent(Object o) {
 		return null;

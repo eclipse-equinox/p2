@@ -1,0 +1,72 @@
+/*******************************************************************************
+ * Copyright (c) 2007 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.equinox.p2.ui.model;
+
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUIImages;
+
+/**
+ * Element wrapper class for IU's that are available for installation.
+ * Used instead of the plain IU when additional information such as sizing
+ * info is necessary.
+ * 
+ * @since 3.4
+ */
+public class AvailableIUElement extends ProvElement {
+
+	int size;
+	IInstallableUnit iu;
+
+	public AvailableIUElement(IInstallableUnit iu, int size) {
+		this.size = size;
+		this.iu = iu;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getImageID(java.lang.Object)
+	 */
+	protected String getImageID(Object obj) {
+		return ProvUIImages.IMG_IU;
+	}
+
+	public String getLabel(Object o) {
+		return iu.getId();
+	}
+
+	protected Object[] fetchChildren(Object o, IProgressMonitor monitor, IAdaptable uiInfo) {
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getParent(java.lang.Object)
+	 */
+	public Object getParent(Object o) {
+		return null;
+	}
+
+	public Object getAdapter(Class adapter) {
+		if (adapter == IInstallableUnit.class)
+			return iu;
+		if (adapter == InstallableUnit.class && iu instanceof InstallableUnit)
+			return iu;
+		return super.getAdapter(adapter);
+	}
+
+	public int getSize() {
+		return size;
+	}
+}
