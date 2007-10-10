@@ -66,23 +66,14 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 		return description;
 	}
 
-	public void reportStatus(IStatus status) {
-		switch (status.getSeverity()) {
-			case IStatus.OK :
-				break;
-			case IStatus.INFO :
-				dialog.setMessage(status.getMessage());
-				break;
-			case IStatus.WARNING :
-			case IStatus.ERROR :
-				dialog.setMessage(status.getMessage());
-				dialog.promptForClose();
-				break;
-			case IStatus.CANCEL :
-				dialog.setMessage("Install canceled");
-				dialog.promptForClose();
-				break;
+	public void setResult(IStatus status) {
+		String message;
+		if (status.getSeverity() == IStatus.CANCEL) {
+			message = "Install canceled";
+		} else {
+			message = status.getMessage();
 		}
+		dialog.promptForClose(message);
 	}
 
 	public IStatus performInstall(IInstallOperation operation) {

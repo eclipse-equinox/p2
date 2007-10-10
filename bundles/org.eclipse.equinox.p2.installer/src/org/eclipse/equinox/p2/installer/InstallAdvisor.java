@@ -42,7 +42,7 @@ public abstract class InstallAdvisor {
 	 * Reports some result information to the context.  The status may be
 	 * information, warning, or an error.
 	 */
-	public abstract void reportStatus(IStatus status);
+	public abstract void setResult(IStatus status);
 
 	/**
 	 * Initializes the install advisor.  This method must be called before calling any 

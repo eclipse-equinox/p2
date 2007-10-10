@@ -22,7 +22,7 @@ public class HeadlessInstallAdvisor extends InstallAdvisor {
 		private boolean canceled;
 
 		public void beginTask(String name, int totalWork) {
-			reportStatus(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, name));
+			setResult(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, name));
 		}
 
 		public void done() {
@@ -42,7 +42,7 @@ public class HeadlessInstallAdvisor extends InstallAdvisor {
 		}
 
 		public void setTaskName(String name) {
-			reportStatus(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, name));
+			setResult(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, name));
 		}
 
 		public void subTask(String name) {
@@ -63,7 +63,7 @@ public class HeadlessInstallAdvisor extends InstallAdvisor {
 		return operation.install(new HeadlessProgressMonitor());
 	}
 
-	public void reportStatus(IStatus status) {
+	public void setResult(IStatus status) {
 		LogHelper.log(status);
 	}
 

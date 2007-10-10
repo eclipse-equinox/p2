@@ -105,13 +105,6 @@ public class InstallApplication implements IApplication {
 		return new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "An error occurred during installation", cause);
 	}
 
-	/**
-	 * Sends an informational message to the install context.
-	 */
-	private void info(String message) {
-		advisor.reportStatus(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, message));
-	}
-
 	private void launchProduct(InstallDescription description) throws CoreException {
 		IPath toRun = description.getInstallLocation().append(description.getLauncherName());
 		try {
@@ -136,7 +129,7 @@ public class InstallApplication implements IApplication {
 				advisor.performInstall(operation);
 				IStatus result = operation.getResult();
 				if (!result.isOK()) {
-					info(result.getMessage());
+					advisor.setResult(result);
 					return IApplication.EXIT_OK;
 				}
 				//just exit after a successful update
@@ -147,13 +140,13 @@ public class InstallApplication implements IApplication {
 				else {
 					//notify user that the product was installed
 					//TODO present the user an option to immediately start the product
-					info(result.getMessage());
+					advisor.setResult(result);
 				}
 			} catch (OperationCanceledException e) {
-				advisor.reportStatus(Status.CANCEL_STATUS);
+				advisor.setResult(Status.CANCEL_STATUS);
 			} catch (Exception e) {
 				IStatus error = getStatus(e);
-				advisor.reportStatus(error);
+				advisor.setResult(error);
 				LogHelper.log(error);
 			}
 			return IApplication.EXIT_OK;

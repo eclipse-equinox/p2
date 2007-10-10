@@ -16,8 +16,7 @@ import org.eclipse.equinox.p2.installer.IInstallOperation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
 /**
@@ -59,12 +58,14 @@ public class InstallDialog {
 	 * A progress monitor implementation that asynchronously updates the progress bar.
 	 */
 	class Monitor implements IProgressMonitor {
+
 		double totalWork, usedWork;
-		boolean canceled = false, done = false;
-		String taskName, subTaskName;
+		boolean canceled = false, running = false;
+		String taskName = "", subTaskName = ""; //$NON-NLS-1$//$NON-NLS-2$
 
 		public void beginTask(final String name, final int work) {
 			totalWork = work;
+			running = true;
 			update();
 		}
 
@@ -74,9 +75,14 @@ public class InstallDialog {
 				return;
 			display.asyncExec(new Runnable() {
 				public void run() {
+					Shell theShell = getShell();
+					if (theShell == null || theShell.isDisposed())
+						return;
 					taskLabel.setText(taskName);
 					subTaskLabel.setText(subTaskName);
-					progress.setVisible(!done);
+					if (progress.isDisposed())
+						return;
+					progress.setVisible(running);
 					progress.setMaximum(1000);
 					progress.setMinimum(0);
 					int value = (int) (usedWork / totalWork * 1000);
@@ -87,7 +93,8 @@ public class InstallDialog {
 		}
 
 		public void done() {
-			done = true;
+			running = false;
+			usedWork = totalWork;
 			update();
 		}
 
@@ -105,12 +112,12 @@ public class InstallDialog {
 		}
 
 		public void setTaskName(String name) {
-			taskName = name;
+			taskName = name == null ? "" : name; //$NON-NLS-1$
 			update();
 		}
 
 		public void subTask(String name) {
-			subTaskName = name;
+			subTaskName = name == null ? "" : name; //$NON-NLS-1$
 			update();
 		}
 
@@ -135,23 +142,41 @@ public class InstallDialog {
 	 * Creates and opens a progress monitor dialog.
 	 */
 	public InstallDialog() {
-		shell = new Shell(SWT.APPLICATION_MODAL);
+		shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		shell.setBounds(300, 200, 600, 400);
+		shell.setText("Installer");
+		shell.setLayout(new FillLayout());
 		contents = new Composite(shell, SWT.NONE);
-		contents.setLayout(new RowLayout(SWT.VERTICAL));
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 15;
+		layout.marginHeight = 15;
+		contents.setLayout(layout);
 		taskLabel = new Label(contents, SWT.WRAP | SWT.LEFT);
+		taskLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		progress = new ProgressBar(contents, SWT.HORIZONTAL | SWT.SMOOTH);
+		progress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		progress.setVisible(false);
 		subTaskLabel = new Label(contents, SWT.WRAP | SWT.LEFT);
+		subTaskLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		//spacer
+		Label spacer = new Label(contents, SWT.NONE);
+		spacer.setLayoutData(new GridData(GridData.FILL_BOTH));
+
 		closeButton = new Button(contents, SWT.PUSH);
-		closeButton.setLayoutData(new RowData(60, 20));
-		closeButton.setText("Ok");
+		GridData data = new GridData(80, SWT.DEFAULT);
+		data.verticalAlignment = SWT.END;
+		data.horizontalAlignment = SWT.RIGHT;
+		closeButton.setLayoutData(data);
+		closeButton.setText("OK");
 		closeButton.setVisible(false);
 		closeButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				setOkToClose();
 			}
 		});
+		shell.layout();
+		shell.open();
 	}
 
 	public Display getDisplay() {
@@ -172,13 +197,6 @@ public class InstallDialog {
 
 	synchronized void setOkToClose() {
 		okToClose = true;
-	}
-
-	/**
-	 * Shows a message in the dialog.
-	 */
-	public void setMessage(String message) {
-		taskLabel.setText(message);
 	}
 
 	/**
@@ -206,9 +224,17 @@ public class InstallDialog {
 				} catch (Error t) {
 					result.failed(t);
 				} finally {
-					result.done();
-					//kick the event loop
 					Display display = getDisplay();
+					//ensure all events from the operation have run
+					if (display != null) {
+						display.syncExec(new Runnable() {
+							public void run() {
+								//do nothing
+							}
+						});
+					}
+					result.done();
+					//wake the event loop
 					if (display != null)
 						display.wake();
 				}
@@ -226,13 +252,16 @@ public class InstallDialog {
 	/**
 	 * Asks the user to close the dialog, and returns once the dialog is closed.
 	 */
-	public void promptForClose() {
+	public void promptForClose(String message) {
 		Display display = getDisplay();
 		if (display == null)
 			return;
+		taskLabel.setText(message);
+		subTaskLabel.setText(""); //$NON-NLS-1$
+		progress.setVisible(false);
 		closeButton.setVisible(true);
 		while (!canClose()) {
-			while (!display.readAndDispatch())
+			if (!display.readAndDispatch())
 				display.sleep();
 		}
 

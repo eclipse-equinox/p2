@@ -28,15 +28,12 @@
       </win>
    </launcher>
 
-
    <vm>
    </vm>
 
    <plugins>
       <plugin id="com.thoughtworks.xstream"/>
-      <plugin id="org.eclipse.core.commands"/>
       <plugin id="org.eclipse.core.jobs"/>
-      <plugin id="org.eclipse.core.runtime.compatibility.auth"/>
       <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.ecf"/>
       <plugin id="org.eclipse.ecf.filetransfer"/>
@@ -48,22 +45,21 @@
       <plugin id="org.eclipse.equinox.frameworkadmin.equinox"/>
       <plugin id="org.eclipse.equinox.launcher"/>
       <plugin id="org.eclipse.equinox.launcher.win32.win32.x86" fragment="true"/>
-      <plugin id="org.eclipse.equinox.p2.installer"/>
-      <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.p2.artifact.repository"/>
       <plugin id="org.eclipse.equinox.p2.core"/>
       <plugin id="org.eclipse.equinox.p2.director"/>
       <plugin id="org.eclipse.equinox.p2.download"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
       <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
+      <plugin id="org.eclipse.equinox.p2.installer"/>
       <plugin id="org.eclipse.equinox.p2.metadata"/>
       <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.eclipse"/>
       <plugin id="org.eclipse.equinox.p2.touchpoint.natives"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
-      <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.swt"/>

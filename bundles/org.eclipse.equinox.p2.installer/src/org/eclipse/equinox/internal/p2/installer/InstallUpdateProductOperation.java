@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import java.io.*;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
@@ -39,11 +39,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * This profile property is being used as a short term solution for branding of the launcher.
 	 */
 	private static final String PROP_LAUNCHER_NAME = "org.eclipse.equinox.frameworkhandler.launcher.name";
-
-	/**
-	 * Constant for config folder property copied from EclipseTouchpoint.CONFIG_FOLDER.
-	 */
-	private final static String CONFIG_FOLDER = "eclipse.configurationFolder";
 
 	private IArtifactRepositoryManager artifactRepoMan;
 	private BundleContext bundleContext;
@@ -111,7 +106,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		if (id == null)
 			throw fail("Installable unit id not specified");
 		VersionRange range = VersionRange.emptyRange;
-		if (version != null)
+		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
 		IMetadataRepository[] repos = metadataRepoMan.getKnownRepositories();
 		for (int i = 0; i < repos.length; i++) {
@@ -198,6 +193,11 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void preInstall() throws CoreException {
+		//setup system properties
+		if (System.getProperty("eclipse.p2.data.area") == null) //$NON-NLS-1$
+			System.setProperty("eclipse.p2.data.area", installDescription.getInstallLocation().append("installer").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+		if (System.getProperty("eclipse.p2.cache") == null) //$NON-NLS-1$
+			System.setProperty("eclipse.p2.cache", installDescription.getInstallLocation().toString()); //$NON-NLS-1$
 		//obtain required services
 		serviceReferences.clear();
 		director = (IDirector) getService(IDirector.class.getName());
@@ -218,66 +218,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			metadataRepoMan.loadRepository(metadataRepo, null);
 	}
 
-	/**
-	 * Registers information about the agent with the installed product,
-	 * so it knows how to kick the agent to perform updates.
-	 */
-	private void registerAgent() throws CoreException {
-		Profile profile = getProfile();
-		File config = null;
-		String configString = profile.getValue(CONFIG_FOLDER);
-		if (configString == null)
-			config = new File(new File(profile.getValue(Profile.PROP_INSTALL_FOLDER)), "configuration");
-		else
-			config = new File(configString);
-		File agentFolder = new File(config, "org.eclipse.equinox.p2.installer");
-		agentFolder.mkdirs();
-		File agentFile = new File(agentFolder, "agent.properties");
-
-		String commands = computeAgentCommandLine();
-
-		Properties agentData = new Properties();
-		agentData.put("eclipse.commands", commands);
-		OutputStream out = null;
-		try {
-			out = new BufferedOutputStream(new FileOutputStream(agentFile));
-			agentData.store(out, commands);
-		} catch (IOException e) {
-			throw fail("Error writing agent configuration data", e);
-		} finally {
-			try {
-				if (out != null)
-					out.close();
-			} catch (IOException e) {
-				//ignore
-			}
-		}
-	}
-
-	/**
-	 * Returns the command line string that will launch the agent.
-	 */
-	private String computeAgentCommandLine() throws CoreException {
-		String commands = System.getProperty("eclipse.commands");
-		StringBuffer output = new StringBuffer(commands.length());
-		StringTokenizer tokens = new StringTokenizer(commands, "\n");
-		String launcherName = null;
-		while (tokens.hasMoreTokens()) {
-			String next = tokens.nextToken();
-			//discard the launcher token
-			if ("-launcher".equals(next) && tokens.hasMoreTokens()) {
-				launcherName = tokens.nextToken();
-			} else {
-				output.append(' ');
-				output.append(next);
-			}
-		}
-		if (launcherName == null)
-			throw fail("Unable to determine agent launcher name");
-		return launcherName + output.toString();
-	}
-
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.installer.IInstallOperation#install(org.eclipse.core.runtime.IProgressMonitor)
 	 */
@@ -292,8 +232,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 				doInstall(monitor);
 				result = new Status(IStatus.OK, InstallerActivator.PI_INSTALLER, isInstall ? "Install complete" : "Update complete", null);
 				monitor.setTaskName("Some final housekeeping");
-				if (isInstall)
-					registerAgent();
 			} finally {
 				postInstall();
 			}
