@@ -24,9 +24,9 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
-public class BecomeAction extends ProfileModificationAction {
+public class RollbackAction extends ProfileModificationAction {
 
-	public BecomeAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
+	public RollbackAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
 		super(ProvUI.ROLLBACK_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
 		setToolTipText(ProvUI.ROLLBACK_COMMAND_TOOLTIP);
 	}
@@ -37,7 +37,7 @@ public class BecomeAction extends ProfileModificationAction {
 				ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, monitor);
 				IStatus planStatus = plan.getStatus();
 				if (planStatus.isOK())
-					return new ProfileModificationOperation(ProvUIMessages.BecomeIUOperationLabel, targetProfile.getProfileId(), plan);
+					return new ProfileModificationOperation(ProvUIMessages.RollbackIUOperationLabel, targetProfile.getProfileId(), plan);
 				ProvUI.reportStatus(planStatus);
 			} catch (ProvisionException e) {
 				ProvUI.handleException(e, null);
@@ -62,4 +62,9 @@ public class BecomeAction extends ProfileModificationAction {
 			setEnabled(false);
 		}
 	}
+
+	protected String getTaskName() {
+		return ProvUIMessages.RollbackIUProgress;
+	}
+
 }

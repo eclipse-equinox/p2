@@ -65,18 +65,26 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningOperation_RedoErrorTitle;
 	public static String ProvisioningOperation_UndoErrorTitle;
 	public static String InstallIUOperationLabel;
+	public static String InstallIUOperationLabelWithMnemonic;
 	public static String InstallIUCommandLabel;
 	public static String InstallIUCommandTooltip;
+	public static String InstallIUProgress;
 	public static String UninstallDialog_UninstallMessage;
 	public static String UninstallIUOperationLabel;
+	public static String UninstallIUOperationLabelWithMnemonic;
 	public static String UninstallIUCommandLabel;
 	public static String UninstallIUCommandTooltip;
+	public static String UninstallIUProgress;
 	public static String UpdateIUOperationLabel;
+	public static String UpdateIUOperationLabelWithMnemonic;
 	public static String UpdateIUCommandLabel;
 	public static String UpdateIUCommandTooltip;
-	public static String BecomeIUOperationLabel;
-	public static String BecomeIUCommandLabel;
-	public static String BecomeIUCommandTooltip;
+	public static String UpdateIUProgress;
+	public static String RollbackIUOperationLabel;
+	public static String RollbackIUOperationLabelWithMnemonic;
+	public static String RollbackIUCommandLabel;
+	public static String RollbackIUCommandTooltip;
+	public static String RollbackIUProgress;
 
 	// Property pages
 	public static String ProfilePropertyPage_NoProfileSelected;

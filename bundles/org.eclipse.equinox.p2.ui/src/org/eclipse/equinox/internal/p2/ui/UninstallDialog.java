@@ -40,6 +40,6 @@ public class UninstallDialog extends ProfileModificationDialog {
 	}
 
 	protected String getOkButtonString() {
-		return ProvUIMessages.UninstallIUOperationLabel;
+		return ProvUIMessages.UninstallIUOperationLabelWithMnemonic;
 	}
 }

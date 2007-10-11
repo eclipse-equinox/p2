@@ -34,8 +34,8 @@ public class ProvUI {
 	public static final String UNINSTALL_COMMAND_TOOLTIP = ProvUIMessages.UninstallIUCommandTooltip;
 	public static final String UPDATE_COMMAND_LABEL = ProvUIMessages.UpdateIUCommandLabel;
 	public static final String UPDATE_COMMAND_TOOLTIP = ProvUIMessages.UpdateIUCommandTooltip;
-	public static final String ROLLBACK_COMMAND_LABEL = ProvUIMessages.BecomeIUCommandLabel;
-	public static final String ROLLBACK_COMMAND_TOOLTIP = ProvUIMessages.BecomeIUCommandTooltip;
+	public static final String ROLLBACK_COMMAND_LABEL = ProvUIMessages.RollbackIUCommandLabel;
+	public static final String ROLLBACK_COMMAND_TOOLTIP = ProvUIMessages.RollbackIUCommandTooltip;
 
 	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_ID), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION)};
 

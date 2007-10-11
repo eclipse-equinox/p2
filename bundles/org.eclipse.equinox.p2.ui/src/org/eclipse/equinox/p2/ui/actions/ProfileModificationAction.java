@@ -32,6 +32,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 
 	Profile profile;
 	IProfileChooser profileChooser;
+	private static final int OPERATION_WORK = 1000;
 
 	public ProfileModificationAction(String text, ISelectionProvider selectionProvider, Profile profile, IProfileChooser profileChooser, Shell shell) {
 		super(text, selectionProvider, shell);
@@ -87,12 +88,15 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
+					monitor.beginTask(getTaskName(), OPERATION_WORK);
 					status[0] = ops[0].execute(monitor, adapter);
 					if (!status[0].isOK()) {
 						StatusManager.getManager().handle(status[0], StatusManager.SHOW | StatusManager.LOG);
 					}
 				} catch (ExecutionException e) {
 					ProvUI.handleException(e.getCause(), null);
+				} finally {
+					monitor.done();
 				}
 			}
 		};
@@ -123,4 +127,6 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 	 * We assume the user has been notified if something couldn't happen.
 	 */
 	protected abstract ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo);
+
+	protected abstract String getTaskName();
 }

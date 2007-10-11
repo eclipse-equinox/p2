@@ -45,7 +45,7 @@ public class InstallDialog extends ProfileModificationDialog {
 	}
 
 	protected String getOkButtonString() {
-		return ProvUIMessages.InstallIUOperationLabel;
+		return ProvUIMessages.InstallIUOperationLabelWithMnemonic;
 	}
 
 	protected IUColumnConfig[] getColumnConfig() {

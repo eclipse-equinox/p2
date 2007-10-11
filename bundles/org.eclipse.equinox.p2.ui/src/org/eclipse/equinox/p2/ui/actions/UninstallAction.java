@@ -12,6 +12,7 @@
 package org.eclipse.equinox.p2.ui.actions;
 
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.UninstallDialog;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
@@ -78,4 +79,9 @@ public class UninstallAction extends ProfileModificationAction {
 			setEnabled(false);
 		}
 	}
+
+	protected String getTaskName() {
+		return ProvUIMessages.UninstallIUProgress;
+	}
+
 }

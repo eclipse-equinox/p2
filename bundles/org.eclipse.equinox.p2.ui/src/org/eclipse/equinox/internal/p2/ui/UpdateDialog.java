@@ -45,7 +45,7 @@ public class UpdateDialog extends ProfileModificationDialog {
 	}
 
 	protected String getOkButtonString() {
-		return ProvUIMessages.UpdateIUOperationLabel;
+		return ProvUIMessages.UpdateIUOperationLabelWithMnemonic;
 	}
 
 	protected IUColumnConfig[] getColumnConfig() {

@@ -85,4 +85,9 @@ public class UpdateAction extends ProfileModificationAction {
 			setEnabled(false);
 		}
 	}
+
+	protected String getTaskName() {
+		return ProvUIMessages.UpdateIUProgress;
+	}
+
 }
