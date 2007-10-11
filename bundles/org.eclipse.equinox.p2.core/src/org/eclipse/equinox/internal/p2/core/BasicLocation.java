@@ -183,7 +183,7 @@ public class BasicLocation implements AgentLocation {
 
 	public URL getArtifactRepositoryURL() {
 		try {
-			return new URL(getURL(), "artifactRepository/");
+			return new URL(getURL(), "artifacts/");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			return null;
@@ -192,7 +192,7 @@ public class BasicLocation implements AgentLocation {
 
 	public URL getMetadataRepositoryURL() {
 		try {
-			return new URL(getURL(), "metadataRepository/");
+			return new URL(getURL(), "metadata/");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			return null;
