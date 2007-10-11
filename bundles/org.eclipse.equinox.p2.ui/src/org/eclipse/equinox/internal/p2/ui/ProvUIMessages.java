@@ -125,4 +125,6 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateAndInstallGroup_Update;
 	public static String UpdateOperation_NothingToUpdate;
 
+	// TODO
+	public final static String IUDetailsLabelProvider_Unknown = "FIXME";
 }
