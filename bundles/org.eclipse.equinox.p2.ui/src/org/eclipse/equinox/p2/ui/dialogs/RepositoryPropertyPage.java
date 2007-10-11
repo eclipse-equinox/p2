@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;

@@ -14,7 +14,6 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * Operation that removes the metadata repository with the given URL. *

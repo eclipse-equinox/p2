@@ -17,8 +17,8 @@ import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.swt.widgets.Shell;
 
 public class UninstallDialog extends ProfileModificationDialog {

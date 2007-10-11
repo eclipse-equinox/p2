@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ColocatedRepositoryUtil;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * Operation that adds colocated artifact and metadata repositories

@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -107,7 +108,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 				try {
 					Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 					if (selfProfile != null && (selfProfile.getProfileId().equals(targetProfile.getProfileId()))) {
-						ProvisioningUtil.requestRestart(false, getUIInfoAdapter());
+						ProvUI.requestRestart(false, getShell());
 					}
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, null);
@@ -129,14 +130,4 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 
 	protected abstract String getTaskName();
 
-	private IAdaptable getUIInfoAdapter() {
-		return new IAdaptable() {
-			public Object getAdapter(Class clazz) {
-				if (clazz == Shell.class) {
-					return getShell();
-				}
-				return null;
-			}
-		};
-	}
 }

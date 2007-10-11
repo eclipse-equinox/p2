@@ -16,7 +16,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ColocatedRepositoryUtil;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * Operation that removes the colocated repositories with the given URLs. *

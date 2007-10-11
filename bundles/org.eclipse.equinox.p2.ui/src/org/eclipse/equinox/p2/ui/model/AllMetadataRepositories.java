@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.model;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
 /**
  * Element class that represents the root of a metadata

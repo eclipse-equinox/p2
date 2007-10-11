@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.ui.operations;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * Abstract class representing provisioning profile operations

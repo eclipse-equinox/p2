@@ -14,7 +14,6 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * Operation which adds an artifact repository given its URL.

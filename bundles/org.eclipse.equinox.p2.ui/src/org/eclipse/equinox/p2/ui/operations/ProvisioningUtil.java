@@ -9,15 +9,12 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.p2.ui;
+package org.eclipse.equinox.p2.ui.operations;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.configurator.Configurator;
-import org.eclipse.equinox.internal.p2.ui.ApplyProfileChangesDialog;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
@@ -34,10 +31,11 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.CompoundIterator;
 import org.eclipse.equinox.p2.query.Query;
+import org.eclipse.equinox.p2.ui.IProvisioningProperties;
+import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * Utility methods for clients using the provisioning UI
@@ -321,20 +319,6 @@ public class ProvisioningUtil {
 			return Status.OK_STATUS;
 		}
 		return error(ProvUIMessages.ProvisioningUtil_RepoNotWritable);
-	}
-
-	public static void requestRestart(boolean restartRequired, IAdaptable uiInfo) {
-		int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getShell(uiInfo), restartRequired);
-		if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
-			Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
-			try {
-				configurator.applyConfiguration();
-			} catch (IOException e) {
-				ProvUI.handleException(e, null);
-			}
-		} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
-			PlatformUI.getWorkbench().restart();
-		}
 	}
 
 	public static IStatus performInstall(ProvisioningPlan plan, Profile profile, IInstallableUnit[] installRoots, IProgressMonitor monitor) throws ProvisionException {

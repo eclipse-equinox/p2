@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * Class representing a provisioning profile plan

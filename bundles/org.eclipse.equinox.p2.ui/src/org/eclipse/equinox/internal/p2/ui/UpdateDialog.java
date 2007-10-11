@@ -18,10 +18,10 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.phases.SizingPhase;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.swt.widgets.Shell;
 

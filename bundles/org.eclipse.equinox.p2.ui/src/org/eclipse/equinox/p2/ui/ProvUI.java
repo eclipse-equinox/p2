@@ -11,8 +11,12 @@
 
 package org.eclipse.equinox.p2.ui;
 
+import java.io.IOException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.configurator.Configurator;
+import org.eclipse.equinox.internal.p2.ui.ApplyProfileChangesDialog;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -77,5 +81,19 @@ public class ProvUI {
 
 	public static void setIUColumnConfig(IUColumnConfig[] columnConfig) {
 		iuColumnConfig = columnConfig;
+	}
+
+	public static void requestRestart(boolean restartRequired, Shell shell) {
+		int retCode = ApplyProfileChangesDialog.promptForRestart(shell, restartRequired);
+		if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
+			Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
+			try {
+				configurator.applyConfiguration();
+			} catch (IOException e) {
+				ProvUI.handleException(e, null);
+			}
+		} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
+			PlatformUI.getWorkbench().restart();
+		}
 	}
 }

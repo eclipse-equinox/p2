@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;

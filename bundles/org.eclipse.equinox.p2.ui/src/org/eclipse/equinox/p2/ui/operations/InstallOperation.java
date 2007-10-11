@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * An operation that installs the specified IU's into the specified profile
