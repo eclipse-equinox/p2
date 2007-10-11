@@ -39,9 +39,6 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * 
 	 * @param viewer
 	 *            the navigator's viewer
-	 * @param confirmer
-	 *            a confirmer that should be used to confirm the operation, or
-	 *            <code>null</code> if no confirmation is necessary.
 	 */
 	public InstallIUDropAdapter(StructuredViewer viewer) {
 		super(viewer);
