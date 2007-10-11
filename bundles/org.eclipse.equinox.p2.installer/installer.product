@@ -34,7 +34,6 @@
    <plugins>
       <plugin id="com.thoughtworks.xstream"/>
       <plugin id="org.eclipse.core.jobs"/>
-      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.ecf"/>
       <plugin id="org.eclipse.ecf.filetransfer"/>
       <plugin id="org.eclipse.ecf.identity"/>
