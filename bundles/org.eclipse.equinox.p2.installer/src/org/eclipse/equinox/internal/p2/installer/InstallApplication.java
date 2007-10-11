@@ -106,9 +106,10 @@ public class InstallApplication implements IApplication {
 	}
 
 	private void launchProduct(InstallDescription description) throws CoreException {
-		IPath toRun = description.getInstallLocation().append(description.getLauncherName());
+		IPath installLocation = description.getInstallLocation();
+		IPath toRun = installLocation.append(description.getLauncherName());
 		try {
-			Runtime.getRuntime().exec(toRun.toString());
+			Runtime.getRuntime().exec(toRun.toString(), null, installLocation.toFile());
 		} catch (IOException e) {
 			throw fail("Failed to launch the product: " + toRun, e);
 		}
@@ -119,11 +120,13 @@ public class InstallApplication implements IApplication {
 	 */
 	public Object start(IApplicationContext appContext) {
 		try {
+			appContext.applicationRunning();
 			advisor = createInstallContext();
 			//fetch description of what to install
 			InstallDescription description = null;
 			try {
 				description = computeInstallDescription();
+
 				//perform long running install operation
 				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(InstallerActivator.getDefault().getContext(), description);
 				advisor.performInstall(operation);

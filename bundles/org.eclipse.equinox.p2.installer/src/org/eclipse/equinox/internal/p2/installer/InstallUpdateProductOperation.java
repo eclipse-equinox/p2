@@ -60,10 +60,17 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Determine what top level installable units should be installed by the director
 	 */
 	private IInstallableUnit[] computeUnitsToInstall() throws CoreException {
-		IInstallableUnit root = installDescription.getRootInstallableUnit();
-		//The install description just contains a prototype of the root IU. We need
-		//to find the real IU in an available metadata repository
-		return new IInstallableUnit[] {findUnit(root.getId(), root.getVersion())};
+		return new IInstallableUnit[] {findUnit(installDescription.getRootId(), installDescription.getRootVersion())};
+	}
+
+	/**
+	 * This profile is being updated; return the units to uninstall from the profile.
+	 */
+	private IInstallableUnit[] computeUnitsToUninstall(Profile profile) {
+		ArrayList units = new ArrayList();
+		for (Iterator it = profile.getInstallableUnits(); it.hasNext();)
+			units.add(it.next());
+		return (IInstallableUnit[]) units.toArray(new IInstallableUnit[units.size()]);
 	}
 
 	/**
@@ -82,6 +89,29 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			profileRegistry.addProfile(profile);
 		}
 		return profile;
+	}
+
+	/**
+	 * Performs the actual product install or update.
+	 */
+	private void doInstall(SubMonitor monitor) throws CoreException {
+		prepareMetadataRepository();
+		prepareArtifactRepository();
+		Profile p = createProfile();
+		IInstallableUnit[] toInstall = computeUnitsToInstall();
+		monitor.worked(5);
+
+		IStatus s;
+		if (isInstall) {
+			monitor.subTask("Installing...");
+			s = director.install(toInstall, p, monitor.newChild(90));
+		} else {
+			monitor.subTask("Updating...");
+			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
+			s = director.replace(toUninstall, toInstall, p, monitor.newChild(90));
+		}
+		if (!s.isOK())
+			throw new CoreException(s);
 	}
 
 	/**
@@ -143,81 +173,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		return service;
 	}
 
-	/**
-	 * Performs the actual product install or update.
-	 */
-	private void doInstall(SubMonitor monitor) throws CoreException {
-		prepareMetadataRepository();
-		prepareArtifactRepository();
-		Profile p = createProfile();
-		IInstallableUnit[] toInstall = computeUnitsToInstall();
-		monitor.worked(5);
-
-		IStatus s;
-		if (isInstall) {
-			monitor.subTask("Installing...");
-			s = director.install(toInstall, p, null, monitor.newChild(90));
-		} else {
-			monitor.subTask("Updating...");
-			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
-			s = director.replace(toUninstall, toInstall, p, monitor.newChild(90));
-		}
-		if (!s.isOK())
-			throw new CoreException(s);
-	}
-
-	/**
-	 * This profile is being updated; return the units to uninstall from the profile.
-	 */
-	private IInstallableUnit[] computeUnitsToUninstall(Profile profile) {
-		ArrayList units = new ArrayList();
-		for (Iterator it = profile.getInstallableUnits(); it.hasNext();)
-			units.add(it.next());
-		return (IInstallableUnit[]) units.toArray(new IInstallableUnit[units.size()]);
-	}
-
-	/**
-	 * Returns whether this operation represents the product being installed
-	 * for the first time, in a new profile.
-	 */
-	public boolean isFirstInstall() {
-		return isInstall;
-	}
-
-	private void postInstall() {
-		for (Iterator it = serviceReferences.iterator(); it.hasNext();) {
-			ServiceReference sr = (ServiceReference) it.next();
-			bundleContext.ungetService(sr);
-		}
-		serviceReferences.clear();
-	}
-
-	private void preInstall() throws CoreException {
-		//setup system properties
-		if (System.getProperty("eclipse.p2.data.area") == null) //$NON-NLS-1$
-			System.setProperty("eclipse.p2.data.area", installDescription.getInstallLocation().append("installer").toString()); //$NON-NLS-1$ //$NON-NLS-2$
-		if (System.getProperty("eclipse.p2.cache") == null) //$NON-NLS-1$
-			System.setProperty("eclipse.p2.cache", installDescription.getInstallLocation().toString()); //$NON-NLS-1$
-		//obtain required services
-		serviceReferences.clear();
-		director = (IDirector) getService(IDirector.class.getName());
-		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.class.getName());
-		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.class.getName());
-		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.class.getName());
-	}
-
-	private void prepareArtifactRepository() {
-		URL artifactRepo = installDescription.getArtifactRepository();
-		if (artifactRepo != null)
-			artifactRepoMan.loadRepository(artifactRepo, null);
-	}
-
-	private void prepareMetadataRepository() {
-		URL metadataRepo = installDescription.getMetadataRepository();
-		if (metadataRepo != null)
-			metadataRepoMan.loadRepository(metadataRepo, null);
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.installer.IInstallOperation#install(org.eclipse.core.runtime.IProgressMonitor)
 	 */
@@ -241,5 +196,53 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			monitor.done();
 		}
 		return result;
+	}
+
+	/**
+	 * Returns whether this operation represents the product being installed
+	 * for the first time, in a new profile.
+	 */
+	public boolean isFirstInstall() {
+		return isInstall;
+	}
+
+	private void postInstall() {
+		for (Iterator it = serviceReferences.iterator(); it.hasNext();) {
+			ServiceReference sr = (ServiceReference) it.next();
+			bundleContext.ungetService(sr);
+		}
+		serviceReferences.clear();
+	}
+
+	private void preInstall() throws CoreException {
+		if (System.getProperty("eclipse.p2.data.area") == null) //$NON-NLS-1$
+			System.setProperty("eclipse.p2.data.area", installDescription.getInstallLocation().append("installer").toString()); //$NON-NLS-1$ //$NON-NLS-2$
+		if (System.getProperty("eclipse.p2.cache") == null) //$NON-NLS-1$
+			System.setProperty("eclipse.p2.cache", installDescription.getInstallLocation().toString()); //$NON-NLS-1$
+
+		//start up p2
+		try {
+			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_ACTIVATION_POLICY);
+		} catch (BundleException e) {
+			throw fail("Unable to start p2", e);
+		}
+		//obtain required services
+		serviceReferences.clear();
+		director = (IDirector) getService(IDirector.class.getName());
+		metadataRepoMan = (IMetadataRepositoryManager) getService(IMetadataRepositoryManager.class.getName());
+		artifactRepoMan = (IArtifactRepositoryManager) getService(IArtifactRepositoryManager.class.getName());
+		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.class.getName());
+	}
+
+	private void prepareArtifactRepository() {
+		URL artifactRepo = installDescription.getArtifactRepository();
+		if (artifactRepo != null)
+			artifactRepoMan.loadRepository(artifactRepo, null);
+	}
+
+	private void prepareMetadataRepository() {
+		URL metadataRepo = installDescription.getMetadataRepository();
+		if (metadataRepo != null)
+			metadataRepoMan.loadRepository(metadataRepo, null);
 	}
 }

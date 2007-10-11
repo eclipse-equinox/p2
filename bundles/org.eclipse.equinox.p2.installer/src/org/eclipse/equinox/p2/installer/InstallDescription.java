@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.installer;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.osgi.framework.Version;
 
 /**
  * An install information captures all the data needed to perform a product install.
@@ -22,42 +22,23 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 public class InstallDescription {
 	private URL artifactRepo;
 	private IPath installLocation;
-	private URL metadataRepo;
-	private String productName, flavor;
-	private IInstallableUnit rootUnit;
 	private boolean isAutoStart;
 	private String launcherName;
+	private URL metadataRepo;
+	private String productName, flavor;
+	private String rootId;
+	private Version rootVersion;
 
 	public InstallDescription(String name) {
 		this.productName = name;
 	}
 
-	public void setArtifactRepository(URL repository) {
-		this.artifactRepo = repository;
-	}
-
-	public void setFlavor(String flavor) {
-		this.flavor = flavor;
-	}
-
-	public void setInstallLocation(IPath location) {
-		this.installLocation = location;
-	}
-
-	public void setMetadataRepository(URL repository) {
-		this.metadataRepo = repository;
-	}
-
-	public void setRootInstallableUnit(IInstallableUnit unit) {
-		this.rootUnit = unit;
-	}
-
-	public void setAutoStart(boolean value) {
-		this.isAutoStart = value;
-	}
-
-	public void setLauncherName(String name) {
-		this.launcherName = name;
+	/**
+	 * Returns the location of the artifact repository to install from
+	 * @return an artifact repository URL
+	 */
+	public URL getArtifactRepository() {
+		return artifactRepo;
 	}
 
 	/**
@@ -93,14 +74,6 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the location of the artifact repository to install from
-	 * @return an artifact repository URL
-	 */
-	public URL getArtifactRepository() {
-		return artifactRepo;
-	}
-
-	/**
 	 * Returns a human-readable name for this install.
 	 * @return the name of the product
 	 */
@@ -109,12 +82,19 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the installable unit whose dependencies describe
-	 * all IUs that should be installed.
-	 * @return the root installable unit
+	 * Returns the id of the root installable unit
+	 * @return the id of the root installable unit
 	 */
-	public IInstallableUnit getRootInstallableUnit() {
-		return rootUnit;
+	public String getRootId() {
+		return rootId;
+	}
+
+	/**
+	 * Returns the version of the root installable unit
+	 * @return the version of the root installable unit
+	 */
+	public Version getRootVersion() {
+		return rootVersion;
 	}
 
 	/**
@@ -125,6 +105,38 @@ public class InstallDescription {
 	 */
 	public boolean isAutoStart() {
 		return isAutoStart;
+	}
+
+	public void setArtifactRepository(URL repository) {
+		this.artifactRepo = repository;
+	}
+
+	public void setAutoStart(boolean value) {
+		this.isAutoStart = value;
+	}
+
+	public void setFlavor(String flavor) {
+		this.flavor = flavor;
+	}
+
+	public void setInstallLocation(IPath location) {
+		this.installLocation = location;
+	}
+
+	public void setLauncherName(String name) {
+		this.launcherName = name;
+	}
+
+	public void setMetadataRepository(URL repository) {
+		this.metadataRepo = repository;
+	}
+
+	public void setRootId(String root) {
+		this.rootId = root;
+	}
+
+	public void setRootVersion(Version version) {
+		this.rootVersion = version;
 	}
 
 }

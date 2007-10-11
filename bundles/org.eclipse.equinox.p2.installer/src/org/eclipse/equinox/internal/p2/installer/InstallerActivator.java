@@ -20,10 +20,10 @@ import org.osgi.service.packageadmin.PackageAdmin;
  * The activator class controls the plug-in life cycle
  */
 public class InstallerActivator implements BundleActivator {
-	// The shared instance
-	private static InstallerActivator plugin;
 	// The plug-in ID
 	public static final String PI_INSTALLER = "org.eclipse.equinox.p2.installer";
+	// The shared instance
+	private static InstallerActivator plugin;
 
 	private BundleContext context;
 

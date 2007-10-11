@@ -25,71 +25,18 @@ import org.eclipse.swt.widgets.*;
  */
 public class InstallDialog {
 	/**
-	 * Encapsulates a result passed from an operation running in a background
-	 * thread to the UI thread.
-	 */
-	static class Result {
-		private boolean done;
-		private IStatus status;
-
-		synchronized boolean isDone() {
-			return done;
-		}
-
-		synchronized IStatus getStatus() {
-			return status;
-		}
-
-		synchronized void done() {
-			done = true;
-		}
-
-		synchronized void failed(Throwable t) {
-			String msg = "An internal error has occurred";
-			status = new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, msg, t);
-		}
-
-		public void setStatus(IStatus status) {
-			this.status = status;
-		}
-	}
-
-	/**
 	 * A progress monitor implementation that asynchronously updates the progress bar.
 	 */
 	class Monitor implements IProgressMonitor {
 
-		double totalWork, usedWork;
 		boolean canceled = false, running = false;
 		String taskName = "", subTaskName = ""; //$NON-NLS-1$//$NON-NLS-2$
+		double totalWork, usedWork;
 
 		public void beginTask(final String name, final int work) {
 			totalWork = work;
 			running = true;
 			update();
-		}
-
-		void update() {
-			Display display = getDisplay();
-			if (display == null)
-				return;
-			display.asyncExec(new Runnable() {
-				public void run() {
-					Shell theShell = getShell();
-					if (theShell == null || theShell.isDisposed())
-						return;
-					taskLabel.setText(taskName);
-					subTaskLabel.setText(subTaskName);
-					if (progress.isDisposed())
-						return;
-					progress.setVisible(running);
-					progress.setMaximum(1000);
-					progress.setMinimum(0);
-					int value = (int) (usedWork / totalWork * 1000);
-					if (progress.getSelection() < value)
-						progress.setSelection(value);
-				}
-			});
 		}
 
 		public void done() {
@@ -121,22 +68,75 @@ public class InstallDialog {
 			update();
 		}
 
+		void update() {
+			Display display = getDisplay();
+			if (display == null)
+				return;
+			display.asyncExec(new Runnable() {
+				public void run() {
+					Shell theShell = getShell();
+					if (theShell == null || theShell.isDisposed())
+						return;
+					taskLabel.setText(taskName);
+					subTaskLabel.setText(subTaskName);
+					if (progress.isDisposed())
+						return;
+					progress.setVisible(running);
+					progress.setMaximum(1000);
+					progress.setMinimum(0);
+					int value = (int) (usedWork / totalWork * 1000);
+					if (progress.getSelection() < value)
+						progress.setSelection(value);
+				}
+			});
+		}
+
 		public void worked(int work) {
 			internalWorked(work);
 		}
 	}
 
-	private Shell shell;
-	private Composite contents;
-	private Button closeButton;
-	Label taskLabel;
-	Label subTaskLabel;
-	ProgressBar progress;
+	/**
+	 * Encapsulates a result passed from an operation running in a background
+	 * thread to the UI thread.
+	 */
+	static class Result {
+		private boolean done;
+		private IStatus status;
 
+		synchronized void done() {
+			done = true;
+		}
+
+		synchronized void failed(Throwable t) {
+			String msg = "An internal error has occurred";
+			status = new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, msg, t);
+		}
+
+		synchronized IStatus getStatus() {
+			return status;
+		}
+
+		synchronized boolean isDone() {
+			return done;
+		}
+
+		public void setStatus(IStatus status) {
+			this.status = status;
+		}
+	}
+
+	private Button closeButton;
+	private Composite contents;
 	/**
 	 * Flag indicating whether the user has indicated if it is ok to close the dialog
 	 */
 	private boolean okToClose;
+	ProgressBar progress;
+	private Shell shell;
+	Label subTaskLabel;
+
+	Label taskLabel;
 
 	/**
 	 * Creates and opens a progress monitor dialog.
@@ -179,6 +179,15 @@ public class InstallDialog {
 		shell.open();
 	}
 
+	private synchronized boolean canClose() {
+		return okToClose;
+	}
+
+	public void close() {
+		shell.dispose();
+		shell = null;
+	}
+
 	public Display getDisplay() {
 		Shell theShell = shell;
 		if (theShell == null || theShell.isDisposed())
@@ -190,13 +199,22 @@ public class InstallDialog {
 		return shell;
 	}
 
-	public void close() {
-		shell.dispose();
-		shell = null;
-	}
+	/**
+	 * Asks the user to close the dialog, and returns once the dialog is closed.
+	 */
+	public void promptForClose(String message) {
+		Display display = getDisplay();
+		if (display == null)
+			return;
+		taskLabel.setText(message);
+		subTaskLabel.setText(""); //$NON-NLS-1$
+		progress.setVisible(false);
+		closeButton.setVisible(true);
+		while (!canClose()) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
 
-	synchronized void setOkToClose() {
-		okToClose = true;
 	}
 
 	/**
@@ -249,26 +267,13 @@ public class InstallDialog {
 		return result.getStatus();
 	}
 
-	/**
-	 * Asks the user to close the dialog, and returns once the dialog is closed.
-	 */
-	public void promptForClose(String message) {
-		Display display = getDisplay();
-		if (display == null)
-			return;
-		taskLabel.setText(message);
-		subTaskLabel.setText(""); //$NON-NLS-1$
-		progress.setVisible(false);
-		closeButton.setVisible(true);
-		while (!canClose()) {
-			if (!display.readAndDispatch())
-				display.sleep();
-		}
-
+	public void setMessage(String message) {
+		if (taskLabel != null && !taskLabel.isDisposed())
+			taskLabel.setText(message);
 	}
 
-	private synchronized boolean canClose() {
-		return okToClose;
+	synchronized void setOkToClose() {
+		okToClose = true;
 	}
 
 }

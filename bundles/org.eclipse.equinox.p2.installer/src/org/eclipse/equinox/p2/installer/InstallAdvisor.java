@@ -18,14 +18,6 @@ import org.eclipse.core.runtime.*;
  */
 public abstract class InstallAdvisor {
 	/**
-	 * Allows the advisor to modify or fill in missing values in the install description.  
-	 * @param description The initial install description
-	 * @return The install description to be used for the install.
-	 * @exception OperationCanceledException if the install should be canceled.
-	 */
-	public abstract InstallDescription prepareInstallDescription(InstallDescription description);
-
-	/**
 	 * Performs the actual install. The advisor is responsible for handling progress
 	 * monitoring and cancelation. The advisor may perform the install in
 	 * another thread, but must block the calling thread until the install
@@ -37,6 +29,14 @@ public abstract class InstallAdvisor {
 	 * but the advisor may alter the result status if desired.
 	 */
 	public abstract IStatus performInstall(IInstallOperation operation);
+
+	/**
+	 * Allows the advisor to modify or fill in missing values in the install description.  
+	 * @param description The initial install description
+	 * @return The install description to be used for the install.
+	 * @exception OperationCanceledException if the install should be canceled.
+	 */
+	public abstract InstallDescription prepareInstallDescription(InstallDescription description);
 
 	/**
 	 * Reports some result information to the context.  The status may be

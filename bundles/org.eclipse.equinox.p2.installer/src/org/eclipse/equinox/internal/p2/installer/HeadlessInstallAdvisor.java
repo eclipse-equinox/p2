@@ -54,13 +54,13 @@ public class HeadlessInstallAdvisor extends InstallAdvisor {
 		}
 	}
 
+	public IStatus performInstall(IInstallOperation operation) {
+		return operation.install(new HeadlessProgressMonitor());
+	}
+
 	public InstallDescription prepareInstallDescription(InstallDescription description) {
 		// The headless advisor has no further input on the install location.
 		return description;
-	}
-
-	public IStatus performInstall(IInstallOperation operation) {
-		return operation.install(new HeadlessProgressMonitor());
 	}
 
 	public void setResult(IStatus status) {

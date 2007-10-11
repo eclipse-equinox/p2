@@ -21,37 +21,11 @@ import org.eclipse.swt.widgets.Display;
  */
 public class SWTInstallAdvisor extends InstallAdvisor {
 	private InstallDialog dialog;
-	private boolean stopped = false;
 	private boolean started = false;
+	private boolean stopped = false;
 
-	public synchronized void start() {
-		if (stopped || started)
-			return;
-		started = true;
-		Display display = Display.getCurrent();
-		if (display == null)
-			display = new Display();
-		dialog = new InstallDialog();
-	}
-
-	public synchronized void stop() {
-		if (stopped || !started)
-			return;
-		stopped = true;
-		final InstallDialog activeDialog = dialog;
-		if (activeDialog == null)
-			return;
-		//clear the window now, so the reference is gone no matter what happens during cleanup
-		dialog = null;
-		final Display display = activeDialog.getDisplay();
-		if (display == null || display.isDisposed())
-			return;
-		display.syncExec(new Runnable() {
-			public void run() {
-				activeDialog.close();
-			}
-		});
-		display.dispose();
+	public IStatus performInstall(IInstallOperation operation) {
+		return dialog.run(operation);
 	}
 
 	public InstallDescription prepareInstallDescription(InstallDescription description) {
@@ -76,8 +50,35 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 		dialog.promptForClose(message);
 	}
 
-	public IStatus performInstall(IInstallOperation operation) {
-		return dialog.run(operation);
+	public synchronized void start() {
+		if (stopped || started)
+			return;
+		started = true;
+		Display display = Display.getCurrent();
+		if (display == null)
+			display = new Display();
+		dialog = new InstallDialog();
+		dialog.setMessage("Preparing to install");
+	}
+
+	public synchronized void stop() {
+		if (stopped || !started)
+			return;
+		stopped = true;
+		final InstallDialog activeDialog = dialog;
+		if (activeDialog == null)
+			return;
+		//clear the window now, so the reference is gone no matter what happens during cleanup
+		dialog = null;
+		final Display display = activeDialog.getDisplay();
+		if (display == null || display.isDisposed())
+			return;
+		display.syncExec(new Runnable() {
+			public void run() {
+				activeDialog.close();
+			}
+		});
+		display.dispose();
 	}
 
 }
