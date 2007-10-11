@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -22,11 +23,11 @@ import org.eclipse.swt.widgets.Composite;
  */
 public abstract class IUGroup {
 
-	protected IInstallableUnit iu;
+	protected Object iuElement;
 	private Composite composite;
 
-	IUGroup(final Composite parent, IInstallableUnit iu, ModifyListener listener) {
-		this.iu = iu;
+	protected IUGroup(final Composite parent, Object iu, ModifyListener listener) {
+		this.iuElement = iu;
 		composite = createGroupComposite(parent, listener);
 	}
 
@@ -37,7 +38,11 @@ public abstract class IUGroup {
 	}
 
 	public IInstallableUnit getIU() {
-		return iu;
+		if (iuElement instanceof IInstallableUnit)
+			return (IInstallableUnit) iuElement;
+		if (iuElement instanceof IAdaptable)
+			return ((IInstallableUnit) ((IAdaptable) iuElement).getAdapter(IInstallableUnit.class));
+		return null;
 	}
 
 	public void updateIU() {

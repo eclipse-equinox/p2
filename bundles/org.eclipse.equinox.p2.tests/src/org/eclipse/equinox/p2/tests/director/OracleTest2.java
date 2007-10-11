@@ -8,10 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.util.Collection;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.director.Oracle;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -68,11 +66,11 @@ public class OracleTest2 extends AbstractProvisioningTest {
 
 	}
 
-	/*
-	 * TODO Currently this test throws ClassCastException
-	 */
-	public void _testInstallA1() {
-		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null, null).getSeverity(), IStatus.OK);
+	/* I'm not sure what this test should look like now
+	 *
+	 
+	public void testInstallA1() {
+		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity(), IStatus.OK);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a2, c2, b1});
 		Collection brokenEntryPoint = (Collection) new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null);
@@ -81,12 +79,13 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		new Oracle().hasUpdate(a1);
 		System.out.println(new Oracle().canInstall(new IInstallableUnit[] {b1}, (IInstallableUnit[]) brokenEntryPoint.toArray(new IInstallableUnit[brokenEntryPoint.size()]), profile, null));
 	}
+	 */
 
 	public void testInstallA1bis() {
 		profile = new Profile("testInstallA1bis." + getName());
 		director = createDirector();
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, c1, c2, b1});
 
-		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null, null).getSeverity(), IStatus.OK);
+		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity(), IStatus.OK);
 	}
 }

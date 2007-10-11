@@ -87,6 +87,17 @@
              </or>
           </enabledWhen>
       </page>
+            <page
+            name="%InstalledIU.name"
+            class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.InstalledIUPropertyPage"
+            id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.InstalledIUPropertyPage">
+            <enabledWhen>
+             <instanceof
+                  value="org.eclipse.equinox.p2.ui.model.InstalledIUElement">
+             </instanceof>
+          </enabledWhen>
+      </page>
+      
       
       <page
             name="%Repository.name"

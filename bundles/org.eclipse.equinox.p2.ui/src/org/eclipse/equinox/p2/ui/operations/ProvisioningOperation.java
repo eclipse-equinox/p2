@@ -11,12 +11,10 @@
 package org.eclipse.equinox.p2.ui.operations;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.p2.ui.ProvisioningUndoSupport;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -25,17 +23,12 @@ import org.eclipse.osgi.util.NLS;
  * @since 3.4
  */
 
-public abstract class ProvisioningOperation extends AbstractOperation implements IAdvancedUndoableOperation, IAdvancedUndoableOperation2 {
+public abstract class ProvisioningOperation {
 
-	/*
-	 * Specifies whether any user prompting is appropriate while computing
-	 * status.
-	 */
-	protected boolean quietCompute = false;
+	private String label;
 
 	public ProvisioningOperation(String label) {
-		super(label);
-		addContext(ProvisioningUndoSupport.getProvisioningUndoContext());
+		this.label = label;
 	}
 
 	/**
@@ -46,58 +39,12 @@ public abstract class ProvisioningOperation extends AbstractOperation implements
 		try {
 			status = doExecute(monitor, uiInfo);
 		} catch (final ProvisionException e) {
-			throw new ExecutionException(NLS.bind(ProvUIMessages.ProvisioningOperation_ExecuteErrorTitle, getLabel()), e);
+			throw new ExecutionException(NLS.bind(ProvUIMessages.ProvisioningOperation_ExecuteErrorTitle, label, e));
 		} catch (OperationCanceledException e) {
 			return Status.CANCEL_STATUS;
 		}
 		return status;
 	}
-
-	/**
-	 * 
-	 */
-	public IStatus redo(IProgressMonitor monitor, final IAdaptable uiInfo) throws ExecutionException {
-		IStatus status;
-		try {
-			status = doExecute(monitor, uiInfo);
-		} catch (final ProvisionException e) {
-			throw new ExecutionException(NLS.bind(ProvUIMessages.ProvisioningOperation_RedoErrorTitle, getLabel()), e);
-		} catch (OperationCanceledException e) {
-			return Status.CANCEL_STATUS;
-		}
-		return status;
-	}
-
-	/**
-	 * 
-	 */
-	public IStatus undo(IProgressMonitor monitor, final IAdaptable uiInfo) throws ExecutionException {
-		IStatus status;
-		try {
-			status = doUndo(monitor, uiInfo);
-		} catch (final ProvisionException e) {
-			throw new ExecutionException(NLS.bind(ProvUIMessages.ProvisioningOperation_UndoErrorTitle, getLabel()), e);
-		} catch (OperationCanceledException e) {
-			return Status.CANCEL_STATUS;
-		}
-		return status;
-	}
-
-	/**
-	 * Perform the specific work involved in undoing this operation.
-	 * 
-	 * @param monitor
-	 *            the progress monitor to use for the operation
-	 * @param uiInfo
-	 *            the IAdaptable (or <code>null</code>) provided by the
-	 *            caller in order to supply UI information for prompting the
-	 *            user if necessary. When this parameter is not
-	 *            <code>null</code>, it contains an adapter for the
-	 *            org.eclipse.swt.widgets.Shell.class
-	 * @throws ProvisionException
-	 *             propagates any ProvisionException thrown
-	 */
-	protected abstract IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException;
 
 	/**
 	 * Perform the specific work involved in executing this operation.
@@ -116,79 +63,16 @@ public abstract class ProvisioningOperation extends AbstractOperation implements
 	 */
 	protected abstract IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canRedo()
-	 */
-	public boolean canRedo() {
-		return canExecute();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation#aboutToNotify(org.eclipse.core.commands.operations.OperationHistoryEvent)
-	 */
-	public void aboutToNotify(OperationHistoryEvent event) {
-		// do nothing
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation#getAffectedObjects()
-	 */
-	public Object[] getAffectedObjects() {
-		return new Object[0];
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation#computeRedoableStatus(org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	public IStatus computeRedoableStatus(IProgressMonitor monitor) throws ExecutionException {
-		return computeExecutionStatus(monitor);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation#computeUndoableStatus(org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	public IStatus computeUndoableStatus(IProgressMonitor monitor) throws ExecutionException {
-		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation2#computeExecutionStatus(org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	public IStatus computeExecutionStatus(IProgressMonitor monitor) throws ExecutionException {
-		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation2#runInBackground()
-	 */
-	public boolean runInBackground() {
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation2#setQuietCompute(boolean)
-	 */
-	public void setQuietCompute(boolean quiet) {
-		quietCompute = quiet;
-	}
-
 	protected IStatus okStatus() {
 		return Status.OK_STATUS;
 	}
 
 	protected IStatus failureStatus() {
-		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, getLabel());
+		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, label);
+	}
+
+	public String getLabel() {
+		return label;
 	}
 
 }

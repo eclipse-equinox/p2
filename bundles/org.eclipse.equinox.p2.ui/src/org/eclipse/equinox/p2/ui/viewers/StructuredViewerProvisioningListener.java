@@ -51,8 +51,10 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 			final Profile profile = event.getProfile();
 			display.asyncExec(new Runnable() {
 				public void run() {
-					viewer.refresh(profile);
-
+					if (viewer.getInput() instanceof Profile)
+						viewer.refresh();
+					else
+						viewer.refresh(profile);
 				}
 			});
 		} else if (o instanceof ProfileEvent && ((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU)) {

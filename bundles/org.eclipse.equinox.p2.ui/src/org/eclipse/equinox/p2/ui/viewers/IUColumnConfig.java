@@ -8,25 +8,25 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.operations;
 
-import org.eclipse.swt.widgets.Shell;
+package org.eclipse.equinox.p2.ui.viewers;
 
 /**
- * Interface for confirming provisioning operations
+ * Data structure describing a column to be shown in an IU view.  
  * 
  * @since 3.4
  */
+public class IUColumnConfig {
+	public final static int COLUMN_ID = 0;
+	public final static int COLUMN_NAME = 1;
+	public final static int COLUMN_VERSION = 2;
+	public final static int COLUMN_SIZE = 3;
 
-public interface IOperationConfirmer {
-	/**
-	 * Return a boolean indicating whether the operation should continue.
-	 * 
-	 * @param op
-	 *            the operation to be performed.
-	 * @param shell
-	 *            the shell that should be used for prompting
-	 * @return a boolean indicating whether the operation should be performed.
-	 */
-	public boolean continuePerformingOperation(ProvisioningOperation op, Shell shell);
+	public String columnTitle;
+	public int columnField;
+
+	public IUColumnConfig(String title, int columnField) {
+		this.columnTitle = title;
+		this.columnField = columnField;
+	}
 }

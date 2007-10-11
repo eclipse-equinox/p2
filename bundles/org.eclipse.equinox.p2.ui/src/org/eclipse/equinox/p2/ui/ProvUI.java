@@ -12,7 +12,8 @@
 package org.eclipse.equinox.p2.ui;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -26,7 +27,17 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class ProvUI {
 
-	private static int[] iuColumnConfig = new int[] {IUDetailsLabelProvider.COLUMN_ID, IUDetailsLabelProvider.COLUMN_VERSION};
+	// Public constants for common command and tooltip names
+	public static final String INSTALL_COMMAND_LABEL = ProvUIMessages.InstallIUCommandLabel;
+	public static final String INSTALL_COMMAND_TOOLTIP = ProvUIMessages.InstallIUCommandTooltip;
+	public static final String UNINSTALL_COMMAND_LABEL = ProvUIMessages.UninstallIUCommandLabel;
+	public static final String UNINSTALL_COMMAND_TOOLTIP = ProvUIMessages.UninstallIUCommandTooltip;
+	public static final String UPDATE_COMMAND_LABEL = ProvUIMessages.UpdateIUCommandLabel;
+	public static final String UPDATE_COMMAND_TOOLTIP = ProvUIMessages.UpdateIUCommandTooltip;
+	public static final String ROLLBACK_COMMAND_LABEL = ProvUIMessages.BecomeIUCommandLabel;
+	public static final String ROLLBACK_COMMAND_TOOLTIP = ProvUIMessages.BecomeIUCommandTooltip;
+
+	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_ID), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION)};
 
 	/**
 	 * Make an <code>IAdaptable</code> that adapts to the specified shell,
@@ -86,11 +97,11 @@ public class ProvUI {
 		StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
 	}
 
-	public static int[] getIUDetailsColumns() {
+	public static IUColumnConfig[] getIUColumnConfig() {
 		return iuColumnConfig;
 	}
 
-	public static void setIUDetailsColumns(int[] columnConfig) {
+	public static void setIUColumnConfig(IUColumnConfig[] columnConfig) {
 		iuColumnConfig = columnConfig;
 	}
 }

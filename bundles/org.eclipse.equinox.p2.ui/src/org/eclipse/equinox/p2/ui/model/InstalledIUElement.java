@@ -70,4 +70,8 @@ public class InstalledIUElement extends ProvElement {
 	public Profile getProfile() {
 		return parent;
 	}
+
+	public IInstallableUnit getIU() {
+		return iu;
+	}
 }

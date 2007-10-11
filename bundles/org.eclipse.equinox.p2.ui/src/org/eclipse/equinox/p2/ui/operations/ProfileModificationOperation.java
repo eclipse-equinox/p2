@@ -10,32 +10,28 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.operations;
 
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
  * Abstract class representing provisioning profile operations
  * 
  * @since 3.4
  */
-public abstract class ProfileModificationOperation extends ProfileOperation {
+public class ProfileModificationOperation extends ProfileOperation {
 
-	IInstallableUnit[] ius;
-	String entryPointName;
+	ProvisioningPlan plan;
 
-	ProfileModificationOperation(String label, String id, IInstallableUnit[] ius, String entryPointName) {
+	public ProfileModificationOperation(String label, String id, ProvisioningPlan plan) {
 		super(label, new String[] {id});
-		this.entryPointName = entryPointName;
-		this.ius = ius;
-	}
-
-	ProfileModificationOperation(String label, String id, IInstallableUnit[] ius) {
-		this(label, id, ius, null);
+		this.plan = plan;
 	}
 
 	boolean isValid() {
-		return super.isValid() && ius != null && ius.length > 0;
+		return super.isValid() && plan != null && plan.getStatus().isOK();
 	}
 
 	public String getProfileId() {
@@ -54,13 +50,7 @@ public abstract class ProfileModificationOperation extends ProfileOperation {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.operations.ProvisioningOperation#getAffectedObjects()
-	 */
-	public Object[] getAffectedObjects() {
-		if (ius != null)
-			return ius;
-		return super.getAffectedObjects();
+	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+		return ProvisioningUtil.performProvisioningPlan(plan, getProfile(), monitor);
 	}
 }

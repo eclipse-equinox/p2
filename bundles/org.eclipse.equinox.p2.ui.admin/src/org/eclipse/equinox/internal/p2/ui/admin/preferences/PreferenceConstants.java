@@ -15,7 +15,6 @@ package org.eclipse.equinox.internal.p2.ui.admin.preferences;
  */
 public class PreferenceConstants {
 
-	public static final String PREF_CONFIRM_SELECTION_INSTALL = "org.eclipse.equinox.p2.ui.admin.confirmDragInstall"; //$NON-NLS-1$
 	public static final String PREF_SHOW_GROUPS_ONLY = "org.eclipse.equinox.p2.ui.admin.showGroupsOnly"; //$NON-NLS-1$
 	public static final String PREF_HIDE_IMPLEMENTATION_REPOS = "org.eclipse.equinox.p2.ui.admin.hideImplementationRepos"; //$NON-NLS-1$
 }

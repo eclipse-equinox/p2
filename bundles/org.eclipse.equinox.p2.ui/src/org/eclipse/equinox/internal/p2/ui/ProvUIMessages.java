@@ -32,27 +32,24 @@ public class ProvUIMessages extends NLS {
 	public static String ColocatedRepositoryManipulatorGroup_LocationColumnHeader;
 	public static String ColocatedRepositoryManipulatorGroup_NameColumnHeader;
 	public static String ColocatedRepositoryManipulatorGroup_Remove;
-	public static String InstallAction_EntryPointNameRequired;
-	public static String InstallAction_InstallConfirmTitle;
-	public static String InstallAction_InstallInfoTitle;
-	public static String InstallAction_InstallNotPermitted;
-	public static String InstallAction_NameEntryPointMessage;
-	public static String InstallOperation_CannotInstall;
+	public static String InstallDialog_InstallSelectionMessage;
 	public static String IUPropertiesGroup_CopyrightProperty;
 	public static String IUPropertiesGroup_DescriptionProperty;
 	public static String IUPropertiesGroup_LicenseProperty;
+	public static String IUDetailsLabelProvider_Unknown;
 	public static String IUPropertiesGroup_NameProperty;
 	public static String IUPropertiesGroup_ProviderProperty;
 	public static String ProfileGroup_Cache;
 	public static String ProfileGroup_SelectBundlePoolCache;
+	public static String ProvisioningUtil_InstallProgressName;
 	// utility error messages
 	public static String ProvisioningUtil_NoRepositoryManager;
 	public static String ProvisioningUtil_AddRepositoryFailure;
 	public static String ProvisioningUtil_RepoNotWritable;
 	public static String ProvisioningUtil_RepositoryNotFound;
 	public static String ProvisioningUtil_NoProfileRegistryFound;
-	public static String ProvisioningUtil_NoDirectorFound;
-	public static String ProvisioningUtil_NoOracleFound;
+	public static String ProvisioningUtil_NoPlannerFound;
+	public static String ProvisioningUtil_NoEngineFound;
 	public static String ProvisioningUtil_NoIUFound;
 	public static String ProvisioningUtil_NoInstallRegistryFound;
 	public static String ProvisioningUtil_NoProfileInstallRegistryFound;
@@ -67,10 +64,19 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningOperation_ExecuteErrorTitle;
 	public static String ProvisioningOperation_RedoErrorTitle;
 	public static String ProvisioningOperation_UndoErrorTitle;
-	public static String Ops_InstallIUOperationLabel;
-	public static String Ops_UninstallIUOperationLabel;
-	public static String Ops_UpdateIUOperationLabel;
-	public static String Ops_BecomeIUOperationLabel;
+	public static String InstallIUOperationLabel;
+	public static String InstallIUCommandLabel;
+	public static String InstallIUCommandTooltip;
+	public static String UninstallDialog_UninstallMessage;
+	public static String UninstallIUOperationLabel;
+	public static String UninstallIUCommandLabel;
+	public static String UninstallIUCommandTooltip;
+	public static String UpdateIUOperationLabel;
+	public static String UpdateIUCommandLabel;
+	public static String UpdateIUCommandTooltip;
+	public static String BecomeIUOperationLabel;
+	public static String BecomeIUCommandLabel;
+	public static String BecomeIUCommandTooltip;
 
 	// Property pages
 	public static String ProfilePropertyPage_NoProfileSelected;
@@ -115,16 +121,16 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateAction_UpdatesAvailableTitle;
 	public static String PlatformUpdateTitle;
 	public static String PlatformRestartMessage;
+	public static String ProvUI_NameColumnTitle;
+	public static String ProvUI_SizeColumnTitle;
+	public static String ProvUI_VersionColumnTitle;
 	public static String OptionalPlatformRestartMessage;
 
 	// Operations
-	public static String UpdateAndInstallGroup_Install;
 	public static String UpdateAndInstallGroup_Properties;
+	public static String UpdateAndInstallSelectionDialog_DeselectAllLabel;
+	public static String UpdateAndInstallSelectionDialog_SelectAllLabel;
 	public static String UpdateAndInstallGroup_Refresh;
-	public static String UpdateAndInstallGroup_Uninstall;
-	public static String UpdateAndInstallGroup_Update;
 	public static String UpdateOperation_NothingToUpdate;
 
-	// TODO
-	public final static String IUDetailsLabelProvider_Unknown = "FIXME";
 }

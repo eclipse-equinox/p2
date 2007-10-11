@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
@@ -120,6 +121,10 @@ public class AbstractProvisioningTest extends TestCase {
 
 	public IDirector createDirector() {
 		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.class.getName());
+	}
+
+	public IPlanner createPlanner() {
+		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
 	}
 
 	public void printProfile(Profile toPrint) {

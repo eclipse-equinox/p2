@@ -21,8 +21,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningUtil;
  * @since 3.4
  */
 public class RemoveProfilesOperation extends ProfileOperation {
-	private boolean removed = false;
-
 	public RemoveProfilesOperation(String label, Profile[] profiles) {
 		super(label, profiles);
 	}
@@ -32,33 +30,6 @@ public class RemoveProfilesOperation extends ProfileOperation {
 			ProvisioningUtil.removeProfile(profileIds[i], monitor, uiInfo);
 		}
 		// assume the best if no exception
-		removed = true;
 		return okStatus();
-	}
-
-	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		for (int i = 0; i < cachedProfiles.length; i++) {
-			ProvisioningUtil.addProfile(cachedProfiles[i], monitor, uiInfo);
-		}
-		removed = false;
-		return okStatus();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canExecute()
-	 */
-	public boolean canExecute() {
-		return profileIds != null && !removed;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.core.commands.operations.AbstractOperation#canUndo()
-	 */
-	public boolean canUndo() {
-		return cachedProfiles != null && removed;
 	}
 }

@@ -36,7 +36,6 @@ public class ProvisioningPrefPage extends FieldEditorPreferencePage implements I
 	 * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
 	 */
 	public void createFieldEditors() {
-		addField(new BooleanFieldEditor(PreferenceConstants.PREF_CONFIRM_SELECTION_INSTALL, ProvAdminUIMessages.ProvisioningPrefPage_ConfirmSelectionInstallOps, getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_SHOW_GROUPS_ONLY, ProvAdminUIMessages.ProvisioningPrefPage_ShowGroupsOnly, getFieldEditorParent()));
 		addField(new BooleanFieldEditor(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS, ProvAdminUIMessages.ProvisioningPrefPage_HideInternalRepos, getFieldEditorParent()));
 	}

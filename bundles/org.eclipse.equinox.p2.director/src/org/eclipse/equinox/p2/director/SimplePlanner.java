@@ -8,101 +8,48 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.director;
 
-import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.*;
-import org.eclipse.equinox.internal.p2.rollback.FormerState;
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.engine.Operand;
+import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Version;
 
-public class NewSimpleDirector implements IDirector {
+public class SimplePlanner implements IPlanner {
 	static final int ExpandWork = 10;
-	static final int OperationWork = 100;
-	private Engine engine;
 
-	public static void tagAsImplementation(IMetadataRepository repository) {
-		if (repository != null && repository.getProperties().getProperty(IRepository.IMPLEMENTATION_ONLY_KEY) == null) {
-			if (repository.isModifiable())
-				repository.getModifiableProperties().setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
-		}
-	}
-
-	public NewSimpleDirector() {
-		URL rollbackLocation = null;
-		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName());
-		rollbackLocation = agentLocation.getTouchpointDataArea("director");
-		ProvisioningEventBus eventBus = (ProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, ProvisioningEventBus.class.getName());
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		IMetadataRepository rollbackRepo = manager.loadRepository(rollbackLocation, null);
-		if (rollbackRepo == null)
-			rollbackRepo = manager.createRepository(rollbackLocation, "Agent rollback repo", "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$//$NON-NLS-2$
-		if (rollbackRepo == null)
-			throw new IllegalStateException("Unable to open or create Agent's rollback repository");
-		tagAsImplementation(rollbackRepo);
-		new FormerState(eventBus, rollbackRepo);
-		engine = (Engine) ServiceHelper.getService(DirectorActivator.context, Engine.class.getName());
-	}
-
-	//TODO This is really gross!!!!! We need to make things uniform
-	private IInstallableUnit[] toArray(Iterator it) {
-		ArrayList result = new ArrayList();
-		while (it.hasNext()) {
-			result.add(it.next());
-		}
-		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
-	}
-
-	protected IInstallableUnit[] createEntryPointHelper(String entryPointName, IInstallableUnit[] content) {
-		if (entryPointName == null)
-			return content;
-		return new IInstallableUnit[] {createEntryPoint(entryPointName, content)};
-	}
-
-	protected InstallableUnit createEntryPoint(String entryPointName, IInstallableUnit[] content) {
-		InstallableUnit result = new InstallableUnit();
-		result.setId("entry point " + entryPointId(content)); //$NON-NLS-1$
-		result.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
-		result.setRequiredCapabilities(IUTransformationHelper.toRequirements(content, false));
-		result.setProperty(IInstallableUnitConstants.ENTRYPOINT_IU_KEY, Boolean.TRUE.toString());
-		result.setProperty(IInstallableUnitConstants.NAME, entryPointName);
-		return result;
-	}
-
-	private String entryPointId(IInstallableUnit[] ius) {
-		StringBuffer result = new StringBuffer();
-		for (int i = 0; i < ius.length; i++) {
-			result.append(ius[i].getId());
-			if (i < ius.length - 1)
-				result.append(", "); //$NON-NLS-1$
-		}
-		return result.toString();
-	}
-
-	public IStatus install(IInstallableUnit[] installRoots, Profile profile, String entryPointName, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork + OperationWork);
+	public ProvisioningPlan getInstallPlan(IInstallableUnit[] installRoots, Profile profile, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Install_Problems, null);
 			// Get the list of ius installed in the profile we are installing into
 			IInstallableUnit[] alreadyInstalled = toArray(profile.getInstallableUnits());
+
+			// If any of these are already installed, return a warning status
+			// specifying that they are already installed.
+			for (int i = 0; i < installRoots.length; i++)
+				for (int j = 0; j < alreadyInstalled.length; j++)
+					if (installRoots[i].equals(alreadyInstalled[j]))
+						result.merge(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Already_Installed, installRoots[i].getId())));
+
+			if (!result.isOK()) {
+				return new ProvisioningPlan(result);
+			}
 			//Compute the complete closure of things to install to successfully install the installRoots.
-			NewDependencyExpander expander = new NewDependencyExpander(createEntryPointHelper(entryPointName, installRoots), alreadyInstalled, gatherAvailableInstallableUnits(installRoots), profile, true);
+			NewDependencyExpander expander = new NewDependencyExpander(installRoots, alreadyInstalled, gatherAvailableInstallableUnits(installRoots), profile, true);
 			//			NewDependencyExpander expander = new NewDependencyExpander(installRoots, alreadyInstalled, gatherAvailableInstallableUnits(), profile, true);
 			IStatus expanderResult = expander.expand(sub.newChild(ExpandWork));
 			if (!expanderResult.isOK()) {
 				result.merge(expanderResult);
-				return result;
+				return new ProvisioningPlan(result);
 			}
 
 			ResolutionHelper oldStateHelper = new ResolutionHelper(profile.getSelectionContext(), null);
@@ -112,14 +59,7 @@ public class NewSimpleDirector implements IDirector {
 			ResolutionHelper newStateHelper = new ResolutionHelper(profile.getSelectionContext(), expander.getRecommendations());
 			Collection newState = newStateHelper.attachCUs(expander.getAllInstallableUnits());
 			List newStateOrder = newStateHelper.getSorted();
-
-			//TODO Here we need to sort the operations to ensure that the dependents will be treated first (see ensureDependencyOrder)
-			sub.setTaskName(NLS.bind(Messages.Director_Task_Installing, entryPointName, profile.getValue(Profile.PROP_INSTALL_FOLDER)));
-			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), generateOperations(oldState, newState, oldStateOrder, newStateOrder), sub.newChild(OperationWork));
-			if (!engineResult.isOK())
-				result.merge(engineResult);
-
-			return result.isOK() ? Status.OK_STATUS : result;
+			return new ProvisioningPlan(Status.OK_STATUS, generateOperations(oldState, newState, oldStateOrder, newStateOrder));
 		} finally {
 			sub.done();
 		}
@@ -168,15 +108,15 @@ public class NewSimpleDirector implements IDirector {
 		return toSort;
 	}
 
-	public IStatus become(IInstallableUnit target, Profile profile, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, OperationWork + ExpandWork);
+	public ProvisioningPlan getBecomePlan(IInstallableUnit target, Profile profile, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Become_Problems, null);
 
 			if (!Boolean.valueOf(target.getProperty(IInstallableUnitConstants.PROFILE_IU_KEY)).booleanValue()) {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, target.getId())));
-				return result;
+				return new ProvisioningPlan(result);
 			}
 
 			//TODO Here we need to deal with the change of properties between the two profiles
@@ -197,12 +137,7 @@ public class NewSimpleDirector implements IDirector {
 
 			ResolutionHelper oldStateHelper = new ResolutionHelper(profile.getSelectionContext(), null);
 			Collection oldState = oldStateHelper.attachCUs(oldIUs);
-			sub.setTaskName(Messages.Director_Task_Updating);
-			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), generateOperations(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted()), sub.newChild(OperationWork));
-			if (!engineResult.isOK())
-				result.merge(engineResult);
-
-			return result;
+			return new ProvisioningPlan(Status.OK_STATUS, generateOperations(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted()));
 		} finally {
 			sub.done();
 		}
@@ -222,13 +157,13 @@ public class NewSimpleDirector implements IDirector {
 		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
 
-	public IStatus uninstall(IInstallableUnit[] uninstallRoots, Profile profile, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, OperationWork + ExpandWork);
+	public ProvisioningPlan getUninstallPlan(IInstallableUnit[] uninstallRoots, Profile profile, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
 			IInstallableUnit[] toReallyUninstall = inProfile(uninstallRoots, profile, true, sub.newChild(0));
 			if (toReallyUninstall.length == 0) {
-				return new Status(IStatus.OK, DirectorActivator.PI_DIRECTOR, Messages.Director_Nothing_To_Uninstall);
+				return new ProvisioningPlan(new Status(IStatus.OK, DirectorActivator.PI_DIRECTOR, Messages.Director_Nothing_To_Uninstall));
 			} else if (toReallyUninstall.length != uninstallRoots.length) {
 				uninstallRoots = toReallyUninstall;
 			}
@@ -255,14 +190,9 @@ public class NewSimpleDirector implements IDirector {
 					result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Cannot_Uninstall, uninstallRoots[i])));
 			}
 			if (!result.isOK())
-				return result;
+				return new ProvisioningPlan(result);
 
-			sub.setTaskName(Messages.Director_Task_Uninstalling);
-			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), generateOperations(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted()), sub.newChild(OperationWork));
-			if (!engineResult.isOK())
-				result.merge(engineResult);
-
-			return result.isOK() ? Status.OK_STATUS : result;
+			return new ProvisioningPlan(Status.OK_STATUS, generateOperations(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted()));
 		} finally {
 			sub.done();
 		}
@@ -284,14 +214,10 @@ public class NewSimpleDirector implements IDirector {
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
 	}
 
-	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, OperationWork + ExpandWork);
+	public ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
-			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Replace_Problems, null);
-
-			//TODO Need to worry about the entry points
-
 			//find the things being updated in the profile
 			IInstallableUnit[] alreadyInstalled = toArray(profile.getInstallableUnits());
 			IInstallableUnit[] uninstallRoots = toUninstall;
@@ -315,14 +241,30 @@ public class NewSimpleDirector implements IDirector {
 			ResolutionHelper newStateHelper = new ResolutionHelper(profile.getSelectionContext(), null);
 			Collection newState = newStateHelper.attachCUs(finalExpander.getAllInstallableUnits());
 
-			sub.setTaskName(Messages.Director_Task_Updating);
-			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), generateOperations(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted()), sub.newChild(OperationWork));
-			if (!engineResult.isOK())
-				result.merge(engineResult);
-
-			return result.isOK() ? Status.OK_STATUS : result;
+			return new ProvisioningPlan(Status.OK_STATUS, generateOperations(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted()));
 		} finally {
 			sub.done();
 		}
+	}
+
+	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate) {
+		IInstallableUnit[] allius = gatherAvailableInstallableUnits(null);
+		Set updates = new HashSet();
+		for (int i = 0; i < allius.length; i++) {
+			if (toUpdate.getId().equals(allius[i].getProperty(IInstallableUnitConstants.UPDATE_FROM))) {
+				if (toUpdate.getVersion().compareTo(allius[i].getVersion()) < 0 && new VersionRange(allius[i].getProperty(IInstallableUnitConstants.UPDATE_RANGE)).isIncluded(toUpdate.getVersion()))
+					updates.add(allius[i]);
+			}
+		}
+		return (IInstallableUnit[]) updates.toArray(new IInstallableUnit[updates.size()]);
+	}
+
+	//TODO This is really gross!!!!! We need to make things uniform
+	private IInstallableUnit[] toArray(Iterator it) {
+		ArrayList result = new ArrayList();
+		while (it.hasNext()) {
+			result.add(it.next());
+		}
+		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
 }

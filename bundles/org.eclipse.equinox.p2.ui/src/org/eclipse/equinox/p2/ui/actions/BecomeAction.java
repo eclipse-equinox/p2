@@ -11,27 +11,55 @@
 
 package org.eclipse.equinox.p2.ui.actions;
 
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.IProfileChooser;
-import org.eclipse.equinox.p2.ui.operations.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
+import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
 public class BecomeAction extends ProfileModificationAction {
-	public static final int ENTRYPOINT_FORCE = 1;
-	public static final int ENTRYPOINT_OPTIONAL = 2;
-	public static final int ENTRYPOINT_NEVER = 3;
-	int entryPointStrategy = ENTRYPOINT_NEVER;
 
-	public BecomeAction(String text, ISelectionProvider selectionProvider, IOperationConfirmer confirmer, Profile profile, IProfileChooser chooser, Shell shell) {
-		super(text, selectionProvider, confirmer, profile, chooser, shell);
+	public BecomeAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
+		super(ProvUI.ROLLBACK_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
+		setToolTipText(ProvUI.ROLLBACK_COMMAND_TOOLTIP);
 	}
 
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] toBecome, Profile targetProfile, IProgressMonitor monitor) {
-		return new BecomeOperation(ProvUIMessages.Ops_BecomeIUOperationLabel, targetProfile.getProfileId(), toBecome[0]);
+	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] toBecome, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo) {
+		if (toBecome.length == 1) {
+			try {
+				ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, monitor);
+				IStatus planStatus = plan.getStatus();
+				if (planStatus.isOK())
+					return new ProfileModificationOperation(ProvUIMessages.BecomeIUOperationLabel, targetProfile.getProfileId(), plan);
+				ProvUI.reportStatus(planStatus);
+			} catch (ProvisionException e) {
+				ProvUI.handleException(e, null);
+				// fall through and return null
+			}
+		}
+		return null;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.actions.SelectionProviderAction#selectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
+	 *
+	 *  Overridden to enable only on single selections with a profile IU.
+	 */
+	public void selectionChanged(IStructuredSelection selection) {
+		Object[] selectionArray = selection.toArray();
+		if (selectionArray.length == 1 && selectionArray[0] instanceof IInstallableUnit) {
+			IInstallableUnit iu = (IInstallableUnit) selectionArray[0];
+			setEnabled(Boolean.valueOf(iu.getProperty(IInstallableUnitConstants.PROFILE_IU_KEY)).booleanValue());
+		} else {
+			setEnabled(false);
+		}
+	}
 }

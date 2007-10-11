@@ -15,8 +15,6 @@ import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.actions.BecomeAction;
@@ -27,7 +25,8 @@ import org.eclipse.equinox.p2.ui.viewers.IUDragAdapter;
 import org.eclipse.equinox.p2.ui.viewers.ProvElementLabelProvider;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.IContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.widgets.Shell;
@@ -91,9 +90,8 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	protected void makeActions() {
 		super.makeActions();
-		installAction = new InstallAction(ProvAdminUIMessages.InstallIUCommandLabel, viewer, null, null, getProfileChooser(), getShell());
-		installAction.setEntryPointStrategy(InstallAction.ENTRYPOINT_OPTIONAL);
-		becomeAction = new BecomeAction(ProvAdminUIMessages.BecomeIUCommandLabel, viewer, null, null, getProfileChooser(), getShell());
+		installAction = new InstallAction(viewer, null, getProfileChooser(), getShell());
+		becomeAction = new BecomeAction(viewer, null, getProfileChooser(), getShell());
 	}
 
 	private IProfileChooser getProfileChooser() {
@@ -128,28 +126,6 @@ public class MetadataRepositoriesView extends RepositoriesView {
 				return ProvAdminUIMessages.MetadataRepositoriesView_ChooseProfileDialogTitle;
 			}
 		};
-	}
-
-	protected void selectionChanged(IStructuredSelection selection) {
-		super.selectionChanged(selection);
-		if (selection.size() < 1) {
-			installAction.setEnabled(false);
-			becomeAction.setEnabled(false);
-		}
-		Object[] selectionArray = selection.toArray();
-		if (selectionArray.length == 1 && selectionArray[0] instanceof IInstallableUnit) {
-			IInstallableUnit iu = (IInstallableUnit) selectionArray[0];
-			becomeAction.setEnabled(Boolean.valueOf(iu.getProperty(IInstallableUnitConstants.PROFILE_IU_KEY)).booleanValue());
-		} else {
-			becomeAction.setEnabled(false);
-		}
-		for (int i = 0; i < selectionArray.length; i++) {
-			if (!(selectionArray[i] instanceof IInstallableUnit)) {
-				installAction.setEnabled(false);
-				return;
-			}
-		}
-		installAction.setEnabled(true);
 	}
 
 	protected void fillContextMenu(IMenuManager manager) {

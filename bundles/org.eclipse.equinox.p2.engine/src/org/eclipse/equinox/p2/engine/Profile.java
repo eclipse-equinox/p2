@@ -139,4 +139,24 @@ public class Profile implements IQueryable {
 	public Iterator getInstallableUnits() {
 		return Arrays.asList(getAllInstallableUnits()).iterator();
 	}
+
+	public String getInstallableUnitProfileProperty(IInstallableUnit iu, String key) {
+		IInstallRegistry registry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (registry == null)
+			return null;
+		IProfileInstallRegistry profile = registry.getProfileInstallRegistry(this);
+		if (profile == null)
+			return null;
+		return profile.getInstallableUnitProfileProperty(iu, key);
+	}
+
+	public String setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
+		IInstallRegistry registry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (registry == null)
+			return null;
+		IProfileInstallRegistry profile = registry.getProfileInstallRegistry(this);
+		if (profile == null)
+			return null;
+		return profile.setInstallableUnitProfileProperty(iu, key, value);
+	}
 }

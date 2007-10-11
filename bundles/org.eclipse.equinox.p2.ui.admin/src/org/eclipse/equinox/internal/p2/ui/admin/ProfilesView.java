@@ -13,29 +13,22 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.UpdateAndInstallDialog;
-import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.*;
-import org.eclipse.equinox.p2.ui.actions.*;
-import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
+import org.eclipse.equinox.p2.ui.actions.UninstallAction;
+import org.eclipse.equinox.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.p2.ui.model.*;
-import org.eclipse.equinox.p2.ui.operations.*;
+import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
+import org.eclipse.equinox.p2.ui.operations.RemoveProfilesOperation;
 import org.eclipse.equinox.p2.ui.viewers.InstallIUDropAdapter;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.jface.window.Window;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
@@ -69,10 +62,9 @@ public class ProfilesView extends ProvView {
 					profilesOnly.add(element);
 				}
 			}
-			IUndoableOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (Profile[]) profilesOnly.toArray(new Profile[profilesOnly.size()]));
+			ProfileOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (Profile[]) profilesOnly.toArray(new Profile[profilesOnly.size()]));
 			try {
-				// TODO hook into platform progress service
-				IStatus status = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute(op, null, ProvUI.getUIInfoAdapter(ProfilesView.this.getShell()));
+				IStatus status = op.execute(null, ProvUI.getUIInfoAdapter(ProfilesView.this.getShell()));
 				if (status.isOK()) {
 					viewer.refresh();
 				}
@@ -97,8 +89,8 @@ public class ProfilesView extends ProvView {
 
 	private class InstallIntoProfileAction extends Action {
 		InstallIntoProfileAction() {
-			setText(ProvAdminUIMessages.InstallIUCommandLabel);
-			setToolTipText(ProvAdminUIMessages.InstallIUCommandTooltip);
+			setText(ProvUI.INSTALL_COMMAND_LABEL);
+			setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
 		}
 
 		public void run() {
@@ -128,9 +120,8 @@ public class ProfilesView extends ProvView {
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
 		treeViewer.setInput(new AllProfiles());
-		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer, getOperationConfirmer());
+		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer);
 		adapter.setFeedbackEnabled(false);
-		adapter.setEntryPointStrategy(InstallAction.ENTRYPOINT_OPTIONAL);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);
 	}
@@ -174,10 +165,8 @@ public class ProfilesView extends ProvView {
 		super.makeActions();
 		addProfileAction = new AddProfileAction();
 		removeProfileAction = new RemoveProfileAction();
-		uninstallAction = new UninstallAction(ProvAdminUIMessages.UninstallIUCommandLabel, viewer, getOperationConfirmer(), null, getProfileChooser(), getShell());
-		uninstallAction.setToolTipText(ProvAdminUIMessages.UninstallIUCommandTooltip);
-		updateAction = new UpdateAction(ProvAdminUIMessages.UpdateIUCommandLabel, viewer, getOperationConfirmer(), null, getProfileChooser(), getShell());
-		updateAction.setToolTipText(ProvAdminUIMessages.UpdateIUCommandTooltip);
+		uninstallAction = new UninstallAction(viewer, null, getProfileChooser(), getShell());
+		updateAction = new UpdateAction(viewer, null, getProfileChooser(), getShell());
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
 		installAction = new InstallIntoProfileAction();
 
@@ -196,52 +185,21 @@ public class ProfilesView extends ProvView {
 	protected void selectionChanged(IStructuredSelection ss) {
 		super.selectionChanged(ss);
 		if (ss.size() == 1) {
-			propertiesAction.setEnabled(true);
 			if (ss.getFirstElement() instanceof Profile)
 				installAction.setEnabled(true);
 			else
 				installAction.setEnabled(false);
-		} else {
-			propertiesAction.setEnabled(false);
 		}
 		Object[] selectionArray = ss.toArray();
-		Object parent = null;
 		if (selectionArray.length > 0) {
-			uninstallAction.setEnabled(true);
-			updateAction.setEnabled(true);
 			removeProfileAction.setEnabled(true);
-
 			for (int i = 0; i < selectionArray.length; i++) {
-				if (selectionArray[i] instanceof InstalledIUElement) {
-					InstalledIUElement element = (InstalledIUElement) selectionArray[i];
-					if (parent == null) {
-						parent = element.getParent(null);
-					} else if (parent != element.getParent(null)) {
-						uninstallAction.setEnabled(false);
-						updateAction.setEnabled(false);
-						break;
-					}
-				} else {
-					uninstallAction.setEnabled(false);
-					updateAction.setEnabled(false);
+				if (!(selectionArray[i] instanceof Profile)) {
+					removeProfileAction.setEnabled(false);
 					break;
 				}
 			}
-			// If the selections weren't all IU's, see if they are all
-			// profiles
-			if (!uninstallAction.isEnabled()) {
-				for (int i = 0; i < selectionArray.length; i++) {
-					if (!(selectionArray[i] instanceof Profile)) {
-						removeProfileAction.setEnabled(false);
-						break;
-					}
-				}
-			} else {
-				removeProfileAction.setEnabled(false);
-			}
 		} else {
-			uninstallAction.setEnabled(false);
-			updateAction.setEnabled(false);
 			removeProfileAction.setEnabled(false);
 		}
 	}
@@ -276,35 +234,4 @@ public class ProfilesView extends ProvView {
 			}
 		};
 	}
-
-	private IOperationConfirmer getOperationConfirmer() {
-		return new IOperationConfirmer() {
-
-			public boolean continuePerformingOperation(ProvisioningOperation op, Shell shell) {
-				String confirmMessage;
-				if (op instanceof InstallOperation) {
-					confirmMessage = NLS.bind(ProvAdminUIMessages.Ops_ConfirmIUInstall, ((InstallOperation) op).getProfileId());
-				} else if (op instanceof UninstallOperation) {
-					confirmMessage = ProvAdminUIMessages.ProfilesView_ConfirmUninstallMessage;
-				} else {
-					return true;
-				}
-				boolean proceed = true;
-				IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
-				if (store.getBoolean(PreferenceConstants.PREF_CONFIRM_SELECTION_INSTALL)) {
-					MessageDialogWithToggle dlg = MessageDialogWithToggle.openYesNoCancelQuestion(shell, op.getLabel(), confirmMessage, ProvAdminUIMessages.ProfilesView_AlwaysConfirmSelectionInstallOps, true, null, null);
-					int ret = dlg.getReturnCode();
-					if (!(ret == Window.CANCEL || ret == -1)) { // return
-						// code of -1 corresponds with ESC
-						// even if no was pressed, we still want to store
-						// the toggle state.
-						store.setValue(PreferenceConstants.PREF_CONFIRM_SELECTION_INSTALL, dlg.getToggleState());
-					}
-					proceed = dlg.getReturnCode() == IDialogConstants.YES_ID;
-				}
-				return proceed;
-			}
-		};
-	}
-
 }

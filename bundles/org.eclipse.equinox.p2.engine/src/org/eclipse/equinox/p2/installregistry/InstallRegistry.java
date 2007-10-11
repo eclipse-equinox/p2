@@ -17,10 +17,12 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
+import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
@@ -54,7 +56,18 @@ public class InstallRegistry implements IInstallRegistry {
 					if (event.isInstall() && event.getOperand().second() != null) {
 						registry.addInstallableUnits(event.getOperand().second().getOriginal());
 					} else if (event.isUninstall() && event.getOperand().first() != null) {
-						registry.removeInstallableUnits(event.getOperand().first().getOriginal());
+						IInstallableUnit original = event.getOperand().first().getOriginal();
+						String value = registry.getInstallableUnitProfileProperty(original, IInstallableUnitConstants.PROFILE_ROOT_IU);
+						boolean isRoot = value != null && value.equals(Boolean.toString(true));
+						registry.removeInstallableUnits(original);
+						// TODO this is odd because I'm setting up a property for something
+						// not yet installed in the registry.  The implementation allows it and
+						// the assumption is that the second operand will get installed or else 
+						// this change will never be committed.  The alternative is to remember
+						// a transitory root value that we set when the install is received.
+						if (isRoot && event.getOperand().second() != null) {
+							registry.setInstallableUnitProfileProperty(event.getOperand().second().getOriginal(), IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
+						}
 					}
 				} else if (o instanceof CommitOperationEvent) {
 					persist();
@@ -145,10 +158,12 @@ public class InstallRegistry implements IInstallRegistry {
 	public class ProfileInstallRegistry implements IProfileInstallRegistry {
 		private String profileId; // id profile this data applies to
 		private Set installableUnits; //id 
+		private Map iuPropertiesMap; // iu->OrderedProperties
 
 		ProfileInstallRegistry(String profileId) {
 			this.profileId = profileId;
 			this.installableUnits = new HashSet();
+			this.iuPropertiesMap = new HashMap();
 		}
 
 		public IInstallableUnit[] getInstallableUnits() {
@@ -162,6 +177,7 @@ public class InstallRegistry implements IInstallRegistry {
 
 		public void removeInstallableUnits(IInstallableUnit toRemove) {
 			installableUnits.remove(toRemove);
+			iuPropertiesMap.remove(toRemove);
 		}
 
 		public String getProfileId() {
@@ -176,5 +192,25 @@ public class InstallRegistry implements IInstallRegistry {
 			}
 			return null;
 		}
+
+		public String getInstallableUnitProfileProperty(IInstallableUnit toGet, String key) {
+			OrderedProperties properties = getInstallableUnitProfileProperties(toGet);
+			return properties.getProperty(key);
+		}
+
+		public String setInstallableUnitProfileProperty(IInstallableUnit toSet, String key, String value) {
+			OrderedProperties properties = getInstallableUnitProfileProperties(toSet);
+			return (String) properties.setProperty(key, value);
+		}
+
+		private OrderedProperties getInstallableUnitProfileProperties(IInstallableUnit toGet) {
+			OrderedProperties properties = (OrderedProperties) iuPropertiesMap.get(toGet);
+			if (properties == null) {
+				properties = new OrderedProperties();
+				iuPropertiesMap.put(toGet, properties);
+			}
+			return properties;
+		}
+
 	}
 }

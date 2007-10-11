@@ -13,11 +13,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.director.Oracle;
+import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -31,6 +30,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private IMetadataRepository[] repos;
 	private IDirector director;
+	private IPlanner planner;
 
 	protected void setUp() throws Exception {
 		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
@@ -38,6 +38,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 			throw new RuntimeException("Director service not available");
 		}
 		director = createDirector();
+		planner = createPlanner();
 		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
 		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
 		if (mgr == null) {
@@ -82,91 +83,10 @@ public class End2EndTest extends AbstractProvisioningTest {
 		return profile1;
 	}
 
-	private Collection extractIUs(Profile p) {
-		Collection result = new HashSet();
-		Iterator it = p.getInstallableUnits();
-		while (it.hasNext()) {
-			result.add(it.next());
-		}
-		return result;
-	}
-
-	public void testInstallSDKWithEntryPoint() {
-		Profile profile1 = createProfile("profile1");
-		//First we install the sdk
-		IStatus s = director.install(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile1, "entryPoint1", new NullProgressMonitor());
-		assertOK(s);
-		Collection iusInstalled = extractIUs(profile1);
-		IInstallableUnit firstSnapshot = getIU("profile1"); //This should represent the empty profile
-		assertNotNull(firstSnapshot);
-		assertNotNull(firstSnapshot.getProperty("profileIU"));
-		IInstallableUnit firstEntryPoint = null;
-		try {
-			firstEntryPoint = getIU(IInstallableUnitConstants.ENTRYPOINT_IU_KEY, "true")[0];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			fail("We expect to find an entry point");
-		}
-
-		//The uninstallation should not work since there is an entyr point
-		s = director.uninstall(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile1, new NullProgressMonitor());
-		assertNotOK(s);
-
-		//The uninstallation of the entry point should lead to an empty profile
-		s = director.uninstall(new IInstallableUnit[] {firstEntryPoint}, profile1, new NullProgressMonitor());
-		assertOK(s);
-
-		assertEmptyProfile(profile1);
-		IInstallableUnit[] snapshots = getIUs("profile1");
-		assertEquals(2, snapshots.length);
-		assertEquals(false, profile1.getIterator("sdk", VersionRange.emptyRange, null, false).hasNext());
-
-		// Now test the rollback to a previous state, in this case we reinstall the SDK
-		s = director.become(snapshots[0].equals(firstSnapshot) ? snapshots[1] : snapshots[0], profile1, new NullProgressMonitor());
-		if (!s.isOK())
-			fail("The become operation failed");
-
-		assertNotNull(getIU("sdk"));
-		assertEquals(firstEntryPoint, getIU(firstEntryPoint.getId()));
-		Collection afterRollback = extractIUs(profile1);
-
-		//Verify that the rollback brought back everything we had
-		Collection iusInstalledCopy = new HashSet(iusInstalled);
-		iusInstalled.removeAll(afterRollback);
-		afterRollback.removeAll(iusInstalledCopy);
-		assertEquals(0, iusInstalled.size());
-		assertEquals(0, afterRollback.size());
-
-		//Now update for the SDK itself
-		Collection snapshotsBeforeUpdate = Arrays.asList(getIUs("profile1"));
-		assertEquals(1, new Oracle().hasUpdate(getIU("sdk", new Version("3.3.0"))).size());
-		s = director.replace(new IInstallableUnit[] {firstEntryPoint}, new IInstallableUnit[] {(IInstallableUnit) new Oracle().hasUpdate(getIU("sdk", new Version("3.3.0"))).iterator().next()}, profile1, new NullProgressMonitor());
-		assertOK(s);
-		assertProfileContainsAll("", profile1, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
-		Collection snapsshotsAfterUpdate = new ArrayList(Arrays.asList(getIUs("profile1")));
-		snapsshotsAfterUpdate.removeAll(snapshotsBeforeUpdate);
-		IInstallableUnit former = (IInstallableUnit) snapsshotsAfterUpdate.iterator().next();
-
-		//Now come back to a 3.3 install
-		s = director.become(former, profile1, new NullProgressMonitor());
-		assertOK(s);
-
-		//Test replace the sdk 3.3 entry point with 3.4
-		assertEquals(1, new Oracle().hasUpdate(firstEntryPoint).size());
-		s = director.replace(new IInstallableUnit[] {firstEntryPoint}, new IInstallableUnit[] {(IInstallableUnit) new Oracle().hasUpdate(firstEntryPoint).iterator().next()}, profile1, new NullProgressMonitor());
-		assertOK(s);
-		assertProfileContainsAll("", profile1, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
-		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile1.getInstallableUnits());
-
-		//Remove everything from the profile by becoming an empty profile
-		s = director.become(firstSnapshot, profile1, new NullProgressMonitor());
-		assertOK(s);
-		//		assertEmptyProfile(profile1);
-	}
-
 	public void testInstallSDK() {
 		Profile profile2 = createProfile("profile2");
 		//First we install the sdk
-		IStatus s = director.install(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, null, new NullProgressMonitor());
+		IStatus s = director.install(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("Installation failed");
 		IInstallableUnit firstSnapshot = getIU("profile2"); //This should represent the empty profile
@@ -191,7 +111,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotNull(getIU("sdk"));
 
 		//Test replace
-		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))}, profile2, new NullProgressMonitor());
+		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, planner.updatesFor(getIU("sdk", new Version("3.3.0"))), profile2, new NullProgressMonitor());
 		assertOK(s);
 		assertProfileContainsAll("", profile2, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
 		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2.getInstallableUnits());

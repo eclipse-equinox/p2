@@ -46,7 +46,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 	}
 
 	protected void configureShell(Shell shell) {
-		shell.setText(ProvAdminUIMessages.Ops_InstallIUOperationLabel);
+		shell.setText(ProvAdminUIMessages.UpdateAndInstallDialog_Title);
 		super.configureShell(shell);
 	}
 

@@ -11,23 +11,27 @@
 
 package org.eclipse.equinox.p2.ui.actions;
 
-import org.eclipse.equinox.p2.ui.operations.IOperationConfirmer;
-import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.SelectionProviderAction;
 
 public abstract class ProvisioningAction extends SelectionProviderAction {
 
-	protected IOperationConfirmer operationConfirmer;
 	private Shell shell;
 
-	protected ProvisioningAction(String text, ISelectionProvider selectionProvider, IOperationConfirmer confirmer, Shell shell) {
+	protected ProvisioningAction(String text, ISelectionProvider selectionProvider, Shell shell) {
 		super(selectionProvider, text);
-		this.operationConfirmer = confirmer;
 		this.shell = shell;
 		if (this.shell == null) {
 			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		}
+		// prime the selection validation
+		ISelection selection = selectionProvider.getSelection();
+		if (selection instanceof IStructuredSelection) {
+			selectionChanged((IStructuredSelection) selection);
+		} else {
+			selectionChanged(selection);
 		}
 	}
 

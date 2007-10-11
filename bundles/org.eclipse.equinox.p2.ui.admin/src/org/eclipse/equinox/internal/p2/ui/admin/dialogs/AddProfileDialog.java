@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
@@ -20,12 +19,12 @@ import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.dialogs.ProfileGroup;
 import org.eclipse.equinox.p2.ui.operations.AddProfileOperation;
+import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * Dialog that allows a profile to be defined and added.
@@ -77,10 +76,9 @@ public class AddProfileDialog extends StatusDialog {
 		if (addedProfile == null) {
 			return false;
 		}
-		IUndoableOperation op = new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile);
+		ProfileOperation op = new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile);
 		try {
-			// TODO hook into platform progress service
-			PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute(op, null, ProvUI.getUIInfoAdapter(getShell()));
+			op.execute(null, ProvUI.getUIInfoAdapter(getShell()));
 		} catch (ExecutionException e) {
 			ProvUI.handleException(e.getCause(), null);
 			return false;

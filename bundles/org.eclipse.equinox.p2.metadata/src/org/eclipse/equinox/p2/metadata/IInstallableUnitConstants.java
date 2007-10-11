@@ -30,7 +30,6 @@ public interface IInstallableUnitConstants {
 	public String UPDATE_RANGE = "equinox.p2.update.range"; //$NON-NLS-1$
 
 	//TODO This is not the ideal location for these constants
-	public String ENTRYPOINT_IU_KEY = "entryPoint"; //$NON-NLS-1$
 	public static final String PROFILE_IU_KEY = "profileIU"; //$NON-NLS-1$	 
-
+	public static final String PROFILE_ROOT_IU = "profileRootIU"; //$NON-NLS-1$
 }

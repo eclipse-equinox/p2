@@ -29,6 +29,7 @@ public class Messages extends NLS {
 	public static String Director_Uninstall_Problems;
 	public static String Director_Nothing_To_Uninstall;
 	public static String Director_Cannot_Uninstall;
+	public static String Director_Already_Installed;
 
 	public static String Director_Replace_Problems;
 	public static String Director_Become_Problems;

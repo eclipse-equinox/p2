@@ -11,15 +11,15 @@ package org.eclipse.equinox.p2.director;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.Operand;
 
-public class DirectorResult {
+public class ProvisioningPlan {
 	private IStatus status;
 	private Operand[] operands;
 
-	public DirectorResult(IStatus status) {
+	public ProvisioningPlan(IStatus status) {
 		this(status, null);
 	}
 
-	public DirectorResult(IStatus status, Operand[] operands) {
+	public ProvisioningPlan(IStatus status, Operand[] operands) {
 		this.status = status;
 		this.operands = operands;
 	}

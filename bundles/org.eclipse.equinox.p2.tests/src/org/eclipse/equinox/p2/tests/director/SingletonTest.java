@@ -66,16 +66,16 @@ public class SingletonTest extends AbstractProvisioningTest {
 
 	public void testMultipleVersionNonSingleton() {
 		//The installation of junit38 and junit 40 together should succeed
-		assertEquals(director.install(new IInstallableUnit[] {junit38, junit40}, profile, null, new NullProgressMonitor()).getSeverity(), IStatus.OK);
+		assertEquals(director.install(new IInstallableUnit[] {junit38, junit40}, profile, new NullProgressMonitor()).getSeverity(), IStatus.OK);
 	}
 
 	public void testMultipleVersionSingleton() {
 		//The installation of junit38 and junit 40 together should succeed
-		assertEquals(director.install(new IInstallableUnit[] {f1, f1_1}, profile, null, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
+		assertEquals(director.install(new IInstallableUnit[] {f1, f1_1}, profile, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
 	}
 
 	public void testMultipleVersionSingleton2() {
 		//The installation of junit38 and junit 40 together should succeed
-		assertEquals(director.install(new IInstallableUnit[] {f2, f2_1}, profile, null, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
+		assertEquals(director.install(new IInstallableUnit[] {f2, f2_1}, profile, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
 	}
 }

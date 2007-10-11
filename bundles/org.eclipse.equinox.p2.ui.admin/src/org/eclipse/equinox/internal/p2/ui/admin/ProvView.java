@@ -58,7 +58,7 @@ abstract class ProvView extends ViewPart {
 		viewer.getTree().setHeaderVisible(true);
 		viewer.setContentProvider(getContentProvider());
 		viewer.setInput(getInput());
-		viewer.setLabelProvider(new ProvElementLabelProvider());
+		viewer.setLabelProvider(getLabelProvider());
 		viewer.setComparator(new ViewerComparator());
 		configureViewer(viewer);
 		addListeners();
@@ -216,5 +216,9 @@ abstract class ProvView extends ViewPart {
 		tc = new TreeColumn(tree, SWT.LEFT, 1);
 		tc.setWidth(600);
 		tc.setResizable(true);
+	}
+
+	protected ILabelProvider getLabelProvider() {
+		return new ProvElementLabelProvider();
 	}
 }

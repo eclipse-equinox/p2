@@ -97,7 +97,7 @@ public class DirectorTest extends TestCase {
 		if (allJobs.size() != 0) {
 			allRoots[0] = (IInstallableUnit) allJobs.iterator().next();
 			if (!doUninstall) {
-				operationStatus = director.install(allRoots, p, null, new NullProgressMonitor());
+				operationStatus = director.install(allRoots, p, new NullProgressMonitor());
 			} else {
 				operationStatus = director.uninstall(allRoots, p, new NullProgressMonitor());
 			}

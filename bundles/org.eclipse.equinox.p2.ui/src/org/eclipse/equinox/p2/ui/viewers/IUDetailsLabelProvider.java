@@ -30,37 +30,32 @@ import org.eclipse.swt.graphics.Image;
  * @since 3.4
  */
 public class IUDetailsLabelProvider extends LabelProvider implements ITableLabelProvider {
-	public final static int COLUMN_ID = 0;
-	public final static int COLUMN_NAME = 1;
-	public final static int COLUMN_VERSION = 2;
-	public final static int COLUMN_SIZE = 3;
-
 	final static int PRIMARY_COLUMN = 0;
 	final static String BLANK = ""; //$NON-NLS-1$
 
-	private int[] columnConfig = ProvUI.getIUDetailsColumns();
+	private IUColumnConfig[] columnConfig = ProvUI.getIUColumnConfig();
 
 	public IUDetailsLabelProvider() {
 		// use default column config
 	}
 
-	public IUDetailsLabelProvider(int[] columnConfig) {
+	public IUDetailsLabelProvider(IUColumnConfig[] columnConfig) {
 		Assert.isLegal(columnConfig.length > 0);
 		this.columnConfig = columnConfig;
 	}
 
 	public String getText(Object obj) {
-		return getColumnText(obj, columnConfig[0]);
+		return getColumnText(obj, columnConfig[0].columnField);
 	}
 
 	public Image getImage(Object obj) {
-		return getColumnImage(obj, columnConfig[0]);
+		return getColumnImage(obj, columnConfig[0].columnField);
 	}
 
 	public String getColumnText(Object element, int columnIndex) {
-		int columnContent = COLUMN_ID;
-		if (columnIndex <= columnConfig.length) {
-			columnContent = columnConfig[columnIndex];
+		int columnContent = IUColumnConfig.COLUMN_ID;
+		if (columnIndex < columnConfig.length) {
+			columnContent = columnConfig[columnIndex].columnField;
 		}
 
 		IInstallableUnit iu = getIU(element);
@@ -68,16 +63,16 @@ public class IUDetailsLabelProvider extends LabelProvider implements ITableLabel
 			return BLANK;
 
 		switch (columnContent) {
-			case COLUMN_ID :
+			case IUColumnConfig.COLUMN_ID :
 				return iu.getId();
-			case COLUMN_NAME :
+			case IUColumnConfig.COLUMN_NAME :
 				String name = iu.getProperty(IInstallableUnitConstants.NAME);
 				if (name != null)
 					return name;
 				return BLANK;
-			case COLUMN_VERSION :
+			case IUColumnConfig.COLUMN_VERSION :
 				return iu.getVersion().toString();
-			case COLUMN_SIZE :
+			case IUColumnConfig.COLUMN_SIZE :
 				return getIUSize(element);
 		}
 		return BLANK;
@@ -99,8 +94,13 @@ public class IUDetailsLabelProvider extends LabelProvider implements ITableLabel
 	}
 
 	private String getIUSize(Object element) {
-		if (element instanceof AvailableIUElement)
-			return Integer.toString(((AvailableIUElement) element).getSize());
+		if (element instanceof AvailableIUElement) {
+			long size = ((AvailableIUElement) element).getSize();
+			if (size != AvailableIUElement.SIZE_UNKNOWN) {
+				// TODO should do something prettier here
+				return Long.toString(size);
+			}
+		}
 		return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 	}
 }

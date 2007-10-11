@@ -72,8 +72,7 @@ public class IUImplementationGroup extends IUGroup {
 		gdList.horizontalSpan = 2;
 		gdList.heightHint = Dialog.convertHeightInCharsToPixels(fontMetrics, 5);
 
-		// TODO will existing IUs be editable?
-		boolean editable = iu == null && listener != null;
+		boolean editable = iuElement == null && listener != null;
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.IUGroup_ID);
@@ -134,6 +133,7 @@ public class IUImplementationGroup extends IUGroup {
 	}
 
 	private void initializeFields() {
+		IInstallableUnit iu = getIU();
 		if (iu == null) {
 			return;
 		}
@@ -170,12 +170,12 @@ public class IUImplementationGroup extends IUGroup {
 	}
 
 	public void updateIU() {
-		if (iu == null) {
-			iu = new InstallableUnit();
+		if (iuElement == null) {
+			iuElement = new InstallableUnit();
 		}
 		// If it's not an InstallableUnit it is not editable
-		if (iu instanceof InstallableUnit) {
-			InstallableUnit unit = (InstallableUnit) iu;
+		if (iuElement instanceof InstallableUnit) {
+			InstallableUnit unit = (InstallableUnit) iuElement;
 			unit.setId(id.getText().trim());
 			unit.setVersion(new Version(version.getText().trim()));
 			unit.setProperty(IInstallableUnit.IU_NAMESPACE, namespace.getText().trim());

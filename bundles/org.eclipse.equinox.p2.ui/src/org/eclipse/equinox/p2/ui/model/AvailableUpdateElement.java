@@ -8,24 +8,27 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.installregistry;
+package org.eclipse.equinox.p2.ui.model;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
-public interface IProfileInstallRegistry {
+/**
+ * Element wrapper class for IU's that are available for installation.
+ * Used instead of the plain IU when additional information such as sizing
+ * info is necessary.
+ * 
+ * @since 3.4
+ */
+public class AvailableUpdateElement extends AvailableIUElement {
 
-	public IInstallableUnit[] getInstallableUnits();
+	IInstallableUnit iuToBeUpdated;
 
-	public IInstallableUnit getInstallableUnit(String id, String version);
+	public AvailableUpdateElement(IInstallableUnit iu, long size, IInstallableUnit iuToBeUpdated) {
+		super(iu, size);
+		this.iuToBeUpdated = iuToBeUpdated;
+	}
 
-	public void addInstallableUnits(IInstallableUnit toAdd);
-
-	public void removeInstallableUnits(IInstallableUnit toRemove);
-
-	public String getProfileId();
-
-	public String getInstallableUnitProfileProperty(IInstallableUnit iu, String key);
-
-	public String setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value);
-
+	public IInstallableUnit getIUToBeUpdated() {
+		return iuToBeUpdated;
+	}
 }

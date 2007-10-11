@@ -44,8 +44,8 @@ public class Activator implements BundleActivator {
 	private IDirector director;
 	private ServiceRegistration registrationDirector;
 
-	private IDirector2 director2;
-	private ServiceRegistration registrationDirector2;
+	private IPlanner planner;
+	private ServiceRegistration registrationPlanner;
 
 	public void start(BundleContext context) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
@@ -58,7 +58,9 @@ public class Activator implements BundleActivator {
 		registerDefaultMetadataRepoManager();
 		registerInstallRegistry();
 
-		//create the director
+		//create the director and planner.  The planner must be
+		//registered first because the director finds it in its constructor.
+		registerPlanner();
 		registerDirector();
 
 		//create artifact repositories
@@ -68,6 +70,7 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		unregisterDefaultArtifactRepoManager();
 		unregisterDirector();
+		unregisterPlanner();
 		unregisterInstallRegistry();
 		unregisterDefaultMetadataRepoManager();
 		unregisterProfileRegistry();
@@ -77,19 +80,23 @@ public class Activator implements BundleActivator {
 	}
 
 	private void registerDirector() {
-		director = new NewSimpleDirector();
+		director = new SimpleDirector();
 		registrationDirector = context.registerService(IDirector.class.getName(), director, null);
-
-		director2 = new SimpleDirector2();
-		registrationDirector2 = context.registerService(IDirector2.class.getName(), director2, null);
 	}
 
 	private void unregisterDirector() {
 		registrationDirector.unregister();
 		director = null;
+	}
 
-		registrationDirector2.unregister();
-		director2 = null;
+	private void registerPlanner() {
+		planner = new SimplePlanner();
+		registrationPlanner = context.registerService(IPlanner.class.getName(), planner, null);
+	}
+
+	private void unregisterPlanner() {
+		registrationPlanner.unregister();
+		planner = null;
 	}
 
 	private void registerProfileRegistry() {

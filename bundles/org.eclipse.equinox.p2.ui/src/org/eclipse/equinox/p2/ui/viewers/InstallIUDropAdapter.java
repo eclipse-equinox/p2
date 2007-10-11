@@ -18,7 +18,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.p2.ui.operations.IOperationConfirmer;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.*;
@@ -34,8 +33,6 @@ import org.eclipse.swt.widgets.Shell;
 public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	static boolean DEBUG = false;
-	private IOperationConfirmer confirmer;
-	private int entryPointStrategy = InstallAction.ENTRYPOINT_FORCE;
 
 	/**
 	 * Constructs a new drop adapter.
@@ -46,9 +43,8 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 *            a confirmer that should be used to confirm the operation, or
 	 *            <code>null</code> if no confirmation is necessary.
 	 */
-	public InstallIUDropAdapter(StructuredViewer viewer, IOperationConfirmer confirmer) {
+	public InstallIUDropAdapter(StructuredViewer viewer) {
 		super(viewer);
-		this.confirmer = confirmer;
 	}
 
 	/**
@@ -147,8 +143,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(ProvUIMessages.Ops_InstallIUOperationLabel, selectionProvider, confirmer, profile, null, getShell());
-			action.setEntryPointStrategy(entryPointStrategy);
+			InstallAction action = new InstallAction(selectionProvider, profile, null, getShell());
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();
@@ -234,9 +229,5 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 			return (IInstallableUnit) ((IAdaptable) obj).getAdapter(IInstallableUnit.class);
 		}
 		return null;
-	}
-
-	public void setEntryPointStrategy(int strategy) {
-		entryPointStrategy = strategy;
 	}
 }

@@ -25,10 +25,11 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
  */
 public class AvailableIUElement extends ProvElement {
 
-	int size;
+	public static final long SIZE_UNKNOWN = -1;
+	long size;
 	IInstallableUnit iu;
 
-	public AvailableIUElement(IInstallableUnit iu, int size) {
+	public AvailableIUElement(IInstallableUnit iu, long size) {
 		this.size = size;
 		this.iu = iu;
 	}
@@ -66,7 +67,7 @@ public class AvailableIUElement extends ProvElement {
 		return super.getAdapter(adapter);
 	}
 
-	public int getSize() {
+	public long getSize() {
 		return size;
 	}
 }

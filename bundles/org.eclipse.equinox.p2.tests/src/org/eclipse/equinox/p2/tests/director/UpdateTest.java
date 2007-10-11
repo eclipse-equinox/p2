@@ -19,7 +19,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class UpdateTestWithoutEntryPoint extends AbstractProvisioningTest {
+public class UpdateTest extends AbstractProvisioningTest {
 	InstallableUnit f1;
 	InstallableUnit f1_1;
 	InstallableUnit f1_4;
@@ -59,18 +59,18 @@ public class UpdateTestWithoutEntryPoint extends AbstractProvisioningTest {
 
 		profile = new Profile("TestProfile." + getName());
 		director = createDirector();
-		director.install(new IInstallableUnit[] {fa}, profile, null, null);
+		director.install(new IInstallableUnit[] {fa}, profile, null);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4});
 	}
 
 	public void testInstall() {
-		assertEquals(director.install(new IInstallableUnit[] {f1_1}, profile, null, new NullProgressMonitor()).getSeverity(), IStatus.OK);
+		assertEquals(director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()).getSeverity(), IStatus.OK);
 		for (Iterator iterator = profile.getInstallableUnits(); iterator.hasNext();) {
 			System.out.println(iterator.next());
 
 		}
-		assertEquals(director.install(new IInstallableUnit[] {f1_4}, profile, null, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
+		assertEquals(director.install(new IInstallableUnit[] {f1_4}, profile, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
 
 		//		director.replace(new IInstallableUnit[] {fap}, profile, new NullProgressMonitor());
 	}

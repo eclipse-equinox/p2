@@ -29,11 +29,10 @@ public interface IDirector {
 	 * 
 	 * @param toInstall The units to install
 	 * @param profile The profile to install into
-	 * @param entryPoint The user visible name of the entry point. If <code>null</code> is being passed, no entry point gets created 
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public IStatus install(IInstallableUnit[] toInstall, Profile profile, String entryPoint, IProgressMonitor monitor);
+	public IStatus install(IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
 
 	/**
 	 * Uninstalls the given units from the given profile.

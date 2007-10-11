@@ -8,26 +8,27 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.operations;
 
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
+package org.eclipse.equinox.p2.ui.viewers;
+
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.ui.ProvisioningUtil;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
- * Operation that adds the given profile to the profile registry.
+ * Viewer filter which shows only IUs that have a property matching
+ * the specified value.
  * 
  * @since 3.4
  */
-public class AddProfileOperation extends ProfileOperation {
+public class IUProfilePropertyFilter extends IUPropertyFilter {
 
-	public AddProfileOperation(String label, Profile profile) {
-		super(label, new Profile[] {profile});
+	public IUProfilePropertyFilter(String name, String value) {
+		super(name, value);
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		ProvisioningUtil.addProfile(getProfiles()[0], monitor, uiInfo);
-		return okStatus();
+	protected String getProperty(IInstallableUnit iu, Object parentElement, String key) {
+		if (parentElement instanceof Profile)
+			return ((Profile) parentElement).getInstallableUnitProfileProperty(iu, key);
+		return super.getProperty(iu, parentElement, key);
 	}
 }

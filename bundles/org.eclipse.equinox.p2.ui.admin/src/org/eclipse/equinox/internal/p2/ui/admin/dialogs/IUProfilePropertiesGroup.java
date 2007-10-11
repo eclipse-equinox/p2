@@ -8,11 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
+import org.eclipse.equinox.p2.ui.dialogs.IUGroup;
+import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -26,12 +27,12 @@ import org.eclipse.swt.widgets.*;
  * 
  * @since 3.4
  */
-public class IUPropertiesGroup extends IUGroup {
+public class IUProfilePropertiesGroup extends IUGroup {
 
 	private Table propertiesTable;
 
-	public IUPropertiesGroup(final Composite parent, IInstallableUnit iu, ModifyListener listener) {
-		super(parent, iu, listener);
+	public IUProfilePropertiesGroup(final Composite parent, InstalledIUElement iuElement, ModifyListener listener) {
+		super(parent, iuElement, listener);
 	}
 
 	protected Composite createGroupComposite(Composite parent, ModifyListener listener) {
@@ -59,14 +60,14 @@ public class IUPropertiesGroup extends IUGroup {
 	}
 
 	private void initializeFields() {
-		if (iuElement == null) {
+		if (iuElement == null || !(iuElement instanceof InstalledIUElement)) {
 			return;
 		}
-		String[] propNames = new String[] {IInstallableUnitConstants.NAME, IInstallableUnitConstants.DESCRIPTION, IInstallableUnitConstants.PROVIDER, IInstallableUnitConstants.COPYRIGHT, IInstallableUnitConstants.LICENSE};
-		String[] userPropNames = new String[] {ProvUIMessages.IUPropertiesGroup_NameProperty, ProvUIMessages.IUPropertiesGroup_DescriptionProperty, ProvUIMessages.IUPropertiesGroup_ProviderProperty, ProvUIMessages.IUPropertiesGroup_CopyrightProperty, ProvUIMessages.IUPropertiesGroup_LicenseProperty};
+		String[] propNames = new String[] {IInstallableUnitConstants.PROFILE_ROOT_IU};
+		String[] userPropNames = new String[] {ProvAdminUIMessages.ProfileRootPropertyName};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
-			String value = getIU().getProperty(propNames[i]);
+			String value = ((InstalledIUElement) iuElement).getProfile().getInstallableUnitProfileProperty(getIU(), propNames[i]);
 			if (value != null)
 				item.setText(new String[] {userPropNames[i], value});
 		}

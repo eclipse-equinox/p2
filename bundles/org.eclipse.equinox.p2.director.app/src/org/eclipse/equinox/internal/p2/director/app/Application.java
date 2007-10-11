@@ -16,8 +16,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.director.DirectorResult;
-import org.eclipse.equinox.p2.director.IDirector2;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.phases.SizingPhase;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -75,9 +74,13 @@ public class Application implements IApplication {
 		if (currentFlavor != null && !currentFlavor.endsWith(flavor))
 			throw new RuntimeException("Install flavor not consistent with profile flavor");
 
-		IDirector2 director = (IDirector2) ServiceHelper.getService(Activator.getContext(), IDirector2.class.getName());
+		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
 		if (director == null)
 			throw new RuntimeException("Director could not be loaded");
+
+		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		if (planner == null)
+			throw new RuntimeException("Planner could not be loaded");
 
 		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
 		if (engine == null)
@@ -86,13 +89,13 @@ public class Application implements IApplication {
 		ProvisioningHelper.addArtifactRepository(artifactRepositoryLocation);
 		IMetadataRepository metadataRepository = ProvisioningHelper.addMetadataRepository(metadataRepositoryLocation);
 		IInstallableUnit[] roots = Query.query(new IQueryable[] {metadataRepository}, root, version == null ? null : new VersionRange(version, true, version, true), null, false, null);
-		DirectorResult result = null;
+		ProvisioningPlan result = null;
 		IStatus operationStatus = null;
 		if (roots.length > 0) {
 			if (install) {
-				result = director.install(roots, profile, null, new NullProgressMonitor());
+				result = planner.getInstallPlan(roots, profile, new NullProgressMonitor());
 			} else {
-				result = director.uninstall(roots, profile, new NullProgressMonitor());
+				result = planner.getUninstallPlan(roots, profile, new NullProgressMonitor());
 			}
 			if (!result.getStatus().isOK())
 				operationStatus = result.getStatus();

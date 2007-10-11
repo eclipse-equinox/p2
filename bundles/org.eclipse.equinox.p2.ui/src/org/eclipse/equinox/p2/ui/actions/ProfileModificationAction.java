@@ -21,13 +21,11 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
-import org.eclipse.equinox.p2.ui.operations.IOperationConfirmer;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 abstract class ProfileModificationAction extends ProvisioningAction {
@@ -35,8 +33,8 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 	Profile profile;
 	IProfileChooser profileChooser;
 
-	public ProfileModificationAction(String text, ISelectionProvider selectionProvider, IOperationConfirmer confirmer, Profile profile, IProfileChooser profileChooser, Shell shell) {
-		super(text, selectionProvider, confirmer, shell);
+	public ProfileModificationAction(String text, ISelectionProvider selectionProvider, Profile profile, IProfileChooser profileChooser, Shell shell) {
+		super(text, selectionProvider, shell);
 		this.profile = profile;
 		this.profileChooser = profileChooser;
 	}
@@ -70,7 +68,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		final Profile prof = targetProfile;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
-				ops[0] = validateAndGetOperation(ius, prof, monitor);
+				ops[0] = validateAndGetOperation(ius, prof, monitor, ProvUI.getUIInfoAdapter(getShell()));
 			}
 		};
 		try {
@@ -84,16 +82,12 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		if (ops[0] == null)
 			return;
 
-		if (operationConfirmer != null && !operationConfirmer.continuePerformingOperation(ops[0], getShell())) {
-			return;
-		}
-
 		final IStatus[] status = new IStatus[1];
 		final IAdaptable adapter = ProvUI.getUIInfoAdapter(getShell());
 		runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
-					status[0] = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute(ops[0], monitor, adapter);
+					status[0] = ops[0].execute(monitor, adapter);
 					if (!status[0].isOK()) {
 						StatusManager.getManager().handle(status[0], StatusManager.SHOW | StatusManager.LOG);
 					}
@@ -128,5 +122,5 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 	 * If so, return an operation representing it.  If not, return null.
 	 * We assume the user has been notified if something couldn't happen.
 	 */
-	protected abstract ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor);
+	protected abstract ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo);
 }

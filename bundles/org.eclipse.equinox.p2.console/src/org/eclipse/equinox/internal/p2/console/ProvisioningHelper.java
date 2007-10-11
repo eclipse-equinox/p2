@@ -227,14 +227,14 @@ public class ProvisioningHelper {
 			throw new ProvisionException(error.toString());
 		}
 
-		IDirector2 director = (IDirector2) ServiceHelper.getService(Activator.getContext(), IDirector2.class.getName());
-		if (director == null)
-			throw new ProvisionException("No director service found.");
+		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		if (planner == null)
+			throw new ProvisionException("No planner service found.");
 
 		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
-		DirectorResult result = director.install(new IInstallableUnit[] {toInstall}, profile, null, progress);
+		ProvisioningPlan result = planner.getInstallPlan(new IInstallableUnit[] {toInstall}, profile, progress);
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 

@@ -28,8 +28,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(RollbackTest.class);
 		suite.addTestSuite(SingletonTest.class);
 		suite.addTestSuite(UninstallTest.class);
-		suite.addTestSuite(UpdateTestWithoutEntryPoint.class);
-		suite.addTestSuite(UpdateTestWithEntryPoint.class);
+		suite.addTestSuite(UpdateTest.class);
 		return suite;
 	}
 

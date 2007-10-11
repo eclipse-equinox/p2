@@ -15,7 +15,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.IRepositoryManipulator;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.equinox.p2.ui.viewers.IUGroupFilter;
-import org.eclipse.equinox.p2.ui.viewers.IUPropertyFilter;
+import org.eclipse.equinox.p2.ui.viewers.IUProfilePropertyFilter;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -55,7 +55,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		ViewerFilter filter = new IUPropertyFilter(IInstallableUnitConstants.ENTRYPOINT_IU_KEY, Boolean.toString(true));
+		ViewerFilter filter = new IUProfilePropertyFilter(IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
 		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profile, new ViewerFilter[] {filter}, new ViewerFilter[] {new IUGroupFilter()}, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, TAB_WIDTH_IN_DLUS, TAB_HEIGHT_IN_DLUS, fontMetrics);
 		Dialog.applyDialogFont(group.getControl());
 		return group.getControl();

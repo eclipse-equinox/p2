@@ -16,8 +16,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.*;
-import org.eclipse.equinox.p2.ui.viewers.IUDetailsLabelProvider;
-import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
+import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
@@ -120,6 +119,8 @@ public class UpdateAndInstallGroup {
 		data = new GridData(GridData.FILL_VERTICAL);
 		buttonBar.setLayoutData(data);
 
+		// Must be done after buttons are created so that the buttons can
+		// register and receive their selection notifications before us.
 		availableIUViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				validateAvailableIUButtons(event.getSelection());
@@ -155,8 +156,8 @@ public class UpdateAndInstallGroup {
 		// Add the buttons to the button bar.
 		availablePropButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Properties, false);
 		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUViewer));
-		installButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Install, false);
-		installButton.setData(BUTTONACTION, new InstallAction(ProvUIMessages.UpdateAndInstallGroup_Install, availableIUViewer, null, profile, null, parent.getShell()));
+		installButton = createVerticalButton(composite, ProvUIMessages.InstallIUCommandLabel, false);
+		installButton.setData(BUTTONACTION, new InstallAction(availableIUViewer, profile, null, parent.getShell()));
 		Button refreshButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Refresh, false);
 		refreshButton.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
@@ -179,8 +180,10 @@ public class UpdateAndInstallGroup {
 	}
 
 	void validateAvailableIUButtons(ISelection selection) {
-		availablePropButton.setEnabled(((IStructuredSelection) selection).size() == 1);
-		installButton.setEnabled(!selection.isEmpty());
+		// This relies on the actions themselves receiving the selection changed
+		// listener before we do, since we use their state to enable the buttons
+		updateEnablement(availablePropButton);
+		updateEnablement(installButton);
 	}
 
 	private Control createInstalledIUsPage(Composite parent, ViewerFilter[] iuFilters) {
@@ -199,6 +202,7 @@ public class UpdateAndInstallGroup {
 		installedIUViewer.setContentProvider(new ProfileContentProvider());
 		installedIUViewer.setInput(profile);
 		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
+
 		if (iuFilters != null) {
 			installedIUViewer.setFilters(iuFilters);
 		}
@@ -214,6 +218,8 @@ public class UpdateAndInstallGroup {
 		data = new GridData(GridData.FILL_VERTICAL);
 		buttonBar.setLayoutData(data);
 
+		// Must be done after buttons are created so that the buttons can
+		// register and receive their selection notifications before us.
 		installedIUViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				validateInstalledIUButtons(event.getSelection());
@@ -248,10 +254,10 @@ public class UpdateAndInstallGroup {
 		// Add the buttons to the button bar.
 		installedPropButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Properties, false);
 		installedPropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUViewer));
-		uninstallButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Uninstall, false);
-		uninstallButton.setData(BUTTONACTION, new UninstallAction(ProvUIMessages.UpdateAndInstallGroup_Uninstall, installedIUViewer, null, profile, null, parent.getShell()));
-		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Update, false);
-		updateButton.setData(BUTTONACTION, new UpdateAction(ProvUIMessages.UpdateAndInstallGroup_Update, installedIUViewer, null, profile, null, parent.getShell()));
+		uninstallButton = createVerticalButton(composite, ProvUIMessages.UninstallIUCommandLabel, false);
+		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUViewer, profile, null, parent.getShell()));
+		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateIUCommandLabel, false);
+		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUViewer, profile, null, parent.getShell()));
 		if (repositoryManipulator != null) {
 			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
 			repoButton.setData(BUTTONACTION, new Action() {
@@ -277,9 +283,20 @@ public class UpdateAndInstallGroup {
 	}
 
 	void validateInstalledIUButtons(ISelection selection) {
-		installedPropButton.setEnabled(((IStructuredSelection) selection).size() == 1);
-		uninstallButton.setEnabled(!selection.isEmpty());
-		updateButton.setEnabled(!selection.isEmpty());
+		// Note that this relies on the actions getting the selection notification
+		// before we do, since we rely on the action enablement to update
+		// the buttons.  This should be ok since the buttons
+		// hook the listener on create.
+		updateEnablement(installedPropButton);
+		updateEnablement(uninstallButton);
+		updateEnablement(updateButton);
+	}
+
+	private void updateEnablement(Button button) {
+		IAction action = getButtonAction(button);
+		if (action != null) {
+			button.setEnabled(action.isEnabled());
+		}
 	}
 
 	private Button createVerticalButton(Composite parent, String label, boolean defaultButton) {
@@ -305,12 +322,18 @@ public class UpdateAndInstallGroup {
 	}
 
 	void verticalButtonPressed(Event event) {
-		Object data = event.widget.getData(BUTTONACTION);
-		if (data == null || !(data instanceof IAction)) {
-			return;
+		IAction action = getButtonAction(event.widget);
+		if (action != null) {
+			action.runWithEvent(event);
 		}
-		IAction action = (IAction) data;
-		action.runWithEvent(event);
+	}
+
+	private IAction getButtonAction(Widget widget) {
+		Object data = widget.getData(BUTTONACTION);
+		if (data == null || !(data instanceof IAction)) {
+			return null;
+		}
+		return (IAction) data;
 	}
 
 	private GridData setButtonLayoutData(Button button) {
@@ -338,15 +361,15 @@ public class UpdateAndInstallGroup {
 		return Dialog.convertVerticalDLUsToPixels(fm, dlus);
 	}
 
-	//TODO:  callers should be able to configure the table columns as well as the label provider
 	private void setTableColumns(Table table) {
+		// TODO will we ever let callers set the column config?
+		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
 		table.setHeaderVisible(true);
-		// don't externalize, these strings will go away soon enough
-		String[] columnHeaders = {"Name", "Version"};
-		for (int i = 0; i < columnHeaders.length; i++) {
+
+		for (int i = 0; i < columns.length; i++) {
 			TableColumn tc = new TableColumn(table, SWT.NONE, i);
 			tc.setResizable(true);
-			tc.setText(columnHeaders[i]);
+			tc.setText(columns[i].columnTitle);
 			tc.setWidth(convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH));
 		}
 	}
