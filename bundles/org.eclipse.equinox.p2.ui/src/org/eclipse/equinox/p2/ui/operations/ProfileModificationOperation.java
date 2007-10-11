@@ -17,34 +17,28 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.ProvisioningUtil;
 
 /**
- * Abstract class representing provisioning profile operations
+ * Class representing a provisioning profile plan
  * 
  * @since 3.4
  */
-public class ProfileModificationOperation extends ProfileOperation {
+public class ProfileModificationOperation extends ProvisioningOperation {
 
 	ProvisioningPlan plan;
+	String profileId;
 
 	public ProfileModificationOperation(String label, String id, ProvisioningPlan plan) {
-		super(label, new String[] {id});
+		super(label);
 		this.plan = plan;
-	}
-
-	boolean isValid() {
-		return super.isValid() && plan != null && plan.getStatus().isOK();
+		this.profileId = id;
 	}
 
 	public String getProfileId() {
-		try {
-			return super.getProfiles()[0].getProfileId();
-		} catch (ProvisionException e) {
-			return null;
-		}
+		return profileId;
 	}
 
 	public Profile getProfile() {
 		try {
-			return super.getProfiles()[0];
+			return ProvisioningUtil.getProfile(profileId);
 		} catch (ProvisionException e) {
 			return null;
 		}

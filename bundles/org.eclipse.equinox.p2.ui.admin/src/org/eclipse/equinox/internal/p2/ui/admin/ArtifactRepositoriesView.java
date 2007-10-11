@@ -11,11 +11,11 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.ui.model.AllArtifactRepositories;
 import org.eclipse.equinox.p2.ui.model.ArtifactRepositoryContentProvider;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveArtifactRepositoryOperation;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.swt.widgets.Shell;
@@ -62,7 +62,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		return new AddArtifactRepositoryDialog(shell, (IArtifactRepository[]) elements).open();
 	}
 
-	protected IUndoableOperation getRemoveOperation(Object[] elements) {
+	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
 		ArrayList repos = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IArtifactRepository) {

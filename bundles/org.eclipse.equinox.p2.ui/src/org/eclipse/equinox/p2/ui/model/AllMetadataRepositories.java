@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -28,11 +27,11 @@ public class AllMetadataRepositories extends ProvElement {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#fetchChildren(java.lang.Object, org.eclipse.core.runtime.IProgressMonitor, org.eclipse.core.runtime.IAdaptable)
+	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#fetchChildren(java.lang.Object, org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 		try {
-			return ProvisioningUtil.getMetadataRepositories(monitor, uiInfo);
+			return ProvisioningUtil.getMetadataRepositories(monitor);
 		} catch (ProvisionException e) {
 			handleException(e, null);
 		}

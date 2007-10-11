@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -55,7 +54,7 @@ public class InstalledIUElement extends ProvElement {
 		return iu.getId();
 	}
 
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
 		return null;
 	}
 

@@ -12,11 +12,11 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.operations.AddColocatedRepositoryOperation;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -33,7 +33,7 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 
 	}
 
-	protected IUndoableOperation getOperation(URL url, String name) {
+	protected ProvisioningOperation getOperation(URL url, String name) {
 		return new AddColocatedRepositoryOperation(getShell().getText(), url, name);
 	}
 

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.ProvisioningUndoSupport;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.dialogs.ProfileGroup;
 import org.eclipse.equinox.p2.ui.operations.AddProfileOperation;
@@ -78,7 +79,7 @@ public class AddProfileDialog extends StatusDialog {
 		}
 		ProfileOperation op = new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile);
 		try {
-			op.execute(null, ProvUI.getUIInfoAdapter(getShell()));
+			ProvisioningUndoSupport.execute(op, null, getShell());
 		} catch (ExecutionException e) {
 			ProvUI.handleException(e.getCause(), null);
 			return false;

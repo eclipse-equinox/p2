@@ -21,8 +21,7 @@ import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.UninstallAction;
 import org.eclipse.equinox.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.p2.ui.model.*;
-import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
-import org.eclipse.equinox.p2.ui.operations.RemoveProfilesOperation;
+import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.ui.viewers.InstallIUDropAdapter;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
@@ -64,7 +63,7 @@ public class ProfilesView extends ProvView {
 			}
 			ProfileOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (Profile[]) profilesOnly.toArray(new Profile[profilesOnly.size()]));
 			try {
-				IStatus status = op.execute(null, ProvUI.getUIInfoAdapter(ProfilesView.this.getShell()));
+				IStatus status = ProvisioningUndoSupport.execute(op, null, ProfilesView.this.getShell());
 				if (status.isOK()) {
 					viewer.refresh();
 				}

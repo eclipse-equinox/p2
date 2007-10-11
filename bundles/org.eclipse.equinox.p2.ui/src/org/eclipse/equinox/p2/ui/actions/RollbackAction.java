@@ -11,7 +11,8 @@
 
 package org.eclipse.equinox.p2.ui.actions;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
@@ -31,7 +32,7 @@ public class RollbackAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.ROLLBACK_COMMAND_TOOLTIP);
 	}
 
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] toBecome, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] toBecome, Profile targetProfile, IProgressMonitor monitor) {
 		if (toBecome.length == 1) {
 			try {
 				ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, monitor);

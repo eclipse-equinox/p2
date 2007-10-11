@@ -144,7 +144,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		resultOperation = null;
 		// TODO may need progress monitor
 		IProgressMonitor monitor = new NullProgressMonitor();
-		resultOperation = createProfileModificationOperation(getSelectedElements(), monitor, ProvUI.getUIInfoAdapter(getShell()));
+		resultOperation = createProfileModificationOperation(getSelectedElements(), monitor);
 		super.okPressed();
 	}
 
@@ -164,7 +164,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		return theIUs;
 	}
 
-	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor, IAdaptable uiInfo);
+	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor);
 
 	protected abstract String getOkButtonString();
 

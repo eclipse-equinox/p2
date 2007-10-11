@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningUtil;
  * 
  * @since 3.4
  */
-public abstract class ProfileOperation extends ProvisioningOperation {
+public abstract class ProfileOperation extends UndoableProvisioningOperation {
 
 	String[] profileIds;
 	Profile[] cachedProfiles;

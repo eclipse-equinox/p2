@@ -38,7 +38,7 @@ public class ProfileFactory {
 		profile.setValue(Profile.PROP_ENVIRONMENTS, getDefaultEnvironments());
 		profile.setValue(Profile.PROP_NL, getDefaultNL());
 		try {
-			ProvisioningUtil.addProfile(profile, null, null);
+			ProvisioningUtil.addProfile(profile, null);
 		} catch (ProvisionException e) {
 			return null;
 		}

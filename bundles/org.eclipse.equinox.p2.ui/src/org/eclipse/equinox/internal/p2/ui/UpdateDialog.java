@@ -31,9 +31,9 @@ public class UpdateDialog extends ProfileModificationDialog {
 		super(parentShell, ius, profile, ProvUIMessages.UpdateAction_UpdatesAvailableTitle, ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), profile, monitor, uiInfo);
+			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), profile, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new ProfileModificationOperation(ProvUIMessages.UpdateIUOperationLabel, profile.getProfileId(), plan);
@@ -56,7 +56,7 @@ public class UpdateDialog extends ProfileModificationDialog {
 		List elements = new ArrayList();
 		for (int i = 0; i < ius.length; i++) {
 			try {
-				IInstallableUnit[] replacementIUs = ProvisioningUtil.updatesFor(new IInstallableUnit[] {ius[i]}, profile, null, ProvUI.getUIInfoAdapter(getShell()));
+				IInstallableUnit[] replacementIUs = ProvisioningUtil.updatesFor(new IInstallableUnit[] {ius[i]}, profile, null);
 				for (int j = 0; j < replacementIUs.length; j++) {
 					elements.add(new AvailableUpdateElement(replacementIUs[j], getSize(ius[i], replacementIUs[j]), ius[i]));
 				}
@@ -80,8 +80,8 @@ public class UpdateDialog extends ProfileModificationDialog {
 	protected long getSize(IInstallableUnit iuToRemove, IInstallableUnit iuToAdd) {
 		long size;
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToRemove}, new IInstallableUnit[] {iuToAdd}, profile, new NullProgressMonitor(), ProvUI.getUIInfoAdapter(getShell()));
-			SizingPhase info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor(), ProvUI.getUIInfoAdapter(getShell()));
+			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToRemove}, new IInstallableUnit[] {iuToAdd}, profile, new NullProgressMonitor());
+			SizingPhase info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor());
 			size = info.getDlSize();
 		} catch (ProvisionException e) {
 			size = AvailableIUElement.SIZE_UNKNOWN;

@@ -35,7 +35,7 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.removeArtifactRepository(urls[i], monitor, uiInfo);
+			ProvisioningUtil.removeArtifactRepository(urls[i], monitor);
 		}
 		removed = true;
 		return okStatus();
@@ -61,7 +61,7 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			IArtifactRepository repo = ProvisioningUtil.addArtifactRepository(urls[i], monitor, uiInfo);
+			IArtifactRepository repo = ProvisioningUtil.addArtifactRepository(urls[i], monitor);
 			if (repo == null) {
 				return failureStatus();
 			}

@@ -11,7 +11,8 @@
 
 package org.eclipse.equinox.p2.ui.actions;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.UninstallDialog;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -32,10 +33,10 @@ public class UninstallAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.UNINSTALL_COMMAND_TOOLTIP);
 	}
 
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
 		// First validate whether the uninstall can happen
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(ius, targetProfile, monitor, uiInfo);
+			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(ius, targetProfile, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK()) {
 				UninstallDialog dialog = new UninstallDialog(getShell(), ius, targetProfile);

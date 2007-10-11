@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.ui.actions;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.UpdateDialog;
@@ -34,7 +33,7 @@ public class UpdateAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
 		// Collect the replacements for each IU individually so that 
 		// the user can decide what to update
 		try {

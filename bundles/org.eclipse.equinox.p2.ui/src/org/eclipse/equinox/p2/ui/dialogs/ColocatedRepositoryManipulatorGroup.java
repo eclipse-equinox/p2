@@ -15,8 +15,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.model.AllMetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositoryContentProvider;
 import org.eclipse.equinox.p2.ui.operations.RemoveColocatedRepositoryOperation;
@@ -36,7 +35,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
 
 /**
@@ -139,7 +137,7 @@ public class ColocatedRepositoryManipulatorGroup {
 				}
 				RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvUIMessages.ColocatedRepositoryManipulatorGroup_Remove, repos);
 				try {
-					PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute(op, null, ProvUI.getUIInfoAdapter(getControl().getShell()));
+					ProvisioningUndoSupport.execute(op, null, getControl().getShell());
 				} catch (ExecutionException e) {
 					ProvUI.handleException(e.getCause(), null);
 				}

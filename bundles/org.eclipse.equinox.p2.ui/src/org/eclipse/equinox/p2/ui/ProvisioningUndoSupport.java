@@ -15,8 +15,10 @@ import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -41,6 +43,26 @@ public class ProvisioningUndoSupport {
 			opHistory.addOperationApprover(getOperationApprover());
 		}
 		return provisioningUndoContext;
+	}
+
+	/**
+	 * Execute the supplied ProvisioningOperation, and add it to the
+	 * undo history if it supports undo.
+	 * 
+	 * @param monitor
+	 *            the progress monitor to use for the operation
+	 * @param uiInfo
+	 *            the IAdaptable (or <code>null</code>) provided by the
+	 *            caller in order to supply UI information for prompting the
+	 *            user if necessary. When this parameter is not
+	 *            <code>null</code>, it contains an adapter for the
+	 *            org.eclipse.swt.widgets.Shell.class
+	*/
+	public static IStatus execute(ProvisioningOperation op, IProgressMonitor monitor, Shell shell) throws ExecutionException {
+		if (op instanceof IUndoableOperation) {
+			return PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, monitor, getUIInfoAdapter(shell));
+		}
+		return op.execute(monitor, getUIInfoAdapter(shell));
 	}
 
 	static IOperationApprover getOperationApprover() {
@@ -115,5 +137,31 @@ public class ProvisioningUndoSupport {
 
 		};
 
+	}
+
+	/**
+	 * Make an <code>IAdaptable</code> that adapts to the specified shell,
+	 * suitable for passing for passing to any
+	 * {@link org.eclipse.core.commands.operations.IUndoableOperation} or
+	 * {@link org.eclipse.core.commands.operations.IOperationHistory} method
+	 * that requires an {@link org.eclipse.core.runtime.IAdaptable}
+	 * <code>uiInfo</code> parameter.
+	 * 
+	 * @param shell
+	 *            the shell that should be returned by the IAdaptable when asked
+	 *            to adapt a shell. If this parameter is <code>null</code>,
+	 *            the returned shell will also be <code>null</code>.
+	 * 
+	 * @return an IAdaptable that will return the specified shell.
+	 */
+	private static IAdaptable getUIInfoAdapter(final Shell shell) {
+		return new IAdaptable() {
+			public Object getAdapter(Class clazz) {
+				if (clazz == Shell.class) {
+					return shell;
+				}
+				return null;
+			}
+		};
 	}
 }

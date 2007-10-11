@@ -13,12 +13,11 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -26,7 +25,6 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -82,12 +80,12 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 			return false;
 		}
 
-		final IUndoableOperation op = getOperation(newURL, repoGroup.getRepositoryName());
+		final ProvisioningOperation op = getOperation(newURL, repoGroup.getRepositoryName());
 		final IStatus[] status = new IStatus[1];
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
-					status[0] = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute(op, monitor, ProvUI.getUIInfoAdapter(getShell()));
+					status[0] = ProvisioningUndoSupport.execute(op, monitor, getShell());
 					if (!status[0].isOK()) {
 						StatusManager.getManager().handle(status[0], StatusManager.SHOW | StatusManager.LOG);
 					}
@@ -109,7 +107,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	}
 
-	protected abstract IUndoableOperation getOperation(URL url, String name);
+	protected abstract ProvisioningOperation getOperation(URL url, String name);
 
 	protected abstract URL makeRepositoryURL(String urlString);
 

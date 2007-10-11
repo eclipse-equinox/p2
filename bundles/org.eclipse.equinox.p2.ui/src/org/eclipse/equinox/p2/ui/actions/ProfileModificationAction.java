@@ -69,7 +69,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		final Profile prof = targetProfile;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
-				ops[0] = validateAndGetOperation(ius, prof, monitor, ProvUI.getUIInfoAdapter(getShell()));
+				ops[0] = validateAndGetOperation(ius, prof, monitor);
 			}
 		};
 		try {
@@ -84,12 +84,11 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 			return;
 
 		final IStatus[] status = new IStatus[1];
-		final IAdaptable adapter = ProvUI.getUIInfoAdapter(getShell());
 		runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
 					monitor.beginTask(getTaskName(), OPERATION_WORK);
-					status[0] = ops[0].execute(monitor, adapter);
+					status[0] = ProvisioningUndoSupport.execute(ops[0], monitor, getShell());
 					if (!status[0].isOK()) {
 						StatusManager.getManager().handle(status[0], StatusManager.SHOW | StatusManager.LOG);
 					}
@@ -108,7 +107,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 				try {
 					Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 					if (selfProfile != null && (selfProfile.getProfileId().equals(targetProfile.getProfileId()))) {
-						ProvisioningUtil.requestRestart(false, ProvUI.getUIInfoAdapter(getShell()));
+						ProvisioningUtil.requestRestart(false, getUIInfoAdapter());
 					}
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, null);
@@ -126,7 +125,18 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 	 * If so, return an operation representing it.  If not, return null.
 	 * We assume the user has been notified if something couldn't happen.
 	 */
-	protected abstract ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo);
+	protected abstract ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor);
 
 	protected abstract String getTaskName();
+
+	private IAdaptable getUIInfoAdapter() {
+		return new IAdaptable() {
+			public Object getAdapter(Class clazz) {
+				if (clazz == Shell.class) {
+					return getShell();
+				}
+				return null;
+			}
+		};
+	}
 }

@@ -11,7 +11,8 @@
 
 package org.eclipse.equinox.p2.ui.actions;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.InstallDialog;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -31,10 +32,10 @@ public class InstallAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
 	}
 
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
 		// First validate whether the install can happen
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, targetProfile, monitor, uiInfo);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, targetProfile, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK()) {
 				InstallDialog dialog = new InstallDialog(getShell(), ius, targetProfile);

@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
@@ -41,10 +41,10 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			IUndoableOperation op = getRemoveOperation(getSelection().toArray());
+			ProvisioningOperation op = getRemoveOperation(getSelection().toArray());
 			try {
 				// TODO hook into platform progress service
-				PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute(op, null, ProvUI.getUIInfoAdapter(getShell()));
+				ProvisioningUndoSupport.execute(op, null, getShell());
 			} catch (ExecutionException e) {
 				ProvUI.handleException(e.getCause(), null);
 			}
@@ -153,7 +153,7 @@ abstract class RepositoriesView extends ProvView {
 
 	protected abstract int openAddRepositoryDialog(Shell shell, Object[] elements);
 
-	protected abstract IUndoableOperation getRemoveOperation(Object[] elements);
+	protected abstract ProvisioningOperation getRemoveOperation(Object[] elements);
 
 	protected abstract String getAddCommandLabel();
 

@@ -30,10 +30,10 @@ public class InstallDialog extends ProfileModificationDialog {
 		super(parentShell, ius, profile, ProvUIMessages.InstallIUOperationLabel, ProvUIMessages.InstallDialog_InstallSelectionMessage);
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor, IAdaptable uiInfo) {
+	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
 			IInstallableUnit[] selectedIUs = elementsToIUs(selectedElements);
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selectedIUs, profile, monitor, uiInfo);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selectedIUs, profile, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new InstallOperation(ProvUIMessages.InstallIUOperationLabel, profile.getProfileId(), plan, selectedIUs);
@@ -55,8 +55,8 @@ public class InstallDialog extends ProfileModificationDialog {
 	protected long getSize(IInstallableUnit iu) {
 		long size;
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, new NullProgressMonitor(), ProvUI.getUIInfoAdapter(getShell()));
-			SizingPhase info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor(), ProvUI.getUIInfoAdapter(getShell()));
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, new NullProgressMonitor());
+			SizingPhase info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor());
 			size = info.getDlSize();
 		} catch (ProvisionException e) {
 			size = AvailableIUElement.SIZE_UNKNOWN;

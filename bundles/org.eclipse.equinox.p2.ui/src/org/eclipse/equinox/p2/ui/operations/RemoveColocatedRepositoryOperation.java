@@ -37,8 +37,8 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.removeMetadataRepository(ColocatedRepositoryUtil.makeMetadataRepositoryURL(urls[i]), monitor, uiInfo);
-			ProvisioningUtil.removeArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor, uiInfo);
+			ProvisioningUtil.removeMetadataRepository(ColocatedRepositoryUtil.makeMetadataRepositoryURL(urls[i]), monitor);
+			ProvisioningUtil.removeArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor);
 		}
 		removed = true;
 		return okStatus();
@@ -65,7 +65,7 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			URL metadataURL = ColocatedRepositoryUtil.makeMetadataRepositoryURL(urls[i]);
-			IRepository repo = ProvisioningUtil.addMetadataRepository(metadataURL, monitor, uiInfo);
+			IRepository repo = ProvisioningUtil.addMetadataRepository(metadataURL, monitor);
 			if (repo == null) {
 				return failureStatus();
 			}
@@ -73,10 +73,10 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 				ProvisioningUtil.setRepositoryName(repo, names[i]);
 			}
 
-			repo = ProvisioningUtil.addArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor, uiInfo);
+			repo = ProvisioningUtil.addArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor);
 			if (repo == null) {
 				// remove the metadata repo we just added
-				ProvisioningUtil.removeMetadataRepository(metadataURL, monitor, uiInfo);
+				ProvisioningUtil.removeMetadataRepository(metadataURL, monitor);
 				return failureStatus();
 			}
 

@@ -39,32 +39,6 @@ public class ProvUI {
 
 	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_ID), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION)};
 
-	/**
-	 * Make an <code>IAdaptable</code> that adapts to the specified shell,
-	 * suitable for passing for passing to any
-	 * {@link org.eclipse.core.commands.operations.IUndoableOperation} or
-	 * {@link org.eclipse.core.commands.operations.IOperationHistory} method
-	 * that requires an {@link org.eclipse.core.runtime.IAdaptable}
-	 * <code>uiInfo</code> parameter.
-	 * 
-	 * @param shell
-	 *            the shell that should be returned by the IAdaptable when asked
-	 *            to adapt a shell. If this parameter is <code>null</code>,
-	 *            the returned shell will also be <code>null</code>.
-	 * 
-	 * @return an IAdaptable that will return the specified shell.
-	 */
-	public static IAdaptable getUIInfoAdapter(final Shell shell) {
-		return new IAdaptable() {
-			public Object getAdapter(Class clazz) {
-				if (clazz == Shell.class) {
-					return shell;
-				}
-				return null;
-			}
-		};
-	}
-
 	public static Shell getShell(IAdaptable uiInfo) {
 		Shell shell;
 		if (uiInfo != null) {

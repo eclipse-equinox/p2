@@ -11,15 +11,15 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
-import org.eclipse.equinox.p2.ui.actions.RollbackAction;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
+import org.eclipse.equinox.p2.ui.actions.RollbackAction;
 import org.eclipse.equinox.p2.ui.model.*;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveMetadataRepositoryOperation;
 import org.eclipse.equinox.p2.ui.viewers.IUDragAdapter;
 import org.eclipse.equinox.p2.ui.viewers.ProvElementLabelProvider;
@@ -78,7 +78,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return new AddMetadataRepositoryDialog(shell, (IMetadataRepository[]) elements).open();
 	}
 
-	protected IUndoableOperation getRemoveOperation(Object[] elements) {
+	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
 		ArrayList repos = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IMetadataRepository) {

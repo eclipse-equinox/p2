@@ -12,12 +12,12 @@ package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.p2.ui.operations.AddMetadataRepositoryOperation;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -32,7 +32,7 @@ public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 		super(parentShell, knownRepositories);
 	}
 
-	protected IUndoableOperation getOperation(URL url, String name) {
+	protected ProvisioningOperation getOperation(URL url, String name) {
 		return new AddMetadataRepositoryOperation(ProvAdminUIMessages.AddMetadataRepositoryDialog_OperationLabel, url, name);
 	}
 

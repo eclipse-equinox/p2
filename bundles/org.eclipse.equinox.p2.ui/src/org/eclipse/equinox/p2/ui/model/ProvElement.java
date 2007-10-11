@@ -37,7 +37,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	}
 
 	public Object[] getChildren(Object o) {
-		return fetchChildren(o, null, null);
+		return fetchChildren(o, null);
 	}
 
 	// TODO if there is no optimization for subclasses, get rid of this
@@ -49,7 +49,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		return children.length > 0;
 	}
 
-	abstract protected Object[] fetchChildren(Object o, IProgressMonitor monitor, IAdaptable uiInfo);
+	abstract protected Object[] fetchChildren(Object o, IProgressMonitor monitor);
 
 	/**
 	 * Return a string id of the image that should be used to show the specified

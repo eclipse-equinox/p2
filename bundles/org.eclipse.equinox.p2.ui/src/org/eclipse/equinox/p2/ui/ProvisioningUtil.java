@@ -58,7 +58,7 @@ public class ProvisioningUtil {
 		}
 	}
 
-	public static IMetadataRepository addMetadataRepository(URL location, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IMetadataRepository addMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -72,7 +72,7 @@ public class ProvisioningUtil {
 		return repo;
 	}
 
-	public static IMetadataRepository getMetadataRepository(URL location, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IMetadataRepository getMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -80,7 +80,7 @@ public class ProvisioningUtil {
 		return manager.getRepository(location);
 	}
 
-	public static void removeMetadataRepository(URL location, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static void removeMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -93,7 +93,7 @@ public class ProvisioningUtil {
 
 	}
 
-	public static IArtifactRepository addArtifactRepository(URL location, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IArtifactRepository addArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -110,7 +110,7 @@ public class ProvisioningUtil {
 		return repository;
 	}
 
-	public static void removeArtifactRepository(URL location, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static void removeArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -128,7 +128,7 @@ public class ProvisioningUtil {
 		}
 	}
 
-	public static IArtifactRepository[] getArtifactRepositories(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IArtifactRepository[] getArtifactRepositories(IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -139,8 +139,8 @@ public class ProvisioningUtil {
 		return new IArtifactRepository[0];
 	}
 
-	public static IArtifactRepository getArtifactRepository(URL repoURL, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		IArtifactRepository[] repositories = getArtifactRepositories(monitor, uiInfo);
+	public static IArtifactRepository getArtifactRepository(URL repoURL, IProgressMonitor monitor) throws ProvisionException {
+		IArtifactRepository[] repositories = getArtifactRepositories(monitor);
 		if (repositories == null)
 			return null;
 		for (int i = 0; i < repositories.length; i++) {
@@ -150,7 +150,7 @@ public class ProvisioningUtil {
 		return null;
 	}
 
-	public static void addProfile(Profile profile, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static void addProfile(Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
@@ -158,7 +158,7 @@ public class ProvisioningUtil {
 		profileRegistry.addProfile(profile);
 	}
 
-	public static void removeProfile(String profileId, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static void removeProfile(String profileId, IProgressMonitor monitor) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
@@ -168,7 +168,7 @@ public class ProvisioningUtil {
 			profileRegistry.removeProfile(profile);
 	}
 
-	public static Profile[] getProfiles(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static Profile[] getProfiles(IProgressMonitor monitor) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
@@ -195,12 +195,12 @@ public class ProvisioningUtil {
 	 * the IUs to find. <code>null</code> indicates wildcard. @return The IUs
 	 * that match the query
 	 */
-	public static IInstallableUnit[] getInstallableUnits(URL location, String id, VersionRange range, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IInstallableUnit[] getInstallableUnits(URL location, String id, VersionRange range, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepository[] repositories = null;
 		if (location == null) {
-			repositories = getMetadataRepositories(monitor, uiInfo);
+			repositories = getMetadataRepositories(monitor);
 		} else {
-			repositories = new IMetadataRepository[] {getMetadataRepository(location, monitor, uiInfo)};
+			repositories = new IMetadataRepository[] {getMetadataRepository(location, monitor)};
 		}
 		Iterator i = Query.getIterator(repositories, id, range, null, false);
 		return CompoundIterator.asArray(i, monitor);
@@ -215,10 +215,10 @@ public class ProvisioningUtil {
 	 * of the IUs to find. <code>null</code> indicates wildcard. @return The
 	 * IUs that match the query
 	 */
-	public static IInstallableUnit[] getInstallableUnits(String profileId, String id, VersionRange range, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IInstallableUnit[] getInstallableUnits(String profileId, String id, VersionRange range, IProgressMonitor monitor) throws ProvisionException {
 		Profile[] profiles = null;
 		if (profileId == null) {
-			profiles = getProfiles(monitor, uiInfo);
+			profiles = getProfiles(monitor);
 		} else {
 			profiles = new Profile[] {getProfile(profileId)};
 		}
@@ -226,7 +226,7 @@ public class ProvisioningUtil {
 		return CompoundIterator.asArray(i, monitor);
 	}
 
-	public static IMetadataRepository[] getMetadataRepositories(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IMetadataRepository[] getMetadataRepositories(IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -237,7 +237,7 @@ public class ProvisioningUtil {
 	/*
 	 * Get the plan for the specified install operation
 	 */
-	public static ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(toInstall);
 		return getPlanner().getInstallPlan(toInstall, profile, monitor);
@@ -246,7 +246,7 @@ public class ProvisioningUtil {
 	/*
 	 * Get the plan for the specified update operation
 	 */
-	public static ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] replacements, Profile profile, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] replacements, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(toUninstall);
 		Assert.isNotNull(replacements);
@@ -267,7 +267,7 @@ public class ProvisioningUtil {
 	 * See what updates might be available for the specified IU's.
 	 * Useful for bulk update that can be directly passed to the engine.
 	 */
-	public static IInstallableUnit[] updatesFor(IInstallableUnit[] toUpdate, Profile profile, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static IInstallableUnit[] updatesFor(IInstallableUnit[] toUpdate, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(toUpdate);
 
@@ -293,7 +293,7 @@ public class ProvisioningUtil {
 	/*
 	 * Get the plan to uninstall the specified IU's
 	 */
-	public static ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, Profile profile, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(toUninstall);
 		return getPlanner().getUninstallPlan(toUninstall, profile, monitor);
@@ -302,7 +302,7 @@ public class ProvisioningUtil {
 	/*
 	 * Get sizing info for the specified IU's
 	 */
-	public static SizingPhase getSizeInfo(ProvisioningPlan plan, Profile profile, IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public static SizingPhase getSizeInfo(ProvisioningPlan plan, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		SizingPhaseSet set = new SizingPhaseSet();
 		IStatus status = getEngine().perform(profile, set, plan.getOperands(), monitor);
 		if (status.isOK())
