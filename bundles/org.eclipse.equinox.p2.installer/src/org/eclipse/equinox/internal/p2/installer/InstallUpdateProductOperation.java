@@ -103,10 +103,10 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 
 		IStatus s;
 		if (isInstall) {
-			monitor.subTask("Installing...");
+			monitor.setTaskName(NLS.bind("Installing {0}", installDescription.getProductName()));
 			s = director.install(toInstall, p, monitor.newChild(90));
 		} else {
-			monitor.subTask("Updating...");
+			monitor.setTaskName(NLS.bind("Updating {0}", installDescription.getProductName()));
 			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
 			s = director.replace(toUninstall, toInstall, p, monitor.newChild(90));
 		}
@@ -182,8 +182,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			try {
 				preInstall();
 				isInstall = getProfile() == null;
-				String taskName = isInstall ? "Installing {0}" : "Updating {0}";
-				monitor.setTaskName(NLS.bind(taskName, installDescription.getProductName()));
 				doInstall(monitor);
 				result = new Status(IStatus.OK, InstallerActivator.PI_INSTALLER, isInstall ? "Install complete" : "Update complete", null);
 				monitor.setTaskName("Some final housekeeping");
