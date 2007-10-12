@@ -59,12 +59,12 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public IStatus install(IInstallableUnit[] installRoots, Profile profile, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, PlanWork + EngineWork);
+		String taskName = NLS.bind(Messages.Director_Task_Installing, profile.getValue(Profile.PROP_INSTALL_FOLDER));
+		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
 		try {
 			ProvisioningPlan plan = planner.getInstallPlan(installRoots, profile, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			sub.setTaskName(NLS.bind(Messages.Director_Task_Installing, profile.getValue(Profile.PROP_INSTALL_FOLDER)));
 			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
 			if (!engineResult.isOK())
 				return engineResult;
@@ -79,12 +79,11 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public IStatus become(IInstallableUnit target, Profile profile, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, PlanWork + EngineWork);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
 			ProvisioningPlan plan = planner.getBecomePlan(target, profile, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			sub.setTaskName(Messages.Director_Task_Updating);
 			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
 		} finally {
 			sub.done();
@@ -92,12 +91,11 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public IStatus uninstall(IInstallableUnit[] uninstallRoots, Profile profile, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, PlanWork + EngineWork);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Uninstalling, PlanWork + EngineWork);
 		try {
 			ProvisioningPlan plan = planner.getUninstallPlan(uninstallRoots, profile, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			sub.setTaskName(Messages.Director_Task_Uninstalling);
 			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
 		} finally {
 			sub.done();
@@ -105,12 +103,11 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, PlanWork + EngineWork);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
 			ProvisioningPlan plan = planner.getReplacePlan(toUninstall, toInstall, profile, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			sub.setTaskName(Messages.Director_Task_Updating);
 			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
 		} finally {
 			sub.done();
