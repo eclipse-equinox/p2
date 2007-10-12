@@ -78,7 +78,7 @@ public class InstallDialog {
 					if (theShell == null || theShell.isDisposed())
 						return;
 					taskLabel.setText(taskName);
-					subTaskLabel.setText(subTaskName);
+					subTaskLabel.setText(shorten(subTaskName));
 					if (progress.isDisposed())
 						return;
 					progress.setVisible(running);
@@ -87,6 +87,13 @@ public class InstallDialog {
 					int value = (int) (usedWork / totalWork * 1000);
 					if (progress.getSelection() < value)
 						progress.setSelection(value);
+				}
+
+				private String shorten(String text) {
+					if (text.length() <= 80)
+						return text;
+					int len = text.length();
+					return text.substring(0, 40) + "..." + text.substring(len - 40, len);
 				}
 			});
 		}
