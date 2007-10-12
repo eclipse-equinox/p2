@@ -12,7 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -68,7 +67,6 @@ public class EclipseLauncherImpl {
 		//		if (cwd == null)
 		//			cwd = fwJar.;
 		Utils.checkAbsoluteDir(cwd, "cwd");
-		//		this.launcherCInfo.cwd = cwd;
 
 		List cmdList = new LinkedList();
 		if (launcherData.getJvm() != null)
@@ -82,11 +80,6 @@ public class EclipseLauncherImpl {
 
 		cmdList.add("-jar");
 		cmdList.add(Utils.getRelativePath(launcherData.getFwJar(), cwd));
-
-		//		cmdList.add(EquinoxConstants.OPTION_CONSOLE);
-		//		cmdList.add("9000");
-		//		cmdList.add(EquinoxConstants.OPTION_INSTANCE);
-		//		cmdList.add("C:\\ws");
 
 		EquinoxManipulatorImpl.checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);//checkConsistency(this.launcherCInfo.fwConfigFile, this.launcherCInfo.fwInstancePrivateArea);
 		cmdList.add(EquinoxConstants.OPTION_CONFIGURATION);

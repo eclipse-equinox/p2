@@ -11,10 +11,10 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
-
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulatorFactory;
 import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.EclipseVersion;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 

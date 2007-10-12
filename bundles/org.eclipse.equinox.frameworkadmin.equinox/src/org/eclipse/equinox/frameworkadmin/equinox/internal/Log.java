@@ -20,12 +20,12 @@ public class Log {
 	static private ServiceTracker logTracker;
 	static private boolean useLog = false;
 
-	static void dispose() {
+	public static void dispose() {
 		if (logTracker != null) {
 			logTracker.close();
 		}
 		logTracker = null;
-	};
+	}
 
 	public static void init(BundleContext bc) {
 		logTracker = new ServiceTracker(bc, LogService.class.getName(), null);
@@ -78,10 +78,6 @@ public class Log {
 
 	public static void log(int level, String message) {
 		log(level, null, null, message, null);
-	}
-
-	public static void log(int level, String method, String message) {
-		log(level, null, method, message, null);
 	}
 
 	public static void log(int level, String message, Throwable e) {

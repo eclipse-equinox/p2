@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
-import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.BundleHelper;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -28,10 +27,6 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class EquinoxManipulatorImpl implements Manipulator {
 	private static final long DEFAULT_LASTMODIFIED = 0L;
-	public static final String FW_NAME = "Equinox";
-	public static final String FW_VERSION = "3.3M5";
-	public static final String LAUNCHER_NAME = "Eclipse.exe";
-	public static final String LAUNCHER_VERSION = "3.2";
 	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;
 	private static final String COMMA = ","; //$NON-NLS-1$
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
@@ -95,7 +90,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (dotLocation != -1)
 			launcherName = launcherName.substring(0, dotLocation);
 		File result = new File(launcher.getParent() + File.separator + launcherName + EquinoxConstants.INI_EXTENSION);
-//		launcherData.setLauncherConfigLocation(result);
+		//		launcherData.setLauncherConfigLocation(result);
 		return result;
 	}
 
@@ -153,7 +148,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		return configData;
 	}
 
-	public BundleInfo[] getExpectedState() throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException {
+	public BundleInfo[] getExpectedState() throws IllegalArgumentException, FrameworkAdminRuntimeException {
 		//Log.log(LogService.LOG_DEBUG, this, "getExpectedState()", "BEGIN");
 		SimpleBundlesState.checkAvailability(fwAdmin);
 
@@ -314,9 +309,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		}
 
 		// update initialBundleStartLevel
-		BundleHelper helper = BundleHelper.getDefault();//getBundleHelper();
-		StartLevel slAdmin = (StartLevel) helper.acquireService(StartLevel.class.getName());
-
+		StartLevel slAdmin = (StartLevel) Activator.acquireService(StartLevel.class.getName());
 		int initialBSL = configData.getInitialBundleStartLevel();
 		if (initialBSL != slAdmin.getInitialBundleStartLevel())
 			configData.setInitialBundleStartLevel(slAdmin.getInitialBundleStartLevel());
@@ -417,22 +410,22 @@ public class EquinoxManipulatorImpl implements Manipulator {
 
 		checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
 
-//		//if (context != null)
-//		setConfiguratorManipulator();
-//
-//		BundleInfo[] newBInfos = null;
-//		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
-//			try {
-//				newBInfos = configuratorManipulator.save(this, backup);
-//			} catch (IllegalStateException e) {
-//				// TODO Auto-generated catch block
-//				if (LOG_ILLEGALSTATEEXCEPTION)
-//					Log.log(LogService.LOG_WARNING, this, "save()", e);
-//				newBInfos = configData.getBundles();
-//			}
-//		} else {
-//			newBInfos = configData.getBundles();
-//		}
+		//		//if (context != null)
+		//		setConfiguratorManipulator();
+		//
+		//		BundleInfo[] newBInfos = null;
+		//		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
+		//			try {
+		//				newBInfos = configuratorManipulator.save(this, backup);
+		//			} catch (IllegalStateException e) {
+		//				// TODO Auto-generated catch block
+		//				if (LOG_ILLEGALSTATEEXCEPTION)
+		//					Log.log(LogService.LOG_WARNING, this, "save()", e);
+		//				newBInfos = configData.getBundles();
+		//			}
+		//		} else {
+		//			newBInfos = configData.getBundles();
+		//		}
 
 		if (!stateIsEmpty) {
 			// Save FwConfigFile
@@ -556,12 +549,12 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	private void updateAccordingToExpectedState(BundlesState bundlesState) {
-//		File newFwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
-//		if (bundlesState instanceof EquinoxBundlesState)
-//			((EquinoxBundlesState) bundlesState).setFwJar(newFwJar);
-//
-//		if (launcherData.getFwJar() == null && newFwJar != null)
-//			launcherData.setFwJar(newFwJar);
+		//		File newFwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
+		//		if (bundlesState instanceof EquinoxBundlesState)
+		//			((EquinoxBundlesState) bundlesState).setFwJar(newFwJar);
+		//
+		//		if (launcherData.getFwJar() == null && newFwJar != null)
+		//			launcherData.setFwJar(newFwJar);
 		BundleInfo[] newBundleInfos = bundlesState.getExpectedState();
 		configData.setBundles(newBundleInfos);
 	}
@@ -608,18 +601,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (common == 0)
 			return urlString;
 		return urlString.substring(0, index) + urlString.substring(common);
-	}
-
-	public static String makeArrayRelative(String array, URL rootURL) {
-		StringBuffer buffer = new StringBuffer();
-		for (StringTokenizer tokenizer = new StringTokenizer(array, COMMA); tokenizer.hasMoreTokens();) {
-			String token = tokenizer.nextToken();
-			String relative = makeRelative(token, rootURL);
-			buffer.append(relative);
-			if (tokenizer.hasMoreTokens())
-				buffer.append(',');
-		}
-		return buffer.toString();
 	}
 
 	public static String makeArrayAbsolute(String array, URL rootURL) {

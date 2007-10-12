@@ -15,54 +15,12 @@ import java.util.*;
 import org.eclipse.core.runtime.internal.adaptor.EclipseEnvironmentInfo;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
-import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.BundleHelper;
 import org.eclipse.equinox.internal.frameworkadmin.utils.SimpleBundlesState;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.osgi.framework.internal.core.FrameworkProperties;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
-
-class EclipseVersion implements Comparable {
-	int major = 0;
-	int minor = 0;
-	int service = 0;
-	String qualifier = null;
-
-	EclipseVersion(String version) {
-		StringTokenizer tok = new StringTokenizer(version, "."); //$NON-NLS-1$
-		if (!tok.hasMoreTokens())
-			return;
-		this.major = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.minor = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.service = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.qualifier = tok.nextToken();
-	}
-
-	public int compareTo(Object obj) {
-		EclipseVersion target = (EclipseVersion) obj;
-		if (target.major > this.major)
-			return -1;
-		if (target.major < this.major)
-			return 1;
-		if (target.minor > this.minor)
-			return -1;
-		if (target.minor < this.minor)
-			return 1;
-		if (target.service > this.service)
-			return -1;
-		if (target.service < this.service)
-			return 1;
-		return 0;
-	}
-
-}
 
 public class EquinoxBundlesState implements BundlesState {
 	static final long DEFAULT_TIMESTAMP = 0L;
@@ -72,15 +30,9 @@ public class EquinoxBundlesState implements BundlesState {
 	private static final String INTERNAL_AMD64 = "amd64"; //$NON-NLS-1$
 	private static final String INTERNAL_ARCH_I386 = "i386"; //$NON-NLS-1$
 	public static final String[] PROPS = {"osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional", "osgi.genericAliases"};
-	private static final int MAX_COUNT_LOOP = 10;
-	private static final long PERIOD_TO_SLEEP = 10000;// in msec.
 
 	static boolean checkFullySupported() {
-		try {
-			BundleHelper.getDefault();
-		} catch (Exception e) {
-			return false;
-		}
+		//TODO - This was previously doing a bogus check by attempting to instantiate a particular class - it's not clear what this is trying to do
 		return true;
 	}
 
@@ -157,23 +109,12 @@ public class EquinoxBundlesState implements BundlesState {
 		return maxId;
 	}
 
-	public static String getStateString(State state) {
-		BundleDescription[] descriptions = state.getBundles();
-		StringBuffer sb = new StringBuffer();
-		sb.append("# state=\n");
-		for (int i = 0; i < descriptions.length; i++)
-			sb.append("# " + descriptions[i].toString() + "\n");
-		return sb.toString();
-	}
-
 	private static File getSystemBundleBySearching(LauncherData launcherData) {
 		File pluginsDir;
 		if (launcherData.getLauncher() == null) {
 			if (launcherData.getHome() == null)
 				return null;
-			else {
-				pluginsDir = new File(launcherData.getHome(), "plugins");
-			}
+			pluginsDir = new File(launcherData.getHome(), "plugins");
 		} else {
 			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
 		}
@@ -295,40 +236,6 @@ public class EquinoxBundlesState implements BundlesState {
 
 	State state = null;
 
-	// EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin,
-	// Manipulator manipulator) {
-	// this(context, fwAdmin, manipulator, true);
-	// // this.context = context;
-	// // this.fwAdmin = fwAdmin;
-	// // // copy manipulator object for avoiding modifying the parameters of
-	// the manipulator.
-	// // this.manipulator = fwAdmin.getManipulator();
-	// // this.manipulator.setConfigData(manipulator.getConfigData());
-	// // this.manipulator.setLauncherData(manipulator.getLauncherData());
-	// // initialize();
-	// }
-
-	// EquinoxBundlesState(BundleContext context, EquinoxFwAdminImpl fwAdmin,
-	// Manipulator manipulator, boolean useFwPersistentData, boolean runtime) {
-	// super();
-	// if (DEBUG)
-	// System.out.println("\nEquinoxBundlesState():useFwPersistentData=" +
-	// useFwPersistentData + ",runtime=" + runtime);
-	// this.context = context;
-	// this.fwAdmin = fwAdmin;
-	// // copy manipulator object for avoiding modifying the parameters of the
-	// manipulator.
-	// this.manipulator = fwAdmin.getManipulator();
-	// if (runtime) {
-	// this.manipulator.setLauncherData(manipulator.getLauncherData());
-	// this.initializeRuntime();
-	// } else {
-	// this.manipulator.setConfigData(manipulator.getConfigData());
-	// this.manipulator.setLauncherData(manipulator.getLauncherData());
-	// initialize(useFwPersistentData);
-	// }
-	// }
-
 	/**
 	 * If useFwPersistentData flag equals false, this constructor will not take
 	 * a framework persistent data into account. Otherwise, it will.
@@ -422,9 +329,9 @@ public class EquinoxBundlesState implements BundlesState {
 			for (int i = 0; i < bInfos.length; i++)
 				configData.addBundle(bInfos[i]);
 		} else {
-//			if (this.getFwJar() == null) {
+			//			if (this.getFwJar() == null) {
 			this.setFwJar(fwJar);
-//			}
+			//			}
 		}
 
 		// composeState(bInfos, properties, null);
@@ -472,18 +379,16 @@ public class EquinoxBundlesState implements BundlesState {
 			// and I removed it because it was causing various problems. See in previous revision
 			this.manipulator.getConfigData().setBundles(infos);
 			return false;
-		} else {
-			// return false;
-			state = soFactory.createState(true);
-			flagNewState = true;
-			cachedInstalledBundles = new BundleDescription[0];
-			if (props == null) {
-				this.manipulator.getConfigData().setBundles(infos);
-				return false;
-			}
-			setPlatformPropertiesToState(props);
-			setPlatformProperties(state);
 		}
+		state = soFactory.createState(true);
+		flagNewState = true;
+		cachedInstalledBundles = new BundleDescription[0];
+		if (props == null) {
+			this.manipulator.getConfigData().setBundles(infos);
+			return false;
+		}
+		setPlatformPropertiesToState(props);
+		setPlatformProperties(state);
 
 		// remove initial bundle which were installed but not listed in
 		// fwConfigFileBInfos.
@@ -616,34 +521,9 @@ public class EquinoxBundlesState implements BundlesState {
 		return result;
 	}
 
-	public BundleInfo[] convertState(State state) {
-		return convertState(state.getBundles());
-	}
-
-	/**
-	 * return platform properties which is used for the running framework.
-	 * 
-	 * @return platform properties which is used for the running framework.
-	 */
-	private Properties getCurrentPlatformProperties() {
-		Properties props = new Properties();
-		for (int i = 0; i < PROPS.length; i++) {
-			String value = context.getProperty(PROPS[i]);
-			System.out.println("(" + PROPS[i] + "," + value + ")");
-			if (value != null) {
-				props.setProperty(PROPS[i], value);
-			}
-		}
-		return props;
-	}
-
 	public BundleInfo[] getExpectedState() throws FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
-		return convertState(state);
-	}
-
-	public File getFwJar() {
-		return manipulator.getLauncherData().getFwJar();
+		return convertState(state.getBundles());
 	}
 
 	Properties getPlatformProperties() {
@@ -701,7 +581,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	public String[] getUnsatisfiedConstraints(BundleInfo bInfo) {
 		BundleDescription description = state.getBundleByLocation(bInfo.getLocation());
-		PlatformAdmin platformAdmin = (PlatformAdmin) BundleHelper.getDefault().acquireService(PlatformAdmin.class.getName());
+		PlatformAdmin platformAdmin = (PlatformAdmin) Activator.acquireService(PlatformAdmin.class.getName());
 		StateHelper helper = platformAdmin.getStateHelper();
 		VersionConstraint[] constraints = helper.getUnsatisfiedConstraints(description);
 		String[] ret = new String[constraints.length];
@@ -709,69 +589,6 @@ public class EquinoxBundlesState implements BundlesState {
 			ret[i] = constraints[i].toString();
 		return ret;
 	}
-
-	// private void initializeRuntime() {
-	// ServiceReference reference =
-	// context.getServiceReference(StartLevel.class.getName());
-	// StartLevel startLevel = (StartLevel) context.getService(reference);
-	// // boolean flag =
-	// startLevel.isBundlePersistentlyStarted(context.getBundle(0));
-	// System.out.println("\ninitlializeRuntime()");
-	//
-	// Bundle[] bundles = context.getBundles();
-	// List bundlesList = new LinkedList();
-	// for (int i = 0; i < bundles.length; i++) {
-	// System.out.println(" bundles[" + i + "].getBundleId()=" +
-	// bundles[i].getBundleId());
-	// if (bundles[i].getBundleId() == 0) {// SystemBundle
-	// LauncherData launcherData = manipulator.getLauncherData();
-	// File fwJar = getFwJar(launcherData);
-	// String location = null;
-	// try {
-	// location = fwJar.toURL().toExternalForm();
-	// } catch (MalformedURLException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// bundlesList.add(new BundleInfo(location,
-	// startLevel.getBundleStartLevel(bundles[i]),
-	// startLevel.isBundlePersistentlyStarted(bundles[i]),
-	// bundles[i].getBundleId()));
-	// break;
-	// }
-	// }
-	// for (int i = 0; i < bundles.length; i++) {
-	// if (bundles[i].getBundleId() != 0) {// except SystemBundle
-	// // System.out.println("Bundle["+"] is marked as started or not:" + flag);
-	// bundlesList.add(new
-	// BundleInfo(FileUtils.getRealLocation(bundles[i].getLocation()),
-	// startLevel.getBundleStartLevel(bundles[i]),
-	// startLevel.isBundlePersistentlyStarted(bundles[i]),
-	// bundles[i].getBundleId()));
-	// }
-	// }
-	// setStateObjectFactory();
-	// state = soFactory.createState(true);
-	// this.platfromProperties = this.getCurrentPlatformProperties();
-	// state.setPlatformProperties(platfromProperties);
-	//
-	// BundleInfo[] bInfos = Utils.getBundleInfosFromList(bundlesList);
-	// for (int j = 0; j < bInfos.length; j++) {
-	// if (DEBUG)
-	// Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "bInfos[" +
-	// j + "]=" + bInfos[j]);
-	// try {
-	// this.installBundle(bInfos[j]);
-	// //System.out.println("install bInfos[" + j + "]=" + bInfos[j]);
-	// } catch (RuntimeException e) {
-	// Log.log(LogService.LOG_ERROR, this, "composeExpectedState()",
-	// "BundleInfo:" + bInfos[j], e);
-	// e.printStackTrace();
-	// throw e;
-	// }
-	// }
-	// resolve(true);
-	// }
 
 	private void initialize(boolean useFwPersistentData) {
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -895,19 +712,6 @@ public class EquinoxBundlesState implements BundlesState {
 			Utils.printoutProperties(System.out, "PlatformProperties[0]", platfromProperties);
 	}
 
-	// public BundleHelper getBundleHelper() {
-	// BundleHelper helper = BundleHelper.getDefault();
-	// if (helper == null) {
-	// helper = new BundleHelper();
-	// try {
-	// helper.start(context);
-	// } catch (Exception e) {
-	// Log.log(LogService.LOG_WARNING, this, "setStateObjectFactory()", e);
-	// }
-	// }
-	// return helper;
-	// }
-
 	/**
 	 * set platfromProperties required to compose state object into
 	 * platformProperties of this state.
@@ -932,8 +736,7 @@ public class EquinoxBundlesState implements BundlesState {
 	private void setStateObjectFactory() {
 		if (soFactory != null)
 			return;
-		BundleHelper helper = BundleHelper.getDefault();// getBundleHelper();
-		PlatformAdmin platformAdmin = (PlatformAdmin) helper.acquireService(PlatformAdmin.class.getName());
+		PlatformAdmin platformAdmin = (PlatformAdmin) Activator.acquireService(PlatformAdmin.class.getName());
 		// PlatformAdmin platformAdmin = (PlatformAdmin)
 		// heBundleHelper.getDefault().acquireService(PlatformAdmin.class.getName());
 		soFactory = platformAdmin.getFactory();

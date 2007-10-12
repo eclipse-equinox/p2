@@ -8,15 +8,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.equinox.internal.utils;
 
-import java.io.*;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.StringTokenizer;
-
 import org.eclipse.equinox.frameworkadmin.LauncherData;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.EquinoxConstants;
-import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 
 public class FileUtils {
 
@@ -68,60 +65,18 @@ public class FileUtils {
 			ret = location.substring("initial@".length());
 
 		if (ret == location)
-			if (useEclipse)
-				return FileUtils.getEclipseRealLocation(manipulator, location);
-			else
-				return location;
+			return useEclipse ? FileUtils.getEclipseRealLocation(manipulator, location) : location;
 		return getRealLocation(manipulator, ret, useEclipse);
 	}
 
-	public static boolean copy(File source, File target) throws IOException {
-		//try {
-		target.getParentFile().mkdirs();
-		target.createNewFile();
-		transferStreams(new FileInputStream(source), new FileOutputStream(target));
-		//		} catch (FileNotFoundException e) {
-		//			e.printStackTrace();
-		//			return false;
-		//		} catch (IOException e) {
-		//			e.printStackTrace();
-		//			return false;
-		//		}
-		return true;
-	}
-
-	/**
-	 * Transfers all available bytes from the given input stream to the given
-	 * output stream. Regardless of failure, this method closes both streams.
-	 * 
-	 * @param source
-	 * @param destination
-	 * @throws IOException
-	 */
-	public static void transferStreams(InputStream source, OutputStream destination) throws IOException {
-		source = new BufferedInputStream(source);
-		destination = new BufferedOutputStream(destination);
-		try {
-			byte[] buffer = new byte[8192];
-			while (true) {
-				int bytesRead = -1;
-				if ((bytesRead = source.read(buffer)) == -1)
-					break;
-				destination.write(buffer, 0, bytesRead);
-			}
-		} finally {
-			try {
-				source.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				// ignore
-			}
-			try {
-				destination.close();
-			} catch (IOException e) {
-				e.printStackTrace();// ignore
-			}
+	private static String replaceAll(String st, String oldSt, String newSt) {
+		if (oldSt.equals(newSt))
+			return st;
+		int index = -1;
+		while ((index = st.indexOf(oldSt)) != -1) {
+			st = st.substring(0, index) + newSt + st.substring(index + oldSt.length());
 		}
+		return st;
 	}
 
 	/**
@@ -134,7 +89,7 @@ public class FileUtils {
 	 */
 	private static String getEclipseNamingVersion(URL url, final String pluginName, boolean isFile) {
 		String location = url.getFile();
-		location = Utils.replaceAll(location, File.separator, "/");
+		location = replaceAll(location, File.separator, "/");
 		String filename = null;
 		if (location.indexOf(":") == -1)
 			filename = location;
@@ -142,7 +97,6 @@ public class FileUtils {
 			filename = location.substring(location.lastIndexOf(":") + 1);
 
 		// filename must be "jarName"_"version".jar
-		//System.out.println("filename=" + filename);
 		if (isFile) {
 			if (!filename.endsWith(".jar"))
 				return null;
@@ -154,7 +108,6 @@ public class FileUtils {
 
 		if (filename.indexOf("/") != -1)
 			filename = filename.substring(filename.lastIndexOf("/") + 1);
-		//System.out.println("filename=" + filename);
 
 		if (!filename.startsWith(pluginName))
 			return null;
@@ -192,45 +145,4 @@ public class FileUtils {
 		}
 		return (ret == null ? null : ret.toExternalForm());
 	}
-}
-
-class EclipseVersion implements Comparable {
-	int major = 0;
-	int minor = 0;
-	int service = 0;
-	String qualifier = null;
-
-	EclipseVersion(String version) {
-		StringTokenizer tok = new StringTokenizer(version, ".");
-		if (!tok.hasMoreTokens())
-			return;
-		this.major = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.minor = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.service = Integer.parseInt(tok.nextToken());
-		if (!tok.hasMoreTokens())
-			return;
-		this.qualifier = tok.nextToken();
-	}
-
-	public int compareTo(Object obj) {
-		EclipseVersion target = (EclipseVersion) obj;
-		if (target.major > this.major)
-			return -1;
-		if (target.major < this.major)
-			return 1;
-		if (target.minor > this.minor)
-			return -1;
-		if (target.minor < this.minor)
-			return 1;
-		if (target.service > this.service)
-			return -1;
-		if (target.service < this.service)
-			return 1;
-		return 0;
-	}
-
 }

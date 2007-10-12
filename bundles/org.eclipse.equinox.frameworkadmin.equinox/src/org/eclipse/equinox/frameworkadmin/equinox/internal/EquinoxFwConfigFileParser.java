@@ -31,14 +31,11 @@ public class EquinoxFwConfigFileParser {
 	KEY_OSGI_FRAMEWORK, //
 			KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, //
 			KEY_ECLIPSE_PROV_DATA_AREA};
-	private static final String[] URL_ARRAYS = new String[] {KEY_OSGI_BUNDLES, KEY_OSGI_BUNDLES_EXTRA_DATA};
 
 	private static boolean DEBUG = false;
-	private final BundleContext context;
 	private static String USE_REFERENCE_STRING = null;
 
 	public EquinoxFwConfigFileParser(BundleContext context) {
-		this.context = context;
 		if (context != null)
 			USE_REFERENCE_STRING = context.getProperty(EquinoxConstants.PROP_KEY_USE_REFERENCE);
 
@@ -105,11 +102,11 @@ public class EquinoxFwConfigFileParser {
 			// TODO I just added this "if" stmt because we were seeing an extra slash
 			// appearing in the resulting URL. was this the right thing to do? the indexes 
 			// seem off in the loop below. (I'm on linux if that makes a difference)
-//			if (!fwJarSt.startsWith("file:")) {
-//				if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
-//					fwJarSt = "file:/" + fwJarUrl.getFile();
-//				}
-//			}
+			//			if (!fwJarSt.startsWith("file:")) {
+			//				if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
+			//					fwJarSt = "file:/" + fwJarUrl.getFile();
+			//				}
+			//			}
 			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJarSt /* fwJar.getAbsolutePath() */);
 		}
 
@@ -148,12 +145,10 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private static boolean getMarkedAsStartedFormat(String msg, String original) {
-		//boolean ret = false;
 		if (msg == null)
 			return false;
 		msg = msg.trim();
 		if (msg.equals("start")) {
-			//ret = true;
 			return true;
 		}
 		if (!msg.equals(""))
@@ -180,23 +175,22 @@ public class EquinoxFwConfigFileParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//			location = location.substring("file:".length());
-//			if (!location.startsWith("/"))
-//				location = "/" + location;
-//			//		if (fwJarSt != null)
-//			//			if (fwJarSt.equals(location))
-//			//				continue;
-//			location = Utils.replaceAll(location, File.separator, "/");
-//			//String jarName = location.substring(location.lastIndexOf("/") + 1);
-//			//		if (jarName.startsWith(EquinoxConstants.FW_JAR_PLUGIN_NAME))
-//			//			continue;
-//			bInfo.setLocation("file:" + location);
-//		}
+		//			location = location.substring("file:".length());
+		//			if (!location.startsWith("/"))
+		//				location = "/" + location;
+		//			//		if (fwJarSt != null)
+		//			//			if (fwJarSt.equals(location))
+		//			//				continue;
+		//			location = Utils.replaceAll(location, File.separator, "/");
+		//			//String jarName = location.substring(location.lastIndexOf("/") + 1);
+		//			//		if (jarName.startsWith(EquinoxConstants.FW_JAR_PLUGIN_NAME))
+		//			//			continue;
+		//			bInfo.setLocation("file:" + location);
+		//		}
 	}
 
 	/**
 	 * @param value
-	 * @throws ManipulatorException
 	 */
 	private static void setInstallingBundles(Manipulator manipulator, String value) throws NumberFormatException {
 		ConfigData configData = manipulator.getConfigData();
@@ -231,26 +225,16 @@ public class EquinoxFwConfigFileParser {
 				int indexJ = slAndFlag.indexOf(":");
 				if (indexJ == -1) {
 					markedAsStarted = getMarkedAsStartedFormat(slAndFlag, token);
-					// 3 or start
-					//					try {
-					//startLevel = Integer.parseInt(slAndFlag);
 					configData.addBundle(new BundleInfo(location, markedAsStarted));
 					continue;
-					//					} catch (NumberFormatException nfe) {
-					//						throw new ManipulatorException("Invalid Format of bInfoStrings[" + i + "]=" + bInfoStrings[i], nfe, ManipulatorException.OTHERS);
-					//					}
 				} else if (indexJ == 0) {
 					markedAsStarted = getMarkedAsStartedFormat(slAndFlag.substring(indexJ + ":".length()), token);
 					configData.addBundle(new BundleInfo(location, startLevel, markedAsStarted));
 					continue;
 				}
-				//				try {
 				startLevel = Integer.parseInt(slAndFlag.substring(0, indexJ));
 				markedAsStarted = getMarkedAsStartedFormat(slAndFlag.substring(indexJ + ":".length()), bInfoStrings[i]);
 				configData.addBundle(new BundleInfo(location, startLevel, markedAsStarted));
-				//				} catch (NumberFormatException nfe) {
-				//					throw new ManipulatorException("Invalid Format of bInfoStrings[" + i + "]=" + bInfoStrings[i], nfe, ManipulatorException.OTHERS);
-				//				}
 			}
 		}
 	}
@@ -270,7 +254,7 @@ public class EquinoxFwConfigFileParser {
 	/**
 	 * inputFile must be not a directory but a file.
 	 * 
-	 * @param configData
+	 * @param manipulator
 	 * @param inputFile
 	 * @throws IOException
 	 */
@@ -461,7 +445,6 @@ public class EquinoxFwConfigFileParser {
 			try {
 				out.flush();
 				out.close();
-				//				Log.log(LogService.LOG_INFO, "out is closed successfully.");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

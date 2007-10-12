@@ -12,9 +12,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
-import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.state.BundleHelper;
 import org.osgi.framework.*;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * This bundle provides the {@link FrameworkAdmin} implementation for Felix.
@@ -58,6 +56,20 @@ public class Activator implements BundleActivator {
 		registrationFA = context.registerService(FrameworkAdmin.class.getName(), fwAdmin, props);
 	}
 
+	/**
+	 * TODO: These services are never disposed.
+	 */
+	public static Object acquireService(String serviceName) {
+		//be tolerant of concurrent shutdown
+		BundleContext theContext = context;
+		if (theContext == null)
+			return null;
+		ServiceReference reference = theContext.getServiceReference(serviceName);
+		if (reference == null)
+			return null;
+		return theContext.getService(reference);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -65,7 +77,6 @@ public class Activator implements BundleActivator {
 	 */
 	public void start(BundleContext bundleContext) throws Exception {
 		Activator.context = bundleContext;
-		BundleHelper.start(bundleContext);
 		Log.init(bundleContext);
 		registerFwAdmin();
 	}
@@ -81,6 +92,6 @@ public class Activator implements BundleActivator {
 			registrationFA.unregister();
 		if (fwAdmin != null)
 			fwAdmin.deactivate();
-		BundleHelper.stop(bundleContext);
+		Log.dispose();
 	}
 }
