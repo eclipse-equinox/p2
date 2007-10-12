@@ -49,14 +49,11 @@ public class ProvisioningUndoSupport {
 	 * Execute the supplied ProvisioningOperation, and add it to the
 	 * undo history if it supports undo.
 	 * 
+	 * @param op The operation to execute
 	 * @param monitor
 	 *            the progress monitor to use for the operation
-	 * @param uiInfo
-	 *            the IAdaptable (or <code>null</code>) provided by the
-	 *            caller in order to supply UI information for prompting the
-	 *            user if necessary. When this parameter is not
-	 *            <code>null</code>, it contains an adapter for the
-	 *            org.eclipse.swt.widgets.Shell.class
+	 * @param shell provided by the caller in order to supply UI information for prompting the
+	 *            user if necessary. May be <code>null</code>.
 	*/
 	public static IStatus execute(ProvisioningOperation op, IProgressMonitor monitor, Shell shell) throws ExecutionException {
 		if (op instanceof IUndoableOperation) {
