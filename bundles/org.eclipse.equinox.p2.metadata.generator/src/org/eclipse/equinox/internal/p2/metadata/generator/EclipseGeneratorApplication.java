@@ -92,10 +92,11 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		System.out.println("Generating metadata for " + provider.getBaseLocation());
 
+		long before = System.currentTimeMillis();
 		IStatus result = new Generator(provider).generate();
-
+		long after = System.currentTimeMillis();
 		if (result.isOK()) {
-			System.out.println("Generation completed with success");
+			System.out.println("Generation completed with success [" + (after - before) / 1000 + " seconds]");
 			return IApplication.EXIT_OK;
 		}
 		System.out.println(result);
