@@ -29,7 +29,6 @@ import org.osgi.framework.BundleContext;
  * of the method call except SystemBundle will be uninstalled. Otherwise, no uninstallation will not be done.
  */
 public class SimpleConfiguratorImpl implements Configurator {
-	final static BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
 
 	BundleContext context;
 
