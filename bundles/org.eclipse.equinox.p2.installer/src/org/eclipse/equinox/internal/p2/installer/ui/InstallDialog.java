@@ -90,10 +90,10 @@ public class InstallDialog {
 				}
 
 				private String shorten(String text) {
-					if (text.length() <= 80)
+					if (text.length() <= 64)
 						return text;
 					int len = text.length();
-					return text.substring(0, 40) + "..." + text.substring(len - 40, len);
+					return text.substring(0, 30) + "..." + text.substring(len - 30, len);
 				}
 			});
 		}
