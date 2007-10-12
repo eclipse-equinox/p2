@@ -8,7 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.simpleconfigurator.internal;
 
-import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
@@ -17,7 +16,6 @@ import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
 	private BundleContext manipulatingContext;
-	URL configLocationURL = null;
 	private PackageAdmin adminService = null;
 	private StartLevel startLevelService = null;
 	private final boolean runningOnEquinox;
