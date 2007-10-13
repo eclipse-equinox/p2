@@ -62,7 +62,7 @@ public class Collect extends Phase {
 		return false;
 	}
 
-	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Profile profile, Operand currentOperand) {
+	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
 		ProvisioningAction action = touchpoint.getAction("collect");
 		return new ProvisioningAction[] {action};
 	}

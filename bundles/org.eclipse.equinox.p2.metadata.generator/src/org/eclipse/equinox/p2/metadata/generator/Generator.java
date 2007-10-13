@@ -179,10 +179,10 @@ public class Generator {
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("manipulator.getLauncherData().addJvmArg('-Dorg.eclipse.update.reconcile=false');");
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
 			}
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
-				bundle.setSpecialConfigCommands("manipulator.getLauncherData().addJvmArg('-Dorg.eclipse.equinox.simpleconfigurator.useReference=true');");
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 			}
 			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
 			if (cu != null)
@@ -265,14 +265,14 @@ public class Generator {
 				String key = ((String) aProperty.getKey());
 				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
 					continue;
-				configurationData += "manipulator.getConfigData().setFwDependentProp('" + key + "', '" + ((String) aProperty.getValue()) + "');";
+				configurationData += "setFwDependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
 			}
 			for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
 				Entry aProperty = (Entry) iterator.next();
 				String key = ((String) aProperty.getKey());
 				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
 					continue;
-				configurationData += "manipulator.getConfigData().setFwIndependentProp('" + key + "', '" + ((String) aProperty.getValue()) + "');";
+				configurationData += "setFwIndependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
 			}
 		}
 
@@ -280,14 +280,14 @@ public class Generator {
 		if (launcherData != null) {
 			final String[] jvmArgs = launcherData.getJvmArgs();
 			for (int i = 0; i < jvmArgs.length; i++)
-				configurationData += "manipulator.getLauncherData().addJvmArg('" + jvmArgs[i] + "');";
+				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");";
 
 			final String[] programArgs = launcherData.getProgramArgs();
 			for (int i = 0; i < programArgs.length; i++) {
 				String programArg = programArgs[i];
 				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration"))
 					i++;
-				configurationData += "manipulator.getLauncherData().addProgramArg('" + programArg + "');";
+				configurationData += "addProgramArg(programArg:" + programArg + ");";
 			}
 		}
 		touchpointData.put("configurationData", configurationData);

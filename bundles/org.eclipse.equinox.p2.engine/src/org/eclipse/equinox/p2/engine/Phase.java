@@ -67,12 +67,16 @@ public abstract class Phase {
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
 		parameters.put("operand", operand);
+		status.add(initializeOperand(operand, parameters));
+		status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
 		parameters = Collections.unmodifiableMap(parameters);
 		for (int j = 0; j < actions.length; j++) {
 			ProvisioningAction action = actions[j];
 			IStatus actionStatus = action.undo(parameters);
 			status.add(actionStatus);
 		}
+		status.add(touchpoint.completeOperand(operand, phaseId, parameters));
+		status.add(completeOperand(operand, parameters));
 	}
 
 	void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
@@ -137,20 +141,30 @@ public abstract class Phase {
 			if (touchpoint == null || !touchpoint.supports(phaseId))
 				continue;
 
+			ProvisioningAction[] actions;
+			try {
+				actions = getActions(touchpoint, operand);
+			} catch (Throwable t) {
+				status.add(new Status(IStatus.ERROR, phaseId, t.getMessage()));
+				return;
+			}
+
 			Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 			Map parameters = new HashMap(touchpointParameters);
 			parameters.put("operand", operand);
+			status.add(initializeOperand(operand, parameters));
+			status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
 			parameters = Collections.unmodifiableMap(parameters);
-			ProvisioningAction[] actions = getActions(touchpoint, profile, operand);
 			for (int j = 0; j < actions.length; j++) {
 				ProvisioningAction action = actions[j];
-				IStatus actionStatus = action.execute(parameters);
-				status.add(actionStatus);
-				if (actionStatus != null && !actionStatus.isOK())
+				status.add(action.execute(parameters));
+				if (!status.isOK())
 					return;
 
 				session.recordAction(action, operand);
 			}
+			status.add(touchpoint.completeOperand(operand, phaseId, parameters));
+			status.add(completeOperand(operand, parameters));
 		}
 	}
 
@@ -190,6 +204,17 @@ public abstract class Phase {
 		return Status.OK_STATUS;
 	}
 
-	protected abstract ProvisioningAction[] getActions(Touchpoint touchpoint, Profile profile, Operand currentOperand);
+	protected IStatus completeOperand(Operand operand, Map parameters) {
+		return Status.OK_STATUS;
+	}
 
+	protected IStatus initializeOperand(Operand operand, Map parameters) {
+		return Status.OK_STATUS;
+	}
+
+	public ProvisioningAction getAction(String actionId) {
+		return null;
+	}
+
+	protected abstract ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand);
 }

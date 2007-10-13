@@ -12,10 +12,12 @@ package org.eclipse.equinox.p2.engine.phases;
 
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.*;
 
 public class Uninstall extends Phase {
 
@@ -94,13 +96,51 @@ public class Uninstall extends Phase {
 		return false;
 	}
 
-	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Profile profile, Operand currentOperand) {
+	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Uninstalling_IU, unit.getId()));
 
-		ProvisioningAction[] actions = new ProvisioningAction[3];
+		IInstallableUnit unit = currentOperand.first();
+		if (unit.isFragment())
+			return new ProvisioningAction[0];
+		TouchpointData[] data = unit.getTouchpointData();
+		if (data == null)
+			return new ProvisioningAction[0];
+		String[] instructions = getInstructionsFor("unconfigurationData", data);
+		if (instructions.length == 0)
+			return new ProvisioningAction[0];
+		InstructionParser parser = new InstructionParser(this, touchpoint);
+		ProvisioningAction[] parsedActions = parser.parseActions(instructions[0]);
+		ProvisioningAction[] actions = new ProvisioningAction[parsedActions.length + 2];
 		actions[0] = new BeforeUninstallEventAction();
-		actions[1] = touchpoint.getAction("uninstall");
-		actions[2] = new AfterUninstallEventAction();
+		System.arraycopy(parsedActions, 0, actions, 1, parsedActions.length);
+		actions[actions.length - 1] = new AfterUninstallEventAction();
 		return actions;
+	}
+
+	// We could put this in a utility class or perhaps refactor touchpoint data
+	static private String[] getInstructionsFor(String key, TouchpointData[] data) {
+		String[] matches = new String[data.length];
+		int count = 0;
+		for (int i = 0; i < data.length; i++) {
+			matches[count] = data[i].getInstructions(key);
+			if (matches[count] != null)
+				count++;
+		}
+		if (count == data.length)
+			return matches;
+		String[] result = new String[count];
+		System.arraycopy(matches, 0, result, 0, count);
+		return result;
+	}
+
+	protected IStatus initializeOperand(Operand operand, Map parameters) {
+		IResolvedInstallableUnit iu = operand.first();
+		parameters.put("iu", iu);
+
+		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts != null && artifacts.length > 0)
+			parameters.put("artifactId", artifacts[0].getId());
+
+		return Status.OK_STATUS;
 	}
 }

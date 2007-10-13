@@ -33,4 +33,12 @@ public abstract class Touchpoint {
 	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
 		return Status.OK_STATUS;
 	}
+
+	public IStatus initializeOperand(Operand operand, String phaseId, Map parameters) {
+		return Status.OK_STATUS;
+	}
+
+	public IStatus completeOperand(Operand operand, String phaseId, Map parameters) {
+		return Status.OK_STATUS;
+	}
 }

@@ -151,7 +151,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setSymbolicName("defaultConfigure");
 		result.setVersion("1.0.0");
 		result.setStartLevel(4);
-		result.setSpecialConfigCommands("manipulator.getConfigData().addBundle(bundleToInstall);");
+		result.setSpecialConfigCommands("installBundle(bundle:${artifactId});");
 		return result;
 	}
 
@@ -159,7 +159,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("defaultUnconfigure");
 		result.setVersion("1.0.0");
-		result.setSpecialConfigCommands("manipulator.getConfigData().removeBundle(bundleToRemove);");
+		result.setSpecialConfigCommands("uninstallBundle(bundle:${artifactId});");
 		return result;
 	}
 
@@ -211,7 +211,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			GeneratorBundleInfo temp = new GeneratorBundleInfo();
 			temp.setSymbolicName(object.getId());
 			temp.setVersion(object.getVersion().toString());
-			temp.setSpecialConfigCommands("manipulator.getLauncherData().addProgramArg('--launcher.library');manipulator.getLauncherData().addProgramArg(artifact);");
+			temp.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);");
 			result.add(temp);
 		}
 		return result;
@@ -232,7 +232,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setSymbolicName("org.eclipse.equinox.launcher");
 		result.setVersion("0.0.0");
 		//result.setSpecialConfigCommands("manipulator.addProgramArgument('-startup'); manipulator.addProgramArgument(artifact);");
-		result.setSpecialConfigCommands("manipulator.getLauncherData().addProgramArg('-startup');manipulator.getLauncherData().addProgramArg(artifact);");
+		result.setSpecialConfigCommands("addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);");
 		return result;
 	}
 
@@ -242,7 +242,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setVersion("0.0.0");
 		result.setStartLevel(1);
 		result.setMarkedAsStarted(true);
-		result.setSpecialConfigCommands("manipulator.getLauncherData().addJvmArg('-Dorg.eclipse.equinox.simpleconfigurator.useReference=true');");
+		result.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 		return result;
 	}
 

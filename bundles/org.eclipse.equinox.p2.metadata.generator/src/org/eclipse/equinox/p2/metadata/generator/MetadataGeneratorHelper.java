@@ -59,11 +59,23 @@ public class MetadataGeneratorHelper {
 		iu.setSingleton(false);
 		iu.setId("a.jre"); //$NON-NLS-1$
 		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+
+		InstallableUnitFragment cu = new InstallableUnitFragment();
+		cu.setId("config." + iu.getId()); //$NON-NLS-1$
+		cu.setVersion(iu.getVersion());
+		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
+		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+		Map touchpointData = new HashMap();
+
 		if (jreLocation == null || !jreLocation.exists()) {
 			//set some reasonable defaults
 			iu.setVersion(DEFAULT_JRE_VERSION);
 			iu.setCapabilities(generateJRECapability(null));
 			resultantIUs.add(iu);
+
+			touchpointData.put("configurationData", "");
+			cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
+			resultantIUs.add(cu);
 			return;
 		}
 		generateJREIUData(iu, jreLocation);
@@ -71,19 +83,10 @@ public class MetadataGeneratorHelper {
 		//Generate artifact for JRE
 		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, iu.getId(), iu.getVersion());
 		iu.setArtifacts(new IArtifactKey[] {key});
-		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, new Version(1, 0, 0)));
 		resultantIUs.add(iu);
 
-		//Create the CU
-		InstallableUnitFragment cu = new InstallableUnitFragment();
-		cu.setId("config." + iu.getId()); //$NON-NLS-1$
-		cu.setVersion(iu.getVersion());
-		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
-
-		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
-		Map touchpointData = new HashMap();
-		String configurationData = "Zip.unzip(artifact, currentDir, null);";
-		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+		//Create config info for the CU
+		String configurationData = "unzip(source:@artifact, target:${installFolder});";
 		touchpointData.put("configurationData", configurationData);
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(cu);
@@ -149,11 +152,11 @@ public class MetadataGeneratorHelper {
 
 		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
 		Map touchpointData = new HashMap();
-		String configurationData = "Zip.unzip(artifact, currentDir, null);";
+		String configurationData = "unzip(source:@artifact, target:${installFolder});";
 		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
 			// FIXME:  is this correct?  do all non-Windows platforms need execute permissions on the launcher?
-			configurationData += " Permissions.chmod(currentDir, \"" + launcher.getName() + "\", 755);";
+			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
 		touchpointData.put("configurationData", configurationData);
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(cu);
@@ -245,63 +248,44 @@ public class MetadataGeneratorHelper {
 	}
 
 	private static String createDefaultConfigScript(GeneratorBundleInfo configInfo) {
-		String configScript = "";//$NON-NLS-1$
-		if (configInfo != null) {
-			if (configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-				configScript += "bundleToInstall.setStartLevel(" + configInfo.getStartLevel() + ");";
-			}
-			if (configInfo.isMarkedAsStarted()) {
-				configScript += "bundleToInstall.setMarkedAsStarted(true);";
-			}
-			if (configInfo.getSpecialConfigCommands() != null) {
-				configScript += configInfo.getSpecialConfigCommands();
-			}
-		}
-		return configScript;
+		return createConfigScript(configInfo, false);
 	}
 
 	private static String createDefaultUnconfigScript(GeneratorBundleInfo unconfigInfo) {
-		String unconfigScript = ""; //$NON-NLS-1$
+		return createUnconfigScript(unconfigInfo, false);
+	}
+
+	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
+		if (configInfo == null)
+			return "";
+
+		String configScript = "installBundle(bundle:${artifactId}";//$NON-NLS-1$
+		if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
+			configScript += ", startLevel:" + configInfo.getStartLevel();
+		}
+		if (!isBundleFragment && configInfo.isMarkedAsStarted()) {
+			configScript += ", markStarted: true";
+		}
+		configScript += ");";
+
+		if (configInfo.getSpecialConfigCommands() != null) {
+			configScript += configInfo.getSpecialConfigCommands();
+		}
+
+		return configScript;
+	}
+
+	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
+		if (unconfigInfo == null)
+			return "";
+		String unconfigScript = "uninstallBundle(bundle:${artifactId}";//$NON-NLS-1$
 		if (unconfigInfo != null) {
 			if (unconfigInfo.getSpecialConfigCommands() != null) {
 				unconfigScript += unconfigInfo.getSpecialConfigCommands();
 			}
 		}
 		return unconfigScript;
-	}
 
-	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
-		String configScript = "manipulator.getConfigData().addBundle(bundleToInstall);";
-		if (configInfo != null) {
-			if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-				configScript += "bundleToInstall.setStartLevel(" + configInfo.getStartLevel() + ");";
-			}
-			if (!isBundleFragment && configInfo.isMarkedAsStarted()) {
-				configScript += "bundleToInstall.setMarkedAsStarted(true);";
-			}
-			if (configInfo.getSpecialConfigCommands() != null) {
-				configScript += configInfo.getSpecialConfigCommands();
-			}
-		}
-		return configScript;
-	}
-
-	private static String createUnconfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
-		String unconfigScript = "";
-		if (configInfo != null) {
-			if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-				unconfigScript += "bundleToRemove.setStartLevel(" + BundleInfo.NO_LEVEL + ");";
-			}
-			if (!isBundleFragment && configInfo.isMarkedAsStarted()) {
-				unconfigScript += "bundleToRemove.setMarkedAsStarted(false);";
-			}
-			if (configInfo.getSpecialConfigCommands() != null) {
-				// TODO: how should special config commands be removed
-				// unconfigScript += "foobar.remove(" + configInfo.getSpecialConfigCommands() + ");";
-			}
-		}
-		unconfigScript += "manipulator.getConfigData().removeBundle(bundleToRemove);";
-		return unconfigScript;
 	}
 
 	private static boolean requireAFragment(BundleDescription bd, Map manifest) {
