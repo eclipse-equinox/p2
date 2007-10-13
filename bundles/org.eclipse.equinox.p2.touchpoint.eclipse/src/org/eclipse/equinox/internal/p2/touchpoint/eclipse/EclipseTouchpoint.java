@@ -184,22 +184,6 @@ public class EclipseTouchpoint extends Touchpoint {
 			};
 		}
 
-		//		if (actionId.equals("OLDinstall")) {
-		//			return new ProvisioningAction() {
-		//				public IStatus execute(Map parameters) {
-		//					Profile profile = (Profile) parameters.get("profile");
-		//					Operand operand = (Operand) parameters.get("operand");
-		//					return configure(operand.second(), profile, true, parameters);
-		//				}
-		//
-		//				public IStatus undo(Map parameters) {
-		//					Profile profile = (Profile) parameters.get("profile");
-		//					Operand operand = (Operand) parameters.get("operand");
-		//					return configure(operand.second(), profile, false, parameters);
-		//				}
-		//			};
-		//		}
-
 		return null;
 	}
 
@@ -443,102 +427,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		return bundleFolder;
 	}
 
-	//	private IStatus configure(IInstallableUnit unit, Profile profile, boolean isInstall, Map parameters) {
-	//		if (unit.isFragment())
-	//			return Status.OK_STATUS;
-	//
-	//		// Construct and initialize the java script context
-	//		Context cx = Context.enter();
-	//		Scriptable scope = cx.initStandardObjects();
-	//
-	//		Manipulator manipulator = (Manipulator) parameters.get("manipulator");
-	//		// wrap the manipulator for the configuration in the profile
-	//		Object wrappedOut = Context.javaToJS(manipulator, scope);
-	//		ScriptableObject.putProperty(scope, "manipulator", wrappedOut);
-	//
-	//		// Get the touchpoint data from the installable unit
-	//		TouchpointData[] touchpointData = unit.getTouchpointData();
-	//
-	//		if (touchpointData.length > 0 && unit.getArtifacts() != null && unit.getArtifacts().length > 0) {
-	//			boolean zippedPlugin = isZipped(touchpointData);
-	//			boolean alreadyInCache = false;
-	//
-	//			//Always try to check in the cache first
-	//			IArtifactRepository baseRepo = getBundlePoolRepo(profile);
-	//			IFileArtifactRepository repoToCheck = (IFileArtifactRepository) baseRepo.getAdapter(IFileArtifactRepository.class);
-	//			IArtifactKey artifactKey = unit.getArtifacts()[0];
-	//			File fileLocation = repoToCheck.getArtifactFile(artifactKey);
-	//			if (fileLocation != null) {
-	//				alreadyInCache = true;
-	//			} else if (zippedPlugin) {
-	//				baseRepo = getDownloadCacheRepo();
-	//				repoToCheck = (IFileArtifactRepository) baseRepo.getAdapter(IFileArtifactRepository.class);
-	//				fileLocation = repoToCheck.getArtifactFile(artifactKey);
-	//			}
-	//
-	//			// TODO: Needs fixing - See Bug 204161 
-	//			if (fileLocation != null) {
-	//				if (!fileLocation.exists())
-	//					return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
-	//			} else if (isInstall) {
-	//				return new Status(IStatus.ERROR, ID, "The artifact " + artifactKey.toString() + " to install has not been found.");
-	//			}
-	//
-	//			// TODO: Here we unzip the plug-in.This is ugly. We need to deal with addition into the plug-in cache
-	//			// TODO: Will we ever need to unzip in order to remove a bundle?
-	//			if (!alreadyInCache && zippedPlugin) {
-	//				if (isInstall) {
-	//					File extractionFolder = new File(getBundlePoolLocation(profile).getFile(), "/plugins/" + artifactKey.getId() + '_' + artifactKey.getVersion());
-	//					if (!extractionFolder.exists()) {
-	//						if (!extractionFolder.mkdir())
-	//							return new Status(IStatus.ERROR, ID, "can't create the folder: " + extractionFolder);
-	//						try {
-	//							FileUtils.unzipFile(fileLocation, extractionFolder.getParentFile());
-	//						} catch (IOException e) {
-	//							return new Status(IStatus.ERROR, ID, "can't extract " + fileLocation + " into the folder " + extractionFolder);
-	//						}
-	//					}
-	//					fileLocation = extractionFolder;
-	//				} else {
-	//					fileLocation = new File(new File(getBundlePoolLocation(profile).getFile()), "/plugins/" + artifactKey.getId() + '_' + artifactKey.getVersion());
-	//				}
-	//				//check if the target folder exists
-	//
-	//				//if it does then stop
-	//				//if it does not create the folder and extract the archive... Be careful here with the permissions.... We may need to have a proper unzip technology here that supports file permissions for linux
-	//				//				request.getProfile().getValue(CACHE_PATH);
-	//			}
-	//
-	//			// TODO: We need to separate install and uninstall actions
-	//			if (!isInstall && fileLocation == null)
-	//				return new Status(IStatus.ERROR, ID, "The artifact " + artifactKey.toString() + " to uninstall has not been found.");
-	//
-	//			ScriptableObject.putProperty(scope, "artifact", fileLocation.getAbsolutePath());
-	//			BundleInfo bundle = new BundleInfo();
-	//			try {
-	//				bundle.setLocation(fileLocation.toURL().toExternalForm());
-	//			} catch (MalformedURLException e) {
-	//				// Ignore;
-	//				e.printStackTrace();
-	//			}
-	//			String[] manifestData = getInstructionsFor("manifest", touchpointData); //TODO Here we only take one set of manifest data
-	//			this.initFromManifest(manifestData[0], bundle);
-	//			ScriptableObject.putProperty(scope, (isInstall ? "bundleToInstall" : "bundleToRemove"), bundle);
-	//		}
-	//
-	//		String[] instructions = getInstructionsFor((isInstall ? CONFIGURATION_DATA : UNCONFIGURATION_DATA), touchpointData);
-	//		for (int i = 0; i < instructions.length; i++) {
-	//			logConfiguation(unit, instructions[i], isInstall);
-	//			try {
-	//				cx.evaluateString(scope, instructions[i], unit.getId(), 1, null);
-	//				//TODO Need to get the result of the operations
-	//			} catch (RuntimeException ex) {
-	//				return new Status(IStatus.ERROR, Activator.ID, "Exception while executing " + instructions[i], ex);
-	//			}
-	//		}
-	//		return Status.OK_STATUS;
-	//	}
-
 	/**
 	 * Returns the agent location, if possible as a path relative to the configuration
 	 * directory using the @config.dir substitution variable. AgentLocation will
@@ -588,21 +476,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 		return (FrameworkAdmin) fwAdminTracker.getService();
 	}
-
-	//	private String[] getInstructionsFor(String key, TouchpointData[] data) {
-	//		String[] matches = new String[data.length];
-	//		int count = 0;
-	//		for (int i = 0; i < data.length; i++) {
-	//			matches[count] = data[i].getInstructions(key);
-	//			if (matches[count] != null)
-	//				count++;
-	//		}
-	//		if (count == data.length)
-	//			return matches;
-	//		String[] result = new String[count];
-	//		System.arraycopy(matches, 0, result, 0, count);
-	//		return result;
-	//	}
 
 	public TouchpointType getTouchpointType() {
 		return new TouchpointType("eclipse", new Version("1.0")); //TODO this data probably needs to come from the XML

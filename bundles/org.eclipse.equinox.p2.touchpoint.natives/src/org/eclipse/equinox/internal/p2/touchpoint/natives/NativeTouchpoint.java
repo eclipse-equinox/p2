@@ -104,88 +104,8 @@ public class NativeTouchpoint extends Touchpoint {
 			};
 		}
 
-		//		if (actionId.equals("OLDinstall")) {
-		//			return new ProvisioningAction() {
-		//				public IStatus execute(Map parameters) {
-		//					Profile profile = (Profile) parameters.get("profile");
-		//					Operand operand = (Operand) parameters.get("operand");
-		//					return doInstall(operand.second(), profile);
-		//				}
-		//
-		//				public IStatus undo(Map parameters) {
-		//					Profile profile = (Profile) parameters.get("profile");
-		//					Operand operand = (Operand) parameters.get("operand");
-		//					return doUninstall(operand.second(), profile);
-		//				}
-		//			};
-		//		}
-		//		if (actionId.equals("OLDuninstall")) {
-		//			return new ProvisioningAction() {
-		//				public IStatus execute(Map parameters) {
-		//					Profile profile = (Profile) parameters.get("profile");
-		//					Operand operand = (Operand) parameters.get("operand");
-		//					return doUninstall(operand.first(), profile);
-		//				}
-		//
-		//				public IStatus undo(Map parameters) {
-		//					Profile profile = (Profile) parameters.get("profile");
-		//					Operand operand = (Operand) parameters.get("operand");
-		//					return doInstall(operand.first(), profile);
-		//				}
-		//			};
-		//		}
-
 		return null;
 	}
-
-	//	private IStatus doInstall(IInstallableUnit unitToInstall, Profile profile) {
-	//		//Get the cache
-	//		IArtifactRepository dlCache = getDownloadCacheRepo();
-	//		if (unitToInstall.getArtifacts() == null || unitToInstall.getArtifacts().length == 0)
-	//			return Status.OK_STATUS;
-	//
-	//		IFileArtifactRepository repoToCheck = (IFileArtifactRepository) dlCache.getAdapter(IFileArtifactRepository.class);
-	//		File fileLocation = repoToCheck.getArtifactFile(unitToInstall.getArtifacts()[0]);
-	//		if (!fileLocation.exists())
-	//			return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
-	//
-	//		TouchpointData[] touchpointData = unitToInstall.getTouchpointData();
-	//		Context cx = Context.enter();
-	//		Scriptable scope = cx.initStandardObjects();
-	//		ScriptableObject.putProperty(scope, "artifact", fileLocation.getAbsolutePath());
-	//		ScriptableObject.putProperty(scope, "currentDir", getInstallFolder(profile));
-	//		ScriptableObject.putProperty(scope, "Zip", new Zip());
-	//		ScriptableObject.putProperty(scope, "Permissions", new Permissions());
-	//		String[] configurationData = getInstructionsFor(CONFIGURATION_DATA, touchpointData);
-	//		for (int i = 0; i < configurationData.length; i++) {
-	//			try {
-	//				cx.evaluateString(scope, configurationData[i], unitToInstall.getId(), 1, null);
-	//			} catch (RuntimeException e) {
-	//				return new Status(IStatus.ERROR, Activator.ID, "Exception while executing " + configurationData[i], e);
-	//			}
-	//		}
-	//		return Status.OK_STATUS;
-	//	}
-	//
-	//	private IStatus doUninstall(IInstallableUnit unitToInstall, Profile profile) {
-	//		// TODO: implement uninstall 
-	//		return Status.OK_STATUS;
-	//	}
-
-	//	private String[] getInstructionsFor(String key, TouchpointData[] data) {
-	//		String[] matches = new String[data.length];
-	//		int count = 0;
-	//		for (int i = 0; i < data.length; i++) {
-	//			matches[count] = data[i].getInstructions(key);
-	//			if (matches[count] != null)
-	//				count++;
-	//		}
-	//		if (count == data.length)
-	//			return matches;
-	//		String[] result = new String[count];
-	//		System.arraycopy(matches, 0, result, 0, count);
-	//		return result;
-	//	}
 
 	public TouchpointType getTouchpointType() {
 		return new TouchpointType("native", new Version(1, 0, 0));
