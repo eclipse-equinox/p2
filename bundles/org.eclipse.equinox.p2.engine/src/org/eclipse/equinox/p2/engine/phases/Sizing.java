@@ -16,13 +16,13 @@ import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.engine.*;
 
-public class SizingPhase extends Phase {
+public class Sizing extends Phase {
 	private static final String TP_DATA = "collect"; //$NON-NLS-1$
 
 	private long sizeOnDisk;
 	private long dlSize;
 
-	public SizingPhase(int weight, String phaseName) {
+	public Sizing(int weight, String phaseName) {
 		super(TP_DATA, weight, phaseName);
 	}
 

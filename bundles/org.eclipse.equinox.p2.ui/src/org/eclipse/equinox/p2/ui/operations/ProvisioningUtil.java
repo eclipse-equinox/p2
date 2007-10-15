@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.engine.phases.SizingPhase;
+import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -45,13 +45,13 @@ import org.eclipse.osgi.util.NLS;
 public class ProvisioningUtil {
 
 	private static final class SizingPhaseSet extends PhaseSet {
-		static SizingPhase sizingPhase;
+		static Sizing sizingPhase;
 
 		SizingPhaseSet() {
-			super(new Phase[] {sizingPhase = new SizingPhase(100, "Compute sizes")}); //$NON-NLS-1$
+			super(new Phase[] {sizingPhase = new Sizing(100, "Compute sizes")}); //$NON-NLS-1$
 		}
 
-		SizingPhase getSizingPhase() {
+		Sizing getSizingPhase() {
 			return sizingPhase;
 		}
 	}
@@ -300,7 +300,7 @@ public class ProvisioningUtil {
 	/*
 	 * Get sizing info for the specified IU's
 	 */
-	public static SizingPhase getSizeInfo(ProvisioningPlan plan, Profile profile, IProgressMonitor monitor) throws ProvisionException {
+	public static Sizing getSizeInfo(ProvisioningPlan plan, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		SizingPhaseSet set = new SizingPhaseSet();
 		IStatus status = getEngine().perform(profile, set, plan.getOperands(), monitor);
 		if (status.isOK())

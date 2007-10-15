@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.engine.phases.SizingPhase;
+import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -100,7 +100,7 @@ public class Application implements IApplication {
 			if (!result.getStatus().isOK())
 				operationStatus = result.getStatus();
 			else {
-				SizingPhase sizeComputer = new SizingPhase(100, "Compute sizes"); //$NON-NLS-1$
+				Sizing sizeComputer = new Sizing(100, "Compute sizes"); //$NON-NLS-1$
 				PhaseSet set = new PhaseSet(new Phase[] {sizeComputer}) {};
 				operationStatus = engine.perform(profile, set, result.getOperands(), new NullProgressMonitor());
 				System.out.println("Estimated size on disk " + sizeComputer.getDiskSize());

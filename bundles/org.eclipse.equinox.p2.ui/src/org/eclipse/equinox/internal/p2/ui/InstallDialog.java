@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.engine.phases.SizingPhase;
+import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
@@ -54,7 +54,7 @@ public class InstallDialog extends ProfileModificationDialog {
 		long size;
 		try {
 			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, new NullProgressMonitor());
-			SizingPhase info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor());
+			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor());
 			size = info.getDlSize();
 		} catch (ProvisionException e) {
 			size = AvailableIUElement.SIZE_UNKNOWN;
