@@ -65,12 +65,12 @@ public class UpdateTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstall() {
-		assertEquals(director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()).getSeverity(), IStatus.OK);
+		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()).getSeverity());
 		for (Iterator iterator = profile.getInstallableUnits(); iterator.hasNext();) {
 			System.out.println(iterator.next());
 
 		}
-		assertEquals(director.install(new IInstallableUnit[] {f1_4}, profile, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
+		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1_4}, profile, new NullProgressMonitor()).getSeverity());
 
 		//		director.replace(new IInstallableUnit[] {fap}, profile, new NullProgressMonitor());
 	}
