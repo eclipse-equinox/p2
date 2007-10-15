@@ -45,14 +45,14 @@ import org.eclipse.osgi.util.NLS;
 public class ProvisioningUtil {
 
 	private static final class SizingPhaseSet extends PhaseSet {
-		static Sizing sizingPhase;
+		static Sizing sizing;
 
 		SizingPhaseSet() {
-			super(new Phase[] {sizingPhase = new Sizing(100, "Compute sizes")}); //$NON-NLS-1$
+			super(new Phase[] {sizing = new Sizing(100, "Compute sizes")}); //$NON-NLS-1$
 		}
 
-		Sizing getSizingPhase() {
-			return sizingPhase;
+		Sizing getSizing() {
+			return sizing;
 		}
 	}
 
@@ -304,7 +304,7 @@ public class ProvisioningUtil {
 		SizingPhaseSet set = new SizingPhaseSet();
 		IStatus status = getEngine().perform(profile, set, plan.getOperands(), monitor);
 		if (status.isOK())
-			return set.getSizingPhase();
+			return set.getSizing();
 		return null;
 	}
 

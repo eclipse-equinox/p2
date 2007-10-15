@@ -55,7 +55,7 @@ public class InstallDialog extends ProfileModificationDialog {
 		try {
 			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, new NullProgressMonitor());
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor());
-			size = info.getDlSize();
+			size = info.getDiskSize();
 		} catch (ProvisionException e) {
 			size = AvailableIUElement.SIZE_UNKNOWN;
 		}

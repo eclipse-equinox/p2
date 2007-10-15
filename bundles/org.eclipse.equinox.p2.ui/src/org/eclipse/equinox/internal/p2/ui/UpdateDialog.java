@@ -82,7 +82,7 @@ public class UpdateDialog extends ProfileModificationDialog {
 		try {
 			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToRemove}, new IInstallableUnit[] {iuToAdd}, profile, new NullProgressMonitor());
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor());
-			size = info.getDlSize();
+			size = info.getDiskSize();
 		} catch (ProvisionException e) {
 			size = AvailableIUElement.SIZE_UNKNOWN;
 		}
