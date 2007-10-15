@@ -44,6 +44,8 @@ public interface IPlanner {
 
 	public ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
 
+	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, IProgressMonitor monitor);
+
 	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate);
 
 }

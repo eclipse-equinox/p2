@@ -48,6 +48,7 @@ public interface IDirector {
 
 	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
 
+	public IStatus revert(IInstallableUnit previous, Profile profile, IProgressMonitor monitor);
 	//TODO And many more operations for uninstallation and the rest ! See bug 179819
 
 }

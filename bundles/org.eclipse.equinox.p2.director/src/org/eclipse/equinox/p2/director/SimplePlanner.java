@@ -267,4 +267,8 @@ public class SimplePlanner implements IPlanner {
 		}
 		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
+
+	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, IProgressMonitor monitor) {
+		return getBecomePlan(previous, profile, monitor);
+	}
 }

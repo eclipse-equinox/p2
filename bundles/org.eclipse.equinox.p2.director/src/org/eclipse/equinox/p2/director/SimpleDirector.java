@@ -114,4 +114,8 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
+	public IStatus revert(IInstallableUnit previous, Profile profile, IProgressMonitor monitor) {
+		return become(previous, profile, monitor);
+	}
+
 }
