@@ -101,22 +101,25 @@ public class Install extends Phase {
 	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Installing_IU, unit.getId()));
 
+		ProvisioningAction beforeAction = new BeforeInstallEventAction();
+		ProvisioningAction afterAction = new AfterInstallEventAction();
+
 		IInstallableUnit unit = currentOperand.second();
 		if (unit.isFragment())
-			return new ProvisioningAction[0];
+			return new ProvisioningAction[] {beforeAction, afterAction};
 		TouchpointData[] data = unit.getTouchpointData();
 
 		if (data == null)
-			return new ProvisioningAction[0];
+			return new ProvisioningAction[] {beforeAction, afterAction};
 		String[] instructions = getInstructionsFor("configurationData", data);
 		if (instructions.length == 0)
-			return new ProvisioningAction[0];
+			return new ProvisioningAction[] {beforeAction, afterAction};
 		InstructionParser parser = new InstructionParser(this, touchpoint);
 		ProvisioningAction[] parsedActions = parser.parseActions(instructions[0]);
 		ProvisioningAction[] actions = new ProvisioningAction[parsedActions.length + 2];
-		actions[0] = new BeforeInstallEventAction();
+		actions[0] = beforeAction;
 		System.arraycopy(parsedActions, 0, actions, 1, parsedActions.length);
-		actions[actions.length - 1] = new AfterInstallEventAction();
+		actions[actions.length - 1] = afterAction;
 		return actions;
 	}
 
