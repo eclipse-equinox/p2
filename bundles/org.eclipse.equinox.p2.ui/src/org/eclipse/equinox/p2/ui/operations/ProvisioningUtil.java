@@ -12,15 +12,13 @@
 package org.eclipse.equinox.p2.ui.operations;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.*;
@@ -31,7 +29,7 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.CompoundIterator;
 import org.eclipse.equinox.p2.query.Query;
-import org.eclipse.equinox.p2.ui.IProvisioningProperties;
+import org.eclipse.equinox.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -60,22 +58,26 @@ public class ProvisioningUtil {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		IMetadataRepository repo = null;
-		repo = manager.loadRepository(location, monitor);
+		IMetadataRepository repo = manager.loadRepository(location, monitor);
 		if (repo == null) {
 			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_AddRepositoryFailure, location.toExternalForm()));
 		}
-		PropertyChangeEvent event = new PropertyChangeEvent(repo, IProvisioningProperties.REPO_ADDED, null, null);
+		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
 		ProvUIActivator.getDefault().notifyListeners(event);
 		return repo;
 	}
 
-	public static IMetadataRepository getMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static IMetadataRepository createMetadataRepository(String name, String type, URL location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		if (manager == null) {
+		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		IMetadataRepository repo = manager.createRepository(location, name, type);
+		if (repo == null) {
+			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_CreateRepositoryFailure, location.toExternalForm()));
 		}
-		return manager.getRepository(location);
+		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
+		ProvUIActivator.getDefault().notifyListeners(event);
+		return repo;
 	}
 
 	public static void removeMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -86,7 +88,7 @@ public class ProvisioningUtil {
 		IMetadataRepository repo = manager.getRepository(location);
 		if (repo != null)
 			manager.removeRepository(repo);
-		PropertyChangeEvent event = new PropertyChangeEvent(repo, IProvisioningProperties.REPO_REMOVED, null, null);
+		PropertyChangeEvent event = new PropertyChangeEvent(repo, IProvisioningListener.REPO_REMOVED, null, null);
 		ProvUIActivator.getDefault().notifyListeners(event);
 
 	}
@@ -96,16 +98,29 @@ public class ProvisioningUtil {
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		// TODO need to get rid of this string constant. see bug #196862
-		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository repository = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
-		if (repository == null) {
+		IArtifactRepository repo = manager.loadRepository(location, monitor);
+		if (repo == null) {
 			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_AddRepositoryFailure, location));
 		}
-		PropertyChangeEvent event = new PropertyChangeEvent(repository, IProvisioningProperties.REPO_ADDED, null, null);
+		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
 		ProvUIActivator.getDefault().notifyListeners(event);
 
-		return repository;
+		return repo;
+	}
+
+	public static IArtifactRepository createArtifactRepository(String name, String type, URL location, IProgressMonitor monitor) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		}
+		IArtifactRepository repo = manager.createRepository(location, name, type);
+		if (repo == null) {
+			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_CreateRepositoryFailure, location));
+		}
+		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
+		ProvUIActivator.getDefault().notifyListeners(event);
+
+		return repo;
 	}
 
 	public static void removeArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -118,7 +133,7 @@ public class ProvisioningUtil {
 			IArtifactRepository repo = repos[i];
 			if (repo.getLocation().equals(location)) {
 				manager.removeRepository(repo);
-				PropertyChangeEvent event = new PropertyChangeEvent(repo, IProvisioningProperties.REPO_REMOVED, null, null);
+				PropertyChangeEvent event = new PropertyChangeEvent(repo, IProvisioningListener.REPO_REMOVED, null, null);
 				ProvUIActivator.getDefault().notifyListeners(event);
 
 				return;
@@ -135,17 +150,6 @@ public class ProvisioningUtil {
 			return repos;
 		}
 		return new IArtifactRepository[0];
-	}
-
-	public static IArtifactRepository getArtifactRepository(URL repoURL, IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepository[] repositories = getArtifactRepositories(monitor);
-		if (repositories == null)
-			return null;
-		for (int i = 0; i < repositories.length; i++) {
-			if (repoURL.equals(repositories[i].getLocation()))
-				return repositories[i];
-		}
-		return null;
 	}
 
 	public static void addProfile(Profile profile, IProgressMonitor monitor) throws ProvisionException {
@@ -308,19 +312,6 @@ public class ProvisioningUtil {
 		return null;
 	}
 
-	// TODO This method is only in the util class so that I can generate an
-	// event. If the setName API generated this event, callers could just do
-	// it directly (and I could make this class/package truly internal....)
-	public static IStatus setRepositoryName(IRepository repository, String name) {
-		if (repository.isModifiable()) {
-			repository.setName(name);
-			PropertyChangeEvent event = new PropertyChangeEvent(repository, IProvisioningProperties.REPO_NAME, null, name);
-			ProvUIActivator.getDefault().notifyListeners(event);
-			return Status.OK_STATUS;
-		}
-		return error(ProvUIMessages.ProvisioningUtil_RepoNotWritable);
-	}
-
 	public static IStatus performInstall(ProvisioningPlan plan, Profile profile, IInstallableUnit[] installRoots, IProgressMonitor monitor) throws ProvisionException {
 		IStatus engineResult = performProvisioningPlan(plan, profile, monitor);
 		if (engineResult.isOK()) {
@@ -335,8 +326,12 @@ public class ProvisioningUtil {
 		return getEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), monitor);
 	}
 
-	private static IStatus error(String message) {
-		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, message);
+	private static IMetadataRepository getMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		}
+		return manager.getRepository(location);
 	}
 
 	private static Engine getEngine() throws ProvisionException {

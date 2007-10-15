@@ -14,9 +14,7 @@ package org.eclipse.equinox.p2.ui.viewers;
 import java.util.EventObject;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.ui.IProvisioningProperties;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.equinox.p2.ui.IProvisioningListener;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
 
@@ -26,7 +24,7 @@ import org.eclipse.swt.widgets.Display;
  * 
  * @since 3.4
  */
-public class StructuredViewerProvisioningListener implements SynchronousProvisioningListener, IPropertyChangeListener {
+public class StructuredViewerProvisioningListener implements SynchronousProvisioningListener, IProvisioningListener {
 
 	// TODO this should be replaced with actual event topic ids from the event API once they are defined
 	// TODO the IPropertyChangeListener implementation should also disappear once repo events are supported
@@ -65,20 +63,9 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 					viewer.refresh();
 				}
 			});
-		}
-	}
-
-	public void propertyChange(final PropertyChangeEvent event) {
-		// Currently we only support repo events
-		if ((eventTypes & PROV_EVENT_REPOSITORY) == PROV_EVENT_REPOSITORY) {
-			String property = event.getProperty();
-			if (property.equals(IProvisioningProperties.REPO_NAME)) {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						viewer.update(event.getSource(), null);
-					}
-				});
-			} else if (property.equals(IProvisioningProperties.REPO_ADDED) || (property.equals(IProvisioningProperties.REPO_REMOVED))) {
+		} else if ((o.getSource() instanceof String) && (eventTypes & PROV_EVENT_REPOSITORY) == PROV_EVENT_REPOSITORY) {
+			String name = (String) o.getSource();
+			if (name.equals(IProvisioningListener.REPO_ADDED) || (name.equals(IProvisioningListener.REPO_REMOVED))) {
 				display.asyncExec(new Runnable() {
 					public void run() {
 						viewer.refresh();

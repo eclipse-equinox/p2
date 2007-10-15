@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -51,21 +50,10 @@ public class RepositoryPropertyPage extends PropertyPage {
 			public void modifyText(ModifyEvent event) {
 				verifyComplete();
 			}
-		}, false, null, null); // these don't matter since repo already
+		});
 	}
 
-	public boolean performOk() {
-		String nameValue = repoGroup.getRepositoryName();
-		if (repository != null && nameValue != null && !nameValue.equals(repository.getName())) {
-			// TODO HACK - if I could get event notification from core, I
-			// wouldn't have to call the
-			// util class
-			ProvisioningUtil.setRepositoryName(repository, nameValue);
-		}
-		return true;
-	}
-
-	void verifyComplete() {
+	protected void verifyComplete() {
 		if (repoGroup == null) {
 			return;
 		}

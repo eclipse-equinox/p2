@@ -32,8 +32,8 @@ public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 		super(parentShell, knownRepositories);
 	}
 
-	protected ProvisioningOperation getOperation(URL url, String name) {
-		return new AddMetadataRepositoryOperation(ProvAdminUIMessages.AddMetadataRepositoryDialog_OperationLabel, url, name);
+	protected ProvisioningOperation getOperation(URL url) {
+		return new AddMetadataRepositoryOperation(ProvAdminUIMessages.AddMetadataRepositoryDialog_OperationLabel, url);
 	}
 
 	protected URL makeRepositoryURL(String urlString) {
@@ -44,13 +44,5 @@ public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 			ProvUI.handleException(e, ProvAdminUIMessages.AddRepositoryDialog_InvalidURL);
 			return null;
 		}
-	}
-
-	protected String repositoryFileName() {
-		return null;
-	}
-
-	protected boolean repositoryIsFile() {
-		return false;
 	}
 }

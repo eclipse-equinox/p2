@@ -8,11 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import java.util.Map;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.ui.dialogs.RepositoryGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -29,28 +30,28 @@ public class RepositoryImplementationGroup extends RepositoryGroup {
 
 	Table propertiesTable;
 
-	public RepositoryImplementationGroup(final Composite parent, IRepository repository, ModifyListener listener, final boolean chooseFile, final String dirPath, final String fileName) {
-		super(parent, repository, listener, chooseFile, dirPath, fileName);
+	public RepositoryImplementationGroup(final Composite parent, IRepository repository, ModifyListener listener) {
+		super(parent, repository, listener);
 	}
 
-	protected Composite createGroupComposite(final Composite parent, ModifyListener listener, final boolean chooseFile, final String dirPath, final String fileName) {
-		Composite comp = super.createGroupComposite(parent, listener, chooseFile, dirPath, fileName);
+	protected Composite createGroupComposite(final Composite parent, ModifyListener listener) {
+		Composite comp = super.createGroupComposite(parent, listener);
 		Label propertiesLabel = new Label(comp, SWT.NONE);
-		propertiesLabel.setText(ProvUIMessages.RepositoryGroup_PropertiesLabel);
+		propertiesLabel.setText(ProvAdminUIMessages.RepositoryGroup_PropertiesLabel);
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
-		data.horizontalSpan = 3;
+		data.horizontalSpan = 2;
 		propertiesLabel.setLayoutData(data);
 
 		propertiesTable = new Table(comp, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		data = new GridData(GridData.FILL_BOTH);
-		data.horizontalSpan = 3;
+		data.horizontalSpan = 2;
 		data.grabExcessVerticalSpace = true;
 		propertiesTable.setLayoutData(data);
 		propertiesTable.setHeaderVisible(true);
 		TableColumn nameColumn = new TableColumn(propertiesTable, SWT.NONE);
-		nameColumn.setText(ProvUIMessages.RepositoryGroup_NameColumnLabel);
+		nameColumn.setText(ProvAdminUIMessages.RepositoryGroup_NameColumnLabel);
 		TableColumn valueColumn = new TableColumn(propertiesTable, SWT.NONE);
-		valueColumn.setText(ProvUIMessages.RepositoryGroup_ValueColumnLabel);
+		valueColumn.setText(ProvAdminUIMessages.RepositoryGroup_ValueColumnLabel);
 
 		initializeTable();
 
@@ -60,8 +61,8 @@ public class RepositoryImplementationGroup extends RepositoryGroup {
 	}
 
 	private void initializeTable() {
-		if (repository != null) {
-			Map repoProperties = repository.getProperties();
+		if (getRepository() != null) {
+			Map repoProperties = getRepository().getProperties();
 			if (repoProperties != null) {
 				String[] propNames = (String[]) repoProperties.keySet().toArray(new String[repoProperties.size()]);
 				for (int i = 0; i < propNames.length; i++) {

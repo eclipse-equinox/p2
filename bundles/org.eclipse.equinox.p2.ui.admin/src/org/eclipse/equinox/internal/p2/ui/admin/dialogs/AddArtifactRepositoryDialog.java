@@ -32,8 +32,8 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 		super(parentShell, knownRepositories);
 	}
 
-	protected ProvisioningOperation getOperation(URL url, String name) {
-		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, url, name);
+	protected ProvisioningOperation getOperation(URL url) {
+		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, url);
 	}
 
 	protected URL makeRepositoryURL(String urlString) {
@@ -44,13 +44,5 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 			ProvUI.handleException(e, ProvAdminUIMessages.AddRepositoryDialog_InvalidURL);
 			return null;
 		}
-	}
-
-	protected String repositoryFileName() {
-		return null;
-	}
-
-	protected boolean repositoryIsFile() {
-		return false;
 	}
 }

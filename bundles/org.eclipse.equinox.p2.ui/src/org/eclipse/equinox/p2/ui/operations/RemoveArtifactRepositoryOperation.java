@@ -25,10 +25,9 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 	private boolean removed = false;
 
 	public RemoveArtifactRepositoryOperation(String label, IArtifactRepository[] repos) {
-		super(label, new URL[repos.length], new String[repos.length]);
+		super(label, new URL[repos.length]);
 		for (int i = 0; i < repos.length; i++) {
 			urls[i] = repos[i].getLocation();
-			names[i] = repos[i].getName();
 		}
 	}
 
@@ -63,9 +62,6 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 			IArtifactRepository repo = ProvisioningUtil.addArtifactRepository(urls[i], monitor);
 			if (repo == null) {
 				return failureStatus();
-			}
-			if (names[i] != null) {
-				ProvisioningUtil.setRepositoryName(repo, names[i]);
 			}
 		}
 		removed = false;

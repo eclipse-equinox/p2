@@ -20,12 +20,10 @@ import java.net.URL;
 abstract class RepositoryOperation extends UndoableProvisioningOperation {
 
 	URL[] urls;
-	String[] names;
 
-	RepositoryOperation(String label, URL[] urls, String[] names) {
+	RepositoryOperation(String label, URL[] urls) {
 		super(label);
 		this.urls = urls;
-		this.names = names;
 	}
 
 	public boolean canExecute() {

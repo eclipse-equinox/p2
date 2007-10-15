@@ -27,10 +27,9 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 	private boolean removed = false;
 
 	public RemoveColocatedRepositoryOperation(String label, IMetadataRepository[] repos) {
-		super(label, new URL[repos.length], new String[repos.length]);
+		super(label, new URL[repos.length]);
 		for (int i = 0; i < repos.length; i++) {
 			urls[i] = ColocatedRepositoryUtil.makeColocatedRepositoryURL(repos[i].getLocation());
-			names[i] = repos[i].getName();
 		}
 	}
 
@@ -68,10 +67,6 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 			if (repo == null) {
 				return failureStatus();
 			}
-			if (names[i] != null) {
-				ProvisioningUtil.setRepositoryName(repo, names[i]);
-			}
-
 			repo = ProvisioningUtil.addArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor);
 			if (repo == null) {
 				// remove the metadata repo we just added

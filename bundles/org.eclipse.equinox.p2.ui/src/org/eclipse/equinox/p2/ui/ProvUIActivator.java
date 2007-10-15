@@ -11,13 +11,13 @@
 package org.eclipse.equinox.p2.ui;
 
 import java.net.URL;
+import java.util.EventObject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.equinox.internal.p2.ui.ProvisioningPropertyManager;
+import org.eclipse.equinox.internal.p2.ui.ProvisioningEventManager;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -32,7 +32,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	private static PackageAdmin packageAdmin = null;
 	private static ServiceReference packageAdminRef = null;
 	private static ProvUIActivator plugin;
-	private ProvisioningPropertyManager propertyManager = new ProvisioningPropertyManager();
+	private ProvisioningEventManager eventManager = new ProvisioningEventManager();
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 
@@ -105,7 +105,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		// TODO hack for unsupported repository events.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197052
 		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
-			propertyManager.addPropertyChangeListener(listener);
+			eventManager.addListener(listener);
 		} else {
 			ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
 			ProvisioningEventBus bus = (ProvisioningEventBus) context.getService(busReference);
@@ -114,13 +114,13 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	// TODO hack for triggering events from the UI.  
-	public void notifyListeners(PropertyChangeEvent event) {
-		propertyManager.notifyListeners(event);
+	public void notifyListeners(EventObject event) {
+		eventManager.notifyListeners(event);
 	}
 
 	public void removeProvisioningListener(StructuredViewerProvisioningListener listener) {
 		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
-			propertyManager.removePropertyChangeListener(listener);
+			eventManager.removeListener(listener);
 		} else {
 			ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
 			ProvisioningEventBus bus = (ProvisioningEventBus) context.getService(busReference);

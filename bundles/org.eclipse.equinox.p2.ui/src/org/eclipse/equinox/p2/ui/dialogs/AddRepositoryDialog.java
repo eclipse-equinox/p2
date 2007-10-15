@@ -22,8 +22,10 @@ import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.window.Window;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -38,9 +40,12 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public abstract class AddRepositoryDialog extends StatusDialog {
 
-	private Button okButton;
-	private IRepository[] knownRepositories;
-	private RepositoryGroup repoGroup;
+	Button okButton;
+	Text url;
+	IRepository[] knownRepositories;
+	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
+	static String lastLocalLocation = null;
+	static String lastArchiveLocation = null;
 
 	public AddRepositoryDialog(Shell parentShell, IRepository[] knownRepositories) {
 
@@ -55,14 +60,69 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	}
 
 	protected Control createDialogArea(Composite parent) {
-		repoGroup = new RepositoryGroup(parent, null, new ModifyListener() {
-			public void modifyText(ModifyEvent event) {
+		Composite comp = new Composite(parent, SWT.NONE);
+		initializeDialogUnits(comp);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 3;
+		comp.setLayout(layout);
+		GridData data = new GridData();
+		comp.setLayoutData(data);
+
+		Label urlLabel = new Label(comp, SWT.NONE);
+		urlLabel.setText(ProvUIMessages.RepositoryGroup_RepositoryURLFieldLabel);
+		url = new Text(comp, SWT.BORDER);
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
+		url.setLayoutData(data);
+		url.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
 				verifyComplete();
 			}
-		}, repositoryIsFile(), null, repositoryFileName());
+		});
+		url.setText("http://"); //$NON-NLS-1$
 
-		Dialog.applyDialogFont(repoGroup.getComposite());
-		return repoGroup.getComposite();
+		// add vertical buttons for setting archive or local repos
+		Composite buttonParent = new Composite(comp, SWT.NONE);
+		layout = new GridLayout();
+		layout.numColumns = 1;
+		layout.marginWidth = 5;
+		layout.marginHeight = 0;
+		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
+		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
+		buttonParent.setLayout(layout);
+		Button locationButton = new Button(buttonParent, SWT.PUSH);
+		locationButton.setText(ProvUIMessages.RepositoryGroup_LocalRepoBrowseButton);
+		locationButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				DirectoryDialog dialog = new DirectoryDialog(getShell(), SWT.APPLICATION_MODAL);
+				dialog.setMessage(ProvUIMessages.RepositoryGroup_SelectRepositoryDirectory);
+				dialog.setFilterPath(lastLocalLocation);
+				String path = dialog.open();
+				if (path != null) {
+					lastLocalLocation = path;
+					url.setText("file:" + path.toLowerCase()); //$NON-NLS-1$
+				}
+			}
+		});
+		setButtonLayoutData(locationButton);
+		locationButton = new Button(buttonParent, SWT.PUSH);
+		locationButton.setText(ProvUIMessages.RepositoryGroup_ArchivedRepoBrowseButton);
+		locationButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				FileDialog dialog = new FileDialog(getShell(), SWT.APPLICATION_MODAL);
+				dialog.setText(ProvUIMessages.RepositoryGroup_RepositoryFile);
+				dialog.setFilterExtensions(ARCHIVE_EXTENSIONS);
+				dialog.setFileName(lastArchiveLocation);
+				String path = dialog.open();
+				if (path != null) {
+					lastArchiveLocation = path;
+					url.setText("jar:file:" + path.toLowerCase() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+		});
+		setButtonLayoutData(locationButton);
+		Dialog.applyDialogFont(comp);
+		return comp;
 	}
 
 	protected void okPressed() {
@@ -75,12 +135,12 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	}
 
 	protected boolean addRepository() {
-		URL newURL = makeRepositoryURL(repoGroup.getURLString());
+		URL newURL = makeRepositoryURL(url.getText().trim());
 		if (newURL == null) {
 			return false;
 		}
 
-		final ProvisioningOperation op = getOperation(newURL, repoGroup.getRepositoryName());
+		final ProvisioningOperation op = getOperation(newURL);
 		final IStatus[] status = new IStatus[1];
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
@@ -107,52 +167,37 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	}
 
-	protected abstract ProvisioningOperation getOperation(URL url, String name);
+	protected abstract ProvisioningOperation getOperation(URL repoURL);
 
 	protected abstract URL makeRepositoryURL(String urlString);
-
-	protected abstract boolean repositoryIsFile();
-
-	protected abstract String repositoryFileName();
 
 	void verifyComplete() {
 		if (okButton == null) {
 			return;
 		}
-		IStatus status = repoGroup.verify();
-		if (!status.isOK()) {
-			okButton.setEnabled(false);
-			updateStatus(status);
-			return;
-		}
-		if (isDuplicate()) {
-			return;
-		}
-		okButton.setEnabled(true);
-		updateStatus(new Status(IStatus.OK, ProvUIActivator.PLUGIN_ID, IStatus.OK, "", null)); //$NON-NLS-1$
-
-	}
-
-	protected boolean isDuplicate() {
-		String urlText = repoGroup.getURLString();
-		for (int i = 0; i < knownRepositories.length; i++) {
-			URL repURL = knownRepositories[i].getLocation();
-			if (repURL != null && repURL.equals(urlText)) {
-				setOkEnablement(false);
-				this.updateStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null));
-				return true;
+		String urlText = url.getText().trim();
+		IStatus status = Status.OK_STATUS;
+		if (urlText.length() == 0) {
+			status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.RepositoryGroup_URLRequired, null);
+		} else {
+			for (int i = 0; i < knownRepositories.length; i++) {
+				URL repURL = knownRepositories[i].getLocation();
+				if (repURL != null && repURL.equals(urlText)) {
+					status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
+					break;
+				}
 			}
 		}
-		return false;
+		setOkEnablement(status.isOK());
+		updateStatus(status);
 	}
 
 	protected void updateButtonsEnableState(IStatus status) {
 		setOkEnablement(!status.matches(IStatus.ERROR));
 	}
 
-	protected void setOkEnablement(boolean enable) {
+	private void setOkEnablement(boolean enable) {
 		if (okButton != null && !okButton.isDisposed())
 			okButton.setEnabled(enable);
 	}
-
 }

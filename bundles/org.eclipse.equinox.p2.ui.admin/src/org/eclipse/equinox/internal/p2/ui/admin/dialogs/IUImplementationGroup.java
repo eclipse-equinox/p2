@@ -8,13 +8,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.dialogs.IUGroup;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
@@ -75,7 +76,7 @@ public class IUImplementationGroup extends IUGroup {
 		boolean editable = iuElement == null && listener != null;
 
 		Label label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.IUGroup_ID);
+		label.setText(ProvAdminUIMessages.IUGroup_ID);
 		id = new Text(composite, SWT.BORDER);
 		id.setLayoutData(gd);
 		if (editable) {
@@ -85,34 +86,34 @@ public class IUImplementationGroup extends IUGroup {
 		}
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.IUGroup_Version);
+		label.setText(ProvAdminUIMessages.IUGroup_Version);
 		version = new Text(composite, SWT.BORDER);
 		version.setLayoutData(gd);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.IUGroup_Namespace);
+		label.setText(ProvAdminUIMessages.IUGroup_Namespace);
 		namespace = new Text(composite, SWT.BORDER);
 		namespace.setLayoutData(gd);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.IUGroup_TouchpointType);
+		label.setText(ProvAdminUIMessages.IUGroup_TouchpointType);
 		touchpointType = new Text(composite, SWT.BORDER | SWT.READ_ONLY);
 		touchpointType.setLayoutData(gd);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.IUGroup_TouchpointData);
+		label.setText(ProvAdminUIMessages.IUGroup_TouchpointData);
 		label.setLayoutData(gd2);
 		touchpointData = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		touchpointData.setLayoutData(gdList);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.IUGroup_RequiredCapabilities);
+		label.setText(ProvAdminUIMessages.IUGroup_RequiredCapabilities);
 		label.setLayoutData(gd2);
 		requiredCapabilities = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		requiredCapabilities.setLayoutData(gdList);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.IUGroup_ProvidedCapabilities);
+		label.setText(ProvAdminUIMessages.IUGroup_ProvidedCapabilities);
 		label.setLayoutData(gd2);
 		providedCapabilities = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		providedCapabilities.setLayoutData(gdList);
@@ -192,7 +193,7 @@ public class IUImplementationGroup extends IUGroup {
 	 */
 	public IStatus verify() {
 		if (id.getText().trim().length() == 0) {
-			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.IUGroup_IU_ID_Required, null);
+			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvAdminUIMessages.IUGroup_IU_ID_Required, null);
 		}
 
 		// TODO what kind of validation do we perform for other properties?

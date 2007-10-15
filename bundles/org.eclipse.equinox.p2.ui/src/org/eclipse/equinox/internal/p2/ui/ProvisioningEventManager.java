@@ -11,12 +11,12 @@
 
 package org.eclipse.equinox.internal.p2.ui;
 
+import java.util.EventObject;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.equinox.p2.ui.IProvisioningListener;
 
 /**
- * ProvisioningPropertyManager can notify clients of changes to the properties
+ * ProvisioningEventManager can notify clients of changes to the properties
  * of provisioning objects.
  * 
  * @since 3.4
@@ -26,26 +26,23 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 // This class should go away and instead these kinds of events should be handled
 // by the provisioning event bus.  See bug #197052 and #197701
 // 
-// TODO Some of these aren't even truly property changes but rather just notification
-// that something happened.  Since this class is (hoped to be) temporary, I did not 
-// want to define new event types and just used what was already available.
-public class ProvisioningPropertyManager {
+public class ProvisioningEventManager {
 
 	private ListenerList listeners = new ListenerList();
 
-	public void addPropertyChangeListener(IPropertyChangeListener listener) {
+	public void addListener(IProvisioningListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removePropertyChangeListener(IPropertyChangeListener listener) {
+	public void removeListener(IProvisioningListener listener) {
 		listeners.remove(listener);
 	}
 
-	public void notifyListeners(PropertyChangeEvent event) {
+	public void notifyListeners(EventObject event) {
 		final Object[] listenerArray = listeners.getListeners();
 		for (int i = 0; i < listenerArray.length; i++) {
-			final IPropertyChangeListener listener = (IPropertyChangeListener) listenerArray[i];
-			listener.propertyChange(event);
+			final IProvisioningListener listener = (IProvisioningListener) listenerArray[i];
+			listener.notify(event);
 		}
 
 	}

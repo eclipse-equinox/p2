@@ -26,8 +26,8 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 
 	boolean added = false;
 
-	public AddColocatedRepositoryOperation(String label, URL url, String name) {
-		super(label, new URL[] {url}, new String[] {name});
+	public AddColocatedRepositoryOperation(String label, URL url) {
+		super(label, new URL[] {url});
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
@@ -36,9 +36,6 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 			IRepository repo = ProvisioningUtil.addMetadataRepository(metadataRepoURL, monitor);
 			if (repo == null) {
 				return failureStatus();
-			}
-			if (names[i] != null) {
-				ProvisioningUtil.setRepositoryName(repo, names[i]);
 			}
 			repo = ProvisioningUtil.addArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor);
 			if (repo == null) {

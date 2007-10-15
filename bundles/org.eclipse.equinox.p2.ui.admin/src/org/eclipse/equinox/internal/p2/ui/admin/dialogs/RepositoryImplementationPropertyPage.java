@@ -8,8 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import org.eclipse.equinox.p2.ui.dialogs.RepositoryGroup;
+import org.eclipse.equinox.p2.ui.dialogs.RepositoryPropertyPage;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -22,10 +24,10 @@ import org.eclipse.swt.widgets.Composite;
 public class RepositoryImplementationPropertyPage extends RepositoryPropertyPage {
 
 	protected RepositoryGroup createRepositoryGroup(Composite parent) {
-		return new RepositoryImplementationGroup(parent, repository, new ModifyListener() {
+		return new RepositoryImplementationGroup(parent, getRepository(), new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
 				verifyComplete();
 			}
-		}, false, null, null); // these don't matter since repo already
+		});
 	}
 }

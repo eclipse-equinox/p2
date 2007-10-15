@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -30,21 +29,21 @@ import org.eclipse.swt.widgets.*;
  */
 public class RepositoryGroup {
 
-	private static final String EXTENSION = "*.xml"; //$NON-NLS-1$
 	private Composite composite;
 	Text name;
 	Text url;
 	IRepository repository;
 
-	public RepositoryGroup(Composite parent, IRepository repository, ModifyListener listener, boolean chooseFile, String dirPath, String fileName) {
+	public RepositoryGroup(Composite parent, IRepository repository, ModifyListener listener) {
+		Assert.isNotNull(repository);
 		this.repository = repository;
-		createGroupComposite(parent, listener, chooseFile, dirPath, fileName);
+		createGroupComposite(parent, listener);
 	}
 
-	protected Composite createGroupComposite(final Composite parent, ModifyListener listener, final boolean chooseFile, final String dirPath, final String fileName) {
+	protected Composite createGroupComposite(final Composite parent, ModifyListener listener) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 3;
+		layout.numColumns = 2;
 		comp.setLayout(layout);
 		GridData data = new GridData();
 		data.widthHint = 350;
@@ -55,55 +54,14 @@ public class RepositoryGroup {
 
 		name = new Text(comp, SWT.BORDER);
 		data = new GridData(GridData.FILL_HORIZONTAL);
-		data.horizontalSpan = 2;
 		name.setLayoutData(data);
-		name.addModifyListener(listener);
-		boolean readOnlyInfo = (repository != null && !repository.isModifiable());
-		if (readOnlyInfo) {
-			name.setEditable(false);
-		}
+		name.setEditable(repository.isModifiable());
 
 		Label urlLabel = new Label(comp, SWT.NONE);
 		urlLabel.setText(ProvUIMessages.RepositoryGroup_RepositoryURLFieldLabel);
-
 		url = new Text(comp, SWT.BORDER);
 		url.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		if (repository == null) {
-			data = new GridData(GridData.FILL_HORIZONTAL);
-			url.setLayoutData(data);
-			url.addModifyListener(listener);
-
-			// add a button for setting a local repository
-			Button locationButton = new Button(comp, SWT.PUSH);
-			locationButton.setText(ProvUIMessages.RepositoryGroup_Browse);
-			locationButton.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent event) {
-					String path;
-					if (chooseFile) {
-						FileDialog dialog = new FileDialog(parent.getShell(), SWT.APPLICATION_MODAL);
-						dialog.setText(ProvUIMessages.RepositoryGroup_RepositoryFile);
-						dialog.setFileName(fileName);
-						dialog.setFilterPath(dirPath);
-						dialog.setFilterExtensions(new String[] {EXTENSION});
-						path = dialog.open();
-					} else {
-						DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
-						dialog.setMessage(ProvUIMessages.RepositoryGroup_SelectRepositoryDirectory);
-						dialog.setFilterPath(dirPath);
-						path = dialog.open();
-					}
-					if (path != null) {
-						url.setText("file:" + path.toLowerCase()); //$NON-NLS-1$
-					}
-				}
-			});
-
-		} else {
-			data = new GridData(GridData.FILL_HORIZONTAL);
-			data.horizontalSpan = 2;
-			url.setLayoutData(data);
-			url.setEditable(false);
-		}
+		url.setEditable(repository.isModifiable());
 
 		initializeFields();
 		return comp;
@@ -112,7 +70,6 @@ public class RepositoryGroup {
 	private void initializeFields() {
 		if (repository == null) {
 			url.setText("http://"); //$NON-NLS-1$
-			name.setText(""); //$NON-NLS-1$
 		} else {
 			url.setText(repository.getLocation().toExternalForm());
 			name.setText(repository.getName());
@@ -123,7 +80,6 @@ public class RepositoryGroup {
 		if (url.getText().trim().length() == 0) {
 			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.RepositoryGroup_URLRequired, null);
 		}
-		// blank name is ok
 		return new Status(IStatus.OK, ProvUIActivator.PLUGIN_ID, IStatus.OK, "", null); //$NON-NLS-1$
 
 	}
@@ -137,16 +93,11 @@ public class RepositoryGroup {
 		return url.getText().trim();
 	}
 
-	/**
-	 * Get the repository name string as shown in the dialog.
-	 * 
-	 * @return the repository name.
-	 */
-	public String getRepositoryName() {
-		return name.getText().trim();
-	}
-
 	public Composite getComposite() {
 		return composite;
+	}
+
+	protected IRepository getRepository() {
+		return repository;
 	}
 }

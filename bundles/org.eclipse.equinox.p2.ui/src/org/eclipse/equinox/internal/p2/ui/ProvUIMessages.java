@@ -41,10 +41,10 @@ public class ProvUIMessages extends NLS {
 	public static String IUPropertiesGroup_ProviderProperty;
 	public static String ProfileGroup_Cache;
 	public static String ProfileGroup_SelectBundlePoolCache;
-	public static String ProvisioningUtil_InstallProgressName;
 	// utility error messages
 	public static String ProvisioningUtil_NoRepositoryManager;
 	public static String ProvisioningUtil_AddRepositoryFailure;
+	public static String ProvisioningUtil_CreateRepositoryFailure;
 	public static String ProvisioningUtil_RepoNotWritable;
 	public static String ProvisioningUtil_RepositoryNotFound;
 	public static String ProvisioningUtil_NoProfileRegistryFound;
@@ -89,21 +89,11 @@ public class ProvUIMessages extends NLS {
 	// Property pages
 	public static String ProfilePropertyPage_NoProfileSelected;
 	public static String IUPropertyPage_NoIUSelected;
-	public static String RepositoryGroup_NameColumnLabel;
-	public static String RepositoryGroup_PropertiesLabel;
-	public static String RepositoryGroup_ValueColumnLabel;
 	public static String RepositoryPropertyPage_NoRepoSelected;
 
 	// Dialog groups
-	public static String IUGroup_ID;
-	public static String IUGroup_IU_ID_Required;
-	public static String IUGroup_Namespace;
-	public static String IUGroup_ProvidedCapabilities;
-	public static String IUGroup_RequiredCapabilities;
-	public static String IUGroup_TouchpointData;
-	public static String IUGroup_TouchpointType;
-	public static String IUGroup_Version;
-	public static String RepositoryGroup_Browse;
+	public static String RepositoryGroup_LocalRepoBrowseButton;
+	public static String RepositoryGroup_ArchivedRepoBrowseButton;
 	public static String RepositoryGroup_RepositoryFile;
 	public static String RepositoryGroup_SelectRepositoryDirectory;
 	public static String RepositoryGroup_RepositoryNameFieldLabel;

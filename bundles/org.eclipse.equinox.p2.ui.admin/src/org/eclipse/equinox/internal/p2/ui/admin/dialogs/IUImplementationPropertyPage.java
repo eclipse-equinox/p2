@@ -8,10 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -33,7 +33,7 @@ public class IUImplementationPropertyPage extends PropertyPage {
 		InstallableUnit iu = (InstallableUnit) getElement().getAdapter(InstallableUnit.class);
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
-			label.setText(ProvUIMessages.IUPropertyPage_NoIUSelected);
+			label.setText(ProvAdminUIMessages.NO_IU_SELECTED);
 		}
 		iuGroup = new IUImplementationGroup(parent, iu, new ModifyListener() {
 			public void modifyText(ModifyEvent event) {

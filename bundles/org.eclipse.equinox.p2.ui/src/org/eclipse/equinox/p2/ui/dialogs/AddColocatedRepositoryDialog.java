@@ -33,8 +33,8 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 
 	}
 
-	protected ProvisioningOperation getOperation(URL url, String name) {
-		return new AddColocatedRepositoryOperation(getShell().getText(), url, name);
+	protected ProvisioningOperation getOperation(URL url) {
+		return new AddColocatedRepositoryOperation(getShell().getText(), url);
 	}
 
 	protected URL makeRepositoryURL(String urlString) {
@@ -55,13 +55,5 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 			return null;
 		}
 		return newURL;
-	}
-
-	protected String repositoryFileName() {
-		return null;
-	}
-
-	protected boolean repositoryIsFile() {
-		return false;
 	}
 }

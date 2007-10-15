@@ -62,4 +62,19 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ProvView_RefreshCommandTooltip;
 
 	public static String ProfileRootPropertyName;
+
+	public static String RepositoryGroup_NameColumnLabel;
+	public static String RepositoryGroup_PropertiesLabel;
+	public static String RepositoryGroup_ValueColumnLabel;
+
+	public static String IUGroup_ID;
+	public static String IUGroup_IU_ID_Required;
+	public static String IUGroup_Namespace;
+	public static String IUGroup_ProvidedCapabilities;
+	public static String IUGroup_RequiredCapabilities;
+	public static String IUGroup_TouchpointData;
+	public static String IUGroup_TouchpointType;
+	public static String IUGroup_Version;
+	public static String NO_IU_SELECTED;
+
 }

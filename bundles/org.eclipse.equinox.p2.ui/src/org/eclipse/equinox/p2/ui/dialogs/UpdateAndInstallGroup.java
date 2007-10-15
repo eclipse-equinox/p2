@@ -258,14 +258,6 @@ public class UpdateAndInstallGroup {
 		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUViewer, profile, null, parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateIUCommandLabel, false);
 		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUViewer, profile, null, parent.getShell()));
-		if (repositoryManipulator != null) {
-			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
-			repoButton.setData(BUTTONACTION, new Action() {
-				public void runWithEvent(Event event) {
-					repositoryManipulator.manipulateRepositories(getControl().getShell());
-				}
-			});
-		}
 		if (profileChooser != null) {
 			Button profileButton = createVerticalButton(composite, profileChooser.getLabel(), false);
 			profileButton.setData(BUTTONACTION, new Action() {

@@ -24,8 +24,8 @@ public class AddArtifactRepositoryOperation extends RepositoryOperation {
 
 	boolean added = false;
 
-	public AddArtifactRepositoryOperation(String label, URL url, String name) {
-		super(label, new URL[] {url}, new String[] {name});
+	public AddArtifactRepositoryOperation(String label, URL url) {
+		super(label, new URL[] {url});
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
@@ -33,9 +33,6 @@ public class AddArtifactRepositoryOperation extends RepositoryOperation {
 			IArtifactRepository repo = ProvisioningUtil.addArtifactRepository(urls[i], monitor);
 			if (repo == null) {
 				return failureStatus();
-			}
-			if (names[i] != null) {
-				ProvisioningUtil.setRepositoryName(repo, names[i]);
 			}
 		}
 		added = true;
