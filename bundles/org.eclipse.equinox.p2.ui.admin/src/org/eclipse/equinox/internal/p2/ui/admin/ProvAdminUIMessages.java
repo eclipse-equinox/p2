@@ -75,6 +75,22 @@ public class ProvAdminUIMessages extends NLS {
 	public static String IUGroup_TouchpointData;
 	public static String IUGroup_TouchpointType;
 	public static String IUGroup_Version;
-	public static String NO_IU_SELECTED;
+
+	public static String No_Property_Item_Selected;
+
+	public static String ProfileGroup_Browse;
+	public static String ProfileGroup_Browse2;
+	public static String ProfileGroup_Environments;
+	public static String ProfileGroup_Flavor;
+	public static String ProfileGroup_ID;
+	public static String ProfileGroup_Cache;
+	public static String ProfileGroup_InstallFolder;
+	public static String ProfileGroup_Name;
+	public static String ProfileGroup_NL;
+	public static String ProfileGroup_SelectProfileMessage;
+	public static String ProfileGroup_Description;
+	public static String ProfileGroup_ProfileIDRequired;
+	public static String ProfileGroup_ProfileInstallFolderRequired;
+	public static String ProfileGroup_SelectBundlePoolCache;
 
 }

@@ -39,8 +39,6 @@ public class ProvUIMessages extends NLS {
 	public static String IUDetailsLabelProvider_Unknown;
 	public static String IUPropertiesGroup_NameProperty;
 	public static String IUPropertiesGroup_ProviderProperty;
-	public static String ProfileGroup_Cache;
-	public static String ProfileGroup_SelectBundlePoolCache;
 	// utility error messages
 	public static String ProvisioningUtil_NoRepositoryManager;
 	public static String ProvisioningUtil_AddRepositoryFailure;
@@ -87,7 +85,6 @@ public class ProvUIMessages extends NLS {
 	public static String RollbackIUProgress;
 
 	// Property pages
-	public static String ProfilePropertyPage_NoProfileSelected;
 	public static String IUPropertyPage_NoIUSelected;
 	public static String RepositoryPropertyPage_NoRepoSelected;
 
@@ -99,17 +96,6 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryGroup_RepositoryNameFieldLabel;
 	public static String RepositoryGroup_URLRequired;
 	public static String RepositoryGroup_RepositoryURLFieldLabel;
-	public static String ProfileGroup_Browse;
-	public static String ProfileGroup_Environments;
-	public static String ProfileGroup_Flavor;
-	public static String ProfileGroup_ID;
-	public static String ProfileGroup_InstallFolder;
-	public static String ProfileGroup_Name;
-	public static String ProfileGroup_NL;
-	public static String ProfileGroup_SelectProfileMessage;
-	public static String ProfileGroup_Description;
-	public static String ProfileGroup_ProfileIDRequired;
-	public static String ProfileGroup_ProfileInstallFolderRequired;
 
 	// Dialogs
 	public static String AddRepositoryDialog_DuplicateURL;

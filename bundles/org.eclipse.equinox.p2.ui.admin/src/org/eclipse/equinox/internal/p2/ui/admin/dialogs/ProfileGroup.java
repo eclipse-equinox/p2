@@ -10,11 +10,11 @@
  *     Andrew Overholt <overholt@redhat.com> - Fix for Bug 197970  
  *        	[prov] unset Profile name causes exception bringing up profile properties
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.ui.model.ProfileFactory;
@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.*;
  */
 public class ProfileGroup {
 
-	// FIXME: temporary for M1; should make flavor a dropdown, populated
+	// TODO should make flavor a dropdown, populated
 	//		 via a query for all flavors in known repositories
 	static private String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
 
@@ -64,7 +64,7 @@ public class ProfileGroup {
 		gd.horizontalSpan = 2;
 
 		Label label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_ID);
+		label.setText(ProvAdminUIMessages.ProfileGroup_ID);
 		id = new Text(composite, SWT.BORDER);
 		id.setLayoutData(gd);
 		if (profile == null && listener != null) {
@@ -74,16 +74,16 @@ public class ProfileGroup {
 		}
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_InstallFolder);
+		label.setText(ProvAdminUIMessages.ProfileGroup_InstallFolder);
 		location = new Text(composite, SWT.BORDER);
 		location.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		location.addModifyListener(listener);
 		Button locationButton = new Button(composite, SWT.PUSH);
-		locationButton.setText(ProvUIMessages.ProfileGroup_Browse);
+		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse);
 		locationButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
-				dialog.setMessage(ProvUIMessages.ProfileGroup_SelectProfileMessage);
+				dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectProfileMessage);
 				String dir = dialog.open();
 				if (dir != null) {
 					location.setText(dir);
@@ -92,16 +92,16 @@ public class ProfileGroup {
 		});
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_Cache);
+		label.setText(ProvAdminUIMessages.ProfileGroup_Cache);
 		cache = new Text(composite, SWT.BORDER);
 		cache.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		cache.addModifyListener(listener);
 		locationButton = new Button(composite, SWT.PUSH);
-		locationButton.setText(ProvUIMessages.ProfileGroup_Browse);
+		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse2);
 		locationButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				DirectoryDialog dialog = new DirectoryDialog(parent.getShell(), SWT.APPLICATION_MODAL);
-				dialog.setMessage(ProvUIMessages.ProfileGroup_SelectBundlePoolCache);
+				dialog.setMessage(ProvAdminUIMessages.ProfileGroup_SelectBundlePoolCache);
 				String dir = dialog.open();
 				if (dir != null) {
 					cache.setText(dir);
@@ -110,30 +110,30 @@ public class ProfileGroup {
 		});
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_Name);
+		label.setText(ProvAdminUIMessages.ProfileGroup_Name);
 		name = new Text(composite, SWT.BORDER);
 		name.setLayoutData(gd);
 		name.addModifyListener(listener);
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_Description);
+		label.setText(ProvAdminUIMessages.ProfileGroup_Description);
 		description = new Text(composite, SWT.BORDER);
 		description.setLayoutData(gd);
 		description.addModifyListener(listener);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_Flavor);
+		label.setText(ProvAdminUIMessages.ProfileGroup_Flavor);
 		flavor = new Text(composite, SWT.BORDER);
 		flavor.setLayoutData(gd);
 		flavor.addModifyListener(listener);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_Environments);
+		label.setText(ProvAdminUIMessages.ProfileGroup_Environments);
 		environments = new Text(composite, SWT.BORDER);
 		environments.setLayoutData(gd);
 		environments.addModifyListener(listener);
 
 		label = new Label(composite, SWT.NONE);
-		label.setText(ProvUIMessages.ProfileGroup_NL);
+		label.setText(ProvAdminUIMessages.ProfileGroup_NL);
 		nl = new Text(composite, SWT.BORDER);
 		nl.setLayoutData(gd);
 		nl.addModifyListener(listener);
@@ -252,10 +252,10 @@ public class ProfileGroup {
 	 */
 	public IStatus verify() {
 		if (id.getText().trim().length() == 0) {
-			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileGroup_ProfileIDRequired, null);
+			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvAdminUIMessages.ProfileGroup_ProfileIDRequired, null);
 		}
 		if (location.getText().trim().length() == 0) {
-			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileGroup_ProfileInstallFolderRequired, null);
+			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvAdminUIMessages.ProfileGroup_ProfileInstallFolderRequired, null);
 		}
 
 		// TODO what kind of validation do we perform for other properties?

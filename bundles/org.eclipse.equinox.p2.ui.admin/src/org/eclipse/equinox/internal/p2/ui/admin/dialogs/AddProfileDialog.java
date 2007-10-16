@@ -18,7 +18,6 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningUndoSupport;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
-import org.eclipse.equinox.p2.ui.dialogs.ProfileGroup;
 import org.eclipse.equinox.p2.ui.operations.AddProfileOperation;
 import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
 import org.eclipse.jface.dialogs.*;

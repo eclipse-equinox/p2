@@ -33,7 +33,7 @@ public class IUImplementationPropertyPage extends PropertyPage {
 		InstallableUnit iu = (InstallableUnit) getElement().getAdapter(InstallableUnit.class);
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
-			label.setText(ProvAdminUIMessages.NO_IU_SELECTED);
+			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);
 		}
 		iuGroup = new IUImplementationGroup(parent, iu, new ModifyListener() {
 			public void modifyText(ModifyEvent event) {

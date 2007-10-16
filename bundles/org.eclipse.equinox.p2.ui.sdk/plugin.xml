@@ -4,19 +4,9 @@
  <extension
          point="org.eclipse.ui.propertyPages">
       <page
-            name="%Profile.name"
-            class="org.eclipse.equinox.p2.ui.dialogs.ProfilePropertyPage"
-            id="org.eclipse.equinox.p2.ui.internal.sdk.ProfilePropertyPage">
-            <enabledWhen>
-             <instanceof
-                  value="org.eclipse.equinox.p2.engine.Profile">
-             </instanceof>
-          </enabledWhen>
-      </page>
-      <page
             name="%IU.name"
             class="org.eclipse.equinox.p2.ui.dialogs.IUPropertyPage"
-            id="org.eclipse.equinox.p2.ui.internal.sdk.IUPropertyPage">
+            id="org.eclipse.equinox.internal.p2.ui.sdk.IUPropertyPage">
             <enabledWhen>
             <or>
              <instanceof
@@ -33,7 +23,7 @@
       <page
             name="%Repository.name"
             class="org.eclipse.equinox.p2.ui.dialogs.ColocatedRepositoryPropertyPage"
-            id="org.eclipse.equinox.p2.ui.internal.sdk.ColocatedRepositoryPropertyPage">
+            id="org.eclipse.equinox.internal.p2.ui.sdk.ColocatedRepositoryPropertyPage">
             <enabledWhen>
              <instanceof
                   value="org.eclipse.equinox.p2.metadata.repository.IMetadataRepository">

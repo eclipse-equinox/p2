@@ -63,8 +63,8 @@
          point="org.eclipse.ui.propertyPages">
       <page
             name="%Profile.name"
-            class="org.eclipse.equinox.p2.ui.dialogs.ProfilePropertyPage"
-            id="org.eclipse.equinox.p2.ui.admin.internal.dialogs.ProfilePropertyPage">
+            class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.ProfilePropertyPage"
+            id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.ProfilePropertyPage">
             <enabledWhen>
              <instanceof
                   value="org.eclipse.equinox.p2.engine.Profile">

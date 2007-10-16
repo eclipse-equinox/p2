@@ -8,10 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
@@ -33,7 +33,7 @@ public class ProfilePropertyPage extends PropertyPage {
 		Profile profile = (Profile) getElement().getAdapter(Profile.class);
 		if (profile == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
-			label.setText(ProvUIMessages.ProfilePropertyPage_NoProfileSelected);
+			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);
 		}
 		profileGroup = new ProfileGroup(parent, profile, new ModifyListener() {
 			public void modifyText(ModifyEvent event) {
