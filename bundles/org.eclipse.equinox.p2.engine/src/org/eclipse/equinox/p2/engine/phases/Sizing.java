@@ -27,9 +27,7 @@ public class Sizing extends Phase {
 	}
 
 	protected boolean isApplicable(Operand op) {
-		if (op.second() != null)
-			return true;
-		return false;
+		return (op.second() != null);
 	}
 
 	//	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {

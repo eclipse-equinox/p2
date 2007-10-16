@@ -12,7 +12,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
@@ -22,19 +23,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
 public class NativeTouchpoint extends Touchpoint {
-	//	private final static String CONFIGURATION_DATA = "configurationData";
 	private static final String ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
-
-	private final Set supportedPhases = new HashSet(); //TODO This should probably come from XML
-	{
-		supportedPhases.add("collect");
-		supportedPhases.add("install");
-		supportedPhases.add("uninstall");
-	}
-
-	public boolean supports(String phaseId) {
-		return supportedPhases.contains(phaseId);
-	}
 
 	public ProvisioningAction getAction(String actionId) {
 		if (actionId.equals("collect")) {

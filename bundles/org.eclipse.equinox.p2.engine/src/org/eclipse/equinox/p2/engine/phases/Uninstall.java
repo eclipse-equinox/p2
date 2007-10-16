@@ -91,9 +91,7 @@ public class Uninstall extends Phase {
 	//	}
 
 	protected boolean isApplicable(Operand op) {
-		if (op.first() != null)
-			return true;
-		return false;
+		return (op.first() != null);
 	}
 
 	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
@@ -108,7 +106,7 @@ public class Uninstall extends Phase {
 		TouchpointData[] data = unit.getTouchpointData();
 		if (data == null)
 			return new ProvisioningAction[] {beforeAction, afterAction};
-		String[] instructions = getInstructionsFor("unconfigurationData", data);
+		String[] instructions = getInstructionsFor("uninstall", data);
 		if (instructions.length == 0)
 			return new ProvisioningAction[] {beforeAction, afterAction};
 		InstructionParser parser = new InstructionParser(this, touchpoint);

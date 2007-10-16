@@ -73,7 +73,7 @@ public class MetadataGeneratorHelper {
 			iu.setCapabilities(generateJRECapability(null));
 			resultantIUs.add(iu);
 
-			touchpointData.put("configurationData", "");
+			touchpointData.put("install", "");
 			cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 			resultantIUs.add(cu);
 			return;
@@ -87,7 +87,7 @@ public class MetadataGeneratorHelper {
 
 		//Create config info for the CU
 		String configurationData = "unzip(source:@artifact, target:${installFolder});";
-		touchpointData.put("configurationData", configurationData);
+		touchpointData.put("install", configurationData);
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(cu);
 
@@ -157,7 +157,7 @@ public class MetadataGeneratorHelper {
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
 			// FIXME:  is this correct?  do all non-Windows platforms need execute permissions on the launcher?
 			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
-		touchpointData.put("configurationData", configurationData);
+		touchpointData.put("install", configurationData);
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(cu);
 
@@ -219,8 +219,8 @@ public class MetadataGeneratorHelper {
 		cu.setTouchpointType(new TouchpointType(ECLIPSE_TOUCHPOINT, ECLIPSE_TOUCHPOINT_VERSION)); //TODO Is this necessary? I think we get that from the IU
 
 		Map touchpointData = new HashMap();
-		touchpointData.put("configurationData", createConfigScript(configInfo, isBundleFragment));
-		touchpointData.put("unconfigurationData", createUnconfigScript(configInfo, isBundleFragment));
+		touchpointData.put("install", createConfigScript(configInfo, isBundleFragment));
+		touchpointData.put("uninstall", createUnconfigScript(configInfo, isBundleFragment));
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 
 		return cu;
@@ -240,8 +240,8 @@ public class MetadataGeneratorHelper {
 		cu.setTouchpointType(new TouchpointType(ECLIPSE_TOUCHPOINT, ECLIPSE_TOUCHPOINT_VERSION)); //TODO Is this necessary? I think we get that from the IU
 		Map touchpointData = new HashMap();
 
-		touchpointData.put("configurationData", createDefaultConfigScript(configInfo));
-		touchpointData.put("unconfigurationData", createDefaultUnconfigScript(unconfigInfo));
+		touchpointData.put("install", createDefaultConfigScript(configInfo));
+		touchpointData.put("uninstall", createDefaultUnconfigScript(unconfigInfo));
 
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		return cu;

@@ -93,9 +93,7 @@ public class Install extends Phase {
 	//	}
 
 	protected boolean isApplicable(Operand op) {
-		if (op.second() != null)
-			return true;
-		return false;
+		return (op.second() != null);
 	}
 
 	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
@@ -111,7 +109,7 @@ public class Install extends Phase {
 
 		if (data == null)
 			return new ProvisioningAction[] {beforeAction, afterAction};
-		String[] instructions = getInstructionsFor("configurationData", data);
+		String[] instructions = getInstructionsFor("install", data);
 		if (instructions.length == 0)
 			return new ProvisioningAction[] {beforeAction, afterAction};
 		InstructionParser parser = new InstructionParser(this, touchpoint);

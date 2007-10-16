@@ -29,12 +29,6 @@ public class EclipseTouchpoint extends Touchpoint {
 	private final static String CONFIG_FOLDER = "eclipse.configurationFolder";
 	private final static String CACHE_PATH = "eclipse.p2.cache";
 
-	//	private final static String CONFIGURATION_DATA = "configurationData";
-	//	private final static String UNCONFIGURATION_DATA = "unconfigurationData";
-
-	//	private static final boolean DEBUG = false;
-	static int iuCount = 0;
-
 	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
 	private final static String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
 	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)";
@@ -43,10 +37,6 @@ public class EclipseTouchpoint extends Touchpoint {
 	private ServiceTracker fwAdminTracker;
 	private Map lastModifiedMap = new HashMap();
 	private Map manipulatorMap = new HashMap();
-
-	//	TODO Need to find a better way  keep track of this information, is it a generalized cache mechanism? 
-	// moreover there may scenarios where the configuration data is not stored in the same IU than the bundle referring to the artifact
-	private final Set supportedPhases = new HashSet(Arrays.asList(new String[] {"collect", "install", "uninstall"})); //TODO This should probably come from XML
 
 	public ProvisioningAction getAction(String actionId) {
 		if (actionId.equals("installBundle")) {
@@ -479,10 +469,6 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	public TouchpointType getTouchpointType() {
 		return new TouchpointType("eclipse", new Version("1.0")); //TODO this data probably needs to come from the XML
-	}
-
-	public boolean supports(String phaseID) { //TODO this data probably needs to come from the XML
-		return supportedPhases.contains(phaseID);
 	}
 
 	private File getInstallFolder(Profile profile) {

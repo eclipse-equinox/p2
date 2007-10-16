@@ -57,9 +57,7 @@ public class Collect extends Phase {
 	//	}
 
 	protected boolean isApplicable(Operand op) {
-		if (op.second() != null)
-			return true;
-		return false;
+		return (op.second() != null);
 	}
 
 	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {

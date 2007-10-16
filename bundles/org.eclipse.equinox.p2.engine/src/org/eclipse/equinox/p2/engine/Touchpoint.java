@@ -22,8 +22,6 @@ public abstract class Touchpoint {
 
 	public abstract TouchpointType getTouchpointType();
 
-	public abstract boolean supports(String phaseId);
-
 	public abstract ProvisioningAction getAction(String actionId);
 
 	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {

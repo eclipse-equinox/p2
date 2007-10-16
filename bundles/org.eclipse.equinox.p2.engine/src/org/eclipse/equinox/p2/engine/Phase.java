@@ -86,7 +86,7 @@ public abstract class Phase {
 			if (touchpoint == null)
 				continue;
 
-			if (!touchpointToTouchpointParameters.containsKey(touchpoint) && touchpoint.supports(phaseId)) {
+			if (!touchpointToTouchpointParameters.containsKey(touchpoint)) {
 				touchpointToTouchpointParameters.put(touchpoint, null);
 			}
 		}
@@ -138,8 +138,6 @@ public abstract class Phase {
 				continue;
 
 			Touchpoint touchpoint = getTouchpoint(operand);
-			if (touchpoint == null || !touchpoint.supports(phaseId))
-				continue;
 
 			ProvisioningAction[] actions;
 			try {
@@ -155,13 +153,15 @@ public abstract class Phase {
 			status.add(initializeOperand(operand, parameters));
 			status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
 			parameters = Collections.unmodifiableMap(parameters);
-			for (int j = 0; j < actions.length; j++) {
-				ProvisioningAction action = actions[j];
-				status.add(action.execute(parameters));
-				if (!status.isOK())
-					return;
+			if (actions != null) {
+				for (int j = 0; j < actions.length; j++) {
+					ProvisioningAction action = actions[j];
+					status.add(action.execute(parameters));
+					if (!status.isOK())
+						return;
 
-				session.recordAction(action, operand);
+					session.recordAction(action, operand);
+				}
 			}
 			status.add(touchpoint.completeOperand(operand, phaseId, parameters));
 			status.add(completeOperand(operand, parameters));

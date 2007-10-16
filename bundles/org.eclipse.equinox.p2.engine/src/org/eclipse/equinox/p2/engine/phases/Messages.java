@@ -30,4 +30,6 @@ public class Messages extends NLS {
 	public static String Engine_Installing_IU;
 	public static String Engine_Uninstall_Phase;
 	public static String Engine_Uninstalling_IU;
+	public static String Engine_Configure_Phase;
+	public static String Engine_Unconfigure_Phase;
 }
