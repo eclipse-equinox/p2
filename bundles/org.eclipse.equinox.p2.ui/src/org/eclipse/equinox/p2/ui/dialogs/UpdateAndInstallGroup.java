@@ -110,10 +110,24 @@ public class UpdateAndInstallGroup {
 		setTableColumns(availableIUViewer.getTable());
 		availableIUViewer.setContentProvider(new AvailableIUContentProvider());
 		availableIUViewer.setInput(new AllMetadataRepositories());
-		IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
+		final IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
 		labelProvider.setToolTipProperty(IInstallableUnitConstants.DESCRIPTION);
 		availableIUViewer.setLabelProvider(labelProvider);
-		ColumnViewerToolTipSupport.enableFor(availableIUViewer);
+		// Kind of a hack, but there was no need to go with column label providers
+		availableIUViewer.getTable().addListener(SWT.MouseHover, new Listener() {
+			public void handleEvent(Event event) {
+				switch (event.type) {
+					case SWT.MouseHover :
+						Table table = availableIUViewer.getTable();
+						TableItem item = table.getItem(new Point(event.x, event.y));
+						if (item != null) {
+							table.setToolTipText(labelProvider.getToolTipText(item.getData()));
+						}
+						break;
+				}
+			}
+
+		});
 
 		if (iuFilters != null) {
 			availableIUViewer.setFilters(iuFilters);
