@@ -45,7 +45,6 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ProfilesView_RemoveProfileLabel;
 	public static String ProfilesView_RemoveProfileTooltip;
 	// Preferences
-	public static String ProvisioningPrefPage_ConfirmSelectionInstallOps;
 	public static String InstalledIUPropertyPage_NoInfoAvailable;
 	public static String ProvisioningPrefPage_HideInternalRepos;
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
