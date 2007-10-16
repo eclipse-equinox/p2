@@ -28,9 +28,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 abstract class ProfileModificationDialog extends TrayDialog {
-	private static final int DEFAULT_HEIGHT = 250;
-	private static final int DEFAULT_WIDTH = 600;
-	private static final int DEFAULT_COLUMN_WIDTH = 200;
+	private static final int DEFAULT_HEIGHT = 20;
+	private static final int DEFAULT_WIDTH = 120;
+	private static final int DEFAULT_COLUMN_WIDTH = 50;
+	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private String title;
 	private String message;
 	private IInstallableUnit[] ius;
@@ -58,18 +59,21 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		}
 		listViewer = CheckboxTableViewer.newCheckList(composite, SWT.BORDER | SWT.FULL_SELECTION);
 		GridData data = new GridData(GridData.FILL_BOTH);
-		data.heightHint = DEFAULT_HEIGHT;
-		data.widthHint = DEFAULT_WIDTH;
+		data.heightHint = convertHeightInCharsToPixels(DEFAULT_HEIGHT);
+		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
 		Table table = listViewer.getTable();
 		table.setLayoutData(data);
 		table.setHeaderVisible(true);
 		IUColumnConfig[] columns = getColumnConfig();
 		for (int i = 0; i < columns.length; i++) {
 			TableColumn tc = new TableColumn(table, SWT.LEFT, i);
-			tc.setWidth(DEFAULT_COLUMN_WIDTH);
 			tc.setResizable(true);
 			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH));
+			if (columns[i].columnField == IUColumnConfig.COLUMN_SIZE) {
+				tc.setAlignment(SWT.RIGHT);
+				tc.setWidth(convertWidthInCharsToPixels(DEFAULT_SMALL_COLUMN_WIDTH));
+			} else
+				tc.setWidth(convertWidthInCharsToPixels(DEFAULT_COLUMN_WIDTH));
 		}
 		contentProvider = new StaticContentProvider(makeElements(ius));
 		listViewer.setContentProvider(contentProvider);

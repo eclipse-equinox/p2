@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
 
 /**
@@ -97,8 +98,7 @@ public class IUDetailsLabelProvider extends LabelProvider implements ITableLabel
 		if (element instanceof AvailableIUElement) {
 			long size = ((AvailableIUElement) element).getSize();
 			if (size != AvailableIUElement.SIZE_UNKNOWN) {
-				// TODO should do something prettier here
-				return Long.toString(size);
+				return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, String.format("%,d", new Long[] {new Long(size / 1000L)})); //$NON-NLS-1$
 			}
 		}
 		return ProvUIMessages.IUDetailsLabelProvider_Unknown;
