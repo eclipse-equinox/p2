@@ -21,7 +21,8 @@ import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.UninstallAction;
 import org.eclipse.equinox.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.p2.ui.model.*;
-import org.eclipse.equinox.p2.ui.operations.*;
+import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
+import org.eclipse.equinox.p2.ui.operations.RemoveProfilesOperation;
 import org.eclipse.equinox.p2.ui.viewers.InstallIUDropAdapter;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
@@ -183,11 +184,13 @@ public class ProfilesView extends ProvView {
 
 	protected void selectionChanged(IStructuredSelection ss) {
 		super.selectionChanged(ss);
+		installAction.setEnabled(false);
+		propertiesAction.setEnabled(false);
+		removeProfileAction.setEnabled(false);
 		if (ss.size() == 1) {
+			propertiesAction.setEnabled(true);
 			if (ss.getFirstElement() instanceof Profile)
 				installAction.setEnabled(true);
-			else
-				installAction.setEnabled(false);
 		}
 		Object[] selectionArray = ss.toArray();
 		if (selectionArray.length > 0) {
@@ -198,8 +201,6 @@ public class ProfilesView extends ProvView {
 					break;
 				}
 			}
-		} else {
-			removeProfileAction.setEnabled(false);
 		}
 	}
 
