@@ -80,6 +80,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 			}
 		});
 		url.setText("http://"); //$NON-NLS-1$
+		url.setSelection(0, url.getText().length());
 
 		// add vertical buttons for setting archive or local repos
 		Composite buttonParent = new Composite(comp, SWT.NONE);
