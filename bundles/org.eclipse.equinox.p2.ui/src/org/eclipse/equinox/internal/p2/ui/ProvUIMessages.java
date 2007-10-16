@@ -109,6 +109,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_NameColumnTitle;
 	public static String ProvUI_SizeColumnTitle;
 	public static String ProvUI_VersionColumnTitle;
+	public static String ProvUI_IDColumnTitle;
 	public static String OptionalPlatformRestartMessage;
 
 	// Operations

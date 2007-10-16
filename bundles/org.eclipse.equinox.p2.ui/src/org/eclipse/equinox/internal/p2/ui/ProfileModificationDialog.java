@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.*;
 
 abstract class ProfileModificationDialog extends TrayDialog {
 	private static final int DEFAULT_HEIGHT = 20;
-	private static final int DEFAULT_WIDTH = 120;
+	private static final int DEFAULT_WIDTH = 170;
 	private static final int DEFAULT_COLUMN_WIDTH = 50;
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private String title;

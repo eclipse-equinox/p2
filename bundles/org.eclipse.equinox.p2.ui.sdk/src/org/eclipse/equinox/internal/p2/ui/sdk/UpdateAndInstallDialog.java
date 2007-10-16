@@ -31,8 +31,6 @@ import org.eclipse.swt.widgets.*;
  */
 public class UpdateAndInstallDialog extends TrayDialog {
 
-	private final static int TAB_WIDTH_IN_DLUS = 480;
-	private final static int TAB_HEIGHT_IN_DLUS = 240;
 	private Profile profile;
 
 	/**
@@ -56,7 +54,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		gc.dispose();
 
 		ViewerFilter filter = new IUProfilePropertyFilter(IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
-		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profile, new ViewerFilter[] {filter}, new ViewerFilter[] {new IUGroupFilter()}, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, TAB_WIDTH_IN_DLUS, TAB_HEIGHT_IN_DLUS, fontMetrics);
+		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profile, new ViewerFilter[] {filter}, new ViewerFilter[] {new IUGroupFilter()}, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, fontMetrics);
 		Dialog.applyDialogFont(group.getControl());
 		return group.getControl();
 	}

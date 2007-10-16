@@ -42,6 +42,9 @@ import org.eclipse.ui.dialogs.PropertyDialogAction;
 public class UpdateAndInstallGroup {
 
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
+	private static final int DEFAULT_HEIGHT = 240;
+	private static final int DEFAULT_WIDTH = 450;
+	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	TabFolder tabFolder;
 	TableViewer installedIUViewer;
 	TableViewer availableIUViewer;
@@ -59,7 +62,7 @@ public class UpdateAndInstallGroup {
 	// a viewer filter. More likely we would pass in the required
 	// capability/version info
 	// and use the iterator API rather than get all IU's and then filter them
-	public UpdateAndInstallGroup(Composite parent, Profile profile, ViewerFilter[] installedIUFilters, ViewerFilter[] availableIUFilters, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, int widthInDUs, int heightInDUs, FontMetrics fm) {
+	public UpdateAndInstallGroup(Composite parent, Profile profile, ViewerFilter[] installedIUFilters, ViewerFilter[] availableIUFilters, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, FontMetrics fm) {
 
 		this.profile = profile;
 		this.repositoryManipulator = repositoryManipulator;
@@ -71,8 +74,7 @@ public class UpdateAndInstallGroup {
 		Assert.isNotNull(fm);
 		this.fm = fm;
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gd.widthHint = convertHorizontalDLUsToPixels(widthInDUs);
-		gd.heightHint = convertVerticalDLUsToPixels(heightInDUs);
+		gd.heightHint = convertVerticalDLUsToPixels(DEFAULT_HEIGHT);
 		tabFolder.setLayoutData(gd);
 
 		// Installed IU's
@@ -92,7 +94,10 @@ public class UpdateAndInstallGroup {
 
 	private Control createAvailableIUsPage(Composite parent, ViewerFilter[] iuFilters) {
 		Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
+		composite.setLayoutData(gd);
+
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		layout.marginWidth = 0;
@@ -189,7 +194,9 @@ public class UpdateAndInstallGroup {
 	private Control createInstalledIUsPage(Composite parent, ViewerFilter[] iuFilters) {
 
 		Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
+		composite.setLayoutData(gd);
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		layout.marginWidth = 0;
@@ -362,7 +369,7 @@ public class UpdateAndInstallGroup {
 			TableColumn tc = new TableColumn(table, SWT.NONE, i);
 			tc.setResizable(true);
 			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH));
+			tc.setWidth(convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH));
 		}
 	}
 

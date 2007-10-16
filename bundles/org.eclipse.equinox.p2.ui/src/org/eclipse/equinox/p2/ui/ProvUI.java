@@ -41,7 +41,7 @@ public class ProvUI {
 	public static final String ROLLBACK_COMMAND_LABEL = ProvUIMessages.RollbackIUCommandLabel;
 	public static final String ROLLBACK_COMMAND_TOOLTIP = ProvUIMessages.RollbackIUCommandTooltip;
 
-	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_ID), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION)};
+	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME), new IUColumnConfig(ProvUIMessages.ProvUI_IDColumnTitle, IUColumnConfig.COLUMN_ID), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION)};
 
 	public static Shell getShell(IAdaptable uiInfo) {
 		Shell shell;
