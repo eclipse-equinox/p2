@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.*;
@@ -109,7 +110,11 @@ public class UpdateAndInstallGroup {
 		setTableColumns(availableIUViewer.getTable());
 		availableIUViewer.setContentProvider(new AvailableIUContentProvider());
 		availableIUViewer.setInput(new AllMetadataRepositories());
-		availableIUViewer.setLabelProvider(new IUDetailsLabelProvider());
+		IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
+		labelProvider.setToolTipProperty(IInstallableUnitConstants.DESCRIPTION);
+		availableIUViewer.setLabelProvider(labelProvider);
+		ColumnViewerToolTipSupport.enableFor(availableIUViewer);
+
 		if (iuFilters != null) {
 			availableIUViewer.setFilters(iuFilters);
 		}
@@ -163,13 +168,6 @@ public class UpdateAndInstallGroup {
 		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUViewer));
 		installButton = createVerticalButton(composite, ProvUIMessages.InstallIUCommandLabel, false);
 		installButton.setData(BUTTONACTION, new InstallAction(availableIUViewer, profile, null, parent.getShell()));
-		Button refreshButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Refresh, false);
-		refreshButton.setData(BUTTONACTION, new Action() {
-			public void runWithEvent(Event event) {
-				availableIUViewer.setInput(new AllMetadataRepositories());
-			}
-		});
-
 		if (repositoryManipulator != null) {
 			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
 			repoButton.setData(BUTTONACTION, new Action() {

@@ -19,8 +19,8 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
 
@@ -30,9 +30,10 @@ import org.eclipse.swt.graphics.Image;
  * 
  * @since 3.4
  */
-public class IUDetailsLabelProvider extends LabelProvider implements ITableLabelProvider {
+public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITableLabelProvider {
 	final static int PRIMARY_COLUMN = 0;
 	final static String BLANK = ""; //$NON-NLS-1$
+	private String toolTipProperty = null;
 
 	private IUColumnConfig[] columnConfig = ProvUI.getIUColumnConfig();
 
@@ -102,5 +103,16 @@ public class IUDetailsLabelProvider extends LabelProvider implements ITableLabel
 			}
 		}
 		return ProvUIMessages.IUDetailsLabelProvider_Unknown;
+	}
+
+	public void setToolTipProperty(String propertyName) {
+		toolTipProperty = propertyName;
+	}
+
+	public String getToolTipText(Object element) {
+		IInstallableUnit iu = getIU(element);
+		if (iu == null || toolTipProperty == null)
+			return null;
+		return iu.getProperty(toolTipProperty);
 	}
 }
