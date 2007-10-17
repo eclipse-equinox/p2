@@ -14,26 +14,27 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
+	public static final String ID = "org.eclipse.equinox.p2.artifact.repository"; //$NON-NLS-1$
+	public static final String REPO_PROVIDER_XPT = ID + '.' + "artifactRepositories"; //$NON-NLS-1$
 	private static BundleContext context;
-	public static final String ID = "org.eclipse.equinox.p2.artifact.repository";
-	public static final String REPO_PROVIDER_XPT = ID + '.' + "artifactRepositories";
-	public IArtifactRepositoryManager repoManager;
-	public ServiceRegistration repoManagerRegistration;
+
+	public static BundleContext getContext() {
+		return Activator.context;
+	}
+
+	private ServiceRegistration repositoryManagerRegistration;
 
 	public void start(BundleContext context) throws Exception {
 		Activator.context = context;
-		//		repoManager = new ArtifactRepoManager();
-		//		repoManagerRegistration = context.registerService(IArtifactRepoManager.class.getName(), repoManager, null);
+		ArtifactRepositoryManager repositoryManager = new ArtifactRepositoryManager();
+		repositoryManagerRegistration = context.registerService(IArtifactRepositoryManager.class.getName(), repositoryManager, null);
 	}
 
 	public void stop(BundleContext context) throws Exception {
 		Activator.context = null;
-		//		repoManager = null;
-		//		repoManagerRegistration = null;
-	}
-
-	public static BundleContext getContext() {
-		return Activator.context;
+		if (repositoryManagerRegistration != null)
+			repositoryManagerRegistration.unregister();
+		repositoryManagerRegistration = null;
 	}
 
 }

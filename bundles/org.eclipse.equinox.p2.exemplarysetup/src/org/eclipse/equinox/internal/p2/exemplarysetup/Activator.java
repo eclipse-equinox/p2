@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.exemplarysetup;
 
-import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -35,8 +33,8 @@ public class Activator implements BundleActivator {
 	private MetadataRepositoryManager defaultManager;
 	private ServiceRegistration registrationDefaultManager;
 
-	private ArtifactRepositoryManager artifactRepoManager;
-	private ServiceRegistration registrationArtifactRepoManager;
+	//	private ArtifactRepositoryManager artifactRepoManager;
+	//	private ServiceRegistration registrationArtifactRepoManager;
 
 	private IProfileRegistry profileRegistry;
 	private ServiceRegistration registrationProfileRegistry;
@@ -64,11 +62,11 @@ public class Activator implements BundleActivator {
 		registerDirector();
 
 		//create artifact repositories
-		registerDefaultArtifactRepoManager();
+		//		registerDefaultArtifactRepoManager();
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		unregisterDefaultArtifactRepoManager();
+		//		unregisterDefaultArtifactRepoManager();
 		unregisterDirector();
 		unregisterPlanner();
 		unregisterInstallRegistry();
@@ -119,15 +117,15 @@ public class Activator implements BundleActivator {
 		registrationDefaultManager = null;
 	}
 
-	private void registerDefaultArtifactRepoManager() {
-		artifactRepoManager = new ArtifactRepositoryManager();
-		registrationArtifactRepoManager = context.registerService(IArtifactRepositoryManager.class.getName(), artifactRepoManager, null);
-	}
-
-	private void unregisterDefaultArtifactRepoManager() {
-		registrationArtifactRepoManager.unregister();
-		artifactRepoManager = null;
-	}
+	//	private void registerDefaultArtifactRepoManager() {
+	//		artifactRepoManager = new ArtifactRepositoryManager();
+	//		registrationArtifactRepoManager = context.registerService(IArtifactRepositoryManager.class.getName(), artifactRepoManager, null);
+	//	}
+	//
+	//	private void unregisterDefaultArtifactRepoManager() {
+	//		registrationArtifactRepoManager.unregister();
+	//		artifactRepoManager = null;
+	//	}
 
 	private void registerInstallRegistry() {
 		installRegistry = new InstallRegistry();

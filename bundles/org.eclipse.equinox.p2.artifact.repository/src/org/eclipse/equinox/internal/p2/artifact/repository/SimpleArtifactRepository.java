@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.p2.core.helpers.MultiStatus;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
@@ -81,7 +80,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		try {
-			MultiStatus overallStatus = new MultiStatus();
+			MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 			for (int i = 0; i < requests.length; i++) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
@@ -169,23 +168,37 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
-		try {
-			destination = addPostSteps(handler, descriptor, destination, monitor);
-			destination = handler.createAndLink(descriptor.getProcessingSteps(), descriptor, destination, monitor);
-			destination = addPreSteps(handler, descriptor, destination, monitor);
-			IStatus status = handler.validateSteps(destination);
-			if (status.isOK() || status.getSeverity() == IStatus.INFO)
-				return getTransport().download(getLocation(descriptor), destination, monitor);
+		destination = addPostSteps(handler, descriptor, destination, monitor);
+		destination = handler.createAndLink(descriptor.getProcessingSteps(), descriptor, destination, monitor);
+		destination = addPreSteps(handler, descriptor, destination, monitor);
+		IStatus status = handler.validateSteps(destination);
+		if (!status.isOK() && status.getSeverity() != IStatus.INFO)
 			return status;
-		} finally {
-			try {
-				//don't close the underlying output stream - the caller will do that
-				if (destination instanceof ProcessingStep)
-					destination.close();
-			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, "Error closing processing steps", e);
-			}
+		String toDownload = getLocation(descriptor);
+		status = getTransport().download(toDownload, destination, monitor);
+
+		// If the destination is just a normal stream then the status is simple.  Just return
+		// it and do not close the destination
+		if (!(destination instanceof ProcessingStep))
+			return status;
+
+		// If the destination is a processing step then close the stream to flush the data through all
+		// the steps.  then collect up the status from all the steps and return
+		try {
+			destination.close();
+		} catch (IOException e) {
+			return new Status(IStatus.ERROR, Activator.ID, "Error closing processing steps", e);
 		}
+
+		IStatus stepStatus = ((ProcessingStep) destination).getStatus(true);
+		// if the steps all ran ok and there is no interesting information, return the status from this method
+		if (!stepStatus.isMultiStatus() && stepStatus.isOK())
+			return status;
+		// else gather up the status from the 
+		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, null, "Status of getting artifact " + toDownload, null);
+		result.merge(status);
+		result.merge(stepStatus);
+		return result;
 	}
 
 	private OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {

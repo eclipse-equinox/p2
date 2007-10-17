@@ -108,7 +108,8 @@ public class JarProcessorExecutor {
 			files = input.listFiles();
 		} else if (filter.accept(input)) {
 			files = new File[] {input};
-		}
+		} else
+			return;
 		for (int i = 0; i < files.length; i++) {
 			if (files[i].isDirectory()) {
 				String dir = processor.getWorkingDirectory();

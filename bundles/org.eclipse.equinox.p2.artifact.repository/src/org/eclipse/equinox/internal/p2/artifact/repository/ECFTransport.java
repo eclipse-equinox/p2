@@ -17,7 +17,6 @@ import org.eclipse.ecf.filetransfer.events.*;
 import org.eclipse.ecf.filetransfer.identity.FileCreateException;
 import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -114,14 +113,6 @@ public class ECFTransport extends Transport {
 				}
 			}
 		}
-
-		if (!(target instanceof ProcessingStep))
-			return result[0];
-		IStatus stepStatus = ((ProcessingStep) target).getStatus(true);
-		IStatus[] combinedList = new IStatus[stepStatus.getChildren().length + 1];
-		combinedList[0] = result[0];
-		System.arraycopy(stepStatus.getChildren(), 0, combinedList, 1, stepStatus.getChildren().length);
-		int code = result[0].getCode() > stepStatus.getCode() ? result[0].getCode() : stepStatus.getCode();
-		return new MultiStatus(Activator.ID, code, combinedList, "Problems occurred while downloading " + toDownload, null);
+		return result[0];
 	}
 }

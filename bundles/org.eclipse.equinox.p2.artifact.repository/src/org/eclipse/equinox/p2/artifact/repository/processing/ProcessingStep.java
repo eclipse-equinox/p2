@@ -79,7 +79,6 @@ public abstract class ProcessingStep extends OutputStream {
 		super.close();
 		if (destination instanceof ProcessingStep)
 			destination.close();
-		destination = null;
 		monitor = null;
 	}
 
