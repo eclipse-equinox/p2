@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.jdt"
+      label="%featureName"
+      version="3.3.0.v20070606-0010-7o7jCHEFpPoqQYvnXqejeR"
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
+
+   <description>
+      %description
+   </description>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>
+      <discovery label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>
+   </url>
+
+   <requires>
+      <import feature="org.eclipse.platform" version="3.3.0" match="compatible"/>
+   </requires>
+
+   <plugin
+         id="org.eclipse.jdt"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070607-1300"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.ant.ui"
+         download-size="0"
+         install-size="0"
+         version="3.2.100.v20070511"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.apt.core"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070607-1200"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.apt.ui"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070430-1135"
+         unpack="false"/>
+         
+  <plugin
+         id="org.eclipse.jdt.apt.pluggable.core"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.v20070529-2100"         
+         unpack="false"/>         
+
+   <plugin
+         id="org.eclipse.jdt.compiler.apt"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.v20070510-2000"
+         fragment="true"
+         unpack="false"/>
+         
+   <plugin
+         id="org.eclipse.jdt.compiler.tool"
+         download-size="0"
+         install-size="0"
+         version="1.0.0.v_771"
+         fragment="true"
+         unpack="false"/> 
+
+   <plugin
+         id="org.eclipse.jdt.core"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v_771"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.core.manipulation"
+         download-size="0"
+         install-size="0"
+         version="1.1.0.v20070606-0010"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.debug.ui"
+         download-size="0"
+         install-size="0"
+         version="3.2.100.v20070531-1800"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.debug"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070530a"/>
+
+   <plugin
+         id="org.eclipse.jdt.junit"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070606-0010"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.junit.runtime"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070606-0010"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.junit4.runtime"
+         download-size="0"
+         install-size="0"
+         version="1.0.100.v20070606-0010"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.launching"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070510"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.ui"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070607-0010"
+         unpack="false"/>
+
+   <plugin
+         id="org.junit"
+         download-size="0"
+         install-size="0"
+         version="3.8.2.v200706111738"/>
+
+   <plugin
+         id="org.junit4"
+         download-size="0"
+         install-size="0"
+         version="4.3.1"/>
+
+   <plugin
+         id="org.eclipse.jdt.doc.user"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070608-1300"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.jdt.launching.macosx"
+         os="macosx"
+         ws="carbon"
+         download-size="0"
+         install-size="0"
+         version="3.1.100.v20061211"
+         unpack="false"/>
+
+</feature>

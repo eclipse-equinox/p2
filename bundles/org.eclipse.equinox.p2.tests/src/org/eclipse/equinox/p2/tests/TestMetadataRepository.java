@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.CompoundIterator;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 /**
  * A simple metadata repository used for testing purposes.  All metadata
@@ -29,17 +30,12 @@ import org.eclipse.osgi.service.resolver.VersionRange;
  */
 public class TestMetadataRepository extends AbstractMetadataRepository {
 
+	private static final String DESCRIPTION = "A Test Metadata Repository"; //$NON-NLS-1$
 	private static final String NAME = "ATestMetadataRepository"; //$NON-NLS-1$
+	private static final String PROVIDER = "org.eclipse"; //$NON-NLS-1$
 	private static final String TYPE = "testmetadatarepo"; //$NON-NLS-1$
 	private static final String VERSION = "1"; //$NON-NLS-1$
-	private static final String PROVIDER = "org.eclipse"; //$NON-NLS-1$
-	private static final String DESCRIPTION = "A Test Metadata Repository"; //$NON-NLS-1$
 	private final List units = new ArrayList();
-
-	public TestMetadataRepository(IInstallableUnit[] ius) {
-		super(NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER);
-		units.addAll(Arrays.asList(ius));
-	}
 
 	private static URL createLocation() {
 		try {
@@ -48,6 +44,29 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 			Assert.fail(e.getMessage());
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
+		}
+		return null;
+	}
+
+	public TestMetadataRepository(IInstallableUnit[] ius) {
+		super(NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER);
+		units.addAll(Arrays.asList(ius));
+	}
+
+	public void addInstallableUnits(IInstallableUnit[] toAdd) {
+		units.addAll(Arrays.asList(toAdd));
+	}
+
+	public IInstallableUnit find(String id, String versionString) {
+		Version iuVersion = new Version(versionString);
+		VersionRange range = new VersionRange(iuVersion, true, iuVersion, true);
+		IInstallableUnit[] result = query(id, range, null, true, null);
+		return result.length != 1 ? null : result[0];
+	}
+
+	public Object getAdapter(Class adapter) {
+		if (adapter == TestMetadataRepository.class || adapter == IMetadataRepository.class || adapter == IRepository.class) {
+			return this;
 		}
 		return null;
 	}
@@ -65,10 +84,13 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		return CompoundIterator.asArray(new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and), null);
 	}
 
-	public Object getAdapter(Class adapter) {
-		if (adapter == TestMetadataRepository.class || adapter == IMetadataRepository.class || adapter == IRepository.class) {
-			return this;
+	public void removeAll() {
+		units.clear();
+	}
+
+	public void removeInstallableUnits(IInstallableUnit[] toRemove) {
+		for (int i = 0; i < toRemove.length; i++) {
+			units.remove(toRemove[i]);
 		}
-		return null;
 	}
 }

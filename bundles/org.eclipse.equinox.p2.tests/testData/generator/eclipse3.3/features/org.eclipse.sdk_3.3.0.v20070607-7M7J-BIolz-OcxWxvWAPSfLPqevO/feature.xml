@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.sdk"
+      label="%featureName"
+      version="3.3.0.v20070607-7M7J-BIolz-OcxWxvWAPSfLPqevO"
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
+
+   <description>
+      %description
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+   
+   <license url="%licenseURL">
+      %license
+   </license>
+
+   <url>
+      <update label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>
+      <discovery label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>  
+      <discovery label="%secondaryUpdateSiteName" url="http://download.eclipse.org/releases/europa"/>  
+   </url>
+
+   <includes
+         id="org.eclipse.platform"
+         version="3.3.0.v20070612-_19UEkLEzwsdF9jSqQ-G"/>
+
+   <includes
+         id="org.eclipse.platform.source"
+         version="3.3.0.v20070612-_19UEkLEzwsdF9jSqQ-G"/>
+         
+   <includes
+         id="org.eclipse.cvs"
+         version="1.0.0.v20070606-7C79_79EI99g_Y9e"/>
+
+   <includes
+         id="org.eclipse.cvs.source"
+         version="1.0.0.v20070606-7C79_79EI99g_Y9e"/>
+
+   <includes
+         id="org.eclipse.jdt"
+         version="3.3.0.v20070606-0010-7o7jCHEFpPoqQYvnXqejeR"/>
+
+   <includes
+         id="org.eclipse.jdt.source"
+         version="3.3.0.v20070606-0010-7o7jCHEFpPoqQYvnXqejeR"/>
+
+   <includes
+         id="org.eclipse.pde"
+         version="3.3.0.v20070607-7N7M-DUUEF6Ez0H46IcCC"/>
+
+   <includes
+         id="org.eclipse.pde.source"
+         version="3.3.0.v20070607-7N7M-DUUEF6Ez0H46IcCC"/>
+
+   <plugin
+         id="org.eclipse.sdk"
+         download-size="0"
+         install-size="0"
+         version="3.3.0.v20070613"/>
+
+</feature>

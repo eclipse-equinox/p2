@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature primary="false"  provider-name="%providerName"    label="%featureName"  image="eclipse_update_120.jpg" id="org.eclipse.jdt.source"  version="3.3.0.v20070606-0010-7o7jCHEFpPoqQYvnXqejeR">
+	<description >
+		%description
+	</description>
+	<license url="%licenseURL">
+		%license
+	</license>
+	<url>
+		<update label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>
+		<discovery label="%updateSiteName" url="http://update.eclipse.org/updates/3.3"/>
+	</url>
+	<plugin    fragment="false" unpack="false"  download-size="0" install-size="0" id="org.eclipse.jdt.doc.isv" version="3.3.0.v20070613"/>
+	<plugin    fragment="false"  download-size="0" install-size="0" id="org.junit.source" version="3.8.2.v200706111738"/>
+	<plugin    fragment="false"  download-size="0" install-size="0" id="org.eclipse.jdt.source" version="3.3.0.v20070606-0010-7o7jCHEFpPoqQYvnXqejeR"/>
+	<plugin ws="carbon"  os="macosx" fragment="true" arch="ppc" download-size="0" install-size="0" id="org.eclipse.jdt.source.macosx.carbon.ppc" version="3.3.0.v20070606-0010-7o7jCHEFpPoqQYvnXqejeR"/>
+</feature>
