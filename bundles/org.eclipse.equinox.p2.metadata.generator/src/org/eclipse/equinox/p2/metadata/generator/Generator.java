@@ -180,9 +180,11 @@ public class Generator {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
 			}
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 			}
 			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
 			if (cu != null)
@@ -257,6 +259,7 @@ public class Generator {
 		Map touchpointData = new HashMap();
 
 		String configurationData = "";
+		String unconfigurationData = "";
 
 		ConfigData configData = info.getConfigData();
 		if (configData != null) {
@@ -266,6 +269,7 @@ public class Generator {
 				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
 					continue;
 				configurationData += "setFwDependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
+				unconfigurationData += "setFwDependentProp(propName:" + key + ", propValue:);";
 			}
 			for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
 				Entry aProperty = (Entry) iterator.next();
@@ -273,14 +277,17 @@ public class Generator {
 				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
 					continue;
 				configurationData += "setFwIndependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
+				unconfigurationData += "setFwIndependentProp(propName:" + key + ", propValue:);";
 			}
 		}
 
 		LauncherData launcherData = info.getLauncherData();
 		if (launcherData != null) {
 			final String[] jvmArgs = launcherData.getJvmArgs();
-			for (int i = 0; i < jvmArgs.length; i++)
+			for (int i = 0; i < jvmArgs.length; i++) {
 				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");";
+				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");";
+			}
 
 			final String[] programArgs = launcherData.getProgramArgs();
 			for (int i = 0; i < programArgs.length; i++) {
@@ -288,11 +295,11 @@ public class Generator {
 				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration"))
 					i++;
 				configurationData += "addProgramArg(programArg:" + programArg + ");";
+				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");";
 			}
 		}
 		touchpointData.put("configure", configurationData);
-		//TODO: This unconfigure is clearly not right
-		touchpointData.put("unconfigure", configurationData);
+		touchpointData.put("unconfigure", unconfigurationData);
 		iu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		return iu;
 	}

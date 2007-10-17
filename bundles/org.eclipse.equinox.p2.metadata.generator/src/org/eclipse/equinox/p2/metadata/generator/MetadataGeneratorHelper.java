@@ -289,8 +289,8 @@ public class MetadataGeneratorHelper {
 			unconfigScript += "markStarted(started: false);";
 		}
 
-		if (unconfigInfo.getSpecialConfigCommands() != null) {
-			unconfigScript += unconfigInfo.getSpecialConfigCommands();
+		if (unconfigInfo.getSpecialUnconfigCommands() != null) {
+			unconfigScript += unconfigInfo.getSpecialUnconfigCommands();
 		}
 		return unconfigScript;
 

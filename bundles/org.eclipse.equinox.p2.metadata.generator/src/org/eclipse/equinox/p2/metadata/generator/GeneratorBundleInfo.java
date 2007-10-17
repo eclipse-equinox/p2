@@ -28,6 +28,7 @@ public class GeneratorBundleInfo extends BundleInfo {
 	//	private String manifest;
 
 	private String specialConfigCommands;
+	private String specialUnconfigCommands;
 
 	public GeneratorBundleInfo(BundleInfo bInfo) {
 		super.setBundleId(bInfo.getBundleId());
@@ -110,6 +111,14 @@ public class GeneratorBundleInfo extends BundleInfo {
 		this.specialConfigCommands = specialConfigCommands;
 	}
 
+	public String getSpecialUnconfigCommands() {
+		return specialUnconfigCommands;
+	}
+
+	public void setSpecialUnconfigCommands(String specialUnconfigCommands) {
+		this.specialUnconfigCommands = specialUnconfigCommands;
+	}
+
 	//	/* (non-Javadoc)
 	//	 * @see java.lang.Object#equals(java.lang.Object)
 	//	 */
@@ -147,4 +156,5 @@ public class GeneratorBundleInfo extends BundleInfo {
 			e.printStackTrace();
 		}
 	}
+
 }

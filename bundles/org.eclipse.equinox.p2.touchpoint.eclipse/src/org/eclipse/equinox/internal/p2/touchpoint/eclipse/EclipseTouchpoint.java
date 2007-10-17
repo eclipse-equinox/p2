@@ -112,7 +112,79 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
 					String programArg = (String) parameters.get("programArg");
+
+					if (programArg.equals("@artifact")) {
+						Profile profile = (Profile) parameters.get("profile");
+						IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+						IArtifactKey artifactKey = iu.getArtifacts()[0];
+
+						File fileLocation = null;
+						try {
+							fileLocation = getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (!fileLocation.exists())
+							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+						programArg = fileLocation.getAbsolutePath();
+					}
+
 					manipulator.getLauncherData().removeProgramArg(programArg);
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
+		if (actionId.equals("removeProgramArg")) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					String programArg = (String) parameters.get("programArg");
+
+					if (programArg.equals("@artifact")) {
+						Profile profile = (Profile) parameters.get("profile");
+						IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+						IArtifactKey artifactKey = iu.getArtifacts()[0];
+
+						File fileLocation = null;
+						try {
+							fileLocation = getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (!fileLocation.exists())
+							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+						programArg = fileLocation.getAbsolutePath();
+					}
+
+					manipulator.getLauncherData().removeProgramArg(programArg);
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					String programArg = (String) parameters.get("programArg");
+
+					if (programArg.equals("@artifact")) {
+						Profile profile = (Profile) parameters.get("profile");
+						IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+						IArtifactKey artifactKey = iu.getArtifacts()[0];
+
+						File fileLocation = null;
+						try {
+							fileLocation = getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						if (!fileLocation.exists())
+							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+						programArg = fileLocation.getAbsolutePath();
+					}
+
+					manipulator.getLauncherData().addProgramArg(programArg);
 					return Status.OK_STATUS;
 				}
 			};
@@ -243,6 +315,24 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
 					String jvmArg = (String) parameters.get("jvmArg");
 					manipulator.getLauncherData().removeJvmArg(jvmArg);
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
+		if (actionId.equals("removeJvmArg")) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					String jvmArg = (String) parameters.get("jvmArg");
+					manipulator.getLauncherData().removeJvmArg(jvmArg);
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					String jvmArg = (String) parameters.get("jvmArg");
+					manipulator.getLauncherData().addJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
 			};

@@ -214,6 +214,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			temp.setSymbolicName(object.getId());
 			temp.setVersion(object.getVersion().toString());
 			temp.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);");
+			temp.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);");
 			result.add(temp);
 		}
 		return result;
@@ -235,6 +236,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setVersion("0.0.0");
 		//result.setSpecialConfigCommands("manipulator.addProgramArgument('-startup'); manipulator.addProgramArgument(artifact);");
 		result.setSpecialConfigCommands("addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);");
+		result.setSpecialUnconfigCommands("removeProgramArg(programArg:-startup);removeProgramArg(programArg:@artifact);");
 		return result;
 	}
 
@@ -245,6 +247,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setStartLevel(1);
 		result.setMarkedAsStarted(true);
 		result.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
+		result.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 		return result;
 	}
 
