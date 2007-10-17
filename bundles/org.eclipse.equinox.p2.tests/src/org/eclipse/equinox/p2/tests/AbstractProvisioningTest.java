@@ -148,13 +148,11 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	protected void assertNotOK(IStatus result) {
-		if (result.getSeverity() != IStatus.OK)
-			return;
-		fail("The status should not have been OK");
+		assertTrue("The status should not have been OK", !result.isOK());
 	}
 
 	protected void assertOK(IStatus result) {
-		if (result.getSeverity() == IStatus.OK)
+		if (result.isOK())
 			return;
 
 		if (result instanceof MultiStatus) {
