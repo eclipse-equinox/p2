@@ -223,7 +223,7 @@ public class FeatureParser extends DefaultHandler {
 	}
 
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (characters != null)
+		if (characters == null)
 			return;
 		if ("description".equals(localName)) { //$NON-NLS-1$
 			result.setDescription(characters.toString().trim());
