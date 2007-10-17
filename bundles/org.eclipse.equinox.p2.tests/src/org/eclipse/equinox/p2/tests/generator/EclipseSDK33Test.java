@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.generator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -101,10 +100,8 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 		File rootFile = null;
 		try {
 			root = FileLocator.toFileURL(root);
-			rootFile = new File(root.toURI());
+			rootFile = new File(root.getPath());
 		} catch (IOException e) {
-			fail("4.99", e);
-		} catch (URISyntaxException e) {
 			fail("4.99", e);
 		}
 		TestGeneratorInfo info = new TestGeneratorInfo(rootFile);
