@@ -1,0 +1,49 @@
+<org.eclipse.equinox.internal.p2.artifact.repository.SimpleArtifactRepository>
+  <mappingRules>
+    <string-array>
+      <string>(&amp; (namespace=eclipse) (classifier=plugin))</string>
+      <string>${repoUrl}/plugins/${id}_${version}.jar</string>
+    </string-array>
+    <string-array>
+      <string>(&amp; (namespace=eclipse) (classifier=native))</string>
+      <string>${repoUrl}/native/${id}_${version}</string>
+    </string-array>
+    <string-array>
+      <string>(&amp; (namespace=eclipse) (classifier=feature))</string>
+      <string>${repoUrl}/features/${id}_${version}.jar</string>
+    </string-array>
+  </mappingRules>
+  <artifactDescriptors>
+    <org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.p2.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+        <id>org.eclipse.equinox.prov.engine</id>
+        <classifier>plugin</classifier>
+        <version>0.1.0.200709241631</version>
+      </key>
+      <processingSteps/>
+      <properties>
+        <entry>
+          <string>download.size</string>
+          <string>51366</string>
+        </entry>
+        <entry>
+          <string>artifact.size</string>
+          <string>51366</string>
+        </entry>
+      </properties>
+    </org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor>
+  </artifactDescriptors>
+  <signatureVerification>false</signatureVerification>
+  <blobStore>
+    <store>file:D:/workspaces/prov.selfhost/org.eclipse.equinox.p2.tests/testData/enginerepo/.blobstore/</store>
+    <fileBased>true</fileBased>
+    <mask>127</mask>
+  </blobStore>
+  <name>file:D:\workspaces\prov.selfhost\org.eclipse.equinox.p2.tests\testData\enginerepo - artifacts</name>
+  <type>org.eclipse.equinox.internal.p2.artifact.repository.SimpleArtifactRepository</type>
+  <version>1</version>
+  <description></description>
+  <provider></provider>
+  <properties/>
+</org.eclipse.equinox.internal.p2.artifact.repository.SimpleArtifactRepository>
