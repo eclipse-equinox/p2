@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
 import org.eclipse.equinox.p2.core.helpers.MultiStatus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.TouchpointData;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
@@ -141,7 +142,7 @@ public abstract class Phase {
 
 			ProvisioningAction[] actions;
 			try {
-				actions = getActions(touchpoint, operand);
+				actions = getActions(operand);
 			} catch (Throwable t) {
 				status.add(new Status(IStatus.ERROR, phaseId, t.getMessage()));
 				return;
@@ -180,16 +181,50 @@ public abstract class Phase {
 		phaseParameters = null;
 	}
 
-	private static Touchpoint getTouchpoint(Operand operand) {
+	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {
+		TouchpointData[] data = unit.getTouchpointData();
+		if (data == null)
+			return null;
+
+		String[] instructions = getInstructionsFor(key, data);
+		if (instructions.length == 0)
+			return null;
+
+		TouchpointManager touchpointManager = TouchpointManager.getInstance();
+		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
+		InstructionParser parser = new InstructionParser(this, touchpoint);
+		return parser.parseActions(instructions[0]);
+	}
+
+	protected static Touchpoint getTouchpoint(Operand operand) {
 		IInstallableUnit unit = operand.second();
 		if (unit == null)
 			unit = operand.first();
 
 		if (unit == null)
 			return null;
+		return getTouchpoint(unit);
+	}
+
+	private static Touchpoint getTouchpoint(IInstallableUnit unit) {
 		TouchpointManager touchpointManager = TouchpointManager.getInstance();
 		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
 		return touchpoint;
+	}
+
+	private static String[] getInstructionsFor(String key, TouchpointData[] data) {
+		String[] matches = new String[data.length];
+		int count = 0;
+		for (int i = 0; i < data.length; i++) {
+			matches[count] = data[i].getInstructions(key);
+			if (matches[count] != null)
+				count++;
+		}
+		if (count == data.length)
+			return matches;
+		String[] result = new String[count];
+		System.arraycopy(matches, 0, result, 0, count);
+		return result;
 	}
 
 	protected boolean isApplicable(Operand op) {
@@ -216,5 +251,6 @@ public abstract class Phase {
 		return null;
 	}
 
-	protected abstract ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand);
+	protected abstract ProvisioningAction[] getActions(Operand currentOperand);
+
 }

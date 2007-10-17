@@ -30,62 +30,6 @@ public class Sizing extends Phase {
 		return (op.second() != null);
 	}
 
-	//	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {
-	//		IInstallableUnit unit = operand.second();
-	//
-	//		if (unit != null) {
-	//			monitor.subTask(NLS.bind(Messages.Engine_Collecting_For_IU, unit.getId()));
-	//
-	//			// TODO: Need do progress reporting
-	//
-	//			// Ask all the touchpoints if they need to download an artifact
-	//			Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
-	//			if (touchpoint.supports(TP_DATA)) {
-	//				ProvisioningAction[] actions = touchpoint.getActions(TP_DATA, profile, operand);
-	//				for (int i = 0; i < actions.length; i++) {
-	//					Object result = actions[i].execute();
-	//					if (result != null) {
-	//						IArtifactRequest[] requests = (IArtifactRequest[]) result;
-	//						for (int j = 0; j < requests.length; j++) {
-	//							artifactsToObtain.add(requests[j]);
-	//						}
-	//					}
-	//				}
-	//			}
-	//
-	//			if (monitor.isCanceled())
-	//				return Status.CANCEL_STATUS;
-	//		}
-	//
-	//		return Status.OK_STATUS;
-	//	}
-	//
-	//	protected void postPerform(MultiStatus status, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
-	//		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
-	//		IArtifactRepository[] repositories = repoMgr.getKnownRepositories();
-	//
-	//		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext();) {
-	//			for (int i = 0; i < repositories.length; i++) {
-	//				IArtifactDescriptor[] descriptors = repositories[i].getArtifactDescriptors(((IArtifactRequest) iterator.next()).getArtifactKey());
-	//				if (descriptors.length > 0) {
-	//					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
-	//						sizeOnDisk += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-	//
-	//					if (descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE) != null)
-	//						dlSize += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
-	//
-	//					break;
-	//				}
-	//			}
-	//		}
-	//	}
-	//
-	//	protected void prePerform(MultiStatus status, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
-	//		artifactsToObtain = new HashSet(deltas.length);
-	//		sizeOnDisk = 0;
-	//		dlSize = 0;
-	//	}
-
 	public long getDiskSize() {
 		return sizeOnDisk;
 	}
@@ -94,8 +38,8 @@ public class Sizing extends Phase {
 		return dlSize;
 	}
 
-	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
-		ProvisioningAction action = touchpoint.getAction("collect");
+	protected ProvisioningAction[] getActions(Operand currentOperand) {
+		ProvisioningAction action = getTouchpoint(currentOperand).getAction("collect");
 		return new ProvisioningAction[] {action};
 	}
 

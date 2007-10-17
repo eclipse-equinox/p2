@@ -29,39 +29,13 @@ public class Collect extends Phase {
 		POST_PERFORM_WORK = 1000;
 	}
 
-	//	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {
-	//		IInstallableUnit unit = operand.second();
-	//
-	//		if (unit != null) {
-	//			monitor.subTask(NLS.bind(Messages.Engine_Collecting_For_IU, unit.getId()));
-	//
-	//			// TODO: Need do progress reporting
-	//
-	//			// Ask all the touchpoints if they need to download an artifact
-	//			Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
-	//			if (touchpoint.supports(PHASE_ID)) {
-	//				ProvisioningAction[] actions = touchpoint.getActions(PHASE_ID, profile, operand);
-	//				for (int i = 0; i < actions.length; i++) {
-	//					Object result = actions[i].execute();
-	//					if (result != null)
-	//						dm.add((IArtifactRequest[]) result);
-	//					session.record(actions[i]);
-	//				}
-	//			}
-	//
-	//			if (monitor.isCanceled())
-	//				return Status.CANCEL_STATUS;
-	//		}
-	//
-	//		return Status.OK_STATUS;
-	//	}
-
 	protected boolean isApplicable(Operand op) {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
-		ProvisioningAction action = touchpoint.getAction("collect");
+	protected ProvisioningAction[] getActions(Operand currentOperand) {
+		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Collecting_For_IU, unit.getId()));
+		ProvisioningAction action = getTouchpoint(currentOperand).getAction(phaseId);
 		return new ProvisioningAction[] {action};
 	}
 

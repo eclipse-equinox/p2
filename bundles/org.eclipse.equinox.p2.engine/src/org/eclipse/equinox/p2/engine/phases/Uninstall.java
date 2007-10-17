@@ -67,34 +67,11 @@ public class Uninstall extends Phase {
 		super(PHASE_ID, weight, Messages.Engine_Uninstall_Phase);
 	}
 
-	//	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {
-	//		IInstallableUnit unit = operand.first();
-	//
-	//		monitor.subTask(NLS.bind(Messages.Engine_Uninstalling_IU, unit.getId()));
-	//
-	//		Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
-	//		if (!touchpoint.supports(PHASE_ID))
-	//			return Status.OK_STATUS;
-	//
-	//		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
-	//
-	//		//TODO need to protect the actual operation on a try / catch to ensure the delivery of event. 
-	//		ProvisioningAction[] actions = touchpoint.getActions(PHASE_ID, profile, operand);
-	//		MultiStatus result = new MultiStatus();
-	//		for (int i = 0; i < actions.length; i++) {
-	//			result.add((IStatus) actions[i].execute());
-	//			session.record(actions[i]);
-	//		}
-	//
-	//		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint, result));
-	//		return result;
-	//	}
-
 	protected boolean isApplicable(Operand op) {
 		return (op.first() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
+	protected ProvisioningAction[] getActions(Operand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Uninstalling_IU, unit.getId()));
 
 		ProvisioningAction beforeAction = new BeforeUninstallEventAction();
@@ -103,35 +80,15 @@ public class Uninstall extends Phase {
 		IInstallableUnit unit = currentOperand.first();
 		if (unit.isFragment())
 			return new ProvisioningAction[] {beforeAction, afterAction};
-		TouchpointData[] data = unit.getTouchpointData();
-		if (data == null)
+		ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+		if (parsedActions == null)
 			return new ProvisioningAction[] {beforeAction, afterAction};
-		String[] instructions = getInstructionsFor("uninstall", data);
-		if (instructions.length == 0)
-			return new ProvisioningAction[] {beforeAction, afterAction};
-		InstructionParser parser = new InstructionParser(this, touchpoint);
-		ProvisioningAction[] parsedActions = parser.parseActions(instructions[0]);
+
 		ProvisioningAction[] actions = new ProvisioningAction[parsedActions.length + 2];
 		actions[0] = beforeAction;
 		System.arraycopy(parsedActions, 0, actions, 1, parsedActions.length);
 		actions[actions.length - 1] = afterAction;
 		return actions;
-	}
-
-	// We could put this in a utility class or perhaps refactor touchpoint data
-	static private String[] getInstructionsFor(String key, TouchpointData[] data) {
-		String[] matches = new String[data.length];
-		int count = 0;
-		for (int i = 0; i < data.length; i++) {
-			matches[count] = data[i].getInstructions(key);
-			if (matches[count] != null)
-				count++;
-		}
-		if (count == data.length)
-			return matches;
-		String[] result = new String[count];
-		System.arraycopy(matches, 0, result, 0, count);
-		return result;
 	}
 
 	protected IStatus initializeOperand(Operand operand, Map parameters) {

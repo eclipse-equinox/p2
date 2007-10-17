@@ -24,39 +24,14 @@ public class Configure extends Phase {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
+	protected ProvisioningAction[] getActions(Operand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Configuring_IU, unit.getId()));
 
 		IInstallableUnit unit = currentOperand.second();
 		if (unit.isFragment())
 			return null;
 
-		TouchpointData[] data = unit.getTouchpointData();
-		if (data == null)
-			return null;
-
-		String[] instructions = getInstructionsFor("configure", data);
-		if (instructions.length == 0)
-			return null;
-
-		InstructionParser parser = new InstructionParser(this, touchpoint);
-		return parser.parseActions(instructions[0]);
-	}
-
-	// We could put this in a utility class, Phase or perhaps refactor touchpoint data
-	static private String[] getInstructionsFor(String key, TouchpointData[] data) {
-		String[] matches = new String[data.length];
-		int count = 0;
-		for (int i = 0; i < data.length; i++) {
-			matches[count] = data[i].getInstructions(key);
-			if (matches[count] != null)
-				count++;
-		}
-		if (count == data.length)
-			return matches;
-		String[] result = new String[count];
-		System.arraycopy(matches, 0, result, 0, count);
-		return result;
+		return getActions(unit, phaseId);
 	}
 
 	protected IStatus initializeOperand(Operand operand, Map parameters) {

@@ -67,36 +67,11 @@ public class Install extends Phase {
 		super(PHASE_ID, weight, Messages.Engine_Install_Phase);
 	}
 
-	//	protected IStatus performOperand(EngineSession session, Profile profile, Operand operand, IProgressMonitor monitor) {
-	//		IInstallableUnit unit = operand.second();
-	//
-	//		monitor.subTask(NLS.bind(Messages.Engine_Installing_IU, unit.getId()));
-	//
-	//		Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
-	//		if (!touchpoint.supports(PHASE_ID))
-	//			return Status.OK_STATUS;
-	//
-	//		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
-	//
-	//		ProvisioningAction[] actions = getActions();
-	//		MultiStatus result = new MultiStatus();
-	//		for (int i = 0; i < actions.length; i++) {
-	//			IStatus actionStatus = (IStatus) actions[i].execute();
-	//			result.add(actionStatus);
-	//			if (!actionStatus.isOK())
-	//				return result;
-	//
-	//			session.record(actions[i]);
-	//		}
-	//		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(PHASE_ID, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint, result));
-	//		return result;
-	//	}
-
 	protected boolean isApplicable(Operand op) {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Touchpoint touchpoint, Operand currentOperand) {
+	protected ProvisioningAction[] getActions(Operand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Installing_IU, unit.getId()));
 
 		ProvisioningAction beforeAction = new BeforeInstallEventAction();
@@ -105,36 +80,16 @@ public class Install extends Phase {
 		IInstallableUnit unit = currentOperand.second();
 		if (unit.isFragment())
 			return new ProvisioningAction[] {beforeAction, afterAction};
-		TouchpointData[] data = unit.getTouchpointData();
 
-		if (data == null)
+		ProvisioningAction[] parsedActions = getActions(unit, phaseId);
+		if (parsedActions == null)
 			return new ProvisioningAction[] {beforeAction, afterAction};
-		String[] instructions = getInstructionsFor("install", data);
-		if (instructions.length == 0)
-			return new ProvisioningAction[] {beforeAction, afterAction};
-		InstructionParser parser = new InstructionParser(this, touchpoint);
-		ProvisioningAction[] parsedActions = parser.parseActions(instructions[0]);
+
 		ProvisioningAction[] actions = new ProvisioningAction[parsedActions.length + 2];
 		actions[0] = beforeAction;
 		System.arraycopy(parsedActions, 0, actions, 1, parsedActions.length);
 		actions[actions.length - 1] = afterAction;
 		return actions;
-	}
-
-	// We could put this in a utility class or perhaps refactor touchpoint data
-	static private String[] getInstructionsFor(String key, TouchpointData[] data) {
-		String[] matches = new String[data.length];
-		int count = 0;
-		for (int i = 0; i < data.length; i++) {
-			matches[count] = data[i].getInstructions(key);
-			if (matches[count] != null)
-				count++;
-		}
-		if (count == data.length)
-			return matches;
-		String[] result = new String[count];
-		System.arraycopy(matches, 0, result, 0, count);
-		return result;
 	}
 
 	protected IStatus initializeOperand(Operand operand, Map parameters) {
