@@ -11,7 +11,9 @@
 
 package org.eclipse.equinox.p2.ui.model;
 
+import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.jface.viewers.*;
 
 /**
@@ -48,17 +50,24 @@ public class ArtifactRepositoryContentProvider implements IStructuredContentProv
 			return ((AllArtifactRepositories) parent).getChildren(parent);
 		}
 		if (parent instanceof IArtifactRepository) {
-			return ((IArtifactRepository) parent).getArtifactKeys();
+			IArtifactKey[] keys = ((IArtifactRepository) parent).getArtifactKeys();
+			ArtifactElement[] elements = new ArtifactElement[keys.length];
+			for (int i = 0; i < keys.length; i++) {
+				elements[i] = new ArtifactElement(keys[i], (IArtifactRepository) parent);
+			}
+			return elements;
+		}
+		if (parent instanceof ArtifactElement) {
+			ArtifactElement element = (ArtifactElement) parent;
+			return element.getArtifactRepository().getArtifactDescriptors(element.getArtifactKey());
+		}
+		if (parent instanceof IArtifactDescriptor) {
+			return ((IArtifactDescriptor) parent).getProcessingSteps();
 		}
 		return new Object[0];
 	}
 
 	public boolean hasChildren(Object parent) {
-		if (parent instanceof AllArtifactRepositories)
-			return ((AllArtifactRepositories) parent).hasChildren(parent);
-		if (parent instanceof IArtifactRepository) {
-			return ((IArtifactRepository) parent).getArtifactKeys().length > 0;
-		}
-		return false;
+		return getChildren(parent).length > 0;
 	}
 }

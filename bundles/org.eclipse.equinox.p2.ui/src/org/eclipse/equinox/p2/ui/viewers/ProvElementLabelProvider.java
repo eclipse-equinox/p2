@@ -12,6 +12,7 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -57,7 +58,10 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			IArtifactKey key = (IArtifactKey) obj;
 			return key.getId() + " [" + key.getNamespace() + "]"; //$NON-NLS-1$//$NON-NLS-2$
 		}
-
+		if (obj instanceof ProcessingStepDescriptor) {
+			ProcessingStepDescriptor descriptor = (ProcessingStepDescriptor) obj;
+			return descriptor.getProcessorId();
+		}
 		return obj.toString();
 	}
 
