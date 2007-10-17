@@ -88,7 +88,10 @@ public class Generator {
 		for (int i = 0; i < locations.length; i++) {
 			FeatureParser parser = new FeatureParser();
 			try {
-				result.add(parser.parse(new File(locations[i], "feature.xml").toURL()));
+				//skip directories that don't contain a feature.xml file
+				File file = new File(locations[i], "feature.xml"); //$NON-NLS-1$
+				if (file.exists())
+					result.add(parser.parse(file.toURL()));
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
