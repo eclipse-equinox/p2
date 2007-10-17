@@ -20,11 +20,14 @@ import junit.framework.*;
 public class AutomatedTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
+		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.processing.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.director.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.download.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.engine.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.generator.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.metadata.repository.AllTests.suite());
 		return suite;
 	}
 
