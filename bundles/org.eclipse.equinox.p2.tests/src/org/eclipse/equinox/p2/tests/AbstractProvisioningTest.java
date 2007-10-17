@@ -8,10 +8,10 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import java.io.*;
 import java.util.*;
 import junit.framework.TestCase;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
@@ -35,12 +35,110 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	private List metadataRepos = new ArrayList();
 
+	/**
+	 * Fails the test due to the given throwable.
+	 */
+	public static void fail(String message, Throwable e) {
+		// If the exception is a CoreException with a multistatus
+		// then print out the multistatus so we can see all the info.
+		if (e instanceof CoreException) {
+			IStatus status = ((CoreException) e).getStatus();
+			//if the status does not have an exception, print the stack for this one
+			if (status.getException() == null)
+				e.printStackTrace();
+			write(status, 0);
+		} else
+			e.printStackTrace();
+		fail(message + ": " + e);
+	}
+
+	private static void indent(OutputStream output, int indent) {
+		for (int i = 0; i < indent; i++)
+			try {
+				output.write("\t".getBytes());
+			} catch (IOException e) {
+				// ignore
+			}
+	}
+
+	private static void write(IStatus status, int indent) {
+		PrintStream output = System.out;
+		indent(output, indent);
+		output.println("Severity: " + status.getSeverity());
+
+		indent(output, indent);
+		output.println("Plugin ID: " + status.getPlugin());
+
+		indent(output, indent);
+		output.println("Code: " + status.getCode());
+
+		indent(output, indent);
+		output.println("Message: " + status.getMessage());
+
+		if (status.getException() != null) {
+			indent(output, indent);
+			output.print("Exception: ");
+			status.getException().printStackTrace(output);
+		}
+
+		if (status.isMultiStatus()) {
+			IStatus[] children = status.getChildren();
+			for (int i = 0; i < children.length; i++)
+				write(children[i], indent + 1);
+		}
+	}
+
 	public AbstractProvisioningTest() {
 		super("");
 	}
 
 	public AbstractProvisioningTest(String name) {
 		super(name);
+	}
+
+	public void assertEmptyProfile(Profile p) {
+		assertNotNull("The profile should not be null", p);
+		boolean containsIU = false;
+		for (Iterator iterator = p.getInstallableUnits(); iterator.hasNext();) {
+			containsIU = true;
+		}
+		if (containsIU)
+			fail("The profile should be empty,profileId=" + p);
+	}
+
+	protected void assertNotIUs(IInstallableUnit[] ius, Iterator installableUnits) {
+		Set notexpected = new HashSet();
+		notexpected.addAll(Arrays.asList(ius));
+
+		while (installableUnits.hasNext()) {
+			IInstallableUnit next = (IInstallableUnit) installableUnits.next();
+			if (notexpected.contains(next)) {
+				fail("not expected [" + next + "]");
+			}
+		}
+	}
+
+	protected void assertNotOK(IStatus result) {
+		assertTrue("The status should not have been OK", !result.isOK());
+	}
+
+	protected void assertOK(IStatus result) {
+		if (result.isOK())
+			return;
+
+		if (result instanceof MultiStatus) {
+			MultiStatus ms = (MultiStatus) result;
+			IStatus children[] = ms.getChildren();
+			for (int i = 0; i < children.length; i++) {
+				System.err.println(children[i]);
+			}
+		}
+
+		Throwable t = result.getException();
+		if (t != null)
+			t.printStackTrace();
+
+		fail(result.toString());
 	}
 
 	/**
@@ -70,11 +168,19 @@ public class AbstractProvisioningTest extends TestCase {
 			fail(message + " profile " + profile.getProfileId() + " did not contain expected units: " + expected);
 	}
 
+	public IDirector createDirector() {
+		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.class.getName());
+	}
+
 	/**
 	 * Creates and returns a correctly formatted LDAP filter with the given key and value.
 	 */
 	protected String createFilter(String filterKey, String filterValue) {
 		return "(" + filterKey + '=' + filterValue + ')';
+	}
+
+	public IPlanner createPlanner() {
+		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
 	}
 
 	/**
@@ -103,6 +209,16 @@ public class AbstractProvisioningTest extends TestCase {
 		metadataRepos.add(repo);
 	}
 
+	public void printProfile(Profile toPrint) {
+		boolean containsIU = false;
+		for (Iterator iterator = toPrint.getInstallableUnits(); iterator.hasNext();) {
+			System.out.println(iterator.next());
+			containsIU = true;
+		}
+		if (!containsIU)
+			System.out.println("No iu");
+	}
+
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
@@ -116,69 +232,6 @@ public class AbstractProvisioningTest extends TestCase {
 				repoMan.removeRepository(repo);
 			}
 			metadataRepos.clear();
-		}
-	}
-
-	public IDirector createDirector() {
-		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.class.getName());
-	}
-
-	public IPlanner createPlanner() {
-		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
-	}
-
-	public void printProfile(Profile toPrint) {
-		boolean containsIU = false;
-		for (Iterator iterator = toPrint.getInstallableUnits(); iterator.hasNext();) {
-			System.out.println(iterator.next());
-			containsIU = true;
-		}
-		if (!containsIU)
-			System.out.println("No iu");
-	}
-
-	public void assertEmptyProfile(Profile p) {
-		assertNotNull("The profile should not be null", p);
-		boolean containsIU = false;
-		for (Iterator iterator = p.getInstallableUnits(); iterator.hasNext();) {
-			containsIU = true;
-		}
-		if (containsIU)
-			fail("The profile should be empty,profileId=" + p);
-	}
-
-	protected void assertNotOK(IStatus result) {
-		assertTrue("The status should not have been OK", !result.isOK());
-	}
-
-	protected void assertOK(IStatus result) {
-		if (result.isOK())
-			return;
-
-		if (result instanceof MultiStatus) {
-			MultiStatus ms = (MultiStatus) result;
-			IStatus children[] = ms.getChildren();
-			for (int i = 0; i < children.length; i++) {
-				System.err.println(children[i]);
-			}
-		}
-
-		Throwable t = result.getException();
-		if (t != null)
-			t.printStackTrace();
-
-		fail(result.toString());
-	}
-
-	protected void assertNotIUs(IInstallableUnit[] ius, Iterator installableUnits) {
-		Set notexpected = new HashSet();
-		notexpected.addAll(Arrays.asList(ius));
-
-		while (installableUnits.hasNext()) {
-			IInstallableUnit next = (IInstallableUnit) installableUnits.next();
-			if (notexpected.contains(next)) {
-				fail("not expected [" + next + "]");
-			}
 		}
 	}
 }
