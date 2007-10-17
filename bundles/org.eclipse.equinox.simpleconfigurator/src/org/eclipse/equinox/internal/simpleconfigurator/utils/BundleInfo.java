@@ -14,48 +14,14 @@ package org.eclipse.equinox.internal.simpleconfigurator.utils;
  */
 public class BundleInfo {
 	public static final int NO_LEVEL = -1;
-	public static final int NO_BUNDLEID = -1;
 
 	private String symbolicName = null;
 	private String version = null;
 	private String location;
-	private long bundleId = NO_BUNDLEID;
 
 	private boolean markedAsStarted = false;
 	private int startLevel = NO_LEVEL;
 	private boolean resolved = false;
-
-	//	private Dictionary manifest;
-
-	public BundleInfo() {
-	}
-
-	public BundleInfo(String location) {
-		this.location = location.trim();
-	}
-
-	public BundleInfo(String location, boolean started) {
-		this.location = location.trim();
-		this.markedAsStarted = started;
-	}
-
-	public BundleInfo(String location, int startLevel) {
-		this.location = location.trim();
-		this.startLevel = startLevel;
-	}
-
-	public BundleInfo(String location, int startLevel, boolean started) {
-		this.location = location.trim();
-		this.startLevel = startLevel;
-		this.markedAsStarted = started;
-	}
-
-	public BundleInfo(String location, int startLevel, boolean started, long bundleId) {
-		this.location = location.trim();
-		this.startLevel = startLevel;
-		this.markedAsStarted = started;
-		this.bundleId = bundleId;
-	}
 
 	public BundleInfo(String symbolic, String version, String location, int startLevel, boolean started) {
 		this.symbolicName = symbolic;
@@ -112,34 +78,6 @@ public class BundleInfo {
 		return markedAsStarted;
 	}
 
-	public boolean isResolved() {
-		return resolved;
-	}
-
-	public void setLocation(String location) {
-		this.location = location.trim();
-	}
-
-	public void setMarkedAsStarted(boolean markedAsStarted) {
-		this.markedAsStarted = markedAsStarted;
-	}
-
-	public void setResolved(boolean resolved) {
-		this.resolved = resolved;
-	}
-
-	public void setStartLevel(int level) {
-		this.startLevel = level;
-	}
-
-	public void setSymbolicName(String symbolicName) {
-		this.symbolicName = symbolicName;
-	}
-
-	public void setVersion(String vertion) {
-		this.version = vertion;
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -160,17 +98,7 @@ public class BundleInfo {
 		buffer.append(markedAsStarted);
 		buffer.append(", resolved="); //$NON-NLS-1$
 		buffer.append(resolved);
-		buffer.append(", id="); //$NON-NLS-1$
-		buffer.append(this.bundleId);//		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();
-	}
-
-	public long getBundleId() {
-		return bundleId;
-	}
-
-	public void setBundleId(long bundleId) {
-		this.bundleId = bundleId;
 	}
 }
