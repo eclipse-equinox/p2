@@ -118,6 +118,80 @@ public class EclipseTouchpoint extends Touchpoint {
 			};
 		}
 
+		if (actionId.equals("setStartLevel")) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+					String startLevel = (String) parameters.get("startLevel");
+
+					BundleInfo bundleInfo = new BundleInfo();
+					initFromManifest(getManifest(iu.getTouchpointData()), bundleInfo);
+					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
+					for (int i = 0; i < bundles.length; i++) {
+						if (bundles[i].equals(bundleInfo)) {
+							bundles[i].setStartLevel(Integer.parseInt(startLevel));
+							break;
+						}
+					}
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+
+					BundleInfo bundleInfo = new BundleInfo();
+					initFromManifest(getManifest(iu.getTouchpointData()), bundleInfo);
+					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
+					for (int i = 0; i < bundles.length; i++) {
+						if (bundles[i].equals(bundleInfo)) {
+							bundles[i].setStartLevel(BundleInfo.NO_LEVEL); // memento support needed.
+							break;
+						}
+					}
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
+		if (actionId.equals("markStarted")) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+					String started = (String) parameters.get("started");
+
+					BundleInfo bundleInfo = new BundleInfo();
+					initFromManifest(getManifest(iu.getTouchpointData()), bundleInfo);
+					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
+					for (int i = 0; i < bundles.length; i++) {
+						if (bundles[i].equals(bundleInfo)) {
+							bundles[i].setMarkedAsStarted(Boolean.valueOf(started).booleanValue());
+							break;
+						}
+					}
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
+					IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+
+					BundleInfo bundleInfo = new BundleInfo();
+					initFromManifest(getManifest(iu.getTouchpointData()), bundleInfo);
+					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
+					for (int i = 0; i < bundles.length; i++) {
+						if (bundles[i].equals(bundleInfo)) {
+							bundles[i].setMarkedAsStarted(false); // memento support needed.
+							break;
+						}
+					}
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
 		if (actionId.equals("setFwDependentProp")) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
@@ -317,8 +391,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
 		Manipulator manipulator = (Manipulator) parameters.get("manipulator");
 		String bundleId = (String) parameters.get("bundle");
-		String startLevel = (String) parameters.get("startLevel");
-		String started = (String) parameters.get("markStarted");
 
 		//TODO: eventually remove this. What is a fragment doing here??
 		if (iu.isFragment()) {
@@ -352,12 +424,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		String manifest = getManifest(iu.getTouchpointData());
 
 		BundleInfo bundleInfo = createBundleInfo(bundleFile, manifest);
-
-		if (startLevel != null)
-			bundleInfo.setStartLevel(Integer.parseInt(startLevel));
-
-		if (started != null)
-			bundleInfo.setMarkedAsStarted(Boolean.valueOf(started).booleanValue());
 		manipulator.getConfigData().addBundle(bundleInfo);
 
 		return Status.OK_STATUS;
@@ -383,7 +449,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return bundleInfo;
 	}
 
-	private String getManifest(TouchpointData[] data) {
+	String getManifest(TouchpointData[] data) {
 		for (int i = 0; i < data.length; i++) {
 			String manifest = data[i].getInstructions("manifest");
 			if (manifest != null)

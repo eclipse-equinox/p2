@@ -219,8 +219,10 @@ public class MetadataGeneratorHelper {
 		cu.setTouchpointType(new TouchpointType(ECLIPSE_TOUCHPOINT, ECLIPSE_TOUCHPOINT_VERSION)); //TODO Is this necessary? I think we get that from the IU
 
 		Map touchpointData = new HashMap();
-		touchpointData.put("install", createConfigScript(configInfo, isBundleFragment));
-		touchpointData.put("uninstall", createUnconfigScript(configInfo, isBundleFragment));
+		touchpointData.put("install", "installBundle(bundle:${artifactId})");
+		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifactId})");
+		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment));
+		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment));
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 
 		return cu;
@@ -240,8 +242,10 @@ public class MetadataGeneratorHelper {
 		cu.setTouchpointType(new TouchpointType(ECLIPSE_TOUCHPOINT, ECLIPSE_TOUCHPOINT_VERSION)); //TODO Is this necessary? I think we get that from the IU
 		Map touchpointData = new HashMap();
 
-		touchpointData.put("install", createDefaultConfigScript(configInfo));
-		touchpointData.put("uninstall", createDefaultUnconfigScript(unconfigInfo));
+		touchpointData.put("install", "installBundle(bundle:${artifactId})");
+		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifactId})");
+		touchpointData.put("configure", createDefaultConfigScript(configInfo));
+		touchpointData.put("unconfigure", createDefaultUnconfigScript(unconfigInfo));
 
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		return cu;
@@ -259,14 +263,13 @@ public class MetadataGeneratorHelper {
 		if (configInfo == null)
 			return "";
 
-		String configScript = "installBundle(bundle:${artifactId}";//$NON-NLS-1$
+		String configScript = "";//$NON-NLS-1$
 		if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-			configScript += ", startLevel:" + configInfo.getStartLevel();
+			configScript += "setStartLevel(startLevel:" + configInfo.getStartLevel() + ");";
 		}
 		if (!isBundleFragment && configInfo.isMarkedAsStarted()) {
-			configScript += ", markStarted: true";
+			configScript += "markStarted(started: true);";
 		}
-		configScript += ");";
 
 		if (configInfo.getSpecialConfigCommands() != null) {
 			configScript += configInfo.getSpecialConfigCommands();
@@ -278,11 +281,16 @@ public class MetadataGeneratorHelper {
 	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
 		if (unconfigInfo == null)
 			return "";
-		String unconfigScript = "uninstallBundle(bundle:${artifactId}";//$NON-NLS-1$
-		if (unconfigInfo != null) {
-			if (unconfigInfo.getSpecialConfigCommands() != null) {
-				unconfigScript += unconfigInfo.getSpecialConfigCommands();
-			}
+		String unconfigScript = "";//$NON-NLS-1$
+		if (!isBundleFragment && unconfigInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
+			unconfigScript += "setStartLevel(startLevel:" + BundleInfo.NO_LEVEL + ");";
+		}
+		if (!isBundleFragment && unconfigInfo.isMarkedAsStarted()) {
+			unconfigScript += "markStarted(started: false);";
+		}
+
+		if (unconfigInfo.getSpecialConfigCommands() != null) {
+			unconfigScript += unconfigInfo.getSpecialConfigCommands();
 		}
 		return unconfigScript;
 

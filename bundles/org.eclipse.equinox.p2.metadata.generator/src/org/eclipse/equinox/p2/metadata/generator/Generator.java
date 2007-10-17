@@ -290,7 +290,9 @@ public class Generator {
 				configurationData += "addProgramArg(programArg:" + programArg + ");";
 			}
 		}
-		touchpointData.put("install", configurationData);
+		touchpointData.put("configure", configurationData);
+		//TODO: This unconfigure is clearly not right
+		touchpointData.put("unconfigure", configurationData);
 		iu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		return iu;
 	}
