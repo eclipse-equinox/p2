@@ -25,10 +25,4 @@
 		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.Multiplier"/>
 	</extension>
 
-	<extension
-			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
-			id="org.eclipse.equinox.p2.processing.Pack200Unpacker">
-		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.Pack200Unpacker"/>
-	</extension>
-
 </plugin>

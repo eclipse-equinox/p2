@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.Unpack200Step;
 import org.eclipse.equinox.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -120,7 +121,8 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testExecuteOnePack200UnpackerPS() throws IOException {
-		ProcessingStep[] steps = new ProcessingStep[] {new Pack200Unpacker()};
+		ProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true);
+		ProcessingStep[] steps = new ProcessingStep[] {handler.create(descriptor, null)};
 		ByteArrayOutputStream result = new ByteArrayOutputStream(100000);
 		OutputStream testStream = handler.link(steps, result, monitor);
 		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/jarprocessor.jar.pack.gz").openStream();
@@ -160,7 +162,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		ProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true);
 		ProcessingStep step = handler.create(descriptor, null);
 		assertNotNull(step);
-		assertEquals(Pack200Unpacker.class, step.getClass());
+		assertEquals(Unpack200Step.class, step.getClass());
 	}
 
 	public void testCreatePSsAndAssureOrderingOfPSs1() throws IOException {
