@@ -26,8 +26,8 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	// The list of post processing steps that must be applied one the artifact once it 
 	// has been downloaded (e.g, unpack, then md5 checksum, then...)
 	protected ProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
-
 	protected Map properties = new HashMap(2);
+	protected transient IArtifactRepository repository;
 
 	//QUESTION: Do we need any description or user readable name
 
@@ -35,6 +35,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		super();
 		key = base.getArtifactKey();
 		processingSteps = base.getProcessingSteps();
+		repository = base.getRepository();
 		// TODO figure out a better way to copy the properties
 		setProperty(IArtifactDescriptor.ARTIFACT_MD5, base.getProperty(IArtifactDescriptor.ARTIFACT_MD5));
 		setProperty(IArtifactDescriptor.ARTIFACT_SIZE, base.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
@@ -49,6 +50,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		key = base.key;
 		processingSteps = base.processingSteps;
 		properties = base.properties;
+		repository = base.repository;
 	}
 
 	public ArtifactDescriptor(IArtifactKey key) {
@@ -120,5 +122,13 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		result = prime * result + hashCode(processingSteps);
 		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 		return result;
+	}
+
+	public IArtifactRepository getRepository() {
+		return repository;
+	}
+
+	public void setRepository(IArtifactRepository value) {
+		repository = value;
 	}
 }

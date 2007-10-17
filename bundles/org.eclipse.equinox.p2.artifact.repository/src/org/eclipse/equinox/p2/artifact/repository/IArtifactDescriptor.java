@@ -42,4 +42,11 @@ public interface IArtifactDescriptor {
 	 */
 	public abstract ProcessingStepDescriptor[] getProcessingSteps();
 
+	/**
+	 * Return the artifact repository that holds the artifact described by this descriptor.
+	 * <code>null</code> is returned if this descriptor is not held in a repository.
+	 * 
+	 * @return the repository holding this artifact or <code>null</code> if none.
+	 */
+	public abstract IArtifactRepository getRepository();
 }

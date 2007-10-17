@@ -272,7 +272,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void addDescriptor(IArtifactDescriptor toAdd) {
+		// TODO perhaps the argument here should be ArtifactDescriptor.  IArtifactDescriptos are for 
+		// people who are reading the repo.
 		// TODO: here we may want to ensure that the artifact has not been added concurrently
+		((ArtifactDescriptor) toAdd).setRepository(this);
 		artifactDescriptors.add(toAdd);
 		save();
 	}
@@ -383,6 +386,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (mapper == null)
 			mapper = new Mapper();
 		mapper.initialize(Activator.getContext(), mappingRules);
+		for (Iterator i = artifactDescriptors.iterator(); i.hasNext();) {
+			((ArtifactDescriptor) i.next()).setRepository(this);
+		}
 	}
 
 	public void setSignatureVerification(boolean value) {
