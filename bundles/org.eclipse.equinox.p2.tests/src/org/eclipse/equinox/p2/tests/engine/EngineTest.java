@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import java.io.File;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -31,13 +31,31 @@ import org.osgi.framework.Version;
 public class EngineTest extends TestCase {
 	private ServiceReference engineRef;
 	private Engine engine;
+	private File testProvisioning;
 
 	public EngineTest(String name) {
 		super(name);
+		testProvisioning = new File(System.getProperty("java.io.tmpdir"), "testProvisioining");
+		deleteDirectory(testProvisioning);
+		testProvisioning.mkdir();
 	}
 
 	public EngineTest() {
-		super("");
+		this("");
+	}
+
+	private static boolean deleteDirectory(File directory) {
+		if (directory.exists() && directory.isDirectory()) {
+			File[] files = directory.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isDirectory()) {
+					deleteDirectory(files[i]);
+				} else {
+					files[i].delete();
+				}
+			}
+		}
+		return directory.delete();
 	}
 
 	protected void setUp() throws Exception {
@@ -122,7 +140,7 @@ public class EngineTest extends TestCase {
 	public void testPerformInstallOSGiFramework() {
 
 		Profile profile = new Profile("test");
-		profile.setValue(Profile.PROP_INSTALL_FOLDER, "c:/tmp/testProvisioning/");
+		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			InstallableUnit doomed = (InstallableUnit) it.next();
@@ -141,7 +159,7 @@ public class EngineTest extends TestCase {
 	public void testPerformUpdateOSGiFramework() {
 
 		Profile profile = new Profile("test");
-		profile.setValue(Profile.PROP_INSTALL_FOLDER, "c:/tmp/testProvisioning/");
+		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		Operand[] operands = new Operand[] {new Operand(createOSGiIU(), createOSGiIU())};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
@@ -153,7 +171,7 @@ public class EngineTest extends TestCase {
 	public void testPerformUninstallOSGiFramework() {
 
 		Profile profile = new Profile("test");
-		profile.setValue(Profile.PROP_INSTALL_FOLDER, "c:/tmp/testProvisioning/");
+		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		Operand[] operands = new Operand[] {new Operand(createOSGiIU(), null)};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
@@ -165,7 +183,7 @@ public class EngineTest extends TestCase {
 	public void testPerformRollback() {
 
 		Profile profile = new Profile("test");
-		profile.setValue(Profile.PROP_INSTALL_FOLDER, "c:/tmp/testProvisioning/");
+		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		Operand[] operands = new Operand[] {new Operand(null, createOSGiIU()), new Operand(null, createBadIU())};
@@ -187,16 +205,16 @@ public class EngineTest extends TestCase {
 				+ " undleresource;x-internal:=true,org.eclipse.osgi.framework.internal.pr\r\n" + " otocol.reference;x-internal:=true,org.eclipse.osgi.framework.internal\r\n" + " .reliablefile;x-internal:=true,org.eclipse.osgi.framework.launcher;x-\r\n" + " internal:=true,org.eclipse.osgi.framework.util;x-internal:=true,org.e\r\n" + " clipse.osgi.internal.baseadaptor;x-internal:=true,org.eclipse.osgi.in\r\n" + " ternal.module;x-internal:=true,org.eclipse.osgi.internal.profile;x-in\r\n" + " ternal:=true,org.eclipse.osgi.internal.resolver;x-internal:=true,org.\r\n" + " eclipse.osgi.internal.verifier;x-internal:=true,org.eclipse.osgi.inte\r\n" + " rnal.provisional.verifier;x-friends:=\"org.eclipse.update.core,org.ecl\r\n" + " ipse.ui.workbench\"\r\n" + "Bundle-Version: 3.3.0.v20060925\r\n"
 				+ "Eclipse-SystemBundle: true\r\n" + "Bundle-Copyright: %copyright\r\n" + "Bundle-Name: %systemBundle\r\n" + "Bundle-Description: %systemBundle\r\n" + "Bundle-DocUrl: http://www.eclipse.org\r\n" + "Bundle-ManifestVersion: 2\r\n" + "Export-Service: org.osgi.service.packageadmin.PackageAdmin,org.osgi.se\r\n" + " rvice.permissionadmin.PermissionAdmin,org.osgi.service.startlevel.Sta\r\n" + " rtLevel,org.eclipse.osgi.service.debug.DebugOptions\r\n" + "Bundle-Vendor: %eclipse.org\r\n" + "Main-Class: org.eclipse.core.runtime.adaptor.EclipseStarter\r\n" + "Bundle-SymbolicName: org.eclipse.osgi; singleton:=true\r\n" + "Bundle-Localization: systembundle\r\n" + "Eclipse-ExtensibleAPI: true\r\n" + "\r\n" + "";
 		touchpointData.put("manifest", manifest);
-		touchpointData.put("install", "installBundle(bundle:${artifactId});");
-		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifactId});");
+		//touchpointData.put("install", "installBundle(bundle:${artifactId});");
+		//touchpointData.put("uninstall", "uninstallBundle(bundle:${artifactId});");
 
 		IResolvedInstallableUnit[] cus = new IResolvedInstallableUnit[1];
 		InstallableUnitFragment tmp = new InstallableUnitFragment();
 		tmp.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		cus[0] = tmp.getResolved();
 
-		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
-		iu.setArtifacts(new IArtifactKey[] {key});
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		ResolvedInstallableUnit result = (ResolvedInstallableUnit) iu.getResolved();
 		result.setFragments(cus);
@@ -223,8 +241,8 @@ public class EngineTest extends TestCase {
 		tmp.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		cus[0] = tmp.getResolved();
 
-		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
-		iu.setArtifacts(new IArtifactKey[] {key});
+		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
+		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		ResolvedInstallableUnit result = (ResolvedInstallableUnit) iu.getResolved();
 		result.setFragments(cus);
