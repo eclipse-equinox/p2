@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.p2.ui.viewers;
 
+import java.text.NumberFormat;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -106,9 +107,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	private String getFormattedSize(long size) {
-		// TODO does not take locale separators into account
 		long kb = size / 1000L;
-		return Long.toString(kb);
+		return NumberFormat.getInstance().format(new Long(kb));
 	}
 
 	public void setToolTipProperty(String propertyName) {
