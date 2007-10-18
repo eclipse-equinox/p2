@@ -12,6 +12,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
@@ -86,17 +88,40 @@ public class Generator {
 		File[] locations = folder.listFiles();
 		ArrayList result = new ArrayList(locations.length);
 		for (int i = 0; i < locations.length; i++) {
-			FeatureParser parser = new FeatureParser();
-			try {
+			if (locations[i].isDirectory()) {
+				FeatureParser parser = new FeatureParser();
 				//skip directories that don't contain a feature.xml file
 				File file = new File(locations[i], "feature.xml"); //$NON-NLS-1$
-				if (file.exists())
-					result.add(parser.parse(file.toURL()));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				if (file.exists()) {
+					try {
+						Feature feature = parser.parse(file.toURL());
+						if (feature != null)
+							result.add(feature);
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				}
+			} else if (locations[i].getName().endsWith(".jar")) {
+				Feature feature = getFeatureFromJAR(locations[i]);
+				if (feature != null)
+					result.add(feature);
 			}
 		}
 		return (Feature[]) result.toArray(new Feature[result.size()]);
+	}
+
+	private Feature getFeatureFromJAR(File file) {
+		if (!file.exists())
+			return null;
+		FeatureParser parser = new FeatureParser();
+		try {
+			JarFile jar = new JarFile(file);
+			JarEntry entry = jar.getJarEntry("feature.xml");
+			return entry == null ? null : parser.parse(jar.getInputStream(entry));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	protected void generateFeatureIUs(Feature[] features, Set resultantIUs) {

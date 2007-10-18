@@ -51,22 +51,33 @@ public class FeatureParser extends DefaultHandler {
 	 */
 	public Feature parse(URL featureURL) {
 		result = null;
-		InputStream in = null;
+		url = featureURL;
 		try {
-			url = featureURL;
-			in = featureURL.openStream();
+			return parse(featureURL.openStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * Parse the given input stream and return a feature object
+	 * or null. This method closes the input stream.
+	 */
+	public Feature parse(InputStream in) {
+		result = null;
+		try {
 			parser.parse(new InputSource(in), this);
 		} catch (SAXException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			if (in != null)
-				try {
-					in.close();
-				} catch (IOException e1) {
-					//					Utils.log(e1.getLocalizedMessage());
-				}
+			try {
+				in.close();
+			} catch (IOException e1) {
+				//					Utils.log(e1.getLocalizedMessage());
+			}
 		}
 		return result;
 	}
@@ -161,7 +172,7 @@ public class FeatureParser extends DefaultHandler {
 			result.setEnvironment(os, ws, arch, nl);
 
 			//TODO rootURLs
-			if ("file".equals(url.getProtocol())) { //$NON-NLS-1$
+			if (url != null && "file".equals(url.getProtocol())) { //$NON-NLS-1$
 				File f = new File(url.getFile().replace('/', File.separatorChar));
 				result.setURL("features" + "/" + f.getParentFile().getName() + "/");// + f.getName()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			} else {
