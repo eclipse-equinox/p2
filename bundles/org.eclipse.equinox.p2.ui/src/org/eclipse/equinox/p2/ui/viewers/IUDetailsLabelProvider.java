@@ -99,10 +99,16 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		if (element instanceof AvailableIUElement) {
 			long size = ((AvailableIUElement) element).getSize();
 			if (size != AvailableIUElement.SIZE_UNKNOWN) {
-				return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, String.format("%,d", new Long[] {new Long(size / 1000L)})); //$NON-NLS-1$
+				return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, getFormattedSize(size));
 			}
 		}
 		return ProvUIMessages.IUDetailsLabelProvider_Unknown;
+	}
+
+	private String getFormattedSize(long size) {
+		// TODO does not take locale separators into account
+		long kb = size / 1000L;
+		return Long.toString(kb);
 	}
 
 	public void setToolTipProperty(String propertyName) {
