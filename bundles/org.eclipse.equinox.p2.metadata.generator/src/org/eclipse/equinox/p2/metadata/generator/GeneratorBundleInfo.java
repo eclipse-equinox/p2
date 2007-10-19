@@ -137,7 +137,8 @@ public class GeneratorBundleInfo extends BundleInfo {
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		String superSt = super.toString();
-		buffer.append(superSt.substring(superSt.length() - 1));
+		if (superSt.length() > 0)
+			buffer.append(superSt.substring(0, superSt.length() - 1));
 		buffer.append(", this.specialConfigCommands="); //$NON-NLS-1$
 		buffer.append(this.specialConfigCommands);
 		buffer.append(')');
