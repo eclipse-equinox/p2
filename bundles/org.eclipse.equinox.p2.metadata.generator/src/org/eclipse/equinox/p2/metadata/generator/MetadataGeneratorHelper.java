@@ -25,181 +25,68 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
 public class MetadataGeneratorHelper {
-	private static final String ECLIPSE_EXTENSIBLE_API = "Eclipse-ExtensibleAPI"; //$NON-NLS-1$
+	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnitConstants.NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnitConstants.DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnitConstants.PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnitConstants.CONTACT, Constants.BUNDLE_COPYRIGHT, IInstallableUnitConstants.COPYRIGHT, Constants.BUNDLE_DOCURL, IInstallableUnitConstants.DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnitConstants.UPDATE_SITE};
 
 	private static final String CAPABILITY_TYPE_OSGI_PACKAGES = "osgi.packages"; //$NON-NLS-1$
 
-	private static final Version versionMax = new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+	private static final Version DEFAULT_JRE_VERSION = new Version("1.5"); //$NON-NLS-1$
 
-	private static final String ECLIPSE_TOUCHPOINT = "eclipse"; //$NON-NLS-1$
-	private static final Version ECLIPSE_TOUCHPOINT_VERSION = new Version(1, 0, 0);
-
-	private static final String NATIVE_TOUCHPOINT = "native"; //$NON-NLS-1$
-	private static final Version NATIVE_TOUCHPOINT_VERSION = new Version(1, 0, 0);
-
-	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
 	private static final String ECLIPSE_ARTIFACT_CLASSIFIER = "plugin"; //$NON-NLS-1$
+	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
+
+	private static final String ECLIPSE_EXTENSIBLE_API = "Eclipse-ExtensibleAPI"; //$NON-NLS-1$
+	private static final String ECLIPSE_TOUCHPOINT = "eclipse"; //$NON-NLS-1$
+
+	private static final Version ECLIPSE_TOUCHPOINT_VERSION = new Version(1, 0, 0);
+	private static final String IU_NAMESPACE = IInstallableUnit.IU_NAMESPACE;
 
 	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
 
 	//TODO - need to come up with a way to infer launcher version
 	private static final Version LAUNCHER_VERSION = new Version(1, 0, 0);
-	private static final String IU_NAMESPACE = IInstallableUnit.IU_NAMESPACE;
+	private static final String NATIVE_TOUCHPOINT = "native"; //$NON-NLS-1$
 
-	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnitConstants.NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnitConstants.DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnitConstants.PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnitConstants.CONTACT, Constants.BUNDLE_COPYRIGHT, IInstallableUnitConstants.COPYRIGHT, Constants.BUNDLE_DOCURL, IInstallableUnitConstants.DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnitConstants.UPDATE_SITE};
+	private static final Version NATIVE_TOUCHPOINT_VERSION = new Version(1, 0, 0);
 
-	private static final Version DEFAULT_JRE_VERSION = new Version("1.5"); //$NON-NLS-1$
+	private static final Version versionMax = new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-	/**
-	 * Creates IUs and artifact descriptors for the JRE, and adds them to the given sets.
-	 * if the jreLocation is <code>null</code>, default information is generated.
-	 */
-	public static void createJREData(File jreLocation, Set resultantIUs, Set resultantArtifactDescriptors) {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setSingleton(false);
-		iu.setId("a.jre"); //$NON-NLS-1$
-		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
-
-		InstallableUnitFragment cu = new InstallableUnitFragment();
-		cu.setId("config." + iu.getId()); //$NON-NLS-1$
-		cu.setVersion(iu.getVersion());
-		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
-		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
-		Map touchpointData = new HashMap();
-
-		if (jreLocation == null || !jreLocation.exists()) {
-			//set some reasonable defaults
-			iu.setVersion(DEFAULT_JRE_VERSION);
-			iu.setCapabilities(generateJRECapability(null));
-			resultantIUs.add(iu);
-
-			touchpointData.put("install", "");
-			cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-			resultantIUs.add(cu);
-			return;
-		}
-		generateJREIUData(iu, jreLocation);
-
-		//Generate artifact for JRE
-		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, iu.getId(), iu.getVersion());
-		iu.setArtifacts(new IArtifactKey[] {key});
-		resultantIUs.add(iu);
-
-		//Create config info for the CU
-		String configurationData = "unzip(source:@artifact, target:${installFolder});";
-		touchpointData.put("install", configurationData);
-		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		resultantIUs.add(cu);
-
-		//Create the artifact descriptor
-		IArtifactDescriptor descriptor = createArtifactDescriptor(key, jreLocation, false, true);
-		resultantArtifactDescriptors.add(descriptor);
+	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
+		//TODO this size calculation is bogus
+		ArtifactDescriptor result = new ArtifactDescriptor(key);
+		if (pathOnDisk != null)
+			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
+		return result;
 	}
 
-	private static void generateJREIUData(InstallableUnit iu, File jreLocation) {
-		//Look for a JRE profile file to set version and capabilities
-		File[] profiles = jreLocation.listFiles(new FileFilter() {
-			public boolean accept(File pathname) {
-				return pathname.getAbsolutePath().endsWith(".profile"); //$NON-NLS-1$
-			}
-		});
-		if (profiles.length != 1) {
-			iu.setVersion(DEFAULT_JRE_VERSION);
-			iu.setCapabilities(generateJRECapability(null));
-			return;
+	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
+		if (configInfo == null)
+			return "";
+
+		String configScript = "";//$NON-NLS-1$
+		if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
+			configScript += "setStartLevel(startLevel:" + configInfo.getStartLevel() + ");";
 		}
-		String profileName = profiles[0].getAbsolutePath().substring(profiles[0].getAbsolutePath().lastIndexOf('/'));
-		Version version = DEFAULT_JRE_VERSION;
-		//TODO Find a better way to determine JRE version
-		if (profileName.indexOf("1.5") > 0) { //$NON-NLS-1$
-			version = new Version("1.5"); //$NON-NLS-1$
-		} else if (profileName.indexOf("1.4") > 0) { //$NON-NLS-1$
-			version = new Version("1.4"); //$NON-NLS-1$
+		if (!isBundleFragment && configInfo.isMarkedAsStarted()) {
+			configScript += "markStarted(started: true);";
 		}
-		iu.setVersion(version);
-		try {
-			iu.setCapabilities(generateJRECapability(new FileInputStream(profiles[0])));
-		} catch (FileNotFoundException e) {
-			//Shouldn't happen, but ignore and fall through to use default
+
+		if (configInfo.getSpecialConfigCommands() != null) {
+			configScript += configInfo.getSpecialConfigCommands();
 		}
+
+		return configScript;
 	}
 
-	/**
-	 * Creates IUs and artifacts for the Launcher executable, and adds them to the given
-	 * sets.
-	 */
-	public static void createLauncherData(File launcher, String configurationFlavor, Set resultantIUs, Set resultantArtifactDescriptors) {
-		if (launcher == null || !launcher.exists())
-			return;
-
-		//Create the IU
-		InstallableUnit iu = new InstallableUnit();
-		iu.setSingleton(true);
-		String launcherId = LAUNCHER_ID_PREFIX + '_' + launcher.getName();
-		iu.setId(launcherId);
-		iu.setVersion(LAUNCHER_VERSION);
-
-		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION);
-		iu.setArtifacts(new IArtifactKey[] {key});
-		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, new Version(1, 0, 0)));
-		resultantIUs.add(iu);
-
-		//Create the CU
-		InstallableUnitFragment cu = new InstallableUnitFragment();
-		cu.setId(configurationFlavor + iu.getId());
-		cu.setVersion(iu.getVersion());
-		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
-
-		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
-		Map touchpointData = new HashMap();
-		String configurationData = "unzip(source:@artifact, target:${installFolder});";
-		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
-		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
-			// FIXME:  is this correct?  do all non-Windows platforms need execute permissions on the launcher?
-			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
-		touchpointData.put("install", configurationData);
-		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		resultantIUs.add(cu);
-
-		//Create the artifact descriptor
-		IArtifactDescriptor descriptor = createArtifactDescriptor(new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION), launcher, false, true);
-		resultantArtifactDescriptors.add(descriptor);
+	private static String createDefaultConfigScript(GeneratorBundleInfo configInfo) {
+		return createConfigScript(configInfo, false);
 	}
 
-	private static ProvidedCapability[] generateJRECapability(InputStream profileStream) {
-		if (profileStream == null) {
-			//use the 1.5 profile stored in the generator bundle
-			try {
-				profileStream = Activator.getContext().getBundle().getEntry("J2SE-1.5.profile").openStream();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		Properties p = new Properties();
-		try {
-			p.load(profileStream);
-			ManifestElement[] jrePackages = ManifestElement.parseHeader("org.osgi.framework.system.packages", (String) p.get("org.osgi.framework.system.packages"));
-			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length];
-			for (int i = 0; i < jrePackages.length; i++) {
-				exportedPackageAsCapabilities[i] = new ProvidedCapability("osgi.packages", jrePackages[i].getValue(), null);
-			}
-			return exportedPackageAsCapabilities;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (BundleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (profileStream != null) {
-				try {
-					profileStream.close();
-				} catch (IOException e) {
-					//ignore secondary failure
-				}
-			}
-		}
-		return new ProvidedCapability[0];
+	private static String createDefaultUnconfigScript(GeneratorBundleInfo unconfigInfo) {
+		return createUnconfigScript(unconfigInfo, false);
+	}
+
+	public static IArtifactKey createEclipseArtifactKey(String bsn, String version) {
+		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_ARTIFACT_CLASSIFIER, bsn, new Version(version));
 	}
 
 	public static IInstallableUnit createEclipseConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor) {
@@ -210,7 +97,7 @@ public class MetadataGeneratorHelper {
 		cu.setId(configurationFlavor + iuId);
 		cu.setVersion(iuVersion);
 
-		//Indicate the IU to which this CU apply 
+		//Indicate the IU to which this CU apply
 		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
 
 		//Add a capability describing the flavor supported
@@ -249,72 +136,6 @@ public class MetadataGeneratorHelper {
 
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 		return cu;
-	}
-
-	private static String createDefaultConfigScript(GeneratorBundleInfo configInfo) {
-		return createConfigScript(configInfo, false);
-	}
-
-	private static String createDefaultUnconfigScript(GeneratorBundleInfo unconfigInfo) {
-		return createUnconfigScript(unconfigInfo, false);
-	}
-
-	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
-		if (configInfo == null)
-			return "";
-
-		String configScript = "";//$NON-NLS-1$
-		if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-			configScript += "setStartLevel(startLevel:" + configInfo.getStartLevel() + ");";
-		}
-		if (!isBundleFragment && configInfo.isMarkedAsStarted()) {
-			configScript += "markStarted(started: true);";
-		}
-
-		if (configInfo.getSpecialConfigCommands() != null) {
-			configScript += configInfo.getSpecialConfigCommands();
-		}
-
-		return configScript;
-	}
-
-	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
-		if (unconfigInfo == null)
-			return "";
-		String unconfigScript = "";//$NON-NLS-1$
-		if (!isBundleFragment && unconfigInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-			unconfigScript += "setStartLevel(startLevel:" + BundleInfo.NO_LEVEL + ");";
-		}
-		if (!isBundleFragment && unconfigInfo.isMarkedAsStarted()) {
-			unconfigScript += "markStarted(started: false);";
-		}
-
-		if (unconfigInfo.getSpecialUnconfigCommands() != null) {
-			unconfigScript += unconfigInfo.getSpecialUnconfigCommands();
-		}
-		return unconfigScript;
-
-	}
-
-	private static boolean requireAFragment(BundleDescription bd, Map manifest) {
-		if (manifest == null)
-			return false;
-		if (manifest.get(ECLIPSE_EXTENSIBLE_API) == null)
-			return false;
-		if (bd.getSymbolicName().equals("org.eclipse.osgi")) //Special case for OSGi
-			return false;
-		String classpath = (String) ((Map) bd.getUserObject()).get(Constants.BUNDLE_CLASSPATH);
-		if (classpath == null)
-			return true;
-		ManifestElement[] classpathEntries;
-		try {
-			classpathEntries = ManifestElement.parseHeader(Constants.BUNDLE_CLASSPATH, classpath);
-			if (classpathEntries.length != 0 && classpathEntries[0].getValue().equals("."))
-				return true;
-		} catch (BundleException e) {
-			//If we are here, it is that we have already parsed the bundle manifest and it contains no error 
-		}
-		return false;
 	}
 
 	public static IInstallableUnit createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
@@ -397,6 +218,219 @@ public class MetadataGeneratorHelper {
 		return iu;
 	}
 
+	public static IInstallableUnit createGroupIU(Feature feature) {
+		InstallableUnit iu = new InstallableUnit();
+		iu.setId(getTransformedId(feature.getId(), false));
+		iu.setVersion(new Version(feature.getVersion()));
+		iu.setProperty(IInstallableUnitConstants.UPDATE_FROM, iu.getId());
+		iu.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
+
+		FeatureEntry entries[] = feature.getEntries();
+		RequiredCapability[] required = new RequiredCapability[entries.length];
+		for (int i = 0; i < entries.length; i++) {
+			VersionRange range = getVersionRange(entries[i]);
+			required[i] = new RequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin()), range, getFilter(entries[i]), entries[i].isOptional(), false);
+		}
+		iu.setRequiredCapabilities(required);
+		iu.setTouchpointType(TouchpointType.NONE);
+		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
+		iu.setCapabilities(new ProvidedCapability[] {groupCapability});
+		return iu;
+	}
+
+	/**
+	 * Creates IUs and artifact descriptors for the JRE, and adds them to the given sets.
+	 * if the jreLocation is <code>null</code>, default information is generated.
+	 */
+	public static void createJREData(File jreLocation, Set resultantIUs, Set resultantArtifactDescriptors) {
+		InstallableUnit iu = new InstallableUnit();
+		iu.setSingleton(false);
+		iu.setId("a.jre"); //$NON-NLS-1$
+		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+
+		InstallableUnitFragment cu = new InstallableUnitFragment();
+		cu.setId("config." + iu.getId()); //$NON-NLS-1$
+		cu.setVersion(iu.getVersion());
+		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
+		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+		Map touchpointData = new HashMap();
+
+		if (jreLocation == null || !jreLocation.exists()) {
+			//set some reasonable defaults
+			iu.setVersion(DEFAULT_JRE_VERSION);
+			iu.setCapabilities(generateJRECapability(null));
+			resultantIUs.add(iu);
+
+			touchpointData.put("install", "");
+			cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
+			resultantIUs.add(cu);
+			return;
+		}
+		generateJREIUData(iu, jreLocation);
+
+		//Generate artifact for JRE
+		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, iu.getId(), iu.getVersion());
+		iu.setArtifacts(new IArtifactKey[] {key});
+		resultantIUs.add(iu);
+
+		//Create config info for the CU
+		String configurationData = "unzip(source:@artifact, target:${installFolder});";
+		touchpointData.put("install", configurationData);
+		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
+		resultantIUs.add(cu);
+
+		//Create the artifact descriptor
+		IArtifactDescriptor descriptor = createArtifactDescriptor(key, jreLocation, false, true);
+		resultantArtifactDescriptors.add(descriptor);
+	}
+
+	/**
+	 * Creates IUs and artifacts for the Launcher executable, and adds them to the given
+	 * sets.
+	 */
+	public static void createLauncherData(File launcher, String configurationFlavor, Set resultantIUs, Set resultantArtifactDescriptors) {
+		if (launcher == null || !launcher.exists())
+			return;
+
+		//Create the IU
+		InstallableUnit iu = new InstallableUnit();
+		iu.setSingleton(true);
+		String launcherId = LAUNCHER_ID_PREFIX + '_' + launcher.getName();
+		iu.setId(launcherId);
+		iu.setVersion(LAUNCHER_VERSION);
+
+		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION);
+		iu.setArtifacts(new IArtifactKey[] {key});
+		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, new Version(1, 0, 0)));
+		resultantIUs.add(iu);
+
+		//Create the CU
+		InstallableUnitFragment cu = new InstallableUnitFragment();
+		cu.setId(configurationFlavor + iu.getId());
+		cu.setVersion(iu.getVersion());
+		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
+
+		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+		Map touchpointData = new HashMap();
+		String configurationData = "unzip(source:@artifact, target:${installFolder});";
+		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
+			// FIXME:  is this correct?  do all non-Windows platforms need execute permissions on the launcher?
+			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
+		touchpointData.put("install", configurationData);
+		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
+		resultantIUs.add(cu);
+
+		//Create the artifact descriptor
+		IArtifactDescriptor descriptor = createArtifactDescriptor(new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION), launcher, false, true);
+		resultantArtifactDescriptors.add(descriptor);
+	}
+
+	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
+		if (unconfigInfo == null)
+			return "";
+		String unconfigScript = "";//$NON-NLS-1$
+		if (!isBundleFragment && unconfigInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
+			unconfigScript += "setStartLevel(startLevel:" + BundleInfo.NO_LEVEL + ");";
+		}
+		if (!isBundleFragment && unconfigInfo.isMarkedAsStarted()) {
+			unconfigScript += "markStarted(started: false);";
+		}
+
+		if (unconfigInfo.getSpecialUnconfigCommands() != null) {
+			unconfigScript += unconfigInfo.getSpecialUnconfigCommands();
+		}
+		return unconfigScript;
+
+	}
+
+	private static ProvidedCapability[] generateJRECapability(InputStream profileStream) {
+		if (profileStream == null) {
+			//use the 1.5 profile stored in the generator bundle
+			try {
+				profileStream = Activator.getContext().getBundle().getEntry("J2SE-1.5.profile").openStream();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		Properties p = new Properties();
+		try {
+			p.load(profileStream);
+			ManifestElement[] jrePackages = ManifestElement.parseHeader("org.osgi.framework.system.packages", (String) p.get("org.osgi.framework.system.packages"));
+			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length];
+			for (int i = 0; i < jrePackages.length; i++) {
+				exportedPackageAsCapabilities[i] = new ProvidedCapability("osgi.packages", jrePackages[i].getValue(), null);
+			}
+			return exportedPackageAsCapabilities;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (BundleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (profileStream != null) {
+				try {
+					profileStream.close();
+				} catch (IOException e) {
+					//ignore secondary failure
+				}
+			}
+		}
+		return new ProvidedCapability[0];
+	}
+
+	private static void generateJREIUData(InstallableUnit iu, File jreLocation) {
+		//Look for a JRE profile file to set version and capabilities
+		File[] profiles = jreLocation.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getAbsolutePath().endsWith(".profile"); //$NON-NLS-1$
+			}
+		});
+		if (profiles.length != 1) {
+			iu.setVersion(DEFAULT_JRE_VERSION);
+			iu.setCapabilities(generateJRECapability(null));
+			return;
+		}
+		String profileName = profiles[0].getAbsolutePath().substring(profiles[0].getAbsolutePath().lastIndexOf('/'));
+		Version version = DEFAULT_JRE_VERSION;
+		//TODO Find a better way to determine JRE version
+		if (profileName.indexOf("1.5") > 0) { //$NON-NLS-1$
+			version = new Version("1.5"); //$NON-NLS-1$
+		} else if (profileName.indexOf("1.4") > 0) { //$NON-NLS-1$
+			version = new Version("1.4"); //$NON-NLS-1$
+		}
+		iu.setVersion(version);
+		try {
+			iu.setCapabilities(generateJRECapability(new FileInputStream(profiles[0])));
+		} catch (FileNotFoundException e) {
+			//Shouldn't happen, but ignore and fall through to use default
+		}
+	}
+
+	public static String getFilter(FeatureEntry entry) {
+		StringBuffer result = new StringBuffer();
+		result.append("(&"); //$NON-NLS-1$
+		if (entry.getFilter() != null)
+			result.append(entry.getFilter());
+		if (entry.getOS() != null)
+			result.append("(osgi.os=" + entry.getOS() + ')');//$NON-NLS-1$
+		if (entry.getWS() != null)
+			result.append("(osgi.ws=" + entry.getWS() + ')');//$NON-NLS-1$
+		if (entry.getArch() != null)
+			result.append("(osgi.arch=" + entry.getArch() + ')');//$NON-NLS-1$
+		if (entry.getNL() != null)
+			result.append("(osgi.nl=" + entry.getNL() + ')');//$NON-NLS-1$
+		if (result.length() == 2)
+			return null;
+		result.append(')');
+		return result.toString();
+	}
+
+	private static String getTransformedId(String original, boolean isPlugin) {
+		return isPlugin ? original : original + ".featureIU";
+	}
+
 	public static VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
@@ -424,52 +458,30 @@ public class MetadataGeneratorHelper {
 		return null;
 	}
 
-	private static String getTransformedId(String original, boolean isPlugin) {
-		return isPlugin ? original : original + ".featureIU";
-	}
-
-	public static IInstallableUnit createGroupIU(Feature feature) {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId(getTransformedId(feature.getId(), false));
-		iu.setVersion(new Version(feature.getVersion()));
-		iu.setProperty(IInstallableUnitConstants.UPDATE_FROM, iu.getId());
-		iu.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
-
-		FeatureEntry entries[] = feature.getEntries();
-		RequiredCapability[] required = new RequiredCapability[entries.length];
-		for (int i = 0; i < entries.length; i++) {
-			VersionRange range = getVersionRange(entries[i]);
-			required[i] = new RequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin()), range, getFilter(entries[i]), entries[i].isOptional(), false);
-		}
-		iu.setRequiredCapabilities(required);
-		iu.setTouchpointType(TouchpointType.NONE);
-		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
-		iu.setCapabilities(new ProvidedCapability[] {groupCapability});
-		return iu;
-	}
-
-	public static String getFilter(FeatureEntry entry) {
-		StringBuffer result = new StringBuffer();
-		result.append("(&"); //$NON-NLS-1$
-		if (entry.getFilter() != null)
-			result.append(entry.getFilter());
-		if (entry.getOS() != null)
-			result.append("(osgi.os=" + entry.getOS() + ')');//$NON-NLS-1$
-		if (entry.getWS() != null)
-			result.append("(osgi.ws=" + entry.getWS() + ')');//$NON-NLS-1$
-		if (entry.getArch() != null)
-			result.append("(osgi.arch=" + entry.getArch() + ')');//$NON-NLS-1$
-		if (entry.getNL() != null)
-			result.append("(osgi.nl=" + entry.getNL() + ')');//$NON-NLS-1$
-		if (result.length() == 2)
-			return null;
-		result.append(')');
-		return result.toString();
-	}
-
 	private static boolean isOptional(ImportPackageSpecification importedPackage) {
 		if (importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_DYNAMIC) || importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL))
 			return true;
+		return false;
+	}
+
+	private static boolean requireAFragment(BundleDescription bd, Map manifest) {
+		if (manifest == null)
+			return false;
+		if (manifest.get(ECLIPSE_EXTENSIBLE_API) == null)
+			return false;
+		if (bd.getSymbolicName().equals("org.eclipse.osgi")) //Special case for OSGi
+			return false;
+		String classpath = (String) ((Map) bd.getUserObject()).get(Constants.BUNDLE_CLASSPATH);
+		if (classpath == null)
+			return true;
+		ManifestElement[] classpathEntries;
+		try {
+			classpathEntries = ManifestElement.parseHeader(Constants.BUNDLE_CLASSPATH, classpath);
+			if (classpathEntries.length != 0 && classpathEntries[0].getValue().equals("."))
+				return true;
+		} catch (BundleException e) {
+			//If we are here, it is that we have already parsed the bundle manifest and it contains no error 
+		}
 		return false;
 	}
 
@@ -483,17 +495,5 @@ public class MetadataGeneratorHelper {
 			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n');
 		}
 		return result.toString();
-	}
-
-	public static IArtifactKey createEclipseArtifactKey(String bsn, String version) {
-		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_ARTIFACT_CLASSIFIER, bsn, new Version(version));
-	}
-
-	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
-		//TODO this size calculation is bogus
-		ArtifactDescriptor result = new ArtifactDescriptor(key);
-		if (pathOnDisk != null)
-			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
-		return result;
 	}
 }
