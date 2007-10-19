@@ -214,7 +214,7 @@ public class Generator {
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 			}
-			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+			InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
 			if (cu != null)
 				resultantIUs.add(cu);
 		}
@@ -225,7 +225,10 @@ public class Generator {
 				InstallableUnit configuredIU = getIU(resultantIUs, bundle.getSymbolicName());
 				if (configuredIU != null)
 					bundle.setVersion(configuredIU.getVersion().toString());
-				IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+				InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+				//the configuration unit should share the same platform filter as the IU being configured.
+				if (configuredIU != null)
+					cu.setFilter(configuredIU.getFilter());
 				if (cu != null)
 					resultantIUs.add(cu);
 			}
@@ -264,26 +267,27 @@ public class Generator {
 	}
 
 	protected InstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setSingleton(true);
-		iu.setId(configurationIdentification);
-		iu.setVersion(new Version(configurationVersion));
+		InstallableUnit root = new InstallableUnit();
+		root.setSingleton(true);
+		root.setId(configurationIdentification);
+		root.setVersion(new Version(configurationVersion));
 
 		ArrayList reqsConfigurationUnits = new ArrayList(resultantIUs.size());
 		for (Iterator iterator = resultantIUs.iterator(); iterator.hasNext();) {
-			InstallableUnit tmp = (InstallableUnit) iterator.next();
-			reqsConfigurationUnits.add(RequiredCapability.createRequiredCapabilityForName(tmp.getId(), new VersionRange(tmp.getVersion(), true, tmp.getVersion(), true), false));
+			InstallableUnit iu = (InstallableUnit) iterator.next();
+			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.IU_NAMESPACE, iu.getId(), range, iu.getFilter(), false, false));
 		}
-		iu.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
-		iu.setApplicabilityFilter("");
-		iu.setArtifacts(new IArtifactKey[0]);
+		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
+		root.setApplicabilityFilter("");
+		root.setArtifacts(new IArtifactKey[0]);
 
-		iu.setProperty("lineUp", "true");
-		iu.setProperty(IInstallableUnitConstants.UPDATE_FROM, configurationIdentification);
-		iu.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
+		root.setProperty("lineUp", "true");
+		root.setProperty(IInstallableUnitConstants.UPDATE_FROM, configurationIdentification);
+		root.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
 		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
-		iu.setCapabilities(new ProvidedCapability[] {groupCapability});
-		iu.setTouchpointType(new TouchpointType("eclipse", ECLIPSE_TOUCHPOINT_VERSION));
+		root.setCapabilities(new ProvidedCapability[] {groupCapability});
+		root.setTouchpointType(new TouchpointType("eclipse", ECLIPSE_TOUCHPOINT_VERSION));
 		Map touchpointData = new HashMap();
 
 		String configurationData = "";
@@ -328,8 +332,8 @@ public class Generator {
 		}
 		touchpointData.put("configure", configurationData);
 		touchpointData.put("unconfigure", unconfigurationData);
-		iu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		return iu;
+		root.setImmutableTouchpointData(new TouchpointData(touchpointData));
+		return root;
 	}
 
 	// Put the artifact on the server
