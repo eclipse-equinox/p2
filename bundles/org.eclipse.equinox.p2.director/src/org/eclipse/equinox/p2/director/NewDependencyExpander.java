@@ -110,6 +110,10 @@ public class NewDependencyExpander {
 			optionalReqs = generateOptionalReqs;
 		}
 
+		public String getFilter() {
+			return wrapped.getFilter();
+		}
+
 		public String getId() {
 			return wrapped.getId();
 		}
@@ -142,7 +146,7 @@ public class NewDependencyExpander {
 			ArrayList result = new ArrayList();
 			ProvidedCapability[] caps = wrapped.getProvidedCapabilities();
 			for (int i = 0; i < caps.length; i++) {
-				result.add(new RequiredCapability(caps[i].getNamespace(), caps[i].getName(), new VersionRange(caps[i].getVersion(), true, caps[i].getVersion(), true), null, optionalReqs, false));
+				result.add(new RequiredCapability(caps[i].getNamespace(), caps[i].getName(), new VersionRange(caps[i].getVersion(), true, caps[i].getVersion(), true), wrapped.getFilter(), optionalReqs, false));
 			}
 			result.addAll(Arrays.asList(wrapped.getRequiredCapabilities()));
 			return (RequiredCapability[]) result.toArray(new RequiredCapability[result.size()]);
@@ -412,7 +416,7 @@ public class NewDependencyExpander {
 			RequiredCapability[] toAdd = currentUnit.getRequiredCapabilities();
 			outer: for (int i = 0; i < toAdd.length; i++) {
 				RequiredCapability current = toAdd[i];
-				if (!isMeta(current)) {
+				if (isApplicable(current) && !isMeta(current)) {
 					MatchKey key = new MatchKey(current);
 					List match = (List) must.get(key);
 					if (match == null) {
@@ -425,7 +429,7 @@ public class NewDependencyExpander {
 							VersionRange newRange = intersect(currentMatch.req.getRange(), current.getRange());
 							if (newRange != null) {
 								//merge version range and environment with existing match
-								currentMatch.req = new RequiredCapability(current.getNamespace(), current.getName(), newRange, null, currentMatch.req.isOptional() && current.isOptional(), false);
+								currentMatch.req = new RequiredCapability(current.getNamespace(), current.getName(), newRange, current.getFilter(), currentMatch.req.isOptional() && current.isOptional(), false);
 								currentMatch.env = mergeEnvironments(currentMatch.env, current);
 								continue outer;
 							}
