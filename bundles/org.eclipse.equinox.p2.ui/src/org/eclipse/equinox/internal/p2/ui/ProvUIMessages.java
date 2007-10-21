@@ -37,6 +37,7 @@ public class ProvUIMessages extends NLS {
 	public static String IUPropertiesGroup_DescriptionProperty;
 	public static String IUPropertiesGroup_LicenseProperty;
 	public static String IUDetailsLabelProvider_KB;
+	public static String IUDetailsLabelProvider_Bytes;
 	public static String IUDetailsLabelProvider_Unknown;
 	public static String IUPropertiesGroup_NameProperty;
 	public static String IUPropertiesGroup_ProviderProperty;
