@@ -53,8 +53,11 @@ public class MetadataGeneratorHelper {
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
 		//TODO this size calculation is bogus
 		ArtifactDescriptor result = new ArtifactDescriptor(key);
-		if (pathOnDisk != null)
+		if (pathOnDisk != null) {
 			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, Long.toString(pathOnDisk.length()));
+			// TODO - this is wrong but I'm testing a work-around for bug 205842
+			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+		}
 		return result;
 	}
 
