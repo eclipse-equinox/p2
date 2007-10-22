@@ -52,6 +52,7 @@ public class Application implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
+		long time = -System.currentTimeMillis();
 		Map args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args"));
 
@@ -111,8 +112,9 @@ public class Application implements IApplication {
 			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.p2.director.test", "The installable unit '" + root + "' has not been found");
 		}
 
+		time += System.currentTimeMillis();
 		if (operationStatus.isOK()) {
-			System.out.println((install ? "installation" : "uninstallation") + " complete");
+			System.out.println((install ? "installation" : "uninstallation") + " complete (" + time + "ms)");
 		} else {
 			System.out.println((install ? "installation" : "uninstallation") + " failed. " + operationStatus);
 			LogHelper.log(operationStatus);
