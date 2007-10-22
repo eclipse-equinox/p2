@@ -13,8 +13,6 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.*;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
-import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor;
@@ -24,14 +22,12 @@ import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
  * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.   
  */
 public class Unpack200Step extends ProcessingStep {
-	private final static String PACKED_EXT = Utils.JAR_SUFFIX + Utils.PACKED_SUFFIX;
+	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
+	public static final String JAR_SUFFIX = ".jar"; //$NON-NLS-1$
+	private final static String PACKED_EXT = JAR_SUFFIX + PACKED_SUFFIX;
 
 	private File packed;
 	private OutputStream tempStream;
-
-	public boolean areRequirementsSatisfied() {
-		return UnpackStep.canUnpack();
-	}
 
 	public void write(int b) throws IOException {
 		OutputStream stream = getOutputStream();
@@ -75,7 +71,7 @@ public class Unpack200Step extends ProcessingStep {
 
 			// now write the unpacked content to our destination
 			String packedFileName = packed.getName();
-			unpacked = new File(workDir, packedFileName.substring(0, packedFileName.length() - Utils.PACKED_SUFFIX.length()));
+			unpacked = new File(workDir, packedFileName.substring(0, packedFileName.length() - PACKED_SUFFIX.length()));
 			unpackedStream = new BufferedInputStream(new FileInputStream(unpacked));
 			FileUtils.copyStream(unpackedStream, true, destination, false);
 			unpackedStream = null;
