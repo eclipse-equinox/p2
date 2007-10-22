@@ -28,7 +28,6 @@ import org.osgi.framework.Version;
 
 public class Generator {
 
-	private static final Version ECLIPSE_TOUCHPOINT_VERSION = new Version(1, 0, 0);
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator";
 	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator";
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
@@ -168,35 +167,148 @@ public class Generator {
 	protected void generateNativeIUs(File executableLocation, Set resultantIUs, IArtifactRepository destination) {
 		if (executableLocation == null)
 			return;
-		HashSet newArtifacts = new HashSet();
 
 		//generate data for JRE
-		File jreLocation = new File(executableLocation.getParentFile(), "jre");
-		MetadataGeneratorHelper.createJREData(jreLocation, resultantIUs, newArtifacts);
-		publishArtifact(jreLocation, newArtifacts);
-		newArtifacts.clear();
+		File jreLocation = new File(executableLocation.getParentFile(), "jre"); //$NON-NLS-1$
+		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, resultantIUs);
+		publishArtifact(new File[] {jreLocation}, artifact);
+
+		//If the executable feature is present, use it to generate IUs for launchers
+		if (generateExecutableFeatureIUs(resultantIUs, destination))
+			return;
 
 		//generate data for executable launcher
-		MetadataGeneratorHelper.createLauncherData(executableLocation, info.getFlavor(), resultantIUs, newArtifacts);
-		publishArtifact(executableLocation, newArtifacts);
-		newArtifacts.clear();
-
-		//generate data for eclipsec.exe if applicable
+		artifact = MetadataGeneratorHelper.createLauncherIU(executableLocation, info.getFlavor(), resultantIUs);
+		File[] launcherFiles = null;
 		//hard-coded name is ok, since console launcher is not branded, and appears on Windows only
-		File consoleLauncher = new File(executableLocation.getParentFile(), "eclipsec.exe");
-		if (consoleLauncher.exists()) {
-			MetadataGeneratorHelper.createLauncherData(consoleLauncher, info.getFlavor(), resultantIUs, newArtifacts);
-			publishArtifact(consoleLauncher, newArtifacts);
+		File consoleLauncher = new File(executableLocation.getParentFile(), "eclipsec.exe"); //$NON-NLS-1$
+		if (consoleLauncher.exists())
+			launcherFiles = new File[] {executableLocation, consoleLauncher};
+		else
+			launcherFiles = new File[] {executableLocation};
+		publishArtifact(launcherFiles, artifact);
+	}
+
+	/**
+	 * This method generates IUs for the launchers found in the org.eclipse.executable feature, if present.
+	 * @return <code>true</code> if the executable feature was processed successfully,
+	 * and <code>false</code> otherwise.
+	 */
+	private boolean generateExecutableFeatureIUs(Set resultantIUs, IArtifactRepository destination) {
+		File parentDir = info.getFeaturesLocation();
+		if (!parentDir.exists())
+			return false;
+		File[] featureDirs = parentDir.listFiles();
+		if (featureDirs == null)
+			return false;
+		File executableFeatureDir = null;
+		final String featurePrefix = "org.eclipse.equinox.executable_"; //$NON-NLS-1$
+		for (int i = 0; i < featureDirs.length; i++) {
+			if (featureDirs[i].getName().startsWith(featurePrefix)) {
+				executableFeatureDir = featureDirs[i];
+				break;
+			}
+		}
+		if (executableFeatureDir == null)
+			return false;
+		File binDir = new File(executableFeatureDir, "bin");
+		if (!binDir.exists())
+			return false;
+		//the bin directory is dividing into a directory tree of the form /bin/ws/os/arch
+		File[] wsDirs = binDir.listFiles();
+		if (wsDirs == null)
+			return false;
+		String versionString = executableFeatureDir.getName().substring(featurePrefix.length());
+		for (int wsIndex = 0; wsIndex < wsDirs.length; wsIndex++) {
+			String ws = wsDirs[wsIndex].getName();
+			File[] osDirs = wsDirs[wsIndex].listFiles();
+			if (osDirs == null)
+				continue;
+			for (int osIndex = 0; osIndex < osDirs.length; osIndex++) {
+				String os = osDirs[osIndex].getName();
+				File[] archDirs = osDirs[osIndex].listFiles();
+				if (archDirs == null)
+					continue;
+				for (int archIndex = 0; archIndex < archDirs.length; archIndex++) {
+					String arch = archDirs[archIndex].getName();
+					generateExecutableIUs(ws, os, arch, versionString, archDirs[archIndex], resultantIUs);
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Generates IUs and CUs for the files that make up the launcher for a given
+	 * ws/os/arch combination.
+	 */
+	private void generateExecutableIUs(String ws, String os, String arch, String version, File root, Set resultantIUs) {
+		//Create the IU
+		InstallableUnit iu = new InstallableUnit();
+		iu.setSingleton(true);
+		String launcherId = "org.eclipse.launcher." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
+		iu.setId(launcherId);
+		Version launcherVersion = new Version(version);
+		iu.setVersion(launcherVersion);
+		String filter = "(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		iu.setFilter(filter);
+
+		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(launcherId, launcherVersion);
+		iu.setArtifacts(new IArtifactKey[] {key});
+		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
+		resultantIUs.add(iu);
+
+		//Create the CU
+		InstallableUnitFragment cu = new InstallableUnitFragment();
+		cu.setId(info.getFlavor() + iu.getId());
+		cu.setVersion(iu.getVersion());
+		cu.setFilter(filter);
+		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true));
+
+		mungeLauncherFileNames(root);
+
+		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
+		Map touchpointData = new HashMap();
+		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		if (!"win32".equals(os)) { //$NON-NLS-1$
+			File[] launcherFiles = root.listFiles();
+			for (int i = 0; i < launcherFiles.length; i++) {
+				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
+		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
+		resultantIUs.add(cu);
+
+		//Create the artifact descriptor
+		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, root, false, true);
+		publishArtifact(root.listFiles(), descriptor);
+	}
+
+	/**
+	 * @TODO This method is a temporary hack to rename the launcher.exe files
+	 * to eclipse.exe (or "launcher" to "eclipse"). Eventually we will either hand-craft
+	 * metadata/artifacts for launchers, or alter the delta pack to contain eclipse-branded
+	 * launchers.
+	 */
+	private void mungeLauncherFileNames(File root) {
+		if (root.isDirectory()) {
+			File[] children = root.listFiles();
+			for (int i = 0; i < children.length; i++) {
+				mungeLauncherFileNames(children[i]);
+			}
+		} else if (root.isFile()) {
+			if (root.getName().equals("launcher")) //$NON-NLS-1$
+				root.renameTo(new File(root.getParentFile(), "eclipse")); //$NON-NLS-1$
+			else if (root.getName().equals("launcher.exe")) //$NON-NLS-1$
+				root.renameTo(new File(root.getParentFile(), "eclipse.exe")); //$NON-NLS-1$
 		}
 	}
 
-	private void publishArtifact(File location, Set artifacts) {
-		if (!info.publishArtifacts() || artifacts.isEmpty())
+	private void publishArtifact(File[] files, IArtifactDescriptor artifact) {
+		if (!info.publishArtifacts() || artifact == null)
 			return;
-		for (Iterator i = artifacts.iterator(); i.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) i.next();
-			publishArtifact(descriptor, location, info.getArtifactRepository(), false, true);
-		}
+		publishArtifact(artifact, files, info.getArtifactRepository(), false);
 	}
 
 	protected void generateConfigIUs(BundleInfo[] infos, Set resultantIUs) {
@@ -256,7 +368,7 @@ public class Generator {
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
 				if (info.publishArtifacts())
 					//				publishArtifact(info.getArtifactRepoLocation().getParentFile(), new File(bd.getLocation()), key.getClassifier(), key.getId() + "_" + key.getVersion().toString(), !isDir, true);
-					publishArtifact(ad, new File(bd.getLocation()), destination, !isDir, true);
+					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, !isDir);
 				else
 					destination.addDescriptor(ad);
 
@@ -287,7 +399,7 @@ public class Generator {
 		root.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
 		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
 		root.setCapabilities(new ProvidedCapability[] {groupCapability});
-		root.setTouchpointType(new TouchpointType("eclipse", ECLIPSE_TOUCHPOINT_VERSION));
+		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
 
 		String configurationData = "";
@@ -337,15 +449,15 @@ public class Generator {
 	}
 
 	// Put the artifact on the server
-	protected void publishArtifact(IArtifactDescriptor descriptor, File bundlePath, IArtifactRepository destination, boolean asIs, boolean recurse) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs) {
 		//		key.getClassifier(), key.getId() + '_' + key.getVersion().toString()
-		if (asIs) {
+		if (asIs && files.length == 1) {
 			try {
 				if (!destination.contains(descriptor)) {
 					OutputStream output = destination.getOutputStream(descriptor);
 					if (output == null)
 						throw new IOException("unable to open output stream for " + descriptor);
-					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(bundlePath)), true, new BufferedOutputStream(output), true);
+					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, new BufferedOutputStream(output), true);
 				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -356,16 +468,7 @@ public class Generator {
 			File tempFile = null;
 			try {
 				tempFile = File.createTempFile("work", "");
-				if (recurse)
-					FileUtils.zip(new File[] {bundlePath}, tempFile);
-				else
-					FileUtils.zip(bundlePath.listFiles(new FileFilter() {
-						public boolean accept(File pathname) {
-							if (pathname.isFile())
-								return true;
-							return false;
-						}
-					}), tempFile);
+				FileUtils.zip(files, tempFile);
 				if (!destination.contains(descriptor)) {
 					OutputStream output = destination.getOutputStream(descriptor);
 					if (output == null)

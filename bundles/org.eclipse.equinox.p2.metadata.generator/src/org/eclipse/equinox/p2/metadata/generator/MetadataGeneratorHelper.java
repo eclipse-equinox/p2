@@ -35,20 +35,18 @@ public class MetadataGeneratorHelper {
 	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
 
 	private static final String ECLIPSE_EXTENSIBLE_API = "Eclipse-ExtensibleAPI"; //$NON-NLS-1$
-	private static final String ECLIPSE_TOUCHPOINT = "eclipse"; //$NON-NLS-1$
 
-	private static final Version ECLIPSE_TOUCHPOINT_VERSION = new Version(1, 0, 0);
 	private static final String IU_NAMESPACE = IInstallableUnit.IU_NAMESPACE;
 
 	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
 
 	//TODO - need to come up with a way to infer launcher version
 	private static final Version LAUNCHER_VERSION = new Version(1, 0, 0);
-	private static final String NATIVE_TOUCHPOINT = "native"; //$NON-NLS-1$
-
-	private static final Version NATIVE_TOUCHPOINT_VERSION = new Version(1, 0, 0);
 
 	private static final Version versionMax = new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+	public static final TouchpointType TOUCHPOINT_NATIVE = new TouchpointType("native", new Version(1, 0, 0)); //$NON-NLS-1$
+	public static final TouchpointType TOUCHPOINT_ECLIPSE = new TouchpointType("eclipse", new Version(1, 0, 0)); //$NON-NLS-1$
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
 		//TODO this size calculation is bogus
@@ -106,7 +104,7 @@ public class MetadataGeneratorHelper {
 		//Add a capability describing the flavor supported
 		cu.setCapabilities(new ProvidedCapability[] {new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
 
-		cu.setTouchpointType(new TouchpointType(ECLIPSE_TOUCHPOINT, ECLIPSE_TOUCHPOINT_VERSION)); //TODO Is this necessary? I think we get that from the IU
+		cu.setTouchpointType(TOUCHPOINT_ECLIPSE); //TODO Is this necessary? I think we get that from the IU
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifactId})");
@@ -129,7 +127,7 @@ public class MetadataGeneratorHelper {
 		//Create a capability on bundles
 		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
 		cu.setRequiredCapabilities(reqs);
-		cu.setTouchpointType(new TouchpointType(ECLIPSE_TOUCHPOINT, ECLIPSE_TOUCHPOINT_VERSION)); //TODO Is this necessary? I think we get that from the IU
+		cu.setTouchpointType(TOUCHPOINT_ECLIPSE); //TODO Is this necessary? I think we get that from the IU
 		Map touchpointData = new HashMap();
 
 		touchpointData.put("install", "installBundle(bundle:${artifactId})");
@@ -193,7 +191,7 @@ public class MetadataGeneratorHelper {
 
 		iu.setArtifacts(new IArtifactKey[] {key});
 
-		iu.setTouchpointType(new TouchpointType(ECLIPSE_TOUCHPOINT, ECLIPSE_TOUCHPOINT_VERSION));
+		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
 
 		// Set IU properties from the manifest header attributes
 		// TODO The values of the attributes may be localized. Metadata generation
@@ -242,20 +240,21 @@ public class MetadataGeneratorHelper {
 	}
 
 	/**
-	 * Creates IUs and artifact descriptors for the JRE, and adds them to the given sets.
-	 * if the jreLocation is <code>null</code>, default information is generated.
+	 * Creates IUs and artifact descriptors for the JRE.  The resulting IUs are added
+	 * to the given set, and the resulting artifact descriptor, if any, is returned.
+	 * If the jreLocation is <code>null</code>, default information is generated.
 	 */
-	public static void createJREData(File jreLocation, Set resultantIUs, Set resultantArtifactDescriptors) {
+	public static IArtifactDescriptor createJREData(File jreLocation, Set resultantIUs) {
 		InstallableUnit iu = new InstallableUnit();
 		iu.setSingleton(false);
 		iu.setId("a.jre"); //$NON-NLS-1$
-		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+		iu.setTouchpointType(TOUCHPOINT_NATIVE);
 
 		InstallableUnitFragment cu = new InstallableUnitFragment();
 		cu.setId("config." + iu.getId()); //$NON-NLS-1$
 		cu.setVersion(iu.getVersion());
 		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
-		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 
 		if (jreLocation == null || !jreLocation.exists()) {
@@ -267,12 +266,12 @@ public class MetadataGeneratorHelper {
 			touchpointData.put("install", "");
 			cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
 			resultantIUs.add(cu);
-			return;
+			return null;
 		}
 		generateJREIUData(iu, jreLocation);
 
 		//Generate artifact for JRE
-		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, iu.getId(), iu.getVersion());
+		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, TOUCHPOINT_NATIVE.getId(), iu.getId(), iu.getVersion());
 		iu.setArtifacts(new IArtifactKey[] {key});
 		resultantIUs.add(iu);
 
@@ -283,17 +282,16 @@ public class MetadataGeneratorHelper {
 		resultantIUs.add(cu);
 
 		//Create the artifact descriptor
-		IArtifactDescriptor descriptor = createArtifactDescriptor(key, jreLocation, false, true);
-		resultantArtifactDescriptors.add(descriptor);
+		return createArtifactDescriptor(key, jreLocation, false, true);
 	}
 
 	/**
-	 * Creates IUs and artifacts for the Launcher executable, and adds them to the given
-	 * sets.
+	 * Creates IUs and artifacts for the Launcher executable. The resulting IUs are added
+	 * to the given set, and the resulting artifact descriptor is returned.
 	 */
-	public static void createLauncherData(File launcher, String configurationFlavor, Set resultantIUs, Set resultantArtifactDescriptors) {
+	public static IArtifactDescriptor createLauncherIU(File launcher, String configurationFlavor, Set resultantIUs) {
 		if (launcher == null || !launcher.exists())
-			return;
+			return null;
 
 		//Create the IU
 		InstallableUnit iu = new InstallableUnit();
@@ -302,9 +300,9 @@ public class MetadataGeneratorHelper {
 		iu.setId(launcherId);
 		iu.setVersion(LAUNCHER_VERSION);
 
-		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION);
+		IArtifactKey key = createLauncherArtifactKey(launcherId, LAUNCHER_VERSION);
 		iu.setArtifacts(new IArtifactKey[] {key});
-		iu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, new Version(1, 0, 0)));
+		iu.setTouchpointType(TOUCHPOINT_NATIVE);
 		resultantIUs.add(iu);
 
 		//Create the CU
@@ -313,7 +311,7 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(iu.getVersion());
 		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
 
-		cu.setTouchpointType(new TouchpointType(NATIVE_TOUCHPOINT, NATIVE_TOUCHPOINT_VERSION));
+		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});";
 		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
@@ -325,8 +323,11 @@ public class MetadataGeneratorHelper {
 		resultantIUs.add(cu);
 
 		//Create the artifact descriptor
-		IArtifactDescriptor descriptor = createArtifactDescriptor(new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_TOUCHPOINT, launcherId, LAUNCHER_VERSION), launcher, false, true);
-		resultantArtifactDescriptors.add(descriptor);
+		return createArtifactDescriptor(key, launcher, false, true);
+	}
+
+	public static ArtifactKey createLauncherArtifactKey(String id, Version version) {
+		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, TOUCHPOINT_NATIVE.getId(), id, version);
 	}
 
 	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
