@@ -40,21 +40,23 @@ public class UpdateChecker {
 
 	private class UpdateCheckThread extends Thread {
 		boolean done = false;
-		long poll;
+		long poll, delay;
 		IUpdateListener listener;
 		Profile profile;
 
-		UpdateCheckThread(String profileId, long poll, IUpdateListener listener) {
+		UpdateCheckThread(String profileId, long delay, long poll, IUpdateListener listener) {
 			this.poll = poll;
+			this.delay = delay;
 			this.profile = profileRegistry.getProfile(profileId);
 		}
 
 		public void run() {
-			while (!done) {
-				try {
-					if (poll != ONE_TIME_CHECK) {
-						Thread.sleep(poll);
-					}
+			try {
+				if (delay != ONE_TIME_CHECK && delay > 0) {
+					Thread.sleep(delay);
+				}
+				while (!done) {
+
 					log("Checking for updates for " + profile.getProfileId() + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
 					IInstallableUnit[] iusWithUpdates = checkForUpdates(profile);
 					if (iusWithUpdates.length > 0) {
@@ -65,14 +67,16 @@ public class UpdateChecker {
 					} else {
 						log("No updates were available"); //$NON-NLS-1$
 					}
-					if (poll == ONE_TIME_CHECK) {
+					if (delay == ONE_TIME_CHECK || delay <= 0) {
 						done = true;
+					} else {
+						Thread.sleep(poll);
 					}
-				} catch (InterruptedException e) {
-					// nothing
-				} catch (Exception e) {
-					log("Exception in update check thread", e); //$NON-NLS-1$
 				}
+			} catch (InterruptedException e) {
+				// nothing
+			} catch (Exception e) {
+				log("Exception in update check thread", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -85,9 +89,9 @@ public class UpdateChecker {
 		}
 	}
 
-	public void addUpdateCheck(String profileId, long poll, IUpdateListener listener) {
-		log("Adding update checker for " + profileId); //$NON-NLS-1$
-		UpdateCheckThread thread = new UpdateCheckThread(profileId, poll, listener);
+	public void addUpdateCheck(String profileId, long delay, long poll, IUpdateListener listener) {
+		log("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
+		UpdateCheckThread thread = new UpdateCheckThread(profileId, delay, poll, listener);
 		checkers.add(thread);
 		thread.run();
 	}
