@@ -78,7 +78,7 @@ public class FileUtils {
 	 */
 	public static void unzipStream(InputStream stream, long size, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
 		InputStream is = monitor == null ? stream : stream; // new ProgressMonitorInputStream(stream, size, size, taskName, monitor); TODO Commented code
-		ZipInputStream in = new ZipInputStream(is);
+		ZipInputStream in = new ZipInputStream(new BufferedInputStream(is));
 		ZipEntry ze = in.getNextEntry();
 		if (ze == null) {
 			// There must be at least one entry in a zip file.
