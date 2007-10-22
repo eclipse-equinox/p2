@@ -24,6 +24,10 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
  * about the data (e.g., checksum or hash) or transform the data (e.g., unpack200).
  */
 public abstract class ProcessingStep extends OutputStream {
+	//TODO It's generally not good to expose fields as API. It raises difficulties about
+	//when the subclass should be writing the fields, when the fields will have
+	//meaningful values, etc. It's generally better to pass values as parameters
+	//in a hook method rather than letting the subclass access this state directly.
 	protected OutputStream destination;
 	protected IProgressMonitor monitor;
 	protected IStatus status = Status.OK_STATUS;
