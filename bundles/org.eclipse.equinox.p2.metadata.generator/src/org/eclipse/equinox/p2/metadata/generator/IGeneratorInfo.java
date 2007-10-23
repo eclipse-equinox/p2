@@ -29,6 +29,8 @@ public interface IGeneratorInfo {
 
 	public ConfigData getConfigData();
 
+	public File getJRELocation();
+
 	public File getConfigurationLocation();
 
 	public ArrayList getDefaultIUs(Set ius);

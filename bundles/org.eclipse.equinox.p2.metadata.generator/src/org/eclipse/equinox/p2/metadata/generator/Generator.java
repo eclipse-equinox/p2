@@ -165,16 +165,13 @@ public class Generator {
 	}
 
 	protected void generateNativeIUs(File executableLocation, Set resultantIUs, IArtifactRepository destination) {
-		if (executableLocation == null)
-			return;
-
 		//generate data for JRE
-		File jreLocation = new File(executableLocation.getParentFile(), "jre"); //$NON-NLS-1$
+		File jreLocation = info.getJRELocation();
 		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, resultantIUs);
 		publishArtifact(new File[] {jreLocation}, artifact);
 
 		//If the executable feature is present, use it to generate IUs for launchers
-		if (generateExecutableFeatureIUs(resultantIUs, destination))
+		if (generateExecutableFeatureIUs(resultantIUs, destination) || executableLocation == null)
 			return;
 
 		//generate data for executable launcher

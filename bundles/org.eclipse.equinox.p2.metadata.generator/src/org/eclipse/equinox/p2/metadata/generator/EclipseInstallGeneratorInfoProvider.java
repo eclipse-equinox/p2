@@ -360,4 +360,11 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	public void setOS(String os) {
 		this.os = os;
 	}
+
+	public File getJRELocation() {
+		//assume JRE is relative to install location
+		if (executableLocation == null)
+			return null;
+		return new File(executableLocation.getParentFile(), "jre"); //$NON-NLS-1$
+	}
 }

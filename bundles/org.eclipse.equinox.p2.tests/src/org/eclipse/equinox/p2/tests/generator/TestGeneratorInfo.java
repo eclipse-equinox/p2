@@ -130,4 +130,8 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		this.rootId = value;
 	}
 
+	public File getJRELocation() {
+		return null;
+	}
+
 }
