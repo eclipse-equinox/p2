@@ -82,7 +82,7 @@ public class NativeTouchpoint extends Touchpoint {
 					String targetFile = (String) parameters.get("targetFile");
 					String permissions = (String) parameters.get("permissions");
 
-					new Permissions().chmod(targetDir, targetFile, null);
+					new Permissions().chmod(targetDir, targetFile, permissions);
 					return Status.OK_STATUS;
 				}
 
