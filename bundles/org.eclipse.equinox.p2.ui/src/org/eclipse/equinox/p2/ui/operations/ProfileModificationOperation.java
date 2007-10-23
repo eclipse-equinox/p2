@@ -44,6 +44,6 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		return ProvisioningUtil.performProvisioningPlan(plan, getProfile(), monitor);
+		return ProvisioningUtil.performProvisioningPlan(plan, getProfile(), ProvisioningUtil.PERFORM_ALL, monitor);
 	}
 }

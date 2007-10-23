@@ -88,6 +88,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(); //$NON-NLS-1$
 		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.p2.updatechecker").start(); //$NON-NLS-1$
 
 		initializeImages();
 	}

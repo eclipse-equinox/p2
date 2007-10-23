@@ -18,7 +18,8 @@ import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * Abstract class representing provisioning operations
+ * Abstract class representing provisioning operations.  ProvisioningOperations
+ * can be run in the foreground or in the background as a job.
  * 
  * @since 3.4
  */
@@ -73,6 +74,10 @@ public abstract class ProvisioningOperation {
 
 	public String getLabel() {
 		return label;
+	}
+
+	protected boolean runInBackground() {
+		return false;
 	}
 
 }

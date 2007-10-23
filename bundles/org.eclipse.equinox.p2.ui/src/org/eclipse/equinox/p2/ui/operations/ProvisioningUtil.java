@@ -12,7 +12,8 @@
 package org.eclipse.equinox.p2.ui.operations;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EventObject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
@@ -22,17 +23,14 @@ import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.engine.phases.Sizing;
+import org.eclipse.equinox.p2.engine.phases.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.query.CompoundIterator;
-import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -41,6 +39,10 @@ import org.eclipse.osgi.util.NLS;
  * @since 3.4
  */
 public class ProvisioningUtil {
+
+	public static final int PERFORM_DOWNLOAD_ONLY = 1;
+	public static final int PERFORM_INSTALL_AND_CONFIGURE = 2;
+	public static final int PERFORM_ALL = 3;
 
 	private static final class SizingPhaseSet extends PhaseSet {
 		static Sizing sizing;
@@ -51,6 +53,18 @@ public class ProvisioningUtil {
 
 		Sizing getSizing() {
 			return sizing;
+		}
+	}
+
+	private static final class DownloadPhaseSet extends PhaseSet {
+		DownloadPhaseSet() {
+			super(new Phase[] {new Collect(10)}); //$NON-NLS-1$
+		}
+	}
+
+	private static final class ReplaceAndConfigurePhaseSet extends PhaseSet {
+		ReplaceAndConfigurePhaseSet() {
+			super(new Phase[] {new Unconfigure(10), new Uninstall(10), new Install(10), new Configure(10)});
 		}
 	}
 
@@ -186,48 +200,6 @@ public class ProvisioningUtil {
 		return profileRegistry.getProfile(id);
 	}
 
-	/*
-	 * Returns the installable units with the given id and version
-	 * specifications in the given metadata repository. <code>null</code> can
-	 * be used to indicate wildcards for any of the arguments.
-	 * 
-	 * @param location The location of the metdata repo to search. <code>null</code>
-	 * indicates search all known repos. @param id The id of the IUs to find.
-	 * <code>null</code> indicates wildcard. @param range The version range of
-	 * the IUs to find. <code>null</code> indicates wildcard. @return The IUs
-	 * that match the query
-	 */
-	public static IInstallableUnit[] getInstallableUnits(URL location, String id, VersionRange range, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepository[] repositories = null;
-		if (location == null) {
-			repositories = getMetadataRepositories(monitor);
-		} else {
-			repositories = new IMetadataRepository[] {getMetadataRepository(location, monitor)};
-		}
-		Iterator i = Query.getIterator(repositories, id, range, null, false);
-		return CompoundIterator.asArray(i, monitor);
-	}
-
-	/*
-	 * Returns the installable units with the given id and version
-	 * specifications.
-	 * 
-	 * @param profileId The profile to search @param id The id of the IUs to
-	 * find. <code>null</code> indicates wildcard. @param version The version
-	 * of the IUs to find. <code>null</code> indicates wildcard. @return The
-	 * IUs that match the query
-	 */
-	public static IInstallableUnit[] getInstallableUnits(String profileId, String id, VersionRange range, IProgressMonitor monitor) throws ProvisionException {
-		Profile[] profiles = null;
-		if (profileId == null) {
-			profiles = getProfiles(monitor);
-		} else {
-			profiles = new Profile[] {getProfile(profileId)};
-		}
-		Iterator i = Query.getIterator(profiles, id, range, null, false);
-		return CompoundIterator.asArray(i, monitor);
-	}
-
 	public static IMetadataRepository[] getMetadataRepositories(IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
@@ -313,7 +285,7 @@ public class ProvisioningUtil {
 	}
 
 	public static IStatus performInstall(ProvisioningPlan plan, Profile profile, IInstallableUnit[] installRoots, IProgressMonitor monitor) throws ProvisionException {
-		IStatus engineResult = performProvisioningPlan(plan, profile, monitor);
+		IStatus engineResult = performProvisioningPlan(plan, profile, PERFORM_ALL, monitor);
 		if (engineResult.isOK()) {
 			// mark the roots as such
 			for (int i = 0; i < installRoots.length; i++)
@@ -322,16 +294,15 @@ public class ProvisioningUtil {
 		return engineResult;
 	}
 
-	public static IStatus performProvisioningPlan(ProvisioningPlan plan, Profile profile, IProgressMonitor monitor) throws ProvisionException {
-		return getEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), monitor);
-	}
-
-	private static IMetadataRepository getMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		if (manager == null) {
-			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		}
-		return manager.getRepository(location);
+	public static IStatus performProvisioningPlan(ProvisioningPlan plan, Profile profile, int phases, IProgressMonitor monitor) throws ProvisionException {
+		PhaseSet set;
+		if (phases == PERFORM_ALL)
+			set = new DefaultPhaseSet();
+		else if (phases == PERFORM_DOWNLOAD_ONLY)
+			set = new DownloadPhaseSet();
+		else
+			set = new ReplaceAndConfigurePhaseSet();
+		return getEngine().perform(profile, set, plan.getOperands(), monitor);
 	}
 
 	private static Engine getEngine() throws ProvisionException {
