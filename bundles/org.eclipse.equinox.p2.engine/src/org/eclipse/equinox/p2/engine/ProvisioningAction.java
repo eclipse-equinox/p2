@@ -15,6 +15,12 @@ import org.eclipse.core.runtime.IStatus;
 
 public abstract class ProvisioningAction {
 
+	private Memento memento = new Memento();
+
+	protected Memento getMemento() {
+		return memento;
+	}
+
 	public abstract IStatus execute(Map parameters);
 
 	public abstract IStatus undo(Map parameters);

@@ -157,11 +157,10 @@ public abstract class Phase {
 			if (actions != null) {
 				for (int j = 0; j < actions.length; j++) {
 					ProvisioningAction action = actions[j];
+					session.recordAction(action, operand);
 					status.add(action.execute(parameters));
 					if (!status.isOK())
 						return;
-
-					session.recordAction(action, operand);
 				}
 			}
 			status.add(touchpoint.completeOperand(operand, phaseId, parameters));

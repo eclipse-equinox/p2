@@ -202,6 +202,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
+							getMemento().put("previousStartLevel", new Integer(bundles[i].getStartLevel()));
 							bundles[i].setStartLevel(Integer.parseInt(startLevel));
 							break;
 						}
@@ -218,7 +219,9 @@ public class EclipseTouchpoint extends Touchpoint {
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
-							bundles[i].setStartLevel(BundleInfo.NO_LEVEL); // memento support needed.
+							Integer previousStartLevel = (Integer) getMemento().get("previousStartLevel");
+							if (previousStartLevel != null)
+								bundles[i].setStartLevel(previousStartLevel.intValue());
 							break;
 						}
 					}
@@ -239,6 +242,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
+							getMemento().put("previousStarted", new Boolean(bundles[i].isMarkedAsStarted()));
 							bundles[i].setMarkedAsStarted(Boolean.valueOf(started).booleanValue());
 							break;
 						}
@@ -255,7 +259,9 @@ public class EclipseTouchpoint extends Touchpoint {
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
-							bundles[i].setMarkedAsStarted(false); // memento support needed.
+							Boolean previousStarted = (Boolean) getMemento().get("previousStarted");
+							if (previousStarted != null)
+								bundles[i].setMarkedAsStarted(previousStarted.booleanValue());
 							break;
 						}
 					}
@@ -270,6 +276,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
 					String propName = (String) parameters.get("propName");
 					String propValue = (String) parameters.get("propValue");
+					getMemento().put("previousValue", manipulator.getConfigData().getFwDependentProp(propName));
 					manipulator.getConfigData().setFwDependentProp(propName, propValue);
 					return Status.OK_STATUS;
 				}
@@ -277,7 +284,8 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
 					String propName = (String) parameters.get("propName");
-					manipulator.getConfigData().setFwDependentProp(propName, null); // save data?
+					String previousValue = (String) getMemento().get("previousValue");
+					manipulator.getConfigData().setFwDependentProp(propName, previousValue);
 					return Status.OK_STATUS;
 				}
 			};
@@ -289,6 +297,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
 					String propName = (String) parameters.get("propName");
 					String propValue = (String) parameters.get("propValue");
+					getMemento().put("previousValue", manipulator.getConfigData().getFwDependentProp(propName));
 					manipulator.getConfigData().setFwIndependentProp(propName, propValue);
 					return Status.OK_STATUS;
 				}
@@ -296,7 +305,8 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get("manipulator");
 					String propName = (String) parameters.get("propName");
-					manipulator.getConfigData().setFwIndependentProp(propName, null); // save data?
+					String previousValue = (String) getMemento().get("previousValue");
+					manipulator.getConfigData().setFwIndependentProp(propName, previousValue);
 					return Status.OK_STATUS;
 				}
 			};
