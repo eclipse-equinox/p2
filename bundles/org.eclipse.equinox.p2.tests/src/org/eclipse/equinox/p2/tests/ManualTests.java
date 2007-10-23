@@ -19,7 +19,6 @@ import junit.framework.*;
 public class ManualTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
-		suite.addTestSuite(org.eclipse.equinox.p2.tests.engine.EngineTest.class);
 		suite.addTestSuite(org.eclipse.equinox.p2.tests.full.DirectorTest.class);
 		return suite;
 	}
