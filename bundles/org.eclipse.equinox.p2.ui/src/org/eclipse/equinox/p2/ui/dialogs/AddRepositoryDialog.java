@@ -16,7 +16,8 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -101,7 +102,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText("file:" + path.toLowerCase()); //$NON-NLS-1$
+					url.setText("file:" + path); //$NON-NLS-1$
 				}
 			}
 		});
