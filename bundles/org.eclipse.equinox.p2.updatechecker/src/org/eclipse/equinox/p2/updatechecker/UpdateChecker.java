@@ -47,7 +47,7 @@ public class UpdateChecker {
 		UpdateCheckThread(String profileId, long delay, long poll, IUpdateListener listener) {
 			this.poll = poll;
 			this.delay = delay;
-			this.profile = profileRegistry.getProfile(profileId);
+			this.profile = getProfileRegistry().getProfile(profileId);
 			this.listener = listener;
 		}
 
@@ -82,14 +82,6 @@ public class UpdateChecker {
 		}
 	}
 
-	public UpdateChecker() {
-		profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
-		planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
-		if (planner == null || profileRegistry == null) {
-			throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
-		}
-	}
-
 	public void addUpdateCheck(String profileId, long delay, long poll, IUpdateListener listener) {
 		log("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
 		UpdateCheckThread thread = new UpdateCheckThread(profileId, delay, poll, listener);
@@ -120,7 +112,7 @@ public class UpdateChecker {
 		Iterator iter = profile.getInstallableUnits();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			IInstallableUnit[] replacements = planner.updatesFor(iu);
+			IInstallableUnit[] replacements = getPlanner().updatesFor(iu);
 			if (replacements.length > 0)
 				iusWithUpdates.add(iu);
 		}
@@ -142,6 +134,26 @@ public class UpdateChecker {
 		Date d = new Date();
 		SimpleDateFormat df = new SimpleDateFormat("[MM/dd/yy;HH:mm:ss:SSS]"); //$NON-NLS-1$
 		return df.format(d);
+	}
+
+	IPlanner getPlanner() {
+		if (planner == null) {
+			planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+			if (planner == null) {
+				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
+			}
+		}
+		return planner;
+	}
+
+	IProfileRegistry getProfileRegistry() {
+		if (profileRegistry == null) {
+			profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
+			if (profileRegistry == null) {
+				throw new IllegalStateException("Provisioning system has not been initialized"); //$NON-NLS-1$
+			}
+		}
+		return profileRegistry;
 	}
 
 }

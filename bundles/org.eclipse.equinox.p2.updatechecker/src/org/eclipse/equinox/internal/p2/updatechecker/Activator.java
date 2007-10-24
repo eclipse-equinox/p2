@@ -28,15 +28,15 @@ public class Activator implements BundleActivator {
 		return context;
 	}
 
-	public void start(BundleContext context) throws Exception {
-		this.context = context;
+	public void start(BundleContext bundleContext) throws Exception {
+		Activator.context = bundleContext;
 
 		updateChecker = new UpdateChecker();
 		registrationChecker = context.registerService(UpdateChecker.class.getName(), updateChecker, null);
 
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext bundleContext) throws Exception {
 		registrationChecker.unregister();
 		updateChecker = null;
 	}
