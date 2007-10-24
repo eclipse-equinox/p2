@@ -21,6 +21,7 @@ public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 	}
 
 	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+		startSimpleConfiguratormManipulator();
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 

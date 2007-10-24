@@ -74,6 +74,29 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 			fail("No file or directory should be there: " + file);
 	}
 
+	public void assertNotContent(File file, String search) {
+		if (!file.exists())
+			fail("File: " + file.toString() + " can't be found.");
+		try {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+				while (reader.ready()) {
+					String line = reader.readLine();
+					if (line.indexOf(search) >= 0)
+						fail("The string: " + search + " was not expected in this file: " + file.getAbsolutePath());
+				}
+			} finally {
+				if (reader != null)
+					reader.close();
+			}
+		} catch (FileNotFoundException e) {
+			//ignore, caught before
+		} catch (IOException e) {
+			fail("String: " + search + " not found in " + file.getAbsolutePath());
+		}
+	}
+
 	public void assertContent(File file, String search) {
 		if (!file.exists())
 			fail("File: " + file.toString() + " can't be found.");

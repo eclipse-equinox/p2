@@ -54,4 +54,33 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 		assertNothing(getConfigurationFolder());
 		assertNothing(new File(getInstallFolder(), getLauncherName() + ".ini"));
 	}
+
+	public void testOSGiRemoval() {
+		BundleInfo[] bis = m.getConfigData().getBundles();
+		for (int i = 0; i < bis.length; i++) {
+			if (bis[i].getSymbolicName().equals("org.eclipse.osgi"))
+				m.getConfigData().removeBundle(bis[i]);
+		}
+		try {
+			m.save(false);
+		} catch (IOException e) {
+			fail("Error while saving");
+		}
+		assertIsDirectory(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator"));
+		assertIsDirectory(getConfigurationFolder());
+		assertNotContent(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator/bundles.txt"), "org.eclipse.osgi");
+
+		bis = m.getConfigData().getBundles();
+		for (int i = 0; i < bis.length; i++) {
+			if (bis[i].getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator"))
+				m.getConfigData().removeBundle(bis[i]);
+		}
+		try {
+			m.save(false);
+		} catch (IOException e) {
+			fail("Error while saving");
+		}
+		assertNothing(getConfigurationFolder());
+		assertNothing(new File(getInstallFolder(), getLauncherName() + ".ini"));
+	}
 }
