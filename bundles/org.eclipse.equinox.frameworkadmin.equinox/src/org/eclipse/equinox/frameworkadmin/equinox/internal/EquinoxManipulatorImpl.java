@@ -394,7 +394,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			newBInfos = configData.getBundles();
 		}
 
-		boolean stateIsEmpty = (newBInfos.length == 0 ? true : false);
+		boolean stateIsEmpty = configData.getBundles().length == 0;
 
 		File launcherConfigFile = getLauncherConfigLocation(launcherData);
 		if (launcherConfigFile != null) {
