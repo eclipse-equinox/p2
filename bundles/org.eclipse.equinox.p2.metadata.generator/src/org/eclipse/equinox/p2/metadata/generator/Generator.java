@@ -168,7 +168,7 @@ public class Generator {
 		//generate data for JRE
 		File jreLocation = info.getJRELocation();
 		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, resultantIUs);
-		publishArtifact(new File[] {jreLocation}, artifact);
+		publishArtifact(artifact, new File[] {jreLocation}, destination, false);
 
 		//If the executable feature is present, use it to generate IUs for launchers
 		if (generateExecutableFeatureIUs(resultantIUs, destination) || executableLocation == null)
@@ -183,7 +183,7 @@ public class Generator {
 			launcherFiles = new File[] {executableLocation, consoleLauncher};
 		else
 			launcherFiles = new File[] {executableLocation};
-		publishArtifact(launcherFiles, artifact);
+		publishArtifact(artifact, launcherFiles, destination, false);
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class Generator {
 					continue;
 				for (int archIndex = 0; archIndex < archDirs.length; archIndex++) {
 					String arch = archDirs[archIndex].getName();
-					generateExecutableIUs(ws, os, arch, versionString, archDirs[archIndex], resultantIUs);
+					generateExecutableIUs(ws, os, arch, versionString, archDirs[archIndex], resultantIUs, destination);
 				}
 			}
 		}
@@ -239,7 +239,7 @@ public class Generator {
 	 * Generates IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
 	 */
-	private void generateExecutableIUs(String ws, String os, String arch, String version, File root, Set resultantIUs) {
+	private void generateExecutableIUs(String ws, String os, String arch, String version, File root, Set resultantIUs, IArtifactRepository destination) {
 		//Create the IU
 		InstallableUnit iu = new InstallableUnit();
 		iu.setSingleton(true);
@@ -279,7 +279,7 @@ public class Generator {
 
 		//Create the artifact descriptor
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, root, false, true);
-		publishArtifact(root.listFiles(), descriptor);
+		publishArtifact(descriptor, root.listFiles(), destination, false);
 	}
 
 	/**
@@ -300,12 +300,6 @@ public class Generator {
 			else if (root.getName().equals("launcher.exe")) //$NON-NLS-1$
 				root.renameTo(new File(root.getParentFile(), "eclipse.exe")); //$NON-NLS-1$
 		}
-	}
-
-	private void publishArtifact(File[] files, IArtifactDescriptor artifact) {
-		if (!info.publishArtifacts() || artifact == null)
-			return;
-		publishArtifact(artifact, files, info.getArtifactRepository(), false);
 	}
 
 	protected void generateConfigIUs(BundleInfo[] infos, Set resultantIUs) {
@@ -363,12 +357,10 @@ public class Generator {
 				boolean isDir = format.equals(BundleDescriptionFactory.DIR) ? true : false;
 				IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
-				if (info.publishArtifacts())
-					//				publishArtifact(info.getArtifactRepoLocation().getParentFile(), new File(bd.getLocation()), key.getClassifier(), key.getId() + "_" + key.getVersion().toString(), !isDir, true);
-					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, !isDir);
+				if (isDir)
+					publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
 				else
-					destination.addDescriptor(ad);
-
+					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
 				IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bd, (Map) bd.getUserObject(), isDir, key);
 				resultantIUs.add(iu);
 			}
@@ -449,7 +441,12 @@ public class Generator {
 
 	// Put the artifact on the server
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs) {
-		//		key.getClassifier(), key.getId() + '_' + key.getVersion().toString()
+		if (descriptor == null)
+			return;
+		if (!info.publishArtifacts()) {
+			destination.addDescriptor(descriptor);
+			return;
+		}
 		if (asIs && files.length == 1) {
 			try {
 				if (!destination.contains(descriptor)) {

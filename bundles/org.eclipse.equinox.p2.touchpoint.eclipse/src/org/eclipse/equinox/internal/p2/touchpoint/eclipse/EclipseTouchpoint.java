@@ -579,7 +579,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (!bundleFolder.mkdir())
 			throw new IOException("Can't create the folder: " + bundleFolder);
 
-		FileUtils.unzipFile(bundleJar, bundleFolder.getParentFile());
+		FileUtils.unzipFile(bundleJar, bundleFolder);
 		return bundleFolder;
 	}
 
