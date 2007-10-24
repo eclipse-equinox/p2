@@ -48,6 +48,7 @@ public class UpdateChecker {
 			this.poll = poll;
 			this.delay = delay;
 			this.profile = profileRegistry.getProfile(profileId);
+			this.listener = listener;
 		}
 
 		public void run() {
