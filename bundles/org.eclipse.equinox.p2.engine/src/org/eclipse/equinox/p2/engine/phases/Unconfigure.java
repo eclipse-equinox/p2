@@ -9,8 +9,7 @@
 package org.eclipse.equinox.p2.engine.phases;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 
@@ -34,7 +33,7 @@ public class Unconfigure extends Phase {
 		return getActions(unit, phaseId);
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters) {
+	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
 		IResolvedInstallableUnit iu = operand.first();
 		parameters.put("iu", iu);
 

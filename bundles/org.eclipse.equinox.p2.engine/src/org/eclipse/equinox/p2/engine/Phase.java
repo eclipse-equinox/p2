@@ -68,7 +68,7 @@ public abstract class Phase {
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
 		parameters.put("operand", operand);
-		status.add(initializeOperand(operand, parameters));
+		status.add(initializeOperand(operand, parameters, null));
 		status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
 		parameters = Collections.unmodifiableMap(parameters);
 		for (int j = 0; j < actions.length; j++) {
@@ -129,9 +129,9 @@ public abstract class Phase {
 	}
 
 	private void mainPerform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, SubMonitor subMonitor) {
-		// TODO: Support Monitor
-		// int operandWork = PERFORM_WORK / operands.length;
+		subMonitor.beginTask("", operands.length); //$NON-NLS-1$
 		for (int i = 0; i < operands.length; i++) {
+			subMonitor.setWorkRemaining(operands.length - i);
 			if (subMonitor.isCanceled())
 				throw new OperationCanceledException();
 			Operand operand = operands[i];
@@ -151,7 +151,7 @@ public abstract class Phase {
 			Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 			Map parameters = new HashMap(touchpointParameters);
 			parameters.put("operand", operand);
-			status.add(initializeOperand(operand, parameters));
+			status.add(initializeOperand(operand, parameters, subMonitor));
 			status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
 			parameters = Collections.unmodifiableMap(parameters);
 			if (actions != null) {
@@ -165,6 +165,7 @@ public abstract class Phase {
 			}
 			status.add(touchpoint.completeOperand(operand, phaseId, parameters));
 			status.add(completeOperand(operand, parameters));
+			subMonitor.worked(1);
 		}
 	}
 
@@ -242,7 +243,7 @@ public abstract class Phase {
 		return Status.OK_STATUS;
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters) {
+	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
 		return Status.OK_STATUS;
 	}
 

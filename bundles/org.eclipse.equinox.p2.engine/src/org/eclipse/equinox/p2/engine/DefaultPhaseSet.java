@@ -15,7 +15,7 @@ import org.eclipse.equinox.p2.engine.phases.*;
 public class DefaultPhaseSet extends PhaseSet {
 
 	public DefaultPhaseSet() {
-		super(new Phase[] {new Collect(10), new Unconfigure(10), new Uninstall(10), new Install(10), new Configure(10)});
+		super(new Phase[] {new Collect(100), new Unconfigure(10), new Uninstall(50), new Install(50), new Configure(10)});
 	}
 
 }

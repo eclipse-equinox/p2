@@ -11,8 +11,7 @@
 package org.eclipse.equinox.p2.engine.phases;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
@@ -91,7 +90,7 @@ public class Uninstall extends Phase {
 		return actions;
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters) {
+	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
 		IResolvedInstallableUnit iu = operand.first();
 		parameters.put("iu", iu);
 

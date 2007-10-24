@@ -9,10 +9,10 @@
 package org.eclipse.equinox.p2.engine.phases;
 
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.osgi.util.NLS;
 
 public class Configure extends Phase {
 
@@ -34,8 +34,9 @@ public class Configure extends Phase {
 		return getActions(unit, phaseId);
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters) {
+	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
 		IResolvedInstallableUnit iu = operand.second();
+		monitor.subTask(NLS.bind("Configuring {0}", iu.getId()));
 		parameters.put("iu", iu);
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
