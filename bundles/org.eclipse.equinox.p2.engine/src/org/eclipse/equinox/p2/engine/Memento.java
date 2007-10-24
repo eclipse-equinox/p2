@@ -12,34 +12,51 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.*;
 
-public class Memento extends HashMap {
+public class Memento {
 	private static final long serialVersionUID = 3257399736837461585L;
 	private static final Collection simples = Arrays.asList(new Class[] {String.class, Integer.class, Long.class, Float.class, Double.class, Byte.class, Short.class, Character.class, Boolean.class});
 	private static final Collection simpleArrays = Arrays.asList(new Class[] {String[].class, Integer[].class, Long[].class, Float[].class, Double[].class, Byte[].class, Short[].class, Character[].class, Boolean[].class});
 	private static final Collection primitiveArrays = Arrays.asList(new Class[] {long[].class, int[].class, short[].class, char[].class, byte[].class, double[].class, float[].class, boolean[].class});
 
-	public Object remove(Object key) {
-		// TODO: persist change
-		return super.remove(key);
-	}
+	Map mementoMap = new HashMap();
 
-	public Object put(Object key, Object value) {
-		validateKey(key);
-		validateValue(value);
-
-		// TODO: persist change
-		return super.put(key, value);
-	}
-
-	private static void validateKey(Object key) {
+	public Object remove(String key) {
 		if (key == null)
 			throw new NullPointerException();
 
-		Class clazz = key.getClass();
-		if (clazz == String.class)
-			return;
+		// TODO: persist change
+		return mementoMap.remove(key);
+	}
 
-		throw new IllegalArgumentException(clazz.getName());
+	public Object put(String key, Object value) {
+		if (key == null)
+			throw new NullPointerException();
+
+		validateValue(value);
+
+		// TODO: persist change
+		return mementoMap.put(key, value);
+	}
+
+	public Object get(String key) {
+		if (key == null)
+			throw new NullPointerException();
+
+		return mementoMap.get(key);
+	}
+
+	public Enumeration getKeys() {
+		return new Enumeration() {
+			Iterator keysIterator = mementoMap.keySet().iterator();
+
+			public boolean hasMoreElements() {
+				return keysIterator.hasNext();
+			}
+
+			public Object nextElement() {
+				return keysIterator.next();
+			}
+		};
 	}
 
 	private static void validateValue(Object value) {
