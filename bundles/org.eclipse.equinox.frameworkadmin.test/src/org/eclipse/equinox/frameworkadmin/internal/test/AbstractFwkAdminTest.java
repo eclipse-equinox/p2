@@ -18,6 +18,10 @@ import org.osgi.util.tracker.ServiceTracker;
 public abstract class AbstractFwkAdminTest extends TestCase {
 	private ServiceTracker fwAdminTracker;
 
+	public AbstractFwkAdminTest(String name) {
+		super(name);
+	}
+
 	public FrameworkAdmin getEquinoxFrameworkAdmin() throws BundleException {
 		final String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
 		final String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
@@ -54,15 +58,20 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 	public void assertIsFile(File file) {
 		if (!file.exists())
 			fail("File: " + file.toString() + " can't be found.");
-		if (file.isFile())
+		if (!file.isFile())
 			fail("File: " + file.toString() + " is expected to be a file.");
 	}
 
 	public void assertIsDirectory(File file) {
 		if (!file.exists())
 			fail("Directory: " + file.toString() + " can't be found.");
-		if (file.isDirectory())
+		if (!file.isDirectory())
 			fail("Directory: " + file.toString() + " is expected to be a directory.");
+	}
+
+	public void assertNothing(File file) {
+		if (file.exists())
+			fail("No file or directory should be there: " + file);
 	}
 
 	public void assertContent(File file, String search) {
@@ -89,13 +98,25 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 
 	}
 
-	public void assertSimpleConfiguratorManipulator() {
+	public void startSimpleConfiguratormManipulator() {
 		final String SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator";
 		Bundle manipulatorBundle = Platform.getBundle(SIMPLECONFIGURATOR_MANIPULATOR);
 		if (manipulatorBundle == null)
 			fail("Bundle: " + SIMPLECONFIGURATOR_MANIPULATOR + " is required for this test");
 		try {
 			manipulatorBundle.start();
+		} catch (BundleException e) {
+			fail("Exception while starting up " + SIMPLECONFIGURATOR_MANIPULATOR + ' ' + e.getMessage());
+		}
+	}
+
+	public void stopSimpleConfiguratormManipulator() {
+		final String SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator";
+		Bundle manipulatorBundle = Platform.getBundle(SIMPLECONFIGURATOR_MANIPULATOR);
+		if (manipulatorBundle == null)
+			return;
+		try {
+			manipulatorBundle.stop();
 		} catch (BundleException e) {
 			fail("Exception while starting up " + SIMPLECONFIGURATOR_MANIPULATOR + ' ' + e.getMessage());
 		}

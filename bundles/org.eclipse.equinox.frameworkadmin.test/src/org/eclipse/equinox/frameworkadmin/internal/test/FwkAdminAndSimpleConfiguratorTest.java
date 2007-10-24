@@ -11,30 +11,29 @@ package org.eclipse.equinox.frameworkadmin.internal.test;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.frameworkadmin.*;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
 
-public class SimpleConfiguratorPresence extends AbstractFwkAdminTest {
+public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdminTest {
+	private File installFolder;
+	private File configurationFolder;
+	private String launcherName;
 
-	private static final String SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator";
-
-	protected void setUp() throws Exception {
-		Bundle manipulator = Platform.getBundle(SIMPLECONFIGURATOR_MANIPULATOR);
-		if (manipulator == null)
-			throw new IllegalStateException("Bundle: " + SIMPLECONFIGURATOR_MANIPULATOR + " is required for this test");
-
-		manipulator.start();
+	public FwkAdminAndSimpleConfiguratorTest(String name) {
+		super(name);
 	}
 
-	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
+	protected void setUp() throws Exception {
+		super.setUp();
+		startSimpleConfiguratormManipulator();
+	}
+
+	protected Manipulator createMinimalConfiguration(String workArea) throws Exception {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(SimpleConfiguratorPresence.class.getSimpleName());
-		File configurationFolder = new File(installFolder, "configuration");
-		String launcherName = "eclipse";
+		installFolder = Activator.getContext().getDataFile(workArea);
+		configurationFolder = new File(installFolder, "configuration");
+		launcherName = "eclipse";
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(configurationFolder);
@@ -51,13 +50,29 @@ public class SimpleConfiguratorPresence extends AbstractFwkAdminTest {
 		manipulator.getConfigData().addBundle(osgiBi);
 		manipulator.getConfigData().addBundle(configuratorBi);
 
-		manipulator.save(false);
+		try {
+			manipulator.save(false);
+		} catch (IOException e) {
+			fail("Error while persisting");
+		} catch (FrameworkAdminRuntimeException e) {
+			fail("Error while persisting");
+		}
+		return manipulator;
+	}
 
-		File bundleTXT = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.txt");
-		File configINI = new File(configurationFolder, "config.ini");
-		assertContent(bundleTXT, "org.eclipse.osgi");
-		assertContent(configINI, "org.eclipse.osgi");
-		assertContent(bundleTXT, "org.eclipse.equinox.simpleconfigurator");
-		assertContent(configINI, "org.eclipse.equinox.simpleconfigurator");
+	protected void tearDown() throws Exception {
+		super.tearDown();
+	}
+
+	public File getInstallFolder() {
+		return installFolder;
+	}
+
+	public File getConfigurationFolder() {
+		return configurationFolder;
+	}
+
+	public String getLauncherName() {
+		return launcherName;
 	}
 }
