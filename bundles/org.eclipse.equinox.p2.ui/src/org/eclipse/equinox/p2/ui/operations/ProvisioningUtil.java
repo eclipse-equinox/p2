@@ -58,7 +58,7 @@ public class ProvisioningUtil {
 
 	private static final class DownloadPhaseSet extends PhaseSet {
 		DownloadPhaseSet() {
-			super(new Phase[] {new Collect(10)}); //$NON-NLS-1$
+			super(new Phase[] {new Collect(10)});
 		}
 	}
 
