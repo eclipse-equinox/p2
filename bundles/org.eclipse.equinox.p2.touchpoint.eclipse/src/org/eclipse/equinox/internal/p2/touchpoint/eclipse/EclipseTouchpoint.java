@@ -26,13 +26,13 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class EclipseTouchpoint extends Touchpoint {
 	private final static String ID = "org.eclipse.equinox.p2.touchpoint.eclipse"; //$NON-NLS-1$
-	private final static String CONFIG_FOLDER = "eclipse.configurationFolder";
-	private final static String CACHE_PATH = "eclipse.p2.cache";
+	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
+	private final static String CACHE_PATH = "eclipse.p2.cache"; //$NON-NLS-1$
 
-	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
-	private final static String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
-	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)";
-	private final static String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")";
+	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + '=' + FrameworkAdmin.class.getName() + ')'; //$NON-NLS-1$
+	private final static String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)"; //$NON-NLS-1$ //$NON-NLS-2$
+	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)"; //$NON-NLS-1$ //$NON-NLS-2$
+	private final static String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ')'; //$NON-NLS-1$;
 
 	private ServiceTracker fwAdminTracker;
 	private Map lastModifiedMap = new HashMap();
@@ -572,7 +572,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (bundleJar == null)
 			return null;
 
-		File bundleFolder = new File(getBundlePoolLocation(profile).getFile(), "/plugins/" + artifactKey.getId() + '_' + artifactKey.getVersion());
+		File bundleFolder = new File(getBundlePoolLocation(profile).getFile(), "/plugins/" + artifactKey.getId() + '_' + artifactKey.getVersion()); //$NON-NLS-1$
 		if (bundleFolder.exists())
 			return bundleFolder;
 
