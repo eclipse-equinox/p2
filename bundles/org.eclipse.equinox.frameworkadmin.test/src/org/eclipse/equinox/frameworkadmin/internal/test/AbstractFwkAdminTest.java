@@ -1,0 +1,103 @@
+/*******************************************************************************
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
+package org.eclipse.equinox.frameworkadmin.internal.test;
+
+import java.io.*;
+import junit.framework.TestCase;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
+import org.osgi.framework.*;
+import org.osgi.util.tracker.ServiceTracker;
+
+public abstract class AbstractFwkAdminTest extends TestCase {
+	private ServiceTracker fwAdminTracker;
+
+	public FrameworkAdmin getEquinoxFrameworkAdmin() throws BundleException {
+		final String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
+		final String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
+		final String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)";
+		final String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")";
+
+		String FWK_ADMIN_EQ = "org.eclipse.equinox.frameworkadmin.equinox";
+		Bundle b = Platform.getBundle(FWK_ADMIN_EQ);
+		if (b == null)
+			throw new IllegalStateException("Bundle: " + FWK_ADMIN_EQ + " is required for this test");
+		b.start();
+
+		if (fwAdminTracker == null) {
+			Filter filter;
+			try {
+				filter = Activator.getContext().createFilter(filterFwAdmin);
+				fwAdminTracker = new ServiceTracker(Activator.getContext(), filter, null);
+				fwAdminTracker.open();
+			} catch (InvalidSyntaxException e) {
+				// never happens
+				e.printStackTrace();
+			}
+		}
+		return (FrameworkAdmin) fwAdminTracker.getService();
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		if (fwAdminTracker != null) {
+			fwAdminTracker.close();
+		}
+	}
+
+	public void assertIsFile(File file) {
+		if (!file.exists())
+			fail("File: " + file.toString() + " can't be found.");
+		if (file.isFile())
+			fail("File: " + file.toString() + " is expected to be a file.");
+	}
+
+	public void assertIsDirectory(File file) {
+		if (!file.exists())
+			fail("Directory: " + file.toString() + " can't be found.");
+		if (file.isDirectory())
+			fail("Directory: " + file.toString() + " is expected to be a directory.");
+	}
+
+	public void assertContent(File file, String search) {
+		if (!file.exists())
+			fail("File: " + file.toString() + " can't be found.");
+		try {
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+				while (reader.ready()) {
+					String line = reader.readLine();
+					if (line.indexOf(search) >= 0)
+						return;
+				}
+			} finally {
+				if (reader != null)
+					reader.close();
+			}
+		} catch (FileNotFoundException e) {
+			//ignore, caught before
+		} catch (IOException e) {
+			fail("String: " + search + " not found in " + file.getAbsolutePath());
+		}
+
+	}
+
+	public void assertSimpleConfiguratorManipulator() {
+		final String SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator";
+		Bundle manipulatorBundle = Platform.getBundle(SIMPLECONFIGURATOR_MANIPULATOR);
+		if (manipulatorBundle == null)
+			fail("Bundle: " + SIMPLECONFIGURATOR_MANIPULATOR + " is required for this test");
+		try {
+			manipulatorBundle.start();
+		} catch (BundleException e) {
+			fail("Exception while starting up " + SIMPLECONFIGURATOR_MANIPULATOR + ' ' + e.getMessage());
+		}
+	}
+}
