@@ -68,7 +68,7 @@ public abstract class Phase {
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
 		parameters.put("operand", operand);
-		status.add(initializeOperand(operand, parameters, null));
+		status.add(initializeOperand(operand, parameters, new NullProgressMonitor()));
 		status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
 		parameters = Collections.unmodifiableMap(parameters);
 		for (int j = 0; j < actions.length; j++) {
