@@ -83,9 +83,12 @@ public class ECFTransport extends Transport {
 				if (event instanceof IIncomingFileTransferReceiveDataEvent) {
 					IIncomingFileTransfer source = ((IIncomingFileTransferReceiveDataEvent) event).getSource();
 					ID id = source.getID();
-					monitor.subTask("Transferring " + id == null ? "" : id.getName() + " (" + (int) (source.getPercentComplete() * 100) + "% complete)");
-					if (monitor.isCanceled())
-						source.cancel();
+					// TODO do proper monitor things here.
+					if (monitor != null) {
+						monitor.subTask("Transferring " + id == null ? "" : id.getName() + " (" + (int) (source.getPercentComplete() * 100) + "% complete)");
+						if (monitor.isCanceled())
+							source.cancel();
+					}
 				}
 				if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
 					IStatus status = convertToStatus(((IIncomingFileTransferReceiveDoneEvent) event).getException());
