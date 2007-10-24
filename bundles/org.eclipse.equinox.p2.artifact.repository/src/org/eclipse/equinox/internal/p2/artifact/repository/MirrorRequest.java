@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 public class MirrorRequest extends ArtifactRequest {
@@ -45,18 +46,21 @@ public class MirrorRequest extends ArtifactRequest {
 				for (int i = 0; i < descriptors.length; i++) {
 					if (descriptors[i].getProperty(IArtifactDescriptor.FORMAT) == null)
 						canonical = descriptors[i];
-					else
+					else if (ProcessingStepHandler.canProcess(descriptors[i]))
 						optimized = descriptors[i];
 				}
+				boolean chooseCanonical = source.getLocation().getProtocol().equals("file");
 				// If the source repo is local then look for a canonical descriptor so we don't waste processing time.
-				descriptor = source.getLocation().getProtocol().equals("file") ? canonical : optimized;
-				// if the descriptor is still null then we could not find our first chioce of format so switch the logic.
+				descriptor = chooseCanonical ? canonical : optimized;
+				// if the descriptor is still null then we could not find our first choice of format so switch the logic.
 				if (descriptor == null)
-					descriptor = !source.getLocation().getProtocol().equals("file") ? canonical : optimized;
+					descriptor = !chooseCanonical ? canonical : optimized;
 			}
 		}
 
 		// if the descriptor is not set now then the repo does not have the requested artifact
+		// TODO improve the reporting here.  It may be the case that the repo has the artifact
+		// but the client does not have a processor
 		if (descriptor == null) {
 			setResult(new Status(IStatus.ERROR, Activator.ID, "Artifact requested can't be found:" + getArtifactKey()));
 			return;

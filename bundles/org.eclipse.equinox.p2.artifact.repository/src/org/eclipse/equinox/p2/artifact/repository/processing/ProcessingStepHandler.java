@@ -27,6 +27,22 @@ public class ProcessingStepHandler {
 		return ((ProcessingStep) output).getStatus(true);
 	}
 
+	/**
+	 * Check to see that we have processors for all the steps in the given descriptor
+	 * @param descriptor the descriptor to check
+	 * @return whether or not processors for all the descriptor's steps are installed
+	 */
+	public static boolean canProcess(IArtifactDescriptor descriptor) {
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
+		IExtensionPoint point = registry.getExtensionPoint("org.eclipse.equinox.p2.artifact.repository.processingSteps");
+		ProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
+		for (int i = 0; i < steps.length; i++) {
+			if (point.getExtension(steps[i].getProcessorId()) == null)
+				return false;
+		}
+		return true;
+	}
+
 	public ProcessingStep[] create(ProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
 		ProcessingStep[] result = new ProcessingStep[descriptors.length];
 		for (int i = 0; i < descriptors.length; i++)
