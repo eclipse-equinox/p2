@@ -36,20 +36,23 @@ public class MirrorRequest extends ArtifactRequest {
 		}
 
 		// if the request does not have a descriptor then try to fill one in by getting
-		// the list of all and randomly picking the first one.
+		// the list of all and randomly picking one that appears to be optimized.
 		if (descriptor == null) {
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(getArtifactKey());
 			if (descriptors.length > 0) {
-				boolean optimizedFound = false;
+				IArtifactDescriptor optimized = null;
+				IArtifactDescriptor canonical = null;
 				for (int i = 0; i < descriptors.length; i++) {
-					if (descriptors[i].getProcessingSteps().length == 0) {
-						if (!optimizedFound)
-							descriptor = descriptors[i];
-					} else {
-						optimizedFound = true;
-						descriptor = descriptors[i];
-					}
+					if (descriptors[i].getProperty(IArtifactDescriptor.FORMAT) == null)
+						canonical = descriptors[i];
+					else
+						optimized = descriptors[i];
 				}
+				// If the source repo is local then look for a canonical descriptor so we don't waste processing time.
+				descriptor = source.getLocation().getProtocol().equals("file") ? canonical : optimized;
+				// if the descriptor is still null then we could not find our first chioce of format so switch the logic.
+				if (descriptor == null)
+					descriptor = !source.getLocation().getProtocol().equals("file") ? canonical : optimized;
 			}
 		}
 
@@ -67,7 +70,7 @@ public class MirrorRequest extends ArtifactRequest {
 		ArtifactDescriptor destinationDescriptor = new ArtifactDescriptor(getArtifactDescriptor());
 		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
 		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
-		//		clonedDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, null);
+		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, null);
 
 		OutputStream destination = target.getOutputStream(destinationDescriptor);
 		if (destination == null) {
@@ -77,7 +80,7 @@ public class MirrorRequest extends ArtifactRequest {
 
 		// Do the actual transfer
 		try {
-			setResult(source.getArtifact(descriptor, destination, monitor));
+			setResult(descriptor.getRepository().getArtifact(descriptor, destination, monitor));
 			return;
 		} finally {
 			try {
