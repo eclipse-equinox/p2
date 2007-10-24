@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
+import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.filetransfer.*;
 import org.eclipse.ecf.filetransfer.events.*;
 import org.eclipse.ecf.filetransfer.identity.FileCreateException;
@@ -81,7 +82,8 @@ public class ECFTransport extends Transport {
 				}
 				if (event instanceof IIncomingFileTransferReceiveDataEvent) {
 					IIncomingFileTransfer source = ((IIncomingFileTransferReceiveDataEvent) event).getSource();
-					monitor.subTask("Transferring " + source.getID().getName() + " (" + (int) (source.getPercentComplete() * 100) + "% complete)");
+					ID id = source.getID();
+					monitor.subTask("Transferring " + id == null ? "" : id.getName() + " (" + (int) (source.getPercentComplete() * 100) + "% complete)");
 					if (monitor.isCanceled())
 						source.cancel();
 				}
