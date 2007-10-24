@@ -41,8 +41,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		setProperty(IArtifactDescriptor.ARTIFACT_SIZE, base.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
 		setProperty(IArtifactDescriptor.DOWNLOAD_MD5, base.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
 		setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, base.getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
-		// TODO this property is hardcoded for the blob store.
-		//		setProperty("artifact.uuid", base.getProperty("artifact.uuid"));
+		setProperty(IArtifactDescriptor.FORMAT, base.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 	public ArtifactDescriptor(ArtifactDescriptor base) {
@@ -130,5 +129,12 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 
 	public void setRepository(IArtifactRepository value) {
 		repository = value;
+	}
+
+	public String toString() {
+		String format = getProperty(IArtifactDescriptor.FORMAT);
+		if (format == null)
+			return "canonical: " + key.toString(); //$NON-NLS-1$
+		return format + ": " + key.toString(); //$NON-NLS-1$
 	}
 }

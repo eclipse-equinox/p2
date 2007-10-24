@@ -380,6 +380,8 @@ public class Generator {
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
 		root.setVersion(new Version(configurationVersion));
+		// TODO, bit of a hack but for now set the name of the IU to the ID.
+		root.setProperty(IInstallableUnitConstants.NAME, configurationIdentification);
 
 		ArrayList reqsConfigurationUnits = new ArrayList(resultantIUs.size());
 		for (Iterator iterator = resultantIUs.iterator(); iterator.hasNext();) {
@@ -464,7 +466,7 @@ public class Generator {
 		} else {
 			File tempFile = null;
 			try {
-				tempFile = File.createTempFile("work", "");
+				tempFile = File.createTempFile("p2.generator", "");
 				FileUtils.zip(files, tempFile);
 				if (!destination.contains(descriptor)) {
 					OutputStream output = destination.getOutputStream(descriptor);

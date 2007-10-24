@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.metadata.generator;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
@@ -19,6 +20,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 
 public class BundleDescriptionFactory {
 	static final String DIR = "dir";
@@ -79,6 +81,7 @@ public class BundleDescriptionFactory {
 			Dictionary manifest = manifestToProperties(new Manifest(manifestStream).getMainAttributes());
 			// remember the format of the bundle as we found it
 			manifest.put(BUNDLE_FILE_KEY, bundleLocation.isDirectory() ? DIR : JAR);
+			localizeManifest(manifest, bundleLocation);
 			return manifest;
 		} catch (IOException ioe) {
 			return null;
@@ -95,6 +98,53 @@ public class BundleDescriptionFactory {
 				//Ignore
 			}
 		}
+	}
+
+	// TODO this is a temporary hack to eagerly bind the translations (i.e., english) strings
+	// into the manifest values.  Eventualy we should stop doing this and have a real NL story for
+	// metadata.
+	private void localizeManifest(Dictionary manifest, File bundleLocation) {
+		String localizationFile = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
+		if (localizationFile == null)
+			localizationFile = "plugin";
+		localizationFile += ".properties";
+		try {
+			Properties strings = loadProperties(bundleLocation, localizationFile);
+			// Walk over the manifest and try to replace all %xxx with the string value in the properties file
+			for (Enumeration e = manifest.keys(); e.hasMoreElements();) {
+				String key = (String) e.nextElement();
+				String value = (String) manifest.get(key);
+				if (value.startsWith("%")) {
+					String newValue = strings.getProperty(value.substring(1));
+					if (newValue != null)
+						manifest.put(key, newValue);
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private Properties loadProperties(File bundleLocation, String localizationFile) throws IOException {
+		Properties result = new Properties();
+		InputStream propertyStream = null;
+		try {
+			try {
+				if (bundleLocation.isDirectory())
+					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
+				else
+					propertyStream = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openStream();
+			} catch (FileNotFoundException e) {
+				// if there is no messages file then just return;
+				return result;
+			}
+			result.load(propertyStream);
+		} finally {
+			if (propertyStream != null)
+				propertyStream.close();
+		}
+		return result;
 	}
 
 	private Properties manifestToProperties(Attributes attributes) {

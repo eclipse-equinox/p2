@@ -106,11 +106,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
-			try {
-				return blobStore.fileFor(uuid.getBytes("UTF8")); //$NON-NLS-1$
-			} catch (UnsupportedEncodingException e) {
-				// We have more serious problems if UTF8 is not supported...
-			}
+			return blobStore.fileFor(bytesFromHexString(uuid));
 
 		// if the descriptor is complete then use the mapping rules...
 		if (descriptor.getProcessingSteps().length == 0) {
@@ -125,19 +121,44 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private String createLocation(ArtifactDescriptor descriptor) {
-		String result = getLocation(descriptor);
-		if (result != null)
-			return result;
-		// Generate a location by creating a UUID, remembering it in the properties 
-		// and computing the location
-		try {
-			byte[] bytes = new UniversalUniqueIdentifier().toBytes();
-			descriptor.setProperty(ARTIFACT_UUID, new String(bytes, "UTF8")); //$NON-NLS-1$)
-			return blobStore.fileFor(bytes);
-		} catch (UnsupportedEncodingException e) {
-			// We have more serious problems if UTF8 is not supported...
-			return null;
+		// if the descriptor is canonical, clear out any UUID that might be set and use the Mapper
+		if (descriptor.getProcessingSteps().length == 0) {
+			descriptor.setProperty(ARTIFACT_UUID, null);
+			IArtifactKey key = descriptor.getArtifactKey();
+			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString());
+			if (result != null)
+				return result;
 		}
+
+		// Otherwise generate a location by creating a UUID, remembering it in the properties 
+		// and computing the location
+		byte[] bytes = new UniversalUniqueIdentifier().toBytes();
+		descriptor.setProperty(ARTIFACT_UUID, bytesToHexString(bytes));
+		return blobStore.fileFor(bytes);
+	}
+
+	private String bytesToHexString(byte[] bytes) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < bytes.length; i++) {
+			String hexString;
+			if (bytes[i] < 0)
+				hexString = Integer.toHexString(256 + bytes[i]);
+			else
+				hexString = Integer.toHexString(bytes[i]);
+			if (hexString.length() == 1)
+				buffer.append("0"); //$NON-NLS-1$
+			buffer.append(hexString);
+		}
+		return buffer.toString();
+	}
+
+	private byte[] bytesFromHexString(String string) {
+		byte[] bytes = new byte[UniversalUniqueIdentifier.BYTES_SIZE];
+		for (int i = 0; i < string.length(); i += 2) {
+			String byteString = string.substring(i, i + 2);
+			bytes[i / 2] = (byte) Integer.parseInt(byteString, 16);
+		}
+		return bytes;
 	}
 
 	public IArtifactKey[] getArtifactKeys() {
@@ -195,7 +216,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (!stepStatus.isMultiStatus() && stepStatus.isOK())
 			return status;
 		// else gather up the status from the 
-		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, null, "Status of getting artifact " + toDownload, null);
+		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, new IStatus[0], "Status of getting artifact " + toDownload, null);
 		result.merge(status);
 		result.merge(stepStatus);
 		return result;
@@ -264,10 +285,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 
 		public void close() throws IOException {
-			// Write the artifact descriptor
 			destination.close();
-			((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
-			addDescriptor(descriptor);
+			// if the steps ran ok and there was actual content, write the artifact descriptor
+			// TODO the count check is a bit bogus but helps in some error cases (e.g., the optimizer)
+			// where errors occured in a processing step earlier in the chain.  We likely need a better
+			// or more explicit way of handling this case.
+			if (ProcessingStepHandler.validateSteps(destination).isOK() && count > 0) {
+				((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
+				addDescriptor(descriptor);
+			}
 		}
 	}
 

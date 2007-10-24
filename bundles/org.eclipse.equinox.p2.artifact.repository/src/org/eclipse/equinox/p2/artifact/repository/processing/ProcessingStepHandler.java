@@ -21,6 +21,12 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
  */
 public class ProcessingStepHandler {
 
+	public static IStatus validateSteps(OutputStream output) {
+		if (!(output instanceof ProcessingStep))
+			return Status.OK_STATUS;
+		return ((ProcessingStep) output).getStatus(true);
+	}
+
 	public ProcessingStep[] create(ProcessingStepDescriptor[] descriptors, IArtifactDescriptor context) {
 		ProcessingStep[] result = new ProcessingStep[descriptors.length];
 		for (int i = 0; i < descriptors.length; i++)
@@ -64,11 +70,5 @@ public class ProcessingStepHandler {
 			previous = step;
 		}
 		return previous;
-	}
-
-	public IStatus validateSteps(OutputStream output) {
-		if (!(output instanceof ProcessingStep))
-			return Status.OK_STATUS;
-		return ((ProcessingStep) output).getStatus(true);
 	}
 }

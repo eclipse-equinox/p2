@@ -67,7 +67,7 @@ public class ArtifactKey implements IArtifactKey {
 	}
 
 	public String toString() {
-		return "ArtifactKey=" + id + '/' + namespace + '/' + classifier + '/' + getVersion(); //$NON-NLS-1$
+		return id + '/' + namespace + '/' + classifier + '/' + getVersion();
 	}
 
 	public boolean equals(Object obj) {

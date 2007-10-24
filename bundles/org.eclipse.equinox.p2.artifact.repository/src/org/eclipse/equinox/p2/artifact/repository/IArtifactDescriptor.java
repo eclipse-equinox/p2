@@ -19,6 +19,7 @@ public interface IArtifactDescriptor {
 	public static final String ARTIFACT_SIZE = "artifact.size"; //$NON-NLS-1$
 	public static final String DOWNLOAD_MD5 = "download.md5"; //$NON-NLS-1$
 	public static final String ARTIFACT_MD5 = "artifact.md5"; //$NON-NLS-1$
+	public static final String FORMAT = "format"; //$NON-NLS-1$
 
 	/**
 	 * Return the key for the artifact described by this descriptor.

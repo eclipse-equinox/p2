@@ -120,6 +120,19 @@ public class FileUtils {
 		}
 	}
 
+	// Delete the given file whether it is a file or a directory
+	public static void deleteAll(File file) throws IOException {
+		if (!file.exists())
+			return;
+		if (file.isDirectory()) {
+			File[] files = file.listFiles();
+			if (files != null)
+				for (int i = 0; i < files.length; i++)
+					deleteAll(files[i]);
+		}
+		file.delete();
+	}
+
 	/**
 	 * Copy an input stream to an output stream.
 	 * Optionally close the streams when done.

@@ -48,7 +48,7 @@ public class MetadataGeneratorHelper {
 	public static final TouchpointType TOUCHPOINT_NATIVE = new TouchpointType("native", new Version(1, 0, 0)); //$NON-NLS-1$
 	public static final TouchpointType TOUCHPOINT_ECLIPSE = new TouchpointType("eclipse", new Version(1, 0, 0)); //$NON-NLS-1$
 
-	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
+	public static ArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
 		//TODO this size calculation is bogus
 		ArtifactDescriptor result = new ArtifactDescriptor(key);
 		if (pathOnDisk != null) {
@@ -223,6 +223,8 @@ public class MetadataGeneratorHelper {
 		InstallableUnit iu = new InstallableUnit();
 		iu.setId(getTransformedId(feature.getId(), false));
 		iu.setVersion(new Version(feature.getVersion()));
+		// TODO bit of a hack.  for now set the IU name to the id.  Need to figure out how to localize
+		iu.setProperty(IInstallableUnitConstants.NAME, iu.getId());
 		iu.setProperty(IInstallableUnitConstants.UPDATE_FROM, iu.getId());
 		iu.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
 

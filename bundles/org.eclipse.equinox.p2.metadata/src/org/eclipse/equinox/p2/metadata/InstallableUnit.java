@@ -121,6 +121,11 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 	}
 
 	public String setProperty(String key, String value) {
+		if (value == null)
+			if (properties == null)
+				return null;
+			else
+				return (String) properties.remove(key);
 		if (properties == null)
 			properties = new OrderedProperties();
 		return (String) properties.setProperty(key, value);

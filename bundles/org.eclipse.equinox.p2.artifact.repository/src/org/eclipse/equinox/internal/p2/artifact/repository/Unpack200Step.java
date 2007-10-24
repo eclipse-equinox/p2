@@ -38,7 +38,7 @@ public class Unpack200Step extends ProcessingStep {
 		if (tempStream != null)
 			return tempStream;
 		// store input stream in temporary file
-		packed = File.createTempFile("pack200", PACKED_EXT);
+		packed = File.createTempFile("p2.pack200", PACKED_EXT);
 		tempStream = new BufferedOutputStream(new FileOutputStream(packed));
 		return tempStream;
 	}
@@ -55,7 +55,7 @@ public class Unpack200Step extends ProcessingStep {
 			tempStream.close();
 			// now create a temporary directory for the JarProcessor to work in
 			// TODO How to create a unique, temporary directory atomically?
-			workDir = File.createTempFile("work", "");
+			workDir = File.createTempFile("p2.unpack", "");
 			if (!workDir.delete())
 				throw new IOException("Could not delete file for creating temporary working dir.");
 			if (!workDir.mkdirs())
@@ -72,14 +72,14 @@ public class Unpack200Step extends ProcessingStep {
 			// now write the unpacked content to our destination
 			String packedFileName = packed.getName();
 			unpacked = new File(workDir, packedFileName.substring(0, packedFileName.length() - PACKED_SUFFIX.length()));
+			if (unpacked.length() == 0)
+				System.out.println("Empty file unpacked:  " + unpacked);
 			unpackedStream = new BufferedInputStream(new FileInputStream(unpacked));
 			FileUtils.copyStream(unpackedStream, true, destination, false);
-			unpackedStream = null;
 		} finally {
+			// note that unpackedStream will be closed by copyStream()
 			if (packed != null)
 				packed.delete();
-			if (unpackedStream != null)
-				unpackedStream.close();
 			if (unpacked != null)
 				unpacked.delete();
 			if (workDir != null)

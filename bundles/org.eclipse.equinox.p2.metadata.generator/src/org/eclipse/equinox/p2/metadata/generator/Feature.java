@@ -35,7 +35,6 @@ public class Feature implements IPlatformEntry {
 	private ArrayList discoverySites;
 
 	private ArrayList entries;
-	private String name;
 	private String providerName;
 	private String os;
 	private String ws;
@@ -97,10 +96,6 @@ public class Feature implements IPlatformEntry {
 		if (this.description == null)
 			this.description = new URLEntry();
 		this.description.setURL(descriptionURL);
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public String getProviderName() {
