@@ -280,10 +280,22 @@ public class EquinoxFwConfigFileParser {
 			is = null;
 		}
 
+		//Start by extracting fwkJar location 
+
 		String launcherName = null;
 		String launcherPath = null;
 		configData.setBundles(null);
-		props = makeAbsolute(props, launcherData.getLauncher().getParentFile().toURL());
+
+		//Handle the fwk first
+		String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
+		File fwJar = null;
+		if (fwJarString != null) {
+			fwJar = new File(new URL(fwJarString).getFile());
+			launcherData.setFwJar(fwJar);
+			configData.addBundle(new BundleInfo(fwJarString));
+		}
+
+		props = makeAbsolute(props, launcherData.getLauncher().getParentFile().toURL(), fwJar);
 		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			String value = props.getProperty(key);
@@ -298,11 +310,6 @@ public class EquinoxFwConfigFileParser {
 					configData.setFwDependentProp(key, value);
 				} else
 					configData.setFwIndependentProp(key, value);
-				if (key.equals(EquinoxConstants.PROP_OSGI_FW)) {
-					File f = new File(new URL(value).getFile());
-					launcherData.setFwJar(f);
-					configData.addBundle(new BundleInfo(value));
-				}
 				if (key.equals(EquinoxConstants.PROP_LAUNCHER_NAME))
 					if (launcherData.getLauncher() == null)
 						launcherName = value;
@@ -357,7 +364,7 @@ public class EquinoxFwConfigFileParser {
 		return props;
 	}
 
-	private static Properties makeAbsolute(Properties props, URL rootURL) throws IOException {
+	private static Properties makeAbsolute(Properties props, URL rootURL, File fwJar) throws IOException {
 		for (int i = 0; i < PATHS.length; i++) {
 			String path = props.getProperty(PATHS[i]);
 			if (path != null)
@@ -371,8 +378,11 @@ public class EquinoxFwConfigFileParser {
 		}
 
 		String value = props.getProperty(KEY_OSGI_BUNDLES);
-		if (value != null)
-			props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayAbsolute(value, new URL(rootURL, "plugins/")));
+		if (value != null && fwJar != null) {
+			File parent = fwJar.getParentFile();
+			if (parent != null)
+				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayAbsolute(value, parent.toURL()));
+		}
 
 		String extra = props.getProperty(KEY_OSGI_BUNDLES_EXTRA_DATA);
 		if (extra != null) {
