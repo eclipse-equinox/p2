@@ -12,8 +12,12 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor;
 import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
@@ -22,16 +26,20 @@ import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
  * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.   
  */
 public class Unpack200Step extends ProcessingStep {
-	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
 	public static final String JAR_SUFFIX = ".jar"; //$NON-NLS-1$
+	public static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
 	private final static String PACKED_EXT = JAR_SUFFIX + PACKED_SUFFIX;
 
 	private File packed;
 	private OutputStream tempStream;
 
-	public void write(int b) throws IOException {
-		OutputStream stream = getOutputStream();
-		stream.write(b);
+	public void close() throws IOException {
+		// When we go to close we must have seen all the content we are going to see
+		// So before closing, run unpack and write the unpacked result to the destination
+		performUnpack();
+		super.close();
+		if (status == null)
+			status = Status.OK_STATUS;
 	}
 
 	private OutputStream getOutputStream() throws IOException {
@@ -41,6 +49,12 @@ public class Unpack200Step extends ProcessingStep {
 		packed = File.createTempFile("p2.pack200", PACKED_EXT);
 		tempStream = new BufferedOutputStream(new FileOutputStream(packed));
 		return tempStream;
+	}
+
+	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+		super.initialize(descriptor, context);
+		if (!UnpackStep.canUnpack())
+			status = new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured");
 	}
 
 	private void performUnpack() throws IOException {
@@ -87,13 +101,9 @@ public class Unpack200Step extends ProcessingStep {
 		}
 	}
 
-	public void close() throws IOException {
-		// When we go to close we must have seen all the content we are going to see
-		// So before closing, run unpack and write the unpacked result to the destination
-		performUnpack();
-		super.close();
-		if (status == null)
-			status = Status.OK_STATUS;
+	public void write(int b) throws IOException {
+		OutputStream stream = getOutputStream();
+		stream.write(b);
 	}
 
 }
