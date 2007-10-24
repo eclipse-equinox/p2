@@ -82,19 +82,19 @@ public interface IArtifactRepository extends IRepository {
 	public void addDescriptor(IArtifactDescriptor descriptor);
 
 	/**
-	 * Remove the given descriptor from the set of descriptors in this repository.  
+	 * Remove the given descriptor and its corresponding content in this repository.  
 	 * @param descriptor the descriptor to remove.
 	 */
 	public void removeDescriptor(IArtifactDescriptor descriptor);
 
 	/**
-	 * Remove the given key and all related descriptors from this repository.  
+	 * Remove the given key and all related content and descriptors from this repository.  
 	 * @param key the key to remove.
 	 */
 	public void removeDescriptor(IArtifactKey key);
 
 	/**
-	 * Remove the all key and descriptor information from this repository.  
+	 * Remove the all keys, descriptors, and contents from this repository.
 	 */
 	public void removeAll();
 

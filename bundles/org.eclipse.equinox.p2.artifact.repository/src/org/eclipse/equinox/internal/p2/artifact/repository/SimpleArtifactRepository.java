@@ -385,25 +385,42 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		properties.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 	}
 
+	/**
+	 * Removes the given descriptor, and the physical artifact corresponding
+	 * to that descriptor. Returns <code>true</code> if and only if the
+	 * descriptor existed in the repository, and was successfully removed.
+	 */
+	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
+		File file = getArtifactFile(descriptor);
+		if (file == null)
+			return false;
+		file.delete();
+		if (!file.exists())
+			return artifactDescriptors.remove(descriptor);
+		return false;
+	}
+
 	public void removeAll() {
-		artifactDescriptors.clear();
-		save();
+		IArtifactDescriptor[] toRemove = (IArtifactDescriptor[]) artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
+		boolean changed = false;
+		for (int i = 0; i < toRemove.length; i++)
+			changed |= doRemoveArtifact(toRemove[i]);
+		if (changed)
+			save();
 	}
 
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
-		artifactDescriptors.remove(descriptor);
-		save();
+		if (doRemoveArtifact(descriptor))
+			save();
 	}
 
 	public void removeDescriptor(IArtifactKey key) {
-		ArrayList toRemove = new ArrayList();
-		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
-			if (descriptor.getArtifactKey().equals(key))
-				toRemove.add(descriptor);
-		}
-		artifactDescriptors.removeAll(toRemove);
-		save();
+		IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
+		boolean changed = false;
+		for (int i = 0; i < toRemove.length; i++)
+			changed |= doRemoveArtifact(toRemove[i]);
+		if (changed)
+			save();
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
