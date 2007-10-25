@@ -262,10 +262,12 @@ public class EquinoxFwConfigFileParser {
 		if (inputFile.isDirectory())
 			throw new IllegalArgumentException("inputFile:" + inputFile + " must not be a directory.");
 
+		//Initialize data structures
 		ConfigData configData = manipulator.getConfigData();
 		LauncherData launcherData = manipulator.getLauncherData();
 		configData.initialize();
 
+		//Load properties
 		Properties props = new Properties();
 		InputStream is = null;
 		try {
@@ -280,22 +282,26 @@ public class EquinoxFwConfigFileParser {
 			is = null;
 		}
 
-		//Start by extracting fwkJar location 
+		//Start figuring out stuffs 
+		URL rootURL = launcherData.getLauncher().getParentFile().toURL();
 
+		//Extracting fwkJar location needs to be done first 
 		String launcherName = null;
 		String launcherPath = null;
 		configData.setBundles(null);
 
-		//Handle the fwk first
-		String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
 		File fwJar = null;
-		if (fwJarString != null) {
-			fwJar = new File(new URL(fwJarString).getFile());
-			launcherData.setFwJar(fwJar);
-			configData.addBundle(new BundleInfo(fwJarString));
+		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null) {
+			props.setProperty(KEY_OSGI_FRAMEWORK, EquinoxManipulatorImpl.makeAbsolute(props.getProperty(EquinoxConstants.PROP_OSGI_FW), rootURL));
+			String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
+			if (fwJarString != null) {
+				fwJar = new File(new URL(fwJarString).getFile());
+				launcherData.setFwJar(fwJar);
+				configData.addBundle(new BundleInfo(fwJarString));
+			}
 		}
 
-		props = makeAbsolute(props, launcherData.getLauncher().getParentFile().toURL(), fwJar);
+		props = makeAbsolute(props, rootURL, fwJar);
 		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			String value = props.getProperty(key);
