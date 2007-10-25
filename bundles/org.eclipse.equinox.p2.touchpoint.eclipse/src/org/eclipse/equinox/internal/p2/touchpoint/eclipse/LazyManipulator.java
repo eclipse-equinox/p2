@@ -14,8 +14,8 @@ public class LazyManipulator implements Manipulator {
 	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)"; //$NON-NLS-1$ //$NON-NLS-2$
 	private final static String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ')'; //$NON-NLS-1$;
 
-	Manipulator manipulator;
-	private Profile profile;
+	private Manipulator manipulator;
+	private final Profile profile;
 
 	public LazyManipulator(Profile profile) {
 		this.profile = profile;
