@@ -67,5 +67,16 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		manipulator.getConfigData().addBundle(bi);
 		manipulator.save(false);
 		assertContent(new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.txt"), FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm());
+
+		Manipulator newManipulator = fwkAdmin.getManipulator();
+		LauncherData newLauncherData = newManipulator.getLauncherData();
+		newLauncherData.setFwConfigLocation(configurationFolder);
+		newLauncherData.setLauncher(new File(installFolder, launcherName));
+		try {
+			manipulator.load();
+		} catch (IllegalStateException e) {
+			//TODO We ignore the framework JAR location not set exception
+		}
+
 	}
 }
