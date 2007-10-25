@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.p2.installregistry.IProfileInstallRegistry;
@@ -157,6 +158,13 @@ public class Profile implements IQueryable {
 		IProfileInstallRegistry profile = registry.getProfileInstallRegistry(this);
 		if (profile == null)
 			return null;
-		return profile.setInstallableUnitProfileProperty(iu, key, value);
+		String previousValue = profile.setInstallableUnitProfileProperty(iu, key, value);
+		// TODO this is not the ideal place for this.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
+		ProvisioningEventBus bus = (ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName());
+		if (bus != null)
+			bus.publishEvent(new ProfileEvent(this, ProfileEvent.CHANGED));
+		return previousValue;
 	}
 }

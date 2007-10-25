@@ -17,6 +17,9 @@ public class ProfileEvent extends EventObject {
 
 	public static byte ADDED = 0;
 	public static byte REMOVED = 1;
+	// TODO We need an event when profile properties change.  Not fully implemented.
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
+	public static byte CHANGED = 2;
 
 	private byte reason;
 

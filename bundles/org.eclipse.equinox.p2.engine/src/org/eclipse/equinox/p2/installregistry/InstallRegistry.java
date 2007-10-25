@@ -65,6 +65,9 @@ public class InstallRegistry implements IInstallRegistry {
 						// the assumption is that the second operand will get installed or else 
 						// this change will never be committed.  The alternative is to remember
 						// a transitory root value that we set when the install is received.
+						// The ideal solution is that this is handled in a profile delta by
+						// the engine.
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077 
 						if (isRoot && event.getOperand().second() != null) {
 							registry.setInstallableUnitProfileProperty(event.getOperand().second().getOriginal(), IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
 						}
@@ -79,6 +82,9 @@ public class InstallRegistry implements IInstallRegistry {
 					ProfileEvent pe = (ProfileEvent) o;
 					if (pe.getReason() == ProfileEvent.REMOVED) {
 						profileRegistries.remove(pe.getProfile().getProfileId());
+						persist();
+					} else if (pe.getReason() == ProfileEvent.CHANGED) {
+						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
 						persist();
 					}
 				}
