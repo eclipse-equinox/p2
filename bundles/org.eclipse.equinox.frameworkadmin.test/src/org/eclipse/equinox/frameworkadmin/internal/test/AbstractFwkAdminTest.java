@@ -118,7 +118,7 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		} catch (IOException e) {
 			fail("String: " + search + " not found in " + file.getAbsolutePath());
 		}
-
+		fail("String:" + search + " not found");
 	}
 
 	public void startSimpleConfiguratormManipulator() {

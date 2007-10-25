@@ -10,6 +10,7 @@ package org.eclipse.equinox.frameworkadmin.internal.test;
 
 import java.io.File;
 import java.io.IOException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
 
@@ -82,5 +83,21 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 		}
 		assertNothing(getConfigurationFolder());
 		assertNothing(new File(getInstallFolder(), getLauncherName() + ".ini"));
+	}
+
+	public void testWithMutipleBundles() throws IOException {
+		BundleInfo bi = new BundleInfo(FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm(), 2);
+		m.getConfigData().addBundle(bi);
+		m.save(false);
+
+		BundleInfo[] bis = m.getConfigData().getBundles();
+		for (int i = 0; i < bis.length; i++) {
+			if (bis[i].getSymbolicName().equals("org.eclipse.equinox.simpleconfigurator"))
+				m.getConfigData().removeBundle(bis[i]);
+		}
+		m.save(false);
+
+		assertNothing(getBundleTxt());
+		assertContent(getConfigIni(), "bundle_1");
 	}
 }
