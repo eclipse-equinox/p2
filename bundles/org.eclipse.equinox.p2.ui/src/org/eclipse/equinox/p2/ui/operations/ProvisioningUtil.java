@@ -285,13 +285,24 @@ public class ProvisioningUtil {
 	}
 
 	public static IStatus performInstall(ProvisioningPlan plan, Profile profile, IInstallableUnit[] installRoots, IProgressMonitor monitor) throws ProvisionException {
-		IStatus engineResult = performProvisioningPlan(plan, profile, PERFORM_ALL, monitor);
-		if (engineResult.isOK()) {
-			// mark the roots as such
-			for (int i = 0; i < installRoots.length; i++)
-				profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
+		String taskMessage;
+		if (installRoots.length == 1)
+			taskMessage = NLS.bind(ProvUIMessages.ProvisioningUtil_InstallOneTask, installRoots[0].getId(), profile.getProfileId());
+		else
+			taskMessage = NLS.bind(ProvUIMessages.ProvisioningUtil_InstallManyTask, Integer.toString(installRoots.length), profile.getProfileId());
+		try {
+			SubMonitor sub = SubMonitor.convert(monitor, taskMessage, 100);
+			monitor.beginTask(taskMessage, 100);
+			IStatus engineResult = performProvisioningPlan(plan, profile, PERFORM_ALL, sub.newChild(100));
+			if (engineResult.isOK()) {
+				// mark the roots as such
+				for (int i = 0; i < installRoots.length; i++)
+					profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
+			}
+			return engineResult;
+		} finally {
+			monitor.done();
 		}
-		return engineResult;
 	}
 
 	public static IStatus performProvisioningPlan(ProvisioningPlan plan, Profile profile, int phases, IProgressMonitor monitor) throws ProvisionException {

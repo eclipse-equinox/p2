@@ -45,6 +45,8 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningUtil_NoRepositoryManager;
 	public static String ProvisioningUtil_AddRepositoryFailure;
 	public static String ProvisioningUtil_CreateRepositoryFailure;
+	public static String ProvisioningUtil_InstallManyTask;
+	public static String ProvisioningUtil_InstallOneTask;
 	public static String ProvisioningUtil_RepoNotWritable;
 	public static String ProvisioningUtil_RepositoryNotFound;
 	public static String ProvisioningUtil_NoProfileRegistryFound;
