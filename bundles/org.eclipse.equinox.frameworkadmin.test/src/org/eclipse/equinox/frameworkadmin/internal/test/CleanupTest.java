@@ -24,7 +24,7 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		m = createMinimalConfiguration(CleanupTest.class.getSimpleName());
+		m = createMinimalConfiguration(CleanupTest.class.getName());
 	}
 
 	public void testSimpleConfiguratorRemoval() {

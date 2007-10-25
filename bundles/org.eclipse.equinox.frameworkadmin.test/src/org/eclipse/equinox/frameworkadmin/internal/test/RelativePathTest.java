@@ -19,7 +19,7 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 	}
 
 	public void testRelativePaths() throws Exception {
-		File installFolder = Activator.getContext().getDataFile(RelativePathTest.class.getSimpleName());
+		File installFolder = Activator.getContext().getDataFile(RelativePathTest.class.getName());
 
 		//First we copy some jars into a well
 		File osgiJar = new File(installFolder, "plugins/org.eclipse.osgi.jar");

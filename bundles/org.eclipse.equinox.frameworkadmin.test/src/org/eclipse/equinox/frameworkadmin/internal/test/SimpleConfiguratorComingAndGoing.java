@@ -23,7 +23,7 @@ public class SimpleConfiguratorComingAndGoing extends FwkAdminAndSimpleConfigura
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		m = createMinimalConfiguration(SimpleConfiguratorComingAndGoing.class.getSimpleName());
+		m = createMinimalConfiguration(SimpleConfiguratorComingAndGoing.class.getName());
 	}
 
 	public void testWithMutipleBundles() throws IOException, BundleException {

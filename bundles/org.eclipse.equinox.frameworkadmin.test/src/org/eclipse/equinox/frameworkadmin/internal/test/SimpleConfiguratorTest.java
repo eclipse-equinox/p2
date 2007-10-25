@@ -25,7 +25,7 @@ public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		File installFolder = Activator.getContext().getDataFile(SimpleConfiguratorTest.class.getSimpleName());
+		File installFolder = Activator.getContext().getDataFile(SimpleConfiguratorTest.class.getName());
 		File configurationFolder = new File(installFolder, "configuration");
 		String launcherName = "eclipse";
 
