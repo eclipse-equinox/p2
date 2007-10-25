@@ -33,7 +33,7 @@ public class Unconfigure extends Phase {
 		return getActions(unit, phaseId);
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IResolvedInstallableUnit iu = operand.first();
 		parameters.put("iu", iu);
 

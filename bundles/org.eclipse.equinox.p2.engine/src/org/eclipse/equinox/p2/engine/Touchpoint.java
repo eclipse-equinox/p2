@@ -32,11 +32,11 @@ public abstract class Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus initializeOperand(Operand operand, String phaseId, Map parameters) {
+	public IStatus initializeOperand(Profile profile, String phaseId, Operand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus completeOperand(Operand operand, String phaseId, Map parameters) {
+	public IStatus completeOperand(Profile profile, String phaseId, Operand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
 }

@@ -69,7 +69,7 @@ public class EngineSession {
 		for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 			ActionsRecord record = (ActionsRecord) it.previous();
 			ProvisioningAction[] actions = (ProvisioningAction[]) record.actions.toArray(new ProvisioningAction[record.actions.size()]);
-			phase.undoActions(result, actions, record.operand);
+			phase.undo(result, this, profile, record.operand, actions);
 		}
 		phase.postPerform(result, profile, new NullProgressMonitor());
 		return result;

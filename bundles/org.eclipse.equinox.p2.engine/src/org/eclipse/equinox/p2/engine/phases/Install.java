@@ -92,7 +92,7 @@ public class Install extends Phase {
 		return actions;
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IResolvedInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind("Installing {0}", iu.getId()));
 		parameters.put("iu", iu);

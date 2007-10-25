@@ -90,7 +90,7 @@ public class Uninstall extends Phase {
 		return actions;
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IResolvedInstallableUnit iu = operand.first();
 		parameters.put("iu", iu);
 

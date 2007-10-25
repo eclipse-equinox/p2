@@ -34,7 +34,7 @@ public class Configure extends Phase {
 		return getActions(unit, phaseId);
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IResolvedInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind("Configuring {0}", iu.getId()));
 		parameters.put("iu", iu);

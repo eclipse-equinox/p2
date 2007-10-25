@@ -24,9 +24,9 @@ public class Collect extends Phase {
 	public Collect(int weight) {
 		super(PHASE_ID, weight, Messages.Engine_Collect_Phase);
 		//re-balance work since postPerform will do almost all the time-consuming work
-		PRE_PERFORM_WORK = 0;
-		PERFORM_WORK = 100;
-		POST_PERFORM_WORK = 1000;
+		prePerformWork = 0;
+		mainPerformWork = 100;
+		postPerformWork = 1000;
 	}
 
 	protected boolean isApplicable(Operand op) {

@@ -24,9 +24,9 @@ public abstract class Phase {
 	protected final String phaseId;
 	protected final int weight;
 	protected final String phaseName;
-	protected int PRE_PERFORM_WORK = 1000;
-	protected int PERFORM_WORK = 10000;
-	protected int POST_PERFORM_WORK = 1000;
+	protected int prePerformWork = 1000;
+	protected int mainPerformWork = 10000;
+	protected int postPerformWork = 1000;
 	private Map phaseParameters;
 	private Map touchpointToTouchpointParameters;
 
@@ -52,32 +52,15 @@ public abstract class Phase {
 		return "Phase: " + this.phaseName + " - " + this.weight; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
+	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
 		MultiStatus status = new MultiStatus();
-		perform(status, session, profile, deltas, monitor);
+		perform(status, session, profile, operands, monitor);
 		if (status.matches(IStatus.CANCEL)) {
 			status.setMessage(Messages.Engine_Operation_Canceled_By_User);
 		} else if (status.matches(IStatus.ERROR)) {
 			status.setMessage(NLS.bind(Messages.Engine_Error_During_Phase, this.phaseName));
 		}
 		return status;
-	}
-
-	void undoActions(MultiStatus status, ProvisioningAction[] actions, Operand operand) {
-		Touchpoint touchpoint = getTouchpoint(operand);
-		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
-		Map parameters = new HashMap(touchpointParameters);
-		parameters.put("operand", operand);
-		status.add(initializeOperand(operand, parameters, new NullProgressMonitor()));
-		status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
-		parameters = Collections.unmodifiableMap(parameters);
-		for (int j = 0; j < actions.length; j++) {
-			ProvisioningAction action = actions[j];
-			IStatus actionStatus = action.undo(parameters);
-			status.add(actionStatus);
-		}
-		status.add(touchpoint.completeOperand(operand, phaseId, parameters));
-		status.add(completeOperand(operand, parameters));
 	}
 
 	void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
@@ -92,20 +75,20 @@ public abstract class Phase {
 			}
 		}
 
-		SubMonitor subMonitor = SubMonitor.convert(monitor, PRE_PERFORM_WORK + PERFORM_WORK + POST_PERFORM_WORK);
-		prePerform(status, profile, subMonitor.newChild(PRE_PERFORM_WORK));
+		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
+		prePerform(status, profile, subMonitor.newChild(prePerformWork));
 		if (status.isErrorOrCancel())
 			return;
 		session.recordPhaseStart(this);
 
-		subMonitor.setWorkRemaining(PERFORM_WORK + POST_PERFORM_WORK);
-		mainPerform(status, session, profile, operands, subMonitor.newChild(PERFORM_WORK));
+		subMonitor.setWorkRemaining(mainPerformWork + postPerformWork);
+		mainPerform(status, session, profile, operands, subMonitor.newChild(mainPerformWork));
 		if (status.isErrorOrCancel())
 			return;
 
 		session.recordPhaseEnd(this);
-		subMonitor.setWorkRemaining(POST_PERFORM_WORK);
-		postPerform(status, profile, subMonitor.newChild(POST_PERFORM_WORK));
+		subMonitor.setWorkRemaining(postPerformWork);
+		postPerform(status, profile, subMonitor.newChild(postPerformWork));
 		if (status.isErrorOrCancel())
 			return;
 
@@ -138,8 +121,6 @@ public abstract class Phase {
 			if (!isApplicable(operand))
 				continue;
 
-			Touchpoint touchpoint = getTouchpoint(operand);
-
 			ProvisioningAction[] actions;
 			try {
 				actions = getActions(operand);
@@ -148,11 +129,12 @@ public abstract class Phase {
 				return;
 			}
 
+			Touchpoint touchpoint = getTouchpoint(operand);
 			Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 			Map parameters = new HashMap(touchpointParameters);
 			parameters.put("operand", operand);
-			status.add(initializeOperand(operand, parameters, subMonitor));
-			status.add(touchpoint.initializeOperand(operand, phaseId, parameters));
+			status.add(initializeOperand(profile, operand, parameters, subMonitor));
+			status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
 			parameters = Collections.unmodifiableMap(parameters);
 			if (actions != null) {
 				for (int j = 0; j < actions.length; j++) {
@@ -163,7 +145,7 @@ public abstract class Phase {
 						return;
 				}
 			}
-			status.add(touchpoint.completeOperand(operand, phaseId, parameters));
+			status.add(touchpoint.completeOperand(profile, phaseId, operand, parameters));
 			status.add(completeOperand(operand, parameters));
 			subMonitor.worked(1);
 		}
@@ -181,50 +163,34 @@ public abstract class Phase {
 		phaseParameters = null;
 	}
 
-	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {
-		TouchpointData[] data = unit.getTouchpointData();
-		if (data == null)
-			return null;
+	void undo(MultiStatus status, EngineSession session, Profile profile, Operand operand, ProvisioningAction[] actions) {
+		Touchpoint touchpoint = getTouchpoint(operand);
+		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
+		Map parameters = new HashMap(touchpointParameters);
+		parameters.put("operand", operand);
+		status.add(initializeOperand(profile, operand, parameters, new NullProgressMonitor()));
+		status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
+		parameters = Collections.unmodifiableMap(parameters);
+		for (int j = 0; j < actions.length; j++) {
+			ProvisioningAction action = actions[j];
+			IStatus actionStatus = action.undo(parameters);
+			status.add(actionStatus);
+			// TODO: session.removeAction(...)
+		}
+		status.add(touchpoint.completeOperand(profile, phaseId, operand, parameters));
+		status.add(completeOperand(operand, parameters));
+	}
 
-		String[] instructions = getInstructionsFor(key, data);
-		if (instructions.length == 0)
+	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {
+
+		String[] instructions = getInstructionsFor(unit, key);
+		if (instructions == null || instructions.length == 0)
 			return null;
 
 		TouchpointManager touchpointManager = TouchpointManager.getInstance();
 		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
 		InstructionParser parser = new InstructionParser(this, touchpoint);
 		return parser.parseActions(instructions[0]);
-	}
-
-	protected static Touchpoint getTouchpoint(Operand operand) {
-		IInstallableUnit unit = operand.second();
-		if (unit == null)
-			unit = operand.first();
-
-		if (unit == null)
-			return null;
-		return getTouchpoint(unit);
-	}
-
-	private static Touchpoint getTouchpoint(IInstallableUnit unit) {
-		TouchpointManager touchpointManager = TouchpointManager.getInstance();
-		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
-		return touchpoint;
-	}
-
-	private static String[] getInstructionsFor(String key, TouchpointData[] data) {
-		String[] matches = new String[data.length];
-		int count = 0;
-		for (int i = 0; i < data.length; i++) {
-			matches[count] = data[i].getInstructions(key);
-			if (matches[count] != null)
-				count++;
-		}
-		if (count == data.length)
-			return matches;
-		String[] result = new String[count];
-		System.arraycopy(matches, 0, result, 0, count);
-		return result;
 	}
 
 	protected boolean isApplicable(Operand op) {
@@ -243,7 +209,7 @@ public abstract class Phase {
 		return Status.OK_STATUS;
 	}
 
-	protected IStatus initializeOperand(Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		return Status.OK_STATUS;
 	}
 
@@ -253,4 +219,38 @@ public abstract class Phase {
 
 	protected abstract ProvisioningAction[] getActions(Operand currentOperand);
 
+	protected static Touchpoint getTouchpoint(Operand operand) {
+		IInstallableUnit unit = operand.second();
+		if (unit == null)
+			unit = operand.first();
+
+		if (unit == null)
+			return null;
+		return getTouchpoint(unit);
+	}
+
+	private static Touchpoint getTouchpoint(IInstallableUnit unit) {
+		TouchpointManager touchpointManager = TouchpointManager.getInstance();
+		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
+		return touchpoint;
+	}
+
+	private static String[] getInstructionsFor(IInstallableUnit unit, String key) {
+		TouchpointData[] data = unit.getTouchpointData();
+		if (data == null)
+			return null;
+
+		String[] matches = new String[data.length];
+		int count = 0;
+		for (int i = 0; i < data.length; i++) {
+			matches[count] = data[i].getInstructions(key);
+			if (matches[count] != null)
+				count++;
+		}
+		if (count == data.length)
+			return matches;
+		String[] result = new String[count];
+		System.arraycopy(matches, 0, result, 0, count);
+		return result;
+	}
 }
