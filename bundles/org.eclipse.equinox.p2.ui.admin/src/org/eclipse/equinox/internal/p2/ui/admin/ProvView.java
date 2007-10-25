@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.p2.ui.ProvisioningUndoSupport;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
@@ -115,7 +115,7 @@ abstract class ProvView extends ViewPart {
 	protected abstract IAction getDoubleClickAction();
 
 	protected void makeActions() {
-		undoRedoGroup = new UndoRedoActionGroup(getSite(), ProvisioningUndoSupport.getProvisioningUndoContext(), true);
+		undoRedoGroup = new UndoRedoActionGroup(getSite(), ProvUI.getProvisioningUndoContext(), true);
 		refreshAction = new Action(ProvAdminUIMessages.ProvView_RefreshCommandLabel) {
 			public void run() {
 				viewer.refresh();

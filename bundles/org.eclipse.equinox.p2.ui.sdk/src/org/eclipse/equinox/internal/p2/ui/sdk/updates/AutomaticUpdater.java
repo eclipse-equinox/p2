@@ -11,10 +11,16 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.updates;
 
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * @since 3.4
@@ -28,11 +34,30 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	}
 
-	public void updatesAvailable(UpdateEvent event) {
-		boolean download = prefs.getBoolean(PreferenceConstants.P_DOWNLOAD);
-		if (download) {
-			// TODO not implemented
-		}
-	}
+	public void updatesAvailable(final UpdateEvent event) {
+		final boolean download = prefs.getBoolean(PreferenceConstants.P_DOWNLOAD);
+		final IInstallableUnit[] toUpdate = (ProvSDKPolicies.getUpdatesToShow(event));
+		if (toUpdate.length <= 0)
+			return;
+		try {
+			if (download) {
+				IInstallableUnit[] replacements = ProvisioningUtil.updatesFor(toUpdate, null);
+				if (replacements.length > 0) {
+					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getReplacePlan(toUpdate, replacements, event.getProfile(), null);
+					ProvisioningOperationResult result = ProvisioningOperationRunner.execute(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfile().getProfileId(), plan, new DownloadPhaseSet(), false), null, null);
+					// TODO need to listen to the job and open the popup when download is done
+				}
+			} else {
+				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+					public void run() {
+						new AutomaticUpdatesPopup(toUpdate, event.getProfile(), download).open();
+					}
+				});
+			}
 
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, null);
+		}
+
+	}
 }

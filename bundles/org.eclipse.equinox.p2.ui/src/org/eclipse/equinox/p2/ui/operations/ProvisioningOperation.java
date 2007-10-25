@@ -76,8 +76,12 @@ public abstract class ProvisioningOperation {
 		return label;
 	}
 
-	protected boolean runInBackground() {
+	public boolean runInBackground() {
 		return false;
+	}
+
+	public boolean isUser() {
+		return true;
 	}
 
 }

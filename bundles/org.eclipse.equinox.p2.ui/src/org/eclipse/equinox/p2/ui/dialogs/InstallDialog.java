@@ -8,9 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui;
+package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -19,35 +21,16 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.ui.operations.*;
-import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.swt.widgets.Shell;
 
-public class InstallDialog extends ProfileModificationDialog {
+public class InstallDialog extends UpdateInstallDialog {
 
 	public InstallDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile) {
 		super(parentShell, ius, profile, ProvUIMessages.InstallIUOperationLabel, ProvUIMessages.InstallDialog_InstallSelectionMessage);
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
-		try {
-			IInstallableUnit[] selectedIUs = elementsToIUs(selectedElements);
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selectedIUs, profile, monitor);
-			IStatus status = plan.getStatus();
-			if (status.isOK())
-				return new InstallOperation(ProvUIMessages.InstallIUOperationLabel, profile.getProfileId(), plan, selectedIUs);
-			ProvUI.reportStatus(status);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-		}
-		return null;
-	}
-
 	protected String getOkButtonString() {
 		return ProvUIMessages.InstallIUOperationLabelWithMnemonic;
-	}
-
-	protected IUColumnConfig[] getColumnConfig() {
-		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME), new IUColumnConfig(ProvUIMessages.ProvUI_IDColumnTitle, IUColumnConfig.COLUMN_ID), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION), new IUColumnConfig(ProvUIMessages.ProvUI_SizeColumnTitle, IUColumnConfig.COLUMN_SIZE)};
 	}
 
 	protected long getSize(IInstallableUnit iu) {
@@ -60,5 +43,23 @@ public class InstallDialog extends ProfileModificationDialog {
 			size = AvailableIUElement.SIZE_UNKNOWN;
 		}
 		return size;
+	}
+
+	protected String getOperationLabel() {
+		return ProvUIMessages.InstallIUOperationLabel;
+	}
+
+	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements) {
+		try {
+			IInstallableUnit[] ius = elementsToIUs(selectedElements);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, profile, null);
+			IStatus status = plan.getStatus();
+			if (status.isOK())
+				return new InstallOperation(getOperationLabel(), profile.getProfileId(), plan, ius);
+			ProvUI.reportStatus(status);
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, null);
+		}
+		return null;
 	}
 }

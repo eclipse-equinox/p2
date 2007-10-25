@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.operations;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.*;
 
 /**
  * Class representing a provisioning profile plan
@@ -24,11 +24,22 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 
 	ProvisioningPlan plan;
 	String profileId;
+	PhaseSet phaseSet;
+	boolean isUser = true;
 
 	public ProfileModificationOperation(String label, String id, ProvisioningPlan plan) {
+		this(label, id, plan, null, true);
+	}
+
+	public ProfileModificationOperation(String label, String id, ProvisioningPlan plan, PhaseSet set, boolean isUser) {
 		super(label);
 		this.plan = plan;
 		this.profileId = id;
+		this.isUser = isUser;
+		if (set == null)
+			phaseSet = new DefaultPhaseSet();
+		else
+			phaseSet = set;
 	}
 
 	public String getProfileId() {
@@ -44,6 +55,14 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		return ProvisioningUtil.performProvisioningPlan(plan, getProfile(), ProvisioningUtil.PERFORM_ALL, monitor);
+		return ProvisioningUtil.performProvisioningPlan(plan, phaseSet, getProfile(), monitor);
+	}
+
+	public boolean runInBackground() {
+		return true;
+	}
+
+	public boolean isUser() {
+		return isUser;
 	}
 }

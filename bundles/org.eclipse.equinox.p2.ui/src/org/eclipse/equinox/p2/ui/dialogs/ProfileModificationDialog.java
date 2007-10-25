@@ -8,12 +8,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui;
+package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.StaticContentProvider;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
@@ -29,7 +32,7 @@ import org.eclipse.swt.widgets.*;
 
 abstract class ProfileModificationDialog extends TrayDialog {
 	private static final int DEFAULT_HEIGHT = 20;
-	private static final int DEFAULT_WIDTH = 170;
+	private static final int DEFAULT_WIDTH = 120;
 	private static final int DEFAULT_COLUMN_WIDTH = 50;
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private String title;
@@ -38,10 +41,10 @@ abstract class ProfileModificationDialog extends TrayDialog {
 	Profile profile;
 	CheckboxTableViewer listViewer;
 	StaticContentProvider contentProvider;
-	private ProfileModificationOperation resultOperation;
 
 	ProfileModificationDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
 		super(parentShell);
+		this.setBlockOnOpen(false);
 		this.title = title;
 		this.message = message;
 		this.ius = ius;
@@ -145,15 +148,8 @@ abstract class ProfileModificationDialog extends TrayDialog {
 	}
 
 	protected void okPressed() {
-		resultOperation = null;
-		// TODO may need progress monitor
-		IProgressMonitor monitor = new NullProgressMonitor();
-		resultOperation = createProfileModificationOperation(getSelectedElements(), monitor);
+		ProvisioningOperationRunner.execute(createProfileModificationOperation(getSelectedElements()), getShell(), null);
 		super.okPressed();
-	}
-
-	public ProfileModificationOperation getOperation() {
-		return resultOperation;
 	}
 
 	private Object[] getSelectedElements() {
@@ -168,7 +164,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		return theIUs;
 	}
 
-	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor);
+	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements);
 
 	protected abstract String getOkButtonString();
 

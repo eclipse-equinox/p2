@@ -13,14 +13,14 @@ package org.eclipse.equinox.p2.ui.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.ui.InstallDialog;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.*;
-import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.p2.ui.IProfileChooser;
+import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.dialogs.InstallDialog;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -31,24 +31,6 @@ public class InstallAction extends ProfileModificationAction {
 	public InstallAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
 		super(ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
 		setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
-	}
-
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
-		// First validate whether the install can happen
-		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, targetProfile, monitor);
-			IStatus status = plan.getStatus();
-			if (status.isOK()) {
-				InstallDialog dialog = new InstallDialog(getShell(), ius, targetProfile);
-				dialog.open();
-				return dialog.getOperation();
-			}
-			ProvUI.reportStatus(status);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-			// fall through and return null
-		}
-		return null;
 	}
 
 	/*
@@ -75,5 +57,19 @@ public class InstallAction extends ProfileModificationAction {
 
 	protected String getTaskName() {
 		return ProvUIMessages.InstallIUProgress;
+	}
+
+	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
+		InstallDialog dialog = new InstallDialog(getShell(), ius, targetProfile);
+		dialog.open();
+	}
+
+	protected IStatus validateOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
+		try {
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, targetProfile, monitor);
+			return plan.getStatus();
+		} catch (ProvisionException e) {
+			return ProvUI.handleException(e, null);
+		}
 	}
 }

@@ -106,9 +106,11 @@ public class ProvUIMessages extends NLS {
 	public static String AddRepositoryDialog_Title;
 	public static String UpdateAction_UpdateInformationTitle;
 	public static String UpdateAction_UpdatesAvailableMessage;
+	public static String UpdateDialog_AssemblingUpdatesProgress;
 	public static String UpdateAction_UpdatesAvailableTitle;
 	public static String PlatformUpdateTitle;
 	public static String PlatformRestartMessage;
+	public static String ProvUI_InformationTitle;
 	public static String ProvUI_NameColumnTitle;
 	public static String ProvUI_SizeColumnTitle;
 	public static String ProvUI_VersionColumnTitle;

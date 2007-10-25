@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.engine.phases.*;
+import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -39,34 +39,6 @@ import org.eclipse.osgi.util.NLS;
  * @since 3.4
  */
 public class ProvisioningUtil {
-
-	public static final int PERFORM_DOWNLOAD_ONLY = 1;
-	public static final int PERFORM_INSTALL_AND_CONFIGURE = 2;
-	public static final int PERFORM_ALL = 3;
-
-	private static final class SizingPhaseSet extends PhaseSet {
-		static Sizing sizing;
-
-		SizingPhaseSet() {
-			super(new Phase[] {sizing = new Sizing(100, "Compute sizes")}); //$NON-NLS-1$
-		}
-
-		Sizing getSizing() {
-			return sizing;
-		}
-	}
-
-	private static final class DownloadPhaseSet extends PhaseSet {
-		DownloadPhaseSet() {
-			super(new Phase[] {new Collect(10)});
-		}
-	}
-
-	private static final class ReplaceAndConfigurePhaseSet extends PhaseSet {
-		ReplaceAndConfigurePhaseSet() {
-			super(new Phase[] {new Unconfigure(10), new Uninstall(10), new Install(10), new Configure(10)});
-		}
-	}
 
 	public static IMetadataRepository addMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
@@ -241,8 +213,7 @@ public class ProvisioningUtil {
 	 * See what updates might be available for the specified IU's.
 	 * Useful for bulk update that can be directly passed to the engine.
 	 */
-	public static IInstallableUnit[] updatesFor(IInstallableUnit[] toUpdate, Profile profile, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profile);
+	public static IInstallableUnit[] updatesFor(IInstallableUnit[] toUpdate, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(toUpdate);
 
 		IPlanner planner = getPlanner();
@@ -293,7 +264,7 @@ public class ProvisioningUtil {
 		try {
 			SubMonitor sub = SubMonitor.convert(monitor, taskMessage, 100);
 			monitor.beginTask(taskMessage, 100);
-			IStatus engineResult = performProvisioningPlan(plan, profile, PERFORM_ALL, sub.newChild(100));
+			IStatus engineResult = performProvisioningPlan(plan, new DefaultPhaseSet(), profile, sub.newChild(100));
 			if (engineResult.isOK()) {
 				// mark the roots as such
 				for (int i = 0; i < installRoots.length; i++)
@@ -305,14 +276,12 @@ public class ProvisioningUtil {
 		}
 	}
 
-	public static IStatus performProvisioningPlan(ProvisioningPlan plan, Profile profile, int phases, IProgressMonitor monitor) throws ProvisionException {
+	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		PhaseSet set;
-		if (phases == PERFORM_ALL)
+		if (phaseSet == null)
 			set = new DefaultPhaseSet();
-		else if (phases == PERFORM_DOWNLOAD_ONLY)
-			set = new DownloadPhaseSet();
 		else
-			set = new ReplaceAndConfigurePhaseSet();
+			set = phaseSet;
 		return getEngine().perform(profile, set, plan.getOperands(), monitor);
 	}
 
@@ -324,7 +293,7 @@ public class ProvisioningUtil {
 		return engine;
 	}
 
-	private static IPlanner getPlanner() throws ProvisionException {
+	public static IPlanner getPlanner() throws ProvisionException {
 		IPlanner planner = (IPlanner) ServiceHelper.getService(ProvUIActivator.getContext(), IPlanner.class.getName());
 		if (planner == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoPlannerFound);

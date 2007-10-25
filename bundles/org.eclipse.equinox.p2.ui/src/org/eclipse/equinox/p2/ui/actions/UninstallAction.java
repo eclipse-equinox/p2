@@ -14,14 +14,14 @@ package org.eclipse.equinox.p2.ui.actions;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.UninstallDialog;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.IProfileChooser;
+import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.dialogs.UninstallDialog;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -32,24 +32,6 @@ public class UninstallAction extends ProfileModificationAction {
 	public UninstallAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
 		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
 		setToolTipText(ProvUI.UNINSTALL_COMMAND_TOOLTIP);
-	}
-
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
-		// First validate whether the uninstall can happen
-		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(ius, targetProfile, monitor);
-			IStatus status = plan.getStatus();
-			if (status.isOK()) {
-				UninstallDialog dialog = new UninstallDialog(getShell(), ius, targetProfile);
-				dialog.open();
-				return dialog.getOperation();
-			}
-			ProvUI.reportStatus(status);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-			// fall through and return null
-		}
-		return null;
 	}
 
 	/*
@@ -84,6 +66,21 @@ public class UninstallAction extends ProfileModificationAction {
 
 	protected String getTaskName() {
 		return ProvUIMessages.UninstallIUProgress;
+	}
+
+	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
+		UninstallDialog dialog = new UninstallDialog(getShell(), ius, targetProfile);
+		dialog.open();
+	}
+
+	protected IStatus validateOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
+		try {
+			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(ius, targetProfile, monitor);
+			return plan.getStatus();
+		} catch (ProvisionException e) {
+			return ProvUI.handleException(e, null);
+		}
+
 	}
 
 }

@@ -14,26 +14,20 @@ package org.eclipse.equinox.p2.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.*;
-import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.IProfileChooser;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 abstract class ProfileModificationAction extends ProvisioningAction {
 
 	Profile profile;
 	IProfileChooser profileChooser;
-	private static final int OPERATION_WORK = 1000;
 
 	public ProfileModificationAction(String text, ISelectionProvider selectionProvider, Profile profile, IProfileChooser profileChooser, Shell shell) {
 		super(text, selectionProvider, shell);
@@ -66,67 +60,37 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		}
 
 		final IInstallableUnit[] ius = (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
-		final ProfileModificationOperation[] ops = new ProfileModificationOperation[1];
+		final IStatus[] status = new IStatus[1];
 		final Profile prof = targetProfile;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
-				ops[0] = validateAndGetOperation(ius, prof, monitor);
+				status[0] = validateOperation(ius, prof, monitor);
 			}
 		};
 		try {
-			new ProgressMonitorDialog(getShell()).run(false, false, runnable);
+			new ProgressMonitorDialog(getShell()).run(false, true, runnable);
 		} catch (InterruptedException e) {
 			// don't report thread interruption
 		} catch (InvocationTargetException e) {
 			ProvUI.handleException(e.getCause(), null);
 		}
 
-		if (ops[0] == null)
-			return;
+		if (status[0].isOK())
+			performOperation(ius, prof);
+		else
+			ProvUI.reportStatus(status[0]);
 
-		final IStatus[] status = new IStatus[1];
-		runnable = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				try {
-					monitor.beginTask(getTaskName(), OPERATION_WORK);
-					status[0] = ProvisioningUndoSupport.execute(ops[0], monitor, getShell());
-					if (!status[0].isOK()) {
-						StatusManager.getManager().handle(status[0], StatusManager.SHOW | StatusManager.LOG);
-					}
-				} catch (ExecutionException e) {
-					ProvUI.handleException(e.getCause(), null);
-				} finally {
-					monitor.done();
-				}
-			}
-		};
-		try {
-			new ProgressMonitorDialog(getShell()).run(true, true, runnable);
-			// If we updated the running profile, we need to determine whether to restart.
-			// TODO for now we pretend restart is optional, we really don't know yet
-			if (status[0] != null && status[0].isOK()) {
-				try {
-					Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
-					if (selfProfile != null && (selfProfile.getProfileId().equals(targetProfile.getProfileId()))) {
-						ProvUI.requestRestart(false, getShell());
-					}
-				} catch (ProvisionException e) {
-					ProvUI.handleException(e, null);
-				}
-			}
-		} catch (InterruptedException e) {
-			// don't report thread interruption
-		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), null);
-		}
 	}
 
 	/*
 	 * Validate whether the proposed profile modification operation can run.
-	 * If so, return an operation representing it.  If not, return null.
-	 * We assume the user has been notified if something couldn't happen.
 	 */
-	protected abstract ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor);
+	protected abstract IStatus validateOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor);
+
+	/*
+	 * Run the operation, opening any dialogs, etc. 
+	 */
+	protected abstract void performOperation(IInstallableUnit[] ius, Profile targetProfile);
 
 	protected abstract String getTaskName();
 

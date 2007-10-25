@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.ProvisioningUndoSupport;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.operations.AddProfileOperation;
-import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.events.ModifyEvent;
@@ -62,29 +59,20 @@ public class AddProfileDialog extends StatusDialog {
 	}
 
 	protected void okPressed() {
-		if (addProfile()) {
-			super.okPressed();
-		}
+		addProfile();
+		super.okPressed();
 	}
 
 	/*
 	 * We only get here if already validated (ok was pressed)
 	 */
-	private boolean addProfile() {
+	private void addProfile() {
 		profileGroup.updateProfile();
 		addedProfile = profileGroup.getProfile();
 		if (addedProfile == null) {
-			return false;
+			return;
 		}
-		ProfileOperation op = new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile);
-		try {
-			ProvisioningUndoSupport.execute(op, null, getShell());
-		} catch (ExecutionException e) {
-			ProvUI.handleException(e.getCause(), null);
-			return false;
-		}
-		return true;
-
+		ProvisioningOperationRunner.execute(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile), getShell(), null);
 	}
 
 	void verifyComplete() {

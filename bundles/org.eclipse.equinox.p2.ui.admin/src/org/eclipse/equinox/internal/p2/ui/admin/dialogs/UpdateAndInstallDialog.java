@@ -60,8 +60,8 @@ public class UpdateAndInstallDialog extends TrayDialog {
 			filters = new ViewerFilter[] {new IUGroupFilter()};
 		}
 		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profile, filters, filters, ProvAdminUIMessages.UpdateAndInstallDialog_InstalledIUsPageLabel, ProvAdminUIMessages.UpdateAndInstallDialog_AvailableIUsPageLabel, null, null, fontMetrics);
-		Dialog.applyDialogFont(group.getControl());
-		return group.getControl();
+		Dialog.applyDialogFont(group.getTabFolder());
+		return group.getTabFolder();
 	}
 
 	/*

@@ -15,7 +15,11 @@ import java.util.EventObject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.ui.ProvisioningEventManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -32,6 +36,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	private static PackageAdmin packageAdmin = null;
 	private static ServiceReference packageAdminRef = null;
 	private static ProvUIActivator plugin;
+	private ProvisioningListener profileChangeListener;
 	private ProvisioningEventManager eventManager = new ProvisioningEventManager();
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
@@ -91,14 +96,46 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		getBundle("org.eclipse.equinox.p2.updatechecker").start(); //$NON-NLS-1$
 
 		initializeImages();
+		addProfileChangeListener();
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		try {
+			removeProfileChangeListener();
 			plugin = null;
 			ProvUIActivator.context = null;
 		} finally {
 			super.stop(bundleContext);
+		}
+	}
+
+	private void addProfileChangeListener() {
+		if (profileChangeListener == null) {
+			profileChangeListener = new ProvisioningListener() {
+				public void notify(EventObject o) {
+					if (o instanceof CommitOperationEvent) {
+						CommitOperationEvent event = (CommitOperationEvent) o;
+						try {
+							Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
+							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfile().getProfileId()))) {
+								ProvUI.requestRestart(false, null);
+							}
+						} catch (ProvisionException e) {
+							ProvUI.handleException(e, null);
+						}
+					}
+				}
+			};
+		}
+		getProvisioningEventBus().addListener(profileChangeListener);
+	}
+
+	private void removeProfileChangeListener() {
+		if (profileChangeListener != null) {
+			ProvisioningEventBus bus = getProvisioningEventBus();
+			if (bus != null) {
+				getProvisioningEventBus().removeListener(profileChangeListener);
+			}
 		}
 	}
 
@@ -108,10 +145,15 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
 			eventManager.addListener(listener);
 		} else {
-			ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
-			ProvisioningEventBus bus = (ProvisioningEventBus) context.getService(busReference);
-			bus.addListener(listener);
+			getProvisioningEventBus().addListener(listener);
 		}
+	}
+
+	private ProvisioningEventBus getProvisioningEventBus() {
+		ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
+		if (busReference == null)
+			return null;
+		return (ProvisioningEventBus) context.getService(busReference);
 	}
 
 	// TODO hack for triggering events from the UI.  

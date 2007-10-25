@@ -12,17 +12,15 @@
 package org.eclipse.equinox.p2.ui.actions;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.UpdateDialog;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.dialogs.UpdateDialog;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
@@ -34,26 +32,35 @@ public class UpdateAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
+	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
 		// Collect the replacements for each IU individually so that 
 		// the user can decide what to update
 		try {
 			ArrayList iusWithUpdates = new ArrayList();
 			for (int i = 0; i < ius.length; i++) {
-				IInstallableUnit[] replacements = ProvisioningUtil.updatesFor(ius[i], monitor);
+				IInstallableUnit[] replacements = ProvisioningUtil.updatesFor(ius[i], null);
 				if (replacements.length > 0)
 					iusWithUpdates.add(ius[i]);
 			}
 			if (iusWithUpdates.size() > 0) {
-				UpdateDialog dialog = new UpdateDialog(getShell(), (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), targetProfile);
-				dialog.open();
-				return dialog.getOperation();
+				new UpdateDialog(getShell(), (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), targetProfile).open();
 			}
-			MessageDialog.openInformation(getShell(), ProvUIMessages.UpdateAction_UpdateInformationTitle, ProvUIMessages.UpdateOperation_NothingToUpdate);
 		} catch (ProvisionException e) {
-			// fall through and return null
+			ProvUI.handleException(e, null);
 		}
-		return null;
+	}
+
+	protected IStatus validateOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
+		try {
+			IInstallableUnit[] updates = ProvisioningUtil.updatesFor(ius, monitor);
+			if (updates.length <= 0) {
+				return new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.UpdateOperation_NothingToUpdate);
+			}
+			return Status.OK_STATUS;
+		} catch (ProvisionException e) {
+			return ProvUI.handleException(e, null);
+		}
+
 	}
 
 	/*

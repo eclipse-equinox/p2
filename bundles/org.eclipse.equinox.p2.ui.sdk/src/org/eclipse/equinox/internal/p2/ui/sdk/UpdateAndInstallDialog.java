@@ -15,11 +15,8 @@ import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.IRepositoryManipulator;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
-import org.eclipse.equinox.p2.ui.viewers.IUGroupFilter;
-import org.eclipse.equinox.p2.ui.viewers.IUProfilePropertyFilter;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -42,7 +39,10 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
  */
 public class UpdateAndInstallDialog extends TrayDialog {
 
+	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
+	private static final String SELECTED_TAB_SETTING = "SelectedTab"; //$NON-NLS-1$
 	private Profile profile;
+	private UpdateAndInstallGroup group;
 
 	/**
 	 * Create an instance of this Dialog.
@@ -51,6 +51,8 @@ public class UpdateAndInstallDialog extends TrayDialog {
 	public UpdateAndInstallDialog(Shell shell, Profile profile) {
 		super(shell);
 		this.profile = profile;
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.MAX | SWT.RESIZE | getDefaultOrientation());
+		setBlockOnOpen(false);
 	}
 
 	protected void configureShell(Shell shell) {
@@ -69,12 +71,10 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		ViewerFilter filter = new IUProfilePropertyFilter(IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
-		UpdateAndInstallGroup group = new UpdateAndInstallGroup(comp, profile, new ViewerFilter[] {filter}, new ViewerFilter[] {new IUGroupFilter()}, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, fontMetrics);
-
+		group = new UpdateAndInstallGroup(comp, profile, new ViewerFilter[] {ProvSDKPolicies.getInstalledIUFilter()}, new ViewerFilter[] {ProvSDKPolicies.getAvailableIUFilter()}, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, fontMetrics);
 		final Button checkBox = new Button(comp, SWT.CHECK);
 		final Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
-		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_0);
+		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);
 		checkBox.setSelection(pref.getBoolean(PreferenceConstants.P_ENABLED));
 		checkBox.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -102,8 +102,9 @@ public class UpdateAndInstallDialog extends TrayDialog {
 				dialog.open();
 			}
 		});
-		updatePrefsLink.setText(ProvSDKMessages.UpdateAndInstallDialog_1);
-		Dialog.applyDialogFont(group.getControl());
+		updatePrefsLink.setText(ProvSDKMessages.UpdateAndInstallDialog_PrefLink);
+		readDialogSettings();
+		Dialog.applyDialogFont(comp);
 		return comp;
 	}
 
@@ -129,5 +130,35 @@ public class UpdateAndInstallDialog extends TrayDialog {
 			}
 
 		};
+	}
+
+	protected void okPressed() {
+		saveDialogSettings();
+		super.okPressed();
+	}
+
+	private void readDialogSettings() {
+		IDialogSettings settings = ProvSDKUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
+		if (section != null) {
+			if (group != null && !group.getTabFolder().isDisposed()) {
+				group.getTabFolder().setSelection(section.getInt(SELECTED_TAB_SETTING));
+			}
+		}
+	}
+
+	private void saveDialogSettings() {
+		if (!group.getTabFolder().isDisposed()) {
+			getDialogBoundsSettings().put(SELECTED_TAB_SETTING, group.getTabFolder().getSelectionIndex());
+		}
+	}
+
+	protected IDialogSettings getDialogBoundsSettings() {
+		IDialogSettings settings = ProvSDKUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
+		if (section == null) {
+			section = settings.addNewSection(DIALOG_SETTINGS_SECTION);
+		}
+		return section;
 	}
 }

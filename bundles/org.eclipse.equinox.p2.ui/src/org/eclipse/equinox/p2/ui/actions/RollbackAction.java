@@ -11,8 +11,7 @@
 
 package org.eclipse.equinox.p2.ui.actions;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
@@ -20,8 +19,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.*;
-import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
@@ -33,20 +31,28 @@ public class RollbackAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.ROLLBACK_COMMAND_TOOLTIP);
 	}
 
-	protected ProfileModificationOperation validateAndGetOperation(IInstallableUnit[] toBecome, Profile targetProfile, IProgressMonitor monitor) {
+	protected IStatus validateOperation(IInstallableUnit[] toBecome, Profile targetProfile, IProgressMonitor monitor) {
 		if (toBecome.length == 1) {
 			try {
 				ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, monitor);
-				IStatus planStatus = plan.getStatus();
-				if (planStatus.isOK())
-					return new ProfileModificationOperation(ProvUIMessages.RollbackIUOperationLabel, targetProfile.getProfileId(), plan);
-				ProvUI.reportStatus(planStatus);
+				return plan.getStatus();
 			} catch (ProvisionException e) {
-				ProvUI.handleException(e, null);
-				// fall through and return null
+				return ProvUI.handleException(e, null);
 			}
 		}
-		return null;
+		// should never happen
+		return Status.OK_STATUS;
+	}
+
+	protected void performOperation(IInstallableUnit[] toBecome, Profile targetProfile) {
+		// TODO bogus because we do this twice...
+		try {
+			ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, null);
+			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RollbackIUOperationLabel, targetProfile.getProfileId(), plan);
+			ProvisioningOperationRunner.execute(op, getShell(), null);
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, null);
+		}
 	}
 
 	/*

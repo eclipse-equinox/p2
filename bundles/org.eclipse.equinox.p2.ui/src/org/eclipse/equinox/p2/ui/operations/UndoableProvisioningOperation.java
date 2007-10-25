@@ -17,8 +17,8 @@ import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.p2.ui.ProvisioningUndoSupport;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -33,7 +33,7 @@ abstract class UndoableProvisioningOperation extends ProvisioningOperation imple
 
 	UndoableProvisioningOperation(String label) {
 		super(label);
-		addContext(ProvisioningUndoSupport.getProvisioningUndoContext());
+		addContext(ProvUI.getProvisioningUndoContext());
 	}
 
 	/**
@@ -154,7 +154,7 @@ abstract class UndoableProvisioningOperation extends ProvisioningOperation imple
 	 */
 
 	public boolean runInBackground() {
-		return true;
+		return false;
 	}
 
 	/*

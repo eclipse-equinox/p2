@@ -8,10 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui;
+package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -27,9 +27,9 @@ public class UninstallDialog extends ProfileModificationDialog {
 		super(parentShell, ius, profile, ProvUIMessages.UninstallIUOperationLabel, ProvUIMessages.UninstallDialog_UninstallMessage);
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
+	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(elementsToIUs(selectedElements), profile, monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(elementsToIUs(selectedElements), profile, null);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new ProfileModificationOperation(ProvUIMessages.UninstallIUOperationLabel, profile.getProfileId(), plan);

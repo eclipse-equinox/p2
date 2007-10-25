@@ -49,7 +49,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		checker = (UpdateChecker) ServiceHelper.getService(ProvSDKUIActivator.getContext(), UpdateChecker.class.getName());
 		if (checker == null) {
 			// Something did not initialize properly
-			IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, "The update checker service is not initialized");
+			IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, ProvSDKMessages.AutomaticUpdateScheduler_UpdateNotInitialized);
 			StatusManager.getManager().handle(status, StatusManager.LOG);
 			return;
 		}

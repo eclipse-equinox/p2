@@ -44,7 +44,7 @@ public class UpdateAndInstallGroup {
 
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
-	private static final int DEFAULT_WIDTH = 450;
+	private static final int DEFAULT_WIDTH = 300;
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	TabFolder tabFolder;
 	TableViewer installedIUViewer;
@@ -89,7 +89,7 @@ public class UpdateAndInstallGroup {
 		availableTab.setControl(createAvailableIUsPage(tabFolder, availableIUFilters));
 	}
 
-	public Control getControl() {
+	public TabFolder getTabFolder() {
 		return tabFolder;
 	}
 
@@ -186,7 +186,7 @@ public class UpdateAndInstallGroup {
 			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
 			repoButton.setData(BUTTONACTION, new Action() {
 				public void runWithEvent(Event event) {
-					if (repositoryManipulator.manipulateRepositories(getControl().getShell())) {
+					if (repositoryManipulator.manipulateRepositories(getTabFolder().getShell())) {
 						availableIUViewer.setInput(new AllMetadataRepositories());
 					}
 				}

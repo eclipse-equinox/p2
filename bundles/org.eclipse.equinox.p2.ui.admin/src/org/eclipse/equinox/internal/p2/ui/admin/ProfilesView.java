@@ -12,8 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.UpdateAndInstallDialog;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -63,13 +61,9 @@ public class ProfilesView extends ProvView {
 				}
 			}
 			ProfileOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (Profile[]) profilesOnly.toArray(new Profile[profilesOnly.size()]));
-			try {
-				IStatus status = ProvisioningUndoSupport.execute(op, null, ProfilesView.this.getShell());
-				if (status.isOK()) {
-					viewer.refresh();
-				}
-			} catch (ExecutionException e) {
-				ProvUI.handleException(e.getCause(), null);
+			ProvisioningOperationResult result = ProvisioningOperationRunner.execute(op, ProfilesView.this.getShell(), null);
+			if (result.getStatus().isOK()) {
+				viewer.refresh();
 			}
 		}
 	}

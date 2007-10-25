@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
@@ -41,13 +40,7 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			ProvisioningOperation op = getRemoveOperation(getSelection().toArray());
-			try {
-				// TODO hook into platform progress service
-				ProvisioningUndoSupport.execute(op, null, getShell());
-			} catch (ExecutionException e) {
-				ProvUI.handleException(e.getCause(), null);
-			}
+			ProvisioningOperationRunner.execute(getRemoveOperation(getSelection().toArray()), getShell(), null);
 		}
 	}
 

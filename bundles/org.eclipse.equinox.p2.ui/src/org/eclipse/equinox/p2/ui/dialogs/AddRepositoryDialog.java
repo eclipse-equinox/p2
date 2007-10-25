@@ -10,24 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Abstract dialog class for adding repositories of different types. This class
@@ -101,7 +99,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText("file:" + path); //$NON-NLS-1$
+					url.setText("file:" + path.toLowerCase()); //$NON-NLS-1$
 				}
 			}
 		});
@@ -141,31 +139,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 			return false;
 		}
 
-		final ProvisioningOperation op = getOperation(newURL);
-		final IStatus[] status = new IStatus[1];
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				try {
-					status[0] = ProvisioningUndoSupport.execute(op, monitor, getShell());
-					if (!status[0].isOK()) {
-						StatusManager.getManager().handle(status[0], StatusManager.SHOW | StatusManager.LOG);
-					}
-				} catch (ExecutionException e) {
-					ProvUI.handleException(e.getCause(), null);
-					status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, null, null);
-				}
-			}
-		};
-		try {
-			new ProgressMonitorDialog(getShell()).run(true, true, runnable);
-		} catch (InterruptedException e) {
-			// don't report thread interruption
-		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), null);
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, null, null);
-		}
-		return status[0].isOK();
-
+		return (ProvisioningOperationRunner.execute(getOperation(newURL), getShell(), null)).getStatus().isOK();
 	}
 
 	protected abstract ProvisioningOperation getOperation(URL repoURL);

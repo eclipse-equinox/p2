@@ -11,11 +11,11 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import java.util.List;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.AllMetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositoryContentProvider;
 import org.eclipse.equinox.p2.ui.operations.RemoveColocatedRepositoryOperation;
@@ -136,11 +136,7 @@ public class ColocatedRepositoryManipulatorGroup {
 					repos[i] = (IMetadataRepository) selection.get(i);
 				}
 				RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvUIMessages.ColocatedRepositoryManipulatorGroup_Remove, repos);
-				try {
-					ProvisioningUndoSupport.execute(op, null, getControl().getShell());
-				} catch (ExecutionException e) {
-					ProvUI.handleException(e.getCause(), null);
-				}
+				ProvisioningOperationRunner.execute(op, getControl().getShell(), null);
 			}
 		});
 		return composite;

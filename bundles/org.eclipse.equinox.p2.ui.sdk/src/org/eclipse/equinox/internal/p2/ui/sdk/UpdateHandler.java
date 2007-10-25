@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * UpdateHandler invokes the new provisioning update UI.
+ * AutomaticUpdatesPopup invokes the new provisioning update UI.
  * 
  * @since 3.4
  */

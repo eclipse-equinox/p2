@@ -12,12 +12,18 @@
 package org.eclipse.equinox.p2.ui;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.configurator.Configurator;
 import org.eclipse.equinox.internal.p2.ui.ApplyProfileChangesDialog;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -41,7 +47,8 @@ public class ProvUI {
 	public static final String ROLLBACK_COMMAND_LABEL = ProvUIMessages.RollbackIUCommandLabel;
 	public static final String ROLLBACK_COMMAND_TOOLTIP = ProvUIMessages.RollbackIUCommandTooltip;
 
-	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME), new IUColumnConfig(ProvUIMessages.ProvUI_IDColumnTitle, IUColumnConfig.COLUMN_ID), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION)};
+	static ObjectUndoContext provisioningUndoContext;
+	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION)};
 
 	public static Shell getShell(IAdaptable uiInfo) {
 		Shell shell;
@@ -63,15 +70,21 @@ public class ProvUI {
 		return display.getActiveShell();
 	}
 
-	public static void handleException(Throwable t, String message) {
+	public static IStatus handleException(Throwable t, String message) {
 		if (message == null && t != null) {
 			message = t.getMessage();
 		}
 		IStatus status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, t);
 		StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
+		return status;
 	}
 
 	public static void reportStatus(IStatus status) {
+		// TODO investigate why platform status manager is so ugly with INFO status
+		if (status.getSeverity() == IStatus.INFO) {
+			MessageDialog.openInformation(null, ProvUIMessages.ProvUI_InformationTitle, status.getMessage());
+			return;
+		}
 		StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
 	}
 
@@ -95,5 +108,114 @@ public class ProvUI {
 		} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
 			PlatformUI.getWorkbench().restart();
 		}
+	}
+
+	public static IUndoContext getProvisioningUndoContext() {
+		if (provisioningUndoContext == null) {
+			provisioningUndoContext = new ObjectUndoContext(new Object(), "Provisioning Undo Context"); //$NON-NLS-1$
+			IOperationHistory opHistory = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory();
+			opHistory.addOperationApprover(getOperationApprover());
+		}
+		return provisioningUndoContext;
+	}
+
+	static IOperationApprover getOperationApprover() {
+		return new IOperationApprover() {
+			public IStatus proceedUndoing(final IUndoableOperation operation, IOperationHistory history, IAdaptable info) {
+				final IStatus[] status = new IStatus[1];
+				status[0] = Status.OK_STATUS;
+				if (operation.hasContext(provisioningUndoContext) && operation instanceof IAdvancedUndoableOperation) {
+					final IRunnableWithProgress runnable = new IRunnableWithProgress() {
+						public void run(IProgressMonitor monitor) {
+							try {
+								status[0] = ((IAdvancedUndoableOperation) operation).computeUndoableStatus(monitor);
+								if (!status[0].isOK()) {
+									StatusManager.getManager().handle(status[0], StatusManager.SHOW);
+								}
+							} catch (ExecutionException e) {
+								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
+								ProvUI.handleException(e.getCause(), null);
+							}
+						}
+					};
+					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+						public void run() {
+							try {
+								new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, runnable);
+							} catch (InterruptedException e) {
+								// don't report thread interruption
+							} catch (InvocationTargetException e) {
+								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
+								ProvUI.handleException(e.getCause(), null);
+							}
+						}
+					});
+
+				}
+				return status[0];
+			}
+
+			public IStatus proceedRedoing(final IUndoableOperation operation, IOperationHistory history, IAdaptable info) {
+				final IStatus[] status = new IStatus[1];
+				status[0] = Status.OK_STATUS;
+				if (operation.hasContext(provisioningUndoContext) && operation instanceof IAdvancedUndoableOperation) {
+					final IRunnableWithProgress runnable = new IRunnableWithProgress() {
+						public void run(IProgressMonitor monitor) {
+							try {
+								status[0] = ((IAdvancedUndoableOperation) operation).computeRedoableStatus(monitor);
+								if (!status[0].isOK()) {
+									StatusManager.getManager().handle(status[0], StatusManager.SHOW);
+								}
+							} catch (ExecutionException e) {
+								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
+								ProvUI.handleException(e.getCause(), null);
+							}
+						}
+					};
+					PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+						public void run() {
+							try {
+								new ProgressMonitorDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()).run(true, true, runnable);
+							} catch (InterruptedException e) {
+								// don't report thread interruption
+							} catch (InvocationTargetException e) {
+								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
+								ProvUI.handleException(e.getCause(), null);
+							}
+						}
+					});
+
+				}
+				return status[0];
+			}
+
+		};
+
+	}
+
+	/**
+	 * Make an <code>IAdaptable</code> that adapts to the specified shell,
+	 * suitable for passing for passing to any
+	 * {@link org.eclipse.core.commands.operations.IUndoableOperation} or
+	 * {@link org.eclipse.core.commands.operations.IOperationHistory} method
+	 * that requires an {@link org.eclipse.core.runtime.IAdaptable}
+	 * <code>uiInfo</code> parameter.
+	 * 
+	 * @param shell
+	 *            the shell that should be returned by the IAdaptable when asked
+	 *            to adapt a shell. If this parameter is <code>null</code>,
+	 *            the returned shell will also be <code>null</code>.
+	 * 
+	 * @return an IAdaptable that will return the specified shell.
+	 */
+	static IAdaptable getUIInfoAdapter(final Shell shell) {
+		return new IAdaptable() {
+			public Object getAdapter(Class clazz) {
+				if (clazz == Shell.class) {
+					return shell;
+				}
+				return null;
+			}
+		};
 	}
 }

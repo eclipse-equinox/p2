@@ -28,8 +28,8 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateAndInstallDialog_AvailableFeatures;
 	public static String UpdateAndInstallDialog_InstalledFeatures;
 	public static String UpdateAndInstallDialog_ManageSites;
-	public static String UpdateAndInstallDialog_0;
-	public static String UpdateAndInstallDialog_1;
+	public static String UpdateAndInstallDialog_AlertCheckbox;
+	public static String UpdateAndInstallDialog_PrefLink;
 	public static String UpdateAndInstallDialog_Title;
 	public static String UpdateHandler_NoProfilesDefined;
 	public static String UpdateHandler_NoProfileInstanceDefined;
@@ -68,16 +68,19 @@ public class ProvSDKMessages extends NLS {
 	public static String SchedulerStartup_12AM;
 	public static String AutomaticUpdatesJob_AutomaticUpdateSearch;
 	public static String AutomaticUpdatesPreferencePage_findUpdates;
+	public static String AutomaticUpdateScheduler_UpdateNotInitialized;
+	public static String AutomaticUpdatesDialog_DownloadedNotification;
+	public static String AutomaticUpdatesDialog_UpdatesAvailableTitle;
+	public static String AutomaticUpdater_AutomaticDownloadOperationName;
+	public static String AutomaticUpdatesDialog_UpdatesFoundNotification;
 	public static String AutomaticUpdatesPreferencePage_UpdateSchedule;
 	public static String AutomaticUpdatesPreferencePage_findOnStart;
 	public static String AutomaticUpdatesPreferencePage_findOnSchedule;
 	public static String AutomaticUpdatesPreferencePage_downloadOptions;
 	public static String AutomaticUpdatesPreferencePage_searchAndNotify;
 	public static String AutomaticUpdatesPreferencePage_downloadAndNotify;
-	public static String AutomaticUpdatesJob_EclipseUpdates1;
-	public static String AutomaticUpdatesJob_UpdatesAvailable;
-	public static String AutomaticUpdatesJob_EclipseUpdates2;
 	public static String AutomaticUpdatesPreferencePage_at;
-	public static String AutomaticUpdatesJob_UpdatesDownloaded;
 	public static String AutomaticUpdatesJob_Updates;
+	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
+	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
 }
