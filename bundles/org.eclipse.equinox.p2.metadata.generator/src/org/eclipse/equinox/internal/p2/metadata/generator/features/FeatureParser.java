@@ -12,6 +12,9 @@ package org.eclipse.equinox.internal.p2.metadata.generator.features;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.p2.metadata.generator.Feature;
 import org.eclipse.equinox.p2.metadata.generator.FeatureEntry;
@@ -31,6 +34,7 @@ public class FeatureParser extends DefaultHandler {
 	private Feature result;
 	private URL url;
 	private StringBuffer characters = null;
+	private Properties messages = null;
 
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
@@ -47,15 +51,80 @@ public class FeatureParser extends DefaultHandler {
 	}
 
 	/**
-	 * Parses the specified url and constructs a feature
+	 * Parses the specified location and constructs a feature. The given location 
+	 * should be either the location of the feature JAR or the diretory containing
+	 * the feature.
+	 * 
+	 * @param location the location of the feature to parse.  
 	 */
-	public Feature parse(URL featureURL) {
-		result = null;
-		url = featureURL;
-		try {
-			return parse(featureURL.openStream());
-		} catch (IOException e) {
-			e.printStackTrace();
+	public Feature parse(File location) {
+		if (!location.exists())
+			return null;
+		if (location.isDirectory()) {
+			//skip directories that don't contain a feature.xml file
+			File file = new File(location, "feature.xml"); //$NON-NLS-1$
+			if (!file.exists())
+				return null;
+			Properties properties = loadProperties(location);
+			try {
+				InputStream input = new BufferedInputStream(new FileInputStream(file));
+				return parse(input, properties);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		} else if (location.getName().endsWith(".jar")) {
+			try {
+				JarFile jar = new JarFile(location);
+				JarEntry entry = jar.getJarEntry("feature.xml");
+				if (entry == null)
+					return null;
+				Properties properties = loadProperties(location);
+				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
+				return parse(input, properties);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	private Properties loadProperties(File location) {
+		if (location.isDirectory()) {
+			//skip directories that don't contain a feature.properties file
+			File file = new File(location, "feature.properties"); //$NON-NLS-1$
+			if (!file.exists())
+				return null;
+			try {
+				InputStream input = new BufferedInputStream(new FileInputStream(file));
+				try {
+					Properties result = new Properties();
+					result.load(input);
+					return result;
+				} finally {
+					if (input != null)
+						input.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else if (location.getName().endsWith(".jar")) {
+			try {
+				JarFile jar = new JarFile(location);
+				JarEntry entry = jar.getJarEntry("feature.properties");
+				if (entry == null)
+					return null;
+				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
+				try {
+					Properties result = new Properties();
+					result.load(input);
+					return result;
+				} finally {
+					if (input != null)
+						input.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
@@ -64,7 +133,8 @@ public class FeatureParser extends DefaultHandler {
 	 * Parse the given input stream and return a feature object
 	 * or null. This method closes the input stream.
 	 */
-	public Feature parse(InputStream in) {
+	public Feature parse(InputStream in, Properties messages) {
+		this.messages = messages;
 		result = null;
 		try {
 			parser.parse(new InputSource(in), this);
@@ -180,12 +250,20 @@ public class FeatureParser extends DefaultHandler {
 				//				feature.setURL(Utils.makeAbsolute(Utils.getInstallURL(), url).toExternalForm());
 			}
 
-			result.setProviderName(attributes.getValue("provider-name")); //$NON-NLS-1$
-			result.setLabel(attributes.getValue("label")); //$NON-NLS-1$
+			result.setProviderName(localize(attributes.getValue("provider-name"))); //$NON-NLS-1$
+			result.setLabel(localize(attributes.getValue("label"))); //$NON-NLS-1$
 			result.setImage(attributes.getValue("image")); //$NON-NLS-1$
 
 			//			Utils.debug("End process DefaultFeature tag: id:" +id + " ver:" +ver + " url:" + feature.getURL()); 	 //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
+	}
+
+	private String localize(String value) {
+		if (messages == null)
+			return value;
+		if (!value.startsWith("%"))
+			return value;
+		return messages.getProperty(value.substring(1), value);
 	}
 
 	private void processPlugin(Attributes attributes) {
@@ -237,11 +315,11 @@ public class FeatureParser extends DefaultHandler {
 		if (characters == null)
 			return;
 		if ("description".equals(localName)) { //$NON-NLS-1$
-			result.setDescription(characters.toString().trim());
+			result.setDescription(localize(characters.toString().trim()));
 		} else if ("license".equals(localName)) { //$NON-NLS-1$
-			result.setLicense(characters.toString().trim());
+			result.setLicense(localize(characters.toString().trim()));
 		} else if ("copyright".equals(localName)) { //$NON-NLS-1$
-			result.setCopyright(characters.toString().trim());
+			result.setCopyright(localize(characters.toString().trim()));
 		}
 		characters = null;
 	}

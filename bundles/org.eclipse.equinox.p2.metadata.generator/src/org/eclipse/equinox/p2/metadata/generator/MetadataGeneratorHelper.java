@@ -223,8 +223,7 @@ public class MetadataGeneratorHelper {
 		InstallableUnit iu = new InstallableUnit();
 		iu.setId(getTransformedId(feature.getId(), false));
 		iu.setVersion(new Version(feature.getVersion()));
-		// TODO bit of a hack.  for now set the IU name to the id.  Need to figure out how to localize
-		iu.setProperty(IInstallableUnitConstants.NAME, iu.getId());
+		iu.setProperty(IInstallableUnitConstants.NAME, feature.getLabel());
 		iu.setProperty(IInstallableUnitConstants.UPDATE_FROM, iu.getId());
 		iu.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
 
