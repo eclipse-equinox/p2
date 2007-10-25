@@ -716,7 +716,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
-			if (artifacts[i].getId().equals(bundleId)) {
+			if (artifacts[i].toString().equals(bundleId)) {
 				artifactKey = artifacts[i];
 				break;
 			}
@@ -790,7 +790,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
-			if (artifacts[i].getId().equals(bundleId)) {
+			if (artifacts[i].toString().equals(bundleId)) {
 				artifactKey = artifacts[i];
 				break;
 			}

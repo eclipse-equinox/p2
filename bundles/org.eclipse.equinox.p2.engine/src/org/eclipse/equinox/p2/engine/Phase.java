@@ -21,6 +21,10 @@ import org.eclipse.equinox.p2.metadata.TouchpointData;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
+	private static final String OPERAND = "operand"; //$NON-NLS-1$
+	private static final String TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
+	private static final String PHASE_ID = "phaseId"; //$NON-NLS-1$
+	private static final String PROFILE = "profile"; //$NON-NLS-1$
 	protected final String phaseId;
 	protected final int weight;
 	protected final String phaseName;
@@ -32,15 +36,15 @@ public abstract class Phase {
 
 	protected Phase(String phaseId, int weight, String phaseName) {
 		if (phaseId == null || phaseId.length() == 0) {
-			throw new IllegalArgumentException("Phase id must be set.");
+			throw new IllegalArgumentException("Phase id must be set."); //$NON-NLS-1$
 		}
 
 		if (weight <= 0) {
-			throw new IllegalArgumentException("Phase weight must be positive.");
+			throw new IllegalArgumentException("Phase weight must be positive."); //$NON-NLS-1$
 		}
 
 		if (phaseName == null || phaseName.length() == 0) {
-			throw new IllegalArgumentException("Phase name must be set.");
+			throw new IllegalArgumentException("Phase name must be set."); //$NON-NLS-1$
 		}
 
 		this.weight = weight;
@@ -97,15 +101,15 @@ public abstract class Phase {
 
 	void prePerform(MultiStatus status, Profile profile, IProgressMonitor monitor) {
 		phaseParameters = new HashMap();
-		phaseParameters.put("profile", profile);
-		phaseParameters.put("phaseId", phaseId);
+		phaseParameters.put(PROFILE, profile);
+		phaseParameters.put(PHASE_ID, phaseId);
 		status.add(initializePhase(monitor, profile, phaseParameters));
 
 		for (Iterator it = touchpointToTouchpointParameters.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
 			Touchpoint touchpoint = (Touchpoint) entry.getKey();
 			Map touchpointParameters = new HashMap(phaseParameters);
-			touchpointParameters.put("touchpoint", touchpoint);
+			touchpointParameters.put(TOUCHPOINT, touchpoint);
 			status.add(touchpoint.initializePhase(monitor, profile, phaseId, touchpointParameters));
 			entry.setValue(touchpointParameters);
 		}
@@ -132,7 +136,7 @@ public abstract class Phase {
 			Touchpoint touchpoint = getTouchpoint(operand);
 			Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 			Map parameters = new HashMap(touchpointParameters);
-			parameters.put("operand", operand);
+			parameters.put(OPERAND, operand);
 			status.add(initializeOperand(profile, operand, parameters, subMonitor));
 			status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
 			parameters = Collections.unmodifiableMap(parameters);
@@ -167,7 +171,7 @@ public abstract class Phase {
 		Touchpoint touchpoint = getTouchpoint(operand);
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
-		parameters.put("operand", operand);
+		parameters.put(OPERAND, operand);
 		status.add(initializeOperand(profile, operand, parameters, new NullProgressMonitor()));
 		status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
 		parameters = Collections.unmodifiableMap(parameters);

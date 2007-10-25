@@ -14,7 +14,7 @@ public class InstructionParser {
 
 	public ProvisioningAction[] parseActions(String instruction) {
 		List actions = new ArrayList();
-		StringTokenizer tokenizer = new StringTokenizer(instruction, ";");
+		StringTokenizer tokenizer = new StringTokenizer(instruction, ";"); //$NON-NLS-1$
 		while (tokenizer.hasMoreTokens()) {
 			actions.add(parseAction(tokenizer.nextToken()));
 		}
@@ -29,11 +29,11 @@ public class InstructionParser {
 		ProvisioningAction action = lookupAction(actionName);
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
-		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ",");
+		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
 		Map parameters = new HashMap();
 		while (tokenizer.hasMoreTokens()) {
 			String nameValuePair = tokenizer.nextToken();
-			int colonIndex = nameValuePair.indexOf(":");
+			int colonIndex = nameValuePair.indexOf(":"); //$NON-NLS-1$
 			String name = nameValuePair.substring(0, colonIndex).trim();
 			String value = nameValuePair.substring(colonIndex + 1).trim();
 			parameters.put(name, value);
@@ -48,7 +48,7 @@ public class InstructionParser {
 			action = touchpoint.getAction(actionId);
 
 		if (action == null)
-			throw new IllegalArgumentException("No action found for " + actionId + ".");
+			throw new IllegalArgumentException("No action found for " + actionId + "."); //$NON-NLS-2$
 
 		return action;
 	}

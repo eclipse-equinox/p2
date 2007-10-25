@@ -107,8 +107,8 @@ public class MetadataGeneratorHelper {
 		cu.setTouchpointType(TOUCHPOINT_ECLIPSE); //TODO Is this necessary? I think we get that from the IU
 
 		Map touchpointData = new HashMap();
-		touchpointData.put("install", "installBundle(bundle:${artifactId})");
-		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifactId})");
+		touchpointData.put("install", "installBundle(bundle:${artifact})");
+		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
 		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment));
 		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment));
 		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
@@ -130,8 +130,8 @@ public class MetadataGeneratorHelper {
 		cu.setTouchpointType(TOUCHPOINT_ECLIPSE); //TODO Is this necessary? I think we get that from the IU
 		Map touchpointData = new HashMap();
 
-		touchpointData.put("install", "installBundle(bundle:${artifactId})");
-		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifactId})");
+		touchpointData.put("install", "installBundle(bundle:${artifact})");
+		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
 		touchpointData.put("configure", createDefaultConfigScript(configInfo));
 		touchpointData.put("unconfigure", createDefaultUnconfigScript(unconfigInfo));
 

@@ -152,7 +152,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setVersion("1.0.0");
 		result.setStartLevel(4);
 		// These should just be in the install section now
-		//		result.setSpecialConfigCommands("installBundle(bundle:${artifactId});");
+		//		result.setSpecialConfigCommands("installBundle(bundle:${artifact});");
 		return result;
 	}
 
@@ -161,7 +161,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setSymbolicName("defaultUnconfigure");
 		result.setVersion("1.0.0");
 		// These should just be in the uninstall section now
-		//		result.setSpecialConfigCommands("uninstallBundle(bundle:${artifactId});");
+		//		result.setSpecialConfigCommands("uninstallBundle(bundle:${artifact});");
 		return result;
 	}
 

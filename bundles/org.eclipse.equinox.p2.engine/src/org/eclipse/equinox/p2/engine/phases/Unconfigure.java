@@ -39,7 +39,7 @@ public class Unconfigure extends Phase {
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put("artifactId", artifacts[0].getId());
+			parameters.put("artifact", artifacts[0]);
 
 		return Status.OK_STATUS;
 	}
