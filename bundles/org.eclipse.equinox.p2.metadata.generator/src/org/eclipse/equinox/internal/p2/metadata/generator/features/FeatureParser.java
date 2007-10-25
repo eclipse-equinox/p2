@@ -259,7 +259,7 @@ public class FeatureParser extends DefaultHandler {
 	}
 
 	private String localize(String value) {
-		if (messages == null)
+		if (messages == null || value == null)
 			return value;
 		if (!value.startsWith("%"))
 			return value;
