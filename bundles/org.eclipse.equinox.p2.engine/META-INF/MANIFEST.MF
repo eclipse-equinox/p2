@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Engine Plug-in (Incubation)
 Bundle-SymbolicName: org.eclipse.equinox.p2.engine;singleton:=true
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.engine;x-internal:=true,
  org.eclipse.equinox.p2.engine,

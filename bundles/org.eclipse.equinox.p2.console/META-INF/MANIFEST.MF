@@ -1,10 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Provisioning Console Plug-in (Incubation)
 Bundle-SymbolicName: org.eclipse.equinox.p2.console
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.console.Activator
-Bundle-Vendor: IBM
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.equinox.internal.p2.console;x-friends:="org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.tools"
 Import-Package: org.eclipse.core.runtime;common=split,

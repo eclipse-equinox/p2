@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Exemplary Plug-in
 Bundle-SymbolicName: org.eclipse.equinox.p2.exemplarysetup
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.metadata.repository,

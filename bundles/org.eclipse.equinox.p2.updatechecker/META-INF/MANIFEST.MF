@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Equinox Provisioning Update Checker (Incubation)
 Bundle-SymbolicName: org.eclipse.equinox.p2.updatechecker
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.updatechecker.Activator
 Import-Package: org.eclipse.equinox.p2.artifact.repository,

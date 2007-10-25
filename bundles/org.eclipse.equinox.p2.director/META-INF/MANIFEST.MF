@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Director Plug-in (Incubation)
 Bundle-SymbolicName: org.eclipse.equinox.p2.director
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.equinox.p2.core.eventbus,
  org.eclipse.equinox.p2.core.helpers,

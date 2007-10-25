@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Test Plug-in (Incubation)
 Bundle-SymbolicName: org.eclipse.equinox.p2.tests;singleton:=true
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: com.thoughtworks.xstream,
  junit.framework;version="3.8.2",
