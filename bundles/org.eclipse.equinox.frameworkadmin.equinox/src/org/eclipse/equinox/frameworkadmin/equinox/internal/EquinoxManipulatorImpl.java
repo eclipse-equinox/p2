@@ -430,7 +430,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (!stateIsEmpty) {
 			// Save FwConfigFile
 			EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(context);
-			parser.saveFwConfig(newBInfos, this, backup, false);
+			parser.saveFwConfig(newBInfos.length != 0 ? newBInfos : getConfigData().getBundles(), this, backup, false);
 		} else {
 			File configDir = launcherData.getFwConfigLocation();
 			File outputFile = new File(configDir, EquinoxConstants.CONFIG_INI);
