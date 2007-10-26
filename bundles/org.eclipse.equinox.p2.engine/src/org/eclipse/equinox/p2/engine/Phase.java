@@ -134,11 +134,11 @@ public abstract class Phase {
 			}
 
 			Touchpoint touchpoint = getTouchpoint(operand);
-			Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
-			Map parameters = new HashMap(touchpointParameters);
+			Map parameters = (touchpoint != null) ? new HashMap((Map) touchpointToTouchpointParameters.get(touchpoint)) : new HashMap(phaseParameters);
 			parameters.put(OPERAND, operand);
 			status.add(initializeOperand(profile, operand, parameters, subMonitor));
-			status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
+			if (touchpoint != null)
+				status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
 			parameters = Collections.unmodifiableMap(parameters);
 			if (actions != null) {
 				for (int j = 0; j < actions.length; j++) {
@@ -149,7 +149,8 @@ public abstract class Phase {
 						return;
 				}
 			}
-			status.add(touchpoint.completeOperand(profile, phaseId, operand, parameters));
+			if (touchpoint != null)
+				status.add(touchpoint.completeOperand(profile, phaseId, operand, parameters));
 			status.add(completeOperand(operand, parameters));
 			subMonitor.worked(1);
 		}

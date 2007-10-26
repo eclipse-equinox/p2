@@ -12,20 +12,99 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.util.Map;
 import junit.framework.TestCase;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.tests.TestActivator;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Simple test of the engine API.
  */
 public class PhaseTest extends TestCase {
+	public class TestPhaseSet extends PhaseSet {
+
+		public TestPhaseSet() {
+			super(new Phase[] {new TestPhase()});
+		}
+
+		public TestPhaseSet(Phase phase) {
+			super(new Phase[] {phase});
+		}
+
+		public TestPhaseSet(Phase[] phases) {
+			super(phases);
+		}
+	}
+
+	public class TestPhase extends Phase {
+
+		boolean completeOperand;
+		boolean getAction;
+		boolean initializeOperand;
+		boolean completePhase;
+		boolean initializePhase;
+
+		protected TestPhase() {
+			super("test", 1, "testPhase");
+		}
+
+		protected TestPhase(String phaseId, int weight, String phaseName) {
+			super(phaseId, weight, phaseName);
+		}
+
+		protected ProvisioningAction[] getActions(Operand currentOperand) {
+			return null;
+		}
+
+		protected boolean isApplicable(Operand op) {
+			return true;
+		}
+
+		protected IStatus completeOperand(Operand operand, Map parameters) {
+			completeOperand = true;
+			return super.completeOperand(operand, parameters);
+		}
+
+		public ProvisioningAction getAction(String actionId) {
+			getAction = true;
+			return super.getAction(actionId);
+		}
+
+		protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+			initializeOperand = true;
+			return super.initializeOperand(profile, operand, parameters, monitor);
+		}
+
+		protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+			completePhase = true;
+			return super.completePhase(monitor, profile, parameters);
+		}
+
+		protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+			initializePhase = true;
+			return super.initializePhase(monitor, profile, parameters);
+		}
+	}
+
+	private ServiceReference engineRef;
+	private Engine engine;
+
 	public PhaseTest(String name) {
 		super(name);
 	}
 
 	public PhaseTest() {
 		super("");
+	}
+
+	protected void setUp() throws Exception {
+		engineRef = TestActivator.getContext().getServiceReference(Engine.class.getName());
+		engine = (Engine) TestActivator.getContext().getService(engineRef);
+	}
+
+	protected void tearDown() throws Exception {
+		engine = null;
+		TestActivator.getContext().ungetService(engineRef);
 	}
 
 	public void testNullPhaseId() {
@@ -82,28 +161,66 @@ public class PhaseTest extends TestCase {
 		fail();
 	}
 
-	public static class TestPhase extends Phase {
+	public void testPerform() {
+		PhaseSet phaseSet = new TestPhaseSet();
+		Profile profile = new Profile("testProfile");
 
-		protected TestPhase(String phaseId, int weight, String phaseName) {
-			super(phaseId, weight, phaseName);
-		}
+		engine.perform(profile, phaseSet, new Operand[0], new NullProgressMonitor());
+	}
 
-		protected ProvisioningAction[] getActions(Operand currentOperand) {
-			return null;
-		}
+	public void testInitCompletePhase() {
+		TestPhase phase = new TestPhase() {
+			protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+				assertFalse(initializePhase);
+				assertFalse(completePhase);
+				super.initializePhase(monitor, profile, parameters);
+				assertTrue(initializePhase);
+				assertFalse(completePhase);
+				return null;
+			}
 
-		protected boolean isApplicable(Operand op) {
-			return false;
-		}
+			protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+				assertTrue(initializePhase);
+				assertFalse(completePhase);
+				super.completePhase(monitor, profile, parameters);
+				assertTrue(initializePhase);
+				assertTrue(completePhase);
+				return null;
+			}
+		};
+		PhaseSet phaseSet = new TestPhaseSet(phase);
+		Profile profile = new Profile("testProfile");
 
-		protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, null)}, new NullProgressMonitor());
+		assertTrue(phase.initializePhase);
+		assertTrue(phase.completePhase);
+	}
 
-		protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+	public void testInitCompleteOperand() {
+		TestPhase phase = new TestPhase() {
+			protected IStatus completeOperand(Operand operand, Map parameters) {
+				assertTrue(initializeOperand);
+				assertFalse(completeOperand);
+				super.completeOperand(operand, parameters);
+				assertTrue(initializeOperand);
+				assertTrue(completeOperand);
+				return null;
+			}
+
+			protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+				assertFalse(initializeOperand);
+				assertFalse(completeOperand);
+				super.initializeOperand(profile, operand, parameters, monitor);
+				assertTrue(initializeOperand);
+				assertFalse(completeOperand);
+				return null;
+			}
+		};
+		PhaseSet phaseSet = new TestPhaseSet(phase);
+		Profile profile = new Profile("testProfile");
+
+		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, null)}, new NullProgressMonitor());
+		assertTrue(phase.initializeOperand);
+		assertTrue(phase.completeOperand);
 	}
 }
