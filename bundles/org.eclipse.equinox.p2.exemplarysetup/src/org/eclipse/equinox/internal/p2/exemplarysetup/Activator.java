@@ -21,7 +21,6 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
-	public static final String ID = "org.eclipse.equinox.p2.core";
 	public static BundleContext context;
 
 	private ProvisioningEventBus bus;
@@ -45,9 +44,9 @@ public class Activator implements BundleActivator {
 	private IPlanner planner;
 	private ServiceRegistration registrationPlanner;
 
-	public void start(BundleContext context) throws Exception {
+	public void start(BundleContext aContext) throws Exception {
 		//Need to do the configuration of all the bits and pieces:
-		Activator.context = context;
+		Activator.context = aContext;
 
 		registerEventBus();
 		//create the profile registry
@@ -65,7 +64,7 @@ public class Activator implements BundleActivator {
 		//		registerDefaultArtifactRepoManager();
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext aContext) throws Exception {
 		//		unregisterDefaultArtifactRepoManager();
 		unregisterDirector();
 		unregisterPlanner();
