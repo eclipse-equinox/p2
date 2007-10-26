@@ -152,7 +152,9 @@ abstract class RepositoriesView extends ProvView {
 
 	protected abstract String getAddCommandTooltip();
 
-	protected abstract String getRemoveCommandLabel();
+	protected String getRemoveCommandLabel() {
+		return ProvAdminUIMessages.RepositoriesView_RemoveCommandLabel;
+	}
 
 	protected abstract String getRemoveCommandTooltip();
 

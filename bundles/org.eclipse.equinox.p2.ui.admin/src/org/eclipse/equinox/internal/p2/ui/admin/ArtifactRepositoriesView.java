@@ -50,10 +50,6 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		return ProvAdminUIMessages.ArtifactRepositoriesView_AddRepositoryTooltip;
 	}
 
-	protected String getRemoveCommandLabel() {
-		return ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryLabel;
-	}
-
 	protected String getRemoveCommandTooltip() {
 		return ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryTooltip;
 	}

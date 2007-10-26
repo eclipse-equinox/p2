@@ -66,10 +66,6 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return ProvAdminUIMessages.MetadataRepositoriesView_AddRepositoryTooltip;
 	}
 
-	protected String getRemoveCommandLabel() {
-		return ProvAdminUIMessages.MetadataRepositoriesView_RemoveRepositoryLabel;
-	}
-
 	protected String getRemoveCommandTooltip() {
 		return ProvAdminUIMessages.MetadataRepositoriesView_RemoveRepositoryTooltip;
 	}

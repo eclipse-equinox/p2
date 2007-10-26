@@ -30,7 +30,6 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -74,7 +73,7 @@ public class ProvisioningUtil {
 		IMetadataRepository repo = manager.getRepository(location);
 		if (repo != null)
 			manager.removeRepository(repo);
-		PropertyChangeEvent event = new PropertyChangeEvent(repo, IProvisioningListener.REPO_REMOVED, null, null);
+		EventObject event = new EventObject(IProvisioningListener.REPO_REMOVED);
 		ProvUIActivator.getDefault().notifyListeners(event);
 
 	}
@@ -119,9 +118,8 @@ public class ProvisioningUtil {
 			IArtifactRepository repo = repos[i];
 			if (repo.getLocation().equals(location)) {
 				manager.removeRepository(repo);
-				PropertyChangeEvent event = new PropertyChangeEvent(repo, IProvisioningListener.REPO_REMOVED, null, null);
+				EventObject event = new EventObject(IProvisioningListener.REPO_REMOVED);
 				ProvUIActivator.getDefault().notifyListeners(event);
-
 				return;
 			}
 		}

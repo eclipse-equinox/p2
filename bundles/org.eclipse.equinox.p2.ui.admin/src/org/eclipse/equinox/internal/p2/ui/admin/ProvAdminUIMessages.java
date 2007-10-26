@@ -32,18 +32,17 @@ public class ProvAdminUIMessages extends NLS {
 	public static String MetadataRepositoriesView_AddRepositoryTooltip;
 	public static String MetadataRepositoriesView_AddRepositoryLabel;
 	public static String MetadataRepositoriesView_ChooseProfileDialogTitle;
-	public static String MetadataRepositoriesView_RemoveRepositoryLabel;
 	public static String MetadataRepositoriesView_RemoveRepositoryTooltip;
 	public static String MetadataRepositoriesView_RemoveRepositoryOperationLabel;
 	public static String ArtifactRepositoriesView_AddRepositoryTooltip;
 	public static String ArtifactRepositoriesView_AddRepositoryLabel;
-	public static String ArtifactRepositoriesView_RemoveRepositoryLabel;
 	public static String ArtifactRepositoriesView_RemoveRepositoryTooltip;
 	public static String ArtifactRepositoriesView_RemoveRepositoryOperationLabel;
 	public static String ProfilesView_AddProfileTooltip;
 	public static String ProfilesView_AddProfileLabel;
 	public static String ProfilesView_RemoveProfileLabel;
 	public static String ProfilesView_RemoveProfileTooltip;
+	public static String RepositoriesView_RemoveCommandLabel;
 	// Preferences
 	public static String InstalledIUPropertyPage_NoInfoAvailable;
 	public static String ProvisioningPrefPage_HideInternalRepos;
