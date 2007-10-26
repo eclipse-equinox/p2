@@ -12,46 +12,45 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import com.thoughtworks.xstream.XStream;
 import java.io.*;
+import java.util.*;
+import javax.xml.parsers.ParserConfigurationException;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.core.helpers.*;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
+import org.xml.sax.*;
 
 /**
- * This class reads and writes artifact repository 
- * (eg. table of contents files);
+ * This class reads and writes artifact repository metadata
+ * (e.g. table of contents files);
  * 
  * This class is not used for reading or writing the actual artifacts.
  * 
  * The implementation currently uses XStream.
  */
-class ArtifactRepositoryIO {
 
-	/**
-	 * Reads the artifact repository from the given stream,
-	 * and returns the contained array of abstract artifact repositories.
-	 * 
-	 * This method performs buffering, and closes the stream when finished.
-	 */
-	public static IArtifactRepository read(InputStream input) throws RepositoryCreationException {
-		XStream stream = new XStream();
-		BufferedInputStream bufferedInput = null;
-		try {
-			try {
-				bufferedInput = new BufferedInputStream(input);
-				return (IArtifactRepository) stream.fromXML(bufferedInput);
-			} finally {
-				if (bufferedInput != null)
-					bufferedInput.close();
-			}
-		} catch (IOException e) {
-			throw new RepositoryCreationException(e);
-		}
-	}
+// TODO: this class should be renamed to SimpleArtifactRepositoryIO
+//		 when the use of XStream is eliminated.
+// TODO: Should a registration/factory mechanism be supported
+//		 for getting a repository reader/writer given a repository type
+class ArtifactRepositoryIO {
 
 	/**
 	 * Writes the given artifact repository to the stream.
 	 * This method performs buffering, and closes the stream when finished.
+	 * 
+	 * Persistence implementation using XStream
+	 * @deprecated
 	 */
-	public static void write(IArtifactRepository repository, OutputStream output) {
+	public static void write(SimpleArtifactRepository repository, OutputStream output) {
 		XStream stream = new XStream();
 		OutputStream bufferedOutput = null;
 		try {
@@ -71,4 +70,488 @@ class ArtifactRepositoryIO {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Write the given SimpleArtifactRrepository to the given stream.
+	 * This method closes the stream when finished.
+	 */
+	public void writeNew(SimpleArtifactRepository repository, OutputStream output) {
+		OutputStream bufferedOutput = null;
+		try {
+			try {
+				bufferedOutput = new BufferedOutputStream(output);
+				Writer repositoryWriter = new Writer(bufferedOutput);
+				repositoryWriter.write(repository);
+			} finally {
+				if (bufferedOutput != null) {
+					bufferedOutput.close();
+				}
+			}
+		} catch (IOException ioe) {
+			// TODO shouldn't this throw a core exception?
+			ioe.printStackTrace();
+		}
+	}
+
+	/**
+	 * Reads the artifact repository from the given stream,
+	 * and returns the contained array of abstract artifact repositories.
+	 * 
+	 * This method performs buffering, and closes the stream when finished.
+	 * 
+	 * Persistence implementation using XStream
+	 * @deprecated
+	 */
+	public static IArtifactRepository read(InputStream input) throws RepositoryCreationException {
+		XStream stream = new XStream();
+		BufferedInputStream bufferedInput = null;
+		try {
+			try {
+				bufferedInput = new BufferedInputStream(input);
+				return (IArtifactRepository) stream.fromXML(bufferedInput);
+			} finally {
+				if (bufferedInput != null)
+					bufferedInput.close();
+			}
+		} catch (IOException e) {
+			throw new RepositoryCreationException(e);
+		}
+	}
+
+	/**
+	 * Construct a SimpleArtifactRepository by reading from the given stream.
+	 * This method closes the stream when finished.
+	 */
+	public SimpleArtifactRepository readNew(InputStream input) throws RepositoryCreationException {
+		BufferedInputStream bufferedInput = null;
+		try {
+			try {
+				bufferedInput = new BufferedInputStream(input);
+				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
+				repositoryParser.parse(input);
+				if (!repositoryParser.isValidXML()) {
+					throw new RepositoryCreationException(new CoreException(repositoryParser.getStatus()));
+				}
+				return repositoryParser.getRepository();
+			} finally {
+				if (bufferedInput != null)
+					bufferedInput.close();
+			}
+		} catch (IOException ioe) {
+			throw new RepositoryCreationException(ioe);
+		}
+	}
+
+	private interface XMLConstants extends org.eclipse.equinox.p2.core.helpers.XMLConstants {
+
+		// Constants defining the structure of the XML for a SimpleArtifactRepository
+
+		// A format version number for simple artifact repository XML.
+		public static final String XML_VERSION = "0.0.1"; //$NON-NLS-1$
+		public static final Version CURRENT_VERSION = new Version(XML_VERSION);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, CURRENT_VERSION, true);
+
+		// Constants for processing instructions
+		public static final String PI_REPOSITORY_TARGET = "artifactRepository"; //$NON-NLS-1$
+		public static XMLWriter.ProcessingInstruction[] PI_DEFAULTS = new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeClassVersionInstruction(PI_REPOSITORY_TARGET, SimpleArtifactRepository.class, CURRENT_VERSION)};
+
+		// Constants for artifact repository elements
+		public static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
+		public static final String MAPPING_RULES_ELEMENT = "mappings"; //$NON-NLS-1$
+		public static final String MAPPING_RULE_ELEMENT = "rule"; //$NON-NLS-1$
+		public static final String ARTIFACTS_ELEMENT = "artifacts"; //$NON-NLS-1$
+		public static final String ARTIFACT_ELEMENT = "artifact"; //$NON-NLS-1$
+		public static final String PROCESSING_STEPS_ELEMENT = "processing"; //$NON-NLS-1$
+		public static final String PROCESSING_STEP_ELEMENT = "step"; //$NON-NLS-1$
+
+		// Constants for attributes of artifact repository elements
+		public static final String VERIFY_SIGNATURE_ATTRIBUTE = "verify"; //$NON-NLS-1$
+
+		public static final String MAPPING_RULE_FILTER_ATTRIBUTE = "filter"; //$NON-NLS-1$
+		public static final String MAPPING_RULE_OUTPUT_ATTRIBUTE = "output"; //$NON-NLS-1$
+
+		public static final String ARTIFACT_NAMESPACE_ATTRIBUTE = NAMESPACE_ATTRIBUTE;
+		public static final String ARTIFACT_CLASSIFIER_ATTRIBUTE = CLASSIFIER_ATTRIBUTE;
+
+		public static final String STEP_DATA_ATTRIBUTE = "data"; //$NON-NLS-1$
+		public static final String STEP_REQUIRED_ATTRIBUTE = "required"; //$NON-NLS-1$
+	}
+
+	// XML writer for a SimpleArtifactRepository
+	protected class Writer extends XMLWriter implements XMLConstants {
+
+		public Writer(OutputStream output) throws IOException {
+			super(output, PI_DEFAULTS);
+		}
+
+		/**
+		 * Write the given artifact repository to the output stream.
+		 */
+		public void write(SimpleArtifactRepository repository) {
+			start(REPOSITORY_ELEMENT);
+			attribute(NAME_ATTRIBUTE, repository.getName());
+			attribute(TYPE_ATTRIBUTE, repository.getType());
+			attribute(VERSION_ATTRIBUTE, repository.getVersion());
+			attributeOptional(PROVIDER_ATTRIBUTE, repository.getProvider());
+			attributeOptional(DESCRIPTION_ATTRIBUTE, repository.getDescription()); // TODO: could be cdata?
+			attribute(VERIFY_SIGNATURE_ATTRIBUTE, repository.getSignatureVerification(), false);
+
+			writeProperties(repository.getProperties());
+			writeMappingRules(repository.getRules());
+			writeArtifacts(repository.getDescriptors());
+
+			end(REPOSITORY_ELEMENT);
+			flush();
+		}
+
+		private void writeMappingRules(String[][] rules) {
+			if (rules.length > 0) {
+				start(MAPPING_RULES_ELEMENT);
+				attribute(COLLECTION_SIZE_ATTRIBUTE, rules.length);
+				for (int i = 0; i < rules.length; i++) {
+					start(MAPPING_RULE_ELEMENT);
+					attribute(MAPPING_RULE_FILTER_ATTRIBUTE, rules[i][0]);
+					attribute(MAPPING_RULE_OUTPUT_ATTRIBUTE, rules[i][1]);
+					end(MAPPING_RULE_ELEMENT);
+				}
+				end(MAPPING_RULES_ELEMENT);
+			}
+		}
+
+		private void writeArtifacts(Set artifactDescriptors) {
+			start(ARTIFACTS_ELEMENT);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactDescriptors.size());
+			for (Iterator iter = artifactDescriptors.iterator(); iter.hasNext();) {
+				ArtifactDescriptor descriptor = (ArtifactDescriptor) iter.next();
+				IArtifactKey key = descriptor.getArtifactKey();
+				start(ARTIFACT_ELEMENT);
+				attribute(ARTIFACT_NAMESPACE_ATTRIBUTE, key.getNamespace());
+				attribute(ARTIFACT_CLASSIFIER_ATTRIBUTE, key.getClassifier());
+				attribute(ID_ATTRIBUTE, key.getId());
+				attribute(VERSION_ATTRIBUTE, key.getVersion());
+				writeProcessingSteps(descriptor.getProcessingSteps());
+				writeProperties(descriptor.getProperties());
+				end(ARTIFACT_ELEMENT);
+			}
+			end(ARTIFACTS_ELEMENT);
+		}
+
+		private void writeProcessingSteps(ProcessingStepDescriptor[] processingSteps) {
+			if (processingSteps.length > 0) {
+				start(PROCESSING_STEPS_ELEMENT);
+				attribute(COLLECTION_SIZE_ATTRIBUTE, processingSteps.length);
+				for (int i = 0; i < processingSteps.length; i++) {
+					start(PROCESSING_STEP_ELEMENT);
+					attribute(ID_ATTRIBUTE, processingSteps[i].getProcessorId());
+					attribute(STEP_DATA_ATTRIBUTE, processingSteps[i].getData());
+					attribute(STEP_REQUIRED_ATTRIBUTE, processingSteps[i].isRequired());
+					end(PROCESSING_STEP_ELEMENT);
+				}
+				end(PROCESSING_STEPS_ELEMENT);
+			}
+		}
+	}
+
+	/*
+	 * Parser for the contents of a SimpleArtifactRepository,
+	 * as written by the Writer class.
+	 */
+	private class Parser extends XMLParser implements XMLConstants {
+
+		private SimpleArtifactRepository theRepository = null;
+
+		public Parser(BundleContext context, String bundleId) {
+			super(context, bundleId);
+		}
+
+		public void parse(File file) throws IOException {
+			parse(new FileInputStream(file));
+		}
+
+		public synchronized void parse(InputStream stream) throws IOException {
+			this.status = null;
+			try {
+				// TODO: currently not caching the parser since we make no assumptions
+				//		 or restrictions on concurrent parsing
+				getParser();
+				RepositoryHandler repositoryHandler = new RepositoryHandler();
+				xmlReader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
+				xmlReader.parse(new InputSource(stream));
+				if (isValidXML()) {
+					theRepository = repositoryHandler.getRepository();
+				}
+			} catch (SAXException e) {
+				throw new IOException(e.getMessage());
+			} catch (ParserConfigurationException e) {
+				throw new IOException(e.getMessage());
+			} finally {
+				stream.close();
+			}
+		}
+
+		public SimpleArtifactRepository getRepository() {
+			return theRepository;
+		}
+
+		protected Object getRootObject() {
+			return theRepository;
+		}
+
+		private final class RepositoryDocHandler extends DocHandler {
+
+			public RepositoryDocHandler(String rootName, RootHandler rootHandler) {
+				super(rootName, rootHandler);
+			}
+
+			public void ProcessingInstruction(String target, String data) throws SAXException {
+				if (PI_REPOSITORY_TARGET.equalsIgnoreCase(target)) {
+					// TODO: should the root handler be constructed based on class
+					// 		 via an extension registry mechanism?
+					// String clazz = extractPIClass(data);
+					// and
+					// TODO: version tolerance by extension
+					Version repositoryVersion = extractPIVersion(target, data);
+					if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
+						throw new SAXException(NLS.bind(Messages.SimpleArtifactRepositoryIO_Parser_Has_Incompatible_Version, repositoryVersion, XML_TOLERANCE));
+					}
+				}
+			}
+
+		}
+
+		private final class RepositoryHandler extends RootHandler {
+
+			private final String[] required = new String[] {NAME_ATTRIBUTE, TYPE_ATTRIBUTE, VERSION_ATTRIBUTE};
+			private final String[] optional = new String[] {DESCRIPTION_ATTRIBUTE, PROVIDER_ATTRIBUTE, VERIFY_SIGNATURE_ATTRIBUTE};
+
+			private String[] attrValues = new String[required.length + optional.length];
+
+			private MappingRulesHandler mappingRulesHandler = null;
+			private PropertiesHandler propertiesHandler = null;
+			private ArtifactsHandler artifactsHandler = null;
+
+			private SimpleArtifactRepository repository = null;
+
+			public RepositoryHandler() {
+				super();
+			}
+
+			public SimpleArtifactRepository getRepository() {
+				return repository;
+			}
+
+			protected void handleRootAttributes(Attributes attributes) {
+				attrValues = parseAttributes(attributes, required, optional);
+				attrValues[2] = checkVersion(REPOSITORY_ELEMENT, VERSION_ATTRIBUTE, attrValues[2]).toString();
+				attrValues[5] = checkBoolean(REPOSITORY_ELEMENT, VERIFY_SIGNATURE_ATTRIBUTE, attrValues[5], false).toString();
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				if (MAPPING_RULES_ELEMENT.equalsIgnoreCase(name)) {
+					if (mappingRulesHandler == null) {
+						mappingRulesHandler = new MappingRulesHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else if (ARTIFACTS_ELEMENT.equalsIgnoreCase(name)) {
+					if (artifactsHandler == null) {
+						artifactsHandler = new ArtifactsHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+					if (propertiesHandler == null) {
+						propertiesHandler = new PropertiesHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else {
+					invalidElement(name, attributes);
+				}
+			}
+
+			protected void finished() {
+				if (isValidXML()) {
+					String[][] mappingRules = (mappingRulesHandler == null ? new String[0][0] //
+							: mappingRulesHandler.getMappingRules());
+					OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) //
+							: propertiesHandler.getProperties());
+					Set artifacts = (artifactsHandler == null ? new HashSet(0) //
+							: artifactsHandler.getArtifacts());
+					boolean verifySignature = (attrValues[5] == null ? false //
+							: new Boolean(attrValues[5]).booleanValue());
+					repository = new SimpleArtifactRepository(attrValues[0], attrValues[1], attrValues[2], attrValues[3], //
+							attrValues[4], verifySignature, artifacts, mappingRules, properties);
+				}
+			}
+		}
+
+		protected class MappingRulesHandler extends AbstractHandler {
+
+			private List mappingRules;
+
+			public MappingRulesHandler(AbstractHandler parentHandler, Attributes attributes) {
+				super(parentHandler, MAPPING_RULES_ELEMENT);
+				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+				mappingRules = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+			}
+
+			public String[][] getMappingRules() {
+				String[][] rules = new String[mappingRules.size()][2];
+				for (int index = 0; index < mappingRules.size(); index++) {
+					String[] ruleAttributes = (String[]) mappingRules.get(index);
+					rules[index] = ruleAttributes;
+				}
+				return rules;
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				if (name.equalsIgnoreCase(MAPPING_RULE_ELEMENT)) {
+					new MappingRuleHandler(this, attributes, mappingRules);
+				} else {
+					invalidElement(name, attributes);
+				}
+			}
+		}
+
+		protected class MappingRuleHandler extends AbstractHandler {
+
+			private final String[] required = new String[] {MAPPING_RULE_FILTER_ATTRIBUTE, MAPPING_RULE_OUTPUT_ATTRIBUTE};
+
+			public MappingRuleHandler(AbstractHandler parentHandler, Attributes attributes, List mappingRules) {
+				super(parentHandler, MAPPING_RULE_ELEMENT);
+				mappingRules.add(parseRequiredAttributes(attributes, required));
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				invalidElement(name, attributes);
+			}
+		}
+
+		protected class ArtifactsHandler extends AbstractHandler {
+
+			private Set artifacts;
+
+			public ArtifactsHandler(AbstractHandler parentHandler, Attributes attributes) {
+				super(parentHandler, ARTIFACTS_ELEMENT);
+				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+				artifacts = (size != null ? new LinkedHashSet(new Integer(size).intValue()) : new LinkedHashSet(4));
+			}
+
+			public Set getArtifacts() {
+				return artifacts;
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				if (name.equalsIgnoreCase(ARTIFACT_ELEMENT)) {
+					new ArtifactHandler(this, attributes, artifacts);
+				} else {
+					invalidElement(name, attributes);
+				}
+			}
+		}
+
+		protected class ArtifactHandler extends AbstractHandler {
+
+			private final String[] required = new String[] {ARTIFACT_NAMESPACE_ATTRIBUTE, ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE};
+
+			private Set artifacts;
+			ArtifactDescriptor currentArtifact = null;
+
+			private PropertiesHandler propertiesHandler = null;
+			private ProcessingStepsHandler processingStepsHandler = null;
+
+			public ArtifactHandler(AbstractHandler parentHandler, Attributes attributes, Set artifacts) {
+				super(parentHandler, ARTIFACT_ELEMENT);
+				this.artifacts = artifacts;
+				String[] values = parseRequiredAttributes(attributes, required);
+				Version version = checkVersion(ARTIFACT_ELEMENT, VERSION_ATTRIBUTE, values[3]);
+				// TODO: resolve access restriction on ArtifactKey construction
+				currentArtifact = new ArtifactDescriptor(new ArtifactKey(values[0], values[1], values[2], version));
+			}
+
+			public ArtifactDescriptor getArtifact() {
+				return currentArtifact;
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				if (PROCESSING_STEPS_ELEMENT.equalsIgnoreCase(name)) {
+					if (processingStepsHandler == null) {
+						processingStepsHandler = new ProcessingStepsHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+					if (propertiesHandler == null) {
+						propertiesHandler = new PropertiesHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else {
+					invalidElement(name, attributes);
+				}
+			}
+
+			protected void finished() {
+				if (isValidXML() && currentArtifact != null) {
+					OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) //
+							: propertiesHandler.getProperties());
+					currentArtifact.addProperties(properties);
+					ProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
+							: processingStepsHandler.getProcessingSteps());
+					currentArtifact.setProcessingSteps(processingSteps);
+					artifacts.add(currentArtifact);
+				}
+			}
+		}
+
+		protected class ProcessingStepsHandler extends AbstractHandler {
+
+			private List processingSteps;
+
+			public ProcessingStepsHandler(AbstractHandler parentHandler, Attributes attributes) {
+				super(parentHandler, PROCESSING_STEPS_ELEMENT);
+				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+				processingSteps = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+			}
+
+			public ProcessingStepDescriptor[] getProcessingSteps() {
+				return (ProcessingStepDescriptor[]) processingSteps.toArray(new ProcessingStepDescriptor[processingSteps.size()]);
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				if (name.equalsIgnoreCase(PROCESSING_STEP_ELEMENT)) {
+					new ProcessingStepHandler(this, attributes, processingSteps);
+				} else {
+					invalidElement(name, attributes);
+				}
+			}
+		}
+
+		protected class ProcessingStepHandler extends AbstractHandler {
+
+			private final String[] required = new String[] {ID_ATTRIBUTE, STEP_DATA_ATTRIBUTE, STEP_REQUIRED_ATTRIBUTE};
+
+			public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes, List processingSteps) {
+				super(parentHandler, PROCESSING_STEP_ELEMENT);
+				String[] attributeValues = parseRequiredAttributes(attributes, required);
+				processingSteps.add(new ProcessingStepDescriptor(attributeValues[0], attributeValues[1], checkBoolean(PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[2]).booleanValue()));
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				invalidElement(name, attributes);
+			}
+		}
+
+		protected String getErrorMessage() {
+			return Messages.SimpleArtifactRepositoryIO_Parser_Error_Parsing_Repository;
+		}
+
+		public String toString() {
+			// TODO:
+			return null;
+		}
+
+	}
+
 }

@@ -13,12 +13,24 @@ package org.eclipse.equinox.p2.metadata;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment, IInstallableUnit {
-	public static ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0));
+public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {
+
+	public static ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0)); //$NON-NLS-1$
 
 	private String hostId;
 	private transient VersionRange hostRangeObject;
 	private String hostRange;
+
+	public InstallableUnitFragment() {
+		super();
+	}
+
+	public InstallableUnitFragment(String id, Version version, boolean singleton, String hostId, VersionRange hostRange) {
+		super(id, version, singleton);
+		this.hostId = hostId;
+		this.hostRange = hostRange.toString();
+		hostRangeObject = hostRange;
+	}
 
 	public ProvidedCapability[] getProvidedCapabilities() {
 		ProvidedCapability[] otherCapabilities = super.getProvidedCapabilities();

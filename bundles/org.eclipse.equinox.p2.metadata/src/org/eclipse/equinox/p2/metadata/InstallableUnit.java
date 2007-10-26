@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
 import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
@@ -26,7 +27,7 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 
 	private IArtifactKey[] artifacts;
 	private TouchpointType touchpointType;
-	private TouchpointData immutableTouchpointData;
+	private ArrayList touchpointData = null;
 
 	private RequiredCapability[] requires;
 
@@ -38,6 +39,14 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 
 	public InstallableUnit() {
 		super();
+	}
+
+	public InstallableUnit(String id, Version version, boolean singleton) {
+		super();
+		this.id = id;
+		this.version = version.toString();
+		this.versionObject = version;
+		this.singleton = singleton;
 	}
 
 	public TouchpointType getTouchpointType() {
@@ -122,10 +131,7 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 
 	public String setProperty(String key, String value) {
 		if (value == null)
-			if (properties == null)
-				return null;
-			else
-				return (String) properties.remove(key);
+			return (properties != null ? (String) properties.remove(key) : null);
 		if (properties == null)
 			properties = new OrderedProperties();
 		return (String) properties.setProperty(key, value);
@@ -169,15 +175,34 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 	}
 
 	public TouchpointData[] getTouchpointData() {
-		return immutableTouchpointData == null ? TouchpointData.NO_TOUCHPOINT_DATA : new TouchpointData[] {immutableTouchpointData};
+		return (touchpointData == null ? TouchpointData.NO_TOUCHPOINT_DATA //
+				: (TouchpointData[]) touchpointData.toArray(new TouchpointData[touchpointData.size()]));
 	}
 
+	// TODO: resolve the schizophrenia between the singleton immutable data
+	//	   	 and the public returned touchpoint data array.
 	public void setImmutableTouchpointData(TouchpointData immutableData) {
-		this.immutableTouchpointData = immutableData;
+		ensureTouchpointDataCapacity(4);
+		touchpointData.add(immutableData);
 	}
 
-	OrderedProperties getProperties() {
-		return properties == null ? NO_PROPERTIES : properties;
+	public void addTouchpointData(TouchpointData[] newData) {
+		ensureTouchpointDataCapacity(newData.length);
+		for (int i = 0; i < newData.length; i++) {
+			touchpointData.add(newData[i]);
+		}
+	}
+
+	private void ensureTouchpointDataCapacity(int size) {
+		if (touchpointData != null) {
+			touchpointData.ensureCapacity(size);
+		} else {
+			touchpointData = new ArrayList(size);
+		}
+	}
+
+	private OrderedProperties properties() {
+		return (properties != null ? properties : NO_PROPERTIES);
 	}
 
 	/**
@@ -186,8 +211,14 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
-	public OrderedProperties copyProperties() {
-		return (properties != null ? new UnmodifiableProperties(getProperties()) : new UnmodifiableProperties(new OrderedProperties()));
+	public OrderedProperties getProperties() {
+		return new UnmodifiableProperties(properties());
+	}
+
+	public void addProperties(OrderedProperties newProperties) {
+		if (properties == null)
+			properties = new OrderedProperties(newProperties.size());
+		properties.putAll(newProperties);
 	}
 
 	public boolean isFragment() {

@@ -65,8 +65,8 @@ public class MultiStatusUtil {
 				}
 			}
 			return sb.toString();
-		} else
-			return status.getMessage();
+		}
+		return status.getMessage();
 	}
 
 	public static List getStatusNodes(IStatus root) {
@@ -92,10 +92,8 @@ public class MultiStatusUtil {
 	}
 
 	private static IStatus newNonMultiStatus(IStatus status) {
-		if (status.isMultiStatus())
-			return new Status(status.getSeverity(), status.getPlugin(), status.getCode(), status.getMessage(), status.getException());
-		else
-			return status;
+		return (status.isMultiStatus() ? new Status(status.getSeverity(), status.getPlugin(), status.getCode(), status.getMessage(), status.getException()) //
+				: status);
 	}
 
 	private static void collectStatusNodes(IStatus root, List nodes) {
@@ -176,9 +174,7 @@ public class MultiStatusUtil {
 	}
 
 	private static boolean needsRecoding(IStatus status, IStatusRecoder recoder) {
-		if (!status.isMultiStatus())
-			return recoder.needsRecoding(status);
-		else {
+		if (status.isMultiStatus()) {
 			if (recoder.needsRecoding(status))
 				return true;
 			IStatus[] children = status.getChildren();
@@ -189,6 +185,7 @@ public class MultiStatusUtil {
 			}
 			return false;
 		}
+		return recoder.needsRecoding(status);
 	}
 
 	private static IStatus doSingleRecode(IStatus status, IStatusRecoder recoder) {

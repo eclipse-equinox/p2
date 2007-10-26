@@ -11,20 +11,20 @@
 package org.eclipse.equinox.p2.core.helpers;
 
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 
 /**
  * An variation of the MultiStatus. Note that this does not
  * extend runtime.MultiStatus, instead it extends Status, because
  * the purpose of this class is to avoid a few shortcomings of
  * runtime.MultiStatus. This is different as follows:
- *      - Add only non-ok status as child (this prevents bloat).
+ *      - Add only non-OK status as child (this prevents bloat).
  *      - Children is a list instead of an array; helps when add()
  *        is called more often than getChildren()
  */
 public class MultiStatus extends Status {
-	public final static String bundleId = "org.eclipse.equinox.p2";
+
+	public final static String bundleId = "org.eclipse.equinox.p2"; //$NON-NLS-1$
 	public static final int STATUS_CODE_SUCCESS = 0;
 
 	// Use ArrayList rather than List so ensureCapacity() is available.
@@ -68,21 +68,21 @@ public class MultiStatus extends Status {
 	}
 
 	/**
-	 * A Multi-Status with an exception.
+	 * A MultiStatus with an exception.
 	 */
 	public MultiStatus(int code, String msg, Throwable exception) {
 		this(code, msg, null, exception);
 	}
 
 	/**
-	 * A Multi-Status with children.
+	 * A MultiStatus with children.
 	 */
 	public MultiStatus(int code, String msg, IStatus[] nested, Throwable exception) {
 		this(OK, bundleId, code, msg, nested, exception);
 	}
 
 	/**
-	 * For creation from outside of the default plugin.
+	 * For creation from outside of the default plug-in.
 	 */
 	public MultiStatus(String pluginId, int code, String msg, Throwable exception) {
 		this(OK, pluginId, code, msg, null, exception);
@@ -96,7 +96,7 @@ public class MultiStatus extends Status {
 	}
 
 	/**
-	 * A Multi-Status with everything.
+	 * A MultiStatus with everything.
 	 */
 	public MultiStatus(int severity, String pluginId, int code, String msg, IStatus[] nested, Throwable exception) {
 		super(severity, pluginId, code, msg, exception);
@@ -113,7 +113,7 @@ public class MultiStatus extends Status {
 	}
 
 	/**
-	 * Does this status indicate an error or cancelation.
+	 * Does this status indicate an error or cancellation.
 	 */
 	public boolean isErrorOrCancel() {
 		return matches(ERROR | CANCEL);
@@ -164,9 +164,9 @@ public class MultiStatus extends Status {
 
 	/**
 	 * Adds the children of the given status as its own
-	 * chldren. This internally uses add(IStatus). This
+	 * children. This internally uses add(IStatus). This
 	 * guards against a null status.
-	 * @param status A multi-status IStatus object whose children
+	 * @param status A MultiStatus IStatus object whose children
 	 * are to be added to this children.
 	 */
 	public void addAll(IStatus status) {
@@ -178,6 +178,26 @@ public class MultiStatus extends Status {
 		ensureExtraCapacity(nested.length);
 		for (int i = 0; i < nested.length; i++) {
 			add(nested[i]);
+		}
+	}
+
+	/**
+	 * Merges the given status into this MultiStatus.
+	 * Equivalent to <code>add(status)</code> if the
+	 * given status is not a mMultiStatus. 
+	 * Equivalent to <code>addAll(status)</code> if the
+	 * given status is a MultiStatus. 
+	 *
+	 * @param status the status to merge into this one
+	 * @see #add(IStatus)
+	 * @see #addAll(IStatus)
+	 */
+	public void merge(IStatus status) {
+		Assert.isLegal(status != null);
+		if (!status.isMultiStatus()) {
+			add(status);
+		} else {
+			addAll(status);
 		}
 	}
 
@@ -201,7 +221,7 @@ public class MultiStatus extends Status {
 
 	/**
 	 * Collapses the children into a flat list.
-	 * If all the children are non-multi-status,
+	 * If all the children are non-MultiStatus,
 	 * this is essentially getChildren().
 	 * @return An array of IStatus objects.
 	 * @see #getChildren()

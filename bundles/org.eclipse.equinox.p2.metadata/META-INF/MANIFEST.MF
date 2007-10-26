@@ -5,7 +5,7 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
-Export-Package: org.eclipse.equinox.internal.p2.metadata;x-friends:="org.eclipse.equinox.p2.metadata.generator",
+Export-Package: org.eclipse.equinox.internal.p2.metadata;x-friends:="org.eclipse.equinox.p2.metadata.generator, org.eclipse.equinox.p2.metadata.repository",
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.query,
  org.eclipse.equinox.p2.resolution

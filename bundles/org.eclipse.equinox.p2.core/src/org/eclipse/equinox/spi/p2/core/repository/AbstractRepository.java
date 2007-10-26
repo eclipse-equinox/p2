@@ -31,7 +31,6 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	protected String version;
 	protected String description;
 	protected String provider;
-	// TODO make sure that this is transiaent.  NO point in storing the location in the repo itself.
 	protected transient URL location;
 	protected OrderedProperties properties = new OrderedProperties();
 

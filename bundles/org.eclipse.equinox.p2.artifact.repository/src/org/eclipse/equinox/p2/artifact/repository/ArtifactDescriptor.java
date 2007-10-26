@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.artifact.repository;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /**
@@ -26,22 +29,21 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	// The list of post processing steps that must be applied one the artifact once it 
 	// has been downloaded (e.g, unpack, then md5 checksum, then...)
 	protected ProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
-	protected Map properties = new HashMap(2);
+
+	protected OrderedProperties properties = new OrderedProperties();
+
 	protected transient IArtifactRepository repository;
 
-	//QUESTION: Do we need any description or user readable name
+	// QUESTION: Do we need any description or user readable name
 
 	public ArtifactDescriptor(IArtifactDescriptor base) {
 		super();
 		key = base.getArtifactKey();
 		processingSteps = base.getProcessingSteps();
+		properties.putAll(base.getProperties());
 		repository = base.getRepository();
-		// TODO figure out a better way to copy the properties
-		setProperty(IArtifactDescriptor.ARTIFACT_MD5, base.getProperty(IArtifactDescriptor.ARTIFACT_MD5));
-		setProperty(IArtifactDescriptor.ARTIFACT_SIZE, base.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-		setProperty(IArtifactDescriptor.DOWNLOAD_MD5, base.getProperty(IArtifactDescriptor.DOWNLOAD_MD5));
-		setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, base.getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
-		setProperty(IArtifactDescriptor.FORMAT, base.getProperty(IArtifactDescriptor.FORMAT));
+		// TODO this property is hardcoded for the blob store.
+		//		setProperty("artifact.uuid", base.getProperty("artifact.uuid"));
 	}
 
 	public ArtifactDescriptor(ArtifactDescriptor base) {
@@ -61,8 +63,8 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		return key;
 	}
 
-	public String getProperty(String key) {
-		return (String) properties.get(key);
+	public String getProperty(String propertyKey) {
+		return (String) properties.get(propertyKey);
 	}
 
 	public void setProperty(String key, String value) {
@@ -70,6 +72,18 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 			properties.remove(key);
 		else
 			properties.put(key, value);
+	}
+
+	public void addProperties(OrderedProperties additionalProperties) {
+		properties.putAll(additionalProperties);
+	}
+
+	/**
+	 * Returns a read-only collection of the properties of the artifact descriptor.
+	 * @return the properties of this artifact descriptor.
+	 */
+	public Map getProperties() {
+		return new UnmodifiableProperties(properties);
 	}
 
 	public ProcessingStepDescriptor[] getProcessingSteps() {
@@ -137,4 +151,5 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 			return "canonical: " + key.toString(); //$NON-NLS-1$
 		return format + ": " + key.toString(); //$NON-NLS-1$
 	}
+
 }

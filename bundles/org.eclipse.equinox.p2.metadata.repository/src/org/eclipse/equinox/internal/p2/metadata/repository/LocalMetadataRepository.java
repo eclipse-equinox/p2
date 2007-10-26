@@ -35,7 +35,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final private String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 
-	protected HashSet units = new HashSet();
+	protected HashSet units = new LinkedHashSet();
 
 	public static File getActualLocation(URL location) {
 		String spec = location.getFile();
@@ -48,10 +48,18 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return new File(spec);
 	}
 
+	public LocalMetadataRepository() {
+		super();
+	}
+
 	public LocalMetadataRepository(URL location, String name) throws RepositoryCreationException {
 		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
 		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location);
+	}
+
+	protected LocalMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
+		super(name, type, version, location, description, provider);
 	}
 
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
@@ -123,5 +131,22 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	public boolean isModifiable() {
 		return true;
+	}
+
+	// Get a non-modifiable collection of the installable units
+	// from the repository.
+	public Set getInstallableUnits() {
+		return Collections.unmodifiableSet(units);
+	}
+
+	public void initialize(RepositoryState state) {
+		this.name = state.Name;
+		this.type = state.Type;
+		this.version = state.Version.toString();
+		this.provider = state.Provider;
+		this.description = state.Description;
+		this.location = state.Location;
+		this.properties = state.Properties;
+		this.units.addAll(Arrays.asList(state.Units));
 	}
 }

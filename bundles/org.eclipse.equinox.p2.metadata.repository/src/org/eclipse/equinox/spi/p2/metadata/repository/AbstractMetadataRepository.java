@@ -11,11 +11,30 @@
 package org.eclipse.equinox.spi.p2.metadata.repository;
 
 import java.net.URL;
+import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
+import org.osgi.framework.Version;
 
 public abstract class AbstractMetadataRepository extends AbstractRepository implements IMetadataRepository {
+
+	public static class RepositoryState {
+		public String Name;
+		public String Type;
+		public Version Version;
+		public String Provider;
+		public String Description;
+		public URL Location;
+		public OrderedProperties Properties;
+		public IInstallableUnit[] Units;
+	}
+
+	public AbstractMetadataRepository() {
+		super("noName", "noType", "noVersion", null, null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public abstract void initialize(RepositoryState state);
 
 	protected AbstractMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
 		super(name, type, version, location, description, provider);

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.artifact.repository;
 
+import java.util.Map;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
@@ -30,10 +31,16 @@ public interface IArtifactDescriptor {
 	/**
 	 * Return the value of the given property in this descriptor  <code>null</code> 
 	 * is returned if no such property exists
-	 * @param key the proerty key to look for
+	 * @param key the property key to look for
 	 * @return the value of the given property or <code>null</code>
 	 */
 	public abstract String getProperty(String key);
+
+	/**
+	 * Returns a read-only collection of the properties of the artifact descriptor.
+	 * @return the properties of this artifact descriptor.
+	 */
+	public Map getProperties();
 
 	/** 
 	 * Return the list of processing steps associated with this descriptor.

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class TouchpointData {
@@ -51,5 +52,11 @@ public class TouchpointData {
 
 	public String getInstructions(String instructionKey) {
 		return (String) instructions.get(instructionKey);
+	}
+
+	// Return an unmodifiable collection of the instructions
+	// in the touchpoint data.
+	public Map getInstructions() {
+		return Collections.unmodifiableMap(instructions);
 	}
 }

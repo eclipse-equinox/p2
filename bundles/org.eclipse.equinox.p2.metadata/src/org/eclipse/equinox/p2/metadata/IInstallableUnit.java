@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.osgi.framework.Version;
 
 public interface IInstallableUnit extends Comparable {
@@ -61,6 +62,8 @@ public interface IInstallableUnit extends Comparable {
 	public abstract boolean isSingleton();
 
 	public abstract String getProperty(String key);
+
+	public abstract OrderedProperties getProperties();
 
 	public abstract TouchpointData[] getTouchpointData();
 

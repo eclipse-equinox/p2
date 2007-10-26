@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.metadata;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
+import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.osgi.framework.Version;
 
 public class ResolvedInstallableUnit implements IResolvedInstallableUnit, InternalInstallableUnit {
@@ -55,6 +56,10 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 
 	public String getProperty(String key) {
 		return resolved.getProperty(key);
+	}
+
+	public OrderedProperties getProperties() {
+		return resolved.getProperties();
 	}
 
 	public ProvidedCapability[] getProvidedCapabilities() {
@@ -124,7 +129,7 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 	}
 
 	public String toString() {
-		return "[R]" + resolved.toString();
+		return "[R]" + resolved.toString(); //$NON-NLS-1$
 	}
 
 	public IInstallableUnit getOriginal() {

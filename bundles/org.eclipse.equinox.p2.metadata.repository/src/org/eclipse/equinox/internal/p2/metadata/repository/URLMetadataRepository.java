@@ -13,14 +13,12 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.CompoundIterator;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -29,14 +27,14 @@ import org.eclipse.osgi.util.NLS;
 /**
  * A metadata repository backed by an arbitrary URL.
  */
-public class URLMetadataRepository extends AbstractMetadataRepository implements IMetadataRepository {
+public class URLMetadataRepository extends AbstractMetadataRepository {
 
 	static final private String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final protected String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 
 	transient protected URL content;
-	protected HashSet units = new HashSet();
+	protected HashSet units = new LinkedHashSet();
 
 	public static URL getActualLocation(URL base) {
 		String spec = base.toExternalForm();
@@ -58,8 +56,12 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 	}
 
 	public URLMetadataRepository(URL location, String name) {
-		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
+		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null); //$NON-NLS-1$
 		content = getActualLocation(location);
+	}
+
+	public URLMetadataRepository() {
+		super();
 	}
 
 	protected boolean load() throws RepositoryCreationException {
@@ -105,5 +107,22 @@ public class URLMetadataRepository extends AbstractMetadataRepository implements
 
 	public boolean isModifiable() {
 		return false;
+	}
+
+	// Get a non-modifiable collection of the installable units
+	// from the repository.
+	public Set getInstallableUnits() {
+		return Collections.unmodifiableSet(units);
+	}
+
+	public void initialize(RepositoryState state) {
+		this.name = state.Name;
+		this.type = state.Type;
+		this.version = state.Version.toString();
+		this.provider = state.Provider;
+		this.description = state.Description;
+		this.location = state.Location;
+		this.properties = state.Properties;
+		this.units.addAll(Arrays.asList(state.Units));
 	}
 }

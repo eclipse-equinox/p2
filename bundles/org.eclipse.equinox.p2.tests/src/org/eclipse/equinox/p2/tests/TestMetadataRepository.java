@@ -93,4 +93,15 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 			units.remove(toRemove[i]);
 		}
 	}
+
+	public void initialize(RepositoryState state) {
+		this.name = state.Name;
+		this.type = state.Type;
+		this.version = state.Version.toString();
+		this.provider = state.Provider;
+		this.description = state.Description;
+		this.location = state.Location;
+		this.properties = state.Properties;
+		this.units.addAll(Arrays.asList(state.Units));
+	}
 }

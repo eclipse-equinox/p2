@@ -26,13 +26,13 @@ import org.eclipse.osgi.service.resolver.VersionRange;
  * @see InstallableUnit#IU_NAMESPACE
  */
 public class RequiredCapability {
-	private String filter;
 
-	private boolean multiple;
 	private String name;
 	private String namespace;
-	boolean optional;
 	private String range;
+	private boolean optional;
+	private boolean multiple;
+	private String filter;
 	private String[] selectors;
 	private transient VersionRange rangeObject;
 
@@ -73,6 +73,10 @@ public class RequiredCapability {
 		return filter;
 	}
 
+	public void setFilter(String filter) {
+		this.filter = filter;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -96,7 +100,7 @@ public class RequiredCapability {
 	}
 
 	public String toString() {
-		return "requiredCapability: " + namespace + '/' + name + '/' + range;
+		return "requiredCapability: " + namespace + '/' + name + '/' + range; //$NON-NLS-1$
 	}
 
 	public int hashCode() {
@@ -154,5 +158,9 @@ public class RequiredCapability {
 	 */
 	public String[] getSelectors() {
 		return selectors;
+	}
+
+	public void setSelectors(String[] selectors) {
+		this.selectors = selectors;
 	}
 }

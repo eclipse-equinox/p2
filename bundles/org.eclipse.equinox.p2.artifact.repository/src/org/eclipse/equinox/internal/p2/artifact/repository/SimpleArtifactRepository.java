@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.core.helpers.MultiStatus;
+import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
@@ -35,7 +37,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 	protected Set artifactDescriptors = new HashSet();
 	private boolean signatureVerification = false;
-	private BlobStore blobStore;
+	private transient BlobStore blobStore;
 
 	public static URL getActualLocation(URL base) {
 		String spec = base.toExternalForm();
@@ -69,6 +71,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
 		mapper.initialize(Activator.getContext(), mappingRules);
 		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
+	}
+
+	public SimpleArtifactRepository(String name, String type, String version, String description, String provider, boolean verifySignature, Set artifacts, String[][] mappingRules, OrderedProperties properties) {
+		super(name, type, version, null, description, provider);
+		signatureVerification = verifySignature;
+		this.artifactDescriptors.addAll(artifacts);
+		this.mappingRules = mappingRules;
+		this.properties.putAll(properties);
 	}
 
 	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
@@ -171,7 +181,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
 		String result = getLocation(descriptor);
-		if (result == null || !result.startsWith("file:"))
+		if (result == null || !result.startsWith("file:")) //$NON-NLS-1$
 			return null;
 		return new File(result.substring(5));
 	}
@@ -308,7 +318,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public void save() {
 		try {
-			FileOutputStream os = new FileOutputStream(getActualLocation(location).getFile());
+			URL actualLocation = getActualLocation(location);
+			FileOutputStream os = new FileOutputStream(actualLocation.getFile());
 			ArtifactRepositoryIO.write(this, os);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -341,7 +352,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// Make sure that the file does not exist and that the parents do
 		File outputFile = new File(file);
 		if (outputFile.exists())
-			System.err.println("Artifact repository out of synch. Overwriting " + outputFile.getAbsoluteFile());
+			System.err.println("Artifact repository out of synch. Overwriting " + outputFile.getAbsoluteFile()); //$NON-NLS-1$
 		if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
 			// TODO: Log an error, or throw an exception?
 			return null;
@@ -434,6 +445,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
+	public boolean getSignatureVerification() {
+		return signatureVerification;
+	}
+
 	public void setSignatureVerification(boolean value) {
 		signatureVerification = value;
 	}
@@ -449,4 +464,5 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public boolean isModifiable() {
 		return true;
 	}
+
 }

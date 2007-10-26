@@ -34,6 +34,11 @@ public class OrderedProperties implements Map {
 		super();
 	}
 
+	public OrderedProperties(int size) {
+		super();
+		propertyMap = new LinkedHashMap(size);
+	}
+
 	/**
 	 * Set the property value.
 	 * <p>
@@ -65,9 +70,7 @@ public class OrderedProperties implements Map {
 	}
 
 	public Collection getPropertyKeysCollection() {
-		if (propertyMap == null)
-			return Collections.EMPTY_LIST;
-		return Collections.unmodifiableCollection(propertyMap.keySet());
+		return (propertyMap != null ? Collections.unmodifiableCollection(propertyMap.keySet()) : Collections.EMPTY_LIST);
 	}
 
 	public String[] getPropertyKeys() {

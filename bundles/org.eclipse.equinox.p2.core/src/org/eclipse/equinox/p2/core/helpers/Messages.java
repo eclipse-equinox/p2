@@ -24,4 +24,17 @@ public class Messages extends NLS {
 	public static String Util_Invalid_Zip_File_Format;
 	public static String Util_Error_Unzipping;
 
+	public static String XMLParser_No_SAX_Parser;
+	public static String XMLParser_Error_At_Line;
+	public static String XMLParser_Error_At_Line_Column;
+	public static String XMLParser_Error_At_Name_Line;
+	public static String XMLParser_Error_At_Name_Line_Column;
+	public static String XMLParser_Missing_Required_Attribute;
+	public static String XMLParser_Unexpected_Attribute;
+	public static String XMLParser_Illegal_Value_For_Attribute;
+	public static String XMLParser_Unexpected_Element;
+	public static String XMLParser_Duplicate_Element;
+	public static String XMLParser_Unexpected_Character_Data;
+	public static String XMLParser_Element_Not_Allowed;
+
 }

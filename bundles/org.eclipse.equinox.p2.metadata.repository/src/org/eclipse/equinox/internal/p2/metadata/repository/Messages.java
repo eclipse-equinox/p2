@@ -24,4 +24,8 @@ public class Messages extends NLS {
 
 	public static String REPO_LOADING;
 	public static String REPOMGR_ADDING_REPO;
+
+	public static String MetadataRepositoryIO_Parser_Has_Incompatible_Version;
+	public static String MetadataRepositoryIO_Parser_Error_Parsing_Repository;
+
 }
