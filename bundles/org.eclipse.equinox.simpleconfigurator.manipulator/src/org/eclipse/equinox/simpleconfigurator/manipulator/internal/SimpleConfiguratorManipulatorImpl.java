@@ -392,7 +392,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 					// urlBundle = Utils.getFullUrl(urlSt, baseUrl);
 					// }
 
-					urlSt = makeAbsolute(urlSt, launcherLocation != null ? launcherLocation.getParentFile().toURL() : null);
+					urlSt = makeAbsolute(urlSt, baseUrl);
 					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
 					bundles.add(bInfo);
 					// System.out.println("tail line=" + line);
@@ -434,12 +434,12 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		if (!configuratorConfigUrl.getProtocol().equals("file"))
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
 		File outputFile = new File(configuratorConfigUrl.getFile());
-		this.saveConfiguration(setToSimpleConfig, outputFile, manipulator.getLauncherData().getLauncher(), backup);
+		this.saveConfiguration(setToSimpleConfig, outputFile, backup);
 		configData.setFwIndependentProp(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
 
-	private void saveConfiguration(List bundleInfoList, File outputFile, File launcherLocation, boolean backup) throws IOException {
+	private void saveConfiguration(List bundleInfoList, File outputFile, boolean backup) throws IOException {
 		if (DEBUG) {
 			System.out.println("saveConfiguration(List bundleInfoList, File outputFile, boolean backup): outFile=" + outputFile.getAbsolutePath());
 		}
@@ -469,7 +469,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 				else
 					bw.write(bInfo.getVersion() + ",");
 
-				location = makeRelative(location, launcherLocation != null ? launcherLocation.getParentFile().toURL() : null);
+				location = makeRelative(location, outputFile.getParentFile().toURL());
 				bw.write(location + ",");
 				bw.write(bInfo.getStartLevel() + "," + bInfo.isMarkedAsStarted());
 				bw.newLine();
