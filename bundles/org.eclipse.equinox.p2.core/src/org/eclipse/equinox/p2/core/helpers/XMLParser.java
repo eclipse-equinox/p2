@@ -83,7 +83,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			throw new SAXException(Messages.XMLParser_No_SAX_Parser);
 		}
 		factory.setNamespaceAware(true);
-		factory.setValidating(true);
+		factory.setValidating(false);
 		try {
 			factory.setFeature("http://xml.org/sax/features/string-interning", true); //$NON-NLS-1$
 		} catch (SAXException se) {
