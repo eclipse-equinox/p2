@@ -82,7 +82,6 @@ public class EquinoxFwConfigFileParser {
 	}
 
 	private static Properties getConfigProps(BundleInfo[] bInfos, ConfigData configData, LauncherData launcherData, boolean relative, File fwJar) {
-
 		Properties props = new Properties();
 
 		if (configData.getInitialBundleStartLevel() != BundleInfo.NO_LEVEL)
