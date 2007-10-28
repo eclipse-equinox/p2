@@ -62,6 +62,10 @@ public class MetadataCache extends URLMetadataRepository {
 		});
 	}
 
+	public MetadataCache() {
+		super();
+	}
+
 	protected void persist() {
 		if (!getContentURL().getProtocol().equals("file"))
 			throw new IllegalStateException("only file: URLs are supported for the metadata cache");

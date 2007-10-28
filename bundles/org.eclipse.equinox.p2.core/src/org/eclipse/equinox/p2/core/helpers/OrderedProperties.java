@@ -24,7 +24,7 @@ import java.util.*;
  * The class does not support default properties as they can be expressed by 
  * creating java.util.Properties hierarchies.
  */
-public class OrderedProperties implements Map {
+public class OrderedProperties extends Dictionary implements Map {
 
 	private LinkedHashMap propertyMap = null;
 
@@ -37,6 +37,12 @@ public class OrderedProperties implements Map {
 	public OrderedProperties(int size) {
 		super();
 		propertyMap = new LinkedHashMap(size);
+	}
+
+	public OrderedProperties(OrderedProperties properties) {
+		super();
+		propertyMap = new LinkedHashMap(properties.size());
+		putAll(properties);
 	}
 
 	/**
@@ -161,6 +167,48 @@ public class OrderedProperties implements Map {
 		StringBuffer sb = new StringBuffer();
 		sb.append(propertyMap);
 		return sb.toString();
+	}
+
+	private class ElementsEnum implements Enumeration {
+
+		Iterator iterator = null;
+
+		public ElementsEnum(OrderedProperties properties) {
+			iterator = properties.propertyMap.values().iterator();
+		}
+
+		public boolean hasMoreElements() {
+			return iterator.hasNext();
+		}
+
+		public Object nextElement() {
+			return iterator.next();
+		}
+	}
+
+	public Enumeration elements() {
+		return new ElementsEnum(this);
+	}
+
+	private class KeysEnum implements Enumeration {
+
+		Iterator iterator = null;
+
+		public KeysEnum(OrderedProperties properties) {
+			iterator = properties.propertyMap.keySet().iterator();
+		}
+
+		public boolean hasMoreElements() {
+			return iterator.hasNext();
+		}
+
+		public Object nextElement() {
+			return iterator.next();
+		}
+	}
+
+	public Enumeration keys() {
+		return new KeysEnum(this);
 	}
 
 }

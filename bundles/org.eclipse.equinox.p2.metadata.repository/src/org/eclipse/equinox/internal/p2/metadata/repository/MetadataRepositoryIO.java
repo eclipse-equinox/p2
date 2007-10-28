@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
-import com.thoughtworks.xstream.XStream;
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,42 +43,46 @@ class MetadataRepositoryIO {
 	 * @deprecated
 	 */
 	public static IMetadataRepository read(InputStream input) throws RepositoryCreationException {
-		XStream stream = new XStream();
-		BufferedInputStream bufferedInput = null;
-		try {
-			try {
-				bufferedInput = new BufferedInputStream(input);
-				return (IMetadataRepository) stream.fromXML(bufferedInput);
-			} finally {
-				if (bufferedInput != null)
-					bufferedInput.close();
-			}
-		} catch (IOException e) {
-			throw new RepositoryCreationException(e);
-		}
+		MetadataRepositoryIO io = new MetadataRepositoryIO();
+		return io.readNew(input);
+		//		XStream stream = new XStream();
+		//		BufferedInputStream bufferedInput = null;
+		//		try {
+		//			try {
+		//				bufferedInput = new BufferedInputStream(input);
+		//				return (IMetadataRepository) stream.fromXML(bufferedInput);
+		//			} finally {
+		//				if (bufferedInput != null)
+		//					bufferedInput.close();
+		//			}
+		//		} catch (IOException e) {
+		//			throw new RepositoryCreationException(e);
+		//		}
 	}
 
 	/**
 	 * 	@deprecated
 	 */
 	public static void write(IMetadataRepository repository, OutputStream output) {
-		XStream stream = new XStream();
-		OutputStream bufferedOutput = null;
-		try {
-			try {
-				bufferedOutput = new BufferedOutputStream(output);
-				stream.toXML(repository, bufferedOutput);
-			} finally {
-				if (bufferedOutput != null)
-					bufferedOutput.close();
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		MetadataRepositoryIO io = new MetadataRepositoryIO();
+		io.writeNew(repository, output);
+		//		XStream stream = new XStream();
+		//		OutputStream bufferedOutput = null;
+		//		try {
+		//			try {
+		//				bufferedOutput = new BufferedOutputStream(output);
+		//				stream.toXML(repository, bufferedOutput);
+		//			} finally {
+		//				if (bufferedOutput != null)
+		//					bufferedOutput.close();
+		//			}
+		//		} catch (FileNotFoundException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		} catch (IOException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 	}
 
 	public void writeNew(IMetadataRepository repository, OutputStream output) {
@@ -113,7 +116,7 @@ class MetadataRepositoryIO {
 
 				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
 				repositoryParser.parse(input);
-				if (repositoryParser.isValidXML()) {
+				if (!repositoryParser.isValidXML()) {
 					throw new RepositoryCreationException(new CoreException(repositoryParser.getStatus()));
 				}
 				IMetadataRepository theRepository = repositoryParser.getRepository();
@@ -147,8 +150,6 @@ class MetadataRepositoryIO {
 		public static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
 		public static final String INSTALLABLE_UNITS_ELEMENT = "units"; //$NON-NLS-1$
 		public static final String INSTALLABLE_UNIT_ELEMENT = "unit"; //$NON-NLS-1$
-		public static final String PROCESSING_STEPS_ELEMENT = "processing"; //$NON-NLS-1$
-		public static final String PROCESSING_STEP_ELEMENT = "step"; //$NON-NLS-1$
 
 		// Constants for sub-elements of an installable unit element
 		public static final String ARTIFACT_KEYS_ELEMENT = "artifacts"; //$NON-NLS-1$
@@ -222,7 +223,7 @@ class MetadataRepositoryIO {
 		}
 
 		private IInstallableUnit[] getInstallableUnits(IMetadataRepository repository) {
-			// TODO: there is probably a better solution to the problem.
+			// TODO: there must be a better solution to the problem.
 			// TODO: Because the implementation of IMetadataRepository.getInstallableUnits
 			//		 in LocalMetadataRepository uses a query, the order of IUs is not preserved
 			//		 write after read. FIX THIS!
@@ -363,7 +364,7 @@ class MetadataRepositoryIO {
 							Map.Entry entry = (Map.Entry) iter.next();
 							start(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 							attribute(TOUCHPOINT_DATA_INSTRUCTION_KEY_ATTRIBUTE, entry.getKey());
-							cdataLines((String) entry.getValue(), true);
+							cdata((String) entry.getValue(), true);
 							end(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT);
 						}
 					}
@@ -389,7 +390,7 @@ class MetadataRepositoryIO {
 	private class Parser extends XMLParser implements XMLConstants {
 
 		private IMetadataRepository theRepository = null;
-		protected Class theRepositoryClass = LocalMetadataRepository.class;
+		protected Class theRepositoryClass = null;
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);
@@ -487,7 +488,17 @@ class MetadataRepositoryIO {
 				state.Version = version;
 				state.Description = values[3];
 				state.Provider = values[4];
-				state.Location = null; // new URL("file://C:/bogus");				
+				state.Location = null; // new URL("file://C:/bogus");
+				// TODO: handling of processing instructions is not working,
+				//       so set the class here. FIX THIS!
+				if (theRepositoryClass == null) {
+					try {
+						theRepositoryClass = Class.forName(state.Type);
+					} catch (ClassNotFoundException e) {
+						// throw new SAXException(NLS.bind(Messages.MetadataRepositoryIO_Repository_Class_Not_Found, state.Type));
+						addError("Metadata repository class " + state.Type + "not found"); //$NON-NLS-1$//$NON-NLS-2$
+					}
+				}
 			}
 
 			public void startElement(String name, Attributes attributes) {
@@ -510,13 +521,6 @@ class MetadataRepositoryIO {
 
 			protected void finished() {
 				if (isValidXML()) {
-					//					// TODO: need to support URLMetadataRepository as well.
-					//					try {
-					//						repository = new LocalMetadataRepository(attrValues[0], attrValues[1], attrValues[2], new URL("file://C:/bogus"), attrValues[3], attrValues[4]);
-					//					} catch (MalformedURLException e) {
-					//						// TODO Auto-generated catch block
-					//						e.printStackTrace();
-					//					}
 					state.Properties = (propertiesHandler == null ? new OrderedProperties(0) //
 							: propertiesHandler.getProperties());
 					state.Units = (unitsHandler == null ? new IInstallableUnit[0] //

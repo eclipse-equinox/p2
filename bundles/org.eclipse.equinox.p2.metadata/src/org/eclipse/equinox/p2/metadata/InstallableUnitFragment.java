@@ -36,6 +36,7 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		ProvidedCapability[] otherCapabilities = super.getProvidedCapabilities();
 		if (otherCapabilities.length == 0)
 			return new ProvidedCapability[] {FRAGMENT_CAPABILITY};
+		//		return otherCapabilities;
 		ProvidedCapability[] result = new ProvidedCapability[otherCapabilities.length + 1];
 		System.arraycopy(otherCapabilities, 0, result, 1, otherCapabilities.length);
 		result[0] = FRAGMENT_CAPABILITY;

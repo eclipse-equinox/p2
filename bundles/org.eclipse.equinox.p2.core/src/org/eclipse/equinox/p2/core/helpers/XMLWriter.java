@@ -169,7 +169,7 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	public void attributeOptional(String name, String value) {
-		if (value.length() > 0) {
+		if (value != null && value.length() > 0) {
 			attribute(name, value);
 		}
 	}

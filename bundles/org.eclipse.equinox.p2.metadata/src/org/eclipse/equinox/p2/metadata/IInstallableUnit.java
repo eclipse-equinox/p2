@@ -53,10 +53,6 @@ public interface IInstallableUnit extends Comparable {
 
 	public abstract RequiredCapability[] getRequiredCapabilities();
 
-	//	public ProvidedCapability[] getProvidedCapabilities() {
-	//		return providedCapabilities;
-	//	}
-	//	
 	public abstract ProvidedCapability[] getProvidedCapabilities();
 
 	public abstract boolean isSingleton();

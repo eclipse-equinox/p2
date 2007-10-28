@@ -8,8 +8,7 @@ Bundle-Version: 0.1.0.qualifier
 Require-Bundle: org.eclipse.equinox.p2.core,
  org.eclipse.osgi,
  org.eclipse.equinox.common
-Import-Package: com.thoughtworks.xstream,
- javax.xml.parsers,
+Import-Package: javax.xml.parsers,
  org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.internal.p2.artifact.repository,

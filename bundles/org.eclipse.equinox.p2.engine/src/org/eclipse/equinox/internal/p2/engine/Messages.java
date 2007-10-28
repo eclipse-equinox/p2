@@ -41,4 +41,10 @@ public class Messages extends NLS {
 	public static String Update_Operand_Description;
 	public static String Uninstall_Operand_Description;
 
+	public static String SimpleProfileRegistry_Parser_Has_Incompatible_Version;
+	public static String SimpleProfileRegistry_Parser_Error_Parsing_Registry;
+
+	public static String InstallRegistry_Parser_Error_Parsing_Registry;
+	public static String InstallRegistry_Parser_Has_Incompatible_Version;
+
 }

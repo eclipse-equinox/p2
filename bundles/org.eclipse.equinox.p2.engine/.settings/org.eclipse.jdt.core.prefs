@@ -1,4 +1,4 @@
-#Tue Aug 21 09:11:12 EDT 2007
+#Sat Oct 27 14:19:24 PDT 2007
 eclipse.preferences.version=1
 instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
 org.eclipse.jdt.core.builder.cleanOutputFolder=clean
@@ -63,7 +63,6 @@ org.eclipse.jdt.core.compiler.problem.unhandledWarningToken=warning
 org.eclipse.jdt.core.compiler.problem.unnecessaryElse=warning
 org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck=warning
 org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess=ignore
-org.eclipse.jdt.core.compiler.problem.unsafeTypeOperation=warning
 org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException=warning
 org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding=enabled
 org.eclipse.jdt.core.compiler.problem.unusedImport=error
@@ -117,11 +116,9 @@ org.eclipse.jdt.core.formatter.brace_position_for_enum_declaration=end_of_line
 org.eclipse.jdt.core.formatter.brace_position_for_method_declaration=end_of_line
 org.eclipse.jdt.core.formatter.brace_position_for_switch=end_of_line
 org.eclipse.jdt.core.formatter.brace_position_for_type_declaration=end_of_line
-org.eclipse.jdt.core.formatter.comment.clear_blank_lines=false
 org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_block_comment=false
 org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_javadoc_comment=false
 org.eclipse.jdt.core.formatter.comment.format_block_comments=false
-org.eclipse.jdt.core.formatter.comment.format_comments=false
 org.eclipse.jdt.core.formatter.comment.format_header=false
 org.eclipse.jdt.core.formatter.comment.format_html=true
 org.eclipse.jdt.core.formatter.comment.format_javadoc_comments=false

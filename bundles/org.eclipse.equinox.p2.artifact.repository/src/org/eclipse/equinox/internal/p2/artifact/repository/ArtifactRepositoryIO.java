@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import com.thoughtworks.xstream.XStream;
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,24 +50,26 @@ class ArtifactRepositoryIO {
 	 * @deprecated
 	 */
 	public static void write(SimpleArtifactRepository repository, OutputStream output) {
-		XStream stream = new XStream();
-		OutputStream bufferedOutput = null;
-		try {
-			try {
-				bufferedOutput = new BufferedOutputStream(output);
-				stream.toXML(repository, bufferedOutput);
-			} finally {
-				if (bufferedOutput != null) {
-					bufferedOutput.close();
-				}
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ArtifactRepositoryIO io = new ArtifactRepositoryIO();
+		io.writeNew(repository, output);
+		//		XStream stream = new XStream();
+		//		OutputStream bufferedOutput = null;
+		//		try {
+		//			try {
+		//				bufferedOutput = new BufferedOutputStream(output);
+		//				stream.toXML(repository, bufferedOutput);
+		//			} finally {
+		//				if (bufferedOutput != null) {
+		//					bufferedOutput.close();
+		//				}
+		//			}
+		//		} catch (FileNotFoundException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		} catch (IOException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 	}
 
 	/**
@@ -103,19 +104,21 @@ class ArtifactRepositoryIO {
 	 * @deprecated
 	 */
 	public static IArtifactRepository read(InputStream input) throws RepositoryCreationException {
-		XStream stream = new XStream();
-		BufferedInputStream bufferedInput = null;
-		try {
-			try {
-				bufferedInput = new BufferedInputStream(input);
-				return (IArtifactRepository) stream.fromXML(bufferedInput);
-			} finally {
-				if (bufferedInput != null)
-					bufferedInput.close();
-			}
-		} catch (IOException e) {
-			throw new RepositoryCreationException(e);
-		}
+		ArtifactRepositoryIO io = new ArtifactRepositoryIO();
+		return io.readNew(input);
+		//		XStream stream = new XStream();
+		//		BufferedInputStream bufferedInput = null;
+		//		try {
+		//			try {
+		//				bufferedInput = new BufferedInputStream(input);
+		//				return (IArtifactRepository) stream.fromXML(bufferedInput);
+		//			} finally {
+		//				if (bufferedInput != null)
+		//					bufferedInput.close();
+		//			}
+		//		} catch (IOException e) {
+		//			throw new RepositoryCreationException(e);
+		//		}
 	}
 
 	/**

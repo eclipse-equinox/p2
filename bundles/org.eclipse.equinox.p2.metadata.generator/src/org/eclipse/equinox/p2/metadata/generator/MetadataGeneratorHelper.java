@@ -48,6 +48,8 @@ public class MetadataGeneratorHelper {
 	public static final TouchpointType TOUCHPOINT_NATIVE = new TouchpointType("native", new Version(1, 0, 0)); //$NON-NLS-1$
 	public static final TouchpointType TOUCHPOINT_ECLIPSE = new TouchpointType("eclipse", new Version(1, 0, 0)); //$NON-NLS-1$
 
+	public static final ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0)); //$NON-NLS-1$
+
 	public static ArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
 		//TODO this size calculation is bogus
 		ArtifactDescriptor result = new ArtifactDescriptor(key);
@@ -90,6 +92,10 @@ public class MetadataGeneratorHelper {
 		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_ARTIFACT_CLASSIFIER, bsn, new Version(version));
 	}
 
+	public static ProvidedCapability createSelfCapability(IInstallableUnit iu) {
+		return new ProvidedCapability(IU_NAMESPACE, iu.getId(), iu.getVersion());
+	}
+
 	public static IInstallableUnit createEclipseConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor) {
 		if (configInfo == null)
 			return null;
@@ -101,8 +107,8 @@ public class MetadataGeneratorHelper {
 		//Indicate the IU to which this CU apply
 		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
 
-		//Add a capability describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
+		//Adds capabilities for fragment, self, and describing the flavor supported
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(cu), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
 
 		cu.setTouchpointType(TOUCHPOINT_ECLIPSE); //TODO Is this necessary? I think we get that from the IU
 
@@ -121,8 +127,8 @@ public class MetadataGeneratorHelper {
 		cu.setId(configurationFlavor + "default");
 		cu.setVersion(new Version(1, 0, 0));
 
-		//Add a capability describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
+		//Adds capabilities for fragment, self, and describing the flavor supported
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(cu), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
 
 		//Create a capability on bundles
 		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
@@ -179,11 +185,12 @@ public class MetadataGeneratorHelper {
 
 		//Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
-		ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[exports.length + 1 + (isFragment ? 1 : 0)];
-		exportedPackageAsCapabilities[exports.length] = new ProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0)); //Here we add a bundle capability to identify bundles 
-		for (int i = 0; i < exports.length; i++) {
-			exportedPackageAsCapabilities[i] = new ProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()); //TODO make sure that we support all the refinement on the exports
+		ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[exports.length + 2 + (isFragment ? 1 : 0)];
+		exportedPackageAsCapabilities[0] = createSelfCapability(iu);
+		for (int i = 1; i <= exports.length; i++) {
+			exportedPackageAsCapabilities[i] = new ProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i - 1].getName(), exports[i - 1].getVersion() == Version.emptyVersion ? null : exports[i - 1].getVersion()); //TODO make sure that we support all the refinement on the exports
 		}
+		exportedPackageAsCapabilities[exports.length + 1] = new ProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0)); //Here we add a bundle capability to identify bundles 
 		if (isFragment)
 			exportedPackageAsCapabilities[exportedPackageAsCapabilities.length - 1] = new ProvidedCapability("fragment", bd.getHost().getName(), bd.getVersion());
 		iu.setCapabilities(exportedPackageAsCapabilities);
@@ -236,7 +243,7 @@ public class MetadataGeneratorHelper {
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(TouchpointType.NONE);
 		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
-		iu.setCapabilities(new ProvidedCapability[] {groupCapability});
+		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(iu), groupCapability});
 		return iu;
 	}
 
@@ -255,13 +262,14 @@ public class MetadataGeneratorHelper {
 		cu.setId("config." + iu.getId()); //$NON-NLS-1$
 		cu.setVersion(iu.getVersion());
 		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(cu)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 
 		if (jreLocation == null || !jreLocation.exists()) {
 			//set some reasonable defaults
 			iu.setVersion(DEFAULT_JRE_VERSION);
-			iu.setCapabilities(generateJRECapability(null));
+			iu.setCapabilities(generateJRECapability(iu, null));
 			resultantIUs.add(iu);
 
 			touchpointData.put("install", "");
@@ -303,6 +311,7 @@ public class MetadataGeneratorHelper {
 
 		IArtifactKey key = createLauncherArtifactKey(launcherId, LAUNCHER_VERSION);
 		iu.setArtifacts(new IArtifactKey[] {key});
+		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(iu)});
 		iu.setTouchpointType(TOUCHPOINT_NATIVE);
 		resultantIUs.add(iu);
 
@@ -312,6 +321,7 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(iu.getVersion());
 		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, versionMax, true));
 
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(cu)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});";
@@ -349,7 +359,7 @@ public class MetadataGeneratorHelper {
 
 	}
 
-	private static ProvidedCapability[] generateJRECapability(InputStream profileStream) {
+	private static ProvidedCapability[] generateJRECapability(InstallableUnit iu, InputStream profileStream) {
 		if (profileStream == null) {
 			//use the 1.5 profile stored in the generator bundle
 			try {
@@ -362,9 +372,10 @@ public class MetadataGeneratorHelper {
 		try {
 			p.load(profileStream);
 			ManifestElement[] jrePackages = ManifestElement.parseHeader("org.osgi.framework.system.packages", (String) p.get("org.osgi.framework.system.packages"));
-			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length];
-			for (int i = 0; i < jrePackages.length; i++) {
-				exportedPackageAsCapabilities[i] = new ProvidedCapability("osgi.packages", jrePackages[i].getValue(), null);
+			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length + 1];
+			exportedPackageAsCapabilities[0] = createSelfCapability(iu);
+			for (int i = 1; i <= jrePackages.length; i++) {
+				exportedPackageAsCapabilities[i] = new ProvidedCapability("osgi.packages", jrePackages[i - 1].getValue(), null);
 			}
 			return exportedPackageAsCapabilities;
 		} catch (IOException e) {
@@ -394,7 +405,7 @@ public class MetadataGeneratorHelper {
 		});
 		if (profiles.length != 1) {
 			iu.setVersion(DEFAULT_JRE_VERSION);
-			iu.setCapabilities(generateJRECapability(null));
+			iu.setCapabilities(generateJRECapability(iu, null));
 			return;
 		}
 		String profileName = profiles[0].getAbsolutePath().substring(profiles[0].getAbsolutePath().lastIndexOf('/'));
@@ -407,7 +418,7 @@ public class MetadataGeneratorHelper {
 		}
 		iu.setVersion(version);
 		try {
-			iu.setCapabilities(generateJRECapability(new FileInputStream(profiles[0])));
+			iu.setCapabilities(generateJRECapability(iu, new FileInputStream(profiles[0])));
 		} catch (FileNotFoundException e) {
 			//Shouldn't happen, but ignore and fall through to use default
 		}

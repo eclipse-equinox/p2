@@ -9,8 +9,7 @@ Export-Package: org.eclipse.equinox.internal.p2.artifact.repository;x-friends:="
  org.eclipse.equinox.p2.artifact.repository,
  org.eclipse.equinox.p2.artifact.repository.processing,
  org.eclipse.equinox.spi.p2.artifact.repository
-Import-Package: com.thoughtworks.xstream,
- javax.xml.parsers,
+Import-Package: javax.xml.parsers,
  org.eclipse.core.runtime.preferences;resolution:=optional,
  org.eclipse.equinox.internal.p2.jarprocessor;resolution:=optional,
  org.eclipse.equinox.internal.p2.metadata,

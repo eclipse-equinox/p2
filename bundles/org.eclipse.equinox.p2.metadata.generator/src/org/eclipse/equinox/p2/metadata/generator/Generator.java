@@ -357,7 +357,7 @@ public class Generator {
 		root.setProperty(IInstallableUnitConstants.UPDATE_FROM, configurationIdentification);
 		root.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
 		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
-		root.setCapabilities(new ProvidedCapability[] {groupCapability});
+		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(root), groupCapability});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
 

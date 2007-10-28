@@ -97,7 +97,7 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 		ProvidedCapability self = new ProvidedCapability(IU_NAMESPACE, id, getVersion());
 		if (providedCapabilities == null)
 			return new ProvidedCapability[] {self};
-
+		//		return providedCapabilities;
 		ProvidedCapability[] result = new ProvidedCapability[providedCapabilities.length + 1];
 		result[0] = self;
 		System.arraycopy(providedCapabilities, 0, result, 1, providedCapabilities.length);

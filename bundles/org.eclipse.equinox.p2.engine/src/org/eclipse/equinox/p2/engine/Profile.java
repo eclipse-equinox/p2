@@ -12,7 +12,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
-import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.helpers.*;
 import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -77,15 +77,24 @@ public class Profile implements IQueryable {
 	private Profile parentProfile;
 
 	/**
+	 * 	TODO: need a collection of child profiles
+	 */
+
+	/**
 	 * This storage is to be used by the touchpoints to store data. The data must be serializable
 	 */
-	private Properties storage = new Properties();
+	private OrderedProperties storage = new OrderedProperties();
 
 	public Profile(String profileId) {
 		if (profileId == null || profileId.length() == 0) {
 			throw new IllegalArgumentException("Profile id must be set.");
 		}
 		this.profileId = profileId;
+	}
+
+	public Profile(String profileId, OrderedProperties properties) {
+		this(profileId);
+		storage.putAll(properties);
 	}
 
 	public String getProfileId() {
@@ -105,7 +114,7 @@ public class Profile implements IQueryable {
 	}
 
 	public Dictionary getSelectionContext() {
-		Properties result = new Properties(storage);
+		OrderedProperties result = new OrderedProperties(storage);
 		String environments = storage.getProperty(PROP_ENVIRONMENTS);
 		if (environments == null)
 			return result;
@@ -166,5 +175,15 @@ public class Profile implements IQueryable {
 		if (bus != null)
 			bus.publishEvent(new ProfileEvent(this, ProfileEvent.CHANGED));
 		return previousValue;
+	}
+
+	/**
+	 * Get an <i>unmodifiable copy</i> of the properties
+	 * associated with the profile registry.
+	 * 
+	 * @return an <i>unmodifiable copy</i> of the IU properties.
+	 */
+	public OrderedProperties getProperties() {
+		return new UnmodifiableProperties(storage);
 	}
 }
