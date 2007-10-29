@@ -671,6 +671,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			index++;
 			rootIndex++;
 		}
-		return index;
+		return rootIndex == root.length() ? index : 0;
 	}
 }

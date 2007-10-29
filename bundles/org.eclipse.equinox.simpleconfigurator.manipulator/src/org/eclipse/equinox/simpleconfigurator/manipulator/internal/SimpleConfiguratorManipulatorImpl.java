@@ -566,7 +566,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			index++;
 			rootIndex++;
 		}
-		return index;
+		return rootIndex == root.length() ? index : 0;
 	}
 
 	void setPrerequisiteBundles(BundleInfo configuratorBundleInfo, BundlesState state, LocationInfo info) {
