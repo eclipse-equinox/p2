@@ -260,8 +260,8 @@ public class ProvisioningUtil {
 		else
 			taskMessage = NLS.bind(ProvUIMessages.ProvisioningUtil_InstallManyTask, Integer.toString(installRoots.length), profile.getProfileId());
 		try {
-			SubMonitor sub = SubMonitor.convert(monitor, taskMessage, 100);
-			monitor.beginTask(taskMessage, 100);
+			SubMonitor sub = SubMonitor.convert(monitor, 100);
+			sub.setTaskName(taskMessage);
 			IStatus engineResult = performProvisioningPlan(plan, new DefaultPhaseSet(), profile, sub.newChild(100));
 			if (engineResult.isOK()) {
 				// mark the roots as such
