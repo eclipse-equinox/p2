@@ -186,10 +186,13 @@ public class EngineTest extends TestCase {
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
+		Iterator ius = profile.getInstallableUnits();
+		assertFalse(ius.hasNext());
+
 		Operand[] operands = new Operand[] {new Operand(null, createOSGiIU()), new Operand(null, createBadIU())};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		assertFalse(result.isOK());
-		Iterator ius = profile.getInstallableUnits();
+		ius = profile.getInstallableUnits();
 		assertFalse(ius.hasNext());
 	}
 

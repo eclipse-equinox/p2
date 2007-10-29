@@ -21,7 +21,7 @@ import org.osgi.framework.ServiceReference;
  * Simple test of the engine API.
  */
 public class PhaseTest extends TestCase {
-	public class TestPhaseSet extends PhaseSet {
+	public static class TestPhaseSet extends PhaseSet {
 
 		public TestPhaseSet() {
 			super(new Phase[] {new TestPhase()});
@@ -36,7 +36,7 @@ public class PhaseTest extends TestCase {
 		}
 	}
 
-	public class TestPhase extends Phase {
+	public static class TestPhase extends Phase {
 
 		boolean completeOperand;
 		boolean getAction;
