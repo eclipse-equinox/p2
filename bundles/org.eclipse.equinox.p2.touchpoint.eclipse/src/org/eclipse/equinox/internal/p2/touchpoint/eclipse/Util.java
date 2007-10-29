@@ -20,8 +20,11 @@ import org.osgi.framework.Constants;
 
 public class Util {
 
-	private final static String CACHE_PATH = "eclipse.p2.cache";
-	private final static String CONFIG_FOLDER = "eclipse.configurationFolder";
+	/**
+	 * TODO "cache" is probably not the right term for this location
+	 */
+	private final static String CACHE_PATH = "eclipse.p2.cache"; //$NON-NLS-1$
+	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
 
 	static AgentLocation getAgentLocation() {
 		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
@@ -45,14 +48,7 @@ public class Util {
 		AgentLocation location = getAgentLocation();
 		if (location == null)
 			return null;
-		//TODO This should match the touchpoint id
-		URL result = location.getTouchpointDataArea("org.eclipse.equinox.p2.touchpoint.eclipse/"); //$NON-NLS-1$
-		try {
-			return new URL(result, "bundlepool"); //$NON-NLS-1$
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			return null;
-		}
+		return location.getDataArea(Activator.ID);
 	}
 
 	static IFileArtifactRepository getBundlePoolRepo(Profile profile) {
@@ -145,7 +141,7 @@ public class Util {
 		if (bundleJar == null)
 			return null;
 
-		File bundleFolder = new File(getBundlePoolLocation(profile).getFile(), "/plugins/" + artifactKey.getId() + '_' + artifactKey.getVersion()); //$NON-NLS-1$
+		File bundleFolder = new File(getBundlePoolLocation(profile).getFile(), "plugins/" + artifactKey.getId() + '_' + artifactKey.getVersion()); //$NON-NLS-1$
 		if (bundleFolder.exists())
 			return bundleFolder;
 

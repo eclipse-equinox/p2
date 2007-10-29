@@ -20,27 +20,30 @@ import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
+	public static final String ID = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
 
-	public static final String AGENT_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	public static Location agentDataLocation = null;
-
 	public static BundleContext context;
+	private static final String DEFAULT_AGENT_LOCATION = "p2"; //$NON-NLS-1$
+
 	public static Location downloadLocation = null;
 	private static Activator instance;
 	// Data mode constants for user, configuration and data locations.
 	private static final String NO_DEFAULT = "@noDefault"; //$NON-NLS-1$
 	private static final String NONE = "@none"; //$NON-NLS-1$
+	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 
+	private static final String PROP_AGENT_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String PROP_CONFIG_DIR = "osgi.configuration.area"; //$NON-NLS-1$
-	public static final String PROP_TMPDIR = "java.io.tmpdir"; //$NON-NLS-1$
-	public static final String PROP_USER_DIR = "user.dir"; //$NON-NLS-1$
-	public static final String PROP_USER_HOME = "user.home"; //$NON-NLS-1$
+	private static final String PROP_USER_DIR = "user.dir"; //$NON-NLS-1$
+	private static final String PROP_USER_HOME = "user.home"; //$NON-NLS-1$
 
 	public static final String READ_ONLY_AREA_SUFFIX = ".readOnly"; //$NON-NLS-1$
 
 	private static final String VAR_CONFIG_DIR = "@config.dir"; //$NON-NLS-1$
 	private static final String VAR_USER_DIR = "@user.dir"; //$NON-NLS-1$
 	private static final String VAR_USER_HOME = "@user.home"; //$NON-NLS-1$
+
 	private ServiceRegistration agentLocationRegistration = null;
 	ServiceTracker logTracker;
 
@@ -103,7 +106,7 @@ public class Activator implements BundleActivator {
 	private static String substituteVar(String source, String var, String prop) {
 		String value = Activator.context.getProperty(prop);
 		if (value == null)
-			value = "";
+			value = ""; //$NON-NLS-1$
 		return value + source.substring(var.length());
 	}
 
@@ -151,19 +154,19 @@ public class Activator implements BundleActivator {
 		return logTracker;
 	}
 
-	public void start(BundleContext context) throws Exception {
+	public void start(BundleContext aContext) throws Exception {
 		instance = this;
-		Activator.context = context;
-		URL defaultLocation = new URL(context.getProperty("osgi.configuration.area") + "org.eclipse.equinox.p2.core/agentdata/");
-		agentDataLocation = buildLocation(AGENT_DATA_AREA, defaultLocation, false, true);
+		Activator.context = aContext;
+		URL defaultLocation = new URL(aContext.getProperty(OSGI_INSTALL_AREA) + DEFAULT_AGENT_LOCATION + '/');
+		agentDataLocation = buildLocation(PROP_AGENT_DATA_AREA, defaultLocation, false, true);
 		Dictionary locationProperties = new Hashtable();
 		if (defaultLocation != null) {
-			locationProperties.put("type", AGENT_DATA_AREA); //$NON-NLS-1$
-			agentLocationRegistration = context.registerService(new String[] {Location.class.getName(), AgentLocation.class.getName()}, agentDataLocation, locationProperties);
+			locationProperties.put("type", PROP_AGENT_DATA_AREA); //$NON-NLS-1$
+			agentLocationRegistration = aContext.registerService(new String[] {Location.class.getName(), AgentLocation.class.getName()}, agentDataLocation, locationProperties);
 		}
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext aContext) throws Exception {
 		instance = null;
 		if (agentLocationRegistration != null)
 			agentLocationRegistration.unregister();

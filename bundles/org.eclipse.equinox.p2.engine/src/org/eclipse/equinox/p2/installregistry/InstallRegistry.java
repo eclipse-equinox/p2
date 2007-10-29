@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.installregistry;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -98,16 +99,12 @@ public class InstallRegistry implements IInstallRegistry {
 		try {
 			BufferedOutputStream bof = null;
 			try {
-				Location agent = (Location) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-				if (agent == null)
-					// TODO should likely do something here since we failed to persist.
-					return;
-				if (!agent.getURL().getProtocol().equals("file"))
-					throw new IOException("can't write at the given location");
-
-				File outputFile = new File(agent.getURL().getFile(), STORAGE);
+				URL registryLocation = getRegistryLocation();
+				if (!registryLocation.getProtocol().equals("file")) //$NON-NLS-1$
+					throw new IOException("Can't write install registry at: " + registryLocation);
+				File outputFile = new File(registryLocation.toExternalForm().substring(5));
 				if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
-					throw new RuntimeException("can't persist profile registry");
+					throw new RuntimeException("Can't persist profile registry");
 				bof = new BufferedOutputStream(new FileOutputStream(outputFile, false));
 				//new XStream().toXML(profileRegistries, bof);
 				Writer writer = new Writer(bof);
@@ -166,6 +163,16 @@ public class InstallRegistry implements IInstallRegistry {
 
 	public InstallRegistry getInstallRegistry() {
 		return this;
+	}
+
+	private URL getRegistryLocation() {
+		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
+		try {
+			return new URL(agent.getDataArea(EngineActivator.ID), STORAGE);
+		} catch (MalformedURLException e) {
+			//this is not possible because we know the above URL is valid
+		}
+		return null;
 	}
 
 	protected class IUIdentity {

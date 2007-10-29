@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.director;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
@@ -25,6 +26,7 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleDirector implements IDirector {
+	private static final String ROLLBACK_LOCATION = "rollback"; //$NON-NLS-1$
 	static final int PlanWork = 10;
 	static final int EngineWork = 100;
 	private Engine engine;
@@ -38,9 +40,7 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public SimpleDirector() {
-		URL rollbackLocation = null;
-		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName());
-		rollbackLocation = agentLocation.getTouchpointDataArea("director");
+		URL rollbackLocation = getRollbackLocation();
 		ProvisioningEventBus eventBus = (ProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, ProvisioningEventBus.class.getName());
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		IMetadataRepository rollbackRepo = manager.loadRepository(rollbackLocation, null);
@@ -56,6 +56,16 @@ public class SimpleDirector implements IDirector {
 		planner = (IPlanner) ServiceHelper.getService(DirectorActivator.context, IPlanner.class.getName());
 		if (planner == null)
 			throw new IllegalStateException("Unable to find provisioning planner");
+	}
+
+	private URL getRollbackLocation() {
+		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName());
+		try {
+			return new URL(agentLocation.getDataArea(DirectorActivator.PI_DIRECTOR), ROLLBACK_LOCATION);
+		} catch (MalformedURLException e) {
+			//we know this can't happen because the above URL is well-formed
+			return null;
+		}
 	}
 
 	public IStatus install(IInstallableUnit[] installRoots, Profile profile, IProgressMonitor monitor) {

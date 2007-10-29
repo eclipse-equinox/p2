@@ -23,5 +23,11 @@ public interface AgentLocation extends Location {
 
 	public URL getMetadataRepositoryURL();
 
-	public URL getTouchpointDataArea(String touchpointId);
+	/**
+	 * Returns the location where the bundle with the given namespace
+	 * may write its agent-related data.
+	 * @param namespace The namespace of the bundle storing the data
+	 * @return The data location
+	 */
+	public URL getDataArea(String namespace);
 }

@@ -32,8 +32,6 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String ACTION_SET_FW_DEPENDENT_PROP = "setFwDependentProp"; //$NON-NLS-1$
 	private static final String ACTION_SET_FW_INDEPENDENT_PROP = "setFwIndependentProp"; //$NON-NLS-1$
 	private static final String ACTION_UNINSTALL_BUNDLE = "uninstallBundle"; //$NON-NLS-1$
-	final static String ID = "org.eclipse.equinox.p2.touchpoint.eclipse"; //$NON-NLS-1$
-
 	private static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	private static final String PARM_BUNDLE = "bundle"; //$NON-NLS-1$
@@ -162,7 +160,7 @@ public class EclipseTouchpoint extends Touchpoint {
 							e.printStackTrace();
 						}
 						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -187,7 +185,7 @@ public class EclipseTouchpoint extends Touchpoint {
 							e.printStackTrace();
 						}
 						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -216,7 +214,7 @@ public class EclipseTouchpoint extends Touchpoint {
 							e.printStackTrace();
 						}
 						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -241,7 +239,7 @@ public class EclipseTouchpoint extends Touchpoint {
 							e.printStackTrace();
 						}
 						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -452,10 +450,10 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			bundleFile = Util.getBundleFile(artifactKey, isZipped, profile);
 			if (bundleFile == null)
-				return new Status(IStatus.ERROR, ID, "The artifact " + artifactKey.toString() + " to install was not found.");
+				return new Status(IStatus.ERROR, Activator.ID, "The artifact " + artifactKey.toString() + " to install was not found.");
 
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, ID, e.getMessage());
+			return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
 		}
 
 		// TODO: do we really need the manifest here or just the bsn and version?
@@ -526,10 +524,10 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			bundleFile = Util.getBundleFile(artifactKey, isZipped, profile);
 			if (bundleFile == null)
-				return new Status(IStatus.ERROR, ID, "The artifact " + artifactKey.toString() + " to uninstall was not found.");
+				return new Status(IStatus.ERROR, Activator.ID, "The artifact " + artifactKey.toString() + " to uninstall was not found.");
 
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, ID, e.getMessage());
+			return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
 		}
 
 		// TODO: do we really need the manifest here or just the bsn and version?

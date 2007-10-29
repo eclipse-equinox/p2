@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
@@ -44,12 +45,21 @@ public class RollbackTest extends AbstractProvisioningTest {
 		printProfile(profile);
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		IMetadataRepository repo = null;
-		URL location = ((AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName())).getTouchpointDataArea("director");
-		repo = repoMan.getRepository(location);
+		repo = repoMan.getRepository(getRollbackRepository());
 		IInstallableUnit[] ius = repo.getInstallableUnits(null);
 		for (int i = 0; i < ius.length; i++)
 			System.out.println(ius[i]);
 		director.become(ius[0], profile, new NullProgressMonitor());
 		printProfile(profile);
+	}
+
+	private URL getRollbackRepository() {
+		try {
+			URL location = ((AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName())).getDataArea(DirectorActivator.PI_DIRECTOR);
+			return new URL(location, "rollback");
+		} catch (MalformedURLException e) {
+			fail("4.99", e);
+			return null;
+		}
 	}
 }

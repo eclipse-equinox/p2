@@ -14,7 +14,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
-	public static final String ID = "org.eclipse.p2.touchpoint.eclipse"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.equinox.p2.touchpoint.eclipse"; //$NON-NLS-1$
 	private static BundleContext context = null;
 
 	public void start(BundleContext ctx) throws Exception {

@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.engine;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -98,15 +99,21 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profile, reason));
 	}
 
+	private URL getRegistryLocation() {
+		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
+		try {
+			return new URL(agent.getDataArea(EngineActivator.ID), STORAGE);
+		} catch (MalformedURLException e) {
+			//this is not possible because we know the above URL is valid
+		}
+		return null;
+	}
+
 	private void restore() {
 		try {
 			BufferedInputStream bif = null;
 			try {
-				Location agent = (Location) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-				if (agent == null)
-					// TODO should likely do something here since we failed to restore.
-					return;
-				bif = new BufferedInputStream(new URL(agent.getURL(), STORAGE).openStream());
+				bif = new BufferedInputStream(getRegistryLocation().openStream());
 				//				XStream xml = new XStream();
 				//				Object[] read = (Object[]) xml.fromXML(bif);
 				//				properties = (OrderedProperties) read[0];
@@ -133,12 +140,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			if (agent == null)
 				// TODO should likely do something here since we failed to persist.
 				return;
-			if (!agent.getURL().getProtocol().equals("file"))
-				throw new IOException("can't write at the given location");
 
-			File outputFile = new File(agent.getURL().getFile(), STORAGE);
+			URL registryLocation = getRegistryLocation();
+			if (!registryLocation.getProtocol().equals("file")) //$NON-NLS-1$
+				throw new IOException("Can't write profile registry at: " + registryLocation);
+
+			File outputFile = new File(registryLocation.toExternalForm().substring(5));
 			if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
-				throw new RuntimeException("can't persist profile registry at: " + outputFile);
+				throw new RuntimeException("Can't persist profile registry at: " + outputFile);
 			os = new BufferedOutputStream(new FileOutputStream(outputFile));
 			try {
 				//				XStream xstream = new XStream();

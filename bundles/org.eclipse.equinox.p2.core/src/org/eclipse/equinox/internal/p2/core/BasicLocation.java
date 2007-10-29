@@ -182,26 +182,22 @@ public class BasicLocation implements AgentLocation {
 	}
 
 	public URL getArtifactRepositoryURL() {
-		try {
-			return new URL(getURL(), "artifacts/");
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			return null;
-		}
+		//the cache is a co-located repository
+		return getMetadataRepositoryURL();
 	}
 
 	public URL getMetadataRepositoryURL() {
 		try {
-			return new URL(getURL(), "metadata/");
+			return new URL(getDataArea(Activator.ID), "cache/"); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			return null;
 		}
 	}
 
-	public URL getTouchpointDataArea(String touchpointId) {
+	public URL getDataArea(String touchpointId) {
 		try {
-			return new URL(getURL(), "touchpoints/" + touchpointId);
+			return new URL(getURL(), touchpointId + '/');
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			return null;
