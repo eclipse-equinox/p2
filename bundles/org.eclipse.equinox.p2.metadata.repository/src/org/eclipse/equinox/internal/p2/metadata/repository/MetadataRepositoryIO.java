@@ -120,9 +120,6 @@ class MetadataRepositoryIO {
 					throw new RepositoryCreationException(new CoreException(repositoryParser.getStatus()));
 				}
 				IMetadataRepository theRepository = repositoryParser.getRepository();
-				// TODO: temporary - try write after read for comparison:
-				//			see note below about call to writeInstallableUnits(...)
-				// writeNew(theRepository, new FileOutputStream(new File("C:/Ap2/servers2/metadataRepository/writeback.xml"))); //$NON-NLS-1$
 				return theRepository;
 			} finally {
 				if (bufferedInput != null)
