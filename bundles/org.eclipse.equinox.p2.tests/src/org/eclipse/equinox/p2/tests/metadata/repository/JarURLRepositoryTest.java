@@ -53,6 +53,7 @@ public class JarURLRepositoryTest extends TestCase {
 		File testRepo = new File(tempDir, "testRepo");
 		deleteDirectory(testRepo);
 		testRepo.mkdir();
+		provider.setFlavor("jartest");
 		provider.setMetadataRepository(manager.createRepository(testRepo.toURL(), "testRepo", "org.eclipse.equinox.p2.metadata.repository.simpleRepository"));
 		IStatus result = new Generator(provider).generate();
 		FileUtils.zip(new File[] {testRepo}, new File(tempDir, "testRepo.jar"));
@@ -76,5 +77,6 @@ public class JarURLRepositoryTest extends TestCase {
 		}
 		IMetadataRepository repo = manager.loadRepository(jarRepoURL, null);
 		assertTrue(repo.getInstallableUnits(null).length > 0);
+		manager.removeRepository(repo);
 	}
 }
