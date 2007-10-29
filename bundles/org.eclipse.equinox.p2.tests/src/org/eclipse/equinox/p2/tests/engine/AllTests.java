@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PhaseSetTest.class);
 		suite.addTestSuite(PhaseTest.class);
 		suite.addTestSuite(ProfileTest.class);
+		suite.addTestSuite(ProfileRegistryTest.class);
 		suite.addTestSuite(TouchpointTest.class);
 		return suite;
 	}
