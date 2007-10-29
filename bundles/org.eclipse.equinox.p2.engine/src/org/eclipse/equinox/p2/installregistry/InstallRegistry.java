@@ -24,7 +24,6 @@ import org.eclipse.equinox.p2.core.helpers.*;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -126,11 +125,7 @@ public class InstallRegistry implements IInstallRegistry {
 		try {
 			BufferedInputStream bif = null;
 			try {
-				Location agent = (Location) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-				if (agent == null)
-					// TODO should likely do something here since we failed to restore.
-					return;
-				bif = new BufferedInputStream(new URL(agent.getURL(), STORAGE).openStream());
+				bif = new BufferedInputStream(getRegistryLocation().openStream());
 				// profileRegistries = (HashMap) new XStream().fromXML(bif);
 				Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 				parser.parse(bif);
