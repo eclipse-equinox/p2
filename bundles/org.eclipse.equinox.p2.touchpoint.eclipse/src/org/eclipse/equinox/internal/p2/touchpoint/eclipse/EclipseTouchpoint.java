@@ -473,19 +473,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		return true;
 	}
 
-	//	private void logConfiguation(IInstallableUnit unit, String instructions, boolean isInstall) {
-	//		//  TODO: temporary for debugging; replace by logging
-	//		if (DEBUG) {
-	//			System.out.print("[" + iuCount + "] ");
-	//			if (isInstall) {
-	//				System.out.println("Installing " + unit + " with: " + instructions);
-	//			} else {
-	//				System.out.println("Uninstalling " + unit + " with: " + instructions);
-	//			}
-	//			iuCount++;
-	//		}
-	//	}
-
 	boolean isZipped(TouchpointData[] data) {
 		if (data == null || data.length == 0)
 			return false;
