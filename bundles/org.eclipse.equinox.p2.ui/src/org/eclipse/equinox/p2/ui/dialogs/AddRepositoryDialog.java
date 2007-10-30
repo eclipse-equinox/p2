@@ -99,7 +99,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText("file:" + path.toLowerCase()); //$NON-NLS-1$
+					url.setText("file:" + path); //$NON-NLS-1$
 				}
 			}
 		});
@@ -115,7 +115,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastArchiveLocation = path;
-					url.setText("jar:file:" + path.toLowerCase() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+					url.setText("jar:file:" + path + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		});
