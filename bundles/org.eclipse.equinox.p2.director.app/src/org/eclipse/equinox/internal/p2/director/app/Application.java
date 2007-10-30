@@ -150,11 +150,13 @@ public class Application implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-profile"))
 				profileId = arg;
 
+			// we create a path object here to handle ../ entries in the middle of paths
 			if (args[i - 1].equalsIgnoreCase("-destination") || args[i - 1].equalsIgnoreCase("-dest"))
-				destination = arg;
+				destination = new Path(arg).toOSString();
 
+			// we create a path object here to handle ../ entries in the middle of paths
 			if (args[i - 1].equalsIgnoreCase("-bundlepool") || args[i - 1].equalsIgnoreCase("-bp"))
-				bundlePool = arg;
+				bundlePool = new Path(arg).toOSString();
 
 			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr"))
 				metadataRepositoryLocation = new URL(arg);

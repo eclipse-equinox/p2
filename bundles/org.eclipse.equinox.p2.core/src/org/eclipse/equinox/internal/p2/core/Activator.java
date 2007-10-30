@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -119,6 +120,8 @@ public class Activator implements BundleActivator {
 		// put the instance area inside the workspace meta area.
 		if (location == null)
 			return new BasicLocation(property, defaultLocation, readOnly);
+		// handle ../ entries in the middle of the location
+		location = new Path(location).toOSString();
 		String trimmedLocation = location.trim();
 		if (trimmedLocation.equalsIgnoreCase(NONE))
 			return null;
