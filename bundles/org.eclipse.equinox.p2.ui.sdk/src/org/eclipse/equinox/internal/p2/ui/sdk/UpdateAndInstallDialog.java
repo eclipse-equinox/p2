@@ -142,7 +142,10 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
 		if (section != null) {
 			if (group != null && !group.getTabFolder().isDisposed()) {
-				group.getTabFolder().setSelection(section.getInt(SELECTED_TAB_SETTING));
+				int tab = 0;
+				if (section.get(SELECTED_TAB_SETTING) != null)
+					tab = section.getInt(SELECTED_TAB_SETTING);
+				group.getTabFolder().setSelection(tab);
 			}
 		}
 	}
