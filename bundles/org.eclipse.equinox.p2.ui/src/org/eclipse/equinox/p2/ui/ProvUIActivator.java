@@ -116,7 +116,14 @@ public class ProvUIActivator extends AbstractUIPlugin {
 						try {
 							Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfile().getProfileId()))) {
-								ProvUI.requestRestart(false, null);
+								// TODO below is what we should do but not until we fix bug #208251
+								/*
+								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+									public void run() {
+										ProvUI.requestRestart(false, null);
+									}
+								});
+								*/
 							}
 						} catch (ProvisionException e) {
 							ProvUI.handleException(e, null);
