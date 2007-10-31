@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
@@ -19,10 +18,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * Base class for all requests on an {@link IArtifactRepository}.
  */
 public abstract class ArtifactRequest implements IArtifactRequest {
+	private static final Status DEFAULT_STATUS = new Status(IStatus.ERROR, Activator.ID, "default"); //$NON-NLS-1$
 	protected IArtifactKey artifact;
 	protected String resolvedKey;
 	protected IArtifactRepository source;
-	protected IStatus result;
+	protected IStatus result = DEFAULT_STATUS;
 	protected IArtifactDescriptor descriptor;
 
 	public ArtifactRequest(IArtifactKey key) {
@@ -45,6 +45,9 @@ public abstract class ArtifactRequest implements IArtifactRequest {
 	 * @return The result of the previous perform call.
 	 */
 	public IStatus getResult() {
+		if (result == DEFAULT_STATUS)
+			return new Status(IStatus.ERROR, Activator.ID, "No repository found containing: " + getArtifactKey().toString());
+
 		return result;
 	}
 
