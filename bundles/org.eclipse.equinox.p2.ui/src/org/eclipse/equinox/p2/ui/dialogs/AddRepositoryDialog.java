@@ -20,7 +20,6 @@ import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
@@ -125,21 +124,14 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	}
 
 	protected void okPressed() {
-		if (addRepository()) {
-			setReturnCode(Window.OK);
-			super.okPressed();
-		} else {
-			setReturnCode(Window.CANCEL);
-		}
+		addRepository();
+		super.okPressed();
 	}
 
-	protected boolean addRepository() {
+	protected void addRepository() {
 		URL newURL = makeRepositoryURL(url.getText().trim());
-		if (newURL == null) {
-			return false;
-		}
-
-		return (ProvisioningOperationRunner.execute(getOperation(newURL), getShell(), null)).getStatus().isOK();
+		if (newURL != null)
+			ProvisioningOperationRunner.execute(getOperation(newURL), getShell(), null);
 	}
 
 	protected abstract ProvisioningOperation getOperation(URL repoURL);

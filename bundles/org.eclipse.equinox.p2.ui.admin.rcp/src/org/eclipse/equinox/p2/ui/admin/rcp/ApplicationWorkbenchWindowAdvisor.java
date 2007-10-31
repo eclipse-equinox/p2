@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.ui.admin.rcp;
 
 import org.eclipse.equinox.internal.p2.ui.admin.rcp.ProvAdminUIMessages;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.*;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
@@ -31,5 +32,9 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		configurer.setShowStatusLine(false);
 		configurer.setShowProgressIndicator(true);
 		configurer.setTitle(ProvAdminUIMessages.ApplicationWindowTitle);
+		// The workbench progress manager won't get initialized until I refer to it.
+		// Refer to it so that jobs will get their fail cases reported by the progress service.
+		// TODO open a platform UI bug since this relies on a side effect
+		PlatformUI.getWorkbench().getProgressService();
 	}
 }

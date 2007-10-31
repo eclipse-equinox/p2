@@ -11,16 +11,16 @@
 
 package org.eclipse.equinox.p2.ui;
 
-import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.IUndoableOperation;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.operation.IRunnableContext;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.WorkbenchJob;
 
 /**
  * Utility methods for running provisioning operations
@@ -29,52 +29,38 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ProvisioningOperationRunner {
 
-	private static Object FAMILY_PROVISIONING_OPERATIONS = new Object();
-
-	private static class JobRunnableContext implements IRunnableContext {
-
-		private class ProvisioningJob extends Job {
-			private IRunnableWithProgress runnable;
-
-			ProvisioningJob(String name, IRunnableWithProgress runnable) {
-				super(name);
-				this.runnable = runnable;
-			}
-
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					runnable.run(monitor);
-				} catch (InvocationTargetException e) {
-					return ProvUI.handleException(e, null);
-				} catch (InterruptedException e) {
-					return Status.CANCEL_STATUS;
-				}
-				return Status.OK_STATUS;
-			}
-
-			public boolean belongsTo(Object family) {
-				return family == FAMILY_PROVISIONING_OPERATIONS;
-			}
-
-		}
-
+	private static class ProvisioningJob extends Job {
 		private ProvisioningOperation op;
 		private ProvisioningOperationResult result;
 
-		JobRunnableContext(ProvisioningOperation operation, ProvisioningOperationResult result) {
-			this.op = operation;
+		ProvisioningJob(ProvisioningOperation op, ProvisioningOperationResult result) {
+			super(op.getLabel());
+			this.op = op;
 			this.result = result;
 		}
 
-		public void run(boolean fork, boolean cancelable, IRunnableWithProgress runnable) {
-			Job job = new ProvisioningJob(op.getLabel(), runnable);
-			job.setUser(op.isUser());
-			job.setPriority(Job.DECORATE); // this is the prio that the old update manager used
-			job.schedule();
-			result.setJob(job);
+		protected IStatus run(IProgressMonitor monitor) {
+			try {
+				IStatus status;
+				if (op instanceof IUndoableOperation) {
+					status = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, monitor, null);
+				} else {
+					status = op.execute(monitor, null);
+				}
+				result.setStatus(status);
+				return status;
+			} catch (ExecutionException e) {
+				return ProvUI.handleException(e.getCause(), null);
+			}
+		}
+
+		public boolean belongsTo(Object family) {
+			return family == FAMILY_PROVISIONING_OPERATIONS;
 		}
 
 	}
+
+	private static Object FAMILY_PROVISIONING_OPERATIONS = new Object();
 
 	/**
 	 * Execute the supplied ProvisioningOperation, and add it to the
@@ -87,37 +73,42 @@ public class ProvisioningOperationRunner {
 	 *            a runnable context will be created based on whether the operation should be run in the foreground or background.
 	 *            Callers typically need not supply a context unless special handling (such as wizard-based progress reporting) is required.
 	*/
+	// TODO get rid of context parameter and result after M3
+	// should just return the job and callers can hook listeners if they care what's happening
 	public static ProvisioningOperationResult execute(final ProvisioningOperation op, final Shell shell, IRunnableContext context) {
+		final ProvisioningOperationResult result = new ProvisioningOperationResult(op);
+		Job job;
 
-		final ProvisioningOperationResult[] result = new ProvisioningOperationResult[1];
-		result[0] = new ProvisioningOperationResult(op);
-		result[0].setStatus(Status.OK_STATUS);
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				try {
-					if (op instanceof IUndoableOperation) {
-						result[0].setStatus(PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, monitor, ProvUI.getUIInfoAdapter(shell)));
-					} else {
-						result[0].setStatus(op.execute(monitor, ProvUI.getUIInfoAdapter(shell)));
+		if (op.runInBackground()) {
+			job = new ProvisioningJob(op, result);
+			job.setPriority(Job.DECORATE); // this is the prio that the old update manager used
+		} else {
+			job = new WorkbenchJob(op.getLabel()) {
+
+				public IStatus runInUIThread(IProgressMonitor monitor) {
+					try {
+						IStatus status;
+						if (op instanceof IUndoableOperation) {
+							status = PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, monitor, ProvUI.getUIInfoAdapter(shell));
+						} else {
+							status = op.execute(monitor, ProvUI.getUIInfoAdapter(shell));
+						}
+						result.setStatus(status);
+						return status;
+					} catch (ExecutionException e) {
+						return ProvUI.handleException(e.getCause(), null);
 					}
-				} catch (ExecutionException e) {
-					result[0].setStatus(ProvUI.handleException(e.getCause(), null));
 				}
-			}
-		};
-		if (context == null) {
-			if (op.runInBackground())
-				context = new JobRunnableContext(op, result[0]);
-			else
-				context = PlatformUI.getWorkbench().getProgressService();
+
+				public boolean belongsTo(Object family) {
+					return family == FAMILY_PROVISIONING_OPERATIONS;
+				}
+
+			};
 		}
-		try {
-			context.run(op.runInBackground(), true, runnable);
-		} catch (InterruptedException e) {
-			// do nothing
-		} catch (InvocationTargetException e) {
-			result[0].setStatus(ProvUI.handleException(e.getCause(), null));
-		}
-		return result[0];
+		job.setUser(op.isUser());
+		job.schedule();
+		result.setJob(job);
+		return result;
 	}
 }
