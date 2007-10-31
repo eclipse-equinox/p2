@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
 public class EclipseTouchpoint extends Touchpoint {
-	private static final TouchpointType TOUCHPOINT_TYPE = new TouchpointType("eclipse", new Version("1.0"));
+	private static final TouchpointType TOUCHPOINT_TYPE = new TouchpointType("eclipse", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String ACTION_ADD_JVM_ARG = "addJvmArg"; //$NON-NLS-1$
 	private static final String ACTION_ADD_PROGRAM_ARG = "addProgramArg"; //$NON-NLS-1$
 	private static final String ACTION_COLLECT = "collect"; //$NON-NLS-1$
@@ -51,11 +51,19 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String PARM_START_LEVEL = "startLevel"; //$NON-NLS-1$
 	private static final String PARM_STARTED = "started"; //$NON-NLS-1$
 
+	protected static IStatus createError(String message) {
+		return createError(message, null);
+	}
+
+	protected static IStatus createError(String message, Exception e) {
+		return new Status(IStatus.ERROR, Activator.ID, message, e);
+	}
+
 	// TODO: Here we may want to consult multiple caches
 	IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) {
 		IArtifactRepository targetRepo = null;
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
-		if (toDownload == null)
+		if (toDownload == null || toDownload.length == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
 		IArtifactRequest[] requests = new IArtifactRequest[toDownload.length];
 
@@ -90,9 +98,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			manipulator.save(false);
 		} catch (RuntimeException e) {
-			return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
+			return createError("Error saving manipulator", e);
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.ID, 1, "Error saving manipulator", e);
+			return createError("Error saving manipulator", e);
 		}
 		return null;
 	}
@@ -146,21 +154,27 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
+					if (programArg == null)
+						return createError("The \"programArg\" parameter was not set in the \"add program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						Profile profile = (Profile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
-						IArtifactKey artifactKey = iu.getArtifacts()[0];
+
+						IArtifactKey[] artifacts = iu.getArtifacts();
+						if (artifacts == null || artifacts.length == 0)
+							return createError("Installable unit contains no artifacts");
+
+						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = null;
 						try {
 							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							return createError(e.getMessage(), e);
 						}
-						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
+						if (fileLocation == null || !fileLocation.exists())
+							return createError("The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -171,21 +185,26 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
+					if (programArg == null)
+						return createError("The \"programArg\" parameter was not set in the \"add program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						Profile profile = (Profile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
-						IArtifactKey artifactKey = iu.getArtifacts()[0];
+						IArtifactKey[] artifacts = iu.getArtifacts();
+						if (artifacts == null || artifacts.length == 0)
+							return createError("Installable unit contains no artifacts");
+
+						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = null;
 						try {
 							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							return createError(e.getMessage(), e);
 						}
-						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
+						if (fileLocation == null || !fileLocation.exists())
+							return createError("The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -200,21 +219,26 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
+					if (programArg == null)
+						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						Profile profile = (Profile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
-						IArtifactKey artifactKey = iu.getArtifacts()[0];
+						IArtifactKey[] artifacts = iu.getArtifacts();
+						if (artifacts == null || artifacts.length == 0)
+							return createError("Installable unit contains no artifacts");
+
+						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = null;
 						try {
 							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							return createError(e.getMessage(), e);
 						}
-						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
+						if (fileLocation == null || !fileLocation.exists())
+							return createError("The artifact for " + artifactKey + " is not available");
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -225,21 +249,26 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
+					if (programArg == null)
+						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						Profile profile = (Profile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
-						IArtifactKey artifactKey = iu.getArtifacts()[0];
+						IArtifactKey[] artifacts = iu.getArtifacts();
+						if (artifacts == null || artifacts.length == 0)
+							return createError("Installable unit contains no artifacts");
+
+						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = null;
 						try {
 							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							return createError(e.getMessage(), e);
 						}
-						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, Activator.ID, "The file is not available" + fileLocation.getAbsolutePath());
+						if (fileLocation == null || !fileLocation.exists())
+							return createError("The artifact for " + artifactKey + " is not available");
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -255,6 +284,8 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String startLevel = (String) parameters.get(PARM_START_LEVEL);
+					if (startLevel == null)
+						return createError("The \"startLevel\" parameter was not set in the \"set start level\" action.");
 
 					BundleInfo bundleInfo = new BundleInfo();
 					Util.initFromManifest(Util.getManifest(iu.getTouchpointData()), bundleInfo);
@@ -262,7 +293,11 @@ public class EclipseTouchpoint extends Touchpoint {
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
 							getMemento().put(PARM_PREVIOUS_START_LEVEL, new Integer(bundles[i].getStartLevel()));
-							bundles[i].setStartLevel(Integer.parseInt(startLevel));
+							try {
+								bundles[i].setStartLevel(Integer.parseInt(startLevel));
+							} catch (NumberFormatException e) {
+								return createError("Error parsing start level: " + startLevel + " for bundle: " + bundles[i].getSymbolicName(), e);
+							}
 							break;
 						}
 					}
@@ -295,6 +330,8 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String started = (String) parameters.get(PARM_STARTED);
+					if (started == null)
+						return createError("The \"started\" parameter was not set in the \"mark started\" action.");
 
 					BundleInfo bundleInfo = new BundleInfo();
 					Util.initFromManifest(Util.getManifest(iu.getTouchpointData()), bundleInfo);
@@ -334,7 +371,11 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
+					if (propName == null)
+						return createError("The \"propName\" parameter was not set in the \"set framework dependent properties\" action.");
 					String propValue = (String) parameters.get(PARM_PROP_VALUE);
+					if (propValue == null)
+						return createError("The \"propValue\" parameter was not set in the \"set framework dependent properties\" action.");
 					getMemento().put(PARM_PREVIOUS_VALUE, manipulator.getConfigData().getFwDependentProp(propName));
 					manipulator.getConfigData().setFwDependentProp(propName, propValue);
 					return Status.OK_STATUS;
@@ -343,7 +384,11 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
+					if (propName == null)
+						return createError("The \"propName\" parameter was not set in the \"set framework dependent properties\" action.");
 					String previousValue = (String) getMemento().get(PARM_PREVIOUS_VALUE);
+					if (previousValue == null)
+						return createError("The \"propValue\" parameter was not set in the \"set framework dependent properties\" action.");
 					manipulator.getConfigData().setFwDependentProp(propName, previousValue);
 					return Status.OK_STATUS;
 				}
@@ -355,7 +400,11 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
+					if (propName == null)
+						return createError("The \"propName\" parameter was not set in the \"set framework independent properties\" action.");
 					String propValue = (String) parameters.get(PARM_PROP_VALUE);
+					if (propValue == null)
+						return createError("The \"propValue\" parameter was not set in the \"set framework independent properties\" action.");
 					getMemento().put(PARM_PREVIOUS_VALUE, manipulator.getConfigData().getFwDependentProp(propName));
 					manipulator.getConfigData().setFwIndependentProp(propName, propValue);
 					return Status.OK_STATUS;
@@ -364,7 +413,11 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
+					if (propName == null)
+						return createError("The \"propName\" parameter was not set in the \"set framework independent properties\" action.");
 					String previousValue = (String) getMemento().get(PARM_PREVIOUS_VALUE);
+					if (previousValue == null)
+						return createError("The \"propValue\" parameter was not set in the \"set framework independent properties\" action.");
 					manipulator.getConfigData().setFwIndependentProp(propName, previousValue);
 					return Status.OK_STATUS;
 				}
@@ -376,6 +429,8 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
+					if (jvmArg == null)
+						return createError("The \"jvmArg\" parameter was not set in the \"add jvm args\" action.");
 					manipulator.getLauncherData().addJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -383,6 +438,8 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
+					if (jvmArg == null)
+						return createError("The \"jvmArg\" parameter was not set in the \"add jvm args\" action.");
 					manipulator.getLauncherData().removeJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -394,6 +451,8 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
+					if (jvmArg == null)
+						return createError("The \"jvmArg\" parameter was not set in the \"remove jvm args\" action.");
 					manipulator.getLauncherData().removeJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -401,6 +460,8 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
+					if (jvmArg == null)
+						return createError("The \"jvmArg\" parameter was not set in the \"remove jvm args\" action.");
 					manipulator.getLauncherData().addJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -427,6 +488,8 @@ public class EclipseTouchpoint extends Touchpoint {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
+		if (bundleId == null)
+			return createError("The \"bundleId\" parameter is missing from the \"install bundle\" action");
 
 		//TODO: eventually remove this. What is a fragment doing here??
 		if (iu.isFragment()) {
@@ -435,6 +498,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			return createError("Installable unit contains no artifacts");
+
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
 			if (artifacts[i].toString().equals(bundleId)) {
@@ -450,14 +516,16 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			bundleFile = Util.getBundleFile(artifactKey, isZipped, profile);
 			if (bundleFile == null)
-				return new Status(IStatus.ERROR, Activator.ID, "The artifact " + artifactKey.toString() + " to install was not found.");
+				return createError("The artifact " + artifactKey.toString() + " to install was not found.");
 
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
+			return createError(e.getMessage(), e);
 		}
 
 		// TODO: do we really need the manifest here or just the bsn and version?
 		String manifest = Util.getManifest(iu.getTouchpointData());
+		if (manifest == null)
+			return createError("The manifest is missing for: " + iu.getTouchpointData());
 
 		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
 		manipulator.getConfigData().addBundle(bundleInfo);
@@ -488,6 +556,8 @@ public class EclipseTouchpoint extends Touchpoint {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
+		if (bundleId == null)
+			return createError("The \"bundleId\" parameter is missing from the \"uninstall bundle\" action.");
 
 		//TODO: eventually remove this. What is a fragment doing here??
 		if (iu.isFragment()) {
@@ -496,6 +566,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			return createError("Installable unit contains no artifacts");
+
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
 			if (artifacts[i].toString().equals(bundleId)) {
@@ -511,14 +584,16 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			bundleFile = Util.getBundleFile(artifactKey, isZipped, profile);
 			if (bundleFile == null)
-				return new Status(IStatus.ERROR, Activator.ID, "The artifact " + artifactKey.toString() + " to uninstall was not found.");
+				return createError("The artifact " + artifactKey.toString() + " to uninstall was not found.");
 
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
+			return createError(e.getMessage(), e);
 		}
 
 		// TODO: do we really need the manifest here or just the bsn and version?
 		String manifest = Util.getManifest(iu.getTouchpointData());
+		if (manifest == null)
+			return createError("The manifest is missing for: " + iu.getTouchpointData());
 
 		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
 		manipulator.getConfigData().removeBundle(bundleInfo);

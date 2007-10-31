@@ -25,6 +25,10 @@ import org.osgi.framework.Version;
 public class NativeTouchpoint extends Touchpoint {
 	private static final String ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
 
+	protected static IStatus createError(String message) {
+		return new Status(IStatus.ERROR, ID, message);
+	}
+
 	public ProvisioningAction getAction(String actionId) {
 		if (actionId.equals("collect")) {
 			return new ProvisioningAction() {
@@ -48,7 +52,11 @@ public class NativeTouchpoint extends Touchpoint {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					String source = (String) parameters.get("source");
+					if (source == null)
+						return createError("The \"source\" parameter was not set in the \"unzip\" action.");
 					String target = (String) parameters.get("target");
+					if (target == null)
+						return createError("The \"target\" parameter was not set in the \"unzip\" action.");
 
 					if (source.equals("@artifact")) {
 						IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
@@ -59,9 +67,11 @@ public class NativeTouchpoint extends Touchpoint {
 						IArtifactKey artifactKey = iu.getArtifacts()[0];
 
 						IFileArtifactRepository downloadCache = getDownloadCacheRepo();
+						if (downloadCache == null)
+							return createError("The download cache could not be found for the \"unzip\" action.");
 						File fileLocation = downloadCache.getArtifactFile(artifactKey);
-						if (!fileLocation.exists())
-							return new Status(IStatus.ERROR, ID, "The file is not available" + fileLocation.getAbsolutePath());
+						if ((fileLocation == null) || !fileLocation.exists())
+							return createError("The artifact for " + artifactKey + " is not available");
 						source = fileLocation.getAbsolutePath();
 					}
 
@@ -79,8 +89,14 @@ public class NativeTouchpoint extends Touchpoint {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					String targetDir = (String) parameters.get("targetDir");
+					if (targetDir == null)
+						return createError("The \"targetDir\" parameter was not set in the \"chmod\" action.");
 					String targetFile = (String) parameters.get("targetFile");
+					if (targetFile == null)
+						return createError("The \"targetFile\" parameter was not set in the \"chmod\" action.");
 					String permissions = (String) parameters.get("permissions");
+					if (permissions == null)
+						return createError("The \"permissions\" parameter was not set in the \"chmod\" action");
 
 					new Permissions().chmod(targetDir, targetFile, permissions);
 					return Status.OK_STATUS;
@@ -101,10 +117,12 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	private IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) {
-		IArtifactRepository destination = getDownloadCacheRepo();
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return new IArtifactRequest[0];
+		IArtifactRepository destination = getDownloadCacheRepo();
+		if (destination == null)
+			throw new IllegalStateException("The download cache is not available.");
 		IArtifactRequest[] requests = new IArtifactRequest[toDownload.length];
 		int count = 0;
 		for (int i = 0; i < toDownload.length; i++) {
@@ -142,7 +160,11 @@ public class NativeTouchpoint extends Touchpoint {
 
 	static private IFileArtifactRepository getDownloadCacheRepo() {
 		URL location = getDownloadCacheLocation();
+		if (location == null)
+			throw new IllegalStateException("Could not obtain the download cache location.");
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+		if (manager == null)
+			throw new IllegalStateException("The artifact repository manager could not be found.");
 		IArtifactRepository repository = manager.loadRepository(location, null);
 		if (repository == null) {
 			// 	the given repo location is not an existing repo so we have to create something
