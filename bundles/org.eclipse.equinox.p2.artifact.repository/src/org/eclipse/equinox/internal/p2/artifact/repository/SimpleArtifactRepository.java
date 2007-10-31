@@ -69,8 +69,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public SimpleArtifactRepository(String repositoryName, URL location) {
 		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
-		mapper.initialize(Activator.getContext(), mappingRules);
-		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
+		initializeAfterLoad(location);
 	}
 
 	public SimpleArtifactRepository(String name, String type, String version, String description, String provider, boolean verifySignature, Set artifacts, String[][] mappingRules, OrderedProperties properties) {
@@ -437,6 +436,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	// use this method to setup any transient fields etc after the object has been restored from a stream
 	public void initializeAfterLoad(URL location) {
 		this.location = location;
+		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
 		if (mapper == null)
 			mapper = new Mapper();
 		mapper.initialize(Activator.getContext(), mappingRules);
