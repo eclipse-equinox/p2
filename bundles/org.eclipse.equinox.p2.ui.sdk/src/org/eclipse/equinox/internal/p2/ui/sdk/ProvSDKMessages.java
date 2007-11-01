@@ -83,4 +83,5 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesJob_Updates;
 	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
 	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
+	public static String ProvSDKUIActivator_NoSelfProfile;
 }

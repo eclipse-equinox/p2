@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -18,6 +20,7 @@ import org.eclipse.equinox.p2.ui.model.ProfileFactory;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -99,6 +102,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		// Get the profile of the running system.
 		profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 		if (profile == null) {
+			StatusManager.getManager().handle(getNoSelfProfileStatus(), StatusManager.LOG);
 			Profile[] profiles = (Profile[]) new AllProfiles().getChildren(null);
 			if (profiles.length > 0)
 				return profiles[0];
@@ -110,5 +114,9 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	static void setScheduler(AutomaticUpdateScheduler scheduler) {
 		ProvSDKUIActivator.scheduler = scheduler;
+	}
+
+	static IStatus getNoSelfProfileStatus() {
+		return new Status(IStatus.WARNING, PLUGIN_ID, ProvSDKMessages.ProvSDKUIActivator_NoSelfProfile);
 	}
 }
