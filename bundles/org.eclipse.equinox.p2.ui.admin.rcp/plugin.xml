@@ -30,6 +30,17 @@
     </product>
     </extension>
     
+       <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="%Views.Progress"
+            icon="$nl$/icons/pview.gif"
+            category="org.eclipse.ui"
+            class="org.eclipse.ui.internal.progress.ProgressView"
+            id="org.eclipse.ui.views.ProgressView">
+      </view>
+    </extension>
+    
          <extension
          point="org.eclipse.ui.perspectives">
       <perspective
