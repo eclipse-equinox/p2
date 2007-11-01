@@ -53,7 +53,7 @@ abstract class ProvView extends ViewPart {
 	public void createPartControl(Composite parent) {
 		// Store the display so we can make async calls from listeners
 		display = parent.getDisplay();
-		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		setTreeColumns(viewer.getTree());
 		viewer.getTree().setHeaderVisible(true);
 		viewer.setContentProvider(getContentProvider());
