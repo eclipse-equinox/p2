@@ -10,44 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import org.eclipse.core.runtime.Assert;
 import org.osgi.framework.Version;
 
 /**
  * Describes a capability as exposed or required by an installable unit
  */
 public class ProvidedCapability {
-	String namespace;
-	String name;
-	transient Version versionObject;
-	String version;
+	private final String name;
+	private final String namespace;
+	private final Version version;
 
-	public String getNamespace() {
-		return namespace;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public Version getVersion() {
-		if (versionObject == null)
-			versionObject = version == null ? Version.emptyVersion : new Version(version);
-		return versionObject;
-	}
-
-	public ProvidedCapability(String namespace, String name, Version newVersion) {
-		this.name = name;
-		this.versionObject = newVersion;
-		this.version = newVersion == null ? null : newVersion.toString();
+	public ProvidedCapability(String namespace, String name, Version version) {
+		Assert.isNotNull(namespace);
+		Assert.isNotNull(name);
 		this.namespace = namespace;
-	}
-
-	public boolean isSatisfiedBy(RequiredCapability candidate) {
-		if (getName() == null || !getName().equals(candidate.getName()))
-			return false;
-		if (getNamespace() == null || !getNamespace().equals(candidate.getNamespace()))
-			return false;
-		return candidate.getRange().isIncluded(getVersion());
+		this.name = name;
+		this.version = version == null ? Version.emptyVersion : version;
 	}
 
 	public void accept(IMetadataVisitor visitor) {
@@ -57,17 +36,37 @@ public class ProvidedCapability {
 	public boolean equals(Object other) {
 		if (other instanceof ProvidedCapability) {
 			ProvidedCapability otherCapability = (ProvidedCapability) other;
-			return otherCapability.namespace.equals(namespace) && otherCapability.name.equals(name) && otherCapability.getVersion().equals(getVersion());
+			return otherCapability.namespace.equals(namespace) && otherCapability.name.equals(name) && otherCapability.version.equals(version);
 		}
 		return false;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public Version getVersion() {
+		return version;
+	}
+
 	public int hashCode() {
-		return namespace.hashCode() * name.hashCode() * getVersion().hashCode();
+		return namespace.hashCode() * name.hashCode() * version.hashCode();
+	}
+
+	public boolean isSatisfiedBy(RequiredCapability candidate) {
+		if (getName() == null || !getName().equals(candidate.getName()))
+			return false;
+		if (getNamespace() == null || !getNamespace().equals(candidate.getNamespace()))
+			return false;
+		return candidate.getRange().isIncluded(version);
 	}
 
 	public String toString() {
-		return namespace + '/' + name + '/' + getVersion();
+		return namespace + '/' + name + '/' + version;
 	}
 
 }

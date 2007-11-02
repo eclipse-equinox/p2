@@ -18,8 +18,7 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 	public static ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0)); //$NON-NLS-1$
 
 	private String hostId;
-	private transient VersionRange hostRangeObject;
-	private String hostRange;
+	private VersionRange hostRange = VersionRange.emptyRange;
 
 	public InstallableUnitFragment() {
 		super();
@@ -28,8 +27,24 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 	public InstallableUnitFragment(String id, Version version, boolean singleton, String hostId, VersionRange hostRange) {
 		super(id, version, singleton);
 		this.hostId = hostId;
-		this.hostRange = hostRange.toString();
-		hostRangeObject = hostRange;
+		if (hostRange != null)
+			this.hostRange = hostRange;
+	}
+
+	private void addRequiredCapability(RequiredCapability toAdd) {
+		RequiredCapability[] current = super.getRequiredCapabilities();
+		RequiredCapability[] result = new RequiredCapability[current.length + 1];
+		System.arraycopy(current, 0, result, 0, current.length);
+		result[current.length] = toAdd;
+		setRequiredCapabilities(result);
+	}
+
+	public String getHostId() {
+		return hostId;
+	}
+
+	public VersionRange getHostVersionRange() {
+		return hostRange;
 	}
 
 	public ProvidedCapability[] getProvidedCapabilities() {
@@ -43,38 +58,19 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		return result;
 	}
 
-	public void setHost(String iuId, VersionRange versionRange) {
-		if (iuId == null || versionRange == null)
-			throw new IllegalArgumentException();
-		hostId = iuId;
-		hostRangeObject = versionRange;
-		hostRange = versionRange == null ? null : versionRange.toString();
-		addRequiredCapability(RequiredCapability.createRequiredCapabilityForName(iuId, versionRange, false));
-	}
-
-	public String getHostId() {
-		return hostId;
-	}
-
-	public VersionRange getHostVersionRange() {
-		if (hostRangeObject == null)
-			hostRangeObject = hostRange == null ? VersionRange.emptyRange : new VersionRange(hostRange);
-		return hostRangeObject;
-	}
-
-	private void addRequiredCapability(RequiredCapability toAdd) {
-		RequiredCapability[] current = super.getRequiredCapabilities();
-		RequiredCapability[] result = new RequiredCapability[current.length + 1];
-		System.arraycopy(current, 0, result, 0, current.length);
-		result[current.length] = toAdd;
-		setRequiredCapabilities(result);
+	public IResolvedInstallableUnit getResolved() {
+		return new ResolvedInstallableUnitFragment(this);
 	}
 
 	public boolean isFragment() {
 		return true;
 	}
 
-	public IResolvedInstallableUnit getResolved() {
-		return new ResolvedInstallableUnitFragment(this);
+	public void setHost(String iuId, VersionRange versionRange) {
+		if (iuId == null || versionRange == null)
+			throw new IllegalArgumentException();
+		hostId = iuId;
+		hostRange = versionRange;
+		addRequiredCapability(RequiredCapability.createRequiredCapabilityForName(iuId, versionRange, false));
 	}
 }

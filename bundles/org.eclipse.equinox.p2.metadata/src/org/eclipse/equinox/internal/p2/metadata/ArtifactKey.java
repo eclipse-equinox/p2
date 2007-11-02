@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
 
@@ -19,18 +20,19 @@ import org.osgi.framework.Version;
  * See {link IArtifact for a description of the lifecycle of artifact keys) 
  */
 public class ArtifactKey implements IArtifactKey {
-
-	static final int NO_SEGMENTS = 5;
 	private static final char SEP_CHAR = ',';
 
-	private String namespace;
-	private String id;
-	private String classifier;
-	private transient Version versionObject;
-	private String version;
+	private final String namespace;
+	private final String id;
+	private final String classifier;
+	private final Version version;
 
-	public ArtifactKey(String namespace, String classifier, String id, Version aVersion) {
+	public ArtifactKey(String namespace, String classifier, String id, Version version) {
 		super();
+		Assert.isNotNull(namespace);
+		Assert.isNotNull(classifier);
+		Assert.isNotNull(id);
+		Assert.isNotNull(version);
 		if (namespace.indexOf(SEP_CHAR) != -1)
 			throw new IllegalArgumentException("comma not allowed in namespace"); //$NON-NLS-1$
 		if (classifier.indexOf(SEP_CHAR) != -1)
@@ -40,8 +42,7 @@ public class ArtifactKey implements IArtifactKey {
 		this.namespace = namespace;
 		this.classifier = classifier;
 		this.id = id;
-		this.versionObject = aVersion;
-		this.version = aVersion == null ? null : aVersion.toString();
+		this.version = version;
 	}
 
 	public String getNamespace() {
@@ -53,9 +54,7 @@ public class ArtifactKey implements IArtifactKey {
 	}
 
 	public Version getVersion() {
-		if (versionObject == null)
-			versionObject = version == null ? Version.emptyVersion : new Version(version);
-		return versionObject;
+		return version;
 	}
 
 	public int hashCode() {

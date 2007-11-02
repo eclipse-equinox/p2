@@ -27,18 +27,23 @@ import org.eclipse.osgi.service.resolver.VersionRange;
  */
 public class RequiredCapability {
 
-	private String name;
-	private String namespace;
-	private String range;
-	private boolean optional;
-	private boolean multiple;
 	private String filter;
+	private final boolean multiple;
+	private final String name;//never null
+	private final String namespace;//never null
+	private boolean optional;
+	private final VersionRange range;//never null
 	private String[] selectors;
-	private transient VersionRange rangeObject;
 
 	/**
 	 * Returns a {@link RequiredCapability} on the installable unit with the given name
 	 * and version range.
+	 * 
+	 * @param name The name of the {@link InstallableUnit} that is required.
+	 * @param versionRange The range of versions that are required, or <code>null</code>
+	 * to indicate that any version will do.
+	 * @param optional <code>true</code> if this required capability is optional,
+	 * and <code>false</code> otherwise.
 	 */
 	public static RequiredCapability createRequiredCapabilityForName(String name, VersionRange versionRange, boolean optional) {
 		return new RequiredCapability(IInstallableUnit.IU_NAMESPACE, name, versionRange, null, optional, false);
@@ -57,8 +62,7 @@ public class RequiredCapability {
 		Assert.isNotNull(name);
 		this.namespace = namespace;
 		this.name = name;
-		this.rangeObject = range;
-		this.range = rangeObject == null ? null : rangeObject.toString();
+		this.range = range == null ? VersionRange.emptyRange : range;
 		this.selectors = selectors == null ? new String[0] : selectors;
 		this.optional = optional;
 		this.filter = filter;
@@ -67,52 +71,6 @@ public class RequiredCapability {
 
 	public void accept(IMetadataVisitor visitor) {
 		visitor.visitRequiredCapability(this);
-	}
-
-	public String getFilter() {
-		return filter;
-	}
-
-	public void setFilter(String filter) {
-		this.filter = filter;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public String getNamespace() {
-		return namespace;
-	}
-
-	public VersionRange getRange() {
-		if (rangeObject == null)
-			rangeObject = range == null ? VersionRange.emptyRange : new VersionRange(range);
-		return rangeObject;
-	}
-
-	public boolean isMultiple() {
-		return multiple;
-	}
-
-	public boolean isOptional() {
-		return optional;
-	}
-
-	public String toString() {
-		return "requiredCapability: " + namespace + '/' + name + '/' + range; //$NON-NLS-1$
-	}
-
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((filter == null) ? 0 : filter.hashCode());
-		result = prime * result + (multiple ? 1231 : 1237);
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
-		result = prime * result + (optional ? 1231 : 1237);
-		result = prime * result + ((rangeObject == null) ? 0 : rangeObject.hashCode());
-		return result;
 	}
 
 	public boolean equals(Object obj) {
@@ -130,24 +88,37 @@ public class RequiredCapability {
 			return false;
 		if (multiple != other.multiple)
 			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
+		if (!name.equals(other.name))
 			return false;
-		if (namespace == null) {
-			if (other.namespace != null)
-				return false;
-		} else if (!namespace.equals(other.namespace))
+		if (!namespace.equals(other.namespace))
 			return false;
 		if (optional != other.optional)
 			return false;
-		if (rangeObject == null) {
-			if (other.rangeObject != null)
-				return false;
-		} else if (!rangeObject.equals(other.rangeObject))
+		if (!range.equals(other.range))
 			return false;
 		return true;
+	}
+
+	public String getFilter() {
+		return filter;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	/**
+	 * Returns the range of versions that satisfy this required capability. Returns
+	 * an empty version range ({@link VersionRange#emptyRange} if any version
+	 * will satisfy the capability.
+	 * @return the range of versions that satisfy this required capability.
+	 */
+	public VersionRange getRange() {
+		return range;
 	}
 
 	/**
@@ -160,7 +131,35 @@ public class RequiredCapability {
 		return selectors;
 	}
 
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((filter == null) ? 0 : filter.hashCode());
+		result = prime * result + (multiple ? 1231 : 1237);
+		result = prime * result + name.hashCode();
+		result = prime * result + namespace.hashCode();
+		result = prime * result + (optional ? 1231 : 1237);
+		result = prime * result + range.hashCode();
+		return result;
+	}
+
+	public boolean isMultiple() {
+		return multiple;
+	}
+
+	public boolean isOptional() {
+		return optional;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
+	}
+
 	public void setSelectors(String[] selectors) {
 		this.selectors = selectors;
+	}
+
+	public String toString() {
+		return "requiredCapability: " + namespace + '/' + name + '/' + range; //$NON-NLS-1$
 	}
 }
