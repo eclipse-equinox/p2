@@ -31,8 +31,6 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 				if (result instanceof URLMetadataRepository)
 					((URLMetadataRepository) result).initializeAfterLoad(location);
 				return result;
-			} catch (RuntimeException e) {
-				System.out.println("Location: " + location);
 			} catch (RepositoryCreationException e) {
 				// TODO Auto-generated catch block
 				return null;
