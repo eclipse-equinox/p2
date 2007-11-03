@@ -71,7 +71,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		try {
 			testStream.close();
 			assertEquals("Test", result.toString());
-			assertTrue((handler.validateSteps(testStream).getSeverity() == IStatus.ERROR));
+			assertTrue((handler.checkStatus(testStream).getSeverity() == IStatus.ERROR));
 		} catch (IOException e) {
 			assertTrue(true);
 		}
@@ -96,7 +96,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		try {
 			testStream.close();
 			assertTrue(Arrays.equals(new byte[] {2, 4, 6, 8, 10}, result.toByteArray()));
-			assertTrue((handler.validateSteps(testStream).getSeverity() == IStatus.ERROR));
+			assertTrue((handler.checkStatus(testStream).getSeverity() == IStatus.ERROR));
 		} catch (IOException e) {
 			assertTrue(true);
 		}

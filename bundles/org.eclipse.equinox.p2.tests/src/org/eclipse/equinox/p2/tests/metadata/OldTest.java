@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
-import com.thoughtworks.xstream.XStream;
-import java.io.*;
-import java.util.ArrayList;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.resolution.Transformer;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -95,13 +92,14 @@ public class OldTest {
 		jre.setVersion(new Version(1, 4, 2, "sr2"));
 		jre.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("java.runtime", "JRE", new Version(1, 4, 2, "sr2"))});
 
-		ArrayList all = new ArrayList();
-		all.add(osgi);
-		try {
-			new XStream().toXML(all, new FileOutputStream(new File("d:/tmp/m2.xml")));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		throw new IllegalStateException("XStream has been removed.  Should this test be fixed? or removed?");
+		//		ArrayList all = new ArrayList();
+		//		all.add(osgi);
+		//		try {
+		//			new XStream().toXML(all, new FileOutputStream(new File("d:/tmp/m2.xml")));
+		//		} catch (FileNotFoundException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 	}
 }

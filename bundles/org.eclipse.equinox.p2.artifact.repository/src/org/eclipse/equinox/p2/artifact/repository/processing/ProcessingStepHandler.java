@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
  */
 public class ProcessingStepHandler {
 
-	public static IStatus validateSteps(OutputStream output) {
+	public static IStatus checkStatus(OutputStream output) {
 		if (!(output instanceof ProcessingStep))
 			return Status.OK_STATUS;
 		return ((ProcessingStep) output).getStatus(true);

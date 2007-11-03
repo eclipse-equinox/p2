@@ -5,9 +5,7 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
-Import-Package: com.thoughtworks.xstream,
- junit.framework;version="3.8.2",
- org.eclipse.core.runtime;common=split,
+Import-Package: junit.framework;version="3.8.2",
  org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.director,
  org.eclipse.equinox.internal.p2.jarprocessor,

@@ -201,7 +201,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		destination = addPostSteps(handler, descriptor, destination, monitor);
 		destination = handler.createAndLink(descriptor.getProcessingSteps(), descriptor, destination, monitor);
 		destination = addPreSteps(handler, descriptor, destination, monitor);
-		IStatus status = handler.validateSteps(destination);
+		IStatus status = handler.checkStatus(destination);
 		if (!status.isOK() && status.getSeverity() != IStatus.INFO)
 			return status;
 		String toDownload = getLocation(descriptor);
@@ -299,7 +299,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			// TODO the count check is a bit bogus but helps in some error cases (e.g., the optimizer)
 			// where errors occured in a processing step earlier in the chain.  We likely need a better
 			// or more explicit way of handling this case.
-			if (ProcessingStepHandler.validateSteps(destination).isOK() && count > 0) {
+			if (ProcessingStepHandler.checkStatus(destination).isOK() && count > 0) {
 				((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
 				addDescriptor(descriptor);
 			}
