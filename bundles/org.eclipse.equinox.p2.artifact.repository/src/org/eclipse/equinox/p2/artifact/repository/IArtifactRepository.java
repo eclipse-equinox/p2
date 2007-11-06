@@ -53,7 +53,7 @@ public interface IArtifactRepository extends IRepository {
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key);
 
 	/**
-	 * Return a stream containing the described artifact, or null if not available 
+	 * Fill the given stream with the described artifact. Sets status accordingly. 
 	 */
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor);
 
