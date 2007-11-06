@@ -76,10 +76,25 @@ public abstract class ProvisioningOperation {
 		return label;
 	}
 
+	/**
+	 * Return a boolean indicating whether the operation can be run in the
+	 * background. 
+	 * 
+	 * @return <code>true</code> if the operation can be run in the background, and
+	 * <code>false</code> if it should be run in the UI.
+	 */
 	public boolean runInBackground() {
 		return false;
 	}
 
+	/**
+	 * Return a boolean indicating whether this operation was triggered by the
+	 * user.  This value is used to determine whether any job running this operation
+	 * should be considered a user job.  This can affect the way progress is shown to the user.
+	 * 
+	 * @return <code>true</code> if the operation was initiated by the user, 
+	 * <code>false</code> if it was not.
+	 */
 	public boolean isUser() {
 		return true;
 	}

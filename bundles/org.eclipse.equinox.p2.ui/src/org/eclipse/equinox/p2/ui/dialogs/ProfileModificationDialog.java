@@ -148,7 +148,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 	}
 
 	protected void okPressed() {
-		ProvisioningOperationRunner.execute(createProfileModificationOperation(getSelectedElements()), getShell(), null);
+		ProvisioningOperationRunner.execute(createProfileModificationOperation(getSelectedElements()), getShell());
 		super.okPressed();
 	}
 

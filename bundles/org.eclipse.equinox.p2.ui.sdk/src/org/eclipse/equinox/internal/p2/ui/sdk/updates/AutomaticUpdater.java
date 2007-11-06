@@ -11,12 +11,14 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.updates;
 
 import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
@@ -44,7 +46,7 @@ public class AutomaticUpdater implements IUpdateListener {
 				IInstallableUnit[] replacements = ProvisioningUtil.updatesFor(toUpdate, null);
 				if (replacements.length > 0) {
 					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getReplacePlan(toUpdate, replacements, event.getProfile(), null);
-					ProvisioningOperationResult result = ProvisioningOperationRunner.execute(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfile().getProfileId(), plan, new DownloadPhaseSet(), false), null, null);
+					Job job = ProvisioningOperationRunner.execute(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfile().getProfileId(), plan, new DownloadPhaseSet(), false), null);
 					// TODO need to listen to the job and open the popup when download is done
 				}
 			} else {

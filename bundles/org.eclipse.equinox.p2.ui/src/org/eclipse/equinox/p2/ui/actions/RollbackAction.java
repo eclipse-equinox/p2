@@ -49,7 +49,7 @@ public class RollbackAction extends ProfileModificationAction {
 		try {
 			ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, null);
 			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RollbackIUOperationLabel, targetProfile.getProfileId(), plan);
-			ProvisioningOperationRunner.execute(op, getShell(), null);
+			ProvisioningOperationRunner.execute(op, getShell());
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);
 		}

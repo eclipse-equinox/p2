@@ -40,7 +40,7 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			ProvisioningOperationRunner.execute(getRemoveOperation(getSelection().toArray()), getShell(), null);
+			ProvisioningOperationRunner.execute(getRemoveOperation(getSelection().toArray()), getShell());
 		}
 	}
 
