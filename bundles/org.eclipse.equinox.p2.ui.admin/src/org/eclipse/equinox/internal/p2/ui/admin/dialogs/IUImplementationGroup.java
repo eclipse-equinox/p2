@@ -19,7 +19,8 @@ import org.eclipse.equinox.p2.ui.dialogs.IUGroup;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
@@ -103,20 +104,23 @@ public class IUImplementationGroup extends IUGroup {
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.IUGroup_TouchpointData);
 		label.setLayoutData(gd2);
-		touchpointData = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		touchpointData = new List(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		touchpointData.setLayoutData(gdList);
+		createCopyMenu(touchpointData);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.IUGroup_RequiredCapabilities);
 		label.setLayoutData(gd2);
-		requiredCapabilities = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		requiredCapabilities = new List(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		requiredCapabilities.setLayoutData(gdList);
+		createCopyMenu(requiredCapabilities);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.IUGroup_ProvidedCapabilities);
 		label.setLayoutData(gd2);
-		providedCapabilities = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		providedCapabilities = new List(composite, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
 		providedCapabilities.setLayoutData(gdList);
+		createCopyMenu(providedCapabilities);
 
 		if (editable) {
 			id.addModifyListener(listener);
@@ -200,4 +204,40 @@ public class IUImplementationGroup extends IUGroup {
 		return new Status(IStatus.OK, ProvUIActivator.PLUGIN_ID, IStatus.OK, "", null); //$NON-NLS-1$
 
 	}
+
+	private void createCopyMenu(final List list) {
+		Menu copyMenu = new Menu(list);
+		MenuItem copyItem = new MenuItem(copyMenu, SWT.NONE);
+		copyItem.addSelectionListener(new SelectionListener() {
+			/*
+			 * @see SelectionListener.widgetSelected (SelectionEvent)
+			 */
+			public void widgetSelected(SelectionEvent e) {
+				copySelectionsToClipboard(list);
+			}
+
+			/*
+			 * @see SelectionListener.widgetDefaultSelected(SelectionEvent)
+			 */
+			public void widgetDefaultSelected(SelectionEvent e) {
+				copySelectionsToClipboard(list);
+			}
+		});
+		copyItem.setText(JFaceResources.getString("copy")); //$NON-NLS-1$
+		list.setMenu(copyMenu);
+	}
+
+	private void copySelectionsToClipboard(List list) {
+		StringBuffer buffer = new StringBuffer();
+		String[] selections = list.getSelection();
+		for (int i = 0; i < selections.length; i++) {
+			buffer.append(selections[i]);
+			buffer.append("\n"); //$NON-NLS-1$
+		}
+		Clipboard clipboard = new Clipboard(list.getDisplay());
+		clipboard.setContents(new Object[] {buffer.toString()}, new Transfer[] {TextTransfer.getInstance()});
+		clipboard.dispose();
+
+	}
+
 }
