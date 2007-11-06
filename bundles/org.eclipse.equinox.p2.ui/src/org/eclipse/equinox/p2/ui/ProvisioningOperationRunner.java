@@ -75,6 +75,7 @@ public class ProvisioningOperationRunner {
 					}
 				}
 			};
+			job.setPriority(Job.SHORT);
 		}
 		job.setUser(op.isUser());
 		job.schedule();
