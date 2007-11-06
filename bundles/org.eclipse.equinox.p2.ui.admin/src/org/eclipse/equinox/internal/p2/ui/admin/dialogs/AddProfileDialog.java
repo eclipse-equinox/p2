@@ -72,7 +72,7 @@ public class AddProfileDialog extends StatusDialog {
 		if (addedProfile == null) {
 			return;
 		}
-		ProvisioningOperationRunner.execute(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile), getShell());
+		ProvisioningOperationRunner.schedule(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile), getShell());
 	}
 
 	void verifyComplete() {

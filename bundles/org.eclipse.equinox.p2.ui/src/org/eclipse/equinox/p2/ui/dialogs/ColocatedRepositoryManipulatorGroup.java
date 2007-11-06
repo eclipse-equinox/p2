@@ -136,7 +136,7 @@ public class ColocatedRepositoryManipulatorGroup {
 					repos[i] = (IMetadataRepository) selection.get(i);
 				}
 				RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvUIMessages.ColocatedRepositoryManipulatorGroup_Remove, repos);
-				ProvisioningOperationRunner.execute(op, getControl().getShell());
+				ProvisioningOperationRunner.schedule(op, getControl().getShell());
 			}
 		});
 		return composite;

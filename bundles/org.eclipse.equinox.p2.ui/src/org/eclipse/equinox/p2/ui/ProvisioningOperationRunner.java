@@ -31,14 +31,14 @@ import org.eclipse.ui.progress.WorkbenchJob;
 public class ProvisioningOperationRunner {
 
 	/**
-	 * Execute the supplied ProvisioningOperation in a job, and add it to the
+	 * Schedule a job to execute the supplied ProvisioningOperation, and add it to the
 	 * undo history if it supports undo.
 	 * 
 	 * @param op The operation to execute
 	 * @param shell provided by the caller in order to supply UI information for prompting the
 	 *            user if necessary. May be <code>null</code>.
 	 */
-	public static Job execute(final ProvisioningOperation op, final Shell shell) {
+	public static Job schedule(final ProvisioningOperation op, final Shell shell) {
 		Job job;
 
 		if (op.runInBackground()) {

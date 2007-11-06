@@ -131,7 +131,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	protected void addRepository() {
 		URL newURL = makeRepositoryURL(url.getText().trim());
 		if (newURL != null)
-			ProvisioningOperationRunner.execute(getOperation(newURL), getShell());
+			ProvisioningOperationRunner.schedule(getOperation(newURL), getShell());
 	}
 
 	protected abstract ProvisioningOperation getOperation(URL repoURL);
