@@ -25,7 +25,8 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 			InputStream descriptorStream = null;
 			try {
 				descriptorStream = new BufferedInputStream(SimpleArtifactRepository.getActualLocation(location).openStream());
-				SimpleArtifactRepository result = (SimpleArtifactRepository) ArtifactRepositoryIO.read(descriptorStream);
+				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO();
+				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(descriptorStream);
 				result.initializeAfterLoad(location);
 				return result;
 			} catch (RepositoryCreationException e) {
@@ -36,6 +37,8 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 					descriptorStream.close();
 			}
 		} catch (IOException e) {
+			// TODO: should this distinguish between non-existent file
+			//		 and other IO exceptions.
 		}
 		return null;
 	}

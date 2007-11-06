@@ -31,12 +31,12 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 			this.hostRange = hostRange;
 	}
 
-	private void addRequiredCapability(RequiredCapability toAdd) {
-		RequiredCapability[] current = super.getRequiredCapabilities();
-		RequiredCapability[] result = new RequiredCapability[current.length + 1];
-		System.arraycopy(current, 0, result, 0, current.length);
-		result[current.length] = toAdd;
-		setRequiredCapabilities(result);
+	public void setHost(String iuId, VersionRange versionRange) {
+		if (iuId == null || versionRange == null)
+			throw new IllegalArgumentException();
+		hostId = iuId;
+		hostRange = versionRange;
+		addRequiredCapability(RequiredCapability.createRequiredCapabilityForName(iuId, versionRange, false));
 	}
 
 	public String getHostId() {
@@ -47,30 +47,19 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		return hostRange;
 	}
 
-	public ProvidedCapability[] getProvidedCapabilities() {
-		ProvidedCapability[] otherCapabilities = super.getProvidedCapabilities();
-		if (otherCapabilities.length == 0)
-			return new ProvidedCapability[] {FRAGMENT_CAPABILITY};
-		//		return otherCapabilities;
-		ProvidedCapability[] result = new ProvidedCapability[otherCapabilities.length + 1];
-		System.arraycopy(otherCapabilities, 0, result, 1, otherCapabilities.length);
-		result[0] = FRAGMENT_CAPABILITY;
-		return result;
-	}
-
-	public IResolvedInstallableUnit getResolved() {
-		return new ResolvedInstallableUnitFragment(this);
+	private void addRequiredCapability(RequiredCapability toAdd) {
+		RequiredCapability[] current = super.getRequiredCapabilities();
+		RequiredCapability[] result = new RequiredCapability[current.length + 1];
+		System.arraycopy(current, 0, result, 0, current.length);
+		result[current.length] = toAdd;
+		setRequiredCapabilities(result);
 	}
 
 	public boolean isFragment() {
 		return true;
 	}
 
-	public void setHost(String iuId, VersionRange versionRange) {
-		if (iuId == null || versionRange == null)
-			throw new IllegalArgumentException();
-		hostId = iuId;
-		hostRange = versionRange;
-		addRequiredCapability(RequiredCapability.createRequiredCapabilityForName(iuId, versionRange, false));
+	public IResolvedInstallableUnit getResolved() {
+		return new ResolvedInstallableUnitFragment(this);
 	}
 }

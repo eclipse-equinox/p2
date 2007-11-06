@@ -89,20 +89,21 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return CompoundIterator.asArray(new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and), null);
 	}
 
-	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public void initializeAfterLoad(URL location) {
-		this.location = location;
+	// Use this method to setup any transient fields etc after the object has been restored from a stream
+	public void initializeAfterLoad(URL repoLocation) {
+		this.location = repoLocation;
+		content = getActualLocation(location);
 	}
 
-	public void initializeAfterLoad(URLMetadataRepository source) {
-		name = source.name;
-		type = source.type;
-		version = source.version;
-		location = source.location;
-		description = source.description;
-		provider = source.provider;
-		properties = source.properties;
-		units = source.units;
+	public void revertToBackup(URLMetadataRepository backup) {
+		name = backup.name;
+		type = backup.type;
+		version = backup.version;
+		location = backup.location;
+		description = backup.description;
+		provider = backup.provider;
+		properties = backup.properties;
+		units = backup.units;
 	}
 
 	public boolean isModifiable() {

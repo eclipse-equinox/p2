@@ -11,22 +11,22 @@
 package org.eclipse.equinox.p2.tests.metadata;
 
 import java.util.*;
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
 
-public class MultipleIUAndFragmentTest extends TestCase {
+public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
+
 	IInstallableUnit iu1;
 	IInstallableUnit iu2;
 	IInstallableUnit iu3;
 	Collection result;
 
 	protected void setUp() throws Exception {
-		iu1 = createIU("one");
+		iu1 = createEclipseIU("one");
 		iu2 = createIUWithDependencyOn("two", "one");
-		iu3 = createIUFragment("fragment");
+		iu3 = createBundleFragment("fragment");
 		HashSet set = new HashSet();
 		set.add(iu1);
 		set.add(iu2);
@@ -35,6 +35,7 @@ public class MultipleIUAndFragmentTest extends TestCase {
 	}
 
 	protected void tearDown() throws Exception {
+		super.tearDown();
 		iu1 = null;
 		iu2 = null;
 		iu3 = null;
@@ -58,34 +59,8 @@ public class MultipleIUAndFragmentTest extends TestCase {
 
 	}
 
-	private IInstallableUnit createIUFragment(String name) {
-		InstallableUnitFragment iu = new InstallableUnitFragment();
-		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
-
-		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
-		iu.setRequiredCapabilities(reqs);
-		return iu;
-	}
-
-	private static IInstallableUnit createIU(String name) {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
-
-		ProvidedCapability[] cap = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
-		iu.setCapabilities(cap);
-		return iu;
-	}
-
-	private static IInstallableUnit createIUWithDependencyOn(String name, String dependencyOn) {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
-		iu.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))});
+	private static IInstallableUnit createIUWithDependencyOn(String iuName, String dependencyOn) {
+		InstallableUnit iu = createEclipseIU(iuName);
 		iu.setRequiredCapabilities(new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, dependencyOn, VersionRange.emptyRange, null, false, true)});
 		return iu;
 	}

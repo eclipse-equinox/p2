@@ -29,32 +29,22 @@ public class OracleTest extends AbstractProvisioningTest {
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		a1 = new InstallableUnit();
-		a1.setId("A");
-		a1.setVersion(new Version(1, 0, 0));
+		a1 = createIU("A");
 		a1.setSingleton(true);
 		a1.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[1.0.0, 2.0.0)"), null));
 
-		c1 = new InstallableUnit();
-		c1.setId("C");
-		c1.setVersion(new Version(1, 0, 0));
+		c1 = createIU("C");
 		c1.setSingleton(true);
 		c1.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "D", new VersionRange("[1.0.0, 3.0.0)"), null));
 
-		d1 = new InstallableUnit();
-		d1.setId("D");
-		d1.setVersion(new Version(1, 0, 0));
+		d1 = createIU("D");
 		d1.setSingleton(true);
 
-		b1 = new InstallableUnit();
-		b1.setId("B");
-		b1.setVersion(new Version(1, 0, 0));
+		b1 = createIU("B");
 		b1.setSingleton(true);
 		b1.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "D", new VersionRange("[2.0.0, 3.0.0)"), null));
 
-		d2 = new InstallableUnit();
-		d2.setId("D");
-		d2.setVersion(new Version(2, 0, 0));
+		d2 = createIU("D", new Version(2, 0, 0));
 		d2.setSingleton(true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, c1, d1, b1});
@@ -65,10 +55,10 @@ public class OracleTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstallA1() {
-		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity(), IStatus.OK);
+		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity());
 
 		createTestMetdataRepository(new IInstallableUnit[] {d2});
 		//		assertEquals(new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null), true);
-		assertEquals(director.install(new IInstallableUnit[] {b1}, profile, null).getSeverity(), IStatus.OK);
+		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {b1}, profile, null).getSeverity());
 	}
 }

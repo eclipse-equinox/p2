@@ -12,16 +12,15 @@ package org.eclipse.equinox.p2.tests.metadata;
 
 import java.util.*;
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
-import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
-public class FragmentTest extends TestCase {
+public class FragmentTest extends AbstractProvisioningTest {
+
 	public void testAssociation() {
-		IInstallableUnit iu1 = createIU("ui.test1");
-		IInstallableUnit iu2 = createIUFragment("iuFragment.test1");
+		IInstallableUnit iu1 = createEclipseIU("ui.test1");
+		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		HashSet set = new HashSet();
 		set.add(iu1);
@@ -37,9 +36,9 @@ public class FragmentTest extends TestCase {
 	}
 
 	public void testAssociation2() {
-		IInstallableUnit iu1 = createIU("ui.test1");
-		IInstallableUnit iu3 = createIU("ui.test3");
-		IInstallableUnit iu2 = createIUFragment("iuFragment.test1");
+		IInstallableUnit iu1 = createEclipseIU("ui.test1");
+		IInstallableUnit iu3 = createEclipseIU("ui.test3");
+		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		HashSet set = new HashSet();
 		set.add(iu1);
@@ -78,17 +77,16 @@ public class FragmentTest extends TestCase {
 	}
 
 	public void testFragmentCapability() {
-		IInstallableUnit iu = createIUFragment("iuFragment.test1");
+		IInstallableUnit iu = createBundleFragment("iuFragment.test1");
 		ProvidedCapability[] all = iu.getProvidedCapabilities();
 		assertContains(all, InstallableUnitFragment.FRAGMENT_CAPABILITY);
 	}
 
 	public void testDefaultIUCapability() {
-		IInstallableUnit iu = createIU("ui.test1");
+		IInstallableUnit iu = createEclipseIU("ui.test1");
 		ProvidedCapability[] cap = iu.getProvidedCapabilities();
 		for (int i = 0; i < cap.length; i++) {
 			if (cap[i].getNamespace().equals(IInstallableUnit.IU_NAMESPACE)) {
-
 				assertEquals(cap[i].getNamespace(), IInstallableUnit.IU_NAMESPACE);
 				assertEquals(cap[i].getName(), iu.getId());
 				return;
@@ -113,34 +111,14 @@ public class FragmentTest extends TestCase {
 		throw new AssertionFailedError("The array does not contain the searched element");
 	}
 
-	public static InstallableUnit createIUFragment(String name) {
-		InstallableUnitFragment iu = new InstallableUnitFragment();
-		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
-		iu.setRequiredCapabilities(new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)});
-		return iu;
-	}
-
-	public static InstallableUnit createIU(String name) {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId(name);
-		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
-
-		ProvidedCapability[] cap = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
-		iu.setCapabilities(cap);
-		return iu;
-	}
-
 	private IInstallableUnit createIUWithTouchpointData() {
-		InstallableUnit unit = createIU("ui.test1");
+		InstallableUnit unit = createEclipseIU("ui.test1");
 		unit.setImmutableTouchpointData(new TouchpointData(new HashMap()));
 		return unit;
 	}
 
 	private IInstallableUnit createIUFragmentWithTouchpointData() {
-		InstallableUnit unit = createIUFragment("iuFragment.test1");
+		InstallableUnit unit = createBundleFragment("iuFragment.test1");
 		unit.setImmutableTouchpointData(new TouchpointData(new HashMap()));
 		return unit;
 	}

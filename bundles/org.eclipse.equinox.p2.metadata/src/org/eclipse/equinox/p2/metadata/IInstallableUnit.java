@@ -16,7 +16,7 @@ public interface IInstallableUnit extends Comparable {
 	/**
 	 * A capability namespace representing a particular kind of installable unit.
 	 * For example, an InstallableUnit may specify that it provides the "group" kind
-	 * capability to express that it represents a group of instalable units. 
+	 * capability to express that it represents a group of installable units. 
 	 */
 	public static final String IU_KIND_NAMESPACE = "org.eclipse.equinox.p2.type"; //$NON-NLS-1$
 	/**
@@ -30,7 +30,8 @@ public interface IInstallableUnit extends Comparable {
 	 * A capability namespace representing a particular profile flavor.
 	 */
 	public static final String FLAVOR_NAMESPACE = "flavor"; //$NON-NLS-1$
-	//These two constants needs to be moved somewhere more appropriate...
+
+	// TODO: These two constants need to be moved somewhere more appropriate...
 	public static final String CAPABILITY_ECLIPSE_TYPES = "org.eclipse.equinox.p2.eclipsetouchpoint.types"; //$NON-NLS-1$
 	public static final String CAPABILITY_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
 

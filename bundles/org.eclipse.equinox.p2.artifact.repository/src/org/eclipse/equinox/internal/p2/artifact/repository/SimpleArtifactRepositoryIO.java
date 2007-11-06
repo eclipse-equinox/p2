@@ -32,51 +32,17 @@ import org.xml.sax.*;
  * (e.g. table of contents files);
  * 
  * This class is not used for reading or writing the actual artifacts.
- * 
- * The implementation currently uses XStream.
  */
 
-// TODO: this class should be renamed to SimpleArtifactRepositoryIO
-//		 when the use of XStream is eliminated.
 // TODO: Should a registration/factory mechanism be supported
 //		 for getting a repository reader/writer given a repository type
-class ArtifactRepositoryIO {
+class SimpleArtifactRepositoryIO {
 
 	/**
 	 * Writes the given artifact repository to the stream.
 	 * This method performs buffering, and closes the stream when finished.
-	 * 
-	 * Persistence implementation using XStream
-	 * @deprecated
 	 */
-	public static void write(SimpleArtifactRepository repository, OutputStream output) {
-		ArtifactRepositoryIO io = new ArtifactRepositoryIO();
-		io.writeNew(repository, output);
-		//		XStream stream = new XStream();
-		//		OutputStream bufferedOutput = null;
-		//		try {
-		//			try {
-		//				bufferedOutput = new BufferedOutputStream(output);
-		//				stream.toXML(repository, bufferedOutput);
-		//			} finally {
-		//				if (bufferedOutput != null) {
-		//					bufferedOutput.close();
-		//				}
-		//			}
-		//		} catch (FileNotFoundException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		} catch (IOException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-	}
-
-	/**
-	 * Write the given SimpleArtifactRrepository to the given stream.
-	 * This method closes the stream when finished.
-	 */
-	public void writeNew(SimpleArtifactRepository repository, OutputStream output) {
+	public void write(SimpleArtifactRepository repository, OutputStream output) {
 		OutputStream bufferedOutput = null;
 		try {
 			try {
@@ -99,33 +65,8 @@ class ArtifactRepositoryIO {
 	 * and returns the contained array of abstract artifact repositories.
 	 * 
 	 * This method performs buffering, and closes the stream when finished.
-	 * 
-	 * Persistence implementation using XStream
-	 * @deprecated
 	 */
-	public static IArtifactRepository read(InputStream input) throws RepositoryCreationException {
-		ArtifactRepositoryIO io = new ArtifactRepositoryIO();
-		return io.readNew(input);
-		//		XStream stream = new XStream();
-		//		BufferedInputStream bufferedInput = null;
-		//		try {
-		//			try {
-		//				bufferedInput = new BufferedInputStream(input);
-		//				return (IArtifactRepository) stream.fromXML(bufferedInput);
-		//			} finally {
-		//				if (bufferedInput != null)
-		//					bufferedInput.close();
-		//			}
-		//		} catch (IOException e) {
-		//			throw new RepositoryCreationException(e);
-		//		}
-	}
-
-	/**
-	 * Construct a SimpleArtifactRepository by reading from the given stream.
-	 * This method closes the stream when finished.
-	 */
-	public SimpleArtifactRepository readNew(InputStream input) throws RepositoryCreationException {
+	public IArtifactRepository read(InputStream input) throws RepositoryCreationException {
 		BufferedInputStream bufferedInput = null;
 		try {
 			try {
@@ -290,6 +231,11 @@ class ArtifactRepositoryIO {
 			} finally {
 				stream.close();
 			}
+		}
+
+		public void ProcessingInstruction(String target, String data) throws SAXException {
+			int j = 17;
+			j++;
 		}
 
 		public SimpleArtifactRepository getRepository() {

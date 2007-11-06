@@ -13,14 +13,14 @@ package org.eclipse.equinox.p2.tests.metadata;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.director.Picker;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class RecommendationTest extends TestCase {
+public class RecommendationTest extends AbstractProvisioningTest {
 	//test name dependency over
 	//test
 	//check that the picker is returning something in the range
@@ -167,12 +167,5 @@ public class RecommendationTest extends TestCase {
 		} catch (Exception e) {
 			fail("Usage of reflection failed");
 		}
-	}
-
-	private static InstallableUnit createIU(String name, Version version) {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId(name);
-		iu.setVersion(version);
-		return iu;
 	}
 }

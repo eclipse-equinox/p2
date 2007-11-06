@@ -31,32 +31,20 @@ public class SingletonTest extends AbstractProvisioningTest {
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		f1 = new InstallableUnit();
-		f1.setId("f1");
-		f1.setVersion(new Version(1, 0, 0));
+		f1 = createIU("f1");
 		f1.setSingleton(true);
 
-		f1_1 = new InstallableUnit();
-		f1_1.setId("f1");
-		f1_1.setVersion(new Version(1, 1, 0));
+		f1_1 = createIU("f1", new Version(1, 1, 0));
 		f1_1.setSingleton(true);
 
-		f2 = new InstallableUnit();
-		f2.setId("f2");
-		f2.setVersion(new Version(1, 0, 0));
+		f2 = createIU("f2");
 		f2.setSingleton(true);
 
-		f2_1 = new InstallableUnit();
-		f2_1.setId("f2");
-		f2_1.setVersion(new Version(1, 0, 1));
+		f2_1 = createIU("f2", new Version(1, 0, 1));
 
-		junit38 = new InstallableUnit();
-		junit38.setId("junit");
-		junit38.setVersion(new Version(3, 8, 1));
+		junit38 = createIU("junit", new Version(3, 8, 1));
 
-		junit40 = new InstallableUnit();
-		junit40.setId("junit");
-		junit40.setVersion(new Version(4, 0, 1));
+		junit40 = createIU("junit", new Version(4, 0, 1));
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, f1_1, junit38, junit40, f2, f2_1});
 
@@ -65,17 +53,17 @@ public class SingletonTest extends AbstractProvisioningTest {
 	}
 
 	public void testMultipleVersionNonSingleton() {
-		//The installation of junit38 and junit 40 together should succeed
-		assertEquals(director.install(new IInstallableUnit[] {junit38, junit40}, profile, new NullProgressMonitor()).getSeverity(), IStatus.OK);
+		// The installation of junit38 and junit 40 together should succeed
+		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {junit38, junit40}, profile, new NullProgressMonitor()).getSeverity());
 	}
 
 	public void testMultipleVersionSingleton() {
-		//The installation of junit38 and junit 40 together should succeed
-		assertEquals(director.install(new IInstallableUnit[] {f1, f1_1}, profile, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
+		// The installation of junit38 and junit 40 together should succeed
+		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1, f1_1}, profile, new NullProgressMonitor()).getSeverity());
 	}
 
 	public void testMultipleVersionSingleton2() {
-		//The installation of junit38 and junit 40 together should succeed
-		assertEquals(director.install(new IInstallableUnit[] {f2, f2_1}, profile, new NullProgressMonitor()).getSeverity(), IStatus.ERROR);
+		// The installation of junit38 and junit 40 together should succeed
+		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f2, f2_1}, profile, new NullProgressMonitor()).getSeverity());
 	}
 }

@@ -27,34 +27,24 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		a1 = new InstallableUnit();
-		a1.setId("A");
-		a1.setVersion(new Version(1, 0, 0));
+		a1 = createIU("A");
 		a1.setSingleton(true);
 		a1.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[1.0.0, 2.0.0)"), null));
 
-		c1 = new InstallableUnit();
-		c1.setId("C");
-		c1.setVersion(new Version(1, 0, 0));
+		c1 = createIU("C");
 		c1.setSingleton(true);
 
-		a2 = new InstallableUnit();
-		a2.setId("A");
-		a2.setVersion(new Version(2, 0, 0));
+		a2 = createIU("A", new Version(2, 0, 0));
 		a2.setSingleton(true);
 		a2.setProperty(IInstallableUnitConstants.UPDATE_FROM, "A");
 		a2.setProperty(IInstallableUnitConstants.UPDATE_RANGE, "[1.0.0, 2.3.0)");
 		a2.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[2.0.0, 3.0.0)"), null));
 
-		b1 = new InstallableUnit();
-		b1.setId("B");
-		b1.setVersion(new Version(1, 0, 0));
+		b1 = createIU("B");
 		b1.setSingleton(true);
 		b1.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[2.0.0, 3.0.0)"), null));
 
-		c2 = new InstallableUnit();
-		c2.setId("C");
-		c2.setVersion(new Version(2, 0, 0));
+		c2 = createIU("C", new Version(2, 0, 0));
 		c2.setSingleton(true);
 		c2.setProperty(IInstallableUnitConstants.UPDATE_FROM, "C");
 		c2.setProperty(IInstallableUnitConstants.UPDATE_RANGE, "[1.0.0, 2.3.0)");

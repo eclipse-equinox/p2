@@ -13,10 +13,11 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.equinox.p2.core.helpers.*;
-import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.core.helpers.Utils;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
-import org.eclipse.equinox.p2.metadata.repository.*;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
@@ -214,16 +215,16 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	public void restoreRepositories() {
 		//TODO we may want to have proxies on repo instead of the real repo object to limit what is activated.
 		URL path = null;
-		try {
-			AgentLocation location = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
-			if (location == null)
-				// TODO should do something here since we are failing to restore.
-				return;
-			path = location.getMetadataRepositoryURL();
-			repositories.add(new MetadataCache(path));
-		} catch (RepositoryCreationException e) {
-			log("Error while restoring repository " + path, e);
-		}
+		//		try {
+		//			AgentLocation location = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+		//			if (location == null)
+		//				// TODO should do something here since we are failing to restore.
+		//				return;
+		//			path = location.getMetadataRepositoryURL();
+		//			repositories.add(new MetadataCache(path));
+		//		} catch (RepositoryCreationException e) {
+		//			log("Error while restoring repository " + path, e);
+		//		}
 		try {
 			String locationString = Activator.getContext().getProperty("eclipse.p2.metadataRepository");
 			if (locationString != null) {

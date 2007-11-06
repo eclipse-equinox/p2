@@ -93,7 +93,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 					file.getParentFile().mkdirs();
 				file.createNewFile();
 			}
-			MetadataRepositoryIO.write(this, new FileOutputStream(file));
+			new MetadataRepositoryIO().write(this, new FileOutputStream(file));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -118,15 +118,15 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		this.location = location;
 	}
 
-	public void initializeAfterLoad(LocalMetadataRepository source) {
-		name = source.name;
-		type = source.type;
-		version = source.version;
-		location = source.location;
-		description = source.description;
-		provider = source.provider;
-		properties = source.properties;
-		units = source.units;
+	public void revertToBackup(LocalMetadataRepository backup) {
+		name = backup.name;
+		type = backup.type;
+		version = backup.version;
+		location = backup.location;
+		description = backup.description;
+		provider = backup.provider;
+		properties = backup.properties;
+		units = backup.units;
 	}
 
 	public boolean isModifiable() {

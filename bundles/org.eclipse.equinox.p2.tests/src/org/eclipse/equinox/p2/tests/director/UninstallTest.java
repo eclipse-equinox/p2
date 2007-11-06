@@ -13,7 +13,6 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.osgi.framework.Version;
 
 public class UninstallTest extends AbstractProvisioningTest {
 	private InstallableUnit a1;
@@ -21,9 +20,7 @@ public class UninstallTest extends AbstractProvisioningTest {
 	private IDirector director;
 
 	protected void setUp() throws Exception {
-		a1 = new InstallableUnit();
-		a1.setId("A");
-		a1.setVersion(new Version(1, 0, 0));
+		a1 = createIU("A");
 		a1.setSingleton(true);
 
 		profile = new Profile("TestProfile." + getName());

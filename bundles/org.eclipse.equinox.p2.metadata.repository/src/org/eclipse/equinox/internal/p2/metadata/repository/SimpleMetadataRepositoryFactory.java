@@ -25,14 +25,15 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		try {
 			InputStream descriptorStream = new BufferedInputStream(URLMetadataRepository.getActualLocation(location).openStream());
 			try {
-				IMetadataRepository result = MetadataRepositoryIO.read(descriptorStream);
+				IMetadataRepository result = new MetadataRepositoryIO().read(descriptorStream);
 				if (result instanceof LocalMetadataRepository)
 					((LocalMetadataRepository) result).initializeAfterLoad(location);
 				if (result instanceof URLMetadataRepository)
 					((URLMetadataRepository) result).initializeAfterLoad(location);
 				return result;
 			} catch (RepositoryCreationException e) {
-				// TODO Auto-generated catch block
+				// TODO: should distinguish between case of nonexistent input file
+				//		 and other creation problems.
 				return null;
 			} finally {
 				if (descriptorStream != null)
@@ -60,8 +61,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		if (repository.getClass() != source.getClass())
 			throw new IllegalArgumentException("Repository type mismatch");
 		if (repository instanceof LocalMetadataRepository)
-			((LocalMetadataRepository) repository).initializeAfterLoad((LocalMetadataRepository) source);
+			((LocalMetadataRepository) repository).revertToBackup((LocalMetadataRepository) source);
 		else if (repository instanceof URLMetadataRepository)
-			((URLMetadataRepository) repository).initializeAfterLoad((URLMetadataRepository) source);
+			((URLMetadataRepository) repository).revertToBackup((URLMetadataRepository) source);
 	}
 }

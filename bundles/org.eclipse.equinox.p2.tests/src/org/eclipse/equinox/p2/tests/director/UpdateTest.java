@@ -30,29 +30,19 @@ public class UpdateTest extends AbstractProvisioningTest {
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		f1 = new InstallableUnit();
-		f1.setId("f1");
-		f1.setVersion(new Version(1, 0, 0));
+		f1 = createIU("f1");
 		f1.setSingleton(true);
 
-		f1_1 = new InstallableUnit();
-		f1_1.setId("f1");
-		f1_1.setVersion(new Version(1, 1, 0));
+		f1_1 = createIU("f1", new Version(1, 1, 0));
 		f1_1.setSingleton(true);
 
-		f1_4 = new InstallableUnit();
-		f1_4.setId("f1");
-		f1_4.setVersion(new Version(1, 4, 0));
+		f1_4 = createIU("f1", new Version(1, 4, 0));
 		f1_4.setSingleton(true);
 
-		fa = new InstallableUnit();
-		fa.setId("fa");
-		fa.setVersion(new Version(1, 0, 0));
+		fa = createIU("fa");
 		fa.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "f1", new VersionRange("[1.0.0, 1.3.0)"), null));
 
-		fap = new InstallableUnit();
-		fap.setId("fa");
-		fap.setVersion(new Version(1, 1, 0));
+		fap = createIU("fa", new Version(1, 1, 0));
 		fap.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "f1", new VersionRange("[1.0.0, 1.4.0)"), null));
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa});

@@ -114,11 +114,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			BufferedInputStream bif = null;
 			try {
 				bif = new BufferedInputStream(getRegistryLocation().openStream());
-				//				XStream xml = new XStream();
-				//				Object[] read = (Object[]) xml.fromXML(bif);
-				//				properties = (OrderedProperties) read[0];
-				//				profiles = (LinkedHashMap) read[1];
-
 				Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 				parser.parse(bif);
 			} finally {
@@ -150,9 +145,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				throw new RuntimeException("Can't persist profile registry at: " + outputFile);
 			os = new BufferedOutputStream(new FileOutputStream(outputFile));
 			try {
-				//				XStream xstream = new XStream();
-				//				xstream.toXML(new Object[] {properties, profiles}, os);
-
 				Writer writer = new Writer(os);
 				writer.write(this);
 			} finally {

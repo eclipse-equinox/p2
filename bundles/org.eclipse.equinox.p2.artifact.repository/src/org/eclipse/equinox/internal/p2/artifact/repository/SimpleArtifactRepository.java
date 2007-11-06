@@ -319,7 +319,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		try {
 			URL actualLocation = getActualLocation(location);
 			FileOutputStream os = new FileOutputStream(actualLocation.getFile());
-			ArtifactRepositoryIO.write(this, os);
+			new SimpleArtifactRepositoryIO().write(this, os);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.core.helpers;
 
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -471,18 +471,28 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	// Helpers for processing instructions that include a Class and/or a Version.
-	private static final String PI_CLASS_REGEX = PI_CLASS_ATTRIBUTE + "=['\"]([\\S]*)['\"]$"; //$NON-NLS-1$
-	private static final Pattern PI_CLASS_PATTERN = Pattern.compile(PI_CLASS_REGEX);
-
-	private static final String PI_VERSION_REGEX = PI_VERSION_ATTRIBUTE + "=['\"]([\\w\\d][\\w\\d\\.]*)['\"]$"; //$NON-NLS-1$
-	private static final Pattern PI_VERSION_PATTERN = Pattern.compile(PI_VERSION_REGEX);
 
 	public String extractPIClass(String data) {
-		return PI_CLASS_PATTERN.matcher(data).replaceAll("$1"); //$NON-NLS-1$
+		return extractPIAttribute(data, PI_CLASS_ATTRIBUTE);
 	}
 
 	public Version extractPIVersion(String target, String data) {
-		return checkVersion(target, PI_VERSION_ATTRIBUTE, PI_VERSION_PATTERN.matcher(data).replaceAll("$1")); //$NON-NLS-1$
+		return checkVersion(target, PI_VERSION_ATTRIBUTE, extractPIAttribute(data, PI_VERSION_ATTRIBUTE));
+	}
+
+	private String extractPIAttribute(String data, String key) {
+		StringTokenizer piTokenizer = new StringTokenizer(data, " \'\""); //$NON-NLS-1$
+		String[] tokens = new String[piTokenizer.countTokens()];
+		int index = 0;
+		int valueIndex = -1;
+		while (piTokenizer.hasMoreTokens() && index < tokens.length) {
+			tokens[index] = piTokenizer.nextToken();
+			if (tokens[index].equals(key + '=') && index < tokens.length) {
+				valueIndex = index + 1;
+			}
+			index++;
+		}
+		return (valueIndex >= 0 ? tokens[valueIndex] : ""); //$NON-NLS-1$
 	}
 
 	public class ParserStatus extends Status implements IStatus {
@@ -642,8 +652,10 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			return Boolean.valueOf(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);
-			return Boolean.FALSE;
+		} catch (NullPointerException npe) {
+			invalidAttributeValue(element, attribute, null);
 		}
+		return Boolean.FALSE;
 	}
 
 	// Check the format of an optional boolean attribute
@@ -664,6 +676,8 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			return new Version(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);
+		} catch (NullPointerException npe) {
+			invalidAttributeValue(element, attribute, null);
 		}
 		return Version.emptyVersion;
 	}
@@ -673,6 +687,8 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			return new VersionRange(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);
+		} catch (NullPointerException npe) {
+			invalidAttributeValue(element, attribute, null);
 		}
 		return VersionRange.emptyRange;
 	}

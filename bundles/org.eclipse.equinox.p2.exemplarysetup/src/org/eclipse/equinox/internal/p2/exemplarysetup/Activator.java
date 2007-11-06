@@ -15,8 +15,7 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.SimpleProfileRegistry;
-import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
-import org.eclipse.equinox.p2.installregistry.InstallRegistry;
+import org.eclipse.equinox.p2.installregistry.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 
@@ -28,6 +27,9 @@ public class Activator implements BundleActivator {
 
 	private IInstallRegistry installRegistry;
 	private ServiceRegistration registrationInstallRegistry;
+
+	private MetadataCache metadataCache;
+	private ServiceRegistration registrationMetadataCache;
 
 	private MetadataRepositoryManager defaultManager;
 	private ServiceRegistration registrationDefaultManager;
@@ -53,6 +55,7 @@ public class Activator implements BundleActivator {
 		registerProfileRegistry();
 		//create metadata repositories
 		registerDefaultMetadataRepoManager();
+		registerMetadataCache();
 		registerInstallRegistry();
 
 		//create the director and planner.  The planner must be
@@ -69,6 +72,7 @@ public class Activator implements BundleActivator {
 		unregisterDirector();
 		unregisterPlanner();
 		unregisterInstallRegistry();
+		unregisterMetadataCache();
 		unregisterDefaultMetadataRepoManager();
 		unregisterProfileRegistry();
 		unregisterEventBus();
@@ -83,6 +87,7 @@ public class Activator implements BundleActivator {
 
 	private void unregisterDirector() {
 		registrationDirector.unregister();
+		registrationDirector = null;
 		director = null;
 	}
 
@@ -93,6 +98,7 @@ public class Activator implements BundleActivator {
 
 	private void unregisterPlanner() {
 		registrationPlanner.unregister();
+		registrationPlanner = null;
 		planner = null;
 	}
 
@@ -103,6 +109,7 @@ public class Activator implements BundleActivator {
 
 	private void unregisterProfileRegistry() {
 		registrationProfileRegistry.unregister();
+		registrationProfileRegistry = null;
 		profileRegistry = null;
 	}
 
@@ -114,6 +121,7 @@ public class Activator implements BundleActivator {
 	private void unregisterDefaultMetadataRepoManager() {
 		registrationDefaultManager.unregister();
 		registrationDefaultManager = null;
+		defaultManager = null;
 	}
 
 	//	private void registerDefaultArtifactRepoManager() {
@@ -125,6 +133,21 @@ public class Activator implements BundleActivator {
 	//		registrationArtifactRepoManager.unregister();
 	//		artifactRepoManager = null;
 	//	}
+
+	private void registerMetadataCache() {
+		metadataCache = MetadataCache.getCacheInstance(defaultManager);
+		if (metadataCache != null) {
+			registrationMetadataCache = context.registerService(MetadataCache.class.getName(), metadataCache, null);
+		}
+	}
+
+	private void unregisterMetadataCache() {
+		if (registrationMetadataCache != null) {
+			registrationMetadataCache.unregister();
+		}
+		registrationMetadataCache = null;
+		metadataCache = null;
+	}
 
 	private void registerInstallRegistry() {
 		installRegistry = new InstallRegistry();

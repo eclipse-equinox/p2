@@ -5,7 +5,8 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
-Export-Package: org.eclipse.equinox.internal.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.metadata.generator",
+Export-Package: org.eclipse.equinox.internal.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.engine",
+ org.eclipse.equinox.internal.p2.metadata.repository.io;x-friends:="org.eclipse.equinox.p2.engine",
  org.eclipse.equinox.p2.metadata.repository,
  org.eclipse.equinox.spi.p2.metadata.repository
 Import-Package: org.eclipse.core.runtime.preferences,
@@ -14,7 +15,6 @@ Import-Package: org.eclipse.core.runtime.preferences,
  org.eclipse.equinox.p2.core.helpers,
  org.eclipse.equinox.p2.core.location,
  org.eclipse.equinox.p2.core.repository,
- org.eclipse.equinox.p2.engine,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.query,
  org.eclipse.equinox.spi.p2.core.repository,
@@ -30,3 +30,4 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry
+Eclipse-BuddyPolicy: registered

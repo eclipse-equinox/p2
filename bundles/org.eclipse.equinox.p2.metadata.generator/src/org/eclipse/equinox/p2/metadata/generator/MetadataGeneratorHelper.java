@@ -48,7 +48,7 @@ public class MetadataGeneratorHelper {
 	public static final TouchpointType TOUCHPOINT_NATIVE = new TouchpointType("native", new Version(1, 0, 0)); //$NON-NLS-1$
 	public static final TouchpointType TOUCHPOINT_ECLIPSE = new TouchpointType("eclipse", new Version(1, 0, 0)); //$NON-NLS-1$
 
-	public static final ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0)); //$NON-NLS-1$
+	public static final ProvidedCapability FRAGMENT_CAPABILITY = InstallableUnitFragment.FRAGMENT_CAPABILITY;
 
 	public static ArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
 		//TODO this size calculation is bogus

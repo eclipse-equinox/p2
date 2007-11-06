@@ -16,8 +16,7 @@ import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -27,6 +26,8 @@ import org.osgi.framework.Version;
  * Base class for provisioning tests with convenience methods used by multiple tests.
  */
 public class AbstractProvisioningTest extends TestCase {
+
+	protected static Version DEFAULT_VERSION = new Version(1, 0, 0);
 	protected static VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
 
 	/**
@@ -96,7 +97,7 @@ public class AbstractProvisioningTest extends TestCase {
 		super(name);
 	}
 
-	public void assertEmptyProfile(Profile p) {
+	public static void assertEmptyProfile(Profile p) {
 		assertNotNull("The profile should not be null", p);
 		boolean containsIU = false;
 		for (Iterator iterator = p.getInstallableUnits(); iterator.hasNext();) {
@@ -106,7 +107,7 @@ public class AbstractProvisioningTest extends TestCase {
 			fail("The profile should be empty,profileId=" + p);
 	}
 
-	protected void assertNotIUs(IInstallableUnit[] ius, Iterator installableUnits) {
+	protected static void assertNotIUs(IInstallableUnit[] ius, Iterator installableUnits) {
 		Set notexpected = new HashSet();
 		notexpected.addAll(Arrays.asList(ius));
 
@@ -118,11 +119,11 @@ public class AbstractProvisioningTest extends TestCase {
 		}
 	}
 
-	protected void assertNotOK(IStatus result) {
+	protected static void assertNotOK(IStatus result) {
 		assertTrue("The status should not have been OK", !result.isOK());
 	}
 
-	protected void assertOK(IStatus result) {
+	protected static void assertOK(IStatus result) {
 		if (result.isOK())
 			return;
 
@@ -144,7 +145,7 @@ public class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Asserts that the given profile contains *only* the given IUs.
 	 */
-	protected void assertProfileContains(String message, Profile profile, IInstallableUnit[] expectedUnits) {
+	protected static void assertProfileContains(String message, Profile profile, IInstallableUnit[] expectedUnits) {
 		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
 		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
 			IInstallableUnit actual = (IInstallableUnit) it.next();
@@ -158,7 +159,7 @@ public class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Asserts that the given profile contains all the given IUs.
 	 */
-	protected void assertProfileContainsAll(String message, Profile profile, IInstallableUnit[] expectedUnits) {
+	protected static void assertProfileContainsAll(String message, Profile profile, IInstallableUnit[] expectedUnits) {
 		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
 		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
 			IInstallableUnit actual = (IInstallableUnit) it.next();
@@ -168,34 +169,153 @@ public class AbstractProvisioningTest extends TestCase {
 			fail(message + " profile " + profile.getProfileId() + " did not contain expected units: " + expected);
 	}
 
-	public IDirector createDirector() {
+	public static IDirector createDirector() {
 		return (IDirector) ServiceHelper.getService(TestActivator.getContext(), IDirector.class.getName());
 	}
 
 	/**
 	 * Creates and returns a correctly formatted LDAP filter with the given key and value.
 	 */
-	protected String createFilter(String filterKey, String filterValue) {
+	protected static String createFilter(String filterKey, String filterValue) {
 		return "(" + filterKey + '=' + filterValue + ')';
 	}
 
-	public IPlanner createPlanner() {
+	public static IPlanner createPlanner() {
 		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
 	}
 
 	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
-	protected RequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
+	protected static RequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
 		return createRequiredCapabilities(namespace, name, ANY_VERSION, filter);
 	}
 
 	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
-	protected RequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
+	protected static RequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
 		return new RequiredCapability[] {new RequiredCapability(namespace, name, range, filter, false, false)};
 	}
+
+	/**
+	 * 	Get the 'self' capability for the given installable unit.
+	 */
+	private static ProvidedCapability getSelfCapability(InstallableUnit iu) {
+		return new ProvidedCapability(IInstallableUnit.IU_NAMESPACE, iu.getId(), iu.getVersion());
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given name. The IU has the default version
+	 *  and the default self capability is added to the IU.
+	 */
+	public static InstallableUnit createIU(String name) {
+		return createIU(name, DEFAULT_VERSION);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given name and version.
+	 * 	The default self capability is added to the IU.
+	 */
+	public static InstallableUnit createIU(String name, Version version) {
+		InstallableUnit iu = new InstallableUnit(name, version, false);
+		ProvidedCapability[] provides = new ProvidedCapability[] {getSelfCapability(iu)};
+		iu.setCapabilities(provides);
+		return iu;
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given name and additional provided capabilities.
+	 *  The IU has the default version and the default self capability is also added to the IU.
+	 */
+	public static InstallableUnit createIU(String name, ProvidedCapability[] additionalProvides) {
+		return createIU(name, DEFAULT_VERSION, additionalProvides);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given name, version, and additional
+	 *  provided capabilities. The default self capability is also added to the IU.
+	 */
+	public static InstallableUnit createIU(String name, Version version, ProvidedCapability[] additionalProvides) {
+		InstallableUnit iu = new InstallableUnit(name, version, false);
+		ProvidedCapability[] provides = new ProvidedCapability[additionalProvides.length + 1];
+		provides[0] = getSelfCapability(iu);
+		for (int i = 0; i < additionalProvides.length; i++) {
+			provides[i + 1] = additionalProvides[i];
+		}
+		iu.setCapabilities(provides);
+		return iu;
+	}
+
+	/**
+	 * 	Create an eclipse InstallableUnit with the given name and the eclipse touchpoint type.
+	 *  The IU has the default version and the default self capability is added to the IU.
+	 */
+	public static InstallableUnit createEclipseIU(String name) {
+		return createEclipseIU(name, DEFAULT_VERSION);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnitFragment with the given name. The IU has the default version
+	 *  and the self and fragment provided capabilities are added to the IU.
+	 */
+	public static InstallableUnitFragment createIUFragment(String name) {
+		return createIUFragment(name, DEFAULT_VERSION);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnitFragment with the given name and version.
+	 * 	The default self and fragment provided capabilities are added to the IU.
+	 */
+	public static InstallableUnitFragment createIUFragment(String name, Version version) {
+		InstallableUnitFragment iu = new InstallableUnitFragment();
+		iu.setId(name);
+		iu.setVersion(version);
+		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(iu), InstallableUnitFragment.FRAGMENT_CAPABILITY};
+		iu.setCapabilities(cap);
+		return iu;
+	}
+
+	/**
+	 * 	Create an eclipse InstallableUnitFragment with the given name that is hosted
+	 *  by any bundle. The fragment has the default version, and the default self and
+	 *  fragment provided capabilities are added to the IU.
+	 */
+	public static InstallableUnitFragment createBundleFragment(String name) {
+		return createBundleFragment(name, DEFAULT_VERSION);
+	}
+
+	// TODO: The following group of utilities are (somewhat) specific to eclipse test cases
+	//		 so could be moved to a separate base class (e.g. AbstractEclipseProvisioningTestCase)
+	//		 that extends AbstractProvisioningTestCase.
+
+	private static TouchpointType ECLIPSE_TOUCHPOINT = new TouchpointType("eclipse", new Version(1, 0, 0));
+	private static ProvidedCapability[] BUNDLE_CAPABILITY = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
+	private static RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
+
+	/**
+	 * 	Create an eclipse InstallableUnit with the given name, version, and the eclipse touchpoint type.
+	 *  The IU has the default version and the default self capability is added to the IU.
+	 */
+	public static InstallableUnit createEclipseIU(String name, Version version) {
+		InstallableUnit iu = createIU(name, version, BUNDLE_CAPABILITY);
+		iu.setTouchpointType(ECLIPSE_TOUCHPOINT);
+		return iu;
+	}
+
+	/**
+	 * 	Create an eclipse InstallableUnitFragment with the given name and version
+	 *  that is hosted by any bundle. The default self and fragment provided capabilities
+	 *  are added to the IU.
+	 */
+	public static InstallableUnitFragment createBundleFragment(String name, Version version) {
+		InstallableUnitFragment fragment = createIUFragment(name, version);
+		fragment.setTouchpointType(ECLIPSE_TOUCHPOINT);
+		fragment.setRequiredCapabilities(BUNDLE_REQUIREMENT);
+		return fragment;
+	}
+
+	// End of eclipse specific utilities.
 
 	/**
 	 * Adds a test metadata repository to the system that provides the given units. 
@@ -209,7 +329,7 @@ public class AbstractProvisioningTest extends TestCase {
 		metadataRepos.add(repo);
 	}
 
-	public void printProfile(Profile toPrint) {
+	public static void printProfile(Profile toPrint) {
 		boolean containsIU = false;
 		for (Iterator iterator = toPrint.getInstallableUnits(); iterator.hasNext();) {
 			System.out.println(iterator.next());
