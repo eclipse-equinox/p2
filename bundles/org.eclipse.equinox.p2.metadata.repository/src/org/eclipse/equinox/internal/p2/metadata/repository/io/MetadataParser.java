@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.core.helpers.XMLParser;
+import org.eclipse.equinox.internal.p2.persistence.XMLParser;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.BundleContext;

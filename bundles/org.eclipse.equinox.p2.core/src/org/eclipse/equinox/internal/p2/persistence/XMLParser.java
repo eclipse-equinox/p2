@@ -8,13 +8,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.core.helpers;
+package org.eclipse.equinox.internal.p2.persistence;
 
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;

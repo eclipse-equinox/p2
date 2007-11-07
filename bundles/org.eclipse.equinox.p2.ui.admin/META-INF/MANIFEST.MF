@@ -8,9 +8,9 @@ Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
-Import-Package: org.eclipse.equinox.p2.artifact.repository,
+Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.p2.artifact.repository,
  org.eclipse.equinox.p2.core.eventbus,
- org.eclipse.equinox.p2.core.helpers,
  org.eclipse.equinox.p2.core.repository,
  org.eclipse.equinox.p2.engine,
  org.eclipse.equinox.p2.metadata,

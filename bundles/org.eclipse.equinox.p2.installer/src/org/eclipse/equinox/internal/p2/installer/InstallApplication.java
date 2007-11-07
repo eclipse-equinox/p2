@@ -17,8 +17,8 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
-import org.eclipse.equinox.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.p2.installer.InstallDescription;
 

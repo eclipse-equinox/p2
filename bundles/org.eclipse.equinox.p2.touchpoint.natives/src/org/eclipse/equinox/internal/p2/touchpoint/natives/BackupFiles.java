@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.zip.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.equinox.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.osgi.util.NLS;
 
 public class BackupFiles {

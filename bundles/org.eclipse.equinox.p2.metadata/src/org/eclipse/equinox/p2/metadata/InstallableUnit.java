@@ -10,8 +10,7 @@ package org.eclipse.equinox.p2.metadata;
 
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.osgi.framework.Version;
 
 public class InstallableUnit implements IInstallableUnitConstants, IInstallableUnit, InternalInstallableUnit {
@@ -217,7 +216,7 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
 	public OrderedProperties getProperties() {
-		return new UnmodifiableProperties(properties());
+		return OrderedProperties.unmodifiableProperties(properties());
 	}
 
 	public void addProperties(OrderedProperties newProperties) {

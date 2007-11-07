@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.core.helpers.MultiStatus;
+import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
 
 public class EngineSession {
 

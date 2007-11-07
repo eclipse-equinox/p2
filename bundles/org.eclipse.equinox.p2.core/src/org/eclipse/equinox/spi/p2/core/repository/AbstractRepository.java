@@ -12,8 +12,7 @@ package org.eclipse.equinox.spi.p2.core.repository;
 
 import java.net.URL;
 import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 
 /**
@@ -97,8 +96,8 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns a read-only collection of the properties of the repository.
 	 * @return the properties of this repository.
 	 */
-	public UnmodifiableProperties getProperties() {
-		return new UnmodifiableProperties(properties);
+	public OrderedProperties getProperties() {
+		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
 	public void setName(String value) {

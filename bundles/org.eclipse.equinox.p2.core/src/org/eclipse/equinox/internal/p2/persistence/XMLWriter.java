@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.core.helpers;
+package org.eclipse.equinox.internal.p2.persistence;
 
 import java.io.*;
 import java.util.*;

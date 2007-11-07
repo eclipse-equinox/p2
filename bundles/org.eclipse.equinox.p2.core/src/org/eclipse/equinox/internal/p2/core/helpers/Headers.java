@@ -1,4 +1,4 @@
-package org.eclipse.equinox.p2.core.helpers;
+package org.eclipse.equinox.internal.p2.core.helpers;
 
 /*******************************************************************************
  * Copyright (c) 2003, 2007 IBM Corporation and others.

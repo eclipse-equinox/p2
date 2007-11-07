@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.equinox.p2.core.helpers.MultiStatus;
+import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
 
 public abstract class PhaseSet {
 	private final Phase[] phases;

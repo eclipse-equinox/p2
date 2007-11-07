@@ -11,7 +11,7 @@ package org.eclipse.equinox.p2.tests.director;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
@@ -42,7 +42,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * and the second IU should not be installed.
 	 */
 	public void testInstallFilteredCapability() {
-		// The IU that is required
+		//The IU that is required
 		InstallableUnit requiredIU = createIU("required." + getName());
 
 		// The IU to be installed
@@ -74,10 +74,10 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 */
 	public void testInstallOptionalAvailable() {
 		String capabilityId = "test." + getName();
-		// The IU that exports the capability
+		//The IU that exports the capability
 		InstallableUnit requiredIU = createIU("required." + getName(), new ProvidedCapability[] {new ProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
 
-		// The IU that optionally requires the capability
+		//The IU that optionally requires the capability
 		InstallableUnit toInstallIU = createIU("toInstall." + getName());
 		RequiredCapability required = new RequiredCapability("test.capability", capabilityId, ANY_VERSION, null, /* optional=> */true, /* multiple=> */false);
 		toInstallIU.setRequiredCapabilities(new RequiredCapability[] {required});
@@ -176,7 +176,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * specifying a version range (any version will do).
 	 */
 	public void testInstallRequiredNoVersion() {
-		// The IU that is needed
+		//The IU that is needed
 		InstallableUnit requiredIU = createIU("required." + getName());
 
 		InstallableUnit toInstallIU = createIU("toInstall." + getName());
@@ -203,7 +203,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 * capability on the IU namespace.
 	 */
 	public void testSimpleInstallRequiredIU() {
-		// The IU that exports the capability
+		//The IU that exports the capability
 		InstallableUnit requiredIU = createIU("required." + getName());
 
 		InstallableUnit toInstallIU = createIU("toInstall." + getName());

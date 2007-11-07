@@ -15,10 +15,12 @@ import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.persistence.XMLParser;
+import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.core.helpers.*;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -86,7 +88,7 @@ class SimpleArtifactRepositoryIO {
 		}
 	}
 
-	private interface XMLConstants extends org.eclipse.equinox.p2.core.helpers.XMLConstants {
+	private interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {
 
 		// Constants defining the structure of the XML for a SimpleArtifactRepository
 

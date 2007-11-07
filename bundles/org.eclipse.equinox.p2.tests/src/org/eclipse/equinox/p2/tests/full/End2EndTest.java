@@ -11,7 +11,7 @@ package org.eclipse.equinox.p2.tests.full;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;

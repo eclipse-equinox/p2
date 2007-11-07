@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.metadata.generator;
 
 import java.io.ByteArrayInputStream;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.p2.core.helpers.Headers;
+import org.eclipse.equinox.internal.p2.core.helpers.Headers;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;

@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.osgi.util.NLS;
 
 //TODO Be careful here with the permissions.... We may need to have a proper unzip technology here that supports file permissions for linux

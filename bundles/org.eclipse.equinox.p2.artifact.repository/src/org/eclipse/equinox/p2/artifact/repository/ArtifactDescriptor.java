@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.artifact.repository;
 import java.util.Arrays;
 import java.util.Map;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /**
@@ -83,7 +82,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	 * @return the properties of this artifact descriptor.
 	 */
 	public Map getProperties() {
-		return new UnmodifiableProperties(properties);
+		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
 	public ProcessingStepDescriptor[] getProcessingSteps() {

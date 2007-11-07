@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 
@@ -37,7 +37,7 @@ public class ColocatedRepositoryInfo extends AbstractRepository {
 		return repo.getName();
 	}
 
-	public UnmodifiableProperties getProperties() {
+	public OrderedProperties getProperties() {
 		return repo.getProperties();
 	}
 

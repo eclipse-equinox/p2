@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.Profile;

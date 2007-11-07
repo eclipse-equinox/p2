@@ -12,10 +12,10 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.util.Calendar;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.p2.updatechecker.UpdateChecker;

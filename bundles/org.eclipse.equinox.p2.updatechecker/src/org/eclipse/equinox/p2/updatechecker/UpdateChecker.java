@@ -12,8 +12,8 @@ package org.eclipse.equinox.p2.updatechecker;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.updatechecker.Activator;
-import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;

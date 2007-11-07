@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.core.helpers;
+package org.eclipse.equinox.p2.core;
 
 import java.util.*;
 
@@ -29,6 +29,10 @@ public class OrderedProperties extends Dictionary implements Map {
 	private LinkedHashMap propertyMap = null;
 
 	private static final String[] NO_KEYS = new String[0];
+
+	public static OrderedProperties unmodifiableProperties(OrderedProperties properties) {
+		return new UnmodifiableProperties(properties);
+	}
 
 	public OrderedProperties() {
 		super();
@@ -209,6 +213,38 @@ public class OrderedProperties extends Dictionary implements Map {
 
 	public Enumeration keys() {
 		return new KeysEnum(this);
+	}
+
+	private static class UnmodifiableProperties extends OrderedProperties {
+
+		UnmodifiableProperties(OrderedProperties properties) {
+			super();
+			for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
+				Map.Entry entry = (Map.Entry) iter.next();
+				super.put(entry.getKey(), entry.getValue());
+			}
+		}
+
+		public synchronized Object setProperty(String key, String value) {
+			throw new UnsupportedOperationException();
+		}
+
+		public synchronized Object put(Object key, Object value) {
+			throw new UnsupportedOperationException();
+		}
+
+		public synchronized Object remove(Object key) {
+			throw new UnsupportedOperationException();
+		}
+
+		public synchronized void putAll(Map t) {
+			throw new UnsupportedOperationException();
+		}
+
+		public synchronized void clear() {
+			throw new UnsupportedOperationException();
+		}
+
 	}
 
 }

@@ -11,9 +11,11 @@ Export-Package: org.eclipse.equinox.internal.p2.artifact.repository;x-friends:="
  org.eclipse.equinox.spi.p2.artifact.repository
 Import-Package: javax.xml.parsers,
  org.eclipse.core.runtime.preferences;resolution:=optional,
+ org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.jarprocessor;resolution:=optional,
  org.eclipse.equinox.internal.p2.metadata,
- org.eclipse.equinox.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.persistence,
+ org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.core.location,
  org.eclipse.equinox.p2.core.repository,
  org.eclipse.equinox.p2.jarprocessor;resolution:=optional,

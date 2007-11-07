@@ -15,13 +15,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
+import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
-import org.eclipse.equinox.p2.core.helpers.*;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -285,7 +287,7 @@ public class InstallRegistry implements IInstallRegistry {
 		}
 	}
 
-	private interface XMLConstants extends org.eclipse.equinox.p2.core.helpers.XMLConstants {
+	private interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {
 
 		// Constants defining the structure of the XML for a SimpleProfileRegistry
 

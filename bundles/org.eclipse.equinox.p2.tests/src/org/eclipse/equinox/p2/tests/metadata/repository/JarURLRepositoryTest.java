@@ -6,7 +6,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.p2.metadata.generator.Generator;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;

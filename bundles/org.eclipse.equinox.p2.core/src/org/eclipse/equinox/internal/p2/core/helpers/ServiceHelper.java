@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.core.helpers;
+package org.eclipse.equinox.internal.p2.core.helpers;
 
 import org.osgi.framework.*;
 

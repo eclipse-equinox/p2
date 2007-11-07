@@ -11,7 +11,7 @@
 package org.eclipse.equinox.spi.p2.metadata.repository;
 
 import java.net.URL;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;

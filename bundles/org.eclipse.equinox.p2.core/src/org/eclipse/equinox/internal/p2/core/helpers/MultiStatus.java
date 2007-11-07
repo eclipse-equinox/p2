@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.core.helpers;
+package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -217,20 +217,6 @@ public class MultiStatus extends Status {
 	 */
 	public boolean isMultiStatus() {
 		return true;
-	}
-
-	/**
-	 * Collapses the children into a flat list.
-	 * If all the children are non-MultiStatus,
-	 * this is essentially getChildren().
-	 * @return An array of IStatus objects.
-	 * @see #getChildren()
-	 */
-	public IStatus[] getLeaves() {
-		List leaves = MultiStatusUtil.getStatusLeaves(this);
-		IStatus[] result = new IStatus[leaves.size()];
-		leaves.toArray(result);
-		return result;
 	}
 
 	// Ensure we have space for count more children,

@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -50,11 +50,13 @@ public class DirectorTest extends TestCase {
 		}
 
 		IMetadataRepository[] repos = mgr.getKnownRepositories();
-		TwoTierMap allIUs = new TwoTierMap();
+		Collection allJobs = new ArrayList();
+		String autoInstall = System.getProperty("eclipse.p2.autoInstall");
 		for (int i = 0; i < repos.length; i++) {
 			IInstallableUnit[] ius = repos[i].getInstallableUnits(null);
 			for (int j = 0; j < ius.length; j++) {
-				allIUs.put(ius[j].getId(), ius[j].getVersion(), ius[j]);
+				if (ius[j].getId().equals(autoInstall))
+					allJobs.add(ius[j]);
 			}
 		}
 
@@ -92,7 +94,6 @@ public class DirectorTest extends TestCase {
 			p.setValue(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 
 		IInstallableUnit[] allRoots = new IInstallableUnit[1];
-		Collection allJobs = allIUs.getAll(System.getProperty("eclipse.p2.autoInstall"));
 		IStatus operationStatus = null;
 		if (allJobs.size() != 0) {
 			allRoots[0] = (IInstallableUnit) allJobs.iterator().next();

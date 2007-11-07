@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.core.repository;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.equinox.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.core.helpers.UnmodifiableProperties;
+import org.eclipse.equinox.p2.core.OrderedProperties;
 
 /**
  * Base interface that defines common properties that may be provided by 
@@ -69,7 +68,7 @@ public interface IRepository extends IAdaptable {
 	 * Returns a read-only collection of the properties of the repository.
 	 * @return the properties of this repository.
 	 */
-	public UnmodifiableProperties getProperties();
+	public OrderedProperties getProperties();
 
 	/**
 	 * Returns <code>true</code> if this repository can be modified.

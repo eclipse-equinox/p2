@@ -13,8 +13,8 @@ package org.eclipse.equinox.p2.engine;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
-import org.eclipse.equinox.p2.core.helpers.MultiStatus;
 
 public class Engine {
 

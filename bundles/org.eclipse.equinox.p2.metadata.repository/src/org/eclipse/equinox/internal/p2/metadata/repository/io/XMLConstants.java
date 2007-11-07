@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata.repository.io;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public interface XMLConstants extends org.eclipse.equinox.p2.core.helpers.XMLConstants {
+public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {
 
 	// Constants defining the structure of the XML for metadata objects
 

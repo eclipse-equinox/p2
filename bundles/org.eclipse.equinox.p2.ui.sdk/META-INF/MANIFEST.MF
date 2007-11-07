@@ -6,10 +6,10 @@ Bundle-Localization: plugin
 Bundle-SymbolicName: org.eclipse.equinox.p2.ui.sdk;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator
-Import-Package: org.eclipse.equinox.p2.artifact.repository,
+Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.p2.artifact.repository,
  org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.core.eventbus,
- org.eclipse.equinox.p2.core.helpers,
  org.eclipse.equinox.p2.core.repository,
  org.eclipse.equinox.p2.director,
  org.eclipse.equinox.p2.engine,
