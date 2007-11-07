@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.repository;
+package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.util.Dictionary;
 import java.util.Hashtable;

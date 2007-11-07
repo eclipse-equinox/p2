@@ -1,14 +1,8 @@
 <plugin>
-   <extension
-         id="queryableApp"
-         point="org.eclipse.core.runtime.applications">
-      <application
-            cardinality="1"
-            thread="main"
-            visible="true">
-         <run
-               class="org.eclipse.equinox.p2.tools.MetadataCompareApplication">
-         </run>
+   <extension id="fileserverApplication"  point="org.eclipse.core.runtime.applications">
+      <application cardinality="1" thread="main" visible="true">
+         <run class="org.eclipse.equinox.internal.p2.tools.FileServerApplication"/>
       </application>
    </extension>
+
 </plugin>
