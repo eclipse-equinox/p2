@@ -50,7 +50,7 @@ public class MetadataGeneratorHelper {
 
 	public static final ProvidedCapability FRAGMENT_CAPABILITY = InstallableUnitFragment.FRAGMENT_CAPABILITY;
 
-	public static ArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
+	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
 		//TODO this size calculation is bogus
 		ArtifactDescriptor result = new ArtifactDescriptor(key);
 		if (pathOnDisk != null) {
