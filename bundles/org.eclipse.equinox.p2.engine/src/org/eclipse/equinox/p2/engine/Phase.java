@@ -13,9 +13,7 @@ package org.eclipse.equinox.p2.engine;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
-import org.eclipse.equinox.internal.p2.engine.Messages;
-import org.eclipse.equinox.internal.p2.engine.TouchpointManager;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.TouchpointData;
 import org.eclipse.osgi.util.NLS;
@@ -57,12 +55,16 @@ public abstract class Phase {
 	}
 
 	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
-		MultiStatus status = new MultiStatus();
+		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		perform(status, session, profile, operands, monitor);
 		if (status.matches(IStatus.CANCEL)) {
-			status.setMessage(Messages.Engine_Operation_Canceled_By_User);
+			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, Messages.Engine_Operation_Canceled_By_User, null);
+			result.merge(status);
+			return result;
 		} else if (status.matches(IStatus.ERROR)) {
-			status.setMessage(NLS.bind(Messages.Engine_Error_During_Phase, this.phaseName));
+			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, NLS.bind(Messages.Engine_Error_During_Phase, this.phaseName), null);
+			result.merge(status);
+			return result;
 		}
 		return status;
 	}
@@ -81,19 +83,19 @@ public abstract class Phase {
 
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
 		prePerform(status, profile, subMonitor.newChild(prePerformWork));
-		if (status.isErrorOrCancel())
+		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 		session.recordPhaseStart(this);
 
 		subMonitor.setWorkRemaining(mainPerformWork + postPerformWork);
 		mainPerform(status, session, profile, operands, subMonitor.newChild(mainPerformWork));
-		if (status.isErrorOrCancel())
+		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 
 		session.recordPhaseEnd(this);
 		subMonitor.setWorkRemaining(postPerformWork);
 		postPerform(status, profile, subMonitor.newChild(postPerformWork));
-		if (status.isErrorOrCancel())
+		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 
 		subMonitor.done();
@@ -103,14 +105,14 @@ public abstract class Phase {
 		phaseParameters = new HashMap();
 		phaseParameters.put(PROFILE, profile);
 		phaseParameters.put(PHASE_ID, phaseId);
-		status.add(initializePhase(monitor, profile, phaseParameters));
+		mergeStatus(status, initializePhase(monitor, profile, phaseParameters));
 
 		for (Iterator it = touchpointToTouchpointParameters.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
 			Touchpoint touchpoint = (Touchpoint) entry.getKey();
 			Map touchpointParameters = new HashMap(phaseParameters);
 			touchpointParameters.put(TOUCHPOINT, touchpoint);
-			status.add(touchpoint.initializePhase(monitor, profile, phaseId, touchpointParameters));
+			mergeStatus(status, touchpoint.initializePhase(monitor, profile, phaseId, touchpointParameters));
 			entry.setValue(touchpointParameters);
 		}
 	}
@@ -136,24 +138,32 @@ public abstract class Phase {
 			Touchpoint touchpoint = getTouchpoint(operand);
 			Map parameters = (touchpoint != null) ? new HashMap((Map) touchpointToTouchpointParameters.get(touchpoint)) : new HashMap(phaseParameters);
 			parameters.put(OPERAND, operand);
-			status.add(initializeOperand(profile, operand, parameters, subMonitor));
+			mergeStatus(status, initializeOperand(profile, operand, parameters, subMonitor));
 			if (touchpoint != null)
-				status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
+				mergeStatus(status, touchpoint.initializeOperand(profile, phaseId, operand, parameters));
 			parameters = Collections.unmodifiableMap(parameters);
 			if (actions != null) {
 				for (int j = 0; j < actions.length; j++) {
 					ProvisioningAction action = actions[j];
 					session.recordAction(action, operand);
-					status.add(action.execute(parameters));
+					mergeStatus(status, action.execute(parameters));
 					if (!status.isOK())
 						return;
 				}
 			}
 			if (touchpoint != null)
-				status.add(touchpoint.completeOperand(profile, phaseId, operand, parameters));
-			status.add(completeOperand(operand, parameters));
+				mergeStatus(status, touchpoint.completeOperand(profile, phaseId, operand, parameters));
+			mergeStatus(status, completeOperand(operand, parameters));
 			subMonitor.worked(1);
 		}
+	}
+
+	/**
+	 * Merges a given IStatus into a MultiStatus
+	 */
+	private void mergeStatus(MultiStatus multi, IStatus status) {
+		if (status != null && !status.isOK())
+			multi.add(status);
 	}
 
 	void postPerform(MultiStatus status, Profile profile, IProgressMonitor monitor) {
@@ -161,10 +171,10 @@ public abstract class Phase {
 			Entry entry = (Entry) it.next();
 			Touchpoint touchpoint = (Touchpoint) entry.getKey();
 			Map touchpointParameters = (Map) entry.getValue();
-			status.add(touchpoint.completePhase(monitor, profile, phaseId, touchpointParameters));
+			mergeStatus(status, touchpoint.completePhase(monitor, profile, phaseId, touchpointParameters));
 			entry.setValue(null);
 		}
-		status.add(completePhase(monitor, profile, phaseParameters));
+		mergeStatus(status, completePhase(monitor, profile, phaseParameters));
 		phaseParameters = null;
 	}
 
@@ -173,17 +183,16 @@ public abstract class Phase {
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
 		parameters.put(OPERAND, operand);
-		status.add(initializeOperand(profile, operand, parameters, new NullProgressMonitor()));
-		status.add(touchpoint.initializeOperand(profile, phaseId, operand, parameters));
+		mergeStatus(status, initializeOperand(profile, operand, parameters, new NullProgressMonitor()));
+		mergeStatus(status, touchpoint.initializeOperand(profile, phaseId, operand, parameters));
 		parameters = Collections.unmodifiableMap(parameters);
 		for (int j = 0; j < actions.length; j++) {
 			ProvisioningAction action = actions[j];
-			IStatus actionStatus = action.undo(parameters);
-			status.add(actionStatus);
+			mergeStatus(status, action.undo(parameters));
 			// TODO: session.removeAction(...)
 		}
-		status.add(touchpoint.completeOperand(profile, phaseId, operand, parameters));
-		status.add(completeOperand(operand, parameters));
+		mergeStatus(status, touchpoint.completeOperand(profile, phaseId, operand, parameters));
+		mergeStatus(status, completeOperand(operand, parameters));
 	}
 
 	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {

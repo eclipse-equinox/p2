@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.engine;
 
 import java.util.*;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 
 public class EngineSession {
 
@@ -42,7 +42,7 @@ public class EngineSession {
 	}
 
 	public MultiStatus rollback() {
-		MultiStatus result = new MultiStatus();
+		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		if (currentPhase != null) {
 			rollBackPhase(currentPhase, currentActionRecords);
 			currentPhase = null;
@@ -61,7 +61,7 @@ public class EngineSession {
 	}
 
 	private MultiStatus rollBackPhase(Phase phase, List actionRecords) {
-		MultiStatus result = new MultiStatus();
+		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		if (phase != currentPhase)
 			phase.prePerform(result, profile, new NullProgressMonitor());

@@ -16,7 +16,6 @@ import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.Transport;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
@@ -94,7 +93,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 		try {
-			MultiStatus overallStatus = new MultiStatus();
+			MultiStatus overallStatus = new MultiStatus(TestActivator.PI_PROV_TESTS, IStatus.OK, null, null);
 			for (int i = 0; i < requests.length; i++) {
 				overallStatus.add(getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1)));
 			}

@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.engine;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 
 public class Engine {
@@ -41,7 +41,7 @@ public class Engine {
 			monitor = new NullProgressMonitor();
 
 		if (operands.length == 0)
-			return new MultiStatus(IStatus.OK, null);
+			return new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		lockProfile(profile);
 		try {
@@ -52,7 +52,7 @@ public class Engine {
 			if (result.isOK()) {
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 				session.commit();
-			} else if (result.isErrorOrCancel()) {
+			} else if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 				session.rollback();
 			}

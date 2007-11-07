@@ -13,9 +13,8 @@ package org.eclipse.equinox.internal.p2.persistence;
 import java.util.List;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -62,7 +61,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public boolean isValidXML() {
-		return (status == null || !status.isErrorOrCancel());
+		return (status == null || !status.matches(IStatus.ERROR | IStatus.CANCEL));
 	}
 
 	private static SAXParserFactory acquireXMLParsing(BundleContext context) {
@@ -503,11 +502,11 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		int columnNumber = 0;
 
 		public ParserStatus(int severity, int code, String message) {
-			super(severity, MultiStatus.bundleId, code, message, null);
+			super(severity, Activator.ID, code, message, null);
 		}
 
 		public ParserStatus(int severity, int code, String message, int lineNumber, int columnNumber) {
-			super(severity, MultiStatus.bundleId, code, message, null);
+			super(severity, Activator.ID, code, message, null);
 			setLineNumber(lineNumber);
 			setColumnNumber(columnNumber);
 		}

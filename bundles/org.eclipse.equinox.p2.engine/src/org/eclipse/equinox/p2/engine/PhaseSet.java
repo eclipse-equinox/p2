@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 
 public abstract class PhaseSet {
 	private final Phase[] phases;
@@ -25,19 +24,21 @@ public abstract class PhaseSet {
 	}
 
 	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
-		MultiStatus result = new MultiStatus();
+		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		int[] weights = getProgressWeights(deltas);
 		int totalWork = getTotalWork(weights);
 		SubMonitor pm = SubMonitor.convert(monitor, totalWork);
 		try {
 			for (int i = 0; i < phases.length; i++) {
 				if (pm.isCanceled()) {
-					result.setCanceled();
+					result.add(Status.CANCEL_STATUS);
 					return result;
 				}
 				Phase phase = phases[i];
-				result.add(phase.perform(session, profile, deltas, pm.newChild(weights[i])));
-				if (result.isErrorOrCancel())
+				MultiStatus performResult = phase.perform(session, profile, deltas, pm.newChild(weights[i]));
+				if (!performResult.isOK())
+					result.add(performResult);
+				if (result.matches(IStatus.ERROR | IStatus.CANCEL))
 					return result;
 			}
 		} finally {

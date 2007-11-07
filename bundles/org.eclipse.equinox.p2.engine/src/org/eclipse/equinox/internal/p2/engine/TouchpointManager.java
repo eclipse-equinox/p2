@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
 import org.eclipse.equinox.p2.engine.Touchpoint;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 import org.eclipse.osgi.util.NLS;
@@ -155,7 +154,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	}
 
 	public IStatus validateTouchpoints(String[] requiredTypes) {
-		MultiStatus status = (touchpointEntries == null ? initializeTouchpoints() : new MultiStatus());
+		MultiStatus status = touchpointEntries == null ? initializeTouchpoints() : new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		for (int i = 0; i < requiredTypes.length; i++) {
 			TouchpointEntry entry = (TouchpointEntry) touchpointEntries.get(requiredTypes[i]);
@@ -170,7 +169,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	 * Construct a map of the extensions that implement the touchpoints extension point.
 	 */
 	private MultiStatus initializeTouchpoints() {
-		MultiStatus status = new MultiStatus();
+		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		IExtensionPoint point = RegistryFactory.getRegistry().getExtensionPoint(EngineActivator.ID, PT_TOUCHPOINTS);
 		if (point == null) {
 			reportError(NLS.bind(Messages.TouchpointManager_No_Extension_Point, EngineActivator.ID, PT_TOUCHPOINTS), status);
@@ -207,9 +206,8 @@ public class TouchpointManager implements IRegistryChangeListener {
 
 	private static void reportError(String errorMsg, MultiStatus status) {
 		Status errorStatus = new Status(IStatus.ERROR, EngineActivator.ID, 1, errorMsg, null);
-		if (status != null) {
+		if (status != null && !status.isOK())
 			status.add(errorStatus);
-		}
 		LogHelper.log(errorStatus);
 	}
 

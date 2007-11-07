@@ -14,7 +14,6 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
@@ -93,7 +92,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			for (int i = 0; i < requests.length; i++) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
-				overallStatus.add(getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1)));
+				IStatus result = getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1));
+				if (!result.isOK())
+					overallStatus.add(result);
 			}
 			return (monitor.isCanceled() ? Status.CANCEL_STATUS : overallStatus);
 		} finally {
