@@ -19,8 +19,8 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
-import org.eclipse.equinox.p2.installer.InstallAdvisor;
-import org.eclipse.equinox.p2.installer.InstallDescription;
+import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
+import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 
 /**
  * This is a simple installer application built using P2.  The application must be given

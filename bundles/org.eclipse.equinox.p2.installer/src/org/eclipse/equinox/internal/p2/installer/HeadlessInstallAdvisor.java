@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.installer;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.p2.installer.*;
+import org.eclipse.equinox.internal.provisional.p2.installer.*;
 
 /**
  * A headless install advisor that prints everything to a log.

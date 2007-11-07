@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.installer;
+package org.eclipse.equinox.internal.provisional.p2.installer;
 
 import org.eclipse.core.runtime.*;
 

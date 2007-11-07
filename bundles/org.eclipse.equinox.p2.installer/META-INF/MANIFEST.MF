@@ -21,4 +21,4 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Export-Package: org.eclipse.equinox.internal.p2.installer;x-internal:=true,
  org.eclipse.equinox.internal.p2.installer.ui;x-internal:=true,
- org.eclipse.equinox.p2.installer
+ org.eclipse.equinox.internal.provisional.p2.installer

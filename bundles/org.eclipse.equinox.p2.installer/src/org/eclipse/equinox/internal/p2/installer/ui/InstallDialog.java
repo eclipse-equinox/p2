@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.installer.ui;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
-import org.eclipse.equinox.p2.installer.IInstallOperation;
+import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;

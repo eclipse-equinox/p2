@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
+import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.installer.IInstallOperation;
-import org.eclipse.equinox.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
@@ -174,7 +174,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.installer.IInstallOperation#install(org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation#install(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus install(IProgressMonitor pm) {
 		SubMonitor monitor = SubMonitor.convert(pm, "Preparing to install", 100);

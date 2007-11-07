@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.installer.ui;
 
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.installer.*;
+import org.eclipse.equinox.internal.provisional.p2.installer.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;

@@ -21,7 +21,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class InstallerActivator implements BundleActivator {
 	// The plug-in ID
-	public static final String PI_INSTALLER = "org.eclipse.equinox.p2.installer";
+	public static final String PI_INSTALLER = "org.eclipse.equinox.internal.provisional.p2.installer";
 	// The shared instance
 	private static InstallerActivator plugin;
 
