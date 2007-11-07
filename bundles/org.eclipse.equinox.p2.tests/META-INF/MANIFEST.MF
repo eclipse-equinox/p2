@@ -47,10 +47,12 @@ Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Export-Package: org.eclipse.equinox.p2.tests,
  org.eclipse.equinox.p2.tests.artifact.repository,
+ org.eclipse.equinox.p2.tests.artifact.repository.optimizer,
  org.eclipse.equinox.p2.tests.artifact.repository.processing,
  org.eclipse.equinox.p2.tests.director,
  org.eclipse.equinox.p2.tests.download,
  org.eclipse.equinox.p2.tests.engine,
  org.eclipse.equinox.p2.tests.full,
+ org.eclipse.equinox.p2.tests.generator,
  org.eclipse.equinox.p2.tests.metadata,
  org.eclipse.equinox.p2.tests.metadata.repository
