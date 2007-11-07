@@ -331,7 +331,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(elementHandled)) {
+			if (name.equals(elementHandled)) {
 				rootHandler.initialize(this, name, attributes);
 				xmlReader.setContentHandler(rootHandler);
 			} else {
@@ -378,7 +378,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(PROPERTY_ELEMENT)) {
+			if (name.equals(PROPERTY_ELEMENT)) {
 				new PropertyHandler(this, attributes, properties);
 			} else {
 				invalidElement(name, attributes);

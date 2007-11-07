@@ -41,7 +41,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(INSTALLABLE_UNIT_ELEMENT)) {
+			if (name.equals(INSTALLABLE_UNIT_ELEMENT)) {
 				new InstallableUnitHandler(this, attributes, units);
 			} else {
 				invalidElement(name, attributes);
@@ -94,49 +94,49 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+			if (PROPERTIES_ELEMENT.equals(name)) {
 				if (propertiesHandler == null) {
 					propertiesHandler = new PropertiesHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (PROVIDED_CAPABILITIES_ELEMENT.equalsIgnoreCase(name)) {
+			} else if (PROVIDED_CAPABILITIES_ELEMENT.equals(name)) {
 				if (providedCapabilitiesHandler == null) {
 					providedCapabilitiesHandler = new ProvidedCapabilitiesHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (REQUIRED_CAPABILITIES_ELEMENT.equalsIgnoreCase(name)) {
+			} else if (REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
 				if (requiredCapabilitiesHandler == null) {
 					requiredCapabilitiesHandler = new RequiredCapabilitiesHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (IU_FILTER_ELEMENT.equalsIgnoreCase(name)) {
+			} else if (IU_FILTER_ELEMENT.equals(name)) {
 				if (filterHandler == null) {
 					filterHandler = new TextHandler(this, IU_FILTER_ELEMENT, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (APPLICABILITY_FILTER_ELEMENT.equalsIgnoreCase(name)) {
+			} else if (APPLICABILITY_FILTER_ELEMENT.equals(name)) {
 				if (applicabilityHandler == null) {
 					applicabilityHandler = new TextHandler(this, APPLICABILITY_FILTER_ELEMENT, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (ARTIFACT_KEYS_ELEMENT.equalsIgnoreCase(name)) {
+			} else if (ARTIFACT_KEYS_ELEMENT.equals(name)) {
 				if (artifactsHandler == null) {
 					artifactsHandler = new ArtifactsHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (TOUCHPOINT_TYPE_ELEMENT.equalsIgnoreCase(name)) {
+			} else if (TOUCHPOINT_TYPE_ELEMENT.equals(name)) {
 				if (touchpointTypeHandler == null) {
 					touchpointTypeHandler = new TouchpointTypeHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (TOUCHPOINT_DATA_ELEMENT.equalsIgnoreCase(name)) {
+			} else if (TOUCHPOINT_DATA_ELEMENT.equals(name)) {
 				if (touchpointDataHandler == null) {
 					touchpointDataHandler = new TouchpointDataHandler(this, attributes);
 				} else {
@@ -194,7 +194,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(PROVIDED_CAPABILITY_ELEMENT)) {
+			if (name.equals(PROVIDED_CAPABILITY_ELEMENT)) {
 				new ProvidedCapabilityHandler(this, attributes, providedCapabilities);
 			} else {
 				invalidElement(name, attributes);
@@ -233,7 +233,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(REQUIRED_CAPABILITY_ELEMENT)) {
+			if (name.equals(REQUIRED_CAPABILITY_ELEMENT)) {
 				new RequiredCapabilityHandler(this, attributes, requiredCapabilities);
 			} else {
 				invalidElement(name, attributes);
@@ -262,9 +262,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(CAPABILITY_FILTER_ELEMENT)) {
+			if (name.equals(CAPABILITY_FILTER_ELEMENT)) {
 				filterHandler = new TextHandler(this, CAPABILITY_FILTER_ELEMENT, attributes);
-			} else if (name.equalsIgnoreCase(CAPABILITY_SELECTORS_ELEMENT)) {
+			} else if (name.equals(CAPABILITY_SELECTORS_ELEMENT)) {
 				selectorsHandler = new CapabilitySelectorsHandler(this, attributes);
 			} else {
 				invalidElement(name, attributes);
@@ -300,7 +300,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(ARTIFACT_KEY_ELEMENT)) {
+			if (name.equals(ARTIFACT_KEY_ELEMENT)) {
 				new ArtifactHandler(this, attributes, artifacts);
 			} else {
 				invalidElement(name, attributes);
@@ -339,7 +339,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(CAPABILITY_SELECTOR_ELEMENT)) {
+			if (name.equals(CAPABILITY_SELECTOR_ELEMENT)) {
 				new TextHandler(this, CAPABILITY_SELECTOR_ELEMENT, attributes, selectors);
 			} else {
 				invalidElement(name, attributes);
@@ -386,7 +386,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT)) {
+			if (name.equals(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT)) {
 				new TouchpointInstructionsHandler(this, attributes, data);
 			} else {
 				invalidElement(name, attributes);
@@ -406,7 +406,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equalsIgnoreCase(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT)) {
+			if (name.equals(TOUCHPOINT_DATA_INSTRUCTION_ELEMENT)) {
 				new TouchpointInstructionHandler(this, attributes, instructions);
 			} else {
 				invalidElement(name, attributes);

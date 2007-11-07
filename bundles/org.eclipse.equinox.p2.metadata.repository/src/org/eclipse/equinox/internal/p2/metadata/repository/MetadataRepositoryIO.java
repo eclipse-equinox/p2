@@ -202,7 +202,7 @@ public class MetadataRepositoryIO {
 			}
 
 			public void processingInstruction(String target, String data) throws SAXException {
-				if (PI_REPOSITORY_TARGET.equalsIgnoreCase(target)) {
+				if (PI_REPOSITORY_TARGET.equals(target)) {
 					// TODO: should the root handler be constructed based on class
 					// 		 via an extension registry mechanism?
 					String clazz = extractPIClass(data);
@@ -255,13 +255,13 @@ public class MetadataRepositoryIO {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+				if (PROPERTIES_ELEMENT.equals(name)) {
 					if (propertiesHandler == null) {
 						propertiesHandler = new PropertiesHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
-				} else if (INSTALLABLE_UNITS_ELEMENT.equalsIgnoreCase(name)) {
+				} else if (INSTALLABLE_UNITS_ELEMENT.equals(name)) {
 					if (unitsHandler == null) {
 						unitsHandler = new InstallableUnitsHandler(this, attributes);
 					} else {

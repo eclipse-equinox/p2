@@ -420,7 +420,7 @@ public class InstallRegistry implements IInstallRegistry {
 			}
 
 			public void ProcessingInstruction(String target, String data) throws SAXException {
-				if (PI_REPOSITORY_TARGET.equalsIgnoreCase(target)) {
+				if (PI_REPOSITORY_TARGET.equals(target)) {
 					// TODO: should the root handler be constructed based on class
 					// 		 or via an extension registry mechanism?
 					// String clazz = extractPIClass(data);
@@ -449,7 +449,7 @@ public class InstallRegistry implements IInstallRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (PROFILE_INSTALL_REGISTRIES_ELEMENT.equalsIgnoreCase(name)) {
+				if (PROFILE_INSTALL_REGISTRIES_ELEMENT.equals(name)) {
 					if (profilesHandler == null) {
 						profilesHandler = new ProfileInstallRegistriesHandler(this, attributes);
 					} else {
@@ -488,7 +488,7 @@ public class InstallRegistry implements IInstallRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (name.equalsIgnoreCase(PROFILE_INSTALL_REGISTRY_ELEMENT)) {
+				if (name.equals(PROFILE_INSTALL_REGISTRY_ELEMENT)) {
 					new ProfileInstallRegistryHandler(this, attributes, registries);
 				} else {
 					invalidElement(name, attributes);
@@ -518,13 +518,13 @@ public class InstallRegistry implements IInstallRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (INSTALLABLE_UNITS_ELEMENT.equalsIgnoreCase(name)) {
+				if (INSTALLABLE_UNITS_ELEMENT.equals(name)) {
 					if (unitsHandler == null) {
 						unitsHandler = new InstallableUnitsHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
-				} else if (IUS_PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+				} else if (IUS_PROPERTIES_ELEMENT.equals(name)) {
 					if (iusPropertiesHandler == null) {
 						iusPropertiesHandler = new IUsPropertiesHandler(this, attributes);
 					} else {
@@ -562,7 +562,7 @@ public class InstallRegistry implements IInstallRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (name.equalsIgnoreCase(IU_PROPERTIES_ELEMENT)) {
+				if (name.equals(IU_PROPERTIES_ELEMENT)) {
 					new IUPropertiesHandler(this, attributes, iusPropertiesMap);
 				} else {
 					invalidElement(name, attributes);
@@ -587,7 +587,7 @@ public class InstallRegistry implements IInstallRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (name.equalsIgnoreCase(PROPERTIES_ELEMENT)) {
+				if (name.equals(PROPERTIES_ELEMENT)) {
 					propertiesHandler = new PropertiesHandler(this, attributes);
 				} else {
 					invalidElement(name, attributes);

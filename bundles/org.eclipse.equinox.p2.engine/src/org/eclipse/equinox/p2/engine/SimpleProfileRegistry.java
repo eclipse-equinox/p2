@@ -297,7 +297,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 
 			public void ProcessingInstruction(String target, String data) throws SAXException {
-				if (PI_REPOSITORY_TARGET.equalsIgnoreCase(target)) {
+				if (PI_REPOSITORY_TARGET.equals(target)) {
 					// TODO: should the root handler be constructed based on class
 					// 		 via an extension registry mechanism?
 					// String clazz = extractPIClass(data);
@@ -326,13 +326,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+				if (PROPERTIES_ELEMENT.equals(name)) {
 					if (propertiesHandler == null) {
 						propertiesHandler = new PropertiesHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
-				} else if (PROFILES_ELEMENT.equalsIgnoreCase(name)) {
+				} else if (PROFILES_ELEMENT.equals(name)) {
 					if (profilesHandler == null) {
 						profilesHandler = new ProfilesHandler(this, attributes);
 					} else {
@@ -372,7 +372,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (name.equalsIgnoreCase(PROFILE_ELEMENT)) {
+				if (name.equals(PROFILE_ELEMENT)) {
 					new ProfileHandler(this, attributes, profyles);
 				} else {
 					invalidElement(name, attributes);
@@ -397,7 +397,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+				if (PROPERTIES_ELEMENT.equals(name)) {
 					if (propertiesHandler == null) {
 						propertiesHandler = new PropertiesHandler(this, attributes);
 					} else {

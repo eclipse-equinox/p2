@@ -257,7 +257,7 @@ class SimpleArtifactRepositoryIO {
 			}
 
 			public void ProcessingInstruction(String target, String data) throws SAXException {
-				if (PI_REPOSITORY_TARGET.equalsIgnoreCase(target)) {
+				if (PI_REPOSITORY_TARGET.equals(target)) {
 					// TODO: should the root handler be constructed based on class
 					// 		 via an extension registry mechanism?
 					// String clazz = extractPIClass(data);
@@ -300,19 +300,19 @@ class SimpleArtifactRepositoryIO {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (MAPPING_RULES_ELEMENT.equalsIgnoreCase(name)) {
+				if (MAPPING_RULES_ELEMENT.equals(name)) {
 					if (mappingRulesHandler == null) {
 						mappingRulesHandler = new MappingRulesHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
-				} else if (ARTIFACTS_ELEMENT.equalsIgnoreCase(name)) {
+				} else if (ARTIFACTS_ELEMENT.equals(name)) {
 					if (artifactsHandler == null) {
 						artifactsHandler = new ArtifactsHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
-				} else if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+				} else if (PROPERTIES_ELEMENT.equals(name)) {
 					if (propertiesHandler == null) {
 						propertiesHandler = new PropertiesHandler(this, attributes);
 					} else {
@@ -359,7 +359,7 @@ class SimpleArtifactRepositoryIO {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (name.equalsIgnoreCase(MAPPING_RULE_ELEMENT)) {
+				if (name.equals(MAPPING_RULE_ELEMENT)) {
 					new MappingRuleHandler(this, attributes, mappingRules);
 				} else {
 					invalidElement(name, attributes);
@@ -396,7 +396,7 @@ class SimpleArtifactRepositoryIO {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (name.equalsIgnoreCase(ARTIFACT_ELEMENT)) {
+				if (name.equals(ARTIFACT_ELEMENT)) {
 					new ArtifactHandler(this, attributes, artifacts);
 				} else {
 					invalidElement(name, attributes);
@@ -428,13 +428,13 @@ class SimpleArtifactRepositoryIO {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (PROCESSING_STEPS_ELEMENT.equalsIgnoreCase(name)) {
+				if (PROCESSING_STEPS_ELEMENT.equals(name)) {
 					if (processingStepsHandler == null) {
 						processingStepsHandler = new ProcessingStepsHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
-				} else if (PROPERTIES_ELEMENT.equalsIgnoreCase(name)) {
+				} else if (PROPERTIES_ELEMENT.equals(name)) {
 					if (propertiesHandler == null) {
 						propertiesHandler = new PropertiesHandler(this, attributes);
 					} else {
@@ -473,7 +473,7 @@ class SimpleArtifactRepositoryIO {
 			}
 
 			public void startElement(String name, Attributes attributes) {
-				if (name.equalsIgnoreCase(PROCESSING_STEP_ELEMENT)) {
+				if (name.equals(PROCESSING_STEP_ELEMENT)) {
 					new ProcessingStepHandler(this, attributes, processingSteps);
 				} else {
 					invalidElement(name, attributes);
