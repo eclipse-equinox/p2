@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-SymbolicName: org.eclipse.equinox.p2.artifact.processors
+Bundle-SymbolicName: org.eclipse.equinox.p2.artifact.processors;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
