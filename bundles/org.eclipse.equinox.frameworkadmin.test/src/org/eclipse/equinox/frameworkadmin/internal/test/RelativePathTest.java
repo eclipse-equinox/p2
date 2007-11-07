@@ -11,7 +11,6 @@ package org.eclipse.equinox.frameworkadmin.internal.test;
 import java.io.*;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.frameworkadmin.*;
-import org.eclipse.equinox.p2.core.helpers.FileUtils;
 
 public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 	public RelativePathTest(String name) throws Exception {
@@ -26,8 +25,8 @@ public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 		osgiJar.getParentFile().mkdirs();
 		File scJar = new File(installFolder, "plugins/org.eclipse.equinox.simpleconfigurator.jar");
 
-		FileUtils.copyStream(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar").openStream(), true, new FileOutputStream(osgiJar), true);
-		FileUtils.copyStream(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar").openStream(), true, new FileOutputStream(scJar), true);
+		copyStream(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar").openStream(), true, new FileOutputStream(osgiJar), true);
+		copyStream(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar").openStream(), true, new FileOutputStream(scJar), true);
 
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();

@@ -22,6 +22,34 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		super(name);
 	}
 
+	/**
+	 * Copy an input stream to an output stream.
+	 * Optionally close the streams when done.
+	 * Return the number of bytes written.
+	 */
+	public static int copyStream(InputStream in, boolean closeIn, OutputStream out, boolean closeOut) throws IOException {
+		try {
+			int written = 0;
+			byte[] buffer = new byte[16 * 1024];
+			int len;
+			while ((len = in.read(buffer)) != -1) {
+				out.write(buffer, 0, len);
+				written += len;
+			}
+			return written;
+		} finally {
+			try {
+				if (closeIn) {
+					in.close();
+				}
+			} finally {
+				if (closeOut) {
+					out.close();
+				}
+			}
+		}
+	}
+
 	public FrameworkAdmin getEquinoxFrameworkAdmin() throws BundleException {
 		final String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
 		final String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
