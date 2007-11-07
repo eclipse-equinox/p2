@@ -6,34 +6,62 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
+package org.eclipse.equinox.internal.p2.artifact.mirror;
 
 import java.net.URL;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 
-public class Application implements IApplication {
+public class MirrorApplication implements IApplication {
 
-	private URL artifactRepositoryLocation;
+	private URL sourceLocation;
+	private URL destinationLocation;
+	private IArtifactRepository source;
+	private IArtifactRepository destination;
+	private boolean append;
+	private boolean raw = false;
 
 	public Object start(IApplicationContext context) throws Exception {
 		Map args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args"));
-		IArtifactRepository repository = setupRepository(artifactRepositoryLocation);
-		// TODO add the processing in here.
+		setupRepositories();
+		new Mirror(source, destination, raw).run();
 		return null;
 	}
 
-	private IArtifactRepository setupRepository(URL location) {
+	private void setupRepositories() {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
-			return null;
-		return manager.loadRepository(location, null);
+			return;
+
+		source = manager.loadRepository(sourceLocation, null);
+		if (destinationLocation != null)
+			destination = initializeDestination();
+		else
+			destination = source;
+	}
+
+	private IArtifactRepository initializeDestination() {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepository repository = manager.loadRepository(destinationLocation, null);
+		if (repository != null) {
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException("Artifact repository not modifiable: " + destinationLocation); //$NON-NLS-1$
+			if (!append)
+				repository.removeAll();
+			return repository;
+		}
+
+		// 	the given repo location is not an existing repo so we have to create something
+		// TODO for now create a Simple repo by default.
+		String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$
+		return manager.createRepository(destinationLocation, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
 	}
 
 	public void stop() {
@@ -44,8 +72,8 @@ public class Application implements IApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
-			//			if (args[i].equals("-pack"))
-			//				pack = true;
+			if (args[i].equals("-raw"))
+				raw = true;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
@@ -54,8 +82,10 @@ public class Application implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar"))
-				artifactRepositoryLocation = new URL(arg);
+			if (args[i - 1].equalsIgnoreCase("-source"))
+				sourceLocation = new URL(arg);
+			if (args[i - 1].equalsIgnoreCase("-destination"))
+				destinationLocation = new URL(arg);
 		}
 	}
 }

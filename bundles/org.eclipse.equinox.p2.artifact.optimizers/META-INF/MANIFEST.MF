@@ -7,9 +7,9 @@ Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Activator
 Import-Package: org.eclipse.equinox.app;version="1.0.0",
+ org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.p2.artifact.repository,
  org.eclipse.equinox.p2.artifact.repository.processing,
- org.eclipse.equinox.p2.core.helpers,
  org.eclipse.equinox.p2.core.repository,
  org.eclipse.equinox.p2.jarprocessor,
  org.eclipse.equinox.p2.metadata,

@@ -12,9 +12,9 @@ import java.net.URL;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.core.helpers.ServiceHelper;
 
 public class Application implements IApplication {
 

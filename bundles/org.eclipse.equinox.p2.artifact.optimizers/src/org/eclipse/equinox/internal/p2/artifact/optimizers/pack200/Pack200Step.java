@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor;
 import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
