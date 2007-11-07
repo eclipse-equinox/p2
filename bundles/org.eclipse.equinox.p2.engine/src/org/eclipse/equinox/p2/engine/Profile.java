@@ -10,9 +10,9 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.p2.installregistry.IProfileInstallRegistry;
@@ -93,7 +93,7 @@ public class Profile implements IQueryable {
 		this.profileId = profileId;
 	}
 
-	public Profile(String profileId, OrderedProperties properties) {
+	public Profile(String profileId, Map properties) {
 		this(profileId);
 		storage.putAll(properties);
 	}
@@ -184,7 +184,7 @@ public class Profile implements IQueryable {
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
-	public OrderedProperties getProperties() {
+	public Map getProperties() {
 		return OrderedProperties.unmodifiableProperties(storage);
 	}
 }

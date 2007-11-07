@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.MultiStatus;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
@@ -73,7 +72,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		initializeAfterLoad(location);
 	}
 
-	public SimpleArtifactRepository(String name, String type, String version, String description, String provider, boolean verifySignature, Set artifacts, String[][] mappingRules, OrderedProperties properties) {
+	public SimpleArtifactRepository(String name, String type, String version, String description, String provider, boolean verifySignature, Set artifacts, String[][] mappingRules, Map properties) {
 		super(name, type, version, null, description, provider);
 		signatureVerification = verifySignature;
 		this.artifactDescriptors.addAll(artifacts);
@@ -393,7 +392,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void tagAsImplementation() {
-		properties.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		properties.put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
 	}
 
 	/**

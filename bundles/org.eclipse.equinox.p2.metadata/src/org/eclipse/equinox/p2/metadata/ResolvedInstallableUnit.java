@@ -8,10 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.osgi.framework.Version;
 
 public class ResolvedInstallableUnit implements IResolvedInstallableUnit, InternalInstallableUnit {
@@ -58,7 +56,7 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 		return resolved.getProperty(key);
 	}
 
-	public OrderedProperties getProperties() {
+	public Map getProperties() {
 		return resolved.getProperties();
 	}
 

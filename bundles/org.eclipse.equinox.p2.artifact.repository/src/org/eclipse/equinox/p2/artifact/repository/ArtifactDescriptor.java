@@ -12,8 +12,8 @@ package org.eclipse.equinox.p2.artifact.repository;
 
 import java.util.Arrays;
 import java.util.Map;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /**
@@ -29,7 +29,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	// has been downloaded (e.g, unpack, then md5 checksum, then...)
 	protected ProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
 
-	protected OrderedProperties properties = new OrderedProperties();
+	protected Map properties = new OrderedProperties();
 
 	protected transient IArtifactRepository repository;
 
@@ -73,7 +73,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 			properties.put(key, value);
 	}
 
-	public void addProperties(OrderedProperties additionalProperties) {
+	public void addProperties(Map additionalProperties) {
 		properties.putAll(additionalProperties);
 	}
 

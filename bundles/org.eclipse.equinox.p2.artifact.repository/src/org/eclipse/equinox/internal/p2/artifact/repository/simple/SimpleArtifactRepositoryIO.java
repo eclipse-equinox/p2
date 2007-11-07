@@ -16,13 +16,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -327,7 +327,7 @@ class SimpleArtifactRepositoryIO {
 				if (isValidXML()) {
 					String[][] mappingRules = (mappingRulesHandler == null ? new String[0][0] //
 							: mappingRulesHandler.getMappingRules());
-					OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) //
+					Map properties = (propertiesHandler == null ? new OrderedProperties(0) //
 							: propertiesHandler.getProperties());
 					Set artifacts = (artifactsHandler == null ? new HashSet(0) //
 							: artifactsHandler.getArtifacts());
@@ -447,7 +447,7 @@ class SimpleArtifactRepositoryIO {
 
 			protected void finished() {
 				if (isValidXML() && currentArtifact != null) {
-					OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) //
+					Map properties = (propertiesHandler == null ? new OrderedProperties(0) //
 							: propertiesHandler.getProperties());
 					currentArtifact.addProperties(properties);
 					ProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //

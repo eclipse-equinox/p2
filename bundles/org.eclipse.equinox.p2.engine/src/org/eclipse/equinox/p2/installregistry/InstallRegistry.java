@@ -15,13 +15,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
@@ -37,7 +37,7 @@ public class InstallRegistry implements IInstallRegistry {
 	private static String STORAGE = "installRegistry.xml"; //$NON-NLS-1$
 
 	// what is installed in each profile
-	private Map profileRegistries = new LinkedHashMap(); // Profile id -> ProfileInstallRegistry
+	Map profileRegistries = new LinkedHashMap(); // Profile id -> ProfileInstallRegistry
 	//	private ProfileRegistry profileRegistry; // the corresponding ProfileRegistry
 	//	private File location; // XML file containing install registry
 	//	private IRepository metadataRepo;
@@ -98,7 +98,7 @@ public class InstallRegistry implements IInstallRegistry {
 		});
 	}
 
-	private void persist() {
+	void persist() {
 		try {
 			BufferedOutputStream bof = null;
 			try {
@@ -124,7 +124,7 @@ public class InstallRegistry implements IInstallRegistry {
 		}
 	}
 
-	private void restore() {
+	void restore() {
 		try {
 			BufferedInputStream bif = null;
 			try {
@@ -172,10 +172,10 @@ public class InstallRegistry implements IInstallRegistry {
 		return null;
 	}
 
-	protected class IUIdentity {
+	class IUIdentity {
 
-		private String id;
-		private Version version;
+		String id;
+		Version version;
 
 		public IUIdentity(String id, Version version) {
 			this.id = (id != null ? id : ""); //$NON-NLS-1$
@@ -213,7 +213,7 @@ public class InstallRegistry implements IInstallRegistry {
 	 */
 	public class ProfileInstallRegistry implements IProfileInstallRegistry {
 		private String profileId; // id profile this data applies to
-		private Set installableUnits; //id 
+		Set installableUnits; //id 
 		private Map iuPropertiesMap; // iu->OrderedProperties
 
 		public ProfileInstallRegistry(String profileId) {
@@ -328,13 +328,13 @@ public class InstallRegistry implements IInstallRegistry {
 			flush();
 		}
 
-		private void writeProfileRegistries(Map profileRegistries) {
-			if (profileRegistries.size() > 0) {
+		private void writeProfileRegistries(Map registries) {
+			if (registries.size() > 0) {
 				start(PROFILE_INSTALL_REGISTRIES_ELEMENT);
-				attribute(COLLECTION_SIZE_ATTRIBUTE, profileRegistries.size());
-				for (Iterator iter = profileRegistries.keySet().iterator(); iter.hasNext();) {
+				attribute(COLLECTION_SIZE_ATTRIBUTE, registries.size());
+				for (Iterator iter = registries.keySet().iterator(); iter.hasNext();) {
 					String nextProfileId = (String) iter.next();
-					ProfileInstallRegistry nextProfileRegistry = (ProfileInstallRegistry) profileRegistries.get(nextProfileId);
+					ProfileInstallRegistry nextProfileRegistry = (ProfileInstallRegistry) registries.get(nextProfileId);
 					writeProfileRegistry(nextProfileId, nextProfileRegistry);
 				}
 				end(PROFILE_INSTALL_REGISTRIES_ELEMENT);
@@ -479,24 +479,24 @@ public class InstallRegistry implements IInstallRegistry {
 
 		protected class ProfileInstallRegistriesHandler extends AbstractHandler {
 
-			private List profileRegistries = null;
+			private List registries = null;
 
 			public ProfileInstallRegistriesHandler(AbstractHandler parentHandler, Attributes attributes) {
 				super(parentHandler, PROFILE_INSTALL_REGISTRIES_ELEMENT);
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				profileRegistries = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+				registries = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 			}
 
 			public void startElement(String name, Attributes attributes) {
 				if (name.equalsIgnoreCase(PROFILE_INSTALL_REGISTRY_ELEMENT)) {
-					new ProfileInstallRegistryHandler(this, attributes, profileRegistries);
+					new ProfileInstallRegistryHandler(this, attributes, registries);
 				} else {
 					invalidElement(name, attributes);
 				}
 			}
 
 			public ProfileInstallRegistry[] getProfileInstallRegistries() {
-				return (ProfileInstallRegistry[]) profileRegistries.toArray(new ProfileInstallRegistry[profileRegistries.size()]);
+				return (ProfileInstallRegistry[]) registries.toArray(new ProfileInstallRegistry[registries.size()]);
 			}
 		}
 

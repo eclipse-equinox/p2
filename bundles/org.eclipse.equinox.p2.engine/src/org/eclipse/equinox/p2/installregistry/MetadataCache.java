@@ -55,7 +55,7 @@ public class MetadataCache extends URLMetadataRepository {
 		super(REPOSITORY_NAME, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), cacheLocation, null, null);
 		content = getActualLocation(location);
 		// Set property indicating that the metadata cache is an implementation detail.
-		getModifiableProperties().setProperty(IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		getModifiableProperties().put(IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 	}
 
 	public void initializeAfterLoad(URL repoLocation) {

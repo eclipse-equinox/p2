@@ -33,6 +33,7 @@ public class InternalRepositoryFilter extends ViewerFilter {
 		if (repo == null) {
 			return true;
 		}
-		return !(Boolean.valueOf(repo.getProperties().getProperty(IRepository.IMPLEMENTATION_ONLY_KEY, "false"))).booleanValue(); //$NON-NLS-1$
+		Object implOnly = repo.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
+		return implOnly == null || !Boolean.valueOf((String) implOnly).booleanValue();
 	}
 }

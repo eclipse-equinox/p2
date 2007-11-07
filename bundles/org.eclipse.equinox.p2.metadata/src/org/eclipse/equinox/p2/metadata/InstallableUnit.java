@@ -9,8 +9,9 @@
 package org.eclipse.equinox.p2.metadata;
 
 import java.util.ArrayList;
+import java.util.Map;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.osgi.framework.Version;
 
 public class InstallableUnit implements IInstallableUnitConstants, IInstallableUnit, InternalInstallableUnit {
@@ -52,7 +53,7 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 		visitor.visitInstallableUnit(this);
 	}
 
-	public void addProperties(OrderedProperties newProperties) {
+	public void addProperties(Map newProperties) {
 		if (properties == null)
 			properties = new OrderedProperties(newProperties.size());
 		properties.putAll(newProperties);
@@ -137,12 +138,12 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
-	public OrderedProperties getProperties() {
+	public Map getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties());
 	}
 
 	public String getProperty(String key) {
-		return getProperties().getProperty(key);
+		return properties().getProperty(key);
 	}
 
 	public ProvidedCapability[] getProvidedCapabilities() {

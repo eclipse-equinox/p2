@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.ui.model;
 
 import java.util.ArrayList;
-
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -53,7 +52,8 @@ public class AvailableIUContentProvider implements IStructuredContentProvider {
 		for (int i = 0; i < reposToCheck.length; i++) {
 			// TODO maybe this should be configurable, but for now assume we never
 			// want to see content from implementation repositories.
-			if (!(Boolean.valueOf(reposToCheck[i].getProperties().getProperty(IRepository.IMPLEMENTATION_ONLY_KEY, "false"))).booleanValue()) { //$NON-NLS-1$
+			Object implOnly = reposToCheck[i].getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
+			if (implOnly == null || !Boolean.valueOf((String) implOnly).booleanValue()) {
 				IInstallableUnit[] ius = reposToCheck[i].getInstallableUnits(null);
 				for (int j = 0; j < ius.length; j++) {
 					list.add(ius[j]);

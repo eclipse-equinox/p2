@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.core;
+package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.util.*;
 
@@ -26,11 +26,11 @@ import java.util.*;
  */
 public class OrderedProperties extends Dictionary implements Map {
 
-	private LinkedHashMap propertyMap = null;
+	LinkedHashMap propertyMap = null;
 
 	private static final String[] NO_KEYS = new String[0];
 
-	public static OrderedProperties unmodifiableProperties(OrderedProperties properties) {
+	public static OrderedProperties unmodifiableProperties(Map properties) {
 		return new UnmodifiableProperties(properties);
 	}
 
@@ -217,7 +217,7 @@ public class OrderedProperties extends Dictionary implements Map {
 
 	private static class UnmodifiableProperties extends OrderedProperties {
 
-		UnmodifiableProperties(OrderedProperties properties) {
+		UnmodifiableProperties(Map properties) {
 			super();
 			for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {
 				Map.Entry entry = (Map.Entry) iter.next();

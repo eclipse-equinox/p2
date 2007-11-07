@@ -11,8 +11,9 @@
 package org.eclipse.equinox.spi.p2.core.repository;
 
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.PlatformObject;
-import org.eclipse.equinox.p2.core.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 
 /**
@@ -31,7 +32,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	protected String description;
 	protected String provider;
 	protected transient URL location;
-	protected OrderedProperties properties = new OrderedProperties();
+	protected Map properties = new OrderedProperties();
 
 	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider) {
 		this.name = name;
@@ -96,7 +97,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns a read-only collection of the properties of the repository.
 	 * @return the properties of this repository.
 	 */
-	public OrderedProperties getProperties() {
+	public Map getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
@@ -112,7 +113,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 		this.provider = provider;
 	}
 
-	public OrderedProperties getModifiableProperties() {
+	public Map getModifiableProperties() {
 		return properties;
 	}
 

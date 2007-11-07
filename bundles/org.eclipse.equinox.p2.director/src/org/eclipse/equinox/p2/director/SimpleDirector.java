@@ -33,9 +33,9 @@ public class SimpleDirector implements IDirector {
 	private IPlanner planner;
 
 	public static void tagAsImplementation(IMetadataRepository repository) {
-		if (repository != null && repository.getProperties().getProperty(IRepository.IMPLEMENTATION_ONLY_KEY) == null) {
+		if (repository != null && repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY) == null) {
 			if (repository.isModifiable())
-				repository.getModifiableProperties().setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+				repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 		}
 	}
 

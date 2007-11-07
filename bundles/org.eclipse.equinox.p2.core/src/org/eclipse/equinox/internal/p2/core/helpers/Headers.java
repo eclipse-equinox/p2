@@ -163,7 +163,7 @@ public class Headers extends Dictionary implements Map {
 		} else { /* put */
 			if (i != -1) { /* duplicate key */
 				if (!replace)
-					throw new IllegalArgumentException("HEADER_DUPLICATE_KEY_EXCEPTION: " + key);
+					throw new IllegalArgumentException("HEADER_DUPLICATE_KEY_EXCEPTION: " + key); //$NON-NLS-1$
 				Object oldVal = values[i];
 				values[i] = value;
 				return oldVal;

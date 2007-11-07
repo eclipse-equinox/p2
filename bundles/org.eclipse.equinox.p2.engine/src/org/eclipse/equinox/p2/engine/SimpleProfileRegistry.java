@@ -13,12 +13,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.osgi.service.datalocation.Location;
@@ -34,9 +34,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	/**
 	 * Map of String(Profile id)->Profile. 
 	 */
-	private LinkedHashMap profiles = new LinkedHashMap(8);
+	LinkedHashMap profiles = new LinkedHashMap(8);
 
-	private OrderedProperties properties = new OrderedProperties();
+	OrderedProperties properties = new OrderedProperties();
 
 	private String self;
 
@@ -178,7 +178,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return false;
 	}
 
-	public OrderedProperties getProperties() {
+	public Map getProperties() {
 		return properties;
 	}
 

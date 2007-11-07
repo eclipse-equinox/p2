@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
-import org.eclipse.equinox.p2.core.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.BundleContext;
@@ -149,7 +149,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML() && currentUnit != null) {
-				OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) //
+				Map properties = (propertiesHandler == null ? new OrderedProperties(0) //
 						: propertiesHandler.getProperties());
 				currentUnit.addProperties(properties);
 				ProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new ProvidedCapability[0] //

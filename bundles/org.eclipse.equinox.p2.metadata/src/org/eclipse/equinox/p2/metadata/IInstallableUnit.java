@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
-import org.eclipse.equinox.p2.core.OrderedProperties;
+import java.util.Map;
 import org.osgi.framework.Version;
 
 public interface IInstallableUnit extends Comparable {
@@ -60,7 +60,13 @@ public interface IInstallableUnit extends Comparable {
 
 	public abstract String getProperty(String key);
 
-	public abstract OrderedProperties getProperties();
+	/**
+	 * Get an <i>unmodifiable copy</i> of the properties
+	 * associated with the installable unit.
+	 * 
+	 * @return an <i>unmodifiable copy</i> of the IU properties.
+	 */
+	public abstract Map getProperties();
 
 	public abstract TouchpointData[] getTouchpointData();
 

@@ -11,7 +11,7 @@
 package org.eclipse.equinox.spi.p2.metadata.repository;
 
 import java.net.URL;
-import org.eclipse.equinox.p2.core.OrderedProperties;
+import java.util.Map;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
@@ -26,7 +26,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		public String Provider;
 		public String Description;
 		public URL Location;
-		public OrderedProperties Properties;
+		public Map Properties;
 		public IInstallableUnit[] Units;
 	}
 
