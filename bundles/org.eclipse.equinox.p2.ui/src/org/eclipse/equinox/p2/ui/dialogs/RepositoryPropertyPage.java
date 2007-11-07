@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PropertyPage;
 
@@ -27,41 +26,79 @@ import org.eclipse.ui.dialogs.PropertyPage;
  */
 public class RepositoryPropertyPage extends PropertyPage {
 
-	IRepository repository;
-	private RepositoryGroup repoGroup;
+	private IRepository repository;
+	private Composite composite;
+	private Text name;
+	private Text url;
 
 	protected Control createContents(Composite parent) {
-		noDefaultAndApplyButton();
 		this.repository = getRepository();
-
 		if (repository == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvUIMessages.RepositoryPropertyPage_NoRepoSelected);
+			return label;
 		}
-		repoGroup = createRepositoryGroup(parent);
-		// exists
-		Dialog.applyDialogFont(repoGroup.getComposite());
-		verifyComplete();
-		return repoGroup.getComposite();
-	}
+		if (!repository.isModifiable()) {
+			noDefaultAndApplyButton();
+		}
 
-	protected RepositoryGroup createRepositoryGroup(Composite parent) {
-		return new RepositoryGroup(parent, repository, new ModifyListener() {
-			public void modifyText(ModifyEvent event) {
-				verifyComplete();
-			}
-		});
+		composite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		composite.setLayout(layout);
+		GridData data = new GridData();
+		data.widthHint = 350;
+		composite.setLayoutData(data);
+
+		Label nameLabel = new Label(composite, SWT.NONE);
+		nameLabel.setText(ProvUIMessages.RepositoryGroup_RepositoryNameFieldLabel);
+
+		name = new Text(composite, SWT.BORDER);
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		name.setLayoutData(data);
+		name.setEditable(repository.isModifiable());
+
+		Label urlLabel = new Label(composite, SWT.NONE);
+		urlLabel.setText(ProvUIMessages.RepositoryGroup_RepositoryURLFieldLabel);
+		url = new Text(composite, SWT.BORDER);
+		url.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		url.setEditable(false);
+
+		initializeFields();
+		Dialog.applyDialogFont(composite);
+		verifyComplete();
+		return composite;
 	}
 
 	protected void verifyComplete() {
-		if (repoGroup == null) {
-			return;
+		if (url.getText().trim().length() == 0) {
+			setValid(false);
+			setErrorMessage(ProvUIMessages.RepositoryGroup_URLRequired);
 		}
-		IStatus status = repoGroup.verify();
-		setValid(status.isOK());
+		setValid(true);
+		setErrorMessage(null);
+	}
+
+	public boolean performOk() {
+		if (repository.isModifiable()) {
+			repository.setName(name.getText().trim());
+		}
+		return super.performOk();
+	}
+
+	private void initializeFields() {
+		if (repository == null) {
+			url.setText("http://"); //$NON-NLS-1$
+		} else {
+			url.setText(repository.getLocation().toExternalForm());
+			name.setText(repository.getName());
+		}
 	}
 
 	protected IRepository getRepository() {
-		return (IRepository) getElement().getAdapter(IRepository.class);
+		if (repository == null) {
+			repository = (IRepository) getElement().getAdapter(IRepository.class);
+		}
+		return repository;
 	}
 }

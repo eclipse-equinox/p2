@@ -24,6 +24,13 @@ public class ProvSDKMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvSDKMessages.class);
 	}
+	public static String AddColocatedRepositoryDialog_InvalidURL;
+	public static String RepositoryManipulationDialog_AddButton;
+	public static String RepositoryManipulationDialog_LocationColumnHeader;
+	public static String RepositoryManipulationDialog_NameColumnHeader;
+	public static String RepositoryManipulationDialog_PropertiesButton;
+	public static String RepositoryManipulationDialog_RemoveButton;
+	public static String RepositoryManipulationDialog_RemoveOperationLabel;
 	public static String RepositoryManipulationDialog_UpdateSitesDialogTitle;
 	public static String UpdateAndInstallDialog_AvailableFeatures;
 	public static String UpdateAndInstallDialog_InstalledFeatures;

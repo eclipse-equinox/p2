@@ -99,6 +99,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 
 		switch (columnIndex) {
 			case 0 :
+				if (element instanceof IRepository) {
+					return ((IRepository) element).getName();
+				}
 				return getText(element);
 			case 1 :
 				if (element instanceof Profile) {
@@ -109,11 +112,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 					return iu.getVersion().toString();
 				}
 				if (element instanceof IRepository) {
-					String name = ((IRepository) element).getName();
-					if (name != null && name.length() > 0) {
-						return ((IRepository) element).getLocation().toExternalForm();
-					}
-					return ((IRepository) element).getType();
+					return ((IRepository) element).getLocation().toExternalForm();
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;

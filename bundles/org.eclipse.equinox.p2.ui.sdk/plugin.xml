@@ -31,8 +31,8 @@
       
       <page
             name="%Repository.name"
-            class="org.eclipse.equinox.p2.ui.dialogs.ColocatedRepositoryPropertyPage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.ColocatedRepositoryPropertyPage">
+            class="org.eclipse.equinox.p2.ui.dialogs.RepositoryPropertyPage"
+            id="org.eclipse.equinox.internal.p2.ui.sdk.RepositoryPropertyPage">
             <enabledWhen>
              <instanceof
                   value="org.eclipse.equinox.p2.metadata.repository.IMetadataRepository">

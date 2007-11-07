@@ -14,7 +14,6 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.ColocatedRepositoryUtil;
 
 /**
  * Operation that adds colocated artifact and metadata repositories
@@ -32,15 +31,14 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			URL metadataRepoURL = ColocatedRepositoryUtil.makeMetadataRepositoryURL(urls[i]);
-			IRepository repo = ProvisioningUtil.addMetadataRepository(metadataRepoURL, monitor);
+			IRepository repo = ProvisioningUtil.addMetadataRepository(urls[i], monitor);
 			if (repo == null) {
 				return failureStatus();
 			}
-			repo = ProvisioningUtil.addArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor);
+			repo = ProvisioningUtil.addArtifactRepository(urls[i], monitor);
 			if (repo == null) {
 				// remove the metadata repo we just added
-				ProvisioningUtil.removeMetadataRepository(metadataRepoURL, monitor);
+				ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
 				return failureStatus();
 			}
 		}
@@ -50,8 +48,8 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			ProvisioningUtil.removeMetadataRepository(ColocatedRepositoryUtil.makeMetadataRepositoryURL(urls[i]), monitor);
-			ProvisioningUtil.removeArtifactRepository(ColocatedRepositoryUtil.makeArtifactRepositoryURL(urls[i]), monitor);
+			ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
+			ProvisioningUtil.removeArtifactRepository(urls[i], monitor);
 		}
 		added = false;
 		return okStatus();

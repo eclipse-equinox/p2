@@ -25,13 +25,8 @@ public class ProvUIMessages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, ProvUIMessages.class);
 	}
 
-	public static String AddColocatedRepositoryDialog_InvalidURL;
 	public static String ApplyProfileChangesDialog_ApplyChanges;
 	public static String ChooseProfileDialog_DefaultDialogTitle;
-	public static String ColocatedRepositoryManipulatorGroup_Add;
-	public static String ColocatedRepositoryManipulatorGroup_LocationColumnHeader;
-	public static String ColocatedRepositoryManipulatorGroup_NameColumnHeader;
-	public static String ColocatedRepositoryManipulatorGroup_Remove;
 	public static String InstallDialog_InstallSelectionMessage;
 	public static String IUPropertiesGroup_CopyrightProperty;
 	public static String IUPropertiesGroup_DescriptionProperty;

@@ -8,13 +8,13 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.p2.ui.operations.AddColocatedRepositoryOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
@@ -43,7 +43,7 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 			newURL = new URL(urlString);
 		} catch (MalformedURLException e) {
 			// TODO need friendlier user message rather than just reporting exception
-			ProvUI.handleException(e, ProvUIMessages.AddColocatedRepositoryDialog_InvalidURL);
+			ProvUI.handleException(e, ProvSDKMessages.AddColocatedRepositoryDialog_InvalidURL);
 			return null;
 		}
 		String urlSpec = newURL.toExternalForm();
