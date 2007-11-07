@@ -50,13 +50,6 @@ public class FileUtils {
 	}
 
 	/**
-	 * Unzip from a URL to an output directory.
-	 */
-	public static void unzipURL(URL zipURL, File outputDir) throws IOException {
-		unzipURL(zipURL, outputDir, null, null);
-	}
-
-	/**
 	 * Unzip from a URL to an output directory, with progress indication.
 	 * monitor may be null.
 	 */

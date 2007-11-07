@@ -28,8 +28,6 @@ public class OrderedProperties extends Dictionary implements Map {
 
 	LinkedHashMap propertyMap = null;
 
-	private static final String[] NO_KEYS = new String[0];
-
 	public static OrderedProperties unmodifiableProperties(Map properties) {
 		return new UnmodifiableProperties(properties);
 	}
@@ -70,24 +68,8 @@ public class OrderedProperties extends Dictionary implements Map {
 		return (String) (propertyMap == null ? null : propertyMap.get(key));
 	}
 
-	public String getProperty(String key, String defaultValue) {
-		String value = getProperty(key);
-		return (value == null) ? defaultValue : value;
-	}
-
 	public void putAll(OrderedProperties properties) {
 		putAll((Map) properties);
-	}
-
-	public Collection getPropertyKeysCollection() {
-		return (propertyMap != null ? Collections.unmodifiableCollection(propertyMap.keySet()) : Collections.EMPTY_LIST);
-	}
-
-	public String[] getPropertyKeys() {
-		if (propertyMap == null)
-			return NO_KEYS;
-		Collection keySet = propertyMap.keySet();
-		return (String[]) keySet.toArray(new String[keySet.size()]);
 	}
 
 	/**
