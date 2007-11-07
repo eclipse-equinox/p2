@@ -6,18 +6,17 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.director;
+package org.eclipse.equinox.internal.p2.director;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.director.DirectorActivator;
-import org.eclipse.equinox.internal.p2.director.Messages;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
