@@ -72,12 +72,10 @@ public class DeltaComputer {
 
 	/**
 	 * Transfers all available bytes from the given input stream to the given
-	 * output stream. Closes both streams if close == true, regardless of failure. 
-	 * Flushes the destination stream if close == false
+	 * output stream. Does not close either stream.
 	 * 
 	 * @param source
 	 * @param destination
-	 * @param close 
 	 * @throws IOException
 	 */
 	public static void transferStreams(InputStream source, OutputStream destination) throws IOException {
