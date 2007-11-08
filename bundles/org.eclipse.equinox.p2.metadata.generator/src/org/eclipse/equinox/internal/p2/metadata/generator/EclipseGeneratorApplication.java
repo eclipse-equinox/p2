@@ -53,54 +53,13 @@ public class EclipseGeneratorApplication implements IApplication {
 	private String bundles;
 	private String base;
 
-	private void registerDefaultMetadataRepoManager() {
-		if (ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName()) == null) {
-			defaultMetadataManager = new MetadataRepositoryManager();
-			registrationDefaultMetadataManager = Activator.getContext().registerService(IMetadataRepositoryManager.class.getName(), defaultMetadataManager, null);
-		}
-	}
-
-	private void registerDefaultArtifactRepoManager() {
-		if (ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName()) == null) {
-			defaultArtifactManager = new ArtifactRepositoryManager();
-			registrationDefaultArtifactManager = Activator.getContext().registerService(IArtifactRepositoryManager.class.getName(), defaultArtifactManager, null);
-		}
-	}
-
-	private void registerEventBus() {
-		if (ServiceHelper.getService(Activator.getContext(), ProvisioningEventBus.class.getName()) == null) {
-			bus = new ProvisioningEventBus();
-			registrationBus = Activator.getContext().registerService(ProvisioningEventBus.class.getName(), bus, null);
-		}
-	}
-
-	public Object start(IApplicationContext context) throws Exception {
-		registerEventBus();
-		registerDefaultMetadataRepoManager();
-		registerDefaultArtifactRepoManager();
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		Map args = context.getArguments();
-		processCommandLineArguments((String[]) args.get("application.args"), provider);
-		initialize(provider);
-
-		if (provider.getBaseLocation() == null) {
-			System.out.println("Eclipse base location not specified");
-			String[] a = (String[]) args.get("application.args");
-			for (int i = 0; i < a.length; i++)
-				System.out.println(a[i]);
-			return IApplication.EXIT_OK;
-		}
-		System.out.println("Generating metadata for " + provider.getBaseLocation());
-
-		long before = System.currentTimeMillis();
-		IStatus result = new Generator(provider).generate();
-		long after = System.currentTimeMillis();
-		if (result.isOK()) {
-			System.out.println("Generation completed with success [" + (after - before) / 1000 + " seconds]");
-			return IApplication.EXIT_OK;
-		}
-		System.out.println(result);
-		return new Integer(1);
+	private File getExecutableName(String base, EclipseInstallGeneratorInfoProvider provider) {
+		File location = provider.getExecutableLocation();
+		if (location == null)
+			return new File(base, EclipseInstallGeneratorInfoProvider.getDefaultExecutableName());
+		if (location.isAbsolute())
+			return location;
+		return new File(base, location.getPath());
 	}
 
 	private void initialize(EclipseInstallGeneratorInfoProvider provider) {
@@ -122,18 +81,30 @@ public class EclipseGeneratorApplication implements IApplication {
 		initializeRepositories(provider);
 	}
 
-	private File getExecutableName(String base, EclipseInstallGeneratorInfoProvider provider) {
-		File location = provider.getExecutableLocation();
-		if (location == null)
-			return new File(base, EclipseInstallGeneratorInfoProvider.getDefaultExecutableName());
-		if (location.isAbsolute())
-			return location;
-		return new File(base, location.getPath());
-	}
+	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider) {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
+		URL location;
+		try {
+			location = new URL(artifactLocation);
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Artifact repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
+		}
+		IArtifactRepository repository = manager.loadRepository(location, null);
+		if (repository != null) {
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
+			provider.setArtifactRepository(repository);
+			if (!provider.append())
+				repository.removeAll();
+			return;
+		}
 
-	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) {
-		initializeArtifactRepository(provider);
-		initializeMetadataRepository(provider);
+		// 	the given repo location is not an existing repo so we have to create something
+		// TODO for now create a Simple repo by default.
+		String repositoryName = artifactLocation + " - artifacts"; //$NON-NLS-1$
+		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		if (result != null)
+			provider.setArtifactRepository(result);
 	}
 
 	public void initializeForInplace(EclipseInstallGeneratorInfoProvider provider) {
@@ -149,6 +120,37 @@ public class EclipseGeneratorApplication implements IApplication {
 		provider.setPublishArtifactRepository(true);
 		provider.setPublishArtifacts(false);
 		provider.setMappingRules(INPLACE_MAPPING_RULES);
+	}
+
+	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) {
+		URL location;
+		try {
+			location = new URL(metadataLocation);
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Metadata repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
+		}
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		IMetadataRepository repository = manager.loadRepository(location, null);
+		if (repository != null) {
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
+			provider.setMetadataRepository(repository);
+			if (!provider.append())
+				repository.removeAll();
+			return;
+		}
+
+		// 	the given repo location is not an existing repo so we have to create something
+		// TODO for now create a random repo by default.
+		String repositoryName = metadataLocation + " - metadata"; //$NON-NLS-1$
+		IMetadataRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
+		if (result != null)
+			provider.setMetadataRepository(result);
+	}
+
+	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) {
+		initializeArtifactRepository(provider);
+		initializeMetadataRepository(provider);
 	}
 
 	public void processCommandLineArguments(String[] args, EclipseInstallGeneratorInfoProvider provider) throws Exception {
@@ -226,56 +228,54 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 	}
 
-	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider) {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
-		URL location;
-		try {
-			location = new URL(artifactLocation);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Artifact repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
+	private void registerDefaultArtifactRepoManager() {
+		if (ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName()) == null) {
+			defaultArtifactManager = new ArtifactRepositoryManager();
+			registrationDefaultArtifactManager = Activator.getContext().registerService(IArtifactRepositoryManager.class.getName(), defaultArtifactManager, null);
 		}
-		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (repository != null) {
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
-			provider.setArtifactRepository(repository);
-			if (!provider.append())
-				repository.removeAll();
-			return;
-		}
-
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a Simple repo by default.
-		String repositoryName = artifactLocation + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
-		if (result != null)
-			provider.setArtifactRepository(result);
 	}
 
-	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) {
-		URL location;
-		try {
-			location = new URL(metadataLocation);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Metadata repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
+	private void registerDefaultMetadataRepoManager() {
+		if (ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName()) == null) {
+			defaultMetadataManager = new MetadataRepositoryManager();
+			registrationDefaultMetadataManager = Activator.getContext().registerService(IMetadataRepositoryManager.class.getName(), defaultMetadataManager, null);
 		}
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
-		IMetadataRepository repository = manager.loadRepository(location, null);
-		if (repository != null) {
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
-			provider.setMetadataRepository(repository);
-			if (!provider.append())
-				repository.removeAll();
-			return;
-		}
+	}
 
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a random repo by default.
-		String repositoryName = metadataLocation + " - metadata"; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
-		if (result != null)
-			provider.setMetadataRepository(result);
+	private void registerEventBus() {
+		if (ServiceHelper.getService(Activator.getContext(), ProvisioningEventBus.class.getName()) == null) {
+			bus = new ProvisioningEventBus();
+			registrationBus = Activator.getContext().registerService(ProvisioningEventBus.class.getName(), bus, null);
+		}
+	}
+
+	public Object start(IApplicationContext context) throws Exception {
+		registerEventBus();
+		registerDefaultMetadataRepoManager();
+		registerDefaultArtifactRepoManager();
+		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
+		Map args = context.getArguments();
+		processCommandLineArguments((String[]) args.get("application.args"), provider);
+		initialize(provider);
+
+		if (provider.getBaseLocation() == null) {
+			System.out.println("Eclipse base location not specified");
+			String[] a = (String[]) args.get("application.args");
+			for (int i = 0; i < a.length; i++)
+				System.out.println(a[i]);
+			return IApplication.EXIT_OK;
+		}
+		System.out.println("Generating metadata for " + provider.getBaseLocation());
+
+		long before = System.currentTimeMillis();
+		IStatus result = new Generator(provider).generate();
+		long after = System.currentTimeMillis();
+		if (result.isOK()) {
+			System.out.println("Generation completed with success [" + (after - before) / 1000 + " seconds]");
+			return IApplication.EXIT_OK;
+		}
+		System.out.println(result);
+		return new Integer(1);
 	}
 
 	public void stop() {
