@@ -33,10 +33,10 @@ public class IUCapabilityFilter extends ViewerFilter {
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		IInstallableUnit iu = null;
-		if (element instanceof InstallableUnit) {
+		if (element instanceof IInstallableUnit) {
 			iu = (IInstallableUnit) element;
 		} else if (element instanceof IAdaptable) {
-			iu = (IInstallableUnit) ((IAdaptable) element).getAdapter(InstallableUnit.class);
+			iu = (IInstallableUnit) ((IAdaptable) element).getAdapter(IInstallableUnit.class);
 		}
 		if (iu == null) {
 			return true;
