@@ -11,8 +11,6 @@
 package org.eclipse.equinox.p2.tests.artifact.optimizers.jbdiff;
 
 import java.io.*;
-import java.util.Arrays;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -20,6 +18,7 @@ import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.p2.tests.artifact.processor.jbdiff.ArtifactRepositoryMock;
 import org.eclipse.equinox.p2.tests.artifact.processor.jbdiff.TestArtifactKey;
@@ -28,7 +27,7 @@ import org.osgi.framework.Version;
 /**
  * Test the <code>JBDiffZipTest</code> processing step.
  */
-public class JBDiffZipStepTest extends TestCase {
+public class JBDiffZipStepTest extends AbstractProvisioningTest {
 
 	/**
 	 * Test diffing the <b>normalized</b> jars. This is indicated by the extension ".njar".
@@ -53,7 +52,7 @@ public class JBDiffZipStepTest extends TestCase {
 		inputStream = TestActivator.getContext().getBundle().getEntry("testData/delta/org.eclipse.jdt_3.2.0-3.3.0.jbdiff").openStream();
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
-		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));
+		assertEquals("", expected.toByteArray(), destination.toByteArray());
 	}
 
 	/**

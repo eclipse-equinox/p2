@@ -11,8 +11,6 @@
 package org.eclipse.equinox.p2.tests.artifact.processor.jbdiff;
 
 import java.io.*;
-import java.util.Arrays;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.jbdiff.JBPatchZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -21,13 +19,14 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Version;
 
 /**
  * Test the <code>JBPatchZipStep</code> processing step.
  */
-public class JBPatchZipStepTest extends TestCase {
+public class JBPatchZipStepTest extends AbstractProvisioningTest {
 
 	//	/**
 	//	 * This is a disabled "unit test" that was used to generate the data needed for real test.
@@ -74,7 +73,7 @@ public class JBPatchZipStepTest extends TestCase {
 		inputStream = TestActivator.getContext().getBundle().getEntry("testData/delta/org.eclipse.jdt_3.3.0.v20070607-1300.njar").openStream();
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
-		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));
+		assertEquals("", expected.toByteArray(), destination.toByteArray());
 	}
 
 	/**
