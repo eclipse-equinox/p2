@@ -125,7 +125,7 @@ public class ProvisioningUtil {
 		}
 	}
 
-	public static IArtifactRepository[] getArtifactRepositories(IProgressMonitor monitor) throws ProvisionException {
+	public static IArtifactRepository[] getArtifactRepositories() throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
@@ -154,7 +154,7 @@ public class ProvisioningUtil {
 			profileRegistry.removeProfile(profile);
 	}
 
-	public static Profile[] getProfiles(IProgressMonitor monitor) throws ProvisionException {
+	public static Profile[] getProfiles() throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
@@ -170,7 +170,7 @@ public class ProvisioningUtil {
 		return profileRegistry.getProfile(id);
 	}
 
-	public static IMetadataRepository[] getMetadataRepositories(IProgressMonitor monitor) throws ProvisionException {
+	public static IMetadataRepository[] getMetadataRepositories() throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);

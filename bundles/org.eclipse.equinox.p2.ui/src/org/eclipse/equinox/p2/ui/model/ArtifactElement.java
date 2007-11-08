@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
@@ -51,7 +50,7 @@ public class ArtifactElement extends ProvElement {
 		return key.getId() + " [" + key.getNamespace() + "]"; //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+	public Object[] getChildren(Object o) {
 		return repo.getArtifactDescriptors(key);
 	}
 

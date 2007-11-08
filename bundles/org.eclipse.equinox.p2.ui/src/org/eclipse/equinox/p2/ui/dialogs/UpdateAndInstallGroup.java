@@ -107,13 +107,10 @@ public class UpdateAndInstallGroup {
 
 		// Table of available IU's
 		availableIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		setTableColumns(availableIUViewer.getTable());
-		availableIUViewer.setContentProvider(new AvailableIUContentProvider());
-		availableIUViewer.setInput(new AllMetadataRepositories());
 		final IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
 		labelProvider.setToolTipProperty(IInstallableUnitConstants.DESCRIPTION);
-		availableIUViewer.setLabelProvider(labelProvider);
-		// Kind of a hack, but there was no need to go with column label providers
+
+		// TODO Kind of a hack, but there was no need to go with column label providers
 		availableIUViewer.getTable().addListener(SWT.MouseHover, new Listener() {
 			public void handleEvent(Event event) {
 				switch (event.type) {
@@ -129,10 +126,20 @@ public class UpdateAndInstallGroup {
 
 		});
 
+		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		if (iuFilters != null) {
 			availableIUViewer.setFilters(iuFilters);
 		}
 		availableIUViewer.setComparator(new ViewerComparator());
+
+		// Now the content.
+		availableIUViewer.setContentProvider(new AvailableIUContentProvider());
+		availableIUViewer.setInput(new AllMetadataRepositories());
+
+		// Now the presentation, columns before label provider.
+		setTableColumns(availableIUViewer.getTable());
+		availableIUViewer.setLabelProvider(labelProvider);
+
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
 		data.grabExcessVerticalSpace = true;
@@ -217,15 +224,20 @@ public class UpdateAndInstallGroup {
 
 		// Table of installed IU's
 		installedIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		setTableColumns(installedIUViewer.getTable());
-		installedIUViewer.setContentProvider(new ProfileContentProvider());
-		installedIUViewer.setInput(profile);
-		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
 
+		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		if (iuFilters != null) {
 			installedIUViewer.setFilters(iuFilters);
 		}
 		installedIUViewer.setComparator(new ViewerComparator());
+
+		// Now the content.
+		installedIUViewer.setContentProvider(new ProfileContentProvider());
+		installedIUViewer.setInput(profile);
+
+		// Now the visuals, columns before labels.
+		setTableColumns(installedIUViewer.getTable());
+		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;

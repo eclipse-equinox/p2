@@ -19,8 +19,7 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.p2.ui.model.ProvElement;
+import org.eclipse.equinox.p2.ui.model.*;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -85,6 +84,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		if (obj instanceof IArtifactKey) {
 			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
 		}
+		if (obj instanceof RepositoryElement) {
+			return getImage(((RepositoryElement) obj).getAdapter(IRepository.class));
+		}
 
 		return null;
 	}
@@ -103,6 +105,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				if (element instanceof IRepository) {
 					return ((IRepository) element).getName();
 				}
+				if (element instanceof RepositoryElement) {
+					return getColumnText(((RepositoryElement) element).getAdapter(IRepository.class), columnIndex);
+				}
 				return getText(element);
 			case 1 :
 				if (element instanceof Profile) {
@@ -114,6 +119,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				}
 				if (element instanceof IRepository) {
 					return ((IRepository) element).getLocation().toExternalForm();
+				}
+				if (element instanceof RepositoryElement) {
+					return getColumnText(((RepositoryElement) element).getAdapter(IRepository.class), columnIndex);
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;

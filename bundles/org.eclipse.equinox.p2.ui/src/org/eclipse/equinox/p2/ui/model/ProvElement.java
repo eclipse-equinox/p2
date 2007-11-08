@@ -36,21 +36,6 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		return null;
 	}
 
-	public Object[] getChildren(Object o) {
-		return fetchChildren(o, null);
-	}
-
-	// TODO if there is no optimization for subclasses, get rid of this
-	public boolean hasChildren(Object o) {
-		Object[] children = getChildren(o);
-		if (children == null) {
-			return false;
-		}
-		return children.length > 0;
-	}
-
-	abstract protected Object[] fetchChildren(Object o, IProgressMonitor monitor);
-
 	/**
 	 * Return a string id of the image that should be used to show the specified
 	 * object. Returning null indicates that no image should be used.
@@ -100,6 +85,16 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		}
 		IStatus status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, e);
 		StatusManager.getManager().handle(status, StatusManager.LOG);
+	}
+
+	public boolean hasChildren(Object o) {
+		if (this instanceof IDeferredWorkbenchAdapter)
+			return true;
+		Object[] children = getChildren(o);
+		if (children == null) {
+			return false;
+		}
+		return children.length > 0;
 	}
 
 }

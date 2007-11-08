@@ -54,13 +54,18 @@ abstract class ProvView extends ViewPart {
 		// Store the display so we can make async calls from listeners
 		display = parent.getDisplay();
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
-		setTreeColumns(viewer.getTree());
 		viewer.getTree().setHeaderVisible(true);
-		viewer.setContentProvider(getContentProvider());
-		viewer.setInput(getInput());
-		viewer.setLabelProvider(getLabelProvider());
 		viewer.setComparator(new ViewerComparator());
 		configureViewer(viewer);
+		// Do this after setting up sorters, filters, etc.
+		// Otherwise it will retrieve content on each change.
+		viewer.setContentProvider(getContentProvider());
+		viewer.setInput(getInput());
+
+		// Now set up the visuals, columns before labels.
+		setTreeColumns(viewer.getTree());
+		viewer.setLabelProvider(getLabelProvider());
+
 		addListeners();
 		makeActions();
 		hookContextMenu();
@@ -208,7 +213,6 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected void setTreeColumns(Tree tree) {
-		// TODO generalize?
 		// For now we set two columns and the content depends on the elements
 		TreeColumn tc = new TreeColumn(tree, SWT.LEFT, 0);
 		tc.setResizable(true);

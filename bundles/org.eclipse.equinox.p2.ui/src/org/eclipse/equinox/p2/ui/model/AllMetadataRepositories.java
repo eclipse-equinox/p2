@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
@@ -25,17 +24,18 @@ import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
  */
 public class AllMetadataRepositories extends ProvElement {
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#fetchChildren(java.lang.Object, org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+	public Object[] getChildren(Object o) {
 		try {
-			return ProvisioningUtil.getMetadataRepositories(monitor);
+			IMetadataRepository[] repos = ProvisioningUtil.getMetadataRepositories();
+			MetadataRepositoryElement[] elements = new MetadataRepositoryElement[repos.length];
+			for (int i = 0; i < repos.length; i++) {
+				elements[i] = new MetadataRepositoryElement(repos[i]);
+			}
+			return elements;
 		} catch (ProvisionException e) {
 			handleException(e, null);
 		}
-		return new IMetadataRepository[0];
+		return new MetadataRepositoryElement[0];
 	}
 
 	/*
@@ -44,7 +44,7 @@ public class AllMetadataRepositories extends ProvElement {
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
 	 */
 	public String getLabel(Object o) {
-		return ""; //$NON-NLS-1$
+		return null;
 	}
 
 	/*

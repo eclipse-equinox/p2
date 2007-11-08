@@ -66,7 +66,7 @@ public class ProfileContentProvider implements IStructuredContentProvider, ITree
 
 	public boolean hasChildren(Object parent) {
 		if (parent instanceof AllProfiles) {
-			return ((ProvElement) parent).hasChildren(parent);
+			return ((AllProfiles) parent).getChildren(parent).length > 0;
 		}
 		if (parent instanceof Profile) {
 			Iterator allIUs = ((Profile) parent).getInstallableUnits();

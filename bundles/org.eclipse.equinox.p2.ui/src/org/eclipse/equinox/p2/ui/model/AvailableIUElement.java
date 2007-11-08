@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
@@ -46,7 +45,7 @@ public class AvailableIUElement extends ProvElement {
 		return iu.getId();
 	}
 
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+	public Object[] getChildren(Object o) {
 		return null;
 	}
 

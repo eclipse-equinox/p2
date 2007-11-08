@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
@@ -25,17 +24,18 @@ import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
  */
 public class AllArtifactRepositories extends ProvElement {
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#fetchChildren(java.lang.Object, org.eclipse.core.runtime.IProgressMonitor)
-	 */
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+	public Object[] getChildren(Object o) {
 		try {
-			return ProvisioningUtil.getArtifactRepositories(monitor);
+			IArtifactRepository[] repos = ProvisioningUtil.getArtifactRepositories();
+			ArtifactRepositoryElement[] elements = new ArtifactRepositoryElement[repos.length];
+			for (int i = 0; i < repos.length; i++) {
+				elements[i] = new ArtifactRepositoryElement(repos[i]);
+			}
+			return elements;
 		} catch (ProvisionException e) {
 			handleException(e, null);
 		}
-		return new IArtifactRepository[0];
+		return new ArtifactRepositoryElement[0];
 	}
 
 	/*

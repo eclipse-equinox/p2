@@ -110,7 +110,6 @@ public class ProfilesView extends ProvView {
 
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
-		treeViewer.setInput(new AllProfiles());
 		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer);
 		adapter.setFeedbackEnabled(false);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};

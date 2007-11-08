@@ -12,6 +12,7 @@
 package org.eclipse.equinox.p2.ui.model;
 
 import java.util.ArrayList;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -19,9 +20,9 @@ import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
- * Content provider for profile views. The children are the known profiles, and
- * the children of profiles are wrapped IU's (wrapped in InstalledIUElement).
- * They are wrapped so that the association with the parent profile is retained.
+ * Content provider for views of available IU's.  The input
+ * can be a single metadata repository, an array of repos, AllMetadataRepositories.
+ * Unknown inputs will not check any repos.
  * 
  * @since 3.4
  */
@@ -37,19 +38,34 @@ public class AvailableIUContentProvider implements IStructuredContentProvider {
 	}
 
 	public Object[] getElements(Object input) {
-		// If there is no input specified, assume we are looking at all
-		// metadata repositories.
-		if (input == null) {
-			return getElements(new AllMetadataRepositories());
-		}
-		IMetadataRepository[] reposToCheck = new IMetadataRepository[0];
+		IMetadataRepository[] reposToCheck;
 		if (input instanceof IMetadataRepository[]) {
 			reposToCheck = (IMetadataRepository[]) input;
 		} else if (input instanceof AllMetadataRepositories) {
-			reposToCheck = (IMetadataRepository[]) ((AllMetadataRepositories) input).getChildren(null);
+			Object[] children = ((AllMetadataRepositories) input).getChildren(null);
+			if (children == null)
+				reposToCheck = new IMetadataRepository[0];
+			else {
+				reposToCheck = new IMetadataRepository[children.length];
+				for (int i = 0; i < children.length; i++) {
+					if (children[i] instanceof IMetadataRepository)
+						reposToCheck[i] = (IMetadataRepository) children[i];
+					else if (children[i] instanceof IAdaptable)
+						reposToCheck[i] = (IMetadataRepository) ((IAdaptable) children[i]).getAdapter(IMetadataRepository.class);
+					else
+						reposToCheck[i] = null;
+				}
+			}
+		} else if (input instanceof IMetadataRepository) {
+			reposToCheck = new IMetadataRepository[] {(IMetadataRepository) input};
+		} else {
+			reposToCheck = new IMetadataRepository[0];
 		}
 		ArrayList list = new ArrayList();
 		for (int i = 0; i < reposToCheck.length; i++) {
+			// Shouldn't happen, but if an element was not adaptable it would
+			if (reposToCheck[i] == null)
+				break;
 			// TODO maybe this should be configurable, but for now assume we never
 			// want to see content from implementation repositories.
 			Object implOnly = reposToCheck[i].getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);

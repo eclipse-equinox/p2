@@ -12,9 +12,6 @@
 package org.eclipse.equinox.p2.ui.model;
 
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.jface.viewers.*;
 
 /**
  * Content provider for artifact repository viewers.
@@ -24,15 +21,7 @@ import org.eclipse.jface.viewers.*;
  * 
  * @since 3.4
  */
-public class ArtifactRepositoryContentProvider implements IStructuredContentProvider, ITreeContentProvider {
-
-	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		// input does not affect the content
-	}
-
-	public void dispose() {
-		// nothing to do
-	}
+public class ArtifactRepositoryContentProvider extends RepositoryContentProvider {
 
 	public Object[] getElements(Object input) {
 		if (input == null) {
@@ -41,22 +30,10 @@ public class ArtifactRepositoryContentProvider implements IStructuredContentProv
 		return getChildren(input);
 	}
 
-	public Object getParent(Object child) {
-		return null;
-	}
-
-	public Object[] getChildren(Object parent) {
-		if (parent instanceof AllArtifactRepositories) {
-			return ((AllArtifactRepositories) parent).getChildren(parent);
-		}
-		if (parent instanceof IArtifactRepository) {
-			IArtifactKey[] keys = ((IArtifactRepository) parent).getArtifactKeys();
-			ArtifactElement[] elements = new ArtifactElement[keys.length];
-			for (int i = 0; i < keys.length; i++) {
-				elements[i] = new ArtifactElement(keys[i], (IArtifactRepository) parent);
-			}
-			return elements;
-		}
+	public Object[] getChildren(final Object parent) {
+		Object[] children = super.getChildren(parent);
+		if (children != null)
+			return children;
 		if (parent instanceof ArtifactElement) {
 			ArtifactElement element = (ArtifactElement) parent;
 			return element.getArtifactRepository().getArtifactDescriptors(element.getArtifactKey());
@@ -64,10 +41,6 @@ public class ArtifactRepositoryContentProvider implements IStructuredContentProv
 		if (parent instanceof IArtifactDescriptor) {
 			return ((IArtifactDescriptor) parent).getProcessingSteps();
 		}
-		return new Object[0];
-	}
-
-	public boolean hasChildren(Object parent) {
-		return getChildren(parent).length > 0;
+		return null;
 	}
 }
