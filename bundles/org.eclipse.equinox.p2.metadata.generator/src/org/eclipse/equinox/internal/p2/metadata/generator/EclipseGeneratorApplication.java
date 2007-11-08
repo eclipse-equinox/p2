@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.metadata.generator;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -249,20 +248,18 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 	}
 
-	public Object start(IApplicationContext context) throws Exception {
+	public Object run(String args[]) throws Exception {
 		registerEventBus();
 		registerDefaultMetadataRepoManager();
 		registerDefaultArtifactRepoManager();
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		Map args = context.getArguments();
-		processCommandLineArguments((String[]) args.get("application.args"), provider);
+		processCommandLineArguments(args, provider);
 		initialize(provider);
 
 		if (provider.getBaseLocation() == null) {
 			System.out.println("Eclipse base location not specified");
-			String[] a = (String[]) args.get("application.args");
-			for (int i = 0; i < a.length; i++)
-				System.out.println(a[i]);
+			for (int i = 0; i < args.length; i++)
+				System.out.println(args[i]);
 			return IApplication.EXIT_OK;
 		}
 		System.out.println("Generating metadata for " + provider.getBaseLocation());
@@ -276,6 +273,10 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		System.out.println(result);
 		return new Integer(1);
+	}
+
+	public Object start(IApplicationContext context) throws Exception {
+		return run((String[]) context.getArguments().get("application.args"));
 	}
 
 	public void stop() {

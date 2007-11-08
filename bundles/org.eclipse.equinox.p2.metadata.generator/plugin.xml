@@ -19,4 +19,17 @@
             name="Equinox Provisioning Metadata Generator">
       </product>
    </extension>
+
+	<extension point="org.eclipse.ant.core.antTasks">
+		<antTask
+			library="ant_tasks/p2-generator.jar"
+			name="p2.generator"
+			class="org.eclipse.equinox.p2.metadata.generator.ant.GeneratorTask">
+		</antTask>
+	</extension>
+
+	<extension point="org.eclipse.ant.core.extraClasspathEntries">
+		<extraClasspathEntry library="ant_tasks/generator-ant.jar"/>
+	</extension>
+
 </plugin>

@@ -1,2 +1,4 @@
 org.eclipse.equinox.simpleconfigurator.jar
 org.eclipse.update.configurator.jar
+bin
+ant_tasks

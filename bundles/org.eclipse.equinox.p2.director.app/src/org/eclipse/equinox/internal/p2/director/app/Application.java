@@ -9,7 +9,8 @@
 package org.eclipse.equinox.internal.p2.director.app;
 
 import java.net.URL;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -52,9 +53,12 @@ public class Application implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
+		return run((String[]) context.getArguments().get("application.args"));
+	}
+
+	public Object run(String[] args) throws Exception {
 		long time = -System.currentTimeMillis();
-		Map args = context.getArguments();
-		initializeFromArguments((String[]) args.get("application.args"));
+		initializeFromArguments(args);
 
 		Properties props = new Properties();
 		props.setProperty(Profile.PROP_INSTALL_FOLDER, destination);
