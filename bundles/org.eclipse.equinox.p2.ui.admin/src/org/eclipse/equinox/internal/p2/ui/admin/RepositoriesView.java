@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
@@ -131,7 +131,7 @@ abstract class RepositoriesView extends ProvView {
 	}
 
 	protected void selectionChanged(IStructuredSelection selection) {
-		propertiesAction.setEnabled(selection.size() == 1 && ((selection.getFirstElement() instanceof InstallableUnit) || (isRepository(selection.getFirstElement()))));
+		propertiesAction.setEnabled(selection.size() == 1 && ((selection.getFirstElement() instanceof IInstallableUnit) || (isRepository(selection.getFirstElement()))));
 		boolean enabled = false;
 		Object[] selectionArray = selection.toArray();
 		for (int i = 0; i < selectionArray.length; i++) {

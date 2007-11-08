@@ -30,7 +30,7 @@ public class Picker {
 		if (unitsToPickFrom != null)
 			completeSet = unitsToPickFrom;
 		else
-			completeSet = new InstallableUnit[0];
+			completeSet = new IInstallableUnit[0];
 		this.secondChoiceSet = completeSet;
 		this.recommendations = recommendations;
 		this.filters = new ArrayList(2);
@@ -80,7 +80,7 @@ public class Picker {
 				if (pool[i].getId().equals(id) && range.isIncluded(pool[i].getVersion()))
 					candidates.add(pool[i]);
 			}
-			pool = (InstallableUnit[]) candidates.toArray(new IInstallableUnit[candidates.size()]);
+			pool = (IInstallableUnit[]) candidates.toArray(new IInstallableUnit[candidates.size()]);
 		}
 
 		//Filter on capabilities.

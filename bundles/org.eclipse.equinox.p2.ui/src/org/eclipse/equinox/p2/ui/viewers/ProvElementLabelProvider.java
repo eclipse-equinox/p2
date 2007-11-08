@@ -15,7 +15,8 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
@@ -72,7 +73,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		if (obj instanceof Profile) {
 			return ProvUIImages.getImage(ProvUIImages.IMG_PROFILE);
 		}
-		if (obj instanceof InstallableUnit) {
+		if (obj instanceof IInstallableUnit) {
 			return ProvUIImages.getImage(ProvUIImages.IMG_IU);
 		}
 		if (obj instanceof IArtifactRepository) {

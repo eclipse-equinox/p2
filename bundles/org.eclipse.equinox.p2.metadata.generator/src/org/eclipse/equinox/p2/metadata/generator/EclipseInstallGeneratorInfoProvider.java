@@ -18,7 +18,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.*;
@@ -128,7 +127,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		Collection result = new HashSet();
 		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher.");
 		for (Iterator iterator = launchers.iterator(); iterator.hasNext();) {
-			InstallableUnit object = (InstallableUnit) iterator.next();
+			IInstallableUnit object = (IInstallableUnit) iterator.next();
 			GeneratorBundleInfo temp = new GeneratorBundleInfo();
 			temp.setSymbolicName(object.getId());
 			temp.setVersion(object.getVersion().toString());

@@ -334,7 +334,7 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	/**
-	 * Prints a string representation of an {@link InstallableUnit} to the
+	 * Prints a string representation of an {@link IInstallableUnit} to the
 	 * iterpreter's output stream.
 	 */
 	public void print(CommandInterpreter interpreter, IInstallableUnit unit) {
@@ -342,7 +342,7 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	/**
-	 * Prints a string representation of an {@link InstallableUnit} to the
+	 * Prints a string representation of an {@link IInstallableUnit} to the
 	 * iterpreter's output stream, following by a line terminator
 	 */
 	public void println(CommandInterpreter interpreter, IInstallableUnit unit) {

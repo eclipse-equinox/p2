@@ -12,18 +12,18 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 /**
- * A required capability represents some external constraint on an {@link InstallableUnit}.
- * Each capability represents something an {@link InstallableUnit} needs that
- * it expects to be provided by another {@link InstallableUnit}. Capabilities are
+ * A required capability represents some external constraint on an {@link IInstallableUnit}.
+ * Each capability represents something an {@link IInstallableUnit} needs that
+ * it expects to be provided by another {@link IInstallableUnit}. Capabilities are
  * entirely generic, and are intended to be capable of representing anything that
- * an {@link InstallableUnit} may need either at install time, or at runtime.
+ * an {@link IInstallableUnit} may need either at install time, or at runtime.
  * <p>
  * Capabilities are segmented into namespaces.  Anyone can introduce new 
  * capability namespaces. Some well-known namespaces are introduced directly
  * by the provisioning framework.
  * 
- * @see InstallableUnit#IU_KIND_NAMESPACE
- * @see InstallableUnit#IU_NAMESPACE
+ * @see IInstallableUnit#IU_KIND_NAMESPACE
+ * @see IInstallableUnit#IU_NAMESPACE
  */
 public class RequiredCapability {
 
@@ -39,7 +39,7 @@ public class RequiredCapability {
 	 * Returns a {@link RequiredCapability} on the installable unit with the given name
 	 * and version range.
 	 * 
-	 * @param name The name of the {@link InstallableUnit} that is required.
+	 * @param name The name of the {@link IInstallableUnit} that is required.
 	 * @param versionRange The range of versions that are required, or <code>null</code>
 	 * to indicate that any version will do.
 	 * @param optional <code>true</code> if this required capability is optional,

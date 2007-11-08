@@ -29,7 +29,7 @@ public class Generator {
 	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator";
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
-	private IGeneratorInfo info;
+	private final IGeneratorInfo info;
 	private StateObjectFactory stateObjectFactory;
 
 	public Generator(IGeneratorInfo infoProvider) {
@@ -41,7 +41,7 @@ public class Generator {
 		}
 	}
 
-	protected InstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
+	protected IInstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
 		InstallableUnit root = new InstallableUnit();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);

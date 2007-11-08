@@ -16,9 +16,9 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 	private static IInstallableUnit[] NO_IU = new IInstallableUnit[0];
 
 	private IInstallableUnit[] fragments = NO_IU;
-	protected InstallableUnit resolved;
+	protected IInstallableUnit resolved;
 
-	public ResolvedInstallableUnit(InstallableUnit resolved) {
+	public ResolvedInstallableUnit(IInstallableUnit resolved) {
 		this.resolved = resolved;
 	}
 
