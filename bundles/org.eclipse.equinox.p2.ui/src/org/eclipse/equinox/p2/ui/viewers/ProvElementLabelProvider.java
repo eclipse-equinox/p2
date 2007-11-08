@@ -18,8 +18,9 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.*;
+import org.eclipse.equinox.p2.ui.model.ProvElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -84,10 +85,6 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		if (obj instanceof IArtifactKey) {
 			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
 		}
-		if (obj instanceof RepositoryElement) {
-			return getImage(((RepositoryElement) obj).getAdapter(IRepository.class));
-		}
-
 		return null;
 	}
 
@@ -102,35 +99,26 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 
 		switch (columnIndex) {
 			case 0 :
-				if (element instanceof IRepository) {
-					return ((IRepository) element).getName();
-				}
-				if (element instanceof RepositoryElement) {
-					return getColumnText(((RepositoryElement) element).getAdapter(IRepository.class), columnIndex);
+				IRepository repo = (IRepository) ProvUI.getAdapter(element, IRepository.class);
+				if (repo != null) {
+					return repo.getName();
 				}
 				return getText(element);
 			case 1 :
 				if (element instanceof Profile) {
 					return ((Profile) element).getValue(Profile.PROP_NAME);
 				}
-				if (element instanceof IInstallableUnit) {
-					IInstallableUnit iu = (IInstallableUnit) element;
+				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+				if (iu != null) {
 					return iu.getVersion().toString();
 				}
-				if (element instanceof IRepository) {
-					return ((IRepository) element).getLocation().toExternalForm();
-				}
-				if (element instanceof RepositoryElement) {
-					return getColumnText(((RepositoryElement) element).getAdapter(IRepository.class), columnIndex);
+				repo = (IRepository) ProvUI.getAdapter(element, IRepository.class);
+				if (repo != null) {
+					return repo.getLocation().toExternalForm();
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;
 					return key.getVersion().toString();
-				}
-				if (element instanceof InstalledIUElement) {
-					IInstallableUnit iu = (IInstallableUnit) ((InstalledIUElement) element).getAdapter(IInstallableUnit.class);
-					if (iu != null)
-						return iu.getVersion().toString();
 				}
 		}
 		return null;

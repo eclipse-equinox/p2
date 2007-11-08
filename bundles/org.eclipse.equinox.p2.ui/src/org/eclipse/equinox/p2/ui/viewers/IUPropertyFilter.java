@@ -11,8 +11,8 @@
 
 package org.eclipse.equinox.p2.ui.viewers;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -33,21 +33,13 @@ public class IUPropertyFilter extends ViewerFilter {
 	}
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		IInstallableUnit iu = getIU(element);
+		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null)
 			return false;
 		String prop = getProperty(iu, parentElement, propertyName);
 		if (prop == null)
 			return false;
 		return prop.equals(propertyValue);
-	}
-
-	protected IInstallableUnit getIU(Object element) {
-		if (element instanceof IInstallableUnit)
-			return (IInstallableUnit) element;
-		if (element instanceof IAdaptable)
-			return (IInstallableUnit) ((IAdaptable) element).getAdapter(IInstallableUnit.class);
-		return null;
 	}
 
 	protected String getProperty(IInstallableUnit iu, Object parentElement, String key) {

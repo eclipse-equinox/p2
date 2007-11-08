@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.*;
@@ -197,13 +196,9 @@ public class RepositoryManipulationDialog extends TrayDialog {
 				Object[] selection = ((IStructuredSelection) repositoryViewer.getSelection()).toArray();
 				List repos = new ArrayList();
 				for (int i = 0; i < selection.length; i++) {
-					if (selection[i] instanceof IMetadataRepository) {
-						repos.add(selection[i]);
-					} else if (selection[i] instanceof IAdaptable) {
-						IMetadataRepository repo = (IMetadataRepository) ((IAdaptable) selection[i]).getAdapter(IMetadataRepository.class);
-						if (repo != null)
-							repos.add(repo);
-					}
+					IMetadataRepository repo = (IMetadataRepository) ProvUI.getAdapter(selection[i], IMetadataRepository.class);
+					if (repo != null)
+						repos.add(repo);
 				}
 				if (repos.size() > 0) {
 					RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, (IMetadataRepository[]) repos.toArray(new IMetadataRepository[repos.size()]));

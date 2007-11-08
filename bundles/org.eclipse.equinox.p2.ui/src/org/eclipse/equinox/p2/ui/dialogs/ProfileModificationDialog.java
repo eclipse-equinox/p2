@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.StaticContentProvider;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -159,7 +158,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 	protected IInstallableUnit[] elementsToIUs(Object[] elements) {
 		IInstallableUnit[] theIUs = new IInstallableUnit[elements.length];
 		for (int i = 0; i < elements.length; i++) {
-			theIUs[i] = (IInstallableUnit) ((IAdaptable) elements[i]).getAdapter(IInstallableUnit.class);
+			theIUs[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 		}
 		return theIUs;
 	}

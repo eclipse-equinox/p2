@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.ui.viewers;
 
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
@@ -61,7 +60,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			columnContent = columnConfig[columnIndex].columnField;
 		}
 
-		IInstallableUnit iu = getIU(element);
+		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null)
 			return BLANK;
 
@@ -82,17 +81,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	public Image getColumnImage(Object element, int index) {
-		if (index == PRIMARY_COLUMN && getIU(element) != null) {
+		if (index == PRIMARY_COLUMN && ProvUI.getAdapter(element, IInstallableUnit.class) != null) {
 			return ProvUIImages.getImage(ProvUIImages.IMG_IU);
 		}
-		return null;
-	}
-
-	private IInstallableUnit getIU(Object element) {
-		if (element instanceof IInstallableUnit)
-			return (IInstallableUnit) element;
-		if (element instanceof IAdaptable)
-			return (IInstallableUnit) ((IAdaptable) element).getAdapter(IInstallableUnit.class);
 		return null;
 	}
 
@@ -119,7 +110,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	public String getToolTipText(Object element) {
-		IInstallableUnit iu = getIU(element);
+		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null || toolTipProperty == null)
 			return null;
 		return iu.getProperty(toolTipProperty);

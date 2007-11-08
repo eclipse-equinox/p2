@@ -12,10 +12,10 @@
 package org.eclipse.equinox.p2.ui.model;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
@@ -48,12 +48,7 @@ public class AvailableIUContentProvider implements IStructuredContentProvider {
 			else {
 				reposToCheck = new IMetadataRepository[children.length];
 				for (int i = 0; i < children.length; i++) {
-					if (children[i] instanceof IMetadataRepository)
-						reposToCheck[i] = (IMetadataRepository) children[i];
-					else if (children[i] instanceof IAdaptable)
-						reposToCheck[i] = (IMetadataRepository) ((IAdaptable) children[i]).getAdapter(IMetadataRepository.class);
-					else
-						reposToCheck[i] = null;
+					reposToCheck[i] = (IMetadataRepository) ProvUI.getAdapter(children[i], IMetadataRepository.class);
 				}
 			}
 		} else if (input instanceof IMetadataRepository) {

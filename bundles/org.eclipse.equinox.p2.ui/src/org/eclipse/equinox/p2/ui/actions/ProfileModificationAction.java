@@ -14,7 +14,8 @@ package org.eclipse.equinox.p2.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
@@ -51,12 +52,9 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		List iusList = new ArrayList(elements.size());
 
 		for (int i = 0; i < elements.size(); i++) {
-			Object element = elements.get(i);
-			if (element instanceof IInstallableUnit) {
-				iusList.add(element);
-			} else if (element instanceof IAdaptable) {
-				iusList.add(((IAdaptable) element).getAdapter(IInstallableUnit.class));
-			}
+			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(elements.get(i), IInstallableUnit.class);
+			if (iu != null)
+				iusList.add(iu);
 		}
 
 		final IInstallableUnit[] ius = (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);

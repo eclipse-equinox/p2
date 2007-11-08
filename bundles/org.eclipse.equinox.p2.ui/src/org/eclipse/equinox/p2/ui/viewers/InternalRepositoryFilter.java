@@ -11,8 +11,8 @@
 
 package org.eclipse.equinox.p2.ui.viewers;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -24,12 +24,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 public class InternalRepositoryFilter extends ViewerFilter {
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		IRepository repo = null;
-		if (element instanceof IRepository) {
-			repo = (IRepository) element;
-		} else if (element instanceof IAdaptable) {
-			repo = (IRepository) ((IAdaptable) element).getAdapter(IRepository.class);
-		}
+		IRepository repo = (IRepository) ProvUI.getAdapter(element, IRepository.class);
 		if (repo == null) {
 			return true;
 		}

@@ -12,11 +12,11 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import java.net.URL;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -171,13 +171,9 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	private IRepository[] makeRepositories(Object[] elements) {
 		ArrayList list = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof IRepository)
-				list.add(elements[i]);
-			else if (elements[i] instanceof IAdaptable) {
-				IRepository repo = (IRepository) ((IAdaptable) elements[i]).getAdapter(IRepository.class);
-				if (repo != null)
-					list.add(repo);
-			}
+			IRepository repo = (IRepository) ProvUI.getAdapter(elements[i], IRepository.class);
+			if (repo != null)
+				list.add(repo);
 		}
 		return (IRepository[]) list.toArray(new IRepository[list.size()]);
 	}

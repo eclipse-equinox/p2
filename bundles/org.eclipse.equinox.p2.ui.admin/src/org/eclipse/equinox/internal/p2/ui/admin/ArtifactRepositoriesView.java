@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveArtifactRepositoryOperation;
@@ -61,13 +61,9 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
 		ArrayList repos = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof IArtifactRepository) {
-				repos.add(elements[i]);
-			} else if (elements[i] instanceof IAdaptable) {
-				IArtifactRepository repo = (IArtifactRepository) ((IAdaptable) elements[i]).getAdapter(IArtifactRepository.class);
-				if (repo != null)
-					repos.add(repo);
-			}
+			IArtifactRepository repo = (IArtifactRepository) ProvUI.getAdapter(elements[i], IArtifactRepository.class);
+			if (repo != null)
+				repos.add(repo);
 		}
 		return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (IArtifactRepository[]) repos.toArray(new IArtifactRepository[repos.size()]));
 	}

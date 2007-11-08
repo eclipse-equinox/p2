@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -97,7 +98,7 @@ public class RepositoryPropertyPage extends PropertyPage {
 
 	protected IRepository getRepository() {
 		if (repository == null) {
-			repository = (IRepository) getElement().getAdapter(IRepository.class);
+			repository = (IRepository) ProvUI.getAdapter(getElement(), IRepository.class);
 		}
 		return repository;
 	}

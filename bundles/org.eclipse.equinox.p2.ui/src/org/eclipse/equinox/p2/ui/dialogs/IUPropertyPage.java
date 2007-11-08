@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -30,13 +30,7 @@ public class IUPropertyPage extends PropertyPage {
 	private IUPropertiesGroup iuGroup;
 
 	protected Control createContents(Composite parent) {
-		Object element = getElement();
-		IInstallableUnit iu = null;
-		if (element instanceof IInstallableUnit) {
-			iu = (IInstallableUnit) element;
-		} else if (element instanceof IAdaptable) {
-			iu = (IInstallableUnit) ((IAdaptable) element).getAdapter(IInstallableUnit.class);
-		}
+		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(getElement(), IInstallableUnit.class);
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvUIMessages.IUPropertyPage_NoIUSelected);

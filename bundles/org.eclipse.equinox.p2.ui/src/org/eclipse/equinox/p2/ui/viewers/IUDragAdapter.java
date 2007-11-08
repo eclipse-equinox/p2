@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import java.util.*;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.*;
@@ -107,7 +107,7 @@ public class IUDragAdapter extends DragSourceAdapter {
 
 		Iterator iter = structuredSelection.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = getIU(iter.next());
+			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 			if (iu != null) {
 				ius.add(iu);
 			}
@@ -118,21 +118,11 @@ public class IUDragAdapter extends DragSourceAdapter {
 	private boolean areOnlyIUsSelected(IStructuredSelection selection) {
 		Iterator iter = selection.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = getIU(iter.next());
+			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 			if (iu == null) {
 				return false;
 			}
 		}
 		return true;
-	}
-
-	private IInstallableUnit getIU(Object obj) {
-		if (obj instanceof IInstallableUnit) {
-			return (IInstallableUnit) obj;
-		}
-		if (obj instanceof IAdaptable) {
-			return (IInstallableUnit) ((IAdaptable) obj).getAdapter(IInstallableUnit.class);
-		}
-		return null;
 	}
 }

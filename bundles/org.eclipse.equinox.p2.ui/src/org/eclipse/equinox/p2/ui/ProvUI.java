@@ -119,6 +119,14 @@ public class ProvUI {
 		return provisioningUndoContext;
 	}
 
+	public static Object getAdapter(Object object, Class adapterType) {
+		if (adapterType.isInstance(object))
+			return object;
+		if (object instanceof IAdaptable)
+			return ((IAdaptable) object).getAdapter(adapterType);
+		return null;
+	}
+
 	static IOperationApprover getOperationApprover() {
 		return new IOperationApprover() {
 			public IStatus proceedUndoing(final IUndoableOperation operation, IOperationHistory history, IAdaptable info) {

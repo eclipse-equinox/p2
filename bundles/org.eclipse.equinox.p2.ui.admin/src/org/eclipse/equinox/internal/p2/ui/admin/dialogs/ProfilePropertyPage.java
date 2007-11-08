@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -30,7 +31,7 @@ public class ProfilePropertyPage extends PropertyPage {
 	private ProfileGroup profileGroup;
 
 	protected Control createContents(Composite parent) {
-		Profile profile = (Profile) getElement().getAdapter(Profile.class);
+		Profile profile = (Profile) ProvUI.getAdapter(getElement(), Profile.class);
 		if (profile == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);

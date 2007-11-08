@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
 
@@ -38,11 +38,7 @@ public abstract class IUGroup {
 	}
 
 	public IInstallableUnit getIU() {
-		if (iuElement instanceof IInstallableUnit)
-			return (IInstallableUnit) iuElement;
-		if (iuElement instanceof IAdaptable)
-			return ((IInstallableUnit) ((IAdaptable) iuElement).getAdapter(IInstallableUnit.class));
-		return null;
+		return (IInstallableUnit) ProvUI.getAdapter(iuElement, IInstallableUnit.class);
 	}
 
 	public void updateIU() {

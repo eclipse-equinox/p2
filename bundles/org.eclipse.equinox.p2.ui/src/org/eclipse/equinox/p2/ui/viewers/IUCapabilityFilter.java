@@ -11,8 +11,8 @@
 
 package org.eclipse.equinox.p2.ui.viewers;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
@@ -32,12 +32,7 @@ public class IUCapabilityFilter extends ViewerFilter {
 	}
 
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-		IInstallableUnit iu = null;
-		if (element instanceof IInstallableUnit) {
-			iu = (IInstallableUnit) element;
-		} else if (element instanceof IAdaptable) {
-			iu = (IInstallableUnit) ((IAdaptable) element).getAdapter(IInstallableUnit.class);
-		}
+		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null) {
 			return true;
 		}

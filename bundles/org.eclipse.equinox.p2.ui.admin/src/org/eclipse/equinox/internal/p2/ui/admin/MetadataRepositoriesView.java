@@ -11,12 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.p2.ui.actions.RollbackAction;
 import org.eclipse.equinox.p2.ui.model.*;
@@ -78,14 +78,9 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
 		ArrayList repos = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i] instanceof IMetadataRepository) {
-				repos.add(elements[i]);
-			} else if (elements[i] instanceof IAdaptable) {
-				IMetadataRepository repo = (IMetadataRepository) ((IAdaptable) elements[i]).getAdapter(IMetadataRepository.class);
-				if (repo != null)
-					repos.add(repo);
-			}
-
+			IMetadataRepository repo = (IMetadataRepository) ProvUI.getAdapter(elements[i], IMetadataRepository.class);
+			if (repo != null)
+				repos.add(repo);
 		}
 		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.MetadataRepositoriesView_RemoveRepositoryOperationLabel, (IMetadataRepository[]) repos.toArray(new IMetadataRepository[repos.size()]));
 	}

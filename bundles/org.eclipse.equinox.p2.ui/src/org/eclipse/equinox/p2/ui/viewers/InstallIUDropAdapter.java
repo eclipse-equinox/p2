@@ -11,10 +11,12 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
@@ -210,21 +212,11 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 		Iterator iter = structuredSelection.iterator();
 		while (iter.hasNext()) {
-			IInstallableUnit iu = getIU(iter.next());
+			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
 			if (iu != null) {
 				ius.add(iu);
 			}
 		}
 		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
-	}
-
-	private IInstallableUnit getIU(Object obj) {
-		if (obj instanceof IInstallableUnit) {
-			return (IInstallableUnit) obj;
-		}
-		if (obj instanceof IAdaptable) {
-			return (IInstallableUnit) ((IAdaptable) obj).getAdapter(IInstallableUnit.class);
-		}
-		return null;
 	}
 }
