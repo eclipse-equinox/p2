@@ -27,14 +27,13 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
 	public void preWindowOpen() {
 		IWorkbenchWindowConfigurer configurer = getWindowConfigurer();
+		// The workbench progress manager won't get initialized until I refer to it.
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=208963
+		PlatformUI.getWorkbench().getProgressService();
 		configurer.setInitialSize(new Point(800, 600));
 		configurer.setShowCoolBar(false);
 		configurer.setShowStatusLine(false);
 		configurer.setShowProgressIndicator(true);
 		configurer.setTitle(ProvAdminUIMessages.ApplicationWindowTitle);
-		// The workbench progress manager won't get initialized until I refer to it.
-		// Refer to it so that jobs will get their fail cases reported by the progress service.
-		// TODO open a platform UI bug since this relies on a side effect
-		PlatformUI.getWorkbench().getProgressService();
 	}
 }
