@@ -130,7 +130,7 @@ public class Optimizer {
 	 * ]
 	 * </code></pre>  
 	 * @param artifactKeys
-	 * @return 
+	 * @return the sorted artifact keys
 	 */
 	private IArtifactKey[][] getSortedRelatedArtifactKeys(IArtifactKey[] artifactKeys) {
 		Map map = new HashMap();
