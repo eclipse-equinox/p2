@@ -164,4 +164,22 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		}
 		return section;
 	}
+
+	/**
+	 * Overridden to provide a close button.
+	 * 
+	 * @param parent
+	 *            the button bar composite
+	 */
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.CLOSE_ID, IDialogConstants.CLOSE_LABEL, true);
+	}
+
+	protected void buttonPressed(int buttonId) {
+		if (IDialogConstants.CLOSE_ID == buttonId) {
+			close();
+		}
+		super.buttonPressed(buttonId);
+	}
+
 }

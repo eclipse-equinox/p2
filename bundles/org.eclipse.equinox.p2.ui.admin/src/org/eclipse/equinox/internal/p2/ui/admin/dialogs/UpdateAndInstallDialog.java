@@ -64,6 +64,17 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		return group.getTabFolder();
 	}
 
+	/**
+	 * Overridden to prevent the creation of buttons.  The button bar
+	 * itself is still created for the help button.
+	 * 
+	 * @param parent
+	 *            the button bar composite
+	 */
+	protected void createButtonsForButtonBar(Composite parent) {
+		// No buttons
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
