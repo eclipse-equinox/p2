@@ -19,7 +19,7 @@ import org.osgi.framework.Version;
  * The <code>ArtifactKeyDeSerializer</code> encapsulates the serialization and de-serialization
  * of artifact keys into string representation and vice versa.
  * This encoding pattern is used within the processing step descriptor´s data property.<p>
- * <b>Note: </b>This class is a duplicate of {@link org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.ArtifactKeyDeSerializer}.
+ * <b>Note: </b>This class is a duplicate of org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.ArtifactKeyDeSerializer.
  * This has been done because this class is only relevant for the delta stuff.  
  */
 public class ArtifactKeyDeSerializer {
