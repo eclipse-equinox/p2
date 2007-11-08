@@ -42,4 +42,9 @@ abstract class RepositoryOperation extends UndoableProvisioningOperation {
 	public Object[] getAffectedObjects() {
 		return urls;
 	}
+
+	public boolean runInBackground() {
+		return true;
+	}
+
 }
