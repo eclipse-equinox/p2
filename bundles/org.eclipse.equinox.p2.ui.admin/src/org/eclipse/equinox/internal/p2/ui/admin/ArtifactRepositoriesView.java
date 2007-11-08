@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.ui.model.AllArtifactRepositories;
-import org.eclipse.equinox.p2.ui.model.ArtifactRepositoryContentProvider;
+import org.eclipse.equinox.p2.ui.model.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveArtifactRepositoryOperation;
 import org.eclipse.jface.viewers.IContentProvider;
@@ -69,7 +68,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected boolean isRepository(Object element) {
-		return element instanceof IArtifactRepository;
+		return element instanceof IArtifactRepository || element instanceof ArtifactRepositoryElement;
 	}
 
 }

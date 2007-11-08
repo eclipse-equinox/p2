@@ -134,7 +134,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected boolean isRepository(Object element) {
-		return element instanceof IMetadataRepository;
+		return element instanceof IMetadataRepository || element instanceof MetadataRepositoryElement;
 	}
 
 	protected void configureViewer(final TreeViewer treeViewer) {
