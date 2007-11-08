@@ -89,26 +89,6 @@ public class EquinoxFwConfigFileParser {
 		if (configData.getBeginingFwStartLevel() != BundleInfo.NO_LEVEL)
 			props.setProperty(EquinoxConstants.PROP_INITIAL_STARTLEVEL, Integer.toString(configData.getBeginingFwStartLevel()));
 
-		if (fwJar != null) {
-			URL fwJarUrl = null;
-			try {
-				fwJarUrl = fwJar.toURL();
-			} catch (MalformedURLException e) {
-				// Never happens
-				e.printStackTrace();
-			}
-			String fwJarSt = fwJarUrl.toExternalForm();
-			// TODO I just added this "if" stmt because we were seeing an extra slash
-			// appearing in the resulting URL. was this the right thing to do? the indexes 
-			// seem off in the loop below. (I'm on linux if that makes a difference)
-			//			if (!fwJarSt.startsWith("file:")) {
-			//				if (fwJarSt.length() > 5 && fwJarSt.charAt(4) != '/') {
-			//					fwJarSt = "file:/" + fwJarUrl.getFile();
-			//				}
-			//			}
-			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJarSt /* fwJar.getAbsolutePath() */);
-		}
-
 		final File launcher = launcherData.getLauncher();
 		if (launcher != null) {
 			String launcherName = launcher.getName();
@@ -130,10 +110,27 @@ public class EquinoxFwConfigFileParser {
 			setOSGiBundlesExtraData(props, bInfos);
 
 		}
+		//TODO The following merging operations are suspicious.
 		props = Utils.appendProperties(props, configData.getFwIndependentProps());
 
 		props = Utils.appendProperties(props, configData.getFwDependentProps());
-		//props.setProperty(EquinoxConstants.AOL, EquinoxConstants.AOL);
+
+		//Deal with the fw jar and ensure it is not set. 
+		//TODO This can't be done before because of the previous calls to appendProperties 
+		String fwJarSt = null;
+		try {
+			if (fwJar != null) {
+				fwJarSt = fwJar.toURL().toExternalForm();
+			}
+		} catch (MalformedURLException e) {
+			// Never happens
+			e.printStackTrace();
+		}
+		if (fwJarSt != null)
+			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJarSt /* fwJar.getAbsolutePath() */);
+		else
+			props.remove(EquinoxConstants.PROP_OSGI_FW);
+
 		return props;
 	}
 
@@ -413,8 +410,7 @@ public class EquinoxFwConfigFileParser {
 		ConfigData configData = manipulator.getConfigData();
 		LauncherData launcherData = manipulator.getLauncherData();
 		File fwJar = EquinoxBundlesState.getFwJar(launcherData, configData);
-		if (fwJar != null)
-			launcherData.setFwJar(fwJar);
+		launcherData.setFwJar(fwJar);
 		File outputFile = launcherData.getFwConfigLocation();
 		if (outputFile.exists()) {
 			if (outputFile.isFile()) {

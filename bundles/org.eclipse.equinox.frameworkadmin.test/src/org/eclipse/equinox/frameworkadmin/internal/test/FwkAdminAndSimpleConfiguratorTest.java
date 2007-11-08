@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.frameworkadmin.*;
+import org.osgi.framework.BundleException;
 
 public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdminTest {
 	private File installFolder;
@@ -27,7 +28,7 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 		startSimpleConfiguratormManipulator();
 	}
 
-	protected Manipulator createMinimalConfiguration(String workArea) throws Exception {
+	protected Manipulator getNewManipulator(String workArea) throws FrameworkAdminRuntimeException, IOException, BundleException {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
@@ -43,6 +44,11 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 		} catch (IllegalStateException e) {
 			//TODO We ignore the framework JAR location not set exception
 		}
+		return manipulator;
+	}
+
+	protected Manipulator createMinimalConfiguration(String workArea) throws Exception {
+		Manipulator manipulator = getNewManipulator(workArea);
 
 		BundleInfo osgiBi = new BundleInfo("org.eclipse.osgi", "3.3.1", FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.osgi.jar")).toExternalForm(), 0, true);
 		BundleInfo configuratorBi = new BundleInfo("org.eclipse.equinox.simpleconfigurator", "1.0.0", FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/org.eclipse.equinox.simpleconfigurator.jar")).toExternalForm(), 1, true);
@@ -62,6 +68,22 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
+		if (installFolder != null)
+			delete(installFolder);
+	}
+
+	private void delete(File toDelete) {
+		if (toDelete.isFile()) {
+			toDelete.delete();
+			return;
+		}
+		if (toDelete.isDirectory()) {
+			File[] children = toDelete.listFiles();
+			for (int i = 0; i < children.length; i++) {
+				delete(children[i]);
+			}
+			toDelete.delete();
+		}
 	}
 
 	public File getInstallFolder() {

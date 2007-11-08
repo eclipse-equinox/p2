@@ -303,55 +303,10 @@ public class EquinoxBundlesState implements BundlesState {
 	 * @param bInfos
 	 */
 	private void composeNewState(LauncherData launcherData, ConfigData configData, Properties properties, BundleInfo[] bInfos) {
+		//Note, there use to be a lot more code in this method
 		File fwJar = getSystemBundleFromBundleInfos(configData);
-		if (fwJar == null) {
-			fwJar = getFwJar(launcherData, configData, false);
-			if (fwJar == null) {
-				throw new IllegalStateException("Framework JAR location has not been set");
-			}
-			if (launcherData.getFwJar() != null) {
-				launcherData.setFwJar(fwJar);
-			}
-
-			configData.setBundles(null);
-
-			// Used to always add a system bundle to new state,
-			// but caused uninstall problems. see bugzilla 191610
-			// try {
-			// BundleInfo systemBundleInfo = new
-			// BundleInfo(fwJar.toURL().toExternalForm(), 0, true, 0);
-			// configData.addBundle(systemBundleInfo);
-			// } catch (MalformedURLException e) {
-			// // Nothing to do because never happens.
-			// e.printStackTrace();
-			// }
-
-			for (int i = 0; i < bInfos.length; i++)
-				configData.addBundle(bInfos[i]);
-		} else {
-			//			if (this.getFwJar() == null) {
-			this.setFwJar(fwJar);
-			//			}
-		}
-
-		// composeState(bInfos, properties, null);
-		// resolve(true);
-		// if (getSystemBundle() == null) {
-		// File fwJar = getFwJar(launcherData, configData);
-		// if (fwJar == null)
-		// throw new IllegalStateException("fwJar cannot be set.");
-		// launcherData.setFwJar(fwJar);
-		//
-		// BundleInfo[] newBInfos = new BundleInfo[bInfos.length + 1];
-		// try {
-		// newBInfos[0] = new BundleInfo(fwJar.toURL().toExternalForm(), 0,
-		// true, 0);
-		// } catch (MalformedURLException e) {
-		// // Nothign to do because never happens.
-		// e.printStackTrace();
-		// }
-		// System.arraycopy(bInfos, 0, newBInfos, 1, bInfos.length);
-		// configData.setBundles(newBInfos);
+		launcherData.setFwJar(fwJar);
+		this.setFwJar(fwJar);
 		composeState(configData.getBundles(), properties, null);
 		resolve(true);
 	}
