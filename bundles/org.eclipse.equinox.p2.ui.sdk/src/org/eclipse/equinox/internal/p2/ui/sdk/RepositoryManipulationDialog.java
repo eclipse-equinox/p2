@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.model.AllMetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositoryContentProvider;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.operations.RemoveColocatedRepositoryOperation;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
@@ -181,19 +184,31 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		button = createVerticalButton(composite, ProvSDKMessages.RepositoryManipulationDialog_AddButton, false);
 		button.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
-				new AddColocatedRepositoryDialog(getShell(), (IMetadataRepository[]) ((IStructuredContentProvider) repositoryViewer.getContentProvider()).getElements(null)).open();
+				try {
+					new AddColocatedRepositoryDialog(getShell(), ProvisioningUtil.getMetadataRepositories()).open();
+				} catch (ProvisionException e) {
+					ProvUI.handleException(e, null);
+				}
 			}
 		});
 		button = createVerticalButton(composite, ProvSDKMessages.RepositoryManipulationDialog_RemoveButton, false);
 		button.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
-				List selection = ((IStructuredSelection) repositoryViewer.getSelection()).toList();
-				IMetadataRepository[] repos = new IMetadataRepository[selection.size()];
-				for (int i = 0; i < repos.length; i++) {
-					repos[i] = (IMetadataRepository) selection.get(i);
+				Object[] selection = ((IStructuredSelection) repositoryViewer.getSelection()).toArray();
+				List repos = new ArrayList();
+				for (int i = 0; i < selection.length; i++) {
+					if (selection[i] instanceof IMetadataRepository) {
+						repos.add(selection[i]);
+					} else if (selection[i] instanceof IAdaptable) {
+						IMetadataRepository repo = (IMetadataRepository) ((IAdaptable) selection[i]).getAdapter(IMetadataRepository.class);
+						if (repo != null)
+							repos.add(repo);
+					}
 				}
-				RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, repos);
-				ProvisioningOperationRunner.schedule(op, getShell());
+				if (repos.size() > 0) {
+					RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, (IMetadataRepository[]) repos.toArray(new IMetadataRepository[repos.size()]));
+					ProvisioningOperationRunner.schedule(op, getShell());
+				}
 			}
 		});
 		return composite;

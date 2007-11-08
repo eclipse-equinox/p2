@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.ui.model.*;
@@ -54,7 +55,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected int openAddRepositoryDialog(Shell shell, Object[] elements) {
-		return new AddArtifactRepositoryDialog(shell, (IArtifactRepository[]) elements).open();
+		return new AddArtifactRepositoryDialog(shell, elements).open();
 	}
 
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
@@ -62,6 +63,10 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IArtifactRepository) {
 				repos.add(elements[i]);
+			} else if (elements[i] instanceof IAdaptable) {
+				IArtifactRepository repo = (IArtifactRepository) ((IAdaptable) elements[i]).getAdapter(IArtifactRepository.class);
+				if (repo != null)
+					repos.add(repo);
 			}
 		}
 		return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (IArtifactRepository[]) repos.toArray(new IArtifactRepository[repos.size()]));

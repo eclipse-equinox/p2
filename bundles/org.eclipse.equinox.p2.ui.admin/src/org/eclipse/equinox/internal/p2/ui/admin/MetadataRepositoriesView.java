@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import java.util.ArrayList;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -71,7 +72,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected int openAddRepositoryDialog(Shell shell, Object[] elements) {
-		return new AddMetadataRepositoryDialog(shell, (IMetadataRepository[]) elements).open();
+		return new AddMetadataRepositoryDialog(shell, elements).open();
 	}
 
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
@@ -79,7 +80,12 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof IMetadataRepository) {
 				repos.add(elements[i]);
+			} else if (elements[i] instanceof IAdaptable) {
+				IMetadataRepository repo = (IMetadataRepository) ((IAdaptable) elements[i]).getAdapter(IMetadataRepository.class);
+				if (repo != null)
+					repos.add(repo);
 			}
+
 		}
 		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.MetadataRepositoriesView_RemoveRepositoryOperationLabel, (IMetadataRepository[]) repos.toArray(new IMetadataRepository[repos.size()]));
 	}

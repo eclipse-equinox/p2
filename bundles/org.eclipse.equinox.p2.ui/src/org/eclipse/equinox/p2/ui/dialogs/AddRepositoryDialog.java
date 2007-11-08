@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import java.net.URL;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.util.ArrayList;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
@@ -44,10 +44,10 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
 
-	public AddRepositoryDialog(Shell parentShell, IRepository[] knownRepositories) {
+	public AddRepositoryDialog(Shell parentShell, Object[] knownRepositories) {
 
 		super(parentShell);
-		this.knownRepositories = knownRepositories;
+		this.knownRepositories = makeRepositories(knownRepositories);
 		setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 	}
 
@@ -166,5 +166,19 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	private void setOkEnablement(boolean enable) {
 		if (okButton != null && !okButton.isDisposed())
 			okButton.setEnabled(enable);
+	}
+
+	private IRepository[] makeRepositories(Object[] elements) {
+		ArrayList list = new ArrayList();
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] instanceof IRepository)
+				list.add(elements[i]);
+			else if (elements[i] instanceof IAdaptable) {
+				IRepository repo = (IRepository) ((IAdaptable) elements[i]).getAdapter(IRepository.class);
+				if (repo != null)
+					list.add(repo);
+			}
+		}
+		return (IRepository[]) list.toArray(new IRepository[list.size()]);
 	}
 }
