@@ -107,6 +107,32 @@ public class AbstractProvisioningTest extends TestCase {
 			fail("The profile should be empty,profileId=" + p);
 	}
 
+	protected void assertEquals(String message, Object[] expected, Object[] actual) {
+		if (expected == null && actual == null)
+			return;
+		if (expected == null)
+			fail(message + " expected null but was: " + actual);
+		if (actual == null)
+			fail(message + " array is unexpectedly null");
+		if (expected.length != actual.length)
+			fail(message + " expected array length:<" + expected.length + "> but was:<" + actual.length + ">");
+		for (int i = 0; i < expected.length; i++)
+			assertEquals(message + " arrays differ at position:<" + i + ">", expected[i], actual[i]);
+	}
+
+	protected void assertEquals(String message, byte[] expected, byte[] actual) {
+		if (expected == null && actual == null)
+			return;
+		if (expected == null)
+			fail(message + " expected null but was: " + actual);
+		if (actual == null)
+			fail(message + " array is unexpectedly null");
+		if (expected.length != actual.length)
+			fail(message + " expected array length:<" + expected.length + "> but was:<" + actual.length + ">");
+		for (int i = 0; i < expected.length; i++)
+			assertEquals(message + " arrays differ at position:<" + i + ">", expected[i], actual[i]);
+	}
+
 	protected static void assertNotIUs(IInstallableUnit[] ius, Iterator installableUnits) {
 		Set notexpected = new HashSet();
 		notexpected.addAll(Arrays.asList(ius));
