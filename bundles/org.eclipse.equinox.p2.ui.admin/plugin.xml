@@ -111,6 +111,9 @@
              <instanceof
                   value="org.eclipse.equinox.p2.artifact.repository.IArtifactRepository">
              </instanceof>
+             <instanceof
+                  value="org.eclipse.equinox.p2.ui.model.RepositoryElement">
+             </instanceof>
  
              </or>
           </enabledWhen>

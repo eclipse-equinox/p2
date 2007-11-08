@@ -34,9 +34,14 @@
             class="org.eclipse.equinox.p2.ui.dialogs.RepositoryPropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.sdk.RepositoryPropertyPage">
             <enabledWhen>
+            <or>
              <instanceof
                   value="org.eclipse.equinox.p2.metadata.repository.IMetadataRepository">
              </instanceof>
+              <instanceof
+                  value="org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement">
+             </instanceof>
+             </or>
          </enabledWhen>
       </page>
       
