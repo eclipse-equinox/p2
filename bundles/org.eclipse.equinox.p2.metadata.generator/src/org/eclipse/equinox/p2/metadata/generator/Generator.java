@@ -29,8 +29,8 @@ public class Generator {
 	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator";
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
-	private StateObjectFactory stateObjectFactory;
 	private IGeneratorInfo info;
+	private StateObjectFactory stateObjectFactory;
 
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
@@ -39,6 +39,78 @@ public class Generator {
 		if (platformAdmin != null) {
 			stateObjectFactory = platformAdmin.getFactory();
 		}
+	}
+
+	protected InstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
+		InstallableUnit root = new InstallableUnit();
+		root.setSingleton(true);
+		root.setId(configurationIdentification);
+		root.setVersion(new Version(configurationVersion));
+		// TODO, bit of a hack but for now set the name of the IU to the ID.
+		root.setProperty(IInstallableUnitConstants.NAME, configurationIdentification);
+
+		ArrayList reqsConfigurationUnits = new ArrayList(resultantIUs.size());
+		for (Iterator iterator = resultantIUs.iterator(); iterator.hasNext();) {
+			InstallableUnit iu = (InstallableUnit) iterator.next();
+			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.IU_NAMESPACE, iu.getId(), range, iu.getFilter(), false, false));
+		}
+		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
+		root.setApplicabilityFilter("");
+		root.setArtifacts(new IArtifactKey[0]);
+
+		root.setProperty("lineUp", "true");
+		root.setProperty(IInstallableUnitConstants.UPDATE_FROM, configurationIdentification);
+		root.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
+		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
+		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(root), groupCapability});
+		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
+		Map touchpointData = new HashMap();
+
+		String configurationData = "";
+		String unconfigurationData = "";
+
+		ConfigData configData = info.getConfigData();
+		if (configData != null) {
+			for (Iterator iterator = configData.getFwDependentProps().entrySet().iterator(); iterator.hasNext();) {
+				Entry aProperty = (Entry) iterator.next();
+				String key = ((String) aProperty.getKey());
+				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
+					continue;
+				configurationData += "setFwDependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
+				unconfigurationData += "setFwDependentProp(propName:" + key + ", propValue:);";
+			}
+			for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
+				Entry aProperty = (Entry) iterator.next();
+				String key = ((String) aProperty.getKey());
+				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
+					continue;
+				configurationData += "setFwIndependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
+				unconfigurationData += "setFwIndependentProp(propName:" + key + ", propValue:);";
+			}
+		}
+
+		LauncherData launcherData = info.getLauncherData();
+		if (launcherData != null) {
+			final String[] jvmArgs = launcherData.getJvmArgs();
+			for (int i = 0; i < jvmArgs.length; i++) {
+				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");";
+				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");";
+			}
+
+			final String[] programArgs = launcherData.getProgramArgs();
+			for (int i = 0; i < programArgs.length; i++) {
+				String programArg = programArgs[i];
+				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration"))
+					i++;
+				configurationData += "addProgramArg(programArg:" + programArg + ");";
+				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");";
+			}
+		}
+		touchpointData.put("configure", configurationData);
+		touchpointData.put("unconfigure", unconfigurationData);
+		root.setImmutableTouchpointData(new TouchpointData(touchpointData));
+		return root;
 	}
 
 	public IStatus generate() {
@@ -68,6 +140,62 @@ public class Generator {
 		return Status.OK_STATUS;
 	}
 
+	protected void generateBundleIUs(BundleDescription[] bundles, Set resultantIUs, IArtifactRepository destination) {
+		for (int i = 0; i < bundles.length; i++) {
+			BundleDescription bd = bundles[i];
+			// A bundle may be null if the associated plug-in does not have a manifest file -
+			// for example, org.eclipse.jdt.launching.j9
+			if (bd != null) {
+				String format = (String) ((Dictionary) bd.getUserObject()).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
+				boolean isDir = format.equals(BundleDescriptionFactory.DIR) ? true : false;
+				IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
+				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
+				if (isDir)
+					publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
+				else
+					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
+				IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bd, (Map) bd.getUserObject(), isDir, key);
+				resultantIUs.add(iu);
+			}
+		}
+	}
+
+	protected void generateConfigIUs(BundleInfo[] infos, Set resultantIUs) {
+		if (infos == null)
+			return;
+		for (int i = 0; i < infos.length; i++) {
+			GeneratorBundleInfo bundle = new GeneratorBundleInfo(infos[i]);
+			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
+				bundle.setStartLevel(BundleInfo.NO_LEVEL);
+				bundle.setMarkedAsStarted(false);
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
+			}
+			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
+			}
+			InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+			if (cu != null)
+				resultantIUs.add(cu);
+		}
+
+		if (info.addDefaultIUs()) {
+			for (Iterator iterator = info.getDefaultIUs(resultantIUs).iterator(); iterator.hasNext();) {
+				GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
+				InstallableUnit configuredIU = getIU(resultantIUs, bundle.getSymbolicName());
+				if (configuredIU != null)
+					bundle.setVersion(configuredIU.getVersion().toString());
+				InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+				//the configuration unit should share the same platform filter as the IU being configured.
+				if (configuredIU != null)
+					cu.setFilter(configuredIU.getFilter());
+				if (cu != null)
+					resultantIUs.add(cu);
+			}
+		}
+	}
+
 	private void generateDefaultConfigIU(Set ius, IGeneratorInfo info) {
 		//		TODO this is a bit of a hack.  We need to have the default IU fragment generated with code that configures
 		//		and unconfigures.  the Generator should be decoupled from any particular provider but it is not clear
@@ -76,82 +204,6 @@ public class Generator {
 		//		MockBundleDescription bd2 = new MockBundleDescription("defaultUnconfigure");
 		EclipseInstallGeneratorInfoProvider provider = (EclipseInstallGeneratorInfoProvider) info;
 		ius.add(MetadataGeneratorHelper.createEclipseDefaultConfigurationUnit(provider.createDefaultConfigurationBundleInfo(), provider.createDefaultUnconfigurationBundleInfo(), info.getFlavor()));
-	}
-
-	private Feature[] getFeatures(File folder) {
-		if (folder == null || !folder.exists())
-			return new Feature[0];
-		File[] locations = folder.listFiles();
-		ArrayList result = new ArrayList(locations.length);
-		for (int i = 0; i < locations.length; i++) {
-			Feature feature = new FeatureParser().parse(locations[i]);
-			if (feature != null)
-				result.add(feature);
-		}
-		return (Feature[]) result.toArray(new Feature[result.size()]);
-	}
-
-	protected void generateFeatureIUs(Feature[] features, Set resultantIUs) {
-		for (int i = 0; i < features.length; i++) {
-			Feature feature = features[i];
-			resultantIUs.add(MetadataGeneratorHelper.createGroupIU(feature));
-		}
-	}
-
-	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
-		boolean addSimpleConfigurator = false;
-		for (int i = 0; i < bundleLocations.length; i++) {
-			addSimpleConfigurator = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_UPDATE_CONFIGURATOR) > 0;
-			if (addSimpleConfigurator)
-				break;
-		}
-		BundleDescription[] result = new BundleDescription[bundleLocations.length + (addSimpleConfigurator ? 1 : 0)];
-		BundleDescriptionFactory factory = getBundleFactory();
-		for (int i = 0; i < bundleLocations.length; i++)
-			result[i] = factory.getBundleDescription(bundleLocations[i]);
-		if (addSimpleConfigurator) {
-			//Add simple configurator to the list of bundles
-			try {
-				File location = new File(FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar")).getFile());
-				result[result.length - 1] = factory.getBundleDescription(location);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return result;
-	}
-
-	protected BundleDescriptionFactory getBundleFactory() {
-		BundleDescriptionFactory factory = new BundleDescriptionFactory(stateObjectFactory, null);
-		return factory;
-	}
-
-	protected void generateRootIU(Set resultantIUs, String rootIUId, String rootIUVersion) {
-		if (rootIUId == null)
-			return;
-		resultantIUs.add(createTopLevelIU(resultantIUs, rootIUId, rootIUVersion));
-	}
-
-	protected void generateNativeIUs(File executableLocation, Set resultantIUs, IArtifactRepository destination) {
-		//generate data for JRE
-		File jreLocation = info.getJRELocation();
-		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, resultantIUs);
-		publishArtifact(artifact, new File[] {jreLocation}, destination, false);
-
-		//If the executable feature is present, use it to generate IUs for launchers
-		if (generateExecutableFeatureIUs(resultantIUs, destination) || executableLocation == null)
-			return;
-
-		//generate data for executable launcher
-		artifact = MetadataGeneratorHelper.createLauncherIU(executableLocation, info.getFlavor(), resultantIUs);
-		File[] launcherFiles = null;
-		//hard-coded name is ok, since console launcher is not branded, and appears on Windows only
-		File consoleLauncher = new File(executableLocation.getParentFile(), "eclipsec.exe"); //$NON-NLS-1$
-		if (consoleLauncher.exists())
-			launcherFiles = new File[] {executableLocation, consoleLauncher};
-		else
-			launcherFiles = new File[] {executableLocation};
-		publishArtifact(artifact, launcherFiles, destination, false);
 	}
 
 	/**
@@ -250,6 +302,95 @@ public class Generator {
 		publishArtifact(descriptor, root.listFiles(), destination, false);
 	}
 
+	protected void generateFeatureIUs(Feature[] features, Set resultantIUs) {
+		for (int i = 0; i < features.length; i++) {
+			Feature feature = features[i];
+			resultantIUs.add(MetadataGeneratorHelper.createGroupIU(feature));
+		}
+	}
+
+	protected void generateNativeIUs(File executableLocation, Set resultantIUs, IArtifactRepository destination) {
+		//generate data for JRE
+		File jreLocation = info.getJRELocation();
+		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, resultantIUs);
+		publishArtifact(artifact, new File[] {jreLocation}, destination, false);
+
+		//If the executable feature is present, use it to generate IUs for launchers
+		if (generateExecutableFeatureIUs(resultantIUs, destination) || executableLocation == null)
+			return;
+
+		//generate data for executable launcher
+		artifact = MetadataGeneratorHelper.createLauncherIU(executableLocation, info.getFlavor(), resultantIUs);
+		File[] launcherFiles = null;
+		//hard-coded name is ok, since console launcher is not branded, and appears on Windows only
+		File consoleLauncher = new File(executableLocation.getParentFile(), "eclipsec.exe"); //$NON-NLS-1$
+		if (consoleLauncher.exists())
+			launcherFiles = new File[] {executableLocation, consoleLauncher};
+		else
+			launcherFiles = new File[] {executableLocation};
+		publishArtifact(artifact, launcherFiles, destination, false);
+	}
+
+	protected void generateRootIU(Set resultantIUs, String rootIUId, String rootIUVersion) {
+		if (rootIUId == null)
+			return;
+		resultantIUs.add(createTopLevelIU(resultantIUs, rootIUId, rootIUVersion));
+	}
+
+	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
+		boolean addSimpleConfigurator = false;
+		for (int i = 0; i < bundleLocations.length; i++) {
+			addSimpleConfigurator = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_UPDATE_CONFIGURATOR) > 0;
+			if (addSimpleConfigurator)
+				break;
+		}
+		BundleDescription[] result = new BundleDescription[bundleLocations.length + (addSimpleConfigurator ? 1 : 0)];
+		BundleDescriptionFactory factory = getBundleFactory();
+		for (int i = 0; i < bundleLocations.length; i++)
+			result[i] = factory.getBundleDescription(bundleLocations[i]);
+		if (addSimpleConfigurator) {
+			//Add simple configurator to the list of bundles
+			try {
+				File location = new File(FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar")).getFile());
+				result[result.length - 1] = factory.getBundleDescription(location);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+
+	protected BundleDescriptionFactory getBundleFactory() {
+		BundleDescriptionFactory factory = new BundleDescriptionFactory(stateObjectFactory, null);
+		return factory;
+	}
+
+	private Feature[] getFeatures(File folder) {
+		if (folder == null || !folder.exists())
+			return new Feature[0];
+		File[] locations = folder.listFiles();
+		ArrayList result = new ArrayList(locations.length);
+		for (int i = 0; i < locations.length; i++) {
+			Feature feature = new FeatureParser().parse(locations[i]);
+			if (feature != null)
+				result.add(feature);
+		}
+		return (Feature[]) result.toArray(new Feature[result.size()]);
+	}
+
+	protected IGeneratorInfo getGeneratorInfo() {
+		return info;
+	}
+
+	private InstallableUnit getIU(Set ius, String id) {
+		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
+			InstallableUnit tmp = (InstallableUnit) iterator.next();
+			if (tmp.getId().equals(id))
+				return tmp;
+		}
+		return null;
+	}
+
 	/**
 	 * @TODO This method is a temporary hack to rename the launcher.exe files
 	 * to eclipse.exe (or "launcher" to "eclipse"). Eventually we will either hand-craft
@@ -268,143 +409,6 @@ public class Generator {
 			else if (root.getName().equals("launcher.exe")) //$NON-NLS-1$
 				root.renameTo(new File(root.getParentFile(), "eclipse.exe")); //$NON-NLS-1$
 		}
-	}
-
-	protected void generateConfigIUs(BundleInfo[] infos, Set resultantIUs) {
-		if (infos == null)
-			return;
-		for (int i = 0; i < infos.length; i++) {
-			GeneratorBundleInfo bundle = new GeneratorBundleInfo(infos[i]);
-			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
-				bundle.setStartLevel(BundleInfo.NO_LEVEL);
-				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
-			}
-			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
-			}
-			InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
-			if (cu != null)
-				resultantIUs.add(cu);
-		}
-
-		if (info.addDefaultIUs()) {
-			for (Iterator iterator = info.getDefaultIUs(resultantIUs).iterator(); iterator.hasNext();) {
-				GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
-				InstallableUnit configuredIU = getIU(resultantIUs, bundle.getSymbolicName());
-				if (configuredIU != null)
-					bundle.setVersion(configuredIU.getVersion().toString());
-				InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
-				//the configuration unit should share the same platform filter as the IU being configured.
-				if (configuredIU != null)
-					cu.setFilter(configuredIU.getFilter());
-				if (cu != null)
-					resultantIUs.add(cu);
-			}
-		}
-	}
-
-	private InstallableUnit getIU(Set ius, String id) {
-		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
-			InstallableUnit tmp = (InstallableUnit) iterator.next();
-			if (tmp.getId().equals(id))
-				return tmp;
-		}
-		return null;
-	}
-
-	protected void generateBundleIUs(BundleDescription[] bundles, Set resultantIUs, IArtifactRepository destination) {
-		for (int i = 0; i < bundles.length; i++) {
-			BundleDescription bd = bundles[i];
-			// A bundle may be null if the associated plug-in does not have a manifest file -
-			// for example, org.eclipse.jdt.launching.j9
-			if (bd != null) {
-				String format = (String) ((Dictionary) bd.getUserObject()).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
-				boolean isDir = format.equals(BundleDescriptionFactory.DIR) ? true : false;
-				IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
-				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
-				if (isDir)
-					publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
-				else
-					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
-				IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bd, (Map) bd.getUserObject(), isDir, key);
-				resultantIUs.add(iu);
-			}
-		}
-	}
-
-	protected InstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
-		InstallableUnit root = new InstallableUnit();
-		root.setSingleton(true);
-		root.setId(configurationIdentification);
-		root.setVersion(new Version(configurationVersion));
-		// TODO, bit of a hack but for now set the name of the IU to the ID.
-		root.setProperty(IInstallableUnitConstants.NAME, configurationIdentification);
-
-		ArrayList reqsConfigurationUnits = new ArrayList(resultantIUs.size());
-		for (Iterator iterator = resultantIUs.iterator(); iterator.hasNext();) {
-			InstallableUnit iu = (InstallableUnit) iterator.next();
-			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.IU_NAMESPACE, iu.getId(), range, iu.getFilter(), false, false));
-		}
-		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
-		root.setApplicabilityFilter("");
-		root.setArtifacts(new IArtifactKey[0]);
-
-		root.setProperty("lineUp", "true");
-		root.setProperty(IInstallableUnitConstants.UPDATE_FROM, configurationIdentification);
-		root.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
-		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
-		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(root), groupCapability});
-		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
-		Map touchpointData = new HashMap();
-
-		String configurationData = "";
-		String unconfigurationData = "";
-
-		ConfigData configData = info.getConfigData();
-		if (configData != null) {
-			for (Iterator iterator = configData.getFwDependentProps().entrySet().iterator(); iterator.hasNext();) {
-				Entry aProperty = (Entry) iterator.next();
-				String key = ((String) aProperty.getKey());
-				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
-					continue;
-				configurationData += "setFwDependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
-				unconfigurationData += "setFwDependentProp(propName:" + key + ", propValue:);";
-			}
-			for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
-				Entry aProperty = (Entry) iterator.next();
-				String key = ((String) aProperty.getKey());
-				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
-					continue;
-				configurationData += "setFwIndependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
-				unconfigurationData += "setFwIndependentProp(propName:" + key + ", propValue:);";
-			}
-		}
-
-		LauncherData launcherData = info.getLauncherData();
-		if (launcherData != null) {
-			final String[] jvmArgs = launcherData.getJvmArgs();
-			for (int i = 0; i < jvmArgs.length; i++) {
-				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");";
-				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");";
-			}
-
-			final String[] programArgs = launcherData.getProgramArgs();
-			for (int i = 0; i < programArgs.length; i++) {
-				String programArg = programArgs[i];
-				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration"))
-					i++;
-				configurationData += "addProgramArg(programArg:" + programArg + ");";
-				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");";
-			}
-		}
-		touchpointData.put("configure", configurationData);
-		touchpointData.put("unconfigure", unconfigurationData);
-		root.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		return root;
 	}
 
 	// Put the artifact on the server
@@ -447,9 +451,5 @@ public class Generator {
 					tempFile.delete();
 			}
 		}
-	}
-
-	protected IGeneratorInfo getGeneratorInfo() {
-		return info;
 	}
 }
