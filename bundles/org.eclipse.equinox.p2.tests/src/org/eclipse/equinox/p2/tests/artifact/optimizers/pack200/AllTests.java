@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.repository.optimizer;
+package org.eclipse.equinox.p2.tests.artifact.optimizers.pack200;
 
 import junit.framework.*;
 

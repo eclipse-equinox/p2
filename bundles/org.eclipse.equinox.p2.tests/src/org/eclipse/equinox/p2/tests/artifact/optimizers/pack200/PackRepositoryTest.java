@@ -1,4 +1,4 @@
-package org.eclipse.equinox.p2.tests.artifact.repository.optimizer;
+package org.eclipse.equinox.p2.tests.artifact.optimizers.pack200;
 
 import java.io.*;
 import java.net.URL;
