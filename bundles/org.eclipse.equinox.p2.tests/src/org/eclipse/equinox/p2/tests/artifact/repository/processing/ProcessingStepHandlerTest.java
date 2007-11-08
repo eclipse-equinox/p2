@@ -16,7 +16,9 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processor.pack200.Unpack200Step;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ProcessingStepHandlerTest extends TestCase {
 
@@ -118,16 +120,17 @@ public class ProcessingStepHandlerTest extends TestCase {
 		assertTrue(Arrays.equals(new byte[] {3, 5, 7, 9, 11}, result.toByteArray()));
 	}
 
-	// TODO: Why does it now fail - removed temporarily
-	//	public void testExecuteOnePack200UnpackerPS() throws IOException {
-	//		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
-	//		ProcessingStep[] steps = handler.create(descriptors, null);
-	//		ByteArrayOutputStream result = new ByteArrayOutputStream(100000);
-	//		OutputStream testStream = handler.link(steps, result, monitor);
-	//		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/jarprocessor.jar.pack.gz").openStream();
-	//		FileUtils.copyStream(inputStream, true, testStream, true);
-	//		assertEquals(35062, result.size());
-	//	}
+	public void testExecuteOnePack200UnpackerPS() throws IOException {
+		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
+		ProcessingStep[] steps = handler.create(descriptors, null);
+		ByteArrayOutputStream result = new ByteArrayOutputStream(100000);
+		OutputStream testStream = handler.link(steps, result, monitor);
+		IStatus status = ProcessingStepHandler.checkStatus(testStream);
+		assertTrue("Step is not ready.", status.isOK());
+		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/jarprocessor.jar.pack.gz").openStream();
+		FileUtils.copyStream(inputStream, true, testStream, true);
+		assertEquals(35062, result.size());
+	}
 
 	public void testCreateByteShifterPS() {
 		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.ByteShifter", "1", true)};
