@@ -7,26 +7,29 @@
 *
 * Contributors:
 *  compeople AG (Stefan Liebig) - initial API and implementation
+*  IBM Corporation - adaptation to JAR deltas and on-going development
 *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff;
+package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.ArtifactKeyDeSerializer;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.osgi.framework.Version;
 
 public class Optimizer {
 
 	private IArtifactRepository repository;
 	private int width;
 	private int depth;
-	private boolean nosar;
 
-	private static final String JBPATCH_STEP_ID = "org.eclipse.equinox.p2.repository.JBPatchStep"; //$NON-NLS-1$
-	private static final String JBPATCH_STEP_ZIP_ID = "org.eclipse.equinox.p2.repository.JBPatchZipStep"; //$NON-NLS-1$
+	private static final String JAR_DELTA_FORMAT = "jarDelta"; //$NON-NLS-1$
+	private static final String JAR_DELTA_PATCH_STEP = "org.eclipse.equinox.p2.processing.JarDeltaPatchStep"; //$NON-NLS-1$
 
 	private static final Comparator ARTIFACT_DESCRIPTOR_VERSION_COMPARATOR = new ArtifactDescriptorVersionComparator();
 	private static final Comparator ARTIFACT_KEY_VERSION_COMPARATOR = new ArtifactKeyVersionComparator();
@@ -59,17 +62,15 @@ public class Optimizer {
 	 * @param repository
 	 * @param width
 	 * @param depth
-	 * @param nosar 
 	 */
-	public Optimizer(IArtifactRepository repository, int width, int depth, boolean nosar) {
+	public Optimizer(IArtifactRepository repository, int width, int depth) {
 		this.repository = repository;
 		this.width = width;
 		this.depth = depth;
-		this.nosar = nosar;
 	}
 
 	public void run() {
-		System.out.println("Starting delta (jbdiff) optimizations (width=" + width + ", depth=" + depth + ", nosar=" + nosar + ")");
+		System.out.println("Starting delta (jardelta) optimizations (width=" + width + ", depth=" + depth + ")");
 		IArtifactKey[][] keys = getSortedRelatedArtifactKeys(repository.getArtifactKeys());
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i].length < 2)
@@ -79,40 +80,30 @@ public class Optimizer {
 			for (int j = 0; j < minWidth; j++) {
 				IArtifactKey key = keys[i][j];
 				boolean isArchive = key.getClassifier().equals("plugin"); //$NON-NLS-1$
-				String proposedStrategy = isArchive && !nosar ? JBPATCH_STEP_ZIP_ID : JBPATCH_STEP_ID;
-				optimize(keys[i], key, proposedStrategy);
+				optimize(keys[i], key);
 			}
 		}
 		System.out.println("Done.");
 
 	}
 
-	private void optimize(IArtifactKey[] keys, IArtifactKey key, String proposedStrategy) throws OutOfMemoryError {
-		boolean retry;
-		do {
-			retry = false;
-			try {
-				IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
-				IArtifactDescriptor complete = null;
-				for (int k = 0; k < descriptors.length; k++) {
-					IArtifactDescriptor descriptor = descriptors[k];
-					if (isCanonical(descriptor))
-						complete = descriptor;
-					else if (isOptimized(descriptor, proposedStrategy)) {
-						proposedStrategy = null;
-						break;
-					}
-				}
-				if (proposedStrategy != null && complete != null)
-					optimize(complete, proposedStrategy, keys);
-			} catch (OutOfMemoryError e) {
-				if (JBPATCH_STEP_ID.equals(proposedStrategy))
-					throw e;
-				proposedStrategy = JBPATCH_STEP_ID;
-				System.out.println("Retry with " + proposedStrategy);
-				retry = true;
-			}
-		} while (retry);
+	private void optimize(IArtifactKey[] keys, IArtifactKey key) {
+		IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
+		IArtifactDescriptor canonical = null;
+		for (int k = 0; k < descriptors.length; k++) {
+			IArtifactDescriptor descriptor = descriptors[k];
+			boolean optimized = false;
+			if (isCanonical(descriptor))
+				canonical = descriptor;
+			else
+				optimized |= isOptimized(descriptor);
+			if (!optimized)
+				optimize(canonical, keys);
+		}
+	}
+
+	private IArtifactKey getVersionlessKey(IArtifactKey key) {
+		return new ArtifactKey(key.getNamespace(), key.getClassifier(), key.getId(), Version.emptyVersion);
 	}
 
 	/**
@@ -135,7 +126,7 @@ public class Optimizer {
 	private IArtifactKey[][] getSortedRelatedArtifactKeys(IArtifactKey[] artifactKeys) {
 		Map map = new HashMap();
 		for (int i = 0; i < artifactKeys.length; i++) {
-			IArtifactKey freeKey = new VersionLessArtifactKey(artifactKeys[i]);
+			IArtifactKey freeKey = getVersionlessKey(artifactKeys[i]);
 			List values = (List) map.get(freeKey);
 			if (values == null) {
 				values = new ArrayList();
@@ -164,33 +155,32 @@ public class Optimizer {
 		return lists;
 	}
 
-	private void optimize(IArtifactDescriptor complete, String strategy, IArtifactKey[] relatedArtifactKeys) {
-		System.out.println("Optimizing " + complete);
+	private void optimize(IArtifactDescriptor canonical, IArtifactKey[] relatedArtifactKeys) {
+		System.out.println("Optimizing " + canonical);
 
-		IArtifactDescriptor[] descriptors = getSortedCompletePredecessors(complete.getArtifactKey(), relatedArtifactKeys);
+		IArtifactDescriptor[] descriptors = getSortedCompletePredecessors(canonical.getArtifactKey(), relatedArtifactKeys);
 
 		int minDepth = Math.min(depth, descriptors.length);
 		for (int i = 0; i < minDepth; i++) {
-
-			System.out.println("\t with " + strategy + " against " + descriptors[i].getArtifactKey());
+			System.out.println("\t with jar delta against " + descriptors[i].getArtifactKey());
 			String predecessorData = ArtifactKeyDeSerializer.serialize(descriptors[i].getArtifactKey());
-			ArtifactDescriptor newDescriptor = new ArtifactDescriptor(complete);
-			ProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(strategy, predecessorData, true);
+			ArtifactDescriptor newDescriptor = new ArtifactDescriptor(canonical);
+			ProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(JAR_DELTA_PATCH_STEP, predecessorData, true);
 			ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {patchStep};
 			newDescriptor.setProcessingSteps(steps);
-			newDescriptor.setProperty(IArtifactDescriptor.FORMAT, strategy);
+			newDescriptor.setProperty(IArtifactDescriptor.FORMAT, JAR_DELTA_FORMAT);
 			OutputStream repositoryStream = null;
 			try {
 				repositoryStream = repository.getOutputStream(newDescriptor);
 
 				// Add in all the processing steps needed to optimize (e.g., pack200, ...)
-				ProcessingStep diffStep = getProcessingStep(strategy);
-				diffStep.initialize(patchStep, newDescriptor);
+				ProcessingStep optimizerStep = new JarDeltaOptimizerStep(repository);
+				optimizerStep.initialize(patchStep, newDescriptor);
 				ProcessingStepHandler handler = new ProcessingStepHandler();
-				OutputStream destination = handler.link(new ProcessingStep[] {diffStep}, repositoryStream, null);
+				OutputStream destination = handler.link(new ProcessingStep[] {optimizerStep}, repositoryStream, null);
 
 				// Do the actual work by asking the repo to get the artifact and put it in the destination.
-				repository.getArtifact(complete, destination, new NullProgressMonitor());
+				repository.getArtifact(canonical, destination, new NullProgressMonitor());
 			} finally {
 				if (repositoryStream != null)
 					try {
@@ -201,12 +191,6 @@ public class Optimizer {
 					}
 			}
 		}
-	}
-
-	private ProcessingStep getProcessingStep(String strategy) {
-		if (strategy.equals(JBPATCH_STEP_ID))
-			return new JBDiffStep(repository);
-		return new JBDiffZipStep(repository);
 	}
 
 	private IArtifactDescriptor[] getSortedCompletePredecessors(IArtifactKey artifactKey, IArtifactKey[] relatedArtifactKeys) {
@@ -232,14 +216,14 @@ public class Optimizer {
 		return completeSortedDescriptors;
 	}
 
-	private boolean isOptimized(IArtifactDescriptor descriptor, String stepId) {
+	private boolean isOptimized(IArtifactDescriptor descriptor) {
 		if (descriptor.getProcessingSteps().length != 1)
 			return false;
-		return stepId.equals(descriptor.getProcessingSteps()[0].getProcessorId());
+		return JAR_DELTA_FORMAT.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 	private boolean isCanonical(IArtifactDescriptor descriptor) {
-		// TODO length != 0 is not necessarily an indicator for not being complete!   
+		// TODO length != 0 is not necessarily an indicator for not being canonical!   
 		return descriptor.getProcessingSteps().length == 0;
 	}
 

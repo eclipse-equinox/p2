@@ -12,19 +12,25 @@ import java.net.URL;
 import java.util.Map;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.eclipse.equinox.internal.p2.artifact.optimizers.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 
+/**
+ * The optimizer <code>Application</code> for JBDiff based optimizations. 
+ */
 public class Application implements IApplication {
 
 	private URL artifactRepositoryLocation;
+	private int width = 1;
+	private int depth = 1;
 
 	public Object start(IApplicationContext context) throws Exception {
 		Map args = context.getArguments();
-		initializeFromArguments((String[]) args.get("application.args"));
+		initializeFromArguments((String[]) args.get("application.args")); //$NON-NLS-1$
 		IArtifactRepository repository = setupRepository(artifactRepositoryLocation);
-		// TODO add the processing in here.
+		new Optimizer(repository, width, depth).run();
 		return null;
 	}
 
@@ -37,6 +43,7 @@ public class Application implements IApplication {
 	}
 
 	public void stop() {
+		// nothing to do yet
 	}
 
 	public void initializeFromArguments(String[] args) throws Exception {
@@ -54,8 +61,15 @@ public class Application implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar"))
+			if (args[i - 1].equalsIgnoreCase("-artifactRepository") || args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactRepositoryLocation = new URL(arg);
+
+			if (args[i - 1].equalsIgnoreCase("-depth")) //$NON-NLS-1$
+				depth = Integer.parseInt(arg);
+
+			if (args[i - 1].equalsIgnoreCase("-width")) //$NON-NLS-1$
+				width = Integer.parseInt(arg);
+
 		}
 	}
 }

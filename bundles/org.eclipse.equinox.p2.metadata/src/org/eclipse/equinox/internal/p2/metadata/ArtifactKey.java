@@ -70,10 +70,10 @@ public class ArtifactKey implements IArtifactKey {
 	}
 
 	public boolean equals(Object obj) {
-		if (!(obj instanceof ArtifactKey))
+		if (!(obj instanceof IArtifactKey))
 			return false;
-		ArtifactKey ak = (ArtifactKey) obj;
-		return ak.id.equals(id) && ak.getVersion().equals(getVersion()) && ak.namespace.equals(namespace) && ak.classifier.equals(classifier);
+		IArtifactKey ak = (IArtifactKey) obj;
+		return ak.getId().equals(id) && ak.getVersion().equals(getVersion()) && ak.getNamespace().equals(namespace) && ak.getClassifier().equals(classifier);
 	}
 
 	public String getId() {

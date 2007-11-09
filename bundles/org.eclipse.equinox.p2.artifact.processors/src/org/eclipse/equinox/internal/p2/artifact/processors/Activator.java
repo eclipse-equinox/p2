@@ -7,7 +7,7 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.equinox.p2.artifact.processors;
+package org.eclipse.equinox.internal.p2.artifact.processors;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;

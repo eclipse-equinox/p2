@@ -14,7 +14,7 @@ import java.io.*;
 import java.net.URL;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Optimizer;
+import org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta.Optimizer;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -25,15 +25,15 @@ import org.eclipse.osgi.service.urlconversion.URLConverter;
 import org.osgi.framework.Version;
 import org.osgi.util.tracker.ServiceTracker;
 
-public class PackRepositoryTest extends TestCase {
+public class JarDeltaRepositoryTest extends TestCase {
 	private ServiceTracker managerTracker;
 	private File workDir;
 
-	public PackRepositoryTest(String name) {
+	public JarDeltaRepositoryTest(String name) {
 		super(name);
 	}
 
-	public PackRepositoryTest() {
+	public JarDeltaRepositoryTest() {
 		super("");
 	}
 
@@ -53,11 +53,11 @@ public class PackRepositoryTest extends TestCase {
 		URL repositoryURL = extractRepositoryJAR(repositoryJar);
 		assertNotNull("Could not extract repository", repositoryURL);
 		IArtifactRepository repository = ((IArtifactRepositoryManager) managerTracker.getService()).loadRepository(repositoryURL, null);
-		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.equinox.prov.engine", new Version("0.1.0.200709241631"));
+		IArtifactKey key = new ArtifactKey("eclipse", "plugin", "testdata", new Version("1.0.0.2"));
 		IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
 		assertTrue("Artifact Descriptor for engine missing", descriptors.length == 1);
 
-		new Optimizer(repository).run();
+		new Optimizer(repository, 1, 1).run();
 		descriptors = repository.getArtifactDescriptors(key);
 		assertTrue("Optimization was a no-op", descriptors.length == 2);
 
@@ -133,4 +133,5 @@ public class PackRepositoryTest extends TestCase {
 			throw new IOException("Could not create temporary working dir.");
 		return workDir;
 	}
+
 }

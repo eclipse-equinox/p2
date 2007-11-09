@@ -4,12 +4,12 @@
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.Pack200Unpacker">
-		<step class="org.eclipse.equinox.internal.p2.artifact.processor.pack200.Unpack200Step"/>
+		<step class="org.eclipse.equinox.internal.p2.artifact.processors.pack200.Unpack200Step"/>
 	</extension>
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
-			id="org.eclipse.equinox.p2.processing.JarDeltaStep">
-		<step class="org.eclipse.equinox.internal.p2.artifact.processor.jardelta.JarDeltaStep"/>
+			id="org.eclipse.equinox.p2.processing.JarDeltaPatchStep">
+		<step class="org.eclipse.equinox.internal.p2.artifact.processors.jardelta.JarDeltaProcessorStep"/>
 	</extension>
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"

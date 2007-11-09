@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.2"?>
 <plugin>
-	<extension id="jaroptimizer" point="org.eclipse.core.runtime.applications"> 
+	<extension id="jardeltaoptimizer" point="org.eclipse.core.runtime.applications"> 
       <application> 
          <run class="org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta.Application"/> 
       </application> 
@@ -13,15 +13,15 @@
       </application> 
    </extension>
 
-	<extension id="Pack200Packer" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
-		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Pack200Step"/>
-	</extension>
-
 	<extension id="jbdiffoptimizer" point="org.eclipse.core.runtime.applications"> 
       <application> 
          <run class="org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.Application"/> 
       </application> 
    </extension>
+
+	<extension id="Pack200Packer" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
+		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Pack200Step"/>
+	</extension>
 
 	<extension id="JBDiffStep" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
 		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffStep"/>

@@ -19,9 +19,10 @@ Import-Package: ie.wombat.jbdiff,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.sar
 Bundle-Vendor: %providerName
-Export-Package: org.eclipse.equinox.internal.p2.artifact.processor.jardelta;x-internal:=true,
- org.eclipse.equinox.internal.p2.artifact.processor.pack200;x-internal:=true,
+Export-Package: org.eclipse.equinox.internal.p2.artifact.processors;x-internal:=true,
+ org.eclipse.equinox.internal.p2.artifact.processors.jardelta;x-internal:=true,
  org.eclipse.equinox.internal.p2.artifact.processors.jbdiff;x-internal:=true,
- org.eclipse.equinox.p2.artifact.processors;x-internal:=true
-Bundle-Activator: org.eclipse.equinox.p2.artifact.processors.Activator
+ org.eclipse.equinox.internal.p2.artifact.processors.pack200;x-internal:=true,
+ org.eclipse.equinox.internal.p2.artifact.processors.verifier;x-internal:=true
+Bundle-Activator: org.eclipse.equinox.internal.p2.artifact.processors.Activator
 Eclipse-LazyStart: true

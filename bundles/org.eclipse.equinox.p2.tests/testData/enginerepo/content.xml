@@ -1,207 +1,276 @@
-<org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository>
-  <units>
-    <org.eclipse.equinox.p2.metadata.InstallableUnit>
-      <id>org.eclipse.equinox.prov.engine</id>
-      <version>0.1.0.200709241631</version>
-      <singleton>true</singleton>
-      <properties>
-        <propertyMap>
-          <entry>
-            <string>equinox.p2.update.from</string>
-            <string>org.eclipse.equinox.prov.engine</string>
-          </entry>
-          <entry>
-            <string>equinox.p2.update.range</string>
-            <string>0.0.0</string>
-          </entry>
-          <entry>
-            <string>equinox.p2.name</string>
-            <string>Engine Plug-in (Incubation)</string>
-          </entry>
-        </propertyMap>
+<?xml version='1.0' encoding='UTF-8'?>
+<?metadataRepository class='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='0.0.1'?>
+<repository name='file:D:\workspaces\prov.selfhost\org.eclipse.equinox.p2.tests\testData\enginerepo - metadata' type='org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository' version='1.0.0'>
+  <units size='5'>
+    <unit id='a.jre' version='1.5.0' singleton='false'>
+      <provides size='119'>
+        <provided namespace='org.eclipse.equinox.p2.iunamespace' name='a.jre' version='1.5.0'/>
+        <provided namespace='osgi.packages' name='javax.accessibility' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.activity' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.crypto' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.crypto.interfaces' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.crypto.spec' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.imageio' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.imageio.event' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.imageio.metadata' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.imageio.plugins.bmp' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.imageio.plugins.jpeg' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.imageio.spi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.imageio.stream' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.loading' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.modelmbean' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.monitor' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.openmbean' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.relation' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.remote' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.remote.rmi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.management.timer' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.naming' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.naming.directory' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.naming.event' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.naming.ldap' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.naming.spi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.net' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.net.ssl' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.print' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.print.attribute' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.print.attribute.standard' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.print.event' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.rmi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.rmi.CORBA' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.rmi.ssl' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.auth' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.auth.callback' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.auth.kerberos' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.auth.login' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.auth.spi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.auth.x500' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.cert' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.security.sasl' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.servlet' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.servlet.http' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sound.midi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sound.midi.spi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sound.sampled' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sound.sampled.spi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sql' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sql.rowset' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sql.rowset.serial' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.sql.rowset.spi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.border' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.colorchooser' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.event' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.filechooser' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.plaf' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.plaf.basic' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.plaf.metal' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.plaf.multi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.plaf.synth' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.table' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.text' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.text.html' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.text.html.parser' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.text.rtf' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.tree' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.swing.undo' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.transaction' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.transaction.xa' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.datatype' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.namespace' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.parsers' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.transform' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.transform.dom' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.transform.sax' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.transform.stream' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.validation' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='javax.xml.xpath' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.ietf.jgss' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CORBA' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CORBA_2_3' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CORBA_2_3.portable' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CORBA.DynAnyPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CORBA.ORBPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CORBA.portable' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CORBA.TypeCodePackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CosNaming' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CosNaming.NamingContextExtPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.CosNaming.NamingContextPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.Dynamic' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.DynamicAny' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.DynamicAny.DynAnyFactoryPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.DynamicAny.DynAnyPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.IOP' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.IOP.CodecFactoryPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.IOP.CodecPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.Messaging' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableInterceptor' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableInterceptor.ORBInitInfoPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableServer' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableServer.CurrentPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableServer.POAManagerPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableServer.POAPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableServer.portable' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.PortableServer.ServantLocatorPackage' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.SendingContext' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.omg.stub.java.rmi' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.w3c.dom' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.w3c.dom.bootstrap' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.w3c.dom.events' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.w3c.dom.ls' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.xml.sax' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.xml.sax.ext' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.xml.sax.helpers' version='0.0.0'/>
+      </provides>
+      <touchpoint id='native' version='1.0.0'/>
+    </unit>
+    <unit id='org.eclipse.equinox.prov.engine' version='0.1.0.200709241631'>
+      <properties size='3'>
+        <property name='equinox.p2.update.from' value='org.eclipse.equinox.prov.engine'/>
+        <property name='equinox.p2.update.range' value='0.0.0'/>
+        <property name='equinox.p2.name' value='Engine Plug-in (Incubation)'/>
       </properties>
-      <artifacts>
-        <org.eclipse.equinox.internal.p2.metadata.ArtifactKey>
-          <namespace>eclipse</namespace>
-          <id>org.eclipse.equinox.prov.engine</id>
-          <classifier>plugin</classifier>
-          <version>0.1.0.200709241631</version>
-        </org.eclipse.equinox.internal.p2.metadata.ArtifactKey>
+      <provides size='6'>
+        <provided namespace='org.eclipse.equinox.p2.iunamespace' name='org.eclipse.equinox.prov.engine' version='0.1.0.200709241631'/>
+        <provided namespace='osgi.packages' name='org.eclipse.equinox.internal.prov.engine' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.eclipse.equinox.prov.engine' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.eclipse.equinox.prov.engine.phases' version='0.0.0'/>
+        <provided namespace='osgi.packages' name='org.eclipse.equinox.prov.installregistry' version='0.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipsetouchpoint.types' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='15'>
+        <required namespace='org.eclipse.equinox.p2.iunamespace' name='org.eclipse.equinox.common' range='0.0.0'/>
+        <required namespace='org.eclipse.equinox.p2.iunamespace' name='org.eclipse.equinox.registry' range='0.0.0'/>
+        <required namespace='osgi.packages' name='com.thoughtworks.xstream' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.equinox.prov.artifact.repository' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.equinox.prov.core.eventbus' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.equinox.prov.core.helpers' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.equinox.prov.core.location' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.equinox.prov.download' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.equinox.prov.metadata' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.equinox.prov.query' range='0.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.osgi.service.datalocation' range='1.0.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.osgi.service.resolver' range='1.1.0'/>
+        <required namespace='osgi.packages' name='org.eclipse.osgi.util' range='1.0.0'/>
+        <required namespace='osgi.packages' name='org.osgi.framework' range='1.3.0'/>
+        <required namespace='osgi.packages' name='org.osgi.util.tracker' range='1.3.3'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact namespace='eclipse' classifier='plugin' id='org.eclipse.equinox.prov.engine' version='0.1.0.200709241631'/>
       </artifacts>
-      <touchpointType>
-        <id>eclipse</id>
-        <versionObject>
-          <major>1</major>
-          <minor>0</minor>
-          <micro>0</micro>
-          <qualifier></qualifier>
-        </versionObject>
-        <version>1.0.0</version>
-      </touchpointType>
-      <immutableTouchpointData>
-        <instructions>
-          <entry>
-            <string>manifest</string>
-            <string>Bundle-Activator: org.eclipse.equinox.internal.prov.engine.EngineActivator
-Require-Bundle: org.eclipse.equinox.common,org.eclipse.equinox.registry
+      <touchpoint id='eclipse' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Require-Bundle: org.eclipse.equinox.common,org.eclipse.equinox.registry
+Bundle-Activator: org.eclipse.equinox.internal.prov.engine.EngineActivator
 Manifest-Version: 1.0
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,J2SE-1.4
 Import-Package: com.thoughtworks.xstream,org.eclipse.equinox.prov.artifact.repository,org.eclipse.equinox.prov.core.eventbus,org.eclipse.equinox.prov.core.helpers,org.eclipse.equinox.prov.core.location,org.eclipse.equinox.prov.download,org.eclipse.equinox.prov.metadata,org.eclipse.equinox.prov.query,org.eclipse.osgi.service.datalocation;version=&quot;1.0.0&quot;,org.eclipse.osgi.service.resolver;version=&quot;1.1.0&quot;,org.eclipse.osgi.util;version=&quot;1.0.0&quot;,org.osgi.framework;version=&quot;1.3.0&quot;,org.osgi.util.tracker;version=&quot;1.3.3&quot;
 Eclipse-LazyStart: true
-Ant-Version: Apache Ant 1.7.0
 Bundle-Name: Engine Plug-in (Incubation)
+Ant-Version: Apache Ant 1.7.0
 Export-Package: org.eclipse.equinox.internal.prov.engine;x-internal:=true,org.eclipse.equinox.prov.engine,org.eclipse.equinox.prov.engine.phases,org.eclipse.equinox.prov.installregistry
 Created-By: 1.6.0_02-b06 (Sun Microsystems Inc.)
 Bundle-Version: 0.1.0.200709241631
 eclipse.p2.bundle.format: jar
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.equinox.prov.engine;singleton:=true
-</string>
-          </entry>
+
+          </instruction>
         </instructions>
-      </immutableTouchpointData>
-      <requires>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.common</name>
-          <namespace>org.eclipse.equinox.p2.iunamespace</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.registry</name>
-          <namespace>org.eclipse.equinox.p2.iunamespace</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>com.thoughtworks.xstream</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.prov.artifact.repository</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.prov.core.eventbus</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.prov.core.helpers</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.prov.core.location</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.prov.download</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.prov.metadata</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.equinox.prov.query</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.osgi.service.datalocation</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <range>1.0.0</range>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.osgi.service.resolver</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <range>1.1.0</range>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.eclipse.osgi.util</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <range>1.0.0</range>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.osgi.framework</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <range>1.3.0</range>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
-        <org.eclipse.equinox.p2.metadata.RequiredCapability>
-          <multiple>false</multiple>
-          <name>org.osgi.util.tracker</name>
-          <namespace>osgi.packages</namespace>
-          <optional>false</optional>
-          <range>1.3.3</range>
-          <selectors/>
-        </org.eclipse.equinox.p2.metadata.RequiredCapability>
+      </touchpointData>
+    </unit>
+    <unit id='config.a.jre' version='0.0.0' singleton='false' fragment='true' hostId='a.jre' hostRange='0.0.0'>
+      <provides size='2'>
+        <provided namespace='org.eclipse.equinox.p2.type' name='iu.fragment' version='1.0.0'/>
+        <provided namespace='org.eclipse.equinox.p2.iunamespace' name='config.a.jre' version='0.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='org.eclipse.equinox.p2.iunamespace' name='a.jre' range='0.0.0'/>
       </requires>
-      <applicabilityFilter></applicabilityFilter>
-      <providedCapabilities>
-        <org.eclipse.equinox.p2.metadata.ProvidedCapability>
-          <namespace>osgi.packages</namespace>
-          <name>org.eclipse.equinox.internal.prov.engine</name>
-        </org.eclipse.equinox.p2.metadata.ProvidedCapability>
-        <org.eclipse.equinox.p2.metadata.ProvidedCapability>
-          <namespace>osgi.packages</namespace>
-          <name>org.eclipse.equinox.prov.engine</name>
-        </org.eclipse.equinox.p2.metadata.ProvidedCapability>
-        <org.eclipse.equinox.p2.metadata.ProvidedCapability>
-          <namespace>osgi.packages</namespace>
-          <name>org.eclipse.equinox.prov.engine.phases</name>
-        </org.eclipse.equinox.p2.metadata.ProvidedCapability>
-        <org.eclipse.equinox.p2.metadata.ProvidedCapability>
-          <namespace>osgi.packages</namespace>
-          <name>org.eclipse.equinox.prov.installregistry</name>
-        </org.eclipse.equinox.p2.metadata.ProvidedCapability>
-        <org.eclipse.equinox.p2.metadata.ProvidedCapability>
-          <namespace>org.eclipse.equinox.p2.eclipsetouchpoint.types</namespace>
-          <name>bundle</name>
-          <version>1.0.0</version>
-        </org.eclipse.equinox.p2.metadata.ProvidedCapability>
-      </providedCapabilities>
-    </org.eclipse.equinox.p2.metadata.InstallableUnit>
+      <touchpoint id='native' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='install'>
+
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='testdata' version='1.0.0.1' singleton='false'>
+      <properties size='3'>
+        <property name='equinox.p2.update.from' value='testdata'/>
+        <property name='equinox.p2.update.range' value='0.0.0'/>
+        <property name='equinox.p2.name' value='Testdata Plug-in'/>
+      </properties>
+      <provides size='2'>
+        <provided namespace='org.eclipse.equinox.p2.iunamespace' name='testdata' version='1.0.0.1'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipsetouchpoint.types' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='osgi.packages' name='org.osgi.framework' range='1.3.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact namespace='eclipse' classifier='plugin' id='testdata' version='1.0.0.1'/>
+      </artifacts>
+      <touchpoint id='eclipse' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Manifest-Version: 1.0
+Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1
+Import-Package: org.osgi.framework;version=&quot;1.3.0&quot;
+Eclipse-LazyStart: true
+Ant-Version: Apache Ant 1.7.0
+Bundle-Name: Testdata Plug-in
+Created-By: 2.3 (IBM Corporation)
+Bundle-Version: 1.0.0.1
+eclipse.p2.bundle.format: jar
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: testdata
+
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
+    <unit id='testdata' version='1.0.0.2' singleton='false'>
+      <properties size='3'>
+        <property name='equinox.p2.update.from' value='testdata'/>
+        <property name='equinox.p2.update.range' value='0.0.0'/>
+        <property name='equinox.p2.name' value='Testdata Plug-in'/>
+      </properties>
+      <provides size='2'>
+        <provided namespace='org.eclipse.equinox.p2.iunamespace' name='testdata' version='1.0.0.2'/>
+        <provided namespace='org.eclipse.equinox.p2.eclipsetouchpoint.types' name='bundle' version='1.0.0'/>
+      </provides>
+      <requires size='1'>
+        <required namespace='osgi.packages' name='org.osgi.framework' range='1.3.0'/>
+      </requires>
+      <artifacts size='1'>
+        <artifact namespace='eclipse' classifier='plugin' id='testdata' version='1.0.0.2'/>
+      </artifacts>
+      <touchpoint id='eclipse' version='1.0.0'/>
+      <touchpointData size='1'>
+        <instructions size='1'>
+          <instruction key='manifest'>
+            Manifest-Version: 1.0
+Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1
+Import-Package: org.osgi.framework;version=&quot;1.3.0&quot;
+Eclipse-LazyStart: true
+Ant-Version: Apache Ant 1.7.0
+Bundle-Name: Testdata Plug-in
+Created-By: 2.3 (IBM Corporation)
+Bundle-Version: 1.0.0.2
+eclipse.p2.bundle.format: jar
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: testdata
+
+          </instruction>
+        </instructions>
+      </touchpointData>
+    </unit>
   </units>
-  <name>file:D:\workspaces\prov.selfhost\org.eclipse.equinox.p2.tests\testData\enginerepo - metadata</name>
-  <type>org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository</type>
-  <version>1</version>
-  <description></description>
-  <provider></provider>
-  <properties/>
-</org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository>
+</repository>

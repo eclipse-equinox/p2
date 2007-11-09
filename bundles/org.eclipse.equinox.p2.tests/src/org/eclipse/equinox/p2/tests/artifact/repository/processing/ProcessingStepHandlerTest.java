@@ -15,7 +15,7 @@ import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.processor.pack200.Unpack200Step;
+import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Unpack200Step;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.tests.TestActivator;

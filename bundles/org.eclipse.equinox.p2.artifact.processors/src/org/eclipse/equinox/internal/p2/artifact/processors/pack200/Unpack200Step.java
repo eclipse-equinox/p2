@@ -9,7 +9,7 @@
 * 	compeople AG (Stefan Liebig) - initial API and implementation
 *  IBM - continuing development
 *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.processor.pack200;
+package org.eclipse.equinox.internal.p2.artifact.processors.pack200;
 
 import java.io.*;
 import org.eclipse.core.runtime.IStatus;

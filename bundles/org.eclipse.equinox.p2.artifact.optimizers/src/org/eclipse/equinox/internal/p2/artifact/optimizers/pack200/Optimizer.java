@@ -31,17 +31,22 @@ public class Optimizer {
 			if (!key.getClassifier().equals("plugin"))
 				continue;
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
-			IArtifactDescriptor complete = null;
+			IArtifactDescriptor canonical = null;
 			boolean optimized = false;
 			for (int j = 0; j < descriptors.length; j++) {
 				IArtifactDescriptor descriptor = descriptors[j];
-				if (descriptor.getProcessingSteps().length == 0)
-					complete = descriptor;
+				if (isCanonical(descriptor))
+					canonical = descriptor;
 				optimized |= isOptimized(descriptor);
 			}
 			if (!optimized)
-				optimize(complete);
+				optimize(canonical);
 		}
+	}
+
+	private boolean isCanonical(IArtifactDescriptor descriptor) {
+		// TODO length != 0 is not necessarily an indicator for not being complete!   
+		return descriptor.getProcessingSteps().length == 0;
 	}
 
 	private void optimize(IArtifactDescriptor descriptor) {

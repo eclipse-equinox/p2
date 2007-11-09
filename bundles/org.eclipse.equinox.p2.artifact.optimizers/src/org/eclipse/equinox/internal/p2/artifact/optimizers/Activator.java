@@ -7,13 +7,13 @@
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
+package org.eclipse.equinox.internal.p2.artifact.optimizers;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
-	public static final String ID = "org.eclipse.equinox.p2.artifact.optimizer.pack200"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.equinox.p2.artifact.optimizers"; //$NON-NLS-1$
 	private static BundleContext context = null;
 
 	public static BundleContext getContext() {

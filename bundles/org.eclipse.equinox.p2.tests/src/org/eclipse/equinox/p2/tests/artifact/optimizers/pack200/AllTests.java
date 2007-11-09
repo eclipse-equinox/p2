@@ -19,7 +19,8 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(PackRepositoryTest.class);
+		//		suite.addTestSuite(PackRepositoryTest.class);
+		suite.addTestSuite(JarDeltaRepositoryTest.class);
 		return suite;
 	}
 
