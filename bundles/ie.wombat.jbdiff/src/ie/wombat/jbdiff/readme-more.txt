@@ -1,4 +1,4 @@
-This library version is based on JBDiff (http://www.wombat.ie/software/jbdiff/downloads/)
+This library version is based on JBDiff (http://www.wombat.ie/software/jbdiff/downloads/jbdiff-0.1.1.tar.gz)
 which is also available under the OSI Approved :: BSD License (original)
 http://www.opensource.org/licenses/bsd-license.html
 

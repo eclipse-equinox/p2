@@ -1,6 +1,6 @@
 README file for JBDiff (Java Binary Diff) 
-Version: 0.1
-Release date: 8 Mar 2005.
+Version: 0.1.1
+Release date: 1 Oct 2007
 
 JBDiff (Java Binary Diff) utility is a Java translation of the bsdiff (v4.2) utility 
 by Colin Percival. See http://www.daemonology.net/bsdiff/
@@ -40,9 +40,12 @@ to joe@galway.net
 
 LICENSE:
 
-This software is distributed under the GPL v2 license (see LICENSE.txt file in
-the distribution). If this license does not suit your needs, please contact me.
+Now available under BSD license (previously GPL).
+
+CHANGES SINCE 0.1.0 RELEASE:
+
+Change of license from GPL v2 to BSD license.
 
 Joe Desbonnet
-joe@galway.net
-8 Mar 2005
+jdesbonnet@gmail.com
+1 Oct 2007
