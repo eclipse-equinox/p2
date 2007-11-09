@@ -12,12 +12,27 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URL;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
+
+	public IMetadataRepository create(URL location, String name, String type) {
+		try {
+			if (location.getProtocol().equals("file")) //$NON-NLS-1$
+				return new LocalMetadataRepository(location, name);
+			return new URLMetadataRepository(location, name);
+		} catch (RepositoryCreationException e) {
+			log(e);
+			// if the exception has no cause then it was just a missing repo so we'll return null 
+			return null;
+		}
+	}
 
 	public IMetadataRepository load(URL location) {
 		if (location == null)
@@ -32,28 +47,20 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					((URLMetadataRepository) result).initializeAfterLoad(location);
 				return result;
 			} catch (RepositoryCreationException e) {
-				// TODO: should distinguish between case of nonexistent input file
-				//		 and other creation problems.
-				return null;
+				// TODO: distinguish between nonexistent input file and other creation problems.
+				log(e);
 			} finally {
 				if (descriptorStream != null)
 					descriptorStream.close();
 			}
 		} catch (IOException e) {
-			//TODO: log and throw? 
+			log(e);
 		}
 		return null;
 	}
 
-	public IMetadataRepository create(URL location, String name, String type) {
-		try {
-			if (location.getProtocol().equals("file")) //$NON-NLS-1$
-				return new LocalMetadataRepository(location, name);
-			return new URLMetadataRepository(location, name);
-		} catch (RepositoryCreationException e) {
-			// if the exception has no cause then it was just a missing repo so we'll return null 
-			return null;
-		}
+	private void log(Exception e) {
+		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, "Error loading repository", e));
 	}
 
 	public void restore(AbstractRepository repository, URL location) {
