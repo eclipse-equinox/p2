@@ -15,6 +15,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -37,7 +39,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public IInstallableUnit[] getUnits() {
-			return (IInstallableUnit[]) units.toArray(new IInstallableUnit[units.size()]);
+			int size = units.size();
+			IInstallableUnit[] result = new IInstallableUnit[size];
+			int i = 0;
+			for (Iterator it = units.iterator(); it.hasNext(); i++) {
+				InstallableUnitDescription desc = (InstallableUnitDescription) it.next();
+				result[i] = MetadataFactory.createInstallableUnit(desc);
+			}
+			return result;
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -54,7 +63,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 		private final String[] optional = new String[] {SINGLETON_ATTRIBUTE, FRAGMENT_ATTRIBUTE, FRAGMENT_HOST_ID_ATTRIBUTE, FRAGMENT_HOST_RANGE_ATTRIBUTE};
 
-		InstallableUnit currentUnit = null;
+		InstallableUnitDescription currentUnit = null;
 
 		private PropertiesHandler propertiesHandler = null;
 		private ProvidedCapabilitiesHandler providedCapabilitiesHandler = null;
@@ -73,24 +82,33 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			boolean singleton = checkBoolean(INSTALLABLE_UNIT_ELEMENT, SINGLETON_ATTRIBUTE, values[2], true).booleanValue();
 			boolean isFragment = checkBoolean(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_ATTRIBUTE, values[3], false).booleanValue();
 			if (isFragment) {
+				String hostId = values[4];
 				// TODO: tooling default fragment does not have a host id
-				// checkRequiredAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_ID_ATTRIBUTE, values[4]);
+				if (hostId != null)
+					checkRequiredAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_ID_ATTRIBUTE, hostId);
 				checkRequiredAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_RANGE_ATTRIBUTE, values[5]);
 				VersionRange hostRange = checkVersionRange(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_RANGE_ATTRIBUTE, values[5]);
-				currentUnit = new InstallableUnitFragment(values[0], version, singleton, values[4], hostRange);
+				currentUnit = new InstallableUnitFragmentDescription();
+				currentUnit.setId(values[0]);
+				currentUnit.setVersion(version);
+				currentUnit.setSingleton(singleton);
+				((InstallableUnitFragmentDescription) currentUnit).setHost(values[4], hostRange);
 			} else {
 				if (values[4] != null) {
 					unexpectedAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_ID_ATTRIBUTE, values[4]);
 				} else if (values[5] != null) {
 					unexpectedAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_RANGE_ATTRIBUTE, values[4]);
 				}
-				currentUnit = new InstallableUnit(values[0], version, singleton);
+				currentUnit = new InstallableUnitDescription();
+				currentUnit.setId(values[0]);
+				currentUnit.setVersion(version);
+				currentUnit.setSingleton(singleton);
 			}
 			units.add(currentUnit);
 		}
 
 		public IInstallableUnit getInstallableUnit() {
-			return currentUnit;
+			return MetadataFactory.createInstallableUnit(currentUnit);
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -149,9 +167,13 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML() && currentUnit != null) {
-				Map properties = (propertiesHandler == null ? new OrderedProperties(0) //
+				OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) //
 						: propertiesHandler.getProperties());
-				currentUnit.addProperties(properties);
+				for (Enumeration e = properties.keys(); e.hasMoreElements();) {
+					String key = (String) e.nextElement();
+					String value = properties.getProperty(key);
+					currentUnit.setProperty(key, value);
+				}
 				ProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new ProvidedCapability[0] //
 						: providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
@@ -174,7 +196,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				}
 				TouchpointData[] touchpointData = (touchpointDataHandler == null ? new TouchpointData[0] //
 						: touchpointDataHandler.getTouchpointData());
-				currentUnit.addTouchpointData(touchpointData);
+				for (int i = 0; i < touchpointData.length; i++)
+					currentUnit.addTouchpointData(touchpointData[i]);
 			}
 		}
 	}

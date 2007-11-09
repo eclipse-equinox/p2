@@ -78,7 +78,7 @@
             <enabledWhen>
             <or>
              <instanceof
-                  value="org.eclipse.equinox.p2.metadata.InstallableUnit">
+                  value="org.eclipse.equinox.p2.metadata.IInstallableUnit">
              </instanceof>
              <instanceof
                   value="org.eclipse.equinox.p2.ui.model.InstalledIUElement">

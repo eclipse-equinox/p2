@@ -42,8 +42,8 @@ public class RecommendationTest extends AbstractProvisioningTest {
 
 	public void testPicker() {
 		//The IUs we will pick from
-		InstallableUnit iu1 = createIU("iu1", new Version(1, 0, 0));
-		InstallableUnit iu2 = createIU("iu2", new Version(4, 0, 0));
+		IInstallableUnit iu1 = createIU("iu1", new Version(1, 0, 0));
+		IInstallableUnit iu2 = createIU("iu2", new Version(4, 0, 0));
 
 		//The recommendations to be used
 		RequiredCapability applyOn, newValue;
@@ -59,11 +59,11 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		recommendations.add(r1);
 		recommendations.add(r2);
 
-		Picker p = new Picker(new InstallableUnit[] {iu1, iu2}, null);
+		Picker p = new Picker(new IInstallableUnit[] {iu1, iu2}, null);
 		IInstallableUnit[][] matches = p.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", null, null, false, false)}, false);
 		assertEquals(matches[1][0], iu1);
 
-		Picker p1 = new Picker(new InstallableUnit[] {iu1, iu2}, new RecommendationDescriptor(recommendations));
+		Picker p1 = new Picker(new IInstallableUnit[] {iu1, iu2}, new RecommendationDescriptor(recommendations));
 		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false)}, false);
 		assertEquals(matches[0].length, 0);
 		assertEquals(matches[1].length, 0);
@@ -75,7 +75,7 @@ public class RecommendationTest extends AbstractProvisioningTest {
 
 	public void testWideningRanges() {
 		//The IUs we will pick from
-		InstallableUnit iu1 = createIU("iu1", new Version(4, 0, 0));
+		IInstallableUnit iu1 = createIU("iu1", new Version(4, 0, 0));
 
 		//Here we add recommendation that widen the range of the bundle we are looking for
 		RequiredCapability applyOn2, newValue2;
@@ -86,12 +86,12 @@ public class RecommendationTest extends AbstractProvisioningTest {
 		recommendations.add(r2);
 
 		//Check without the recommendations
-		Picker p2 = new Picker(new InstallableUnit[] {iu1}, null);
+		Picker p2 = new Picker(new IInstallableUnit[] {iu1}, null);
 		IInstallableUnit[][] matches = p2.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[1].length, 1);
 
 		//Check the widening works
-		Picker p1 = new Picker(new InstallableUnit[] {iu1}, new RecommendationDescriptor(recommendations));
+		Picker p1 = new Picker(new IInstallableUnit[] {iu1}, new RecommendationDescriptor(recommendations));
 		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[1].length, 1);
 

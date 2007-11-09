@@ -15,6 +15,7 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.osgi.framework.Version;
 
@@ -59,14 +60,14 @@ public class FormerState {
 	}
 
 	IInstallableUnit profileToIU(Profile toConvert) {
-		InstallableUnit result = new InstallableUnit();
+		InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
 		result.setProperty(IInstallableUnitConstants.PROFILE_IU_KEY, Boolean.TRUE.toString());
 		result.setId(toConvert.getProfileId());
 		result.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
 		result.setRequiredCapabilities(IUTransformationHelper.toRequirements(toConvert.getInstallableUnits(), false));
 		//TODO Need to do the properties in the profile
 		//TODO Do we need to mark profile with a special marker
-		return result;
+		return MetadataFactory.createInstallableUnit(result);
 	}
 
 	//	private copyProperty(Profile p) {

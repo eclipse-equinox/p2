@@ -13,32 +13,28 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Version;
 
 public class SingletonTest extends AbstractProvisioningTest {
-	InstallableUnit f1;
-	InstallableUnit f1_1;
+	IInstallableUnit f1;
+	IInstallableUnit f1_1;
 
-	InstallableUnit f2;
-	InstallableUnit f2_1;
+	IInstallableUnit f2;
+	IInstallableUnit f2_1;
 
-	InstallableUnit junit38;
-	InstallableUnit junit40;
+	IInstallableUnit junit38;
+	IInstallableUnit junit40;
 
 	IDirector director;
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		f1 = createIU("f1");
-		f1.setSingleton(true);
+		f1 = createIU("f1", new Version(1, 0, 0), true);
 
-		f1_1 = createIU("f1", new Version(1, 1, 0));
-		f1_1.setSingleton(true);
+		f1_1 = createIU("f1", new Version(1, 1, 0), true);
 
-		f2 = createIU("f2");
-		f2.setSingleton(true);
+		f2 = createIU("f2", new Version(1, 0, 0), true);
 
 		f2_1 = createIU("f2", new Version(1, 0, 1));
 
@@ -58,12 +54,12 @@ public class SingletonTest extends AbstractProvisioningTest {
 	}
 
 	public void testMultipleVersionSingleton() {
-		// The installation of junit38 and junit 40 together should succeed
+		// The installation of junit38 and junit 40 together should not succeed
 		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1, f1_1}, profile, new NullProgressMonitor()).getSeverity());
 	}
 
 	public void testMultipleVersionSingleton2() {
-		// The installation of junit38 and junit 40 together should succeed
+		// The installation of junit38 and junit 40 together should not succeed
 		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f2, f2_1}, profile, new NullProgressMonitor()).getSeverity());
 	}
 }

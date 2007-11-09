@@ -43,13 +43,12 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 */
 	public void testInstallFilteredCapability() {
 		//The IU that is required
-		InstallableUnit requiredIU = createIU("required." + getName());
+		IInstallableUnit requiredIU = createIU("required." + getName());
 
 		// The IU to be installed
-		InstallableUnit toInstallIU = createIU("toInstall." + getName());
 		String filter = createFilter("FilterKey", "true");
 		RequiredCapability capability = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, requiredIU.getId(), ANY_VERSION, filter, false, false);
-		toInstallIU.setRequiredCapabilities(new RequiredCapability[] {capability});
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
@@ -75,12 +74,11 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	public void testInstallOptionalAvailable() {
 		String capabilityId = "test." + getName();
 		//The IU that exports the capability
-		InstallableUnit requiredIU = createIU("required." + getName(), new ProvidedCapability[] {new ProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
+		IInstallableUnit requiredIU = createIU("required." + getName(), new ProvidedCapability[] {new ProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
 
 		//The IU that optionally requires the capability
-		InstallableUnit toInstallIU = createIU("toInstall." + getName());
 		RequiredCapability required = new RequiredCapability("test.capability", capabilityId, ANY_VERSION, null, /* optional=> */true, /* multiple=> */false);
-		toInstallIU.setRequiredCapabilities(new RequiredCapability[] {required});
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {required});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU, requiredIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
@@ -100,10 +98,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 */
 	public void testInstallOptionalUnavailable() {
 		String capabilityId = "test." + getName();
-		InstallableUnit toInstallIU = createIU("toInstall." + getName());
 		//no IU will be available that exports this capability
 		RequiredCapability required = new RequiredCapability("test.capability", capabilityId, ANY_VERSION, null, true, false);
-		toInstallIU.setRequiredCapabilities(new RequiredCapability[] {required});
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {required});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
@@ -124,11 +121,10 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	public void testInstallPlatformFilter() {
 		//The IU that exports the capability
 		String capabilityId = "test." + getName();
-		InstallableUnit requiredIU = createIU("required." + getName(), new ProvidedCapability[] {new ProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
-		requiredIU.setFilter(createFilter("osgi.os", "blort"));
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)};
+		IInstallableUnit requiredIU = createIU("required." + getName(), createFilter("osgi.os", "blort"), provides);
 
-		InstallableUnit toInstallIU = createIU("toInstall." + getName());
-		toInstallIU.setRequiredCapabilities(createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, null));
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, null));
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
@@ -152,10 +148,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	public void testSimpleInstallRequired() {
 		String capabilityId = "test." + getName();
 		//The IU that exports the capability
-		InstallableUnit requiredIU = createIU("required." + getName(), new ProvidedCapability[] {new ProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
+		IInstallableUnit requiredIU = createIU("required." + getName(), new ProvidedCapability[] {new ProvidedCapability("test.capability", capabilityId, DEFAULT_VERSION)});
 
-		InstallableUnit toInstallIU = createIU("toInstall." + getName());
-		toInstallIU.setRequiredCapabilities(createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, null));
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createRequiredCapabilities("test.capability", capabilityId, ANY_VERSION, null));
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
@@ -177,11 +172,10 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 */
 	public void testInstallRequiredNoVersion() {
 		//The IU that is needed
-		InstallableUnit requiredIU = createIU("required." + getName());
+		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		InstallableUnit toInstallIU = createIU("toInstall." + getName());
 		RequiredCapability capability = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, requiredIU.getId(), null, null, false, false);
-		toInstallIU.setRequiredCapabilities(new RequiredCapability[] {capability});
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
@@ -204,11 +198,10 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	 */
 	public void testSimpleInstallRequiredIU() {
 		//The IU that exports the capability
-		InstallableUnit requiredIU = createIU("required." + getName());
+		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		InstallableUnit toInstallIU = createIU("toInstall." + getName());
 		RequiredCapability capability = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, requiredIU.getId(), ANY_VERSION, null, false, false);
-		toInstallIU.setRequiredCapabilities(new RequiredCapability[] {capability});
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};

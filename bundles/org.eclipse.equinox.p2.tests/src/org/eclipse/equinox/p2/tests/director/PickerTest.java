@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.director.Picker;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 /**
  * Testing of the {@link Picker} class.
  */
-public class PickerTest extends TestCase {
-	InstallableUnit unitVersion5;
+public class PickerTest extends AbstractProvisioningTest {
+	IInstallableUnit unitVersion5;
 	private Picker picker;
 
 	public PickerTest() {
@@ -31,21 +31,15 @@ public class PickerTest extends TestCase {
 		super(name);
 	}
 
-	private RequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
-		return new RequiredCapability[] {new RequiredCapability(namespace, name, range, filter, false, false)};
-	}
-
 	protected void setUp() throws Exception {
 		super.setUp();
 		Version version = new Version(5, 0, 0);
 
 		//create some sample IUs to be available for the picker
-		unitVersion5 = new InstallableUnit();
-		unitVersion5.setId("required");
-		unitVersion5.setVersion(version);
-		unitVersion5.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		unitVersion5 = createIU("required", version, provides);
 
-		InstallableUnit[] units = new InstallableUnit[] {unitVersion5};
+		IInstallableUnit[] units = new IInstallableUnit[] {unitVersion5};
 		picker = new Picker(units, null);
 
 	}

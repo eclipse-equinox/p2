@@ -44,16 +44,12 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(5, 0, 0);
 
 		//The IU that exports the capability
-		InstallableUnit required = new InstallableUnit();
-		required.setId("required");
-		required.setVersion(version);
-		required.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose required capability falls outside available range
-		InstallableUnit toInstall = new InstallableUnit();
-		toInstall.setId("match");
-		toInstall.setVersion(version);
-		toInstall.setRequiredCapabilities(createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,5.0)"), null));
+		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", new VersionRange("[2.0,5.0)"), null);
+		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		ResolutionHelper rh = new ResolutionHelper(null, null);
 		HashSet installSet = new HashSet();
@@ -77,16 +73,12 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(2, 0, 0);
 
 		//The IU that exports the capability
-		InstallableUnit required = new InstallableUnit();
-		required.setId("required");
-		required.setVersion(version);
-		required.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose required capability falls outside available range
-		InstallableUnit toInstall = new InstallableUnit();
-		toInstall.setId("match");
-		toInstall.setVersion(version);
-		toInstall.setRequiredCapabilities(createRequiredCapabilities("test.capability", "test", new VersionRange("(2.0,3.0)"), null));
+		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", new VersionRange("(2.0,3.0)"), null);
+		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		ResolutionHelper rh = new ResolutionHelper(null, null);
 		HashSet installSet = new HashSet();
@@ -106,16 +98,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		InstallableUnit required = new InstallableUnit();
-		required.setId("required");
-		required.setVersion(version);
-		required.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
-		required.setFilter(createFilter(FILTER_KEY, "win32"));
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		IInstallableUnit required = createIU("required", version, createFilter(FILTER_KEY, "win32"), provides);
 
-		InstallableUnit toInstall = new InstallableUnit();
-		toInstall.setId("toInstall");
-		toInstall.setVersion(version);
-		toInstall.setRequiredCapabilities(createRequiredCapabilities("test.capability", "test", ANY_VERSION, null));
+		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", ANY_VERSION, null);
+		IInstallableUnit toInstall = createIU("toInstall", version, requires);
 
 		//setup context so that platform filter will satisfy dependency
 		Hashtable context = new Hashtable();
@@ -157,16 +144,12 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		InstallableUnit required = new InstallableUnit();
-		required.setId("required");
-		required.setVersion(version);
-		required.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will match the environment
-		InstallableUnit toInstall = new InstallableUnit();
-		toInstall.setId("match");
-		toInstall.setVersion(version);
-		toInstall.setRequiredCapabilities(createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "matchValue")));
+		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "matchValue"));
+		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		Dictionary environment = new Hashtable();
 		environment.put(FILTER_KEY, "matchValue");
@@ -189,16 +172,12 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		InstallableUnit required = new InstallableUnit();
-		required.setId("required");
-		required.setVersion(version);
-		required.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will not match the environment
-		InstallableUnit toInstall = new InstallableUnit();
-		toInstall.setId("noMatch");
-		toInstall.setVersion(version);
-		toInstall.setRequiredCapabilities(createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "noMatchValue")));
+		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", createFilter(FILTER_KEY, "noMatchValue"));
+		IInstallableUnit toInstall = createIU("noMatch", version, requires);
 
 		Dictionary environment = new Hashtable();
 		environment.put(FILTER_KEY, "matchValue");
@@ -213,15 +192,11 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 	}
 
 	public void testSimpleDependency() {
-		InstallableUnit osgi = new InstallableUnit();
-		osgi.setId("org.eclipse.osgi");
-		osgi.setVersion(new Version(3, 2, 0, null));
-		osgi.setRequiredCapabilities(new RequiredCapability[] {new RequiredCapability("java.runtime", "JRE", null, null, false, false)});
+		RequiredCapability[] requires = new RequiredCapability[] {new RequiredCapability("java.runtime", "JRE", null, null, false, false)};
+		IInstallableUnit osgi = createIU("org.eclipse.osgi", new Version(3, 2, 0, null), requires, NO_PROPERTIES, false);
 
-		InstallableUnit jre = new InstallableUnit();
-		jre.setId("com.ibm.jre");
-		jre.setVersion(new Version(1, 4, 2, "sr2"));
-		jre.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("java.runtime", "JRE", new Version(1, 4, 2, "sr2"))});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("java.runtime", "JRE", new Version(1, 4, 2, "sr2"))};
+		IInstallableUnit jre = createIU("com.ibm.jre", new Version(1, 4, 2, "sr2"), provides);
 
 		ResolutionHelper rh = new ResolutionHelper(null, null);
 		HashSet osgiSet = new HashSet(1);
@@ -240,16 +215,12 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		InstallableUnit required = new InstallableUnit();
-		required.setId("required");
-		required.setVersion(version);
-		required.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will match the environment
-		InstallableUnit toInstall = new InstallableUnit();
-		toInstall.setId("match");
-		toInstall.setVersion(version);
-		toInstall.setRequiredCapabilities(createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "matchValue")));
+		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "matchValue"));
+		IInstallableUnit toInstall = createIU("match", version, requires);
 
 		Dictionary environment = new Hashtable();
 		environment.put(FILTER_KEY, "matchValue");
@@ -277,16 +248,12 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		InstallableUnit required = new InstallableUnit();
-		required.setId("required");
-		required.setVersion(version);
-		required.setCapabilities(new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)});
+		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will not match the environment
-		InstallableUnit toInstall = new InstallableUnit();
-		toInstall.setId("noMatch");
-		toInstall.setVersion(version);
-		toInstall.setRequiredCapabilities(createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "noMatchValue")));
+		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "does.not.exist", createFilter(FILTER_KEY, "noMatchValue"));
+		IInstallableUnit toInstall = createIU("noMatch", version, requires);
 
 		Dictionary environment = new Hashtable();
 		environment.put(FILTER_KEY, "matchValue");

@@ -10,26 +10,18 @@ package org.eclipse.equinox.p2.tests.director;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Version;
 
-public class OperationGenerationTest extends TestCase {
+public class OperationGenerationTest extends AbstractProvisioningTest {
 	public void testInstallUninstall() {
-		InstallableUnit a1 = new InstallableUnit();
-		a1.setId("a");
-		a1.setVersion(new Version(1, 0, 0));
-
-		InstallableUnit a2 = new InstallableUnit();
-		a2.setId("a");
-		a2.setVersion(new Version(2, 0, 0));
-
-		InstallableUnit a3 = new InstallableUnit();
-		a3.setId("a");
-		a3.setVersion(new Version(3, 0, 0));
+		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
+		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
+		IInstallableUnit a3 = createIU("a", new Version(3, 0, 0), false);
 
 		Collection from;
 		from = new ArrayList();
@@ -47,17 +39,9 @@ public class OperationGenerationTest extends TestCase {
 	}
 
 	public void test1() {
-		InstallableUnit a1 = new InstallableUnit();
-		a1.setId("a");
-		a1.setVersion(new Version(1, 0, 0));
-
-		InstallableUnit a2 = new InstallableUnit();
-		a2.setId("a");
-		a2.setVersion(new Version(2, 0, 0));
-
-		InstallableUnit a3 = new InstallableUnit();
-		a3.setId("a");
-		a3.setVersion(new Version(3, 0, 0));
+		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
+		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
+		IInstallableUnit a3 = createIU("a", new Version(3, 0, 0), false);
 
 		Collection from;
 		from = new ArrayList();
@@ -76,17 +60,9 @@ public class OperationGenerationTest extends TestCase {
 	}
 
 	public void test2() {
-		InstallableUnit a1 = new InstallableUnit();
-		a1.setId("a");
-		a1.setVersion(new Version(1, 0, 0));
-
-		InstallableUnit a2 = new InstallableUnit();
-		a2.setId("a");
-		a2.setVersion(new Version(2, 0, 0));
-
-		InstallableUnit a3 = new InstallableUnit();
-		a3.setId("a");
-		a3.setVersion(new Version(3, 0, 0));
+		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
+		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
+		IInstallableUnit a3 = createIU("a", new Version(3, 0, 0), false);
 
 		Collection from;
 		from = new ArrayList();
@@ -105,21 +81,16 @@ public class OperationGenerationTest extends TestCase {
 	}
 
 	public void testUpdate3() {
-		InstallableUnit a1 = new InstallableUnit();
-		a1.setId("a");
-		a1.setVersion(new Version(1, 0, 0));
+		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
+		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
 
-		InstallableUnit a2 = new InstallableUnit();
-		a2.setId("a");
-		a2.setVersion(new Version(2, 0, 0));
-
-		InstallableUnit b = new InstallableUnit();
+		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
 		b.setId("b");
 		b.setVersion(new Version(1, 0, 0));
 		b.setProperty(IInstallableUnitConstants.UPDATE_FROM, "a");
 		b.setProperty(IInstallableUnitConstants.UPDATE_RANGE, "[1.0.0, 2.0.0)");
 
-		InstallableUnit c = new InstallableUnit();
+		InstallableUnitDescription c = new MetadataFactory.InstallableUnitDescription();
 		c.setId("c");
 		c.setVersion(new Version(1, 0, 0));
 		c.setProperty(IInstallableUnitConstants.UPDATE_FROM, "a");
@@ -132,8 +103,8 @@ public class OperationGenerationTest extends TestCase {
 
 		Collection to;
 		to = new ArrayList();
-		to.add(b);
-		to.add(c);
+		to.add(MetadataFactory.createInstallableUnit(b));
+		to.add(MetadataFactory.createInstallableUnit(c));
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
@@ -141,15 +112,10 @@ public class OperationGenerationTest extends TestCase {
 	}
 
 	public void testUpdate2() {
-		InstallableUnit a1 = new InstallableUnit();
-		a1.setId("a");
-		a1.setVersion(new Version(1, 0, 0));
+		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
+		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
 
-		InstallableUnit a2 = new InstallableUnit();
-		a2.setId("a");
-		a2.setVersion(new Version(2, 0, 0));
-
-		InstallableUnit b = new InstallableUnit();
+		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
 		b.setId("b");
 		b.setVersion(new Version(1, 0, 0));
 		b.setProperty(IInstallableUnitConstants.UPDATE_FROM, "a");
@@ -162,7 +128,7 @@ public class OperationGenerationTest extends TestCase {
 
 		Collection to;
 		to = new ArrayList();
-		to.add(b);
+		to.add(MetadataFactory.createInstallableUnit(b));
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
@@ -170,11 +136,9 @@ public class OperationGenerationTest extends TestCase {
 	}
 
 	public void testUpdate1() {
-		InstallableUnit a = new InstallableUnit();
-		a.setId("a");
-		a.setVersion(new Version(1, 0, 0));
+		IInstallableUnit a = createIU("a", new Version(1, 0, 0), false);
 
-		InstallableUnit b = new InstallableUnit();
+		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
 		b.setId("b");
 		b.setVersion(new Version(1, 0, 0));
 		b.setProperty(IInstallableUnitConstants.UPDATE_FROM, "a");
@@ -186,7 +150,7 @@ public class OperationGenerationTest extends TestCase {
 
 		Collection to;
 		to = new ArrayList();
-		to.add(b);
+		to.add(MetadataFactory.createInstallableUnit(b));
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);

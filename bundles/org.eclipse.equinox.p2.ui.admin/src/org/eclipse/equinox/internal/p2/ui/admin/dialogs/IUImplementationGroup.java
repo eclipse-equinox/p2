@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.ui.dialogs.IUGroup;
 import org.eclipse.jface.dialogs.Dialog;
@@ -175,18 +176,15 @@ public class IUImplementationGroup extends IUGroup {
 	}
 
 	public void updateIU() {
-		if (iuElement == null) {
-			iuElement = new InstallableUnit();
-		}
 		// If it's not an InstallableUnit it is not editable
-		if (iuElement instanceof InstallableUnit) {
-			InstallableUnit unit = (InstallableUnit) iuElement;
+		if (iuElement == null || iuElement instanceof IInstallableUnit) {
+			InstallableUnitDescription unit = new InstallableUnitDescription();
 			unit.setId(id.getText().trim());
 			unit.setVersion(new Version(version.getText().trim()));
 			unit.setProperty(IInstallableUnit.IU_NAMESPACE, namespace.getText().trim());
-			// TODO this is bogus because we don't let user provide a touchpoint
-			// type version
+			// TODO this is bogus because we don't let user provide a touchpoint type version
 			unit.setTouchpointType(new TouchpointType(touchpointType.getText().trim(), new Version("1.0.0"))); //$NON-NLS-1$
+			iuElement = MetadataFactory.createInstallableUnit(unit);
 		}
 	}
 

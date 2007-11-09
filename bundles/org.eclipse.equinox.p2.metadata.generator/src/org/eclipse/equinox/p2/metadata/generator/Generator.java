@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.Version;
 
@@ -42,7 +43,7 @@ public class Generator {
 	}
 
 	protected IInstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
-		InstallableUnit root = new InstallableUnit();
+		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
 		root.setVersion(new Version(configurationVersion));
@@ -51,7 +52,7 @@ public class Generator {
 
 		ArrayList reqsConfigurationUnits = new ArrayList(resultantIUs.size());
 		for (Iterator iterator = resultantIUs.iterator(); iterator.hasNext();) {
-			InstallableUnit iu = (InstallableUnit) iterator.next();
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.IU_NAMESPACE, iu.getId(), range, iu.getFilter(), false, false));
 		}
@@ -63,7 +64,7 @@ public class Generator {
 		root.setProperty(IInstallableUnitConstants.UPDATE_FROM, configurationIdentification);
 		root.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
 		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
-		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(root), groupCapability});
+		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion)), groupCapability});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
 
@@ -109,8 +110,8 @@ public class Generator {
 		}
 		touchpointData.put("configure", configurationData);
 		touchpointData.put("unconfigure", unconfigurationData);
-		root.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		return root;
+		root.addTouchpointData(new TouchpointData(touchpointData));
+		return MetadataFactory.createInstallableUnit(root);
 	}
 
 	public IStatus generate() {
@@ -135,7 +136,7 @@ public class Generator {
 		//		if (info.publishArtifacts() || info.publishArtifactRepository()) {
 		//			persistence.saveArtifactRepository();
 		//		}
-		info.getMetadataRepository().addInstallableUnits((InstallableUnit[]) ius.toArray(new InstallableUnit[ius.size()]));
+		info.getMetadataRepository().addInstallableUnits((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
 
 		return Status.OK_STATUS;
 	}
@@ -175,7 +176,7 @@ public class Generator {
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 			}
-			InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
 			if (cu != null)
 				resultantIUs.add(cu);
 		}
@@ -183,13 +184,13 @@ public class Generator {
 		if (info.addDefaultIUs()) {
 			for (Iterator iterator = info.getDefaultIUs(resultantIUs).iterator(); iterator.hasNext();) {
 				GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
-				InstallableUnit configuredIU = getIU(resultantIUs, bundle.getSymbolicName());
+				IInstallableUnit configuredIU = getIU(resultantIUs, bundle.getSymbolicName());
 				if (configuredIU != null)
 					bundle.setVersion(configuredIU.getVersion().toString());
-				InstallableUnit cu = (InstallableUnit) MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+				IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
 				//the configuration unit should share the same platform filter as the IU being configured.
 				if (configuredIU != null)
-					cu.setFilter(configuredIU.getFilter());
+					((InstallableUnitFragment) cu).setFilter(configuredIU.getFilter());
 				if (cu != null)
 					resultantIUs.add(cu);
 			}
@@ -261,7 +262,7 @@ public class Generator {
 	 */
 	private void generateExecutableIUs(String ws, String os, String arch, String version, File root, Set resultantIUs, IArtifactRepository destination) {
 		//Create the IU
-		InstallableUnit iu = new InstallableUnit();
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
 		String launcherId = "org.eclipse.launcher." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
 		iu.setId(launcherId);
@@ -273,14 +274,14 @@ public class Generator {
 		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(launcherId, launcherVersion);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
-		resultantIUs.add(iu);
+		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create the CU
 		InstallableUnitFragment cu = new InstallableUnitFragment();
-		cu.setId(info.getFlavor() + iu.getId());
-		cu.setVersion(iu.getVersion());
+		cu.setId(info.getFlavor() + launcherId);
+		cu.setVersion(launcherVersion);
 		cu.setFilter(filter);
-		cu.setHost(iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true));
+		cu.setHost(launcherId, new VersionRange(launcherVersion, true, launcherVersion, true));
 
 		mungeLauncherFileNames(root);
 
@@ -382,9 +383,9 @@ public class Generator {
 		return info;
 	}
 
-	private InstallableUnit getIU(Set ius, String id) {
+	private IInstallableUnit getIU(Set ius, String id) {
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
-			InstallableUnit tmp = (InstallableUnit) iterator.next();
+			IInstallableUnit tmp = (IInstallableUnit) iterator.next();
 			if (tmp.getId().equals(id))
 				return tmp;
 		}

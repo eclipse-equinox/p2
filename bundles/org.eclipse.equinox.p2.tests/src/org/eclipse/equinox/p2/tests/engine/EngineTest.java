@@ -12,11 +12,12 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
 import java.util.*;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
@@ -28,7 +29,7 @@ import org.osgi.framework.Version;
  * Currently you MUST have previously generated metadata from a 3.3.1 install.
  * There are ordering dependencies for the tests temporarily 
  */
-public class EngineTest extends TestCase {
+public class EngineTest extends AbstractProvisioningTest {
 	private ServiceReference engineRef;
 	private Engine engine;
 	private File testProvisioning;
@@ -122,7 +123,7 @@ public class EngineTest extends TestCase {
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
 			// empty PhaseSet
 		};
-		Operand op = new Operand(new ResolvedInstallableUnit(new InstallableUnit()), null);
+		Operand op = new Operand(new ResolvedInstallableUnit(createIU("name")), null);
 		Operand[] operands = new Operand[] {op};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		assertTrue(result.isOK());
@@ -143,8 +144,8 @@ public class EngineTest extends TestCase {
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
-			InstallableUnit doomed = (InstallableUnit) it.next();
-			Operand[] operands = new Operand[] {new Operand(doomed.getResolved(), null)};
+			IInstallableUnit doomed = (IInstallableUnit) it.next();
+			Operand[] operands = new Operand[] {new Operand(new ResolvedInstallableUnit(doomed), null)};
 			engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		}
 		PhaseSet phaseSet = new DefaultPhaseSet();
@@ -197,10 +198,10 @@ public class EngineTest extends TestCase {
 	}
 
 	private IResolvedInstallableUnit createOSGiIU() {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId("org.eclipse.osgi");
-		iu.setVersion(new Version("3.3.1.R33x_v20070828"));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version("1.0.0")));
+		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
+		description.setId("org.eclipse.osgi");
+		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setTouchpointType(new TouchpointType("eclipse", new Version("1.0.0")));
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
 				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
@@ -219,17 +220,17 @@ public class EngineTest extends TestCase {
 		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
-		ResolvedInstallableUnit result = (ResolvedInstallableUnit) iu.getResolved();
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
+		ResolvedInstallableUnit result = new ResolvedInstallableUnit(iu);
 		result.setFragments(cus);
-
 		return result;
 	}
 
 	private IResolvedInstallableUnit createBadIU() {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId("org.eclipse.osgi.bad");
-		iu.setVersion(new Version("3.3.1.R33x_v20070828"));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version("1.0.0")));
+		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
+		description.setId("org.eclipse.osgi.bad");
+		description.setVersion(new Version("3.3.1.R33x_v20070828"));
+		description.setTouchpointType(new TouchpointType("eclipse", new Version("1.0.0")));
 		Map touchpointData = new HashMap();
 		String manifest = "Manifest-Version: 1.0\r\n" + "Bundle-Activator: org.eclipse.osgi.framework.internal.core.SystemBundl\r\n" + " eActivator\r\n" + "Bundle-RequiredExecutionEnvironment: J2SE-1.4,OSGi/Minimum-1.0\r\n" + "Export-Package: org.eclipse.osgi.event;version=\"1.0\",org.eclipse.osgi.\r\n" + " framework.console;version=\"1.0\",org.eclipse.osgi.framework.eventmgr;v\r\n" + " ersion=\"1.0\",org.eclipse.osgi.framework.log;version=\"1.0\",org.eclipse\r\n" + " .osgi.service.datalocation;version=\"1.0\",org.eclipse.osgi.service.deb\r\n" + " ug;version=\"1.0\",org.eclipse.osgi.service.environment;version=\"1.0\",o\r\n" + " rg.eclipse.osgi.service.localization;version=\"1.0\",org.eclipse.osgi.s\r\n" + " ervice.pluginconversion;version=\"1.0\",org.eclipse.osgi.service.resolv\r\n"
 				+ " er;version=\"1.1\",org.eclipse.osgi.service.runnable;version=\"1.0\",org.\r\n" + " eclipse.osgi.service.urlconversion;version=\"1.0\",org.eclipse.osgi.sto\r\n" + " ragemanager;version=\"1.0\",org.eclipse.osgi.util;version=\"1.0\",org.osg\r\n" + " i.framework;version=\"1.3\",org.osgi.service.condpermadmin;version=\"1.0\r\n" + " \",org.osgi.service.packageadmin;version=\"1.2\",org.osgi.service.permis\r\n" + " sionadmin;version=\"1.2\",org.osgi.service.startlevel;version=\"1.0\",org\r\n" + " .osgi.service.url;version=\"1.0\",org.osgi.util.tracker;version=\"1.3.2\"\r\n" + " ,org.eclipse.core.runtime.adaptor;x-friends:=\"org.eclipse.core.runtim\r\n" + " e\",org.eclipse.core.runtime.internal.adaptor;x-internal:=true,org.ecl\r\n"
@@ -247,7 +248,8 @@ public class EngineTest extends TestCase {
 		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
-		ResolvedInstallableUnit result = (ResolvedInstallableUnit) iu.getResolved();
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
+		ResolvedInstallableUnit result = new ResolvedInstallableUnit(iu);
 		result.setFragments(cus);
 
 		return result;

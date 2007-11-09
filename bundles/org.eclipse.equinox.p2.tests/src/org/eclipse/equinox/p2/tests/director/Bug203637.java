@@ -11,7 +11,6 @@ package org.eclipse.equinox.p2.tests.director;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Version;
 
@@ -19,11 +18,7 @@ public class Bug203637 extends AbstractProvisioningTest {
 	public void test() {
 		IDirector d = createDirector();
 		Profile profile = new Profile("TestProfile." + getName());
-		InstallableUnit a1 = new InstallableUnit();
-		a1.setId("A");
-		a1.setVersion(new Version(1, 0, 0));
-		a1.setSingleton(true);
-
+		IInstallableUnit a1 = createIU("A", new Version(1, 0, 0), true);
 		assertOK(d.replace(new IInstallableUnit[0], new IInstallableUnit[] {a1}, profile, null));
 
 	}

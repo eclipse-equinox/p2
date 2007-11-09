@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
@@ -90,12 +91,11 @@ public class InstallRegistryTest extends TestCase {
 	}
 
 	private IResolvedInstallableUnit createTestIU() {
-		InstallableUnit iu = new InstallableUnit();
-		iu.setId("org.eclipse.test");
-		iu.setVersion(new Version("1.0.0"));
-		iu.setTouchpointType(new TouchpointType("null", new Version("1.0.0")));
-		ResolvedInstallableUnit result = (ResolvedInstallableUnit) iu.getResolved();
-
-		return result;
+		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
+		description.setId("org.eclipse.test");
+		description.setVersion(new Version("1.0.0"));
+		description.setTouchpointType(new TouchpointType("null", new Version("1.0.0")));
+		IInstallableUnit unit = MetadataFactory.createInstallableUnit(description);
+		return new ResolvedInstallableUnit(unit);
 	}
 }

@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -27,14 +28,19 @@ import org.osgi.framework.Version;
  */
 public class AbstractProvisioningTest extends TestCase {
 
-	protected static VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
-	private static ProvidedCapability[] BUNDLE_CAPABILITY = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
+	protected static final VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
+	private static final ProvidedCapability[] BUNDLE_CAPABILITY = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
 
-	private static RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
+	private static final RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
-	protected static Version DEFAULT_VERSION = new Version(1, 0, 0);
+	protected static final Version DEFAULT_VERSION = new Version(1, 0, 0);
+	protected static final TouchpointType ECLIPSE_TOUCHPOINT = new TouchpointType("eclipse", new Version(1, 0, 0));
 
-	private static TouchpointType ECLIPSE_TOUCHPOINT = new TouchpointType("eclipse", new Version(1, 0, 0));
+	protected static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
+	protected static final Map NO_PROPERTIES = Collections.EMPTY_MAP;
+	protected static final TouchpointData NO_TP_DATA = null;
+
+	protected static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
 
 	/**
 	 * Tracks the metadata repositories created by this test instance. The repositories
@@ -140,21 +146,27 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * 	Create an eclipse InstallableUnit with the given name and the eclipse touchpoint type.
-	 *  The IU has the default version and the default self capability is added to the IU.
+	 * 	Create an Eclipse InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static InstallableUnit createEclipseIU(String name) {
+	public static IInstallableUnit createEclipseIU(String name) {
 		return createEclipseIU(name, DEFAULT_VERSION);
 	}
 
 	/**
-	 * 	Create an eclipse InstallableUnit with the given name, version, and the eclipse touchpoint type.
-	 *  The IU has the default version and the default self capability is added to the IU.
+	 * 	Create an Eclipse InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static InstallableUnit createEclipseIU(String name, Version version) {
-		InstallableUnit iu = createIU(name, version, BUNDLE_CAPABILITY);
-		iu.setTouchpointType(ECLIPSE_TOUCHPOINT);
-		return iu;
+	public static IInstallableUnit createEclipseIU(String name, Version version) {
+		return createIU(name, version, null, NO_REQUIRES, BUNDLE_CAPABILITY, NO_PROPERTIES, ECLIPSE_TOUCHPOINT, NO_TP_DATA, false);
+	}
+
+	/**
+	 * 	Create an Eclipse InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createEclipseIU(String name, Version version, RequiredCapability[] requires, TouchpointData touchpointData) {
+		return createIU(name, version, null, requires, BUNDLE_CAPABILITY, NO_PROPERTIES, ECLIPSE_TOUCHPOINT, touchpointData, false);
 	}
 
 	/**
@@ -165,45 +177,114 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * 	Create a basic InstallableUnit with the given name. The IU has the default version
-	 *  and the default self capability is added to the IU.
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static InstallableUnit createIU(String name) {
+	public static IInstallableUnit createIU(String name) {
 		return createIU(name, DEFAULT_VERSION);
 	}
 
 	/**
-	 * 	Create a basic InstallableUnit with the given name and additional provided capabilities.
-	 *  The IU has the default version and the default self capability is also added to the IU.
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static InstallableUnit createIU(String name, ProvidedCapability[] additionalProvides) {
-		return createIU(name, DEFAULT_VERSION, additionalProvides);
+	public static IInstallableUnit createIU(String name, ProvidedCapability[] additionalProvides) {
+		return createIU(name, DEFAULT_VERSION, null, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
-	 * 	Create a basic InstallableUnit with the given name and version.
-	 * 	The default self capability is added to the IU.
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static InstallableUnit createIU(String name, Version version) {
-		InstallableUnit iu = new InstallableUnit(name, version, false);
-		ProvidedCapability[] provides = new ProvidedCapability[] {getSelfCapability(iu)};
-		iu.setCapabilities(provides);
-		return iu;
+	public static IInstallableUnit createIU(String name, RequiredCapability[] requires) {
+		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
-	 * 	Create a basic InstallableUnit with the given name, version, and additional
-	 *  provided capabilities. The default self capability is also added to the IU.
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static InstallableUnit createIU(String name, Version version, ProvidedCapability[] additionalProvides) {
-		InstallableUnit iu = new InstallableUnit(name, version, false);
+	public static IInstallableUnit createIU(String name, RequiredCapability[] requires, boolean singleton) {
+		return createIU(name, DEFAULT_VERSION, null, requires, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, String filter, ProvidedCapability[] additionalProvides) {
+		return createIU(name, DEFAULT_VERSION, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version, String filter, ProvidedCapability[] additionalProvides) {
+		return createIU(name, version, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version, ProvidedCapability[] additionalProvides) {
+		return createIU(name, version, null, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version) {
+		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version, RequiredCapability[] required) {
+		return createIU(name, version, null, required, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version, RequiredCapability[] required, Map properties, boolean singleton) {
+		return createIU(name, version, null, required, NO_PROVIDES, properties, TouchpointType.NONE, NO_TP_DATA, singleton);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version, boolean singleton) {
+		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setId(name);
+		iu.setVersion(version);
+		iu.setFilter(filter);
 		ProvidedCapability[] provides = new ProvidedCapability[additionalProvides.length + 1];
-		provides[0] = getSelfCapability(iu);
+		provides[0] = getSelfCapability(name, version);
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides[i + 1] = additionalProvides[i];
 		}
 		iu.setCapabilities(provides);
-		return iu;
+		iu.setRequiredCapabilities(required);
+		iu.setTouchpointType(tpType);
+		if (tpData != null)
+			iu.addTouchpointData(tpData);
+		iu.setSingleton(singleton);
+		return MetadataFactory.createInstallableUnit(iu);
 	}
 
 	/**
@@ -222,7 +303,7 @@ public class AbstractProvisioningTest extends TestCase {
 		InstallableUnitFragment iu = new InstallableUnitFragment();
 		iu.setId(name);
 		iu.setVersion(version);
-		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(iu), InstallableUnitFragment.FRAGMENT_CAPABILITY};
+		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(name, version), InstallableUnitFragment.FRAGMENT_CAPABILITY};
 		iu.setCapabilities(cap);
 		return iu;
 	}
@@ -265,8 +346,8 @@ public class AbstractProvisioningTest extends TestCase {
 	/**
 	 * 	Get the 'self' capability for the given installable unit.
 	 */
-	private static ProvidedCapability getSelfCapability(InstallableUnit iu) {
-		return new ProvidedCapability(IInstallableUnit.IU_NAMESPACE, iu.getId(), iu.getVersion());
+	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
+		return new ProvidedCapability(IInstallableUnit.IU_NAMESPACE, installableUnitId, installableUnitVersion);
 	}
 
 	private static void indent(OutputStream output, int indent) {
@@ -291,6 +372,7 @@ public class AbstractProvisioningTest extends TestCase {
 		if (!containsIU)
 			System.out.println("No iu");
 	}
+
 	private static void write(IStatus status, int indent) {
 		PrintStream output = System.out;
 		indent(output, indent);
@@ -317,6 +399,7 @@ public class AbstractProvisioningTest extends TestCase {
 				write(children[i], indent + 1);
 		}
 	}
+
 	public AbstractProvisioningTest() {
 		super("");
 	}

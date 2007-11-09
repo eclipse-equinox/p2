@@ -100,7 +100,7 @@ public class NewDependencyExpander {
 	}
 
 	// Installable units that are optional have a dependency on themselves.
-	private class OptionalInstallableUnit extends InstallableUnit {
+	private class OptionalInstallableUnit implements IInstallableUnit {
 		private boolean optionalReqs;
 		private IInstallableUnit wrapped;
 
@@ -160,6 +160,46 @@ public class NewDependencyExpander {
 
 		public String toString() {
 			return wrapped.toString();
+		}
+
+		public void accept(IMetadataVisitor visitor) {
+			wrapped.accept(visitor);
+		}
+
+		public String getApplicabilityFilter() {
+			return wrapped.getApplicabilityFilter();
+		}
+
+		public IArtifactKey[] getArtifacts() {
+			return wrapped.getArtifacts();
+		}
+
+		public Map getProperties() {
+			return wrapped.getProperties();
+		}
+
+		public ProvidedCapability[] getProvidedCapabilities() {
+			return wrapped.getProvidedCapabilities();
+		}
+
+		public TouchpointData[] getTouchpointData() {
+			return wrapped.getTouchpointData();
+		}
+
+		public TouchpointType getTouchpointType() {
+			return wrapped.getTouchpointType();
+		}
+
+		public boolean isFragment() {
+			return wrapped.isFragment();
+		}
+
+		public boolean isSingleton() {
+			return wrapped.isSingleton();
+		}
+
+		public int compareTo(Object arg) {
+			return wrapped.compareTo(arg);
 		}
 	}
 

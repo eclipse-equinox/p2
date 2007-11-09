@@ -11,11 +11,12 @@ package org.eclipse.equinox.internal.p2.director;
 import java.util.*;
 import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.query.CompoundIterator;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class OperationGenerator {
-	static IResolvedInstallableUnit NULL_IU = new ResolvedInstallableUnit(new InstallableUnit());
+	static IResolvedInstallableUnit NULL_IU = new ResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()));
 
 	public Operand[] generateOperation(Collection from_, Collection to_) {
 		List from = new ArrayList(from_);

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -17,26 +18,21 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 
 	public static ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0)); //$NON-NLS-1$
 
-	private String hostId;
+	//a host id of null is used for the default fragment
+	private String hostId = null;
 	private VersionRange hostRange = VersionRange.emptyRange;
 
 	public InstallableUnitFragment() {
 		super();
 	}
 
-	public InstallableUnitFragment(String id, Version version, boolean singleton, String hostId, VersionRange hostRange) {
-		super(id, version, singleton);
-		this.hostId = hostId;
-		if (hostRange != null)
-			this.hostRange = hostRange;
-	}
-
 	public void setHost(String iuId, VersionRange versionRange) {
-		if (iuId == null || versionRange == null)
+		if (versionRange == null)
 			throw new IllegalArgumentException();
 		hostId = iuId;
 		hostRange = versionRange;
-		addRequiredCapability(RequiredCapability.createRequiredCapabilityForName(iuId, versionRange, false));
+		if (hostId != null)
+			addRequiredCapability(RequiredCapability.createRequiredCapabilityForName(iuId, versionRange, false));
 	}
 
 	public String getHostId() {

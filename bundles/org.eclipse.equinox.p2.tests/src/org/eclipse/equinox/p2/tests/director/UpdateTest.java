@@ -14,36 +14,33 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class UpdateTest extends AbstractProvisioningTest {
-	InstallableUnit f1;
-	InstallableUnit f1_1;
-	InstallableUnit f1_4;
+	IInstallableUnit f1;
+	IInstallableUnit f1_1;
+	IInstallableUnit f1_4;
 
-	InstallableUnit fa;
-	InstallableUnit fap;
+	IInstallableUnit fa;
+	IInstallableUnit fap;
 	IDirector director;
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		f1 = createIU("f1");
-		f1.setSingleton(true);
+		f1 = createIU("f1", DEFAULT_VERSION, true);
 
-		f1_1 = createIU("f1", new Version(1, 1, 0));
-		f1_1.setSingleton(true);
+		f1_1 = createIU("f1", new Version(1, 1, 0), true);
 
-		f1_4 = createIU("f1", new Version(1, 4, 0));
-		f1_4.setSingleton(true);
+		f1_4 = createIU("f1", new Version(1, 4, 0), true);
 
-		fa = createIU("fa");
-		fa.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "f1", new VersionRange("[1.0.0, 1.3.0)"), null));
+		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
+		fa = createIU("fa", requires, false);
 
-		fap = createIU("fa", new Version(1, 1, 0));
-		fap.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "f1", new VersionRange("[1.0.0, 1.4.0)"), null));
+		requires = createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "f1", new VersionRange("[1.0.0, 1.4.0)"), null);
+		fap = createIU("fa", new Version(1, 1, 0), requires, NO_PROPERTIES, false);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa});
 

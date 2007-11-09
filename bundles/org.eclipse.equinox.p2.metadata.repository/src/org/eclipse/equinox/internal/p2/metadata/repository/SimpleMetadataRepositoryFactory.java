@@ -47,12 +47,13 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					((URLMetadataRepository) result).initializeAfterLoad(location);
 				return result;
 			} catch (RepositoryCreationException e) {
-				// TODO: distinguish between nonexistent input file and other creation problems.
 				log(e);
 			} finally {
 				if (descriptorStream != null)
 					descriptorStream.close();
 			}
+		} catch (FileNotFoundException e) {
+			//if the repository doesn't exist, then it's fine to return null
 		} catch (IOException e) {
 			log(e);
 		}

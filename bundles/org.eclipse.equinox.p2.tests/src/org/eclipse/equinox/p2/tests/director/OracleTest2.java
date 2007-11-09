@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -17,37 +19,33 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class OracleTest2 extends AbstractProvisioningTest {
-	private InstallableUnit a1;
-	private InstallableUnit a2;
-	private InstallableUnit b1;
-	private InstallableUnit c1;
-	private InstallableUnit c2;
+	private IInstallableUnit a1;
+	private IInstallableUnit a2;
+	private IInstallableUnit b1;
+	private IInstallableUnit c1;
+	private IInstallableUnit c2;
 
 	IDirector director;
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		a1 = createIU("A");
-		a1.setSingleton(true);
-		a1.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[1.0.0, 2.0.0)"), null));
+		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[1.0.0, 2.0.0)"), null);
+		a1 = createIU("A", requires, true);
 
-		c1 = createIU("C");
-		c1.setSingleton(true);
+		c1 = createIU("C", DEFAULT_VERSION, true);
 
-		a2 = createIU("A", new Version(2, 0, 0));
-		a2.setSingleton(true);
-		a2.setProperty(IInstallableUnitConstants.UPDATE_FROM, "A");
-		a2.setProperty(IInstallableUnitConstants.UPDATE_RANGE, "[1.0.0, 2.3.0)");
-		a2.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[2.0.0, 3.0.0)"), null));
+		requires = createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[2.0.0, 3.0.0)"), null);
+		Map properties = new HashMap();
+		properties.put(IInstallableUnitConstants.UPDATE_FROM, "A");
+		properties.put(IInstallableUnitConstants.UPDATE_RANGE, "[1.0.0, 2.3.0)");
+		a2 = createIU("A", new Version(2, 0, 0), requires, properties, true);
 
-		b1 = createIU("B");
-		b1.setSingleton(true);
-		b1.setRequiredCapabilities(createRequiredCapabilities(IInstallableUnit.IU_NAMESPACE, "C", new VersionRange("[2.0.0, 3.0.0)"), null));
+		b1 = createIU("B", DEFAULT_VERSION, requires, NO_PROPERTIES, true);
 
-		c2 = createIU("C", new Version(2, 0, 0));
-		c2.setSingleton(true);
-		c2.setProperty(IInstallableUnitConstants.UPDATE_FROM, "C");
-		c2.setProperty(IInstallableUnitConstants.UPDATE_RANGE, "[1.0.0, 2.3.0)");
+		properties.clear();
+		properties.put(IInstallableUnitConstants.UPDATE_FROM, "C");
+		properties.put(IInstallableUnitConstants.UPDATE_RANGE, "[1.0.0, 2.3.0)");
+		c2 = createIU("C", new Version(2, 0, 0), NO_REQUIRES, properties, true);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, c1});
 

@@ -11,17 +11,15 @@ package org.eclipse.equinox.p2.tests.director;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class UninstallTest extends AbstractProvisioningTest {
-	private InstallableUnit a1;
+	private IInstallableUnit a1;
 	private Profile profile;
 	private IDirector director;
 
 	protected void setUp() throws Exception {
-		a1 = createIU("A");
-		a1.setSingleton(true);
+		a1 = createIU("A", DEFAULT_VERSION, true);
 
 		profile = new Profile("TestProfile." + getName());
 		director = createDirector();

@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.ui.model;
 
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 
 /**
@@ -58,9 +57,7 @@ public class InstalledIUElement extends ProvElement {
 	}
 
 	public Object getAdapter(Class adapter) {
-		if (adapter == IInstallableUnit.class)
-			return iu;
-		if (adapter == InstallableUnit.class && iu instanceof InstallableUnit)
+		if (adapter == IInstallableUnit.class && iu instanceof IInstallableUnit)
 			return iu;
 		return super.getAdapter(adapter);
 	}

@@ -6,12 +6,12 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.ArrayList;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
 public class InstallableUnit implements IInstallableUnitConstants, IInstallableUnit, InternalInstallableUnit {
@@ -42,13 +42,6 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 		super();
 	}
 
-	public InstallableUnit(String id, Version version, boolean singleton) {
-		super();
-		this.id = id;
-		this.version = (version != null ? version : Version.emptyVersion);
-		this.singleton = singleton;
-	}
-
 	public void accept(IMetadataVisitor visitor) {
 		visitor.visitInstallableUnit(this);
 	}
@@ -70,11 +63,9 @@ public class InstallableUnit implements IInstallableUnitConstants, IInstallableU
 		}
 	}
 
-	public void addTouchpointData(TouchpointData[] newData) {
-		ensureTouchpointDataCapacity(newData.length);
-		for (int i = 0; i < newData.length; i++) {
-			touchpointData.add(newData[i]);
-		}
+	public void addTouchpointData(TouchpointData newData) {
+		ensureTouchpointDataCapacity(1);
+		touchpointData.add(newData);
 	}
 
 	public int compareTo(Object toCompareTo) {

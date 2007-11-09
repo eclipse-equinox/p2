@@ -14,6 +14,7 @@ import java.util.*;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
@@ -165,14 +166,13 @@ public class FragmentMethodTest extends TestCase {
 	}
 
 	public IInstallableUnit createIU(String name) {
-		InstallableUnit iu = new InstallableUnit();
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(new Version(1, 0, 0));
 		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
 		iu.setProperty(PROP_IU, "valueIU");
-
 		ProvidedCapability[] cap = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), new ProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);
-		return iu;
+		return MetadataFactory.createInstallableUnit(iu);
 	}
 }

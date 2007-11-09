@@ -45,23 +45,22 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
 			IResolvedInstallableUnit iu = (IResolvedInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId())) {
-				assertEquals(iu.getFragments().length, 1);
+				assertEquals(1, iu.getFragments().length);
 				assertEquals(iu.getFragments()[0].getId(), iu3.getId());
 			}
 			if (iu.getId().equals(iu2.getId())) {
-				assertEquals(iu.getFragments().length, 1);
+				assertEquals(1, iu.getFragments().length);
 				assertEquals(iu.getFragments()[0].getId(), iu3.getId());
 			}
 			if (iu.getId().equals(iu3.getId())) {
-				assertEquals(iu.getFragments().length, 0);
+				assertEquals(0, iu.getFragments().length);
 			}
 		}
 
 	}
 
 	private static IInstallableUnit createIUWithDependencyOn(String iuName, String dependencyOn) {
-		InstallableUnit iu = createEclipseIU(iuName);
-		iu.setRequiredCapabilities(new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, dependencyOn, VersionRange.emptyRange, null, false, true)});
-		return iu;
+		RequiredCapability[] requires = new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, dependencyOn, VersionRange.emptyRange, null, false, true)};
+		return createEclipseIU(iuName, DEFAULT_VERSION, requires, NO_TP_DATA);
 	}
 }

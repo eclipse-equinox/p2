@@ -71,7 +71,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
 			IResolvedInstallableUnit iu = (IResolvedInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))
-				assertEquals(iu.getTouchpointData().length, 2);
+				assertEquals(2, iu.getTouchpointData().length);
 
 		}
 	}
@@ -112,13 +112,12 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit createIUWithTouchpointData() {
-		InstallableUnit unit = createEclipseIU("ui.test1");
-		unit.setImmutableTouchpointData(new TouchpointData(new HashMap()));
-		return unit;
+		TouchpointData data = new TouchpointData(new HashMap());
+		return createEclipseIU("ui.test1", DEFAULT_VERSION, NO_REQUIRES, data);
 	}
 
 	private IInstallableUnit createIUFragmentWithTouchpointData() {
-		InstallableUnit unit = createBundleFragment("iuFragment.test1");
+		InstallableUnitFragment unit = createBundleFragment("iuFragment.test1");
 		unit.setImmutableTouchpointData(new TouchpointData(new HashMap()));
 		return unit;
 	}

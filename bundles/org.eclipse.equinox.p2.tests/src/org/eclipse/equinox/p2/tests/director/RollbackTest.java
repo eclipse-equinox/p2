@@ -17,25 +17,19 @@ import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.Version;
 
 public class RollbackTest extends AbstractProvisioningTest {
 
-	private InstallableUnit a1;
+	private IInstallableUnit a1;
 	private Profile profile;
 	private IDirector director;
 
 	protected void setUp() throws Exception {
-		a1 = new InstallableUnit();
-		a1.setId("A");
-		a1.setVersion(new Version(1, 0, 0));
-		a1.setSingleton(true);
-
+		a1 = createIU("A", DEFAULT_VERSION, true);
 		profile = new Profile("TestProfile." + getName());
 		director = createDirector();
 	}
