@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.metadata.generator;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
@@ -133,8 +134,11 @@ public class BundleDescriptionFactory {
 			try {
 				if (bundleLocation.isDirectory())
 					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
-				else
-					propertyStream = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openStream();
+				else {
+					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection();
+					connection.setUseCaches(false);
+					propertyStream = connection.getInputStream();
+				}
 			} catch (FileNotFoundException e) {
 				// if there is no messages file then just return;
 				return result;

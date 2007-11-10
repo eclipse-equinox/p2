@@ -104,7 +104,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public void removeInstallableUnits(IInstallableUnit[] installableUnits) {
-		units.remove(Arrays.asList(installableUnits));
+		units.removeAll(Arrays.asList(installableUnits));
 		save();
 	}
 

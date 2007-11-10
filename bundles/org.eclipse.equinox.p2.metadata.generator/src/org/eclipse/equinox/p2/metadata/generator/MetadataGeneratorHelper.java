@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
@@ -221,6 +222,18 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("manifest", toManifestString(manifest));
 		iu.addTouchpointData(new TouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	// TODO: TEMPORARY - We should figure out if we want to expose something like InstallableUnitDescription
+	public static IInstallableUnit createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
+		InstallableUnit iu = (InstallableUnit) createEclipseIU(bd, manifest, isFolderPlugin, key);
+
+		Enumeration e = extraProperties.propertyNames();
+		while (e.hasMoreElements()) {
+			String name = (String) e.nextElement();
+			iu.setProperty(name, extraProperties.getProperty(name));
+		}
+		return iu;
 	}
 
 	public static IInstallableUnit createGroupIU(Feature feature) {
@@ -519,4 +532,5 @@ public class MetadataGeneratorHelper {
 		}
 		return result.toString();
 	}
+
 }

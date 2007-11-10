@@ -36,6 +36,8 @@ public class DirectoryWatcher extends Thread {
 	private HashSet scannedFiles = new HashSet();
 	private HashSet removals;
 	private Set pendingDeletions;
+	private Object runningLock = new Object();
+	private boolean running = false;
 
 	public DirectoryWatcher(Dictionary properties, BundleContext context) {
 		super("Directory Watcher");
@@ -59,14 +61,22 @@ public class DirectoryWatcher extends Thread {
 		listeners.add(listener);
 	}
 
-	public void close() {
-		done = true;
-		interrupt();
-		try {
-			join(10000);
-		} catch (InterruptedException ie) {
-			// Ignore
+	public void start() {
+		super.start();
+		synchronized (runningLock) {
+			while (!running)
+				try {
+					runningLock.wait();
+				} catch (InterruptedException e) {
+					// reset interrupted state
+					Thread.currentThread().interrupt();
+				}
 		}
+	}
+
+	public synchronized void close() {
+		done = true;
+		notify();
 	}
 
 	private long getLong(String value, long defaultValue) {
@@ -141,17 +151,31 @@ public class DirectoryWatcher extends Thread {
 			System.out.println(DIR + "  " + targetDirectory.getAbsolutePath());
 			System.out.println(DEBUG + " " + debug);
 		}
-		while (!done)
-			try {
-				startPoll();
-				scanDirectory();
-				stopPoll();
-				Thread.sleep(poll);
-			} catch (InterruptedException e) {
-				// ignore
-			} catch (Throwable e) {
-				log("In main loop, we have serious trouble", e);
-			}
+		synchronized (this) {
+			signalRunning();
+			do {
+				try {
+					startPoll();
+					scanDirectory();
+					stopPoll();
+					notify();
+					wait(poll);
+				} catch (InterruptedException e) {
+					// ignore
+				} catch (Throwable e) {
+					e.printStackTrace();
+					log("In main loop, we have serious trouble", e);
+					done = true;
+				}
+			} while (!done);
+		}
+	}
+
+	private void signalRunning() {
+		synchronized (runningLock) {
+			running = true;
+			runningLock.notify();
+		}
 	}
 
 	private void scanDirectory() {
@@ -193,5 +217,14 @@ public class DirectoryWatcher extends Thread {
 		for (Iterator i = listeners.iterator(); i.hasNext();)
 			((IDirectoryChangeListener) i.next()).stopPoll();
 		processPendingDeletions();
+	}
+
+	public synchronized void poll() {
+		notify();
+		try {
+			wait();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
 	}
 }
