@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.p2.installregistry.IProfileInstallRegistry;
@@ -21,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.query.QueryableArray;
 import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.osgi.util.NLS;
 
 public class Profile implements IQueryable {
 
@@ -78,23 +80,33 @@ public class Profile implements IQueryable {
 	private Profile parentProfile;
 
 	/**
-	 * 	TODO: need a collection of child profiles
+	 * 	A collection of child profiles.
 	 */
+	private Map subProfiles = null; // Map profile id -> child profiles
 
+	private static Profile[] noSubProfiles = new Profile[0];
 	/**
-	 * This storage is to be used by the touchpoints to store data. The data must be serializable
+	 * This storage is to be used by the touchpoints to store data.
 	 */
 	private OrderedProperties storage = new OrderedProperties();
 
 	public Profile(String profileId) {
-		if (profileId == null || profileId.length() == 0) {
-			throw new IllegalArgumentException("Profile id must be set.");
-		}
-		this.profileId = profileId;
+		this(profileId, null);
 	}
 
-	public Profile(String profileId, Map properties) {
-		this(profileId);
+	public Profile(String profileId, Profile parent) {
+		if (profileId == null || profileId.length() == 0) {
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Null_Profile_Id, null));
+		}
+		this.profileId = profileId;
+		this.parentProfile = parent;
+		if (parent != null) {
+			parent.addSubprofile(this);
+		}
+	}
+
+	public Profile(String profileId, Profile parent, Map properties) {
+		this(profileId, parent);
 		storage.putAll(properties);
 	}
 
@@ -106,17 +118,74 @@ public class Profile implements IQueryable {
 		return parentProfile;
 	}
 
+	/*
+	 * 	A profile is a root profile if it is not a sub-profile
+	 * 	of another profile.
+	 */
+	public boolean isARootProfile() {
+		return (parentProfile == null ? true : false);
+	}
+
+	protected void addSubprofile(Profile subprofile) throws IllegalArgumentException {
+		if (subProfiles == null) {
+			subProfiles = new LinkedHashMap(2);
+		}
+		if (subProfiles.containsKey(subprofile.getProfileId())) {
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Child_Profile_Id, new String[] {subprofile.getProfileId(), this.getProfileId()}));
+		}
+		subProfiles.put(subprofile.getProfileId(), subprofile);
+	}
+
+	public boolean hasSubProfiles() {
+		return (subProfiles != null ? !subProfiles.isEmpty() : false);
+	}
+
+	public Profile[] getSubProfiles() {
+		if (subProfiles == null)
+			return noSubProfiles;
+		Collection values = subProfiles.values();
+		return (Profile[]) values.toArray(new Profile[values.size()]);
+	}
+
+	/**
+	 * 	Get the stored value associated with the given key.
+	 * 	If the profile is a sub-profile and there is no value
+	 * 	locally associated with the key, then the chain
+	 * 	of parent profiles will be traversed to get an associated
+	 *  value from the nearest ancestor.
+	 *  
+	 *  <code>null</code> is return if none of this profile
+	 *  or its ancestors associates a value with the key.
+	 */
 	public String getValue(String key) {
+		String value = storage.getProperty(key);
+		if (value == null && parentProfile != null) {
+			value = parentProfile.getValue(key);
+		}
+		return value;
+	}
+
+	/**
+	 * 	Get the stored value associated with the given key
+	 * 	in this profile.
+	 * 	No traversal of the ancestor hierarchy is done
+	 * 	for sub-profiles.
+	 */
+	public String getLocalValue(String key) {
 		return storage.getProperty(key);
 	}
 
+	/**
+	 * 	Associate the given value with the given key
+	 * 	in the local storage of this profile.
+	 */
 	public void setValue(String key, String value) {
 		storage.setProperty(key, value);
 	}
 
 	public Dictionary getSelectionContext() {
 		OrderedProperties result = new OrderedProperties(storage);
-		String environments = storage.getProperty(PROP_ENVIRONMENTS);
+		String environments = getValue(PROP_ENVIRONMENTS);
 		if (environments == null)
 			return result;
 		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) {
@@ -179,12 +248,20 @@ public class Profile implements IQueryable {
 	}
 
 	/**
-	 * Get an <i>unmodifiable copy</i> of the properties
-	 * associated with the profile registry.
+	 * Get an <i>unmodifiable copy</i> of the local properties
+	 * associated with the profile.
 	 * 
-	 * @return an <i>unmodifiable copy</i> of the IU properties.
+	 * @return an <i>unmodifiable copy</i> of the Profile properties.
 	 */
 	public Map getProperties() {
 		return OrderedProperties.unmodifiableProperties(storage);
+	}
+
+	/**
+	 * 	Add all the properties in the map to the local properties
+	 * 	of the profile.
+	 */
+	public void addProperties(Map properties) {
+		storage.putAll(properties);
 	}
 }

@@ -54,7 +54,6 @@ public class XMLWriter implements XMLConstants {
 
 		public static ProcessingInstruction makeClassVersionInstruction(String target, Class clazz, Version version) {
 			return new ProcessingInstruction(target, new String[] {PI_CLASS_ATTRIBUTE, PI_VERSION_ATTRIBUTE}, new String[] {clazz.getName(), version.toString()});
-			//return new ProcessingInstruction(target, new String[] {PI_CLASS_ATTRIBUTE}, new String[] {clazz.getName()});
 		}
 
 		public String toString() {
@@ -70,6 +69,8 @@ public class XMLWriter implements XMLConstants {
 			return sb.toString();
 		}
 	}
+
+	protected static ProcessingInstruction[] noPIs = new ProcessingInstruction[0];
 
 	private Stack elements; // XML elements that have not yet been closed
 	private boolean open; // Can attributes be added to the current element?
@@ -105,8 +106,7 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
-		this(output, piElements, /* writeXMLProcessingInstruction */
-		true);
+		this(output, piElements, true /*writeXMLProcessingInstruction*/);
 	}
 
 	// String used for each level of indentation; default is two spaces.

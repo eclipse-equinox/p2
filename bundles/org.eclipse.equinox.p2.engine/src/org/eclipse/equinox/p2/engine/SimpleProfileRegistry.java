@@ -15,9 +15,7 @@ import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.Messages;
-import org.eclipse.equinox.internal.p2.persistence.XMLParser;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
@@ -93,7 +91,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (getProfile(id) == null) {
 			profiles.put(id, toAdd);
 		} else
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Profile_Id, id));
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
 		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
 		persist(); //TODO This is not enough to keep track of the changes that are being done in a profile. This will likely have to be based on some event like commit
 	}
@@ -141,11 +139,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 			URL registryLocation = getRegistryLocation();
 			if (!registryLocation.getProtocol().equals("file")) //$NON-NLS-1$
-				throw new IOException("Can't write profile registry at: " + registryLocation);
+				throw new IOException(NLS.bind(Messages.SimpleProfileRegistry_Persist_To_Non_File_URL_Error, registryLocation));
 
 			File outputFile = new File(registryLocation.toExternalForm().substring(5));
 			if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
-				throw new RuntimeException("Can't persist profile registry at: " + outputFile);
+				throw new RuntimeException(NLS.bind(Messages.SimpleProfileRegistry_Cannot_Create_File_Error, outputFile));
 			os = new BufferedOutputStream(new FileOutputStream(outputFile));
 			try {
 				Writer writer = new Writer(os);
@@ -203,9 +201,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		// Constants defining the structure of the XML for a SimpleProfileRegistry
 
 		// A format version number for simple profile registry XML.
-		public static final String XML_VERSION = "0.0.1"; //$NON-NLS-1$
-		public static final Version CURRENT_VERSION = new Version(XML_VERSION);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, CURRENT_VERSION, true);
+		public static final String XML_CURRENT = "0.0.2"; //$NON-NLS-1$
+		public static final Version CURRENT_VERSION = new Version(XML_CURRENT);
+		public static final String XML_COMPATIBLE = "0.0.1"; //$NON-NLS-1$
+		public static final Version COMPATIBLE_VERSION = new Version(XML_CURRENT);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, CURRENT_VERSION, true);
 
 		// Constants for processing instructions
 		public static final String PI_REPOSITORY_TARGET = "profileRegistry"; //$NON-NLS-1$
@@ -213,19 +213,17 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		// Constants for profile registry elements
 		public static final String REGISTRY_ELEMENT = "profileRegistry"; //$NON-NLS-1$
-		public static final String PROFILES_ELEMENT = "profiles"; //$NON-NLS-1$
-		public static final String PROFILE_ELEMENT = "profile"; //$NON-NLS-1$
 
 	}
 
-	protected class Writer extends XMLWriter implements XMLConstants {
+	protected class Writer extends ProfileWriter implements XMLConstants {
 
 		public Writer(OutputStream output) throws IOException {
 			super(output, PI_DEFAULTS);
 		}
 
 		/**
-		 * Write the given artifact repository to the output stream.
+		 * Write the given SimpleProfileRegistry to the output stream.
 		 */
 		public void write(SimpleProfileRegistry registry) {
 			start(REGISTRY_ELEMENT);
@@ -234,27 +232,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			end(REGISTRY_ELEMENT);
 			flush();
 		}
-
-		private void writeProfiles(Profile[] profyles) {
-			if (profyles.length > 0) {
-				start(PROFILES_ELEMENT);
-				attribute(COLLECTION_SIZE_ATTRIBUTE, profyles.length);
-				for (int i = 0; i < profyles.length; i++) {
-					start(PROFILE_ELEMENT);
-					attribute(ID_ATTRIBUTE, profyles[i].getProfileId());
-					writeProperties(profyles[i].getProperties());
-					end(PROFILE_ELEMENT);
-				}
-				end(PROFILES_ELEMENT);
-			}
-		}
 	}
 
 	/*
 	 * 	Parser for the contents of a SimpleProfileRegistry,
 	 * 	as written by the Writer class.
 	 */
-	private class Parser extends XMLParser implements XMLConstants {
+	private class Parser extends ProfileParser implements XMLConstants {
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);
@@ -304,8 +288,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 					// and
 					// TODO: version tolerance by extension
 					Version repositoryVersion = extractPIVersion(target, data);
-					if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
-						throw new SAXException(NLS.bind(Messages.SimpleProfileRegistry_Parser_Has_Incompatible_Version, repositoryVersion, XML_TOLERANCE));
+					if (!XMLConstants.XML_TOLERANCE.isIncluded(repositoryVersion)) {
+						throw new SAXException(NLS.bind(Messages.SimpleProfileRegistry_Parser_Has_Incompatible_Version, repositoryVersion, XMLConstants.XML_TOLERANCE));
 					}
 				}
 			}
@@ -334,7 +318,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 					}
 				} else if (PROFILES_ELEMENT.equals(name)) {
 					if (profilesHandler == null) {
-						profilesHandler = new ProfilesHandler(this, attributes);
+						profilesHandler = new ProfilesHandler(this, attributes, null /*no parent*/);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
@@ -359,10 +343,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		protected class ProfilesHandler extends AbstractHandler {
 
-			private List profyles;
+			private Profile parentProfile = null;
+			private List profyles = null;
 
-			public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes, Profile parent) {
 				super(parentHandler, PROFILES_ELEMENT);
+				this.parentProfile = parent;
 				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
 				profyles = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
 			}
@@ -373,7 +359,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 			public void startElement(String name, Attributes attributes) {
 				if (name.equals(PROFILE_ELEMENT)) {
-					new ProfileHandler(this, attributes, profyles);
+					new ProfileHandler(this, attributes, parentProfile, profyles);
 				} else {
 					invalidElement(name, attributes);
 				}
@@ -385,15 +371,18 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			private final String[] required = new String[] {ID_ATTRIBUTE};
 
 			List profyles = null;
+			Profile currentProfile = null;
 
 			private String profileId = null;
 
 			private PropertiesHandler propertiesHandler = null;
+			private ProfilesHandler profilesHandler = null;
 
-			public ProfileHandler(AbstractHandler parentHandler, Attributes attributes, List profiles) {
+			public ProfileHandler(AbstractHandler parentHandler, Attributes attributes, Profile parent, List profiles) {
 				super(parentHandler, PROFILE_ELEMENT);
 				profileId = parseRequiredAttributes(attributes, required)[0];
 				this.profyles = profiles;
+				currentProfile = new Profile((profileId != null ? profileId : "##invalid##"), parent); //$NON-NLS-1$
 			}
 
 			public void startElement(String name, Attributes attributes) {
@@ -403,14 +392,22 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 					} else {
 						duplicateElement(this, name, attributes);
 					}
+				} else if (name.equals(PROFILES_ELEMENT)) {
+					if (profilesHandler == null) {
+						profilesHandler = new ProfilesHandler(this, attributes, currentProfile);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
 				} else {
 					invalidElement(name, attributes);
 				}
 			}
 
 			protected void finished() {
-				if (isValidXML() && propertiesHandler != null && profileId != null) {
-					profyles.add(new Profile(profileId, propertiesHandler.getProperties()));
+				if (isValidXML() && currentProfile != null) {
+					if (propertiesHandler != null) {
+						currentProfile.addProperties(propertiesHandler.getProperties());
+					}
 				}
 			}
 		}
