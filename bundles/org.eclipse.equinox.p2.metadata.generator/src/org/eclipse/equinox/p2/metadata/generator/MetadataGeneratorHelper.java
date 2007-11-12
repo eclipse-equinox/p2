@@ -352,7 +352,7 @@ public class MetadataGeneratorHelper {
 			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
 		touchpointData.put("install", configurationData);
 		cu.addTouchpointData(new TouchpointData(touchpointData));
-		resultantIUs.add(cu);
+		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 
 		//Create the artifact descriptor
 		return createArtifactDescriptor(key, launcher, false, true);
