@@ -334,7 +334,7 @@ public class MetadataGeneratorHelper {
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(launcherId, LAUNCHER_VERSION)});
 		iu.setTouchpointType(TOUCHPOINT_NATIVE);
-		resultantIUs.add(iu);
+		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create the CU
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
