@@ -45,18 +45,21 @@ public class DirectoryWatcherTest extends TestCase {
 		IDirectoryChangeListener listener = new IDirectoryChangeListener() {
 
 			public boolean added(File file) {
+				if (file.getName().equals("CVS"))
+					return false;
 				list.add(file);
-				return false;
+				return true;
 			}
 
 			public boolean changed(File file) {
-				// ignore
 				return false;
 			}
 
 			public boolean removed(File file) {
+				if (file.getName().equals("CVS"))
+					return false;
 				list.remove(file);
-				return false;
+				return true;
 			}
 
 			public String[] getExtensions() {
@@ -78,6 +81,6 @@ public class DirectoryWatcherTest extends TestCase {
 		watcher.addListener(listener);
 		watcher.start();
 		watcher.close();
-		assertTrue(list.size() == 2);
+		assertEquals(2, list.size());
 	}
 }
