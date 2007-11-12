@@ -10,34 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
+import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.p2.engine.Engine;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
-import org.eclipse.equinox.p2.engine.Engine;
 
 public class EngineActivator implements BundleActivator, ServiceTrackerCustomizer {
 	private static BundleContext context;
-	public static final String ID = "org.eclipse.equinox.p2.engine";
+	public static final String ID = "org.eclipse.equinox.p2.engine"; //$NON-NLS-1$
+
+	private ServiceRegistration registration;
+
+	private ServiceTracker tracker;
 
 	public static BundleContext getContext() {
 		return context;
-	}
-
-	private ServiceRegistration registration;
-	private ServiceTracker tracker;
-
-	public void start(BundleContext context) throws Exception {
-		EngineActivator.context = context;
-		tracker = new ServiceTracker(context, ProvisioningEventBus.class.getName(), this);
-		tracker.open();
-	}
-
-	public void stop(BundleContext context) throws Exception {
-		tracker.close();
-		tracker = null;
-
-		EngineActivator.context = null;
 	}
 
 	public Object addingService(ServiceReference reference) {
@@ -50,8 +38,7 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 	}
 
 	public void modifiedService(ServiceReference reference, Object service) {
-		// TODO Auto-generated method stub
-
+		// nothing to do
 	}
 
 	public void removedService(ServiceReference reference, Object service) {
@@ -59,6 +46,19 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 			registration.unregister();
 			registration = null;
 		}
+	}
+
+	public void start(BundleContext aContext) throws Exception {
+		EngineActivator.context = aContext;
+		tracker = new ServiceTracker(aContext, ProvisioningEventBus.class.getName(), this);
+		tracker.open();
+	}
+
+	public void stop(BundleContext aContext) throws Exception {
+		tracker.close();
+		tracker = null;
+
+		EngineActivator.context = null;
 	}
 
 }
