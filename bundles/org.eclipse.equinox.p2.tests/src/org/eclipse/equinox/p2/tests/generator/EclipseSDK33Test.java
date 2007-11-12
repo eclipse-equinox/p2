@@ -88,7 +88,7 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 	private void assertGroup(IInstallableUnit unit) {
 		ProvidedCapability[] capabilities = unit.getProvidedCapabilities();
 		for (int i = 0; i < capabilities.length; i++) {
-			if (capabilities[i].getNamespace().equals(IInstallableUnit.IU_KIND_NAMESPACE) && capabilities[i].getName().equals("group"))
+			if (capabilities[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_KIND) && capabilities[i].getName().equals("group"))
 				return;
 		}
 		fail("IU is not a group:" + unit);

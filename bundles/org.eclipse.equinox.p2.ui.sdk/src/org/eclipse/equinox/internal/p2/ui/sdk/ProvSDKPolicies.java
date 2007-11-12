@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.util.ArrayList;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.viewers.IUGroupFilter;
 import org.eclipse.equinox.p2.ui.viewers.IUProfilePropertyFilter;
 import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
@@ -28,7 +27,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 public class ProvSDKPolicies extends AbstractUIPlugin {
 
 	public static ViewerFilter getInstalledIUFilter() {
-		return new IUProfilePropertyFilter(IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
+		return new IUProfilePropertyFilter(IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 	}
 
 	public static ViewerFilter getAvailableIUFilter() {
@@ -41,7 +40,7 @@ public class ProvSDKPolicies extends AbstractUIPlugin {
 		IInstallableUnit[] ius = event.getIUs();
 		ArrayList roots = new ArrayList();
 		for (int i = 0; i < ius.length; i++) {
-			String value = event.getProfile().getInstallableUnitProfileProperty(ius[i], IInstallableUnitConstants.PROFILE_ROOT_IU);
+			String value = event.getProfile().getInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU);
 			if (value != null && value.equals(Boolean.toString(true))) {
 				roots.add(ius[i]);
 			}

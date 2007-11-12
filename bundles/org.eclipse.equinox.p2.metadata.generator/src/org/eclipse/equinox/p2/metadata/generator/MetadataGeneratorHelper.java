@@ -28,7 +28,7 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
 public class MetadataGeneratorHelper {
-	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnitConstants.NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnitConstants.DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnitConstants.PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnitConstants.CONTACT, Constants.BUNDLE_COPYRIGHT, IInstallableUnitConstants.COPYRIGHT, Constants.BUNDLE_DOCURL, IInstallableUnitConstants.DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnitConstants.UPDATE_SITE};
+	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_COPYRIGHT, IInstallableUnit.PROP_COPYRIGHT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnit.PROP_UPDATE_SITE};
 
 	private static final String CAPABILITY_TYPE_OSGI_PACKAGES = "osgi.packages"; //$NON-NLS-1$
 
@@ -39,7 +39,7 @@ public class MetadataGeneratorHelper {
 
 	private static final String ECLIPSE_EXTENSIBLE_API = "Eclipse-ExtensibleAPI"; //$NON-NLS-1$
 
-	private static final String IU_NAMESPACE = IInstallableUnit.IU_NAMESPACE;
+	private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU;
 
 	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
 
@@ -108,7 +108,7 @@ public class MetadataGeneratorHelper {
 		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, iuVersion), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, iuVersion), new ProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})");
@@ -128,7 +128,7 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(configUnitVersion);
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), new ProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		//Create a capability on bundles
 		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
@@ -150,8 +150,8 @@ public class MetadataGeneratorHelper {
 		iu.setId(bd.getSymbolicName());
 		iu.setVersion(bd.getVersion());
 		iu.setFilter(bd.getPlatformFilter());
-		iu.setProperty(IInstallableUnitConstants.UPDATE_FROM, bd.getSymbolicName());
-		iu.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
+		iu.setProperty(IInstallableUnit.PROP_UPDATE_FROM, bd.getSymbolicName());
+		iu.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
 
 		boolean isFragment = bd.getHost() != null;
 		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
@@ -243,9 +243,9 @@ public class MetadataGeneratorHelper {
 		iu.setId(id);
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
-		iu.setProperty(IInstallableUnitConstants.NAME, feature.getLabel());
-		iu.setProperty(IInstallableUnitConstants.UPDATE_FROM, id);
-		iu.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
+		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		iu.setProperty(IInstallableUnit.PROP_UPDATE_FROM, id);
+		iu.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
 
 		FeatureEntry entries[] = feature.getEntries();
 		RequiredCapability[] required = new RequiredCapability[entries.length];
@@ -255,7 +255,7 @@ public class MetadataGeneratorHelper {
 		}
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(TouchpointType.NONE);
-		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
+		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), groupCapability});
 		return MetadataFactory.createInstallableUnit(iu);
 	}
@@ -352,7 +352,7 @@ public class MetadataGeneratorHelper {
 			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
 		touchpointData.put("install", configurationData);
 		cu.addTouchpointData(new TouchpointData(touchpointData));
-		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
+		resultantIUs.add(MetadataFactory.createInstallableUnitFragment(cu));
 
 		//Create the artifact descriptor
 		return createArtifactDescriptor(key, launcher, false, true);

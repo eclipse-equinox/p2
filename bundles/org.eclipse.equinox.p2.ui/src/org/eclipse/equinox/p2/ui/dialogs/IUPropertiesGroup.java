@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -62,7 +61,7 @@ public class IUPropertiesGroup extends IUGroup {
 		if (iuElement == null) {
 			return;
 		}
-		String[] propNames = new String[] {IInstallableUnitConstants.NAME, IInstallableUnitConstants.DESCRIPTION, IInstallableUnitConstants.PROVIDER, IInstallableUnitConstants.COPYRIGHT, IInstallableUnitConstants.LICENSE};
+		String[] propNames = new String[] {IInstallableUnit.PROP_NAME, IInstallableUnit.PROP_DESCRIPTION, IInstallableUnit.PROP_PROVIDER, IInstallableUnit.PROP_COPYRIGHT, IInstallableUnit.PROP_LICENSE};
 		String[] userPropNames = new String[] {ProvUIMessages.IUPropertiesGroup_NameProperty, ProvUIMessages.IUPropertiesGroup_DescriptionProperty, ProvUIMessages.IUPropertiesGroup_ProviderProperty, ProvUIMessages.IUPropertiesGroup_CopyrightProperty, ProvUIMessages.IUPropertiesGroup_LicenseProperty};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);

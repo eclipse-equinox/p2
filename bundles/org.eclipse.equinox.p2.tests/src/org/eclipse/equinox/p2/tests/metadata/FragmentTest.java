@@ -86,8 +86,8 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createEclipseIU("ui.test1");
 		ProvidedCapability[] cap = iu.getProvidedCapabilities();
 		for (int i = 0; i < cap.length; i++) {
-			if (cap[i].getNamespace().equals(IInstallableUnit.IU_NAMESPACE)) {
-				assertEquals(cap[i].getNamespace(), IInstallableUnit.IU_NAMESPACE);
+			if (cap[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU)) {
+				assertEquals(cap[i].getNamespace(), IInstallableUnit.NAMESPACE_IU);
 				assertEquals(cap[i].getName(), iu.getId());
 				return;
 			}

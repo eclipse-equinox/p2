@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.*;
@@ -108,7 +108,7 @@ public class UpdateAndInstallGroup {
 		// Table of available IU's
 		availableIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		final IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
-		labelProvider.setToolTipProperty(IInstallableUnitConstants.DESCRIPTION);
+		labelProvider.setToolTipProperty(IInstallableUnit.PROP_DESCRIPTION);
 
 		// TODO Kind of a hack, but there was no need to go with column label providers
 		availableIUViewer.getTable().addListener(SWT.MouseHover, new Listener() {

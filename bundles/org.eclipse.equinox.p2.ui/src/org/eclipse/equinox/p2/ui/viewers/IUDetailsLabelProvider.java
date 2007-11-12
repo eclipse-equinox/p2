@@ -15,7 +15,6 @@ import java.text.NumberFormat;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
@@ -68,7 +67,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			case IUColumnConfig.COLUMN_ID :
 				return iu.getId();
 			case IUColumnConfig.COLUMN_NAME :
-				String name = iu.getProperty(IInstallableUnitConstants.NAME);
+				String name = iu.getProperty(IInstallableUnit.PROP_NAME);
 				if (name != null)
 					return name;
 				return BLANK;

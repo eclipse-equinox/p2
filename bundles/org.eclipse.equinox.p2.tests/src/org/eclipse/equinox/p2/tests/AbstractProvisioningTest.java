@@ -357,7 +357,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 * 	Get the 'self' capability for the given installable unit.
 	 */
 	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
-		return new ProvidedCapability(IInstallableUnit.IU_NAMESPACE, installableUnitId, installableUnitVersion);
+		return new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, installableUnitId, installableUnitVersion);
 	}
 
 	private static void indent(OutputStream output, int indent) {

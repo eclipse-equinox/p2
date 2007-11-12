@@ -27,7 +27,6 @@ import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
@@ -63,7 +62,7 @@ public class InstallRegistry implements IInstallRegistry {
 						registry.addInstallableUnits(event.getOperand().second().getOriginal());
 					} else if (event.isUninstall() && event.getOperand().first() != null) {
 						IInstallableUnit original = event.getOperand().first().getOriginal();
-						String value = registry.getInstallableUnitProfileProperty(original, IInstallableUnitConstants.PROFILE_ROOT_IU);
+						String value = registry.getInstallableUnitProfileProperty(original, IInstallableUnit.PROP_PROFILE_ROOT_IU);
 						boolean isRoot = value != null && value.equals(Boolean.toString(true));
 						registry.removeInstallableUnits(original);
 						// TODO this is odd because I'm setting up a property for something
@@ -75,7 +74,7 @@ public class InstallRegistry implements IInstallRegistry {
 						// the engine.
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077 
 						if (isRoot && event.getOperand().second() != null) {
-							registry.setInstallableUnitProfileProperty(event.getOperand().second().getOriginal(), IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
+							registry.setInstallableUnitProfileProperty(event.getOperand().second().getOriginal(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 						}
 					}
 				} else if (o instanceof CommitOperationEvent) {

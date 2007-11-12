@@ -72,10 +72,10 @@ public class OperationGenerator {
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
 				continue;
 			}
-			if (iuTo.getProperty(IInstallableUnitConstants.UPDATE_FROM) == null)
+			if (iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM) == null)
 				continue;
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
-			Iterator updates = new CompoundIterator(new Iterator[] {from.iterator()}, iuTo.getProperty(IInstallableUnitConstants.UPDATE_FROM), new VersionRange(iuTo.getProperty(IInstallableUnitConstants.UPDATE_RANGE)), null, false);
+			Iterator updates = new CompoundIterator(new Iterator[] {from.iterator()}, iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM), new VersionRange(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_RANGE)), null, false);
 			IResolvedInstallableUnit iuFrom;
 			if (!updates.hasNext()) { //Nothing to udpate from.
 				continue;

@@ -47,7 +47,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		// The IU to be installed
 		String filter = createFilter("FilterKey", "true");
-		RequiredCapability capability = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, requiredIU.getId(), ANY_VERSION, filter, false, false);
+		RequiredCapability capability = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, requiredIU.getId(), ANY_VERSION, filter, false, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
@@ -174,7 +174,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//The IU that is needed
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		RequiredCapability capability = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, requiredIU.getId(), null, null, false, false);
+		RequiredCapability capability = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, requiredIU.getId(), null, null, false, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};
@@ -200,7 +200,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//The IU that exports the capability
 		IInstallableUnit requiredIU = createIU("required." + getName());
 
-		RequiredCapability capability = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, requiredIU.getId(), ANY_VERSION, null, false, false);
+		RequiredCapability capability = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, requiredIU.getId(), ANY_VERSION, null, false, false);
 		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), new RequiredCapability[] {capability});
 
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {requiredIU, toInstallIU};

@@ -307,7 +307,7 @@ public class NewDependencyExpander {
 		String flavor = profile.getValue(Profile.PROP_FLAVOR);
 		if (flavor == null)
 			return new HashSet();
-		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.FLAVOR_NAMESPACE, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
+		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
 		IInstallableUnit[] ius;
 		if (picked[0].length > 0)
 			ius = picked[0];
@@ -334,7 +334,7 @@ public class NewDependencyExpander {
 					continue;
 				}
 				//verify that each IU requires the current iu
-				ProvidedCapability capForCurrent = new ProvidedCapability(IInstallableUnit.IU_NAMESPACE, current.getId(), current.getVersion());
+				ProvidedCapability capForCurrent = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, current.getId(), current.getVersion());
 				Map toAdd = new HashMap();
 				for (int i = 0; i < matches.length; i++) {
 					RequiredCapability[] reqs = matches[i].getRequiredCapabilities();
@@ -577,7 +577,7 @@ public class NewDependencyExpander {
 	 */
 	private boolean isMeta(RequiredCapability requiredCapability) {
 		String namespace = requiredCapability.getNamespace();
-		return namespace.equals(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES) || namespace.equals(IInstallableUnit.IU_KIND_NAMESPACE) || namespace.equals(IInstallableUnit.FLAVOR_NAMESPACE);
+		return namespace.equals(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES) || namespace.equals(IInstallableUnit.NAMESPACE_IU_KIND) || namespace.equals(IInstallableUnit.NAMESPACE_FLAVOR);
 	}
 
 	private IInstallableUnit match(Collection close, IInstallableUnit picked) {

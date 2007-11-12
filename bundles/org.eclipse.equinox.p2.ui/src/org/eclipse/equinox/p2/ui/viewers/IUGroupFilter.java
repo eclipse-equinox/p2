@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.metadata.RequiredCapability;
 public class IUGroupFilter extends IUCapabilityFilter {
 
 	public IUGroupFilter() {
-		super(new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", null, null, false, false)}); //$NON-NLS-1$
+		super(new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)}); //$NON-NLS-1$
 
 	}
 }

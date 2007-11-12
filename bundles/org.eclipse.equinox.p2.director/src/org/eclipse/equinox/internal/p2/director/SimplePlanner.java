@@ -16,7 +16,6 @@ import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
@@ -115,7 +114,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Become_Problems, null);
 
-			if (!Boolean.valueOf(target.getProperty(IInstallableUnitConstants.PROFILE_IU_KEY)).booleanValue()) {
+			if (!Boolean.valueOf(target.getProperty(IInstallableUnit.PROP_PROFILE_IU_KEY)).booleanValue()) {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, target.getId())));
 				return new ProvisioningPlan(result);
 			}
@@ -252,8 +251,8 @@ public class SimplePlanner implements IPlanner {
 		IInstallableUnit[] allius = gatherAvailableInstallableUnits(null);
 		Set updates = new HashSet();
 		for (int i = 0; i < allius.length; i++) {
-			if (toUpdate.getId().equals(allius[i].getProperty(IInstallableUnitConstants.UPDATE_FROM))) {
-				if (toUpdate.getVersion().compareTo(allius[i].getVersion()) < 0 && new VersionRange(allius[i].getProperty(IInstallableUnitConstants.UPDATE_RANGE)).isIncluded(toUpdate.getVersion()))
+			if (toUpdate.getId().equals(allius[i].getProperty(IInstallableUnit.PROP_UPDATE_FROM))) {
+				if (toUpdate.getVersion().compareTo(allius[i].getVersion()) < 0 && new VersionRange(allius[i].getProperty(IInstallableUnit.PROP_UPDATE_RANGE)).isIncluded(toUpdate.getVersion()))
 					updates.add(allius[i]);
 			}
 		}

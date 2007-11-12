@@ -76,7 +76,7 @@ public class FragmentMethodTest extends TestCase {
 
 		//The fragment does not contain iu namespace
 		for (int i = 0; i < initialFragmentCapabilities.length; i++) {
-			if (initialFragmentCapabilities[i].getNamespace().equals(IInstallableUnit.IU_NAMESPACE)) {
+			if (initialFragmentCapabilities[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU)) {
 				assertDoesNotContain(mergedCapabilities, initialFragmentCapabilities[i]);
 				break;
 			}

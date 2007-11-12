@@ -61,7 +61,7 @@ public class FormerState {
 
 	IInstallableUnit profileToIU(Profile toConvert) {
 		InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
-		result.setProperty(IInstallableUnitConstants.PROFILE_IU_KEY, Boolean.TRUE.toString());
+		result.setProperty(IInstallableUnit.PROP_PROFILE_IU_KEY, Boolean.TRUE.toString());
 		result.setId(toConvert.getProfileId());
 		result.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
 		result.setRequiredCapabilities(IUTransformationHelper.toRequirements(toConvert.getInstallableUnits(), false));

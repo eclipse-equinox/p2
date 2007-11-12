@@ -14,7 +14,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
-public class InstallableUnit implements IInstallableUnitConstants, IInstallableUnit, InternalInstallableUnit {
+public class InstallableUnit implements IInstallableUnit, InternalInstallableUnit {
 
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];

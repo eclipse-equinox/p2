@@ -22,8 +22,8 @@ import org.eclipse.osgi.service.resolver.VersionRange;
  * capability namespaces. Some well-known namespaces are introduced directly
  * by the provisioning framework.
  * 
- * @see IInstallableUnit#IU_KIND_NAMESPACE
- * @see IInstallableUnit#IU_NAMESPACE
+ * @see IInstallableUnit#NAMESPACE_IU_KIND
+ * @see IInstallableUnit#NAMESPACE_IU
  */
 public class RequiredCapability {
 
@@ -46,7 +46,7 @@ public class RequiredCapability {
 	 * and <code>false</code> otherwise.
 	 */
 	public static RequiredCapability createRequiredCapabilityForName(String name, VersionRange versionRange, boolean optional) {
-		return new RequiredCapability(IInstallableUnit.IU_NAMESPACE, name, versionRange, null, optional, false);
+		return new RequiredCapability(IInstallableUnit.NAMESPACE_IU, name, versionRange, null, optional, false);
 	}
 
 	public RequiredCapability(String namespace, String name, VersionRange range) {

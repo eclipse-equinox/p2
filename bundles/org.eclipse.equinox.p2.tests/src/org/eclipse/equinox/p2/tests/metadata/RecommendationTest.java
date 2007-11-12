@@ -47,28 +47,28 @@ public class RecommendationTest extends AbstractProvisioningTest {
 
 		//The recommendations to be used
 		RequiredCapability applyOn, newValue;
-		applyOn = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false);
-		newValue = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[1.1, 2.0)"), null, false, false);
+		applyOn = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false);
+		newValue = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[1.1, 2.0)"), null, false, false);
 		Recommendation r1 = new Recommendation(applyOn, newValue);
 
 		RequiredCapability applyOn2, newValue2;
-		applyOn2 = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu2", new VersionRange("[4.2, 5.0)"), null, false, false);
-		newValue2 = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu2", new VersionRange("[4.0, 5.0)"), null, false, false);
+		applyOn2 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu2", new VersionRange("[4.2, 5.0)"), null, false, false);
+		newValue2 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu2", new VersionRange("[4.0, 5.0)"), null, false, false);
 		Recommendation r2 = new Recommendation(applyOn2, newValue2);
 		Set recommendations = new HashSet();
 		recommendations.add(r1);
 		recommendations.add(r2);
 
 		Picker p = new Picker(new IInstallableUnit[] {iu1, iu2}, null);
-		IInstallableUnit[][] matches = p.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", null, null, false, false)}, false);
+		IInstallableUnit[][] matches = p.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", null, null, false, false)}, false);
 		assertEquals(matches[1][0], iu1);
 
 		Picker p1 = new Picker(new IInstallableUnit[] {iu1, iu2}, new RecommendationDescriptor(recommendations));
-		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false)}, false);
+		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[1.0, 2.0)"), null, false, false)}, false);
 		assertEquals(matches[0].length, 0);
 		assertEquals(matches[1].length, 0);
 
-		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
+		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[0].length, 0);
 		assertEquals(matches[1].length, 0);
 	}
@@ -79,20 +79,20 @@ public class RecommendationTest extends AbstractProvisioningTest {
 
 		//Here we add recommendation that widen the range of the bundle we are looking for
 		RequiredCapability applyOn2, newValue2;
-		applyOn2 = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false);
-		newValue2 = new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false);
+		applyOn2 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false);
+		newValue2 = new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false);
 		Recommendation r2 = new Recommendation(applyOn2, newValue2);
 		Set recommendations = new HashSet();
 		recommendations.add(r2);
 
 		//Check without the recommendations
 		Picker p2 = new Picker(new IInstallableUnit[] {iu1}, null);
-		IInstallableUnit[][] matches = p2.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false)}, false);
+		IInstallableUnit[][] matches = p2.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[4.0, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[1].length, 1);
 
 		//Check the widening works
 		Picker p1 = new Picker(new IInstallableUnit[] {iu1}, new RecommendationDescriptor(recommendations));
-		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.IU_NAMESPACE, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
+		matches = p1.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_IU, "iu1", new VersionRange("[4.2, 5.0)"), null, false, false)}, false);
 		assertEquals(matches[1].length, 1);
 
 	}

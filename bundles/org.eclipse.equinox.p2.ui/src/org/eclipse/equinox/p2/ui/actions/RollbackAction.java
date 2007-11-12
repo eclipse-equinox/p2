@@ -17,7 +17,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -65,7 +64,7 @@ public class RollbackAction extends ProfileModificationAction {
 		Object[] selectionArray = selection.toArray();
 		if (selectionArray.length == 1 && selectionArray[0] instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) selectionArray[0];
-			setEnabled(Boolean.valueOf(iu.getProperty(IInstallableUnitConstants.PROFILE_IU_KEY)).booleanValue());
+			setEnabled(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PROFILE_IU_KEY)).booleanValue());
 		} else {
 			setEnabled(false);
 		}

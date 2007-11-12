@@ -19,7 +19,6 @@ import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IInstallableUnitConstants;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
@@ -79,7 +78,7 @@ public class SimpleDirector implements IDirector {
 				return engineResult;
 			// mark the roots as such
 			for (int i = 0; i < installRoots.length; i++)
-				profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnitConstants.PROFILE_ROOT_IU, Boolean.toString(true));
+				profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 
 			return engineResult;
 		} finally {

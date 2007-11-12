@@ -20,7 +20,7 @@ public class RequirementBasedFilter extends IUFilter {
 
 	public boolean accept(IInstallableUnit iu) {
 		for (int i = 0; i < reqs.length; i++) {
-			if (reqs[i].getNamespace().equals(IInstallableUnit.IU_NAMESPACE) && reqs[i].getName().equals(iu.getId()) && reqs[i].getRange().isIncluded(iu.getVersion()))
+			if (reqs[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU) && reqs[i].getName().equals(iu.getId()) && reqs[i].getRange().isIncluded(iu.getVersion()))
 				return true;
 		}
 		return false;

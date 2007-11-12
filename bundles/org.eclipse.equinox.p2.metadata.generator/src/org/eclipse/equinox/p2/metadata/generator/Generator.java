@@ -49,22 +49,22 @@ public class Generator {
 		root.setId(configurationIdentification);
 		root.setVersion(new Version(configurationVersion));
 		// TODO, bit of a hack but for now set the name of the IU to the ID.
-		root.setProperty(IInstallableUnitConstants.NAME, configurationIdentification);
+		root.setProperty(IInstallableUnit.PROP_NAME, configurationIdentification);
 
 		ArrayList reqsConfigurationUnits = new ArrayList(resultantIUs.size());
 		for (Iterator iterator = resultantIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.IU_NAMESPACE, iu.getId(), range, iu.getFilter(), false, false));
+			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), range, iu.getFilter(), false, false));
 		}
 		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
 		root.setApplicabilityFilter("");
 		root.setArtifacts(new IArtifactKey[0]);
 
 		root.setProperty("lineUp", "true");
-		root.setProperty(IInstallableUnitConstants.UPDATE_FROM, configurationIdentification);
-		root.setProperty(IInstallableUnitConstants.UPDATE_RANGE, VersionRange.emptyRange.toString());
-		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.IU_KIND_NAMESPACE, "group", new Version("1.0.0"));
+		root.setProperty(IInstallableUnit.PROP_UPDATE_FROM, configurationIdentification);
+		root.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
+		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
 		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion)), groupCapability});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
