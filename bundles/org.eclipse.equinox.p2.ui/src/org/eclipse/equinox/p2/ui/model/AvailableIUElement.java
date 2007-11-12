@@ -57,7 +57,7 @@ public class AvailableIUElement extends ProvElement {
 	}
 
 	public Object getAdapter(Class adapter) {
-		if (adapter == IInstallableUnit.class && iu instanceof IInstallableUnit)
+		if (adapter == IInstallableUnit.class)
 			return iu;
 		return super.getAdapter(adapter);
 	}
