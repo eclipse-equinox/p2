@@ -274,14 +274,17 @@ public class Generator {
 		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(launcherId, launcherVersion);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
+		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(launcherId, launcherVersion)});
 		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create the CU
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		cu.setId(info.getFlavor() + launcherId);
+		String configUnitId = info.getFlavor() + launcherId;
+		cu.setId(configUnitId);
 		cu.setVersion(launcherVersion);
 		cu.setFilter(filter);
 		cu.setHost(launcherId, new VersionRange(launcherVersion, true, launcherVersion, true));
+		cu.setCapabilities(new ProvidedCapability[] {IInstallableUnitFragment.FRAGMENT_CAPABILITY, MetadataGeneratorHelper.createSelfCapability(configUnitId, launcherVersion)});
 
 		mungeLauncherFileNames(root);
 
