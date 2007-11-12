@@ -15,6 +15,7 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.resolution.ResolutionHelper;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
@@ -71,7 +72,7 @@ public class FragmentMethodTest extends TestCase {
 		}
 
 		//The fragment capability is not listed in the capabilities
-		assertDoesNotContain(mergedCapabilities, InstallableUnitFragment.FRAGMENT_CAPABILITY);
+		assertDoesNotContain(mergedCapabilities, IInstallableUnitFragment.FRAGMENT_CAPABILITY);
 
 		//The fragment does not contain iu namespace
 		for (int i = 0; i < initialFragmentCapabilities.length; i++) {
@@ -150,19 +151,16 @@ public class FragmentMethodTest extends TestCase {
 	}
 
 	public IInstallableUnit createIUFragment(String name) {
-		InstallableUnitFragment iu = new InstallableUnitFragment();
+		InstallableUnitFragmentDescription iu = new InstallableUnitFragmentDescription();
 		iu.setId(name);
 		iu.setVersion(new Version(1, 0, 0));
 		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
 		iu.setProperty(PROP_FRAG, "value");
-
 		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), new RequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setRequiredCapabilities(reqs);
-
 		ProvidedCapability[] cap = new ProvidedCapability[] {new ProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);
-
-		return iu;
+		return MetadataFactory.createInstallableUnitFragment(iu);
 	}
 
 	public IInstallableUnit createIU(String name) {

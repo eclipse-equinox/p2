@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.Version;
 
@@ -176,7 +177,7 @@ public class Generator {
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
 			}
-			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), null);
 			if (cu != null)
 				resultantIUs.add(cu);
 		}
@@ -187,10 +188,9 @@ public class Generator {
 				IInstallableUnit configuredIU = getIU(resultantIUs, bundle.getSymbolicName());
 				if (configuredIU != null)
 					bundle.setVersion(configuredIU.getVersion().toString());
-				IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor());
+				String filter = configuredIU == null ? null : configuredIU.getFilter();
+				IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
 				//the configuration unit should share the same platform filter as the IU being configured.
-				if (configuredIU != null)
-					((InstallableUnitFragment) cu).setFilter(configuredIU.getFilter());
 				if (cu != null)
 					resultantIUs.add(cu);
 			}
@@ -277,7 +277,7 @@ public class Generator {
 		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create the CU
-		InstallableUnitFragment cu = new InstallableUnitFragment();
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		cu.setId(info.getFlavor() + launcherId);
 		cu.setVersion(launcherVersion);
 		cu.setFilter(filter);
@@ -295,8 +295,8 @@ public class Generator {
 			}
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
-		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		resultantIUs.add(cu);
+		cu.addTouchpointData(new TouchpointData(touchpointData));
+		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 
 		//Create the artifact descriptor
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, root, false, true);

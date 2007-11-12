@@ -9,8 +9,11 @@
 package org.eclipse.equinox.p2.metadata;
 
 import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 public interface IInstallableUnitFragment extends IInstallableUnit {
+
+	public static final ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0)); //$NON-NLS-1$
 
 	public abstract String getHostId();
 

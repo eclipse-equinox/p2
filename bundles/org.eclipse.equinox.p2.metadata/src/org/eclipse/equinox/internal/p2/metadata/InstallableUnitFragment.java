@@ -8,15 +8,12 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.Version;
 
 public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {
-
-	public static ProvidedCapability FRAGMENT_CAPABILITY = new ProvidedCapability(IU_KIND_NAMESPACE, "iu.fragment", new Version(1, 0, 0)); //$NON-NLS-1$
 
 	//a host id of null is used for the default fragment
 	private String hostId = null;

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -213,9 +214,10 @@ public class EngineTest extends AbstractProvisioningTest {
 		//touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact});");
 
 		IResolvedInstallableUnit[] cus = new IResolvedInstallableUnit[1];
-		InstallableUnitFragment tmp = new InstallableUnitFragment();
-		tmp.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		cus[0] = tmp.getResolved();
+		InstallableUnitFragmentDescription desc = new InstallableUnitFragmentDescription();
+		desc.addTouchpointData(new TouchpointData(touchpointData));
+		IInstallableUnitFragment fragment = MetadataFactory.createInstallableUnitFragment(desc);
+		cus[0] = new ResolvedInstallableUnitFragment(fragment);
 
 		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
@@ -241,9 +243,10 @@ public class EngineTest extends AbstractProvisioningTest {
 		touchpointData.put("install", "BAD");
 
 		IResolvedInstallableUnit[] cus = new IResolvedInstallableUnit[1];
-		InstallableUnitFragment tmp = new InstallableUnitFragment();
-		tmp.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		cus[0] = tmp.getResolved();
+		InstallableUnitFragmentDescription desc = new InstallableUnitFragmentDescription();
+		desc.addTouchpointData(new TouchpointData(touchpointData));
+		IInstallableUnitFragment fragment = MetadataFactory.createInstallableUnitFragment(desc);
+		cus[0] = new ResolvedInstallableUnitFragment(fragment);
 
 		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});

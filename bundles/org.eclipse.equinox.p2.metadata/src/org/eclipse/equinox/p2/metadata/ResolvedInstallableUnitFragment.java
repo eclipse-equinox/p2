@@ -12,15 +12,15 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class ResolvedInstallableUnitFragment extends ResolvedInstallableUnit implements IResolvedInstallableUnitFragment {
 
-	public ResolvedInstallableUnitFragment(InstallableUnitFragment resolved) {
+	public ResolvedInstallableUnitFragment(IInstallableUnitFragment resolved) {
 		super(resolved);
 	}
 
 	public String getHostId() {
-		return ((InstallableUnitFragment) resolved).getHostId();
+		return ((IInstallableUnitFragment) resolved).getHostId();
 	}
 
 	public VersionRange getHostVersionRange() {
-		return ((InstallableUnitFragment) resolved).getHostVersionRange();
+		return ((IInstallableUnitFragment) resolved).getHostVersionRange();
 	}
 }

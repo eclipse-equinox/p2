@@ -79,7 +79,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 	public void testFragmentCapability() {
 		IInstallableUnit iu = createBundleFragment("iuFragment.test1");
 		ProvidedCapability[] all = iu.getProvidedCapabilities();
-		assertContains(all, InstallableUnitFragment.FRAGMENT_CAPABILITY);
+		assertContains(all, IInstallableUnitFragment.FRAGMENT_CAPABILITY);
 	}
 
 	public void testDefaultIUCapability() {
@@ -117,8 +117,8 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit createIUFragmentWithTouchpointData() {
-		InstallableUnitFragment unit = createBundleFragment("iuFragment.test1");
-		unit.setImmutableTouchpointData(new TouchpointData(new HashMap()));
+		TouchpointData data = new TouchpointData(new HashMap());
+		IInstallableUnitFragment unit = createBundleFragment("iuFragment.test1", DEFAULT_VERSION, data);
 		return unit;
 	}
 }

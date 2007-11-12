@@ -18,6 +18,7 @@ import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -125,8 +126,8 @@ public class AbstractProvisioningTest extends TestCase {
 	 *  by any bundle. The fragment has the default version, and the default self and
 	 *  fragment provided capabilities are added to the IU.
 	 */
-	public static InstallableUnitFragment createBundleFragment(String name) {
-		return createBundleFragment(name, DEFAULT_VERSION);
+	public static IInstallableUnitFragment createBundleFragment(String name) {
+		return createIUFragment(name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, NO_TP_DATA);
 	}
 
 	/**
@@ -134,11 +135,8 @@ public class AbstractProvisioningTest extends TestCase {
 	 *  that is hosted by any bundle. The default self and fragment provided capabilities
 	 *  are added to the IU.
 	 */
-	public static InstallableUnitFragment createBundleFragment(String name, Version version) {
-		InstallableUnitFragment fragment = createIUFragment(name, version);
-		fragment.setTouchpointType(ECLIPSE_TOUCHPOINT);
-		fragment.setRequiredCapabilities(BUNDLE_REQUIREMENT);
-		return fragment;
+	public static IInstallableUnitFragment createBundleFragment(String name, Version version, TouchpointData tpData) {
+		return createIUFragment(name, version, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, tpData);
 	}
 
 	public static IDirector createDirector() {
@@ -288,24 +286,36 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * 	Create a basic InstallableUnitFragment with the given name. The IU has the default version
-	 *  and the self and fragment provided capabilities are added to the IU.
+	 * 	Create a basic InstallableUnitFragment with the given attributes. 
+	 * The self and fragment provided capabilities are added to the IU.
 	 */
-	public static InstallableUnitFragment createIUFragment(String name) {
-		return createIUFragment(name, DEFAULT_VERSION);
+	public static IInstallableUnitFragment createIUFragment(String name) {
+		return createIUFragment(name, DEFAULT_VERSION, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
 	}
 
 	/**
-	 * 	Create a basic InstallableUnitFragment with the given name and version.
-	 * 	The default self and fragment provided capabilities are added to the IU.
+	 * 	Create a basic InstallableUnitFragment with the given attributes. 
+	 * The self and fragment provided capabilities are added to the IU.
 	 */
-	public static InstallableUnitFragment createIUFragment(String name, Version version) {
-		InstallableUnitFragment iu = new InstallableUnitFragment();
+	public static IInstallableUnitFragment createIUFragment(String name, Version version) {
+		return createIUFragment(name, version, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnitFragment with the given attributes. 
+	 * The self and fragment provided capabilities are added to the IU.
+	 */
+	public static IInstallableUnitFragment createIUFragment(String name, Version version, RequiredCapability[] required, TouchpointType tpType, TouchpointData tpData) {
+		InstallableUnitFragmentDescription iu = new InstallableUnitFragmentDescription();
 		iu.setId(name);
 		iu.setVersion(version);
-		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(name, version), InstallableUnitFragment.FRAGMENT_CAPABILITY};
+		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(name, version), IInstallableUnitFragment.FRAGMENT_CAPABILITY};
 		iu.setCapabilities(cap);
-		return iu;
+		iu.setRequiredCapabilities(required);
+		iu.setTouchpointType(tpType);
+		if (tpData != null)
+			iu.addTouchpointData(tpData);
+		return MetadataFactory.createInstallableUnitFragment(iu);
 	}
 
 	public static IPlanner createPlanner() {

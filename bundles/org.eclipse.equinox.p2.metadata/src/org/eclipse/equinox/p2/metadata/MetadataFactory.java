@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.metadata;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -97,14 +98,26 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Creates and returns an {@link IInstallableUnit} or {@link IInstallableUnitFragment}
-	 * based on the given description.  Once the installable unit has been created, 
-	 * the information is discarded from the description object.
+	 * Creates and returns an {@link IInstallableUnit} based on the given 
+	 * description.  Once the installable unit has been created, the information is 
+	 * discarded from the description object.
 	 * 
 	 * @param description The description of the unit to create
 	 * @return The created installable unit or fragment
 	 */
 	public static IInstallableUnit createInstallableUnit(InstallableUnitDescription description) {
 		return description.unitCreate();
+	}
+
+	/**
+	 * Creates and returns an {@link IInstallableUnitFragment} based on the given 
+	 * description.  Once the fragment has been created, the information is 
+	 * discarded from the description object.
+	 * 
+	 * @param description The description of the unit to create
+	 * @return The created installable unit or fragment
+	 */
+	public static IInstallableUnitFragment createInstallableUnitFragment(InstallableUnitFragmentDescription description) {
+		return (IInstallableUnitFragment) description.unitCreate();
 	}
 }

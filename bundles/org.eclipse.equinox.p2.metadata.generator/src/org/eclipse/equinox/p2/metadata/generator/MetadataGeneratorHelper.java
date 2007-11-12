@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
@@ -50,7 +51,7 @@ public class MetadataGeneratorHelper {
 	public static final TouchpointType TOUCHPOINT_NATIVE = new TouchpointType("native", new Version(1, 0, 0)); //$NON-NLS-1$
 	public static final TouchpointType TOUCHPOINT_ECLIPSE = new TouchpointType("eclipse", new Version(1, 0, 0)); //$NON-NLS-1$
 
-	public static final ProvidedCapability FRAGMENT_CAPABILITY = InstallableUnitFragment.FRAGMENT_CAPABILITY;
+	public static final ProvidedCapability FRAGMENT_CAPABILITY = IInstallableUnitFragment.FRAGMENT_CAPABILITY;
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
 		//TODO this size calculation is bogus
@@ -94,44 +95,44 @@ public class MetadataGeneratorHelper {
 		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_ARTIFACT_CLASSIFIER, bsn, new Version(version));
 	}
 
-	public static IInstallableUnit createEclipseConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor) {
+	public static IInstallableUnit createEclipseConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
 		if (configInfo == null)
 			return null;
 
-		InstallableUnitFragment cu = new InstallableUnitFragment();
-		cu.setId(configurationFlavor + iuId);
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String configUnitId = configurationFlavor + iuId;
+		cu.setId(configUnitId);
 		cu.setVersion(iuVersion);
 
 		//Indicate the IU to which this CU apply
 		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(cu.getId(), cu.getVersion()), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
-
-		cu.setTouchpointType(TOUCHPOINT_ECLIPSE); //TODO Is this necessary? I think we get that from the IU
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, iuVersion), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})");
 		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
 		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment));
 		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment));
-		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-
-		return cu;
+		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.setFilter(filter);
+		return MetadataFactory.createInstallableUnit(cu);
 	}
 
 	public static IInstallableUnit createEclipseDefaultConfigurationUnit(GeneratorBundleInfo configInfo, GeneratorBundleInfo unconfigInfo, String configurationFlavor) {
-		InstallableUnitFragment cu = new InstallableUnitFragment();
-		cu.setId(configurationFlavor + "default");
-		cu.setVersion(new Version(1, 0, 0));
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String configUnitId = configurationFlavor + "default"; //$NON-NLS-1$
+		cu.setId(configUnitId);
+		Version configUnitVersion = new Version(1, 0, 0);
+		cu.setVersion(configUnitVersion);
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(cu.getId(), cu.getVersion()), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), new ProvidedCapability(IInstallableUnit.FLAVOR_NAMESPACE, configurationFlavor, Version.emptyVersion)});
 
 		//Create a capability on bundles
 		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
 		cu.setRequiredCapabilities(reqs);
-		cu.setTouchpointType(TOUCHPOINT_ECLIPSE); //TODO Is this necessary? I think we get that from the IU
 		Map touchpointData = new HashMap();
 
 		touchpointData.put("install", "installBundle(bundle:${artifact})");
@@ -139,8 +140,8 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("configure", createDefaultConfigScript(configInfo));
 		touchpointData.put("unconfigure", createDefaultUnconfigScript(unconfigInfo));
 
-		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		return cu;
+		cu.addTouchpointData(new TouchpointData(touchpointData));
+		return MetadataFactory.createInstallableUnit(cu);
 	}
 
 	public static IInstallableUnit createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
@@ -273,7 +274,7 @@ public class MetadataGeneratorHelper {
 		iu.setVersion(version);
 		iu.setTouchpointType(TOUCHPOINT_NATIVE);
 
-		InstallableUnitFragment cu = new InstallableUnitFragment();
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configId = "config." + id;//$NON-NLS-1$
 		cu.setId(configId);
 		cu.setVersion(version);
@@ -289,8 +290,8 @@ public class MetadataGeneratorHelper {
 			resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 			touchpointData.put("install", "");
-			cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-			resultantIUs.add(cu);
+			cu.addTouchpointData(new TouchpointData(touchpointData));
+			resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 			return null;
 		}
 		generateJREIUData(iu, id, version, jreLocation);
@@ -303,8 +304,8 @@ public class MetadataGeneratorHelper {
 		//Create config info for the CU
 		String configurationData = "unzip(source:@artifact, target:${installFolder});";
 		touchpointData.put("install", configurationData);
-		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
-		resultantIUs.add(cu);
+		cu.addTouchpointData(new TouchpointData(touchpointData));
+		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 
 		//Create the artifact descriptor
 		return createArtifactDescriptor(key, jreLocation, false, true);
@@ -336,21 +337,21 @@ public class MetadataGeneratorHelper {
 		resultantIUs.add(iu);
 
 		//Create the CU
-		InstallableUnitFragment cu = new InstallableUnitFragment();
-		cu.setId(configurationFlavor + launcherId);
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String configUnitId = configurationFlavor + launcherId;
+		cu.setId(configUnitId);
 		cu.setVersion(LAUNCHER_VERSION);
 		cu.setHost(launcherId, new VersionRange(LAUNCHER_VERSION, true, versionMax, true));
 
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(cu.getId(), cu.getVersion())});
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, LAUNCHER_VERSION)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});";
 		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
-			// FIXME:  is this correct?  do all non-Windows platforms need execute permissions on the launcher?
 			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
 		touchpointData.put("install", configurationData);
-		cu.setImmutableTouchpointData(new TouchpointData(touchpointData));
+		cu.addTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(cu);
 
 		//Create the artifact descriptor
