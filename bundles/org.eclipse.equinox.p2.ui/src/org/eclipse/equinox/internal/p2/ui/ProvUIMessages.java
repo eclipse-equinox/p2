@@ -111,6 +111,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_IDColumnTitle;
 	public static String OptionalPlatformRestartMessage;
+	public static String SizingPhaseSet_PhaseSetName;
 
 	// Operations
 	public static String UpdateAndInstallGroup_Properties;

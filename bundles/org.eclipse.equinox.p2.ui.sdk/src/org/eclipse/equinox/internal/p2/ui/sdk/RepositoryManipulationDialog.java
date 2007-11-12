@@ -47,7 +47,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 
 	StructuredViewerProvisioningListener listener;
-	private TableViewer repositoryViewer;
+	TableViewer repositoryViewer;
 
 	/**
 	 * Create an instance of this Dialog.

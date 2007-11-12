@@ -37,6 +37,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	private Group downloadGroup;
 
 	public void init(IWorkbench workbench) {
+		// nothing to init
 	}
 
 	protected Control createContents(Composite parent) {
@@ -168,7 +169,7 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 			onScheduleRadio.setSelection(true);
 	}
 
-	private void pageChanged() {
+	void pageChanged() {
 		boolean master = enabledCheck.getSelection();
 		updateScheduleGroup.setEnabled(master);
 		onStartupRadio.setEnabled(master);

@@ -130,7 +130,7 @@ abstract class UndoableProvisioningOperation extends ProvisioningOperation imple
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation#computeRedoableStatus(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IStatus computeRedoableStatus(IProgressMonitor monitor) throws ExecutionException {
+	public IStatus computeRedoableStatus(IProgressMonitor monitor) {
 		return computeExecutionStatus(monitor);
 	}
 
@@ -138,7 +138,7 @@ abstract class UndoableProvisioningOperation extends ProvisioningOperation imple
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation#computeUndoableStatus(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IStatus computeUndoableStatus(IProgressMonitor monitor) throws ExecutionException {
+	public IStatus computeUndoableStatus(IProgressMonitor monitor) {
 		return okStatus();
 	}
 
@@ -146,7 +146,7 @@ abstract class UndoableProvisioningOperation extends ProvisioningOperation imple
 	 * (non-Javadoc)
 	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation2#computeExecutionStatus(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public IStatus computeExecutionStatus(IProgressMonitor monitor) throws ExecutionException {
+	public IStatus computeExecutionStatus(IProgressMonitor monitor) {
 		return okStatus();
 	} /*
 	 * (non-Javadoc)

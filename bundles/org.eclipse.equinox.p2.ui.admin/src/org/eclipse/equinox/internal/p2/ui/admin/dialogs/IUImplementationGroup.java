@@ -225,7 +225,7 @@ public class IUImplementationGroup extends IUGroup {
 		list.setMenu(copyMenu);
 	}
 
-	private void copySelectionsToClipboard(List list) {
+	void copySelectionsToClipboard(List list) {
 		StringBuffer buffer = new StringBuffer();
 		String[] selections = list.getSelection();
 		for (int i = 0; i < selections.length; i++) {
