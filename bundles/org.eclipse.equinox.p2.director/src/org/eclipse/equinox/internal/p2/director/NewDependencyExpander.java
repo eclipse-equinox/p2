@@ -201,6 +201,18 @@ public class NewDependencyExpander {
 		public int compareTo(Object arg) {
 			return wrapped.compareTo(arg);
 		}
+
+		public IInstallableUnitFragment[] getFragments() {
+			return null;
+		}
+
+		public boolean isResolved() {
+			return false;
+		}
+
+		public IInstallableUnit unresolved() {
+			return this;
+		}
 	}
 
 	static final int OperationWork = 100;

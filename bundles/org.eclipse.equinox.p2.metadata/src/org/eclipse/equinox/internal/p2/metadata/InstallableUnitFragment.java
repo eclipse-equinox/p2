@@ -51,8 +51,4 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 	public boolean isFragment() {
 		return true;
 	}
-
-	public IResolvedInstallableUnit getResolved() {
-		return new ResolvedInstallableUnitFragment(this);
-	}
 }

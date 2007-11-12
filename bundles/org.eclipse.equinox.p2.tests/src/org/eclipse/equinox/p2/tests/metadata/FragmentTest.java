@@ -27,7 +27,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		set.add(iu2);
 		Collection result = rh.attachCUs(set);
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
-			IResolvedInstallableUnit iu = (IResolvedInstallableUnit) iterator.next();
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals("iu1.test1")) {
 				assertEquals(iu.getFragments().length, 1);
 				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
@@ -46,7 +46,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		set.add(iu3);
 		Collection result = rh.attachCUs(set);
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
-			IResolvedInstallableUnit iu = (IResolvedInstallableUnit) iterator.next();
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals("iu1.test1")) {
 				assertEquals(iu.getFragments().length, 1);
 				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
@@ -69,7 +69,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		set.add(iu2);
 		Collection result = rh.attachCUs(set);
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
-			IResolvedInstallableUnit iu = (IResolvedInstallableUnit) iterator.next();
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))
 				assertEquals(2, iu.getTouchpointData().length);
 

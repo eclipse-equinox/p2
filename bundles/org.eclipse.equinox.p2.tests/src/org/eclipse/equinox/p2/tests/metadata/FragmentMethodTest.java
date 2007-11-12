@@ -44,7 +44,7 @@ public class FragmentMethodTest extends TestCase {
 		hash.add(iu3);
 		Collection result = new ResolutionHelper(new Hashtable(), null).attachCUs(hash);
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
-			IResolvedInstallableUnit iu = (IResolvedInstallableUnit) iterator.next();
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId()))
 				iu1 = iu;
 			if (iu.getId().equals(iu3.getId()))

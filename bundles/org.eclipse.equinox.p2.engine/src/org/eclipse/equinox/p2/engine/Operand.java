@@ -10,22 +10,22 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
-import org.eclipse.equinox.p2.metadata.IResolvedInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class Operand {
-	private final IResolvedInstallableUnit first;
-	private final IResolvedInstallableUnit second;
+	private final IInstallableUnit first;
+	private final IInstallableUnit second;
 
-	public Operand(IResolvedInstallableUnit first, IResolvedInstallableUnit second) {
+	public Operand(IInstallableUnit first, IInstallableUnit second) {
 		this.first = first;
 		this.second = second;
 	}
 
-	public IResolvedInstallableUnit first() {
+	public IInstallableUnit first() {
 		return first;
 	}
 
-	public IResolvedInstallableUnit second() {
+	public IInstallableUnit second() {
 		return second;
 	}
 

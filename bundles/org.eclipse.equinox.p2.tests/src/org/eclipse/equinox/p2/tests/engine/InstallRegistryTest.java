@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
@@ -23,7 +23,7 @@ import org.osgi.framework.Version;
 /**
  * Simple test of the engine API.
  */
-public class InstallRegistryTest extends TestCase {
+public class InstallRegistryTest extends AbstractProvisioningTest {
 	private ServiceReference registryRef;
 	private IInstallRegistry registry;
 	private ServiceReference engineRef;
@@ -90,12 +90,12 @@ public class InstallRegistryTest extends TestCase {
 		}
 	}
 
-	private IResolvedInstallableUnit createTestIU() {
+	private IInstallableUnit createTestIU() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.test");
 		description.setVersion(new Version("1.0.0"));
 		description.setTouchpointType(new TouchpointType("null", new Version("1.0.0")));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(description);
-		return new ResolvedInstallableUnit(unit);
+		return createResolvedIU(unit);
 	}
 }

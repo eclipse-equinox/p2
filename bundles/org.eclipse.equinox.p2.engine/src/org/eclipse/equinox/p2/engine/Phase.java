@@ -131,7 +131,7 @@ public abstract class Phase {
 			try {
 				actions = getActions(operand);
 			} catch (Throwable t) {
-				status.add(new Status(IStatus.ERROR, phaseId, t.getMessage()));
+				status.add(new Status(IStatus.ERROR, phaseId, t.getMessage(), t));
 				return;
 			}
 

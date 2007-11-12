@@ -124,7 +124,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
 			// empty PhaseSet
 		};
-		Operand op = new Operand(new ResolvedInstallableUnit(createIU("name")), null);
+		Operand op = new Operand(createResolvedIU(createIU("name")), null);
 		Operand[] operands = new Operand[] {op};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		assertTrue(result.isOK());
@@ -146,7 +146,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
-			Operand[] operands = new Operand[] {new Operand(new ResolvedInstallableUnit(doomed), null)};
+			Operand[] operands = new Operand[] {new Operand(createResolvedIU(doomed), null)};
 			engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		}
 		PhaseSet phaseSet = new DefaultPhaseSet();
@@ -198,7 +198,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		assertFalse(ius.hasNext());
 	}
 
-	private IResolvedInstallableUnit createOSGiIU() {
+	private IInstallableUnit createOSGiIU() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi");
 		description.setVersion(new Version("3.3.1.R33x_v20070828"));
@@ -213,22 +213,20 @@ public class EngineTest extends AbstractProvisioningTest {
 		//touchpointData.put("install", "installBundle(bundle:${artifact});");
 		//touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact});");
 
-		IResolvedInstallableUnit[] cus = new IResolvedInstallableUnit[1];
+		IInstallableUnitFragment[] cus = new IInstallableUnitFragment[1];
 		InstallableUnitFragmentDescription desc = new InstallableUnitFragmentDescription();
 		desc.addTouchpointData(new TouchpointData(touchpointData));
 		IInstallableUnitFragment fragment = MetadataFactory.createInstallableUnitFragment(desc);
-		cus[0] = new ResolvedInstallableUnitFragment(fragment);
+		cus[0] = fragment;
 
 		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
-		ResolvedInstallableUnit result = new ResolvedInstallableUnit(iu);
-		result.setFragments(cus);
-		return result;
+		return MetadataFactory.createResolvedInstallableUnit(iu, cus);
 	}
 
-	private IResolvedInstallableUnit createBadIU() {
+	private IInstallableUnit createBadIU() {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.osgi.bad");
 		description.setVersion(new Version("3.3.1.R33x_v20070828"));
@@ -242,20 +240,16 @@ public class EngineTest extends AbstractProvisioningTest {
 		touchpointData.put("manifest", manifest);
 		touchpointData.put("install", "BAD");
 
-		IResolvedInstallableUnit[] cus = new IResolvedInstallableUnit[1];
+		IInstallableUnitFragment[] cus = new IInstallableUnitFragment[1];
 		InstallableUnitFragmentDescription desc = new InstallableUnitFragmentDescription();
 		desc.addTouchpointData(new TouchpointData(touchpointData));
-		IInstallableUnitFragment fragment = MetadataFactory.createInstallableUnitFragment(desc);
-		cus[0] = new ResolvedInstallableUnitFragment(fragment);
+		cus[0] = MetadataFactory.createInstallableUnitFragment(desc);
 
 		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));
 		//iu.setArtifacts(new IArtifactKey[] {key});
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(description);
-		ResolvedInstallableUnit result = new ResolvedInstallableUnit(iu);
-		result.setFragments(cus);
-
-		return result;
+		return MetadataFactory.createResolvedInstallableUnit(iu, cus);
 	}
 
 }

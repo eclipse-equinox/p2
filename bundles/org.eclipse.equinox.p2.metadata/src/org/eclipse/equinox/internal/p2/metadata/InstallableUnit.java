@@ -14,7 +14,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
-public class InstallableUnit implements IInstallableUnit, InternalInstallableUnit {
+public class InstallableUnit implements IInstallableUnit {
 
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
@@ -119,6 +119,10 @@ public class InstallableUnit implements IInstallableUnit, InternalInstallableUni
 		return filter;
 	}
 
+	public IInstallableUnitFragment[] getFragments() {
+		return null;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -146,10 +150,6 @@ public class InstallableUnit implements IInstallableUnit, InternalInstallableUni
 
 	}
 
-	public IResolvedInstallableUnit getResolved() {
-		return new ResolvedInstallableUnit(this);
-	}
-
 	public TouchpointData[] getTouchpointData() {
 		return (touchpointData == null ? TouchpointData.NO_TOUCHPOINT_DATA //
 				: (TouchpointData[]) touchpointData.toArray(new TouchpointData[touchpointData.size()]));
@@ -172,6 +172,10 @@ public class InstallableUnit implements IInstallableUnit, InternalInstallableUni
 	}
 
 	public boolean isFragment() {
+		return false;
+	}
+
+	public boolean isResolved() {
 		return false;
 	}
 
@@ -241,5 +245,9 @@ public class InstallableUnit implements IInstallableUnit, InternalInstallableUni
 
 	public String toString() {
 		return id + ' ' + getVersion();
+	}
+
+	public IInstallableUnit unresolved() {
+		return this;
 	}
 }

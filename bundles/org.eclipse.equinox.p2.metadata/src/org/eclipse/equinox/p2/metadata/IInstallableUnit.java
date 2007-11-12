@@ -115,11 +115,11 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_UPDATE_SITE = "equinox.p2.update.site"; //$NON-NLS-1$
 
-	public abstract void accept(IMetadataVisitor visitor);
+	public void accept(IMetadataVisitor visitor);
 
-	public abstract String getApplicabilityFilter();
+	public String getApplicabilityFilter();
 
-	public abstract IArtifactKey[] getArtifacts();
+	public IArtifactKey[] getArtifacts();
 
 	/**
 	 * Returns the filter on this installable unit. The filter is matched against
@@ -128,9 +128,18 @@ public interface IInstallableUnit extends Comparable {
 	 * 
 	 * See Profile#getSelectionContext.
 	 */
-	public abstract String getFilter();
+	public String getFilter();
 
-	public abstract String getId();
+	/**
+	 * Returns the fragments that have been bound to this installable unit, or
+	 * <code>null</code> if this unit is not resolved.
+	 * 
+	 * @see #isResolved()
+	 * @return The fragments bound to this installable unit, or <code>null</code>
+	 */
+	public IInstallableUnitFragment[] getFragments();
+
+	public String getId();
 
 	/**
 	 * Get an <i>unmodifiable copy</i> of the properties
@@ -138,21 +147,45 @@ public interface IInstallableUnit extends Comparable {
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the IU properties.
 	 */
-	public abstract Map getProperties();
+	public Map getProperties();
 
-	public abstract String getProperty(String key);
+	public String getProperty(String key);
 
-	public abstract ProvidedCapability[] getProvidedCapabilities();
+	public ProvidedCapability[] getProvidedCapabilities();
 
-	public abstract RequiredCapability[] getRequiredCapabilities();
+	public RequiredCapability[] getRequiredCapabilities();
 
-	public abstract TouchpointData[] getTouchpointData();
+	public TouchpointData[] getTouchpointData();
 
-	public abstract TouchpointType getTouchpointType();
+	public TouchpointType getTouchpointType();
 
-	public abstract Version getVersion();
+	public Version getVersion();
 
-	public abstract boolean isFragment();
+	public boolean isFragment();
 
-	public abstract boolean isSingleton();
+	/**
+	 * Returns whether this installable unit has been resolved. A resolved
+	 * installable unit represents the union of an installable unit and some
+	 * fragments.
+	 * 
+	 * @see #getFragments()
+	 * @see #unresolved()
+	 * @return <code>true</code> if this installable unit is resolved, and 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean isResolved();
+
+	public boolean isSingleton();
+
+	/**
+	 * Returns the unresolved equivalent of this installable unit. If this unit is
+	 * already unresolved, this method returns the receiver. Otherwise, this
+	 * method returns an installable unit with the same id and version, but without
+	 * any fragments attached.
+	 * 
+	 * @see #getFragments()
+	 * @see #isResolved()
+	 * @return The unresolved equivalent of this unit
+	 */
+	public IInstallableUnit unresolved();
 }

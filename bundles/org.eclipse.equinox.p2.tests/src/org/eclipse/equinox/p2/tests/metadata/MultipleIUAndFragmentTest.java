@@ -43,7 +43,7 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 
 	public void testAttachement() {
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
-			IResolvedInstallableUnit iu = (IResolvedInstallableUnit) iterator.next();
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			if (iu.getId().equals(iu1.getId())) {
 				assertEquals(1, iu.getFragments().length);
 				assertEquals(iu.getFragments()[0].getId(), iu3.getId());

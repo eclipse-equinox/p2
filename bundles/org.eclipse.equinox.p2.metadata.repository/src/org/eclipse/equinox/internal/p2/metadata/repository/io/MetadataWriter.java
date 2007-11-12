@@ -36,8 +36,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 	}
 
 	protected void writeInstallableUnit(IInstallableUnit resolvedIU) {
-		IInstallableUnit iu = (!(resolvedIU instanceof IResolvedInstallableUnit) ? resolvedIU//
-				: ((IResolvedInstallableUnit) resolvedIU).getOriginal());
+		IInstallableUnit iu = resolvedIU.unresolved();
 		start(INSTALLABLE_UNIT_ELEMENT);
 		attribute(ID_ATTRIBUTE, iu.getId());
 		attribute(VERSION_ATTRIBUTE, iu.getVersion());

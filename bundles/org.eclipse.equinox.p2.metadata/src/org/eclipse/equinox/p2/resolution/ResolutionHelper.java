@@ -11,19 +11,25 @@
 package org.eclipse.equinox.p2.resolution;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.ServiceReference;
 
 public class ResolutionHelper {
+	private static final IInstallableUnitFragment[] NO_FRAGMENTS = new IInstallableUnitFragment[0];
+
 	private static boolean DEBUG = false;
 
 	private Transformer transformer;
 	private State state;
 	private Dictionary selectionContext;
 	private RecommendationDescriptor recommendations;
+	/**
+	 * Map of IInstallableUnit->(IInstallableUnitFragment) representing the 
+	 * mapping of IUs to the fragment they are bound to.
+	 */
+	private Map fragmentBindings;
 
 	public ResolutionHelper(Dictionary selectionContext, RecommendationDescriptor recommendations) {
 		this.selectionContext = selectionContext;
@@ -35,6 +41,7 @@ public class ResolutionHelper {
 		PlatformAdmin pa = (PlatformAdmin) MetadataActivator.context.getService(sr);
 		transformer = new Transformer(pa.getFactory(), selectionContext, recommendations);
 		state = pa.getFactory().createState(true);
+		fragmentBindings = new HashMap();
 		if (selectionContext != null)
 			state.setPlatformProperties(selectionContext);
 	}
@@ -97,11 +104,8 @@ public class ResolutionHelper {
 	 */
 	public Collection attachCUs(Collection toAttach) {
 		initialize();
-		Collection result = new HashSet(toAttach.size());
 		for (Iterator iterator = toAttach.iterator(); iterator.hasNext();) {
-			IResolvedInstallableUnit tmp = ((InternalInstallableUnit) iterator.next()).getResolved();
-			result.add(tmp);
-			addInResolution(tmp);
+			addInResolution((IInstallableUnit) iterator.next());
 		}
 		state.resolve();
 		BundleDescription[] bds = state.getBundles();
@@ -117,14 +121,14 @@ public class ResolutionHelper {
 			// For now we will select just one fragment by preferring a fragment that matches the host
 
 			IInstallableUnit hostIU = ((StateMetadataMap) bds[i].getUserObject()).getUnit();
-			IResolvedInstallableUnitFragment selectedFragment = null;
+			IInstallableUnitFragment selectedFragment = null;
 			for (int k = 0; k < potentialIUFragments.length; k++) {
 				IInstallableUnit dependentIU = ((StateMetadataMap) potentialIUFragments[k].getUserObject()).getUnit();
 				if (hostIU.equals(dependentIU))
 					continue;
 
 				if (dependentIU.isFragment()) {
-					IResolvedInstallableUnitFragment potentialFragment = (IResolvedInstallableUnitFragment) dependentIU;
+					IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
 
 					if (potentialFragment.getHostId() == null) {
 						// default fragment - we'll mark it selected but keep looking for a fragment that matches the host
@@ -137,7 +141,19 @@ public class ResolutionHelper {
 				}
 			}
 			if (selectedFragment != null)
-				((ResolvedInstallableUnit) hostIU).setFragments(new IResolvedInstallableUnit[] {selectedFragment});
+				fragmentBindings.put(hostIU, selectedFragment);
+		}
+		//build the collection of resolved IUs
+		Collection result = new HashSet(toAttach.size());
+		for (Iterator iterator = toAttach.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			IInstallableUnitFragment fragment = (IInstallableUnitFragment) fragmentBindings.get(iu);
+			IInstallableUnitFragment[] fragments;
+			if (fragment == null)
+				fragments = NO_FRAGMENTS;
+			else
+				fragments = new IInstallableUnitFragment[] {fragment};
+			result.add(MetadataFactory.createResolvedInstallableUnit(iu, fragments));
 		}
 		return result;
 	}

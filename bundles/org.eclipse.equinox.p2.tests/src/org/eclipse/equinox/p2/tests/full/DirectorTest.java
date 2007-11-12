@@ -20,7 +20,6 @@ import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.IResolvedInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -140,7 +139,7 @@ public class DirectorTest extends TestCase {
 		if (!it.hasNext())
 			return;
 		IInstallableUnit sc = (IInstallableUnit) it.next();
-		if (sc instanceof IResolvedInstallableUnit)
+		if (sc.isResolved())
 			fail("The repository should not store resolved installable units");
 	}
 }

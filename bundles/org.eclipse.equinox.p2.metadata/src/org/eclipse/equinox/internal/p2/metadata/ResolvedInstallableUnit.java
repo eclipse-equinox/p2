@@ -6,23 +6,24 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.metadata;
+package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.InternalInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
-public class ResolvedInstallableUnit implements IResolvedInstallableUnit, InternalInstallableUnit {
+public class ResolvedInstallableUnit implements IInstallableUnit {
 	private static IInstallableUnit[] NO_IU = new IInstallableUnit[0];
 
 	private IInstallableUnit[] fragments = NO_IU;
-	protected IInstallableUnit resolved;
+	protected IInstallableUnit original;
 
 	public ResolvedInstallableUnit(IInstallableUnit resolved) {
-		this.resolved = resolved;
+		this.original = resolved;
 	}
 
-	public void setFragments(IResolvedInstallableUnit[] fragments) {
+	public ResolvedInstallableUnit(IInstallableUnit resolved, IInstallableUnitFragment[] fragments) {
+		this.original = resolved;
 		this.fragments = fragments;
 	}
 
@@ -31,47 +32,49 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 		if (fragments != null)
 			result.addAll(Arrays.asList(fragments));
 		for (int i = 0; i < result.size(); i++) {
-			result.addAll(Arrays.asList(((IResolvedInstallableUnit) result.get(i)).getFragments()));
+			IInstallableUnit fragment = (IInstallableUnit) result.get(i);
+			if (fragment.isResolved())
+				result.addAll(Arrays.asList(fragment.getFragments()));
 		}
 		return (IInstallableUnitFragment[]) result.toArray(new IInstallableUnitFragment[result.size()]);
 	}
 
 	public String getApplicabilityFilter() {
-		return resolved.getApplicabilityFilter();
+		return original.getApplicabilityFilter();
 	}
 
 	public IArtifactKey[] getArtifacts() {
-		return resolved.getArtifacts();
+		return original.getArtifacts();
 	}
 
 	public String getFilter() {
-		return resolved.getFilter();
+		return original.getFilter();
 	}
 
 	public String getId() {
-		return resolved.getId();
+		return original.getId();
 	}
 
 	public String getProperty(String key) {
-		return resolved.getProperty(key);
+		return original.getProperty(key);
 	}
 
 	public Map getProperties() {
-		return resolved.getProperties();
+		return original.getProperties();
 	}
 
 	public ProvidedCapability[] getProvidedCapabilities() {
 		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(resolved.getProvidedCapabilities()));
+		result.addAll(Arrays.asList(original.getProvidedCapabilities()));
 		for (int i = 0; i < fragments.length; i++) {
 			result.addAll(Arrays.asList(fragments[i].getProvidedCapabilities()));
 		}
-		return resolved.getProvidedCapabilities();
+		return original.getProvidedCapabilities();
 	}
 
 	public RequiredCapability[] getRequiredCapabilities() {
 		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(resolved.getRequiredCapabilities()));
+		result.addAll(Arrays.asList(original.getRequiredCapabilities()));
 		for (int i = 0; i < fragments.length; i++) {
 			result.addAll(Arrays.asList(fragments[i].getRequiredCapabilities()));
 		}
@@ -81,7 +84,7 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 
 	public TouchpointData[] getTouchpointData() {
 		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(resolved.getTouchpointData()));
+		result.addAll(Arrays.asList(original.getTouchpointData()));
 		for (int i = 0; i < fragments.length; i++) {
 			TouchpointData[] data = fragments[i].getTouchpointData();
 			for (int j = 0; j < data.length; j++) {
@@ -92,19 +95,19 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 	}
 
 	public TouchpointType getTouchpointType() {
-		return resolved.getTouchpointType();
+		return original.getTouchpointType();
 	}
 
 	public Version getVersion() {
-		return resolved.getVersion();
+		return original.getVersion();
 	}
 
 	public boolean isFragment() {
-		return resolved.isFragment();
+		return original.isFragment();
 	}
 
 	public boolean isSingleton() {
-		return resolved.isSingleton();
+		return original.isSingleton();
 	}
 
 	public void accept(IMetadataVisitor visitor) {
@@ -113,25 +116,25 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 
 	public boolean equals(Object obj) {
 		//TODO This is pretty ugly....
-		boolean result = resolved.equals(obj);
+		boolean result = original.equals(obj);
 		if (result)
 			return true;
 		if (obj instanceof ResolvedInstallableUnit)
-			return resolved.equals(((ResolvedInstallableUnit) obj).resolved);
+			return original.equals(((ResolvedInstallableUnit) obj).original);
 		return false;
 	}
 
 	public int hashCode() {
 		// TODO Auto-generated method stub
-		return resolved.hashCode();
+		return original.hashCode();
 	}
 
 	public String toString() {
-		return "[R]" + resolved.toString(); //$NON-NLS-1$
+		return "[R]" + original.toString(); //$NON-NLS-1$
 	}
 
 	public IInstallableUnit getOriginal() {
-		return resolved;
+		return original;
 	}
 
 	public int compareTo(Object toCompareTo) {
@@ -144,8 +147,12 @@ public class ResolvedInstallableUnit implements IResolvedInstallableUnit, Intern
 		return getId().compareTo(other.getId());
 	}
 
-	public IResolvedInstallableUnit getResolved() {
-		return this;
+	public boolean isResolved() {
+		return true;
+	}
+
+	public IInstallableUnit unresolved() {
+		return original;
 	}
 
 }

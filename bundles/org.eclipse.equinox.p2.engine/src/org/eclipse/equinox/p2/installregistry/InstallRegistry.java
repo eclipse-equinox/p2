@@ -59,9 +59,9 @@ public class InstallRegistry implements IInstallRegistry {
 						return;
 					IProfileInstallRegistry registry = getProfileInstallRegistry(event.getProfile());
 					if (event.isInstall() && event.getOperand().second() != null) {
-						registry.addInstallableUnits(event.getOperand().second().getOriginal());
+						registry.addInstallableUnits(event.getOperand().second().unresolved());
 					} else if (event.isUninstall() && event.getOperand().first() != null) {
-						IInstallableUnit original = event.getOperand().first().getOriginal();
+						IInstallableUnit original = event.getOperand().first().unresolved();
 						String value = registry.getInstallableUnitProfileProperty(original, IInstallableUnit.PROP_PROFILE_ROOT_IU);
 						boolean isRoot = value != null && value.equals(Boolean.toString(true));
 						registry.removeInstallableUnits(original);
@@ -74,7 +74,7 @@ public class InstallRegistry implements IInstallRegistry {
 						// the engine.
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077 
 						if (isRoot && event.getOperand().second() != null) {
-							registry.setInstallableUnitProfileProperty(event.getOperand().second().getOriginal(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+							registry.setInstallableUnitProfileProperty(event.getOperand().second().unresolved(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 						}
 					}
 				} else if (o instanceof CommitOperationEvent) {
@@ -97,7 +97,7 @@ public class InstallRegistry implements IInstallRegistry {
 		});
 	}
 
-	void persist() {
+	synchronized void persist() {
 		try {
 			BufferedOutputStream bof = null;
 			try {
@@ -123,7 +123,7 @@ public class InstallRegistry implements IInstallRegistry {
 		}
 	}
 
-	void restore() {
+	synchronized void restore() {
 		try {
 			BufferedInputStream bif = null;
 			try {

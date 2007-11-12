@@ -473,4 +473,11 @@ public class AbstractProvisioningTest extends TestCase {
 			metadataRepos.clear();
 		}
 	}
+
+	/**
+	 * Returns a resolved IU corresponding to the given IU, with no attached fragments.
+	 */
+	protected IInstallableUnit createResolvedIU(IInstallableUnit unit) {
+		return MetadataFactory.createResolvedInstallableUnit(unit, new IInstallableUnitFragment[0]);
+	}
 }

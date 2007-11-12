@@ -20,7 +20,7 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IResolvedInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.osgi.framework.ServiceReference;
 
@@ -72,9 +72,9 @@ public class MetadataCache extends URLMetadataRepository {
 						return;
 					// TODO: what about uninstall??
 					if (event.isPost() && event.getResult().isOK() && event.isInstall()) {
-						IResolvedInstallableUnit installedIU = event.getOperand().second();
+						IInstallableUnit installedIU = event.getOperand().second();
 						if (installedIU != null)
-							units.add(installedIU.getOriginal());
+							units.add(installedIU.unresolved());
 						return;
 					}
 				}

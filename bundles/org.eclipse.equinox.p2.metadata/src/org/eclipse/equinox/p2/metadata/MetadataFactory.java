@@ -11,8 +11,7 @@
 package org.eclipse.equinox.p2.metadata;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnitFragment;
+import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -106,6 +105,7 @@ public class MetadataFactory {
 	 * @return The created installable unit or fragment
 	 */
 	public static IInstallableUnit createInstallableUnit(InstallableUnitDescription description) {
+		Assert.isNotNull(description);
 		return description.unitCreate();
 	}
 
@@ -118,6 +118,23 @@ public class MetadataFactory {
 	 * @return The created installable unit or fragment
 	 */
 	public static IInstallableUnitFragment createInstallableUnitFragment(InstallableUnitFragmentDescription description) {
+		Assert.isNotNull(description);
 		return (IInstallableUnitFragment) description.unitCreate();
+	}
+
+	/**
+	 * Creates and returns an {@link IInstallableUnit} that represents the given
+	 * unit bound to the given fragments.
+	 * 
+	 * @see IInstallableUnit#isResolved()
+	 * @param unit The unit to be bound
+	 * @param fragments The fragments to be bound
+	 * @return A resolved installable unit
+	 */
+	public static IInstallableUnit createResolvedInstallableUnit(IInstallableUnit unit, IInstallableUnitFragment[] fragments) {
+		Assert.isNotNull(unit);
+		Assert.isNotNull(fragments);
+		return new ResolvedInstallableUnit(unit, fragments);
+
 	}
 }

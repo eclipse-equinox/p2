@@ -16,7 +16,7 @@ import org.eclipse.equinox.p2.query.CompoundIterator;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class OperationGenerator {
-	static IResolvedInstallableUnit NULL_IU = new ResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()));
+	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
 
 	public Operand[] generateOperation(Collection from_, Collection to_) {
 		List from = new ArrayList(from_);
@@ -36,8 +36,8 @@ public class OperationGenerator {
 		int toIdx = 0;
 		int fromIdx = 0;
 		while (fromIdx != from.size() && toIdx != to.size()) {
-			IResolvedInstallableUnit fromIU = (IResolvedInstallableUnit) from.get(fromIdx);
-			IResolvedInstallableUnit toIU = (IResolvedInstallableUnit) to.get(toIdx);
+			IInstallableUnit fromIU = (IInstallableUnit) from.get(fromIdx);
+			IInstallableUnit toIU = (IInstallableUnit) to.get(toIdx);
 			int comparison = toIU.compareTo(fromIU);
 			if (comparison < 0) {
 				operations.add(createInstallOperation(toIU));
@@ -53,12 +53,12 @@ public class OperationGenerator {
 		}
 		if (fromIdx != from.size()) {
 			for (int i = fromIdx; i < from.size(); i++) {
-				operations.add(createUninstallOperation((IResolvedInstallableUnit) from.get(i)));
+				operations.add(createUninstallOperation((IInstallableUnit) from.get(i)));
 			}
 		}
 		if (toIdx != to.size()) {
 			for (int i = toIdx; i < to.size(); i++) {
-				operations.add(createInstallOperation((IResolvedInstallableUnit) to.get(i)));
+				operations.add(createInstallOperation((IInstallableUnit) to.get(i)));
 			}
 		}
 	}
@@ -66,7 +66,7 @@ public class OperationGenerator {
 	private void generateUpdates(List from, List to, ArrayList operations) {
 		Set processed = new HashSet();
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
-			IResolvedInstallableUnit iuTo = (IResolvedInstallableUnit) to.get(toIdx);
+			IInstallableUnit iuTo = (IInstallableUnit) to.get(toIdx);
 			if (iuTo.getId().equals(next(from, toIdx).getId())) {
 				toIdx = skip(to, iuTo, toIdx) - 1;
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
@@ -76,11 +76,11 @@ public class OperationGenerator {
 				continue;
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
 			Iterator updates = new CompoundIterator(new Iterator[] {from.iterator()}, iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM), new VersionRange(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_RANGE)), null, false);
-			IResolvedInstallableUnit iuFrom;
+			IInstallableUnit iuFrom;
 			if (!updates.hasNext()) { //Nothing to udpate from.
 				continue;
 			}
-			iuFrom = (IResolvedInstallableUnit) updates.next();
+			iuFrom = (IInstallableUnit) updates.next();
 			if (updates.hasNext()) { //There are multiple IUs to update from
 				//System.out.println("Can't update  " + iuTo + " because there are multiple IUs to update from (" + toString(iusFrom) + ')');
 				continue;
@@ -97,26 +97,26 @@ public class OperationGenerator {
 		to.removeAll(processed);
 	}
 
-	private Operand createUninstallOperation(IResolvedInstallableUnit iu) {
+	private Operand createUninstallOperation(IInstallableUnit iu) {
 		return new Operand(iu, null);
 	}
 
-	private Operand createInstallOperation(IResolvedInstallableUnit iu) {
+	private Operand createInstallOperation(IInstallableUnit iu) {
 		return new Operand(null, iu);
 	}
 
-	private Operand createUpdateOperation(IResolvedInstallableUnit from, IResolvedInstallableUnit to) {
+	private Operand createUpdateOperation(IInstallableUnit from, IInstallableUnit to) {
 		return new Operand(from, to);
 	}
 
-	private IResolvedInstallableUnit next(List l, int i) {
+	private IInstallableUnit next(List l, int i) {
 		i++;
 		if (i >= l.size())
 			return NULL_IU;
-		return (IResolvedInstallableUnit) l.get(i);
+		return (IInstallableUnit) l.get(i);
 	}
 
-	private int skip(List c, IResolvedInstallableUnit id, int idx) {
+	private int skip(List c, IInstallableUnit id, int idx) {
 		int i = idx;
 		for (; i < c.size(); i++) {
 			if (!id.getId().equals(((IInstallableUnit) c.get(idx)).getId()))
