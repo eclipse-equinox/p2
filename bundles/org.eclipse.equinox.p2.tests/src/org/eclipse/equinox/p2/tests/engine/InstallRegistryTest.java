@@ -53,7 +53,7 @@ public class InstallRegistryTest extends AbstractProvisioningTest {
 
 	public void testAddRemoveIU() {
 		PhaseSet phaseSet = new DefaultPhaseSet();
-		Profile profile = new Profile("testProfile");
+		Profile profile = createProfile("testProfile");
 		assertEquals(0, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU())}, new NullProgressMonitor());
 		assertEquals(1, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
@@ -64,7 +64,7 @@ public class InstallRegistryTest extends AbstractProvisioningTest {
 
 	public void testPeristence() {
 		PhaseSet phaseSet = new DefaultPhaseSet();
-		Profile profile = new Profile("testProfile");
+		Profile profile = createProfile("testProfile");
 		assertEquals(0, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU())}, new NullProgressMonitor());
 		assertEquals(1, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);

@@ -14,10 +14,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
-import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.engine.ProfileParser;
 import org.eclipse.equinox.internal.p2.engine.ProfileWriter;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -26,7 +26,7 @@ import org.xml.sax.*;
 /**
  * Simple test of the engine API.
  */
-public class ProfileTest extends TestCase {
+public class ProfileTest extends AbstractProvisioningTest {
 	public ProfileTest(String name) {
 		super(name);
 	}
@@ -37,7 +37,7 @@ public class ProfileTest extends TestCase {
 
 	public void testNullProfile() {
 		try {
-			new Profile(null);
+			createProfile(null);
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -46,7 +46,7 @@ public class ProfileTest extends TestCase {
 
 	public void testEmptyProfile() {
 		try {
-			new Profile("");
+			createProfile("");
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -54,22 +54,22 @@ public class ProfileTest extends TestCase {
 	}
 
 	public void testNestedProfileStructure() {
-		Profile parent = new Profile("parent");
-		Profile child = new Profile("child", parent);
+		Profile parent = createProfile("parent");
+		Profile child = createProfile("child", parent);
 		assertTrue("Parentless profile should be a root.", parent.isARootProfile());
 		assertFalse("Child profile should not be a root.", child.isARootProfile());
 		assertTrue("Parent should be parent of child", child.getParentProfile() == parent);
 		assertTrue("Parent should have one child.", parent.getSubProfiles().length == 1);
 		assertTrue("Child should have no children.", child.getSubProfiles().length == 0);
 
-		Profile grandchild = new Profile("grand", child);
+		Profile grandchild = createProfile("grand", child);
 		assertFalse("Grandchild profile should not be a root.", grandchild.isARootProfile());
 		assertTrue("Parent should have one child.", parent.getSubProfiles().length == 1);
 		assertTrue("Child should have one child.", child.getSubProfiles().length == 1);
 		assertTrue("Grandparent of grandchild should be parent of child.", grandchild.getParentProfile().getParentProfile() == parent);
 		try {
 			// Add a subprofile with id collision.
-			new Profile("grand", child);
+			createProfile("grand", child);
 		} catch (IllegalArgumentException expected) {
 			assertTrue("Child should have one child.", child.getSubProfiles().length == 1);
 			return;
@@ -117,35 +117,35 @@ public class ProfileTest extends TestCase {
 	// Create the profiles and test get after set
 	// for associated properties.
 	private Profile createTestProfile() {
-		Profile parent = new Profile(parentId);
+		Profile parent = createProfile(parentId);
 		parent.setValue(key, parentValue);
 		assertTrue(parentValue.equals(parent.getValue(key)));
 		parent.setValue(otherKey, otherValue);
 		assertTrue(otherValue.equals(parent.getValue(otherKey)));
 
-		Profile child0 = new Profile(child0Id, parent);
+		Profile child0 = createProfile(child0Id, parent);
 		child0.setValue(key, child0Value);
 		assertTrue(child0Value.equals(child0.getValue(key)));
 
-		Profile child1 = new Profile(child1Id, parent);
+		Profile child1 = createProfile(child1Id, parent);
 		// no value in child1
 
-		Profile grandchild00 = new Profile(grandchild00Id, child0);
+		Profile grandchild00 = createProfile(grandchild00Id, child0);
 		grandchild00.setValue(key, grandchild00Value);
 		assertTrue(grandchild00Value.equals(grandchild00.getValue(key)));
 
-		Profile grandchild01 = new Profile(grandchild01Id, child0);
+		Profile grandchild01 = createProfile(grandchild01Id, child0);
 		// no value in grandchild01
 
-		Profile grandchild02 = new Profile(grandchild02Id, child0);
+		Profile grandchild02 = createProfile(grandchild02Id, child0);
 		grandchild02.setValue(otherKey, grandchild02Value);
 		assertTrue(grandchild02Value.equals(grandchild02.getValue(otherKey)));
 
-		Profile grandchild10 = new Profile(grandchild10Id, child1);
+		Profile grandchild10 = createProfile(grandchild10Id, child1);
 		grandchild10.setValue(key, grandchild10Value);
 		assertTrue(grandchild10Value.equals(grandchild10.getValue(key)));
 
-		Profile grandchild11 = new Profile(grandchild11Id, child1);
+		Profile grandchild11 = createProfile(grandchild11Id, child1);
 		// no value in grandchild11
 
 		return parent;

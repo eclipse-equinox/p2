@@ -11,16 +11,16 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.util.Map;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
 /**
  * Simple test of the engine API.
  */
-public class PhaseTest extends TestCase {
+public class PhaseTest extends AbstractProvisioningTest {
 	public static class TestPhaseSet extends PhaseSet {
 
 		public TestPhaseSet() {
@@ -103,6 +103,7 @@ public class PhaseTest extends TestCase {
 	}
 
 	protected void tearDown() throws Exception {
+		super.tearDown();
 		engine = null;
 		TestActivator.getContext().ungetService(engineRef);
 	}
@@ -163,7 +164,7 @@ public class PhaseTest extends TestCase {
 
 	public void testPerform() {
 		PhaseSet phaseSet = new TestPhaseSet();
-		Profile profile = new Profile("testProfile");
+		Profile profile = createProfile("PhaseTest");
 
 		engine.perform(profile, phaseSet, new Operand[0], new NullProgressMonitor());
 	}
@@ -189,7 +190,7 @@ public class PhaseTest extends TestCase {
 			}
 		};
 		PhaseSet phaseSet = new TestPhaseSet(phase);
-		Profile profile = new Profile("testProfile");
+		Profile profile = createProfile("PhaseTest");
 
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, null)}, new NullProgressMonitor());
 		assertTrue(phase.initializePhase);
@@ -217,7 +218,7 @@ public class PhaseTest extends TestCase {
 			}
 		};
 		PhaseSet phaseSet = new TestPhaseSet(phase);
-		Profile profile = new Profile("testProfile");
+		Profile profile = createProfile("PhaseTest");
 
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, null)}, new NullProgressMonitor());
 		assertTrue(phase.initializeOperand);

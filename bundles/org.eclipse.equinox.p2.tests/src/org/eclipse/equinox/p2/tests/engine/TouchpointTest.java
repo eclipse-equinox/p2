@@ -130,7 +130,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 
 	public void testInitCompleteOperand() {
 		PhaseSet phaseSet = new TestPhaseSet();
-		Profile profile = new Profile("testProfile");
+		Profile profile = createProfile("testProfile");
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU("operandTest"))}, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializeOperand);
 		assertEquals(1, testTouchpoint.completeOperand);
@@ -138,7 +138,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 
 	public void testInitCompletePhase() {
 		PhaseSet phaseSet = new TestPhaseSet();
-		Profile profile = new Profile("testProfile");
+		Profile profile = createProfile("testProfile");
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU("phaseTest"))}, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializeOperand);
 		assertEquals(1, testTouchpoint.completeOperand);

@@ -56,16 +56,11 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IDirector director = createDirector();
 
 		//Install into a profile in which the filter is satisfied
-		Profile satisfied = new Profile("Satisfied." + getName());
+		Profile satisfied = createProfile("Satisfied." + getName());
 		satisfied.setValue(Profile.PROP_ENVIRONMENTS, "FilterKey=true");
 		IStatus result = director.install(toInstallArray, satisfied, null);
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", satisfied, allUnits);
-
-		//Install into a profile in which the filter is not satisfied
-
-		//Install into a profile in which the filter key is undefined
-
 	}
 
 	/**
@@ -84,7 +79,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = new Profile("TestProfile." + getName());
+		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
 		IStatus result = director.install(toInstallArray, profile, null);
 		if (!result.isOK())
@@ -105,7 +100,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = new Profile("TestProfile." + getName());
+		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
 		IStatus result = director.install(allUnits, profile, null);
 		if (!result.isOK())
@@ -130,7 +125,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = new Profile("TestProfile." + getName());
+		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
 		IStatus result = director.install(toInstallArray, profile, null);
 		assertTrue("1.0", !result.isOK());
@@ -156,7 +151,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = new Profile("TestProfile." + getName());
+		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
 		IStatus result = director.install(toInstallArray, profile, null);
@@ -181,7 +176,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = new Profile("TestProfile." + getName());
+		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
 		IStatus result = director.install(toInstallArray, profile, null);
@@ -207,7 +202,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = new Profile("TestProfile." + getName());
+		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
 		IStatus result = director.install(toInstallArray, profile, null);

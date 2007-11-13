@@ -47,7 +47,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		repos = mgr.getKnownRepositories();
 	}
 
-	private Profile createProfile(String profileId) {
+	protected Profile createProfile(String profileId) {
 		String installFolder = System.getProperty(Profile.PROP_INSTALL_FOLDER);
 		ServiceReference profileRegSr = TestActivator.context.getServiceReference(IProfileRegistry.class.getName());
 		IProfileRegistry profileRegistry = (IProfileRegistry) TestActivator.context.getService(profileRegSr);

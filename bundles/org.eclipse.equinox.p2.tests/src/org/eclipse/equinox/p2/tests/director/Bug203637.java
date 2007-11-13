@@ -17,7 +17,7 @@ import org.osgi.framework.Version;
 public class Bug203637 extends AbstractProvisioningTest {
 	public void test() {
 		IDirector d = createDirector();
-		Profile profile = new Profile("TestProfile." + getName());
+		Profile profile = createProfile("TestProfile." + getName());
 		IInstallableUnit a1 = createIU("A", new Version(1, 0, 0), true);
 		assertOK(d.replace(new IInstallableUnit[0], new IInstallableUnit[] {a1}, profile, null));
 

@@ -44,7 +44,7 @@ public class SingletonTest extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, f1_1, junit38, junit40, f2, f2_1});
 
-		profile = new Profile("TestProfile." + getName());
+		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 	}
 

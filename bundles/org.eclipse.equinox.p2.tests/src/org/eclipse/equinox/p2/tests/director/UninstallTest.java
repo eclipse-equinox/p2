@@ -21,7 +21,7 @@ public class UninstallTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		a1 = createIU("A", DEFAULT_VERSION, true);
 
-		profile = new Profile("TestProfile." + getName());
+		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 	}
 

@@ -44,7 +44,7 @@ public class OracleTest extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, c1, d1, b1});
 
-		profile = new Profile("TestProfile." + getName());
+		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 
 	}

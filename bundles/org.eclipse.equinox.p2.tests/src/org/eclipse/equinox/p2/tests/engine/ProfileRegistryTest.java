@@ -10,16 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
-import junit.framework.TestCase;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
 /**
  * Simple test of the engine API.
  */
-public class ProfileRegistryTest extends TestCase {
+public class ProfileRegistryTest extends AbstractProvisioningTest {
 	private ServiceReference registryRef;
 	private IProfileRegistry registry;
 
@@ -43,7 +43,7 @@ public class ProfileRegistryTest extends TestCase {
 
 	public void testAddRemoveProfile() {
 		assertNull(registry.getProfile("test"));
-		Profile test = new Profile("test");
+		Profile test = createProfile("test");
 		registry.addProfile(test);
 		assertEquals(test, registry.getProfile("test"));
 		registry.removeProfile(test);
@@ -52,7 +52,7 @@ public class ProfileRegistryTest extends TestCase {
 
 	public void testPeristence() {
 		assertNull(registry.getProfile("test"));
-		Profile test = new Profile("test");
+		Profile test = createProfile("test");
 		registry.addProfile(test);
 		assertEquals(test, registry.getProfile("test"));
 

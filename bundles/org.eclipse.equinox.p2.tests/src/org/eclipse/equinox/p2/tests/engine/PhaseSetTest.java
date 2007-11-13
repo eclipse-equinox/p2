@@ -39,7 +39,7 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 	}
 
 	public void testEmptyPhases() {
-		Profile profile = new Profile("test");
+		Profile profile = createProfile("PhaseSetTest");
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
 			// empty PhaseSet
 		};

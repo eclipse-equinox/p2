@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -39,10 +37,9 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 
 	private static URL createLocation() {
 		try {
-			return File.createTempFile("TestMetadataRepository", Long.toString(System.currentTimeMillis())).toURL();
+			//Just need a unique URL - we don't need to read/write this location
+			return new URL("http://TestMetadataRepository.com/" + Long.toString(System.currentTimeMillis()));
 		} catch (MalformedURLException e) {
-			Assert.fail(e.getMessage());
-		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
 		return null;

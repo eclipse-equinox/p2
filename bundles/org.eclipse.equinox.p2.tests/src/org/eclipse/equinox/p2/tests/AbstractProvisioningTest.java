@@ -15,7 +15,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
+import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.installregistry.IInstallRegistry;
+import org.eclipse.equinox.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -48,6 +51,11 @@ public class AbstractProvisioningTest extends TestCase {
 	 * will be removed automatically at the end of the test.
 	 */
 	private List metadataRepos = new ArrayList();
+	/**
+	 * Tracks the profiles created by this test instance. The profiles
+	 * will be removed automatically at the end of the test.
+	 */
+	private List profilesToRemove = new ArrayList();
 
 	public static void assertEmptyProfile(Profile p) {
 		assertNotNull("The profile should not be null", p);
@@ -323,6 +331,32 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
+	 * Creates a profile with the given name. Ensures that no such profile
+	 * already exists.  The returned profile will be removed automatically
+	 * in the tearDown method.
+	 */
+	protected Profile createProfile(String name) {
+		return createProfile(name, null);
+	}
+
+	/**
+	 * Creates a profile with the given name. Ensures that no such profile
+	 * already exists.  The returned profile will be removed automatically
+	 * in the tearDown method.
+	 */
+	protected Profile createProfile(String name, Profile parent) {
+		//remove any existing profile with the same name
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		Profile profile = profileRegistry.getProfile(name);
+		if (profile != null)
+			profileRegistry.removeProfile(profile);
+		//create and return a new profile
+		profile = new Profile(name, parent);
+		profilesToRemove.add(profile);
+		return profile;
+	}
+
+	/**
 	 * Creates and returns a required capability with the provided attributes.
 	 */
 	protected static RequiredCapability[] createRequiredCapabilities(String namespace, String name, String filter) {
@@ -464,14 +498,31 @@ public class AbstractProvisioningTest extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		//remove all metadata repositories created by this test
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (!metadataRepos.isEmpty()) {
-			IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 			for (Iterator it = metadataRepos.iterator(); it.hasNext();) {
 				IMetadataRepository repo = (IMetadataRepository) it.next();
 				repoMan.removeRepository(repo);
 			}
 			metadataRepos.clear();
 		}
+		//remove all profiles created by this test
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		IInstallRegistry installRegistry = (IInstallRegistry) ServiceHelper.getService(TestActivator.getContext(), IInstallRegistry.class.getName());
+		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
+			Profile toRemove = (Profile) it.next();
+			profileRegistry.removeProfile(toRemove);
+			IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toRemove);
+			IInstallableUnit[] units = profileInstallRegistry.getInstallableUnits();
+			for (int i = 0; i < units.length; i++) {
+				profileInstallRegistry.removeInstallableUnits(units[i]);
+			}
+		}
+		profilesToRemove.clear();
+		//See bug 209069 - currently no way to persist install registry changes or clear the metadata cache
+		//		((InstallRegistry) installRegistry).persist();
+		//		IMetadataRepository cache = MetadataCache.getCacheInstance((MetadataRepositoryManager) repoMan);
+		//		cache.removeAll();
 	}
 
 	/**

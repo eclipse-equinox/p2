@@ -44,7 +44,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa});
 
-		profile = new Profile("TestProfile." + getName());
+		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 		director.install(new IInstallableUnit[] {fa}, profile, null);
 
@@ -55,7 +55,6 @@ public class UpdateTest extends AbstractProvisioningTest {
 		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()).getSeverity());
 		for (Iterator iterator = profile.getInstallableUnits(); iterator.hasNext();) {
 			System.out.println(iterator.next());
-
 		}
 		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1_4}, profile, new NullProgressMonitor()).getSeverity());
 

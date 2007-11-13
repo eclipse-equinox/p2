@@ -33,7 +33,7 @@ public class Pack200OptimizerTest extends TestCase {
 	public void testPrepare() throws IOException {
 		// Setup the step
 		ProcessingStep step = new Pack200OptimizerStep();
-		FileOutputStream destination = new FileOutputStream("d:/packed.pack.gz");
+		FileOutputStream destination = new FileOutputStream("c:/packed.pack.gz");
 		step.link(destination, new NullProgressMonitor());
 
 		// drive the source data through the step

@@ -13,7 +13,8 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
@@ -49,7 +50,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, c1});
 
-		profile = new Profile("TestProfile." + getName());
+		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 
 	}
@@ -70,7 +71,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	 */
 
 	public void testInstallA1bis() {
-		profile = new Profile("testInstallA1bis." + getName());
+		profile = createProfile("testInstallA1bis." + getName());
 		director = createDirector();
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, c1, c2, b1});
 
