@@ -31,6 +31,8 @@ public class MetadataGeneratorHelper {
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_COPYRIGHT, IInstallableUnit.PROP_COPYRIGHT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnit.PROP_UPDATE_SITE};
 
 	private static final String CAPABILITY_TYPE_OSGI_PACKAGES = "osgi.packages"; //$NON-NLS-1$
+	private static final String CAPABILITY_TYPE_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
+	private static final String CAPABILITY_TYPE_OSGI_FRAGMENTS = "osgi.fragments"; //$NON-NLS-1$
 
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.5"); //$NON-NLS-1$
 
@@ -160,11 +162,11 @@ public class MetadataGeneratorHelper {
 		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
 		ArrayList reqsDeps = new ArrayList();
 		if (requiresAFragment)
-			reqsDeps.add(new RequiredCapability("fragment", bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
+			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
-			reqsDeps.add(RequiredCapability.createRequiredCapabilityForName(bd.getHost().getName(), bd.getHost().getVersionRange(), false));
+			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getHost().getName(), bd.getHost().getVersionRange(), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(RequiredCapability.createRequiredCapabilityForName(requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), requiredBundles[j].isOptional()));
+			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), null, requiredBundles[j].isOptional(), false));
 
 		//Process the import package
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -182,17 +184,23 @@ public class MetadataGeneratorHelper {
 		}
 		iu.setRequiredCapabilities((RequiredCapability[]) reqsDeps.toArray(new RequiredCapability[reqsDeps.size()]));
 
+		// Create Set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+
+		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
+		providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
+
 		//Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
-		ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[exports.length + 2 + (isFragment ? 1 : 0)];
-		exportedPackageAsCapabilities[0] = createSelfCapability(bd.getSymbolicName(), bd.getVersion());
-		for (int i = 1; i <= exports.length; i++) {
-			exportedPackageAsCapabilities[i] = new ProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i - 1].getName(), exports[i - 1].getVersion() == Version.emptyVersion ? null : exports[i - 1].getVersion()); //TODO make sure that we support all the refinement on the exports
+		for (int i = 0; i < exports.length; i++) {
+			//TODO make sure that we support all the refinement on the exports
+			providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
 		}
-		exportedPackageAsCapabilities[exports.length + 1] = new ProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0)); //Here we add a bundle capability to identify bundles 
+		//Here we add a bundle capability to identify bundles
+		providedCapabilities.add(new ProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0)));
 		if (isFragment)
-			exportedPackageAsCapabilities[exportedPackageAsCapabilities.length - 1] = new ProvidedCapability("fragment", bd.getHost().getName(), bd.getVersion());
-		iu.setCapabilities(exportedPackageAsCapabilities);
+			providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getHost().getName(), bd.getVersion()));
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
 		iu.setApplicabilityFilter("");
 
 		iu.setArtifacts(new IArtifactKey[] {key});
