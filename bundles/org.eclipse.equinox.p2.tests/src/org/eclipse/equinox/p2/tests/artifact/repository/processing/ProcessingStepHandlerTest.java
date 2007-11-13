@@ -15,7 +15,8 @@ import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Unpack200Step;
+import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
+import org.eclipse.equinox.internal.p2.artifact.processors.verifier.MD5Verifier;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -169,7 +170,7 @@ public class ProcessingStepHandlerTest extends TestCase {
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		assertNotNull(steps);
 		assertEquals(1, steps.length);
-		assertEquals(Unpack200Step.class, steps[0].getClass());
+		assertEquals(Pack200ProcessorStep.class, steps[0].getClass());
 	}
 
 	public void testCreatePSsAndAssureOrderingOfPSs1() throws IOException {

@@ -23,32 +23,32 @@ import org.osgi.framework.Version;
 public interface IArtifactKey {
 
 	/**
-	 * The namespace.
-	 * @return This returns the namespace segment of the artifact. Never
-	 *         null or empty.
+	 * Returns the namespace for this artifact key. The returned value can never be empty.
+	 * @return the namespace segment of the key.
 	 */
-	String getNamespace();
+	public String getNamespace();
 
 	/**
-	 * The classifier.
-	 * @return This returns the classifier segment of the key. Never
-	 *         null. Can be empty.
+	 * Returns the classifier for this artifact key. The returned value can be empty.
+	 * @return the classifier segment of the key.
 	 */
-	String getClassifier();
+	public String getClassifier();
 
 	/**
-	 * The identity of the artifact.
-	 * @return This returns the id segment of the artifact. Can
-	 *         be empty.
-	 *         
-	 * TODO: consider renaming this to getIdentity.
+	 * Returns the id for this artifact key. The returned value can be empty.
+	 * @return the classifier segment of the key.
 	 */
-	String getId();
+	public String getId();
 
 	/**
-	 * The version of the artifact.
-	 * @return This returns the version of the artifact. Never null. Can
-	 *         be empty (Version.emptyVersion).
+	 * Returns the version for this artifact key. 
+	 * @return the version segment of the key.
 	 */
-	Version getVersion();
+	public Version getVersion();
+
+	/**
+	 * Returns the canonical string form of this artifact key.
+	 * @return the canonical string representing this key
+	 */
+	public String toExternalForm();
 }

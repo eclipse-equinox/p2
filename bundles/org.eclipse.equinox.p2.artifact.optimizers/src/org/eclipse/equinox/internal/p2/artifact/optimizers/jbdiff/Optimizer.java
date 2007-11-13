@@ -1,19 +1,21 @@
 /*******************************************************************************
-* Copyright (c) 2007 compeople AG and others.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*  compeople AG (Stefan Liebig) - initial API and implementation
-*******************************************************************************/
+ * Copyright (c) 2007 compeople AG and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *  	compeople AG (Stefan Liebig) - initial API and implementation
+ * 	IBM Corporation - ongoing development
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.artifact.optimizers.VersionlessArtifactKey;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -135,7 +137,7 @@ public class Optimizer {
 	private IArtifactKey[][] getSortedRelatedArtifactKeys(IArtifactKey[] artifactKeys) {
 		Map map = new HashMap();
 		for (int i = 0; i < artifactKeys.length; i++) {
-			IArtifactKey freeKey = new VersionLessArtifactKey(artifactKeys[i]);
+			IArtifactKey freeKey = new VersionlessArtifactKey(artifactKeys[i]);
 			List values = (List) map.get(freeKey);
 			if (values == null) {
 				values = new ArrayList();
@@ -173,7 +175,7 @@ public class Optimizer {
 		for (int i = 0; i < minDepth; i++) {
 
 			System.out.println("\t with " + strategy + " against " + descriptors[i].getArtifactKey());
-			String predecessorData = ArtifactKeyDeSerializer.serialize(descriptors[i].getArtifactKey());
+			String predecessorData = descriptors[i].getArtifactKey().toExternalForm();
 			ArtifactDescriptor newDescriptor = new ArtifactDescriptor(complete);
 			ProcessingStepDescriptor patchStep = new ProcessingStepDescriptor(strategy, predecessorData, true);
 			ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {patchStep};

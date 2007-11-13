@@ -20,8 +20,8 @@ import junit.framework.*;
 public class AutomatedTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
-		suite.addTest(org.eclipse.equinox.p2.tests.artifact.optimizers.jbdiff.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.artifact.processor.jbdiff.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.artifact.optimizers.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.artifact.processors.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.processing.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.director.AllTests.suite());

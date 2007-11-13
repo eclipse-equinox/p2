@@ -19,8 +19,12 @@
       </application> 
    </extension>
 
-	<extension id="Pack200Packer" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
-		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Pack200Step"/>
+	<extension id="Pack200Optimizer" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
+		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Pack200OptimizerStep"/>
+	</extension>
+
+	<extension id="JarDeltaOptimizer" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">
+		<step class="org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta.JarDeltaOptimizerStep"/>
 	</extension>
 
 	<extension id="JBDiffStep" point="org.eclipse.equinox.p2.artifact.repository.processingSteps">

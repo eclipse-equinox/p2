@@ -8,7 +8,7 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.processor.jbdiff;
+package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import java.io.*;
 import java.lang.reflect.*;

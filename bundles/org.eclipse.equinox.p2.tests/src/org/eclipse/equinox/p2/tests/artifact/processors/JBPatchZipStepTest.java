@@ -8,12 +8,13 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.processor.jbdiff;
+package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import java.io.*;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.jbdiff.JBPatchZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
@@ -34,13 +35,13 @@ public class JBPatchZipStepTest extends AbstractProvisioningTest {
 	//	 */
 	//	public void testPrepare() throws IOException {
 	//		String base = "C:/projekte/rcp/org.eclipse.equinox.p2.tests";
-	//		File tonormalize32 = new File(base, TestActivator.getContext().getBundle().getEntry("testData/delta/org.eclipse.jdt_3.2.0.v20060605-1400.jar").getFile());
+	//		File tonormalize32 = new File(base, TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.2.0.v20060605-1400.jar").getFile());
 	//		File normalized32 = File.createTempFile("3.2", ".njar");
 	//		SarUtil.normalize(tonormalize32, normalized32);
 	//		File sar32 = File.createTempFile("3.2", ".sar");
 	//		SarUtil.zipToSar(normalized32, sar32);
 	//
-	//		File tonormalize33 = new File(base, TestActivator.getContext().getBundle().getEntry("testData/delta/org.eclipse.jdt_3.3.0.v20070607-1300.jar").getFile());
+	//		File tonormalize33 = new File(base, TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.3.0.v20070607-1300.jar").getFile());
 	//		File normalized33 = File.createTempFile("3.3", ".njar");
 	//		SarUtil.normalize(tonormalize33, normalized33);
 	//		File sar33 = File.createTempFile("3.3", ".sar");
@@ -57,20 +58,20 @@ public class JBPatchZipStepTest extends AbstractProvisioningTest {
 	 */
 	public void testPatchOrgEclipseJdt32to33() throws IOException {
 
-		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/delta/org.eclipse.jdt_3.2.0.v20060605-1400.njar");
+		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/org.eclipse.jdt_3.2.0.v20060605-1400.njar");
 		ProcessingStep patcher = new MockableJBPatchZipStep(repoMock);
 		ProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
-		IArtifactKey key = new TestArtifactKey("ns", "cl", "id1", new Version("1.1"));
+		IArtifactKey key = new ArtifactKey("ns", "cl", "id1", new Version("1.1"));
 		ArtifactDescriptor context = new ArtifactDescriptor(key);
 		patcher.initialize(descriptor, context);
 
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		patcher.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/delta/org.eclipse.jdt_3.2.0-3.3.0.jbdiff").openStream();
+		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.2.0-3.3.0.jbdiff").openStream();
 		FileUtils.copyStream(inputStream, true, patcher, true);
 
-		inputStream = TestActivator.getContext().getBundle().getEntry("testData/delta/org.eclipse.jdt_3.3.0.v20070607-1300.njar").openStream();
+		inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.3.0.v20070607-1300.njar").openStream();
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 		assertEquals("", expected.toByteArray(), destination.toByteArray());
@@ -80,11 +81,9 @@ public class JBPatchZipStepTest extends AbstractProvisioningTest {
 	 * Need to inject a repository!
 	 */
 	private static class MockableJBPatchZipStep extends JBPatchZipStep {
-
 		public MockableJBPatchZipStep(IArtifactRepository repository) {
 			super.repository = repository;
 		}
-
 	}
 
 }

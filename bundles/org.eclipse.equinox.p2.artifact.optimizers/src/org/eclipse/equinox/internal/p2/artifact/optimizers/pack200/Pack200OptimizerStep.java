@@ -1,33 +1,31 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- * 	IBM Corporation - initial API and implementation
+ *  	compeople AG (Stefan Liebig) - initial API and implementation
+ * 	IBM Corporation - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.processors.jardelta;
+package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 
 import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.artifact.processors.AbstractDeltaProcessorStep;
-import org.eclipse.equinox.internal.p2.artifact.processors.Activator;
+import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractBufferingStep;
+import org.eclipse.equinox.internal.p2.artifact.optimizers.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor;
+import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 /**
- * Processor that takes a JAR delta and applies it.
+ * The Pack200Packer expects an input containing normal ".jar" data.   
  */
-public class JarDeltaProcessorStep extends AbstractDeltaProcessorStep {
-
+public class Pack200OptimizerStep extends AbstractBufferingStep {
+	private static final String PACKED_SUFFIX = ".pack.gz"; //$NON-NLS-1$
 	private File incoming;
-
-	public JarDeltaProcessorStep() {
-		super();
-	}
 
 	protected OutputStream createIncomingStream() throws IOException {
 		incoming = File.createTempFile(INCOMING_ROOT, JAR_SUFFIX);
@@ -49,7 +47,7 @@ public class JarDeltaProcessorStep extends AbstractDeltaProcessorStep {
 				InputStream resultStream = new BufferedInputStream(new FileInputStream(resultFile));
 				FileUtils.copyStream(resultStream, true, destination, false);
 			} else {
-				status = new Status(IStatus.ERROR, Activator.ID, "Empty optimized file: " + resultFile); //$NON-NLS-1$
+				status = new Status(IStatus.ERROR, Activator.ID, "Empty intermediate file: " + resultFile); //$NON-NLS-1$
 			}
 		} finally {
 			if (resultFile != null)
@@ -58,17 +56,15 @@ public class JarDeltaProcessorStep extends AbstractDeltaProcessorStep {
 	}
 
 	protected File process() throws IOException {
-		File predecessor = null;
-		try {
-			File resultFile = File.createTempFile(RESULT_ROOT, JAR_SUFFIX);
-			// get the predecessor and perform the optimization into a temp file
-			predecessor = fetchPredecessor(new ArtifactDescriptor(key));
-			new DeltaApplier(predecessor, incoming, resultFile).run();
-			return resultFile;
-		} finally {
-			// if we have a predecessor and it is our temp file then clean up the file
-			if (predecessor != null && predecessor.getAbsolutePath().indexOf(PREDECESSOR_ROOT) > -1)
-				predecessor.delete();
-		}
+		// unpack
+		Options options = new Options();
+		options.pack = true;
+		// TODO use false here assuming that all content is conditioned.  Need to revise this
+		options.processAll = false;
+		options.input = incoming;
+		options.outputDir = getWorkDir().getPath();
+		options.verbose = true;
+		new JarProcessorExecutor().runJarProcessor(options);
+		return new File(getWorkDir(), incoming.getName() + PACKED_SUFFIX);
 	}
 }

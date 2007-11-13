@@ -7,6 +7,7 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ * 	IBM Corporation - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.jbdiff;
 
@@ -22,35 +23,32 @@ import org.eclipse.equinox.p2.sar.SarUtil;
  */
 public class JBPatchZipStep extends JBPatchStep {
 
-	protected void performPatch() throws IOException {
-
-		if (diff == null)
-			// hmmm, no one wrote to this stream so there is nothing to pass on
-			return;
-		// Ok, so there is content, close the diff
-		diff.close();
-
-		try {
-			fetchPredecessor(new ArtifactDescriptor(key));
-			byte[] result = JBPatch.bspatch(predecessor.getBuffer(), predecessor.getBufferLength(), diff.getBuffer(), diff.getBufferLength());
-			diff = null;
-			predecessor = null;
-			SarUtil.sarToZip(new ByteArrayInputStream(result), true, destination, false);
-		} finally {
-			diff = null;
-			predecessor = null;
-		}
+	public JBPatchZipStep() {
+		super();
 	}
 
-	private void fetchPredecessor(ArtifactDescriptor artifactDescriptor) throws IOException {
-		DirectByteArrayOutputStream zippedPredecessor = new DirectByteArrayOutputStream();
+	protected void performProcessing() throws IOException {
+		DirectByteArrayOutputStream predecessor = fetchPredecessorBytes(new ArtifactDescriptor(key));
+		DirectByteArrayOutputStream current = (DirectByteArrayOutputStream) incomingStream;
+		byte[] result = JBPatch.bspatch(predecessor.getBuffer(), predecessor.getBufferLength(), current.getBuffer(), current.getBufferLength());
+		// free up the memory as soon as possible.
+		predecessor = null;
+		current = null;
+		incomingStream = null;
 
+		// copy the result of the optimization to the destination.
+		SarUtil.sarToZip(new ByteArrayInputStream(result), true, destination, false);
+	}
+
+	private DirectByteArrayOutputStream fetchPredecessorBytes(ArtifactDescriptor artifactDescriptor) throws IOException {
+		DirectByteArrayOutputStream zippedPredecessor = new DirectByteArrayOutputStream();
 		status = repository.getArtifact(artifactDescriptor, zippedPredecessor, monitor);
 		if (!status.isOK())
 			throw (IOException) new IOException(status.getMessage()).initCause(status.getException());
 
-		predecessor = new DirectByteArrayOutputStream();
-		SarUtil.zipToSar(zippedPredecessor.getInputStream(), predecessor);
+		DirectByteArrayOutputStream result = new DirectByteArrayOutputStream();
+		SarUtil.zipToSar(zippedPredecessor.getInputStream(), result);
+		return result;
 	}
 
 }

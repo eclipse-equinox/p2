@@ -9,12 +9,6 @@
 
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
-			id="org.eclipse.equinox.p2.processing.MD5Verifier">
-		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.MD5Verifier"/>
-	</extension>
-
-	<extension
-			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.Adder">
 		<step class="org.eclipse.equinox.p2.tests.artifact.repository.processing.Adder"/>
 	</extension>

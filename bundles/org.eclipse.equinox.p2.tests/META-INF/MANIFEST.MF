@@ -7,12 +7,14 @@ Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: ie.wombat.jbdiff,
  junit.framework;version="3.8.2",
+ org.eclipse.equinox.internal.p2.artifact.optimizers,
  org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta,
  org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff,
  org.eclipse.equinox.internal.p2.artifact.optimizers.pack200,
  org.eclipse.equinox.internal.p2.artifact.processors.jardelta,
  org.eclipse.equinox.internal.p2.artifact.processors.jbdiff,
  org.eclipse.equinox.internal.p2.artifact.processors.pack200,
+ org.eclipse.equinox.internal.p2.artifact.processors.verifier,
  org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.director,
@@ -54,9 +56,8 @@ Eclipse-LazyStart: true
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
 Export-Package: org.eclipse.equinox.p2.tests,
- org.eclipse.equinox.p2.tests.artifact.optimizers.jbdiff,
- org.eclipse.equinox.p2.tests.artifact.optimizers.pack200,
- org.eclipse.equinox.p2.tests.artifact.processor.jbdiff,
+ org.eclipse.equinox.p2.tests.artifact.optimizers,
+ org.eclipse.equinox.p2.tests.artifact.processors,
  org.eclipse.equinox.p2.tests.artifact.repository,
  org.eclipse.equinox.p2.tests.artifact.repository.processing,
  org.eclipse.equinox.p2.tests.director,

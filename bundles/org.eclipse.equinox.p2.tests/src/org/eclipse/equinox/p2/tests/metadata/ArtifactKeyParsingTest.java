@@ -8,30 +8,30 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.processor.jbdiff;
+package org.eclipse.equinox.p2.tests.metadata;
 
 import junit.framework.TestCase;
-import org.eclipse.equinox.internal.p2.artifact.processors.jbdiff.ArtifactKeyDeSerializer;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
 
 /**
  * Test <code>ArtifactkeyDeSerializer</code>
  */
-public class ArtifactkeyDeSerializerTest extends TestCase {
+public class ArtifactKeyParsingTest extends TestCase {
 
 	public void testSerialize() {
-		IArtifactKey key = new TestArtifactKey("namespace", "classifier", "identifier", new Version("1.0"));
-		assertEquals("namespace,classifier,identifier,1.0.0", ArtifactKeyDeSerializer.serialize(key));
+		IArtifactKey key = new ArtifactKey("namespace", "classifier", "identifier", new Version("1.0"));
+		assertEquals("namespace,classifier,identifier,1.0.0", key.toExternalForm());
 	}
 
 	public void testSerializeEmptyNamespace() {
-		IArtifactKey key = new TestArtifactKey("", "classifier", "identifier", new Version("1.0"));
-		assertEquals(",classifier,identifier,1.0.0", ArtifactKeyDeSerializer.serialize(key));
+		IArtifactKey key = new ArtifactKey("", "classifier", "identifier", new Version("1.0"));
+		assertEquals(",classifier,identifier,1.0.0", key.toExternalForm());
 	}
 
 	public void testDeserialize() {
-		IArtifactKey key = ArtifactKeyDeSerializer.deserialize("namespace,classifier,identifier,1.0.0");
+		IArtifactKey key = ArtifactKey.parse("namespace,classifier,identifier,1.0.0");
 		assertNotNull(key);
 		assertEquals("namespace", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
@@ -40,7 +40,7 @@ public class ArtifactkeyDeSerializerTest extends TestCase {
 	}
 
 	public void testDeserializeEmptyNamespace() {
-		IArtifactKey key = ArtifactKeyDeSerializer.deserialize(",classifier,identifier,1.0.0");
+		IArtifactKey key = ArtifactKey.parse(",classifier,identifier,1.0.0");
 		assertNotNull(key);
 		assertEquals("", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
@@ -49,7 +49,7 @@ public class ArtifactkeyDeSerializerTest extends TestCase {
 	}
 
 	public void testDeserializeEmptyClassifier() {
-		IArtifactKey key = ArtifactKeyDeSerializer.deserialize("namespace,,identifier,1.0.0");
+		IArtifactKey key = ArtifactKey.parse("namespace,,identifier,1.0.0");
 		assertNotNull(key);
 		assertEquals("namespace", key.getNamespace());
 		assertEquals("", key.getClassifier());
@@ -58,7 +58,7 @@ public class ArtifactkeyDeSerializerTest extends TestCase {
 	}
 
 	public void testDeserializeEmptyIdentifier() {
-		IArtifactKey key = ArtifactKeyDeSerializer.deserialize("namespace,classifier,,1.0.0");
+		IArtifactKey key = ArtifactKey.parse("namespace,classifier,,1.0.0");
 		assertNotNull(key);
 		assertEquals("namespace", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
@@ -67,7 +67,7 @@ public class ArtifactkeyDeSerializerTest extends TestCase {
 	}
 
 	public void testDeserializeEmptyVersion() {
-		IArtifactKey key = ArtifactKeyDeSerializer.deserialize("namespace,classifier,identifier,");
+		IArtifactKey key = ArtifactKey.parse("namespace,classifier,identifier,");
 		assertNotNull(key);
 		assertEquals("namespace", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
@@ -76,7 +76,7 @@ public class ArtifactkeyDeSerializerTest extends TestCase {
 	}
 
 	public void testDeserializeEmptyEverything() {
-		IArtifactKey key = ArtifactKeyDeSerializer.deserialize(",,,");
+		IArtifactKey key = ArtifactKey.parse(",,,");
 		assertNotNull(key);
 		assertEquals("", key.getNamespace());
 		assertEquals("", key.getClassifier());
@@ -86,16 +86,16 @@ public class ArtifactkeyDeSerializerTest extends TestCase {
 
 	public void testDeserializeTooFewPartsI() {
 		try {
-			ArtifactKeyDeSerializer.deserialize(",,");
+			ArtifactKey.parse(",");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
 		}
 	}
 
-	public void testDeserializeTooMuchPartsI() {
+	public void testDeserializeTooManyPartsI() {
 		try {
-			ArtifactKeyDeSerializer.deserialize(",,,,");
+			ArtifactKey.parse(",,,,");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);
@@ -104,7 +104,7 @@ public class ArtifactkeyDeSerializerTest extends TestCase {
 
 	public void testDeserializeTooFewPartsII() {
 		try {
-			ArtifactKeyDeSerializer.deserialize("namespace,classifier,1.0.0");
+			ArtifactKey.parse("namespace,classifier");
 			fail();
 		} catch (IllegalArgumentException e) {
 			assertTrue(true);

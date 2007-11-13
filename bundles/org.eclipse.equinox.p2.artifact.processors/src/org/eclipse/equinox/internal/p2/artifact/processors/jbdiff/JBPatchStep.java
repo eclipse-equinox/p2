@@ -7,12 +7,13 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ * 	IBM Corporation - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.jbdiff;
 
 import ie.wombat.jbdiff.JBPatch;
 import java.io.*;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.artifact.processors.AbstractDeltaProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.sar.DirectByteArrayOutputStream;
@@ -20,55 +21,34 @@ import org.eclipse.equinox.p2.sar.DirectByteArrayOutputStream;
 /**
  * The JBPatchStep patches a JBDiff based data.   
  */
-public class JBPatchStep extends AbstractDeltaPatchStep {
+public class JBPatchStep extends AbstractDeltaProcessorStep {
 
-	protected DirectByteArrayOutputStream diff;
-	protected DirectByteArrayOutputStream predecessor;
-
-	public void write(int b) throws IOException {
-		OutputStream stream = getOutputStream();
-		stream.write(b);
+	public JBPatchStep() {
+		super();
 	}
 
-	private OutputStream getOutputStream() {
-		if (diff != null)
-			return diff;
-		diff = new DirectByteArrayOutputStream();
-		return diff;
+	protected OutputStream createIncomingStream() throws IOException {
+		return new DirectByteArrayOutputStream();
 	}
 
-	public void close() throws IOException {
-		// When we go to close we must have seen all the content we are going to see
-		// So before closing, run patch and write the patched result to the destination
-		performPatch();
-		super.close();
-		status = Status.OK_STATUS;
+	protected void performProcessing() throws IOException {
+		DirectByteArrayOutputStream predecessor = fetchPredecessorBytes(new ArtifactDescriptor(key));
+		DirectByteArrayOutputStream current = (DirectByteArrayOutputStream) incomingStream;
+		byte[] result = JBPatch.bspatch(predecessor.getBuffer(), predecessor.getBufferLength(), current.getBuffer(), current.getBufferLength());
+		// free up the memory as soon as possible.
+		predecessor = null;
+		current = null;
+		incomingStream = null;
+
+		// copy the result of the optimization to the destination.
+		FileUtils.copyStream(new ByteArrayInputStream(result), true, destination, false);
 	}
 
-	protected void performPatch() throws IOException {
-		if (diff == null)
-			// hmmm, no one wrote to this stream so there is nothing to pass on
-			return;
-		// Ok, so there is content, close the diff
-		diff.close();
-
-		try {
-			fetchPredecessor(new ArtifactDescriptor(key));
-			byte[] result = JBPatch.bspatch(predecessor.getBuffer(), predecessor.getBufferLength(), diff.getBuffer(), diff.getBufferLength());
-			diff = null;
-			predecessor = null;
-			FileUtils.copyStream(new ByteArrayInputStream(result), true, destination, false);
-		} finally {
-			diff = null;
-			predecessor = null;
-		}
-	}
-
-	private void fetchPredecessor(ArtifactDescriptor artifactDescriptor) throws IOException {
-		predecessor = new DirectByteArrayOutputStream();
-		status = repository.getArtifact(artifactDescriptor, predecessor, monitor);
+	private DirectByteArrayOutputStream fetchPredecessorBytes(ArtifactDescriptor artifactDescriptor) throws IOException {
+		DirectByteArrayOutputStream result = new DirectByteArrayOutputStream();
+		status = repository.getArtifact(artifactDescriptor, result, monitor);
 		if (!status.isOK())
 			throw (IOException) new IOException(status.getMessage()).initCause(status.getException());
+		return result;
 	}
-
 }

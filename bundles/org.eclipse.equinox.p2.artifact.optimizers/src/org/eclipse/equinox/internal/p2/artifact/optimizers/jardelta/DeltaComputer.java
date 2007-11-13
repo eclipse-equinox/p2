@@ -12,17 +12,18 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
 import java.io.*;
 import java.util.*;
-import java.util.jar.*;
+import java.util.zip.*;
 
 public class DeltaComputer {
 	private File target;
 	private File base;
 	private File destination;
-	private JarFile baseJar;
-	private JarFile targetJar;
+	private ZipFile baseJar;
+	private ZipFile targetJar;
 	private Set baseEntries;
 	private ArrayList additions;
 	private ArrayList changes;
+	private ZipFile manifestJar = null;
 
 	public DeltaComputer(File base, File target, File destination) {
 		this.base = base;
@@ -30,7 +31,7 @@ public class DeltaComputer {
 		this.destination = destination;
 	}
 
-	public void run() {
+	public void run() throws IOException {
 		try {
 			if (!openJars())
 				return;
@@ -42,21 +43,24 @@ public class DeltaComputer {
 	}
 
 	private void writeDelta() {
-		JarOutputStream result = null;
+		ZipOutputStream result = null;
 		try {
 			try {
-				result = new JarOutputStream(new FileOutputStream(destination));
+				result = new ZipOutputStream(new FileOutputStream(destination));
+				// if the delta includes the manifest, be sure to write it first
+				if (manifestJar != null)
+					writeEntry(result, manifestJar.getEntry("META-INF/MANIFEST.MF"), manifestJar, true);
 				// write out the removals.  These are all the entries left in the baseEntries
 				// since they were not seen in the targetJar.  Here just write out an empty
 				// entry with a name that signals the delta processor to delete.
 				for (Iterator i = baseEntries.iterator(); i.hasNext();)
-					writeEntry(result, new JarEntry(((String) i.next()) + ".delete"), null);
+					writeEntry(result, new ZipEntry(((String) i.next()) + ".delete"), null, false);
 				// write out the additions.
 				for (Iterator i = additions.iterator(); i.hasNext();)
-					writeEntry(result, (JarEntry) i.next(), targetJar);
+					writeEntry(result, (ZipEntry) i.next(), targetJar, false);
 				// write out the changes.
 				for (Iterator i = changes.iterator(); i.hasNext();)
-					writeEntry(result, (JarEntry) i.next(), targetJar);
+					writeEntry(result, (ZipEntry) i.next(), targetJar, false);
 			} finally {
 				if (result != null)
 					result.close();
@@ -67,7 +71,9 @@ public class DeltaComputer {
 		}
 	}
 
-	private void writeEntry(JarOutputStream result, JarEntry entry, JarFile sourceJar) throws IOException {
+	private void writeEntry(ZipOutputStream result, ZipEntry entry, ZipFile sourceJar, boolean manifest) throws IOException {
+		if (!manifest && entry.getName().equalsIgnoreCase("META-INF/MANIFEST.MF"))
+			return;
 		// add the entry
 		result.putNextEntry(entry);
 		try {
@@ -109,21 +115,19 @@ public class DeltaComputer {
 		}
 	}
 
-	private void computeDelta() {
+	private void computeDelta() throws IOException {
 		changes = new ArrayList();
 		additions = new ArrayList();
 		// start out assuming that all the base entries are being removed
 		baseEntries = getEntries(baseJar);
-		for (Enumeration e = targetJar.entries(); e.hasMoreElements();) {
-			JarEntry entry = (JarEntry) e.nextElement();
-			check(entry);
-		}
+		for (Enumeration e = targetJar.entries(); e.hasMoreElements();)
+			check((ZipEntry) e.nextElement(), targetJar);
 	}
 
 	private boolean openJars() {
 		try {
-			baseJar = new JarFile(base);
-			targetJar = new JarFile(target);
+			baseJar = new ZipFile(base);
+			targetJar = new ZipFile(target);
 		} catch (IOException e) {
 			return false;
 		}
@@ -151,9 +155,13 @@ public class DeltaComputer {
 	 * Compare the given entry against the base JAR to see if/how it differs.  Update the appropriate set
 	 * based on the discovered difference.
 	 * @param entry the entry to test
+	 * @throws IOException 
 	 */
-	private void check(JarEntry entry) {
-		JarEntry baseEntry = baseJar.getJarEntry(entry.getName());
+	private void check(ZipEntry entry, ZipFile file) throws IOException {
+		ZipEntry baseEntry = baseJar.getEntry(entry.getName());
+
+		// remember the manifest if we see it
+		checkForManifest(entry, file);
 		// if there is no entry then this is an addition.  remember the addition and return;
 		if (baseEntry == null) {
 			additions.add(entry);
@@ -167,7 +175,7 @@ public class DeltaComputer {
 	}
 
 	// compare the two entries.  We already know that they have the same name.
-	private boolean equals(JarEntry entry, JarEntry baseEntry) {
+	private boolean equals(ZipEntry entry, ZipEntry baseEntry) {
 		if (entry.getSize() != baseEntry.getSize())
 			return false;
 		// make sure the entries are of the same type
@@ -180,10 +188,24 @@ public class DeltaComputer {
 		return true;
 	}
 
-	private Set getEntries(JarFile jar) {
+	private Set getEntries(ZipFile jar) {
 		HashSet result = new HashSet(jar.size());
-		for (Enumeration e = jar.entries(); e.hasMoreElements();)
-			result.add(((JarEntry) e.nextElement()).getName());
+		for (Enumeration e = jar.entries(); e.hasMoreElements();) {
+			ZipEntry entry = (ZipEntry) e.nextElement();
+			checkForManifest(entry, jar);
+			result.add(entry.getName());
+		}
 		return result;
+	}
+
+	/**
+	 * Check to see if the given entry is the manifest.  If so, remember it for use when writing
+	 * the resultant JAR.
+	 * @param entry
+	 * @param jar
+	 */
+	private void checkForManifest(ZipEntry entry, ZipFile jar) {
+		if (entry.getName().equalsIgnoreCase("META-INF/MANIFEST.MF"))
+			manifestJar = jar;
 	}
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
@@ -20,12 +22,49 @@ import org.osgi.framework.Version;
  * See {link IArtifact for a description of the lifecycle of artifact keys) 
  */
 public class ArtifactKey implements IArtifactKey {
-	private static final char SEP_CHAR = ',';
+	private static final String SEPARATOR = ","; //$NON-NLS-1$
 
 	private final String namespace;
 	private final String id;
 	private final String classifier;
 	private final Version version;
+
+	private static String[] getArrayFromList(String stringList, String separator) {
+		if (stringList == null || stringList.trim().length() == 0)
+			return new String[0];
+		ArrayList list = new ArrayList();
+		boolean separatorSeen = true;
+		StringTokenizer tokens = new StringTokenizer(stringList, separator, true);
+		while (tokens.hasMoreTokens()) {
+			String token = tokens.nextToken().trim();
+			if (token.equals(separator)) {
+				if (separatorSeen)
+					list.add("");
+				separatorSeen = true;
+			} else {
+				separatorSeen = false;
+				if (token.length() != 0)
+					list.add(token);
+			}
+		}
+		if (separatorSeen)
+			list.add(""); //$NON-NLS-1$
+		return (String[]) list.toArray(new String[list.size()]);
+	}
+
+	public static IArtifactKey parse(String specification) {
+		String[] parts = getArrayFromList(specification, SEPARATOR);
+		if (parts.length < 3 || parts.length > 4)
+			throw new IllegalArgumentException("Unexpected number of parts in artifact key: " + specification); //$NON-NLS-1$
+		Version version = Version.emptyVersion;
+		if (parts.length == 4 && parts[3].trim().length() > 0)
+			version = Version.parseVersion(parts[3]);
+		try {
+			return new ArtifactKey(parts[0], parts[1], parts[2], version);
+		} catch (IllegalArgumentException e) {
+			throw (IllegalArgumentException) new IllegalArgumentException("Wrong version syntax in artifact key: " + specification).initCause(e); //$NON-NLS-1$
+		}
+	}
 
 	public ArtifactKey(String namespace, String classifier, String id, Version version) {
 		super();
@@ -33,11 +72,11 @@ public class ArtifactKey implements IArtifactKey {
 		Assert.isNotNull(classifier);
 		Assert.isNotNull(id);
 		Assert.isNotNull(version);
-		if (namespace.indexOf(SEP_CHAR) != -1)
+		if (namespace.indexOf(SEPARATOR) != -1)
 			throw new IllegalArgumentException("comma not allowed in namespace"); //$NON-NLS-1$
-		if (classifier.indexOf(SEP_CHAR) != -1)
+		if (classifier.indexOf(SEPARATOR) != -1)
 			throw new IllegalArgumentException("comma not allowed in classifier"); //$NON-NLS-1$
-		if (id.indexOf(SEP_CHAR) != -1)
+		if (id.indexOf(SEPARATOR) != -1)
 			throw new IllegalArgumentException("comma not allowed in id"); //$NON-NLS-1$
 		this.namespace = namespace;
 		this.classifier = classifier;
@@ -78,6 +117,14 @@ public class ArtifactKey implements IArtifactKey {
 
 	public String getId() {
 		return id;
+	}
+
+	public String toExternalForm() {
+		StringBuffer data = new StringBuffer(namespace).append(SEPARATOR);
+		data.append(classifier).append(SEPARATOR);
+		data.append(id).append(SEPARATOR);
+		data.append(version.toString());
+		return data.toString();
 	}
 
 }

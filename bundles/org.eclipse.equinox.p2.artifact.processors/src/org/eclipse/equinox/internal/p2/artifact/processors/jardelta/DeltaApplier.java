@@ -12,16 +12,18 @@ package org.eclipse.equinox.internal.p2.artifact.processors.jardelta;
 
 import java.io.*;
 import java.util.*;
-import java.util.jar.*;
+import java.util.zip.*;
 
 public class DeltaApplier {
 	private static final String DELETE_SUFFIX = ".delete"; //$NON-NLS-1$
+	private static final String MANIFEST_ENTRY_NAME = "META-INF/MANIFEST.MF"; //$NON-NLS-1$
 	private File delta;
 	private File base;
 	private File destination;
-	private JarFile baseJar;
-	private JarFile deltaJar;
+	private ZipFile baseJar;
+	private ZipFile deltaJar;
 	private Set baseEntries;
+	private ZipFile manifestJar;
 
 	public DeltaApplier(File base, File delta, File destination) {
 		this.base = base;
@@ -45,29 +47,37 @@ public class DeltaApplier {
 		baseEntries = getEntries(baseJar);
 		// remove from the base all the entries that appear in the delta
 		for (Enumeration e = deltaJar.entries(); e.hasMoreElements();) {
-			JarEntry entry = ((JarEntry) e.nextElement());
+			ZipEntry entry = ((ZipEntry) e.nextElement());
+			checkForManifest(entry, deltaJar);
 			String name = entry.getName();
-			if (name.endsWith(DELETE_SUFFIX))
+			if (name.endsWith(DELETE_SUFFIX)) {
 				name = name.substring(0, name.length() - DELETE_SUFFIX.length());
+				// if the manifest is being deleted, forget anyone who might have a manifest
+				if (name.equalsIgnoreCase(MANIFEST_ENTRY_NAME))
+					manifestJar = null;
+			}
 			baseEntries.remove(name);
 		}
 	}
 
 	private void writeResult() {
-		JarOutputStream result = null;
+		ZipOutputStream result = null;
 		try {
 			try {
-				result = new JarOutputStream(new FileOutputStream(destination));
+				result = new ZipOutputStream(new FileOutputStream(destination));
+				// if the delta includes the manifest, be sure to write it first
+				if (manifestJar != null)
+					writeEntry(result, manifestJar.getEntry(MANIFEST_ENTRY_NAME), manifestJar, true);
 				// write out the things we know are staying from the base JAR
 				for (Iterator i = baseEntries.iterator(); i.hasNext();) {
-					JarEntry entry = baseJar.getJarEntry((String) i.next());
-					writeEntry(result, entry, baseJar);
+					ZipEntry entry = baseJar.getEntry((String) i.next());
+					writeEntry(result, entry, baseJar, false);
 				}
 				// write out the changes/additions from the delta.
 				for (Enumeration e = deltaJar.entries(); e.hasMoreElements();) {
-					JarEntry entry = (JarEntry) e.nextElement();
+					ZipEntry entry = (ZipEntry) e.nextElement();
 					if (!entry.getName().endsWith(DELETE_SUFFIX))
-						writeEntry(result, entry, deltaJar);
+						writeEntry(result, entry, deltaJar, false);
 				}
 			} finally {
 				if (result != null)
@@ -79,7 +89,9 @@ public class DeltaApplier {
 		}
 	}
 
-	private void writeEntry(JarOutputStream result, JarEntry entry, JarFile sourceJar) throws IOException {
+	private void writeEntry(ZipOutputStream result, ZipEntry entry, ZipFile sourceJar, boolean manifest) throws IOException {
+		if (!manifest && entry.getName().equalsIgnoreCase(MANIFEST_ENTRY_NAME))
+			return;
 		// add the entry
 		result.putNextEntry(entry);
 		try {
@@ -123,8 +135,8 @@ public class DeltaApplier {
 
 	private boolean openJars() {
 		try {
-			baseJar = new JarFile(base);
-			deltaJar = new JarFile(delta);
+			baseJar = new ZipFile(base);
+			deltaJar = new ZipFile(delta);
 		} catch (IOException e) {
 			return false;
 		}
@@ -148,10 +160,25 @@ public class DeltaApplier {
 			}
 	}
 
-	private Set getEntries(JarFile jar) {
+	private Set getEntries(ZipFile jar) {
 		HashSet result = new HashSet(jar.size());
-		for (Enumeration e = jar.entries(); e.hasMoreElements();)
-			result.add(((JarEntry) e.nextElement()).getName());
+		for (Enumeration e = jar.entries(); e.hasMoreElements();) {
+			ZipEntry entry = (ZipEntry) e.nextElement();
+			checkForManifest(entry, jar);
+			result.add(entry.getName());
+		}
 		return result;
 	}
+
+	/**
+	 * Check to see if the given entry is the manifest.  If so, remember it for use when writing
+	 * the resultant JAR.
+	 * @param entry
+	 * @param jar
+	 */
+	private void checkForManifest(ZipEntry entry, ZipFile jar) {
+		if (entry.getName().equalsIgnoreCase(MANIFEST_ENTRY_NAME))
+			manifestJar = jar;
+	}
+
 }

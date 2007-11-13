@@ -1,13 +1,14 @@
 /*******************************************************************************
-* Copyright (c) 2007 compeople AG and others.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*  compeople AG (Stefan Liebig) - initial API and implementation
-*******************************************************************************/
+ * Copyright (c) 2007 compeople AG and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *  	compeople AG (Stefan Liebig) - initial API and implementation
+ * 	IBM Corporation - ongoing development
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff;
 
 import ie.wombat.jbdiff.JBDiff;
@@ -21,41 +22,41 @@ import org.eclipse.equinox.p2.sar.SarUtil;
 
 public class JBDiffZipStep extends JBDiffStep {
 
-	public JBDiffZipStep(IArtifactRepository repository) {
+	public JBDiffZipStep() {
+		super();
+	}
+
+	// TODO We need a different way of injecting the base artifacts.  This approach forces
+	// the target and base to live in the same repo.  Typical but not really required.
+	protected JBDiffZipStep(IArtifactRepository repository) {
 		super(repository);
 	}
 
-	protected void performDiff() throws IOException {
-		if (current == null)
-			// hmmm, no one wrote to this stream so there is nothing to pass on
-			return;
-		// Ok, so there is content, close stream
-		current.close();
+	protected void performProcessing() throws IOException {
+		DirectByteArrayOutputStream sarredCurrent = new DirectByteArrayOutputStream();
+		SarUtil.zipToSar(((DirectByteArrayOutputStream) incomingStream).getInputStream(), sarredCurrent);
+		incomingStream = null;
+		DirectByteArrayOutputStream predecessor = fetchPredecessorBytes(new ArtifactDescriptor(key));
+		byte[] diff = JBDiff.bsdiff(predecessor.getBuffer(), predecessor.getBufferLength(), sarredCurrent.getBuffer(), sarredCurrent.getBufferLength());
+		// free up the memory as soon as possible.
+		predecessor = null;
+		incomingStream = null;
+		sarredCurrent = null;
 
-		try {
-			DirectByteArrayOutputStream sarredCurrent = new DirectByteArrayOutputStream();
-			SarUtil.zipToSar(current.getInputStream(), sarredCurrent);
-			current = null;
-			fetchPredecessor(new ArtifactDescriptor(key));
-			byte[] diff = JBDiff.bsdiff(predecessor.getBuffer(), predecessor.getBufferLength(), sarredCurrent.getBuffer(), sarredCurrent.getBufferLength());
-			predecessor = null;
-			sarredCurrent = null;
-			FileUtils.copyStream(new ByteArrayInputStream(diff), true, destination, false);
-		} finally {
-			predecessor = null;
-			current = null;
-		}
+		// copy the result of the optimization to the destination.
+		FileUtils.copyStream(new ByteArrayInputStream(diff), true, destination, false);
 	}
 
-	private void fetchPredecessor(ArtifactDescriptor artifactDescriptor) throws IOException {
+	private DirectByteArrayOutputStream fetchPredecessorBytes(ArtifactDescriptor artifactDescriptor) throws IOException {
 		DirectByteArrayOutputStream zippedPredecessor = new DirectByteArrayOutputStream();
 
 		status = repository.getArtifact(artifactDescriptor, zippedPredecessor, monitor);
 		if (!status.isOK())
 			throw (IOException) new IOException(status.getMessage()).initCause(status.getException());
 
-		predecessor = new DirectByteArrayOutputStream();
-		SarUtil.zipToSar(zippedPredecessor.getInputStream(), predecessor);
+		DirectByteArrayOutputStream result = new DirectByteArrayOutputStream();
+		SarUtil.zipToSar(zippedPredecessor.getInputStream(), result);
+		return result;
 	}
 
 }

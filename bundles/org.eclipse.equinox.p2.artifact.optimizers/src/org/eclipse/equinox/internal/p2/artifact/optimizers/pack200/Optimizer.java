@@ -60,7 +60,7 @@ public class Optimizer {
 
 			// Add in all the processing steps needed to optimize (e.g., pack200, ...)
 			ProcessingStepHandler handler = new ProcessingStepHandler();
-			OutputStream destination = handler.link(new ProcessingStep[] {new Pack200Step()}, repositoryStream, null);
+			OutputStream destination = handler.link(new ProcessingStep[] {new Pack200OptimizerStep()}, repositoryStream, null);
 
 			// Do the actual work by asking the repo to get the artifact and put it in the destination.
 			repository.getArtifact(descriptor, destination, new NullProgressMonitor());

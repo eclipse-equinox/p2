@@ -4,7 +4,7 @@
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
 			id="org.eclipse.equinox.p2.processing.Pack200Unpacker">
-		<step class="org.eclipse.equinox.internal.p2.artifact.processors.pack200.Unpack200Step"/>
+		<step class="org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep"/>
 	</extension>
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
@@ -23,7 +23,7 @@
 	</extension>
 	<extension
 			point="org.eclipse.equinox.p2.artifact.repository.processingSteps"
-			id="MD5Verifier">
+			id="org.eclipse.equinox.p2.processing.MD5Verifier">
 		<step class="org.eclipse.equinox.internal.p2.artifact.processors.verifier.MD5Verifier"/>
 	</extension>
 </plugin>

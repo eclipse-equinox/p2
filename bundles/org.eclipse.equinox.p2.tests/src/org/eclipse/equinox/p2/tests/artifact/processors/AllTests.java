@@ -8,7 +8,7 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.processor.jbdiff;
+package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import junit.framework.*;
 
@@ -19,9 +19,10 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(ArtifactkeyDeSerializerTest.class);
 		suite.addTestSuite(JBPatchStepTest.class);
-		suite.addTestSuite(JBPatchZipStepTest.class);
+		//		suite.addTestSuite(JBPatchZipStepTest.class);
+		suite.addTestSuite(JarDeltaProcessorTest.class);
+		suite.addTestSuite(Pack200ProcessorTest.class);
 		return suite;
 	}
 

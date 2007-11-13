@@ -19,6 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(ArtifactKeyParsingTest.class);
 		suite.addTestSuite(FragmentMethodTest.class);
 		suite.addTestSuite(FragmentTest.class);
 		suite.addTestSuite(MultipleIUAndFragmentTest.class);

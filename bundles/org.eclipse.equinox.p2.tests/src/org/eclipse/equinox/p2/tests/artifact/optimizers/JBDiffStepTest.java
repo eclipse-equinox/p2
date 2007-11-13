@@ -8,7 +8,7 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.optimizers.jbdiff;
+package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
 import java.io.*;
 import java.util.Arrays;
@@ -16,13 +16,13 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.p2.tests.artifact.processor.jbdiff.ArtifactRepositoryMock;
-import org.eclipse.equinox.p2.tests.artifact.processor.jbdiff.TestArtifactKey;
+import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
 import org.osgi.framework.Version;
 
 /**
@@ -37,20 +37,20 @@ public class JBDiffStepTest extends TestCase {
 	 */
 	public void testDiffEclipseExe32to33() throws IOException {
 
-		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/delta/eclipse-3.2.exe");
+		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/eclipse-3.2.exe");
 		MockableJBDiffStep differ = new MockableJBDiffStep(repoMock);
 		ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
-		IArtifactKey key = new TestArtifactKey("ns", "cl", "id1", new Version("1.1"));
+		IArtifactKey key = new ArtifactKey("ns", "cl", "id1", new Version("1.1"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 		differ.initialize(stepDescriptor, descriptor);
 
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		differ.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/delta/eclipse-3.3.exe").openStream();
+		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/eclipse-3.3.exe").openStream();
 		FileUtils.copyStream(inputStream, true, differ, true);
 
-		inputStream = TestActivator.getContext().getBundle().getEntry("testData/delta/eclipse-3.2-3.3.jbdiff").openStream();
+		inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/eclipse-3.2-3.3.jbdiff").openStream();
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));
@@ -60,11 +60,9 @@ public class JBDiffStepTest extends TestCase {
 	 * Need to inject a repository!
 	 */
 	private static class MockableJBDiffStep extends JBDiffStep {
-
 		public MockableJBDiffStep(IArtifactRepository repository) {
 			super(repository);
 		}
-
 	}
 
 }

@@ -7,8 +7,9 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ * 	IBM Corporation - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.optimizers.jbdiff;
+package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
 import junit.framework.*;
 
@@ -20,7 +21,9 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(JBDiffStepTest.class);
-		suite.addTestSuite(JBDiffZipStepTest.class);
+		//		suite.addTestSuite(JBDiffZipStepTest.class);
+		suite.addTestSuite(Pack200OptimizerTest.class);
+		suite.addTestSuite(JarDeltaOptimizerTest.class);
 		return suite;
 	}
 
