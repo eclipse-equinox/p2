@@ -30,19 +30,19 @@ public class Pack200OptimizerTest extends TestCase {
 		super("");
 	}
 
-	public void testPrepare() throws IOException {
-		// Setup the step
-		ProcessingStep step = new Pack200OptimizerStep();
-		FileOutputStream destination = new FileOutputStream("c:/packed.pack.gz");
-		step.link(destination, new NullProgressMonitor());
-
-		// drive the source data through the step
-		Bundle bundle = TestActivator.getContext().getBundle();
-		InputStream inputStream = bundle.getEntry("testData/optimizers/org.eclipse.equinox.app_1.0.100.v20071015.jar").openStream();
-		FileUtils.copyStream(inputStream, true, step, true);
-
-		destination.close();
-	}
+	//	public void testPrepare() throws IOException {
+	//		// Setup the step
+	//		ProcessingStep step = new Pack200OptimizerStep();
+	//		FileOutputStream destination = new FileOutputStream("c:/packed.pack.gz");
+	//		step.link(destination, new NullProgressMonitor());
+	//
+	//		// drive the source data through the step
+	//		Bundle bundle = TestActivator.getContext().getBundle();
+	//		InputStream inputStream = bundle.getEntry("testData/optimizers/org.eclipse.equinox.app_1.0.100.v20071015.jar").openStream();
+	//		FileUtils.copyStream(inputStream, true, step, true);
+	//
+	//		destination.close();
+	//	}
 
 	public void testPack() throws IOException {
 		// Setup the step
