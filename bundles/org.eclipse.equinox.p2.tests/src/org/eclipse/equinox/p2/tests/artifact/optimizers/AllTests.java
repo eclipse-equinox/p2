@@ -21,10 +21,10 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(JBDiffStepTest.class);
-		//		suite.addTestSuite(JBDiffZipStepTest.class);
+		// suite.addTestSuite(JBDiffZipStepTest.class);
 		suite.addTestSuite(Pack200OptimizerTest.class);
 		suite.addTestSuite(JarDeltaOptimizerTest.class);
+		suite.addTestSuite(Bug209233Test.class);
 		return suite;
 	}
-
 }
