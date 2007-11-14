@@ -69,10 +69,6 @@ public class RequiredCapability {
 		this.multiple = multiple;
 	}
 
-	public void accept(IMetadataVisitor visitor) {
-		visitor.visitRequiredCapability(this);
-	}
-
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

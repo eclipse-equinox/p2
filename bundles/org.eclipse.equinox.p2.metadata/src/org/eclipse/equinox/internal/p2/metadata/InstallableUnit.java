@@ -42,10 +42,6 @@ public class InstallableUnit implements IInstallableUnit {
 		super();
 	}
 
-	public void accept(IMetadataVisitor visitor) {
-		visitor.visitInstallableUnit(this);
-	}
-
 	public void addProperties(Map newProperties) {
 		if (properties == null)
 			properties = new OrderedProperties(newProperties.size());

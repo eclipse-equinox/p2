@@ -110,10 +110,6 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.isSingleton();
 	}
 
-	public void accept(IMetadataVisitor visitor) {
-		visitor.visitInstallableUnit(this);
-	}
-
 	public boolean equals(Object obj) {
 		//TODO This is pretty ugly....
 		boolean result = original.equals(obj);

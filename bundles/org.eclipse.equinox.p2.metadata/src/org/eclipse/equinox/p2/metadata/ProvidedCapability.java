@@ -29,10 +29,6 @@ public class ProvidedCapability {
 		this.version = version == null ? Version.emptyVersion : version;
 	}
 
-	public void accept(IMetadataVisitor visitor) {
-		visitor.visitCapability(this);
-	}
-
 	public boolean equals(Object other) {
 		if (other instanceof ProvidedCapability) {
 			ProvidedCapability otherCapability = (ProvidedCapability) other;

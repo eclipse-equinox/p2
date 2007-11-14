@@ -115,8 +115,6 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_UPDATE_SITE = "equinox.p2.update.site"; //$NON-NLS-1$
 
-	public void accept(IMetadataVisitor visitor);
-
 	public String getApplicabilityFilter();
 
 	public IArtifactKey[] getArtifacts();
