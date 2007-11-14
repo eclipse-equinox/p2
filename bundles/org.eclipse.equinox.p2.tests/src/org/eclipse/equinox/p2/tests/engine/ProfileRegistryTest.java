@@ -20,60 +20,74 @@ import org.osgi.framework.ServiceReference;
  * Simple test of the engine API.
  */
 public class ProfileRegistryTest extends AbstractProvisioningTest {
-	private ServiceReference registryRef;
+	private static final String PROFILE_NAME = "ProfileRegistryTest.profile";
 	private IProfileRegistry registry;
-
-	public ProfileRegistryTest(String name) {
-		super(name);
-	}
+	private ServiceReference registryRef;
 
 	public ProfileRegistryTest() {
 		super("");
 	}
 
-	protected void setUp() throws Exception {
+	public ProfileRegistryTest(String name) {
+		super(name);
+	}
+
+	protected void getServices() {
 		registryRef = TestActivator.getContext().getServiceReference(IProfileRegistry.class.getName());
 		registry = (IProfileRegistry) TestActivator.getContext().getService(registryRef);
 	}
 
-	protected void tearDown() throws Exception {
-		registry = null;
-		TestActivator.getContext().ungetService(registryRef);
-	}
-
-	public void testAddRemoveProfile() {
-		assertNull(registry.getProfile("test"));
-		Profile test = createProfile("test");
-		registry.addProfile(test);
-		assertEquals(test, registry.getProfile("test"));
-		registry.removeProfile(test);
-		assertNull(registry.getProfile("test"));
-	}
-
-	public void testPeristence() {
-		assertNull(registry.getProfile("test"));
-		Profile test = createProfile("test");
-		registry.addProfile(test);
-		assertEquals(test, registry.getProfile("test"));
-
-		restart();
-
-		registry.removeProfile(test);
-		assertNull(registry.getProfile("test"));
-
-		restart();
-		assertNull(registry.getProfile("test"));
-	}
-
 	private void restart() {
 		try {
-			tearDown();
+			ungetServices();
 			TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup").stop();
 			TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup").start();
-			setUp();
+			getServices();
 		} catch (Exception e) {
 			fail();
 			e.printStackTrace();
 		}
+	}
+
+	protected void setUp() throws Exception {
+		getServices();
+		//ensure we start in a clean state
+		Profile profile = registry.getProfile(PROFILE_NAME);
+		if (profile != null)
+			registry.removeProfile(profile);
+	}
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		ungetServices();
+	}
+
+	public void testAddRemoveProfile() {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile test = createProfile(PROFILE_NAME);
+		registry.addProfile(test);
+		assertEquals(test, registry.getProfile(PROFILE_NAME));
+		registry.removeProfile(test);
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testPeristence() {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile test = createProfile(PROFILE_NAME);
+		registry.addProfile(test);
+		assertEquals(test, registry.getProfile(PROFILE_NAME));
+
+		restart();
+		test = registry.getProfile(PROFILE_NAME);
+		assertNotNull(test);
+		registry.removeProfile(test);
+
+		restart();
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	private void ungetServices() {
+		registry = null;
+		TestActivator.getContext().ungetService(registryRef);
 	}
 }
