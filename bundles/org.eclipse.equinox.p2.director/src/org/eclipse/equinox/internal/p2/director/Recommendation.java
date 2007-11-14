@@ -6,8 +6,9 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.metadata;
+package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 

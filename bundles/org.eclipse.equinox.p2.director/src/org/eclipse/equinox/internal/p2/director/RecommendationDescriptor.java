@@ -6,11 +6,11 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.metadata;
+package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
+import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class RecommendationDescriptor {
@@ -62,8 +62,8 @@ public class RecommendationDescriptor {
 				continue;
 			} else {
 				if (result == null)
-					result = new MultiStatus(MetadataActivator.PI_METADATA, 0, "Conflict between recommendations", null);
-				result.add(new Status(IStatus.INFO, MetadataActivator.PI_METADATA, "can't merge " + otherRecommendation + " with " + matchInThis));
+					result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 0, "Conflict between recommendations", null);
+				result.add(new Status(IStatus.INFO, DirectorActivator.PI_DIRECTOR, "can't merge " + otherRecommendation + " with " + matchInThis));
 			}
 		}
 		if (result == null)
