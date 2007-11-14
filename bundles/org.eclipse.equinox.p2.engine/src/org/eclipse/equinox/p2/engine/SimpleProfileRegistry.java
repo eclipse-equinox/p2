@@ -11,7 +11,8 @@ package org.eclipse.equinox.p2.engine;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -337,77 +338,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 					}
 					properties = (propertiesHandler == null ? new OrderedProperties(0) //
 							: propertiesHandler.getProperties());
-				}
-			}
-		}
-
-		protected class ProfilesHandler extends AbstractHandler {
-
-			private Profile parentProfile = null;
-			private List profyles = null;
-
-			public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes, Profile parent) {
-				super(parentHandler, PROFILES_ELEMENT);
-				this.parentProfile = parent;
-				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-				profyles = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
-			}
-
-			public Profile[] getProfiles() {
-				return (Profile[]) profyles.toArray(new Profile[profyles.size()]);
-			}
-
-			public void startElement(String name, Attributes attributes) {
-				if (name.equals(PROFILE_ELEMENT)) {
-					new ProfileHandler(this, attributes, parentProfile, profyles);
-				} else {
-					invalidElement(name, attributes);
-				}
-			}
-		}
-
-		protected class ProfileHandler extends AbstractHandler {
-
-			private final String[] required = new String[] {ID_ATTRIBUTE};
-
-			List profyles = null;
-			Profile currentProfile = null;
-
-			private String profileId = null;
-
-			private PropertiesHandler propertiesHandler = null;
-			private ProfilesHandler profilesHandler = null;
-
-			public ProfileHandler(AbstractHandler parentHandler, Attributes attributes, Profile parent, List profiles) {
-				super(parentHandler, PROFILE_ELEMENT);
-				profileId = parseRequiredAttributes(attributes, required)[0];
-				this.profyles = profiles;
-				currentProfile = new Profile((profileId != null ? profileId : "##invalid##"), parent); //$NON-NLS-1$
-			}
-
-			public void startElement(String name, Attributes attributes) {
-				if (PROPERTIES_ELEMENT.equals(name)) {
-					if (propertiesHandler == null) {
-						propertiesHandler = new PropertiesHandler(this, attributes);
-					} else {
-						duplicateElement(this, name, attributes);
-					}
-				} else if (name.equals(PROFILES_ELEMENT)) {
-					if (profilesHandler == null) {
-						profilesHandler = new ProfilesHandler(this, attributes, currentProfile);
-					} else {
-						duplicateElement(this, name, attributes);
-					}
-				} else {
-					invalidElement(name, attributes);
-				}
-			}
-
-			protected void finished() {
-				if (isValidXML() && currentProfile != null) {
-					if (propertiesHandler != null) {
-						currentProfile.addProperties(propertiesHandler.getProperties());
-					}
 				}
 			}
 		}
