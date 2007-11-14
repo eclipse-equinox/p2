@@ -13,10 +13,10 @@ package org.eclipse.equinox.p2.tests.metadata;
 import java.util.*;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.p2.resolution.ResolutionHelper;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 

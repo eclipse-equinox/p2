@@ -25,6 +25,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(OracleTest.class);
 		suite.addTestSuite(OracleTest2.class);
 		suite.addTestSuite(PickerTest.class);
+		suite.addTestSuite(RecommendationTest.class);
 		suite.addTestSuite(ResolutionHelperTest.class);
 		suite.addTestSuite(RollbackTest.class);
 		suite.addTestSuite(SingletonTest.class);

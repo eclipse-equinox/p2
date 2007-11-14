@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.tests.metadata;
 
 import java.util.*;
+import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
