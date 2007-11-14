@@ -8,10 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.resolution;
+package org.eclipse.equinox.internal.p2.resolution;
 
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
+import org.eclipse.equinox.internal.p2.director.DirectorActivator;
+import org.eclipse.equinox.internal.p2.director.RecommendationDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.ServiceReference;
@@ -37,8 +38,8 @@ public class ResolutionHelper {
 	}
 
 	private void initialize() {
-		ServiceReference sr = MetadataActivator.context.getServiceReference(PlatformAdmin.class.getName());
-		PlatformAdmin pa = (PlatformAdmin) MetadataActivator.context.getService(sr);
+		ServiceReference sr = DirectorActivator.context.getServiceReference(PlatformAdmin.class.getName());
+		PlatformAdmin pa = (PlatformAdmin) DirectorActivator.context.getService(sr);
 		transformer = new Transformer(pa.getFactory(), selectionContext, recommendations);
 		state = pa.getFactory().createState(true);
 		fragmentBindings = new HashMap();
@@ -51,8 +52,7 @@ public class ResolutionHelper {
 	}
 
 	private BundleDescription addInResolution(IInstallableUnit toAdd) {
-		toAdd.accept(transformer);
-		//		transformer.visitInstallableUnit(toAdd);
+		transformer.visitInstallableUnit(toAdd);
 		BundleDescription descriptionToAdd = transformer.getResult();
 		//		bundleDescriptionToIU.put(descriptionToAdd, toAdd);
 		addToState(descriptionToAdd);

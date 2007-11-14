@@ -24,7 +24,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(FragmentTest.class);
 		suite.addTestSuite(MultipleIUAndFragmentTest.class);
 		suite.addTestSuite(RecommendationTest.class);
-		suite.addTestSuite(ResolutionHelperTest.class);
 		return suite;
 	}
 

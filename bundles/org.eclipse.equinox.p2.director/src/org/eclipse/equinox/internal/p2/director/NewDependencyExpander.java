@@ -10,11 +10,11 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.internal.p2.resolution.UnsatisfiedCapability;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.query.CompoundIterator;
-import org.eclipse.equinox.p2.resolution.ResolutionHelper;
-import org.eclipse.equinox.p2.resolution.UnsatisfiedCapability;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
@@ -160,10 +160,6 @@ public class NewDependencyExpander {
 
 		public String toString() {
 			return wrapped.toString();
-		}
-
-		public void accept(IMetadataVisitor visitor) {
-			wrapped.accept(visitor);
 		}
 
 		public String getApplicabilityFilter() {

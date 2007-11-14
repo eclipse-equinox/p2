@@ -6,18 +6,18 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.resolution;
+package org.eclipse.equinox.internal.p2.resolution;
 
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.MetadataActivator;
+import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.InvalidSyntaxException;
 
-public class Transformer implements IMetadataVisitor {
+public class Transformer {
 	private static final byte IU_KIND = 0;
 	private static final String IU_NAMESPACE = "iu.namespace";
 	static long iuInternalId = 0;
@@ -63,7 +63,7 @@ public class Transformer implements IMetadataVisitor {
 		if (filter == null)
 			return true;
 		try {
-			return MetadataActivator.getContext().createFilter(filter).match(context);
+			return DirectorActivator.context.createFilter(filter).match(context);
 		} catch (InvalidSyntaxException e) {
 			// If we fail to parse the filter treat it as invalid and be optimistic
 			return true;
@@ -96,14 +96,14 @@ public class Transformer implements IMetadataVisitor {
 		RequiredCapability[] requires = toTransform.getRequiredCapabilities();
 		iuDependencies = new HashMap(requires.length);
 		for (int i = 0; i < requires.length; i++) {
-			requires[i].accept(this);
+			visitRequiredCapability(requires[i]);
 		}
 
 		//Do the capabilities
 		ProvidedCapability[] capabilities = toTransform.getProvidedCapabilities();
 		iuCapabilities = new ArrayList(requires.length + 1);
 		for (int i = 0; i < capabilities.length; i++) {
-			capabilities[i].accept(this);
+			visitCapability(capabilities[i]);
 		}
 
 		//Add a capability representing the IU itself
@@ -128,7 +128,7 @@ public class Transformer implements IMetadataVisitor {
 				iuDependencies.put(factory.createGenericSpecification(capability.getName(), capability.getNamespace(), toFilter(capability.getRange()), capability.isOptional(), capability.isMultiple()), capability);
 			}
 		} catch (InvalidSyntaxException e) {
-			LogHelper.log(new Status(IStatus.ERROR, MetadataActivator.PI_METADATA, "Invalid filter: " + e.getFilter(), e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "Invalid filter: " + e.getFilter(), e)); //$NON-NLS-1$
 		}
 	}
 
