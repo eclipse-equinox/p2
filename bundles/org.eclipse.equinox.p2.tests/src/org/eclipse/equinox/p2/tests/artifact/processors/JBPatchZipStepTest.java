@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import java.io.*;
+import java.util.Arrays;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.jbdiff.JBPatchZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -74,7 +75,8 @@ public class JBPatchZipStepTest extends AbstractProvisioningTest {
 		inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.3.0.v20070607-1300.njar").openStream();
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
-		assertEquals("", expected.toByteArray(), destination.toByteArray());
+
+		assertTrue("Different resulting njar.", Arrays.equals(expected.toByteArray(), destination.toByteArray()));
 	}
 
 	/**

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
 import java.io.*;
+import java.util.Arrays;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -52,7 +53,7 @@ public class JBDiffZipStepTest extends AbstractProvisioningTest {
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 
-		assertEquals("", expected.toByteArray(), destination.toByteArray());
+		assertTrue("Different diff bytes.", Arrays.equals(expected.toByteArray(), destination.toByteArray()));
 	}
 
 	/**
