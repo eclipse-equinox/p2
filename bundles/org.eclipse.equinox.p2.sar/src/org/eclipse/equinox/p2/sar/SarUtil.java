@@ -22,6 +22,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.equinox.internal.p2.sar.SarConstants;
+import org.eclipse.equinox.internal.p2.sar.SarEntry;
+import org.eclipse.equinox.internal.p2.sar.SarInputStream;
+import org.eclipse.equinox.internal.p2.sar.SarOutputStream;
+
 /**
  * Helper class for converting Zips/Jars to Sars and vice versa.
  */

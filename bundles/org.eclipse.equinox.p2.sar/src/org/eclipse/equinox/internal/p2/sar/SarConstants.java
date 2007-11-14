@@ -8,7 +8,7 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.sar;
+package org.eclipse.equinox.internal.p2.sar;
 
 /**
  * Sar constants

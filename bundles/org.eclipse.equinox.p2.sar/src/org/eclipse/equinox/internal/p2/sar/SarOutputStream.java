@@ -8,11 +8,13 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.sar;
+package org.eclipse.equinox.internal.p2.sar;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.eclipse.equinox.p2.sar.DirectByteArrayOutputStream;
 
 /**
  * The SarOutputStream writes a stream archive as an OutputStream. Methods are
