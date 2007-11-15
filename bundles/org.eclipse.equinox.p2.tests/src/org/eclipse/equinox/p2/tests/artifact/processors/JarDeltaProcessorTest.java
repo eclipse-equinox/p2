@@ -22,8 +22,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.eclipse.equinox.p2.tests.artifact.optimizers.JarDeltaOptimizerTest;
+import org.eclipse.equinox.p2.tests.TestData;
 import org.osgi.framework.Version;
 
 public class JarDeltaProcessorTest extends TestCase {
@@ -46,17 +45,17 @@ public class JarDeltaProcessorTest extends TestCase {
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		step.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/testdata_1.0.0.1-2.jar").openStream();
+		InputStream inputStream = TestData.get("optimizers", "testdata_1.0.0.1-2.jar");
 		FileUtils.copyStream(inputStream, true, step, true);
 		destination.close();
 
-		inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/testdata_1.0.0.2.jar").openStream();
+		inputStream = TestData.get("optimizers", "testdata_1.0.0.2.jar");
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 
 		ZipInputStream expectedJar = new ZipInputStream(new ByteArrayInputStream(expected.toByteArray()));
 		ZipInputStream testJar = new ZipInputStream(new ByteArrayInputStream(destination.toByteArray()));
-		JarDeltaOptimizerTest.compare(expectedJar, testJar);
+		TestData.assertEquals(expectedJar, testJar);
 		expectedJar.close();
 		testJar.close();
 	}

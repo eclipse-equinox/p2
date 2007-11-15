@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
 import org.osgi.framework.Version;
 
 /**
@@ -42,10 +42,10 @@ public class JBPatchStepTest extends TestCase {
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		patcher.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/eclipse-3.2-3.3.jbdiff").openStream();
+		InputStream inputStream = TestData.get("optimizers", "eclipse-3.2-3.3.jbdiff");
 		FileUtils.copyStream(inputStream, true, patcher, true);
 
-		inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/eclipse-3.3.exe").openStream();
+		inputStream = TestData.get("optimizers", "eclipse-3.3.exe");
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));

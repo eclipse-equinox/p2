@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
 import org.osgi.framework.Version;
 
@@ -47,10 +47,10 @@ public class JBDiffStepTest extends TestCase {
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		differ.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/eclipse-3.3.exe").openStream();
+		InputStream inputStream = TestData.get("optimizers", "eclipse-3.3.exe");
 		FileUtils.copyStream(inputStream, true, differ, true);
 
-		inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/eclipse-3.2-3.3.jbdiff").openStream();
+		inputStream = TestData.get("optimizers", "eclipse-3.2-3.3.jbdiff");
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));

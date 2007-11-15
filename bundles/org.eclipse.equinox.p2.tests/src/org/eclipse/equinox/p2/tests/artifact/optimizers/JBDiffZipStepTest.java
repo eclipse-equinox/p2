@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
 import org.osgi.framework.Version;
 
@@ -46,10 +46,10 @@ public class JBDiffZipStepTest extends AbstractProvisioningTest {
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
 		differ.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.3.0.v20070607-1300.njar").openStream();
+		InputStream inputStream = TestData.get("optimizers", "org.eclipse.jdt_3.3.0.v20070607-1300.njar");
 		FileUtils.copyStream(inputStream, true, differ, true);
 
-		inputStream = TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.2.0-3.3.0.jbdiff").openStream();
+		inputStream = TestData.get("optimizers", "org.eclipse.jdt_3.2.0-3.3.0.jbdiff");
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 

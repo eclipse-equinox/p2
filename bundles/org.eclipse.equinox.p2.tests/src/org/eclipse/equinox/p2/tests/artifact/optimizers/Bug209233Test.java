@@ -15,28 +15,47 @@ import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.TestData;
 
 /**
  * ... <code>Bug209233Test</code> ...
  */
 public class Bug209233Test extends TestCase {
 
+	//	public void testGenerateTestDataDiff() throws IOException {
+	//		InputStream current = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
+	//		ByteArrayOutputStream currentBS = new ByteArrayOutputStream();
+	//		FileUtils.copyStream(current, true, currentBS, true);
+	//		byte[] currentBytes = currentBS.toByteArray();
+	//
+	//		InputStream predecessor = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
+	//		ByteArrayOutputStream predecessorBS = new ByteArrayOutputStream();
+	//		FileUtils.copyStream(predecessor, true, predecessorBS, true);
+	//		byte[] predecessorBytes = predecessorBS.toByteArray();
+	//
+	//		byte[] diffBytes = JBDiff.bsdiff(predecessorBytes, predecessorBytes.length, currentBytes, currentBytes.length);
+	//
+	//		File diff = File.createTempFile("org.eclipse.jdt_3.2.0-3.3.0", ".jbdiff");
+	//		OutputStream diffOS = new FileOutputStream(diff);
+	//		diffOS.write(diffBytes);
+	//		diffOS.close();
+	//	}
+
 	public void testDiffJdt32SarToJdt33Sar() throws IOException {
 
-		InputStream current = TestActivator.getContext().getBundle().getEntry("testData/sar/org.eclipse.jdt_3.3.0.v20070607-1300.sar").openStream();
+		InputStream current = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
 		ByteArrayOutputStream currentBS = new ByteArrayOutputStream();
 		FileUtils.copyStream(current, true, currentBS, true);
 		byte[] currentBytes = currentBS.toByteArray();
 
-		InputStream predecessor = TestActivator.getContext().getBundle().getEntry("testData/sar/org.eclipse.jdt_3.2.0.v20060605-1400.sar").openStream();
+		InputStream predecessor = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
 		ByteArrayOutputStream predecessorBS = new ByteArrayOutputStream();
 		FileUtils.copyStream(predecessor, true, predecessorBS, true);
 		byte[] predecessorBytes = predecessorBS.toByteArray();
 
 		byte[] actualBytes = JBDiff.bsdiff(predecessorBytes, predecessorBytes.length, currentBytes, currentBytes.length);
 
-		InputStream expected = TestActivator.getContext().getBundle().getEntry("testData/optimizers/org.eclipse.jdt_3.2.0-3.3.0.jbdiff").openStream();
+		InputStream expected = TestData.get("optimizers", "org.eclipse.jdt_3.2.0-3.3.0.jbdiff");
 		ByteArrayOutputStream expectedBS = new ByteArrayOutputStream();
 		FileUtils.copyStream(expected, true, expectedBS, true);
 		byte[] expectedBytes = expectedBS.toByteArray();
