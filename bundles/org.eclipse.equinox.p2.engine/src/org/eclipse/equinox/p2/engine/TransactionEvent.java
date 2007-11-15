@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.engine;
 import java.util.EventObject;
 
 public abstract class TransactionEvent extends EventObject {
+	private static final long serialVersionUID = 6278706971855493984L;
 	protected Profile profile;
 	protected PhaseSet phaseSet;
 	protected Operand[] deltas;

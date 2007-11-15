@@ -188,7 +188,7 @@ public class Profile implements IQueryable {
 		String environments = getValue(PROP_ENVIRONMENTS);
 		if (environments == null)
 			return result;
-		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) {
+		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
 			String entry = tokenizer.nextToken();
 			int i = entry.indexOf('=');
 			String key = entry.substring(0, i).trim();
