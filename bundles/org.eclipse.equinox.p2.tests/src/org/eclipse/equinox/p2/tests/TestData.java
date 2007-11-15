@@ -57,7 +57,6 @@ public class TestData {
 	 * Create a temporary file. This file will be deleted if the jvm exits. 
 	 * If testDataName contains an extension this extension will be used as 
 	 * suffix for the temporary file.
-	 * @param testDataFolder
 	 * @param testDataName
 	 * @return temporary file
 	 * @throws IOException
