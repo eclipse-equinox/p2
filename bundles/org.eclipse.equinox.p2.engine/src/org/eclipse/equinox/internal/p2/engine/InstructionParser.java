@@ -1,6 +1,7 @@
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
+import org.eclipse.equinox.p2.engine.*;
 
 public class InstructionParser {
 

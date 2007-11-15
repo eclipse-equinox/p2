@@ -1,8 +1,9 @@
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.engine.ProvisioningAction;
 
 public class ParameterizedProvisioningAction extends ProvisioningAction {
 

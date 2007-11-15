@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.installregistry;
+package org.eclipse.equinox.internal.p2.installregistry;
 
 import java.util.Collection;
 import org.eclipse.equinox.p2.engine.Profile;

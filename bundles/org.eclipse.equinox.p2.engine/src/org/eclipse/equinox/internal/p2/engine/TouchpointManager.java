@@ -109,7 +109,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 	 * or <code>null</code> if none are registered.
 	 */
 	public Touchpoint getTouchpoint(TouchpointType id) {
-		if (id == null || CommonDef.EmptyString.equals(id.getId()))
+		if (id == null || "".equals(id.getId())) //$NON-NLS-1$
 			throw new IllegalArgumentException(Messages.TouchpointManager_Null_Touchpoint_Type_Argument);
 		if (touchpointEntries == null) {
 			initializeTouchpoints();
