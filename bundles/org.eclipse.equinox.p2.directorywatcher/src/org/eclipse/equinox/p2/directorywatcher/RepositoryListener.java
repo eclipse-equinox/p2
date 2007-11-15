@@ -147,11 +147,15 @@ public class RepositoryListener implements IDirectoryChangeListener {
 				snapshot.remove(iuFile);
 		}
 
-		IInstallableUnit[] iusToRemove = (IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]);
-		metadataRepository.removeInstallableUnits(iusToRemove);
+		if (!toRemove.isEmpty()) {
+			IInstallableUnit[] iusToRemove = (IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]);
+			metadataRepository.removeInstallableUnits(iusToRemove);
+		}
 
-		IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
-		metadataRepository.addInstallableUnits(iusToAdd);
+		if (!snapshot.isEmpty()) {
+			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
+			metadataRepository.addInstallableUnits(iusToAdd);
+		}
 	}
 
 	private void synchronizeArtifactRepository() {
