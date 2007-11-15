@@ -20,7 +20,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(JBPatchStepTest.class);
-		//		suite.addTestSuite(JBPatchZipStepTest.class);
+		suite.addTestSuite(JBPatchZipStepTest.class);
 		suite.addTestSuite(JarDeltaProcessorTest.class);
 		suite.addTestSuite(Pack200ProcessorTest.class);
 		return suite;
