@@ -317,15 +317,12 @@ public class ProfileTest extends AbstractProvisioningTest {
 		}
 
 		protected String getErrorMessage() {
-			// TODO Auto-generated method stub
 			return "Error parsing profile string";
 		}
 
 		protected Object getRootObject() {
-			// TODO Auto-generated method stub
 			return theProfile;
 		}
-
 	}
 
 	public void testProfilePersistence() throws IOException {
@@ -334,7 +331,6 @@ public class ProfileTest extends AbstractProvisioningTest {
 		ProfileStringWriter writer0 = new ProfileStringWriter(output0);
 		writer0.writeTest(profile0);
 		String profileText0 = output0.toString();
-		int i = profileText0.length();
 		output0.close();
 
 		ProfileStringParser parser = new ProfileStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
@@ -347,7 +343,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		writer.writeTest(profile1);
 		String profileText1 = output1.toString();
 		output1.close();
-		assertTrue("", profileText1.equals(profileText0));
+		assertTrue("Profile write after read after write produced different XML", profileText1.equals(profileText0));
 	}
 
 }

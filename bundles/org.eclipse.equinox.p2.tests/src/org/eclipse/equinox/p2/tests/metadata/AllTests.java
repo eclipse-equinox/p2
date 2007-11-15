@@ -22,6 +22,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ArtifactKeyParsingTest.class);
 		suite.addTestSuite(FragmentMethodTest.class);
 		suite.addTestSuite(FragmentTest.class);
+		suite.addTestSuite(IUPersistenceTest.class);
 		suite.addTestSuite(MultipleIUAndFragmentTest.class);
 		return suite;
 	}

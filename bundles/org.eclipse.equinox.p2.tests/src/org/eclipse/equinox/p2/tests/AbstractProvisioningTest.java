@@ -284,6 +284,11 @@ public class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < additionalProvides.length; i++) {
 			provides[i + 1] = additionalProvides[i];
 		}
+		for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
+			String nextKey = (String) iter.next();
+			String nextValue = (String) properties.get(nextKey);
+			iu.setProperty(nextKey, nextValue);
+		}
 		iu.setCapabilities(provides);
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(tpType);
@@ -388,10 +393,17 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * 	Get the 'self' capability for the given installable unit.
+	 * 	Get the 'self' capability for an installable unit with the give id and version.
 	 */
 	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
 		return new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, installableUnitId, installableUnitVersion);
+	}
+
+	/**
+	 * 	Get the 'self' capability for the given installable unit.
+	 */
+	protected static ProvidedCapability getSelfCapability(IInstallableUnit iu) {
+		return getSelfCapability(iu.getId(), iu.getVersion());
 	}
 
 	private static void indent(OutputStream output, int indent) {
@@ -402,10 +414,6 @@ public class AbstractProvisioningTest extends TestCase {
 				// ignore
 			}
 	}
-
-	// TODO: The following group of utilities are (somewhat) specific to eclipse test cases
-	//		 so could be moved to a separate base class (e.g. AbstractEclipseProvisioningTestCase)
-	//		 that extends AbstractProvisioningTestCase.
 
 	public static void printProfile(Profile toPrint) {
 		boolean containsIU = false;
@@ -464,8 +472,6 @@ public class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < expected.length; i++)
 			assertEquals(message + " arrays differ at position:<" + i + ">", expected[i], actual[i]);
 	}
-
-	// End of eclipse specific utilities.
 
 	protected void assertEquals(String message, Object[] expected, Object[] actual) {
 		if (expected == null && actual == null)
@@ -530,5 +536,24 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	protected IInstallableUnit createResolvedIU(IInstallableUnit unit) {
 		return MetadataFactory.createResolvedInstallableUnit(unit, new IInstallableUnitFragment[0]);
+	}
+
+	/**
+	 * 	Compare two 2-dimensional arrays of strings for equality
+	 */
+	protected static boolean equal(String[][] tuples0, String[][] tuples1) {
+		if (tuples0.length != tuples1.length)
+			return false;
+		for (int i = 0; i < tuples0.length; i++) {
+			String[] tuple0 = tuples0[i];
+			String[] tuple1 = tuples1[i];
+			if (tuple0.length != tuple1.length)
+				return false;
+			for (int j = 0; j < tuple0.length; j++) {
+				if (!tuple0[j].equals(tuple1[j]))
+					return false;
+			}
+		}
+		return true;
 	}
 }
