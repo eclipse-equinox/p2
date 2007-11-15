@@ -55,8 +55,19 @@ public class Pack200OptimizerTest extends TestCase {
 		InputStream inputStream = bundle.getEntry("testData/optimizers/org.eclipse.equinox.app_1.0.100.v20071015.jar").openStream();
 		FileUtils.copyStream(inputStream, true, step, true);
 
-		// Get the test data
-		inputStream = bundle.getEntry("testData/optimizers/org.eclipse.equinox.app_1.0.100.v20071015.jar.pack.gz").openStream();
+		// Get the test data. The Sun 1.6.0_01 JRE produces a different packed file
+		// then the IBM V5 JRE, so both versions of the test data are maintained.
+		// TODO: investigate this? Is the difference spurious? Are there differences
+		//		 in the pack200 results for other JREs? Do we need a more general
+		//		 solution to the problem?
+		String javaVersion = System.getProperty("java.version");
+		boolean is1_6 = (javaVersion.compareTo("1.6") > 0 ? true : false);
+
+		if (!is1_6) {
+			inputStream = bundle.getEntry("testData/optimizers/org.eclipse.equinox.app_1.0.100.v20071015.jar.pack.gz").openStream();
+		} else {
+			inputStream = bundle.getEntry("testData/optimizers/1_6/org.eclipse.equinox.app_1.0.100.v20071015.jar.pack.gz").openStream();
+		}
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 
