@@ -23,22 +23,10 @@ import org.eclipse.equinox.p2.tests.TestData;
 public class Bug209233Test extends TestCase {
 
 	//	public void testGenerateTestDataDiff() throws IOException {
-	//		InputStream current = TestData.get("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
-	//		ByteArrayOutputStream currentBS = new ByteArrayOutputStream();
-	//		FileUtils.copyStream(current, true, currentBS, true);
-	//		byte[] currentBytes = currentBS.toByteArray();
-	//
-	//		InputStream predecessor = TestData.get("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
-	//		ByteArrayOutputStream predecessorBS = new ByteArrayOutputStream();
-	//		FileUtils.copyStream(predecessor, true, predecessorBS, true);
-	//		byte[] predecessorBytes = predecessorBS.toByteArray();
-	//
-	//		byte[] diffBytes = JBDiff.bsdiff(predecessorBytes, predecessorBytes.length, currentBytes, currentBytes.length);
-	//
-	//		File diff = File.createTempFile("org.eclipse.jdt_3.2.0-3.3.0", ".jbdiff");
-	//		OutputStream diffOS = new FileOutputStream(diff);
-	//		diffOS.write(diffBytes);
-	//		diffOS.close();
+	//		File predecessor = TestData.getTempFile("sar", "org.eclipse.jdt_3.2.0.v20060605-1400.sar");
+	//		File current = TestData.getTempFile("sar", "org.eclipse.jdt_3.3.0.v20070607-1300.sar");
+	//		File diff = File.createTempFile("org.eclipse.jdt_3.2.0-3.3.0~", ".jbdiff");
+	//		JBDiff.bsdiff(predecessor, current, diff);
 	//	}
 
 	public void testDiffJdt32SarToJdt33Sar() throws IOException {
