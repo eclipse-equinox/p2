@@ -34,8 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.tools.bzip2.CBZip2InputStream;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Java Binary patcher (based on bspatch by Colin Percival)
@@ -46,8 +45,7 @@ public class JBPatch {
 
 	// JBPatch extensions by Stefan.Liebig@compeople.de:
 	//
-	// - uses an extended version of the org.apache.tools.bzip2 compressor to
-	// compress all of the blocks (ctrl,diff,extra).
+	// - uses GZIP compressor to compress ALL of the blocks (ctrl,diff,extra).
 	// - added an interface that allows using of JBPatch with streams and byte
 	// arrays
 
@@ -165,16 +163,16 @@ public class JBPatch {
 		InputStream in;
 		in = new ByteArrayInputStream(diffBuf, 0, diffSize);
 		in.skip(Util.HEADER_SIZE);
-		DataInputStream ctrlBlockIn = new DataInputStream(
-				new CBZip2InputStream(in));
+		DataInputStream ctrlBlockIn = new DataInputStream(new GZIPInputStream(
+				in));
 
 		in = new ByteArrayInputStream(diffBuf, 0, diffSize);
 		in.skip(ctrlBlockLen + Util.HEADER_SIZE);
-		InputStream diffBlockIn = new CBZip2InputStream(in);
+		InputStream diffBlockIn = new GZIPInputStream(in);
 
 		in = new ByteArrayInputStream(diffBuf, 0, diffSize);
 		in.skip(diffBlockLen + ctrlBlockLen + Util.HEADER_SIZE);
-		InputStream extraBlockIn = new CBZip2InputStream(in);
+		InputStream extraBlockIn = new GZIPInputStream(in);
 
 		// byte[] newBuf = new byte[newsize + 1];
 		byte[] newBuf = new byte[newsize];

@@ -35,8 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import org.apache.tools.bzip2.CBZip2OutputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Java Binary Diff utility. Based on bsdiff (v4.2) by Colin Percival (see
@@ -54,12 +53,11 @@ public class JBDiff {
 
 	// JBDiff extensions by Stefan.Liebig@compeople.de:
 	//
-	// - uses an extended version of the org.apache.tools.bzip2 compressor to
-	// compress all of the blocks (ctrl,diff,extra).
+	// - uses GZIP compressor to compress ALL of the blocks (ctrl,diff,extra).
 	// - added interfaces that allows using of JBDiff with streams and byte
 	// arrays.
 
-	private static final String VERSION = "jbdiff-0.1.0";
+	private static final String VERSION = "jbdiff-0.1.0.1";
 
 	// This is ´jbdiff40´.
 	private static final byte[] MAGIC_BYTES = new byte[] { 0x6a, 0x62, 0x64,
@@ -395,7 +393,7 @@ public class JBDiff {
 		diffOut.writeLong(newsize);
 		diffOut.flush();
 
-		CBZip2OutputStream bzip2Out = new CBZip2OutputStream(diffOut);
+		GZIPOutputStream bzip2Out = new GZIPOutputStream(diffOut);
 		DataOutputStream dataOut = new DataOutputStream(bzip2Out);
 
 		int oldscore, scsc;
@@ -531,7 +529,7 @@ public class JBDiff {
 		 * Write diff block
 		 */
 		// gzOut = new GZIPOutputStream( diffOut );
-		bzip2Out = new CBZip2OutputStream(diffOut);
+		bzip2Out = new GZIPOutputStream(diffOut);
 		bzip2Out.write(db, 0, dblen);
 		bzip2Out.finish();
 		bzip2Out.flush();
@@ -542,7 +540,7 @@ public class JBDiff {
 		 * Write extra block
 		 */
 		// gzOut = new GZIPOutputStream( diffOut );
-		bzip2Out = new CBZip2OutputStream(diffOut);
+		bzip2Out = new GZIPOutputStream(diffOut);
 		bzip2Out.write(eb, 0, eblen);
 		bzip2Out.finish();
 		bzip2Out.flush();
