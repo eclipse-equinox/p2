@@ -30,6 +30,13 @@ import org.osgi.framework.Version;
  */
 public class JBDiffStepTest extends TestCase {
 
+	//	public void testGenerateTestDataExe32To33() throws IOException {
+	//		File exe32 = TestData.getTempFile("optimizers", "eclipse-3.2.exe");
+	//		File exe33 = TestData.getTempFile("optimizers", "eclipse-3.3.exe");
+	//		File diff = File.createTempFile("eclipse-3.2-3.3~", ".jbdiff");
+	//		JBDiff.bsdiff(exe32, exe33, diff);
+	//	}
+
 	/**
 	 * Test diffing the launcher.
 	 * 
