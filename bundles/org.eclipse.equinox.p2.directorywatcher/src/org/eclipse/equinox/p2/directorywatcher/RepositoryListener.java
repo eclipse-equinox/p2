@@ -15,7 +15,7 @@ import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class RepositoryListener implements IDirectoryChangeListener {
+public class RepositoryListener extends DirectoryChangeListener {
 
 	IMetadataRepository metadataRepository;
 	IArtifactRepository artifactRepository;

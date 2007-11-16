@@ -49,7 +49,6 @@ public class Activator implements BundleActivator, ManagedServiceFactory {
 		Hashtable properties = new Hashtable();
 		set(properties, DirectoryWatcher.POLL);
 		set(properties, DirectoryWatcher.DIR);
-		set(properties, DirectoryWatcher.DEBUG);
 		updated("initial", properties);
 	}
 
@@ -66,7 +65,7 @@ public class Activator implements BundleActivator, ManagedServiceFactory {
 		for (Iterator i = watchers.values().iterator(); i.hasNext();)
 			try {
 				DirectoryWatcher watcher = (DirectoryWatcher) i.next();
-				watcher.close();
+				watcher.stop();
 			} catch (Exception e) {
 				// Ignore
 			}
@@ -78,7 +77,7 @@ public class Activator implements BundleActivator, ManagedServiceFactory {
 	public void deleted(String pid) {
 		DirectoryWatcher watcher = (DirectoryWatcher) watchers.remove(pid);
 		if (watcher != null)
-			watcher.close();
+			watcher.stop();
 	}
 
 	public String getName() {

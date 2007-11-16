@@ -17,12 +17,12 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener;
+import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.p2.metadata.generator.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 
-public class ProvisioningListener implements IDirectoryChangeListener {
+public class ProvisioningListener extends DirectoryChangeListener {
 
 	// The mapping rules for in-place generation need to construct paths that are flat,
 	// with no nesting structure. 
@@ -131,8 +131,11 @@ public class ProvisioningListener implements IDirectoryChangeListener {
 	}
 
 	private void generate() {
-		IGeneratorInfo info = getProvider(new File[] {watcher.getTargetDirectory()}, watcher.getTargetDirectory());
-		new Generator(info).generate();
+		File[] directories = watcher.getDirectories();
+		for (int i = 0; i < directories.length; ++i) {
+			IGeneratorInfo info = getProvider(new File[] {directories[i]}, directories[i]);
+			new Generator(info).generate();
+		}
 	}
 
 	public Long getSeenFile(File file) {

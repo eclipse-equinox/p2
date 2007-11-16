@@ -6,7 +6,7 @@ import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener;
+import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class DirectoryWatcherTest extends TestCase {
@@ -21,7 +21,36 @@ public class DirectoryWatcherTest extends TestCase {
 	protected void tearDown() throws Exception {
 	}
 
-	public void testCreateDirectoryWatcher() throws Exception {
+	public void testCreateDirectoryWatcherZeroDirectory() throws Exception {
+		try {
+			new DirectoryWatcher(new File[] {});
+		} catch (IllegalArgumentException e) {
+			return;
+		}
+		fail();
+	}
+
+	public void testCreateDirectoryWatcherOneDirectory() throws Exception {
+		URL base = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
+		File folder = new File(FileLocator.toFileURL(base).getPath());
+		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {folder});
+		watcher.start();
+		watcher.stop();
+	}
+
+	public void testCreateDirectoryWatcherTwoDirectory() throws Exception {
+		URL base1 = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
+		File folder1 = new File(FileLocator.toFileURL(base1).getPath());
+
+		URL base2 = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher2");
+		File folder2 = new File(FileLocator.toFileURL(base2).getPath());
+
+		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {folder1, folder2});
+		watcher.start();
+		watcher.stop();
+	}
+
+	public void testCreateDirectoryWatcherProps() throws Exception {
 		URL base = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
 		File folder = new File(FileLocator.toFileURL(base).getPath());
 
@@ -30,7 +59,7 @@ public class DirectoryWatcherTest extends TestCase {
 
 		DirectoryWatcher watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.start();
-		watcher.close();
+		watcher.stop();
 	}
 
 	public void testDirectoryWatcherListener() throws Exception {
@@ -42,7 +71,7 @@ public class DirectoryWatcherTest extends TestCase {
 
 		DirectoryWatcher watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		final List list = Collections.synchronizedList(new ArrayList());
-		IDirectoryChangeListener listener = new IDirectoryChangeListener() {
+		DirectoryChangeListener listener = new DirectoryChangeListener() {
 
 			public boolean added(File file) {
 				if (file.getName().equals("CVS"))
@@ -79,8 +108,7 @@ public class DirectoryWatcherTest extends TestCase {
 
 		};
 		watcher.addListener(listener);
-		watcher.start();
-		watcher.close();
+		watcher.poll();
 		assertEquals(2, list.size());
 	}
 }

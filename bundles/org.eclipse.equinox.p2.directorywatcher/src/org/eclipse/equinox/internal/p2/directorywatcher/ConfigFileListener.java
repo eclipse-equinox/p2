@@ -12,12 +12,12 @@ package org.eclipse.equinox.internal.p2.directorywatcher;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener;
+import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-public class ConfigFileListener implements IDirectoryChangeListener {
+public class ConfigFileListener extends DirectoryChangeListener {
 	public final static String ALIAS_KEY = ".alias_factory_pid";
 
 	private Map seenFiles = new HashMap();

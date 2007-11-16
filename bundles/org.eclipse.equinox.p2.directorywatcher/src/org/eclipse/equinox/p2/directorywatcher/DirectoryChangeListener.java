@@ -11,19 +11,19 @@ package org.eclipse.equinox.p2.directorywatcher;
 
 import java.io.File;
 
-public interface IDirectoryChangeListener {
+public abstract class DirectoryChangeListener {
 
-	public void startPoll();
+	public abstract void startPoll();
 
-	public void stopPoll();
+	public abstract void stopPoll();
 
-	public String[] getExtensions();
+	public abstract String[] getExtensions();
 
-	public boolean added(File file);
+	public abstract boolean added(File file);
 
-	public boolean removed(File file);
+	public abstract boolean removed(File file);
 
-	public boolean changed(File file);
+	public abstract boolean changed(File file);
 
-	public Long getSeenFile(File file);
+	public abstract Long getSeenFile(File file);
 }

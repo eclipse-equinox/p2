@@ -13,12 +13,12 @@ package org.eclipse.equinox.internal.p2.directorywatcher;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener;
+import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-public class JARFileListener implements IDirectoryChangeListener {
+public class JARFileListener extends DirectoryChangeListener {
 	private boolean refresh = false;
 	private Map seenFiles = new HashMap();
 

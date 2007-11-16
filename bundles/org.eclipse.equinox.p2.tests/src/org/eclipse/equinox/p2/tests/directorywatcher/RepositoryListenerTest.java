@@ -126,7 +126,7 @@ public class RepositoryListenerTest extends TestCase {
 
 		copyDirectory(baseFolder, folder);
 		watcher.poll();
-		watcher.close();
+		watcher.stop();
 
 		assertEquals("3.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
 		assertEquals("3.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
@@ -144,11 +144,11 @@ public class RepositoryListenerTest extends TestCase {
 		assertEquals("5.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
 		assertEquals("5.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
-		watcher.close();
+		watcher.stop();
 
 		watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
-		watcher.start();
+		watcher.stop();
 
 		removeContents(baseFolder, folder);
 		watcher.poll();
@@ -156,7 +156,7 @@ public class RepositoryListenerTest extends TestCase {
 		assertEquals("6.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
 		assertEquals("6.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
 
-		watcher.close();
+		watcher.stop();
 
 		deleteDirectory(folder);
 	}

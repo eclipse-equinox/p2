@@ -11,89 +11,161 @@
 package org.eclipse.equinox.p2.directorywatcher;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import org.osgi.framework.BundleContext;
 
-public class DirectoryWatcher extends Thread {
+public class DirectoryWatcher {
+	public class WatcherThread extends Thread {
+
+		private final long pollFrequency;
+		private boolean done = false;
+
+		public WatcherThread(long pollFrequency) {
+			super("Directory Watcher");
+			this.pollFrequency = pollFrequency;
+		}
+
+		public void run() {
+			do {
+				try {
+					poll();
+					synchronized (this) {
+						wait(pollFrequency);
+					}
+				} catch (InterruptedException e) {
+					// ignore
+				} catch (Throwable e) {
+					e.printStackTrace();
+					log("In main loop, we have serious trouble", e);
+					done = true;
+				}
+			} while (!done);
+		}
+
+		public synchronized void done() {
+			done = true;
+			notify();
+		}
+	}
+
 	public final static String POLL = "eclipse.p2.directory.watcher.poll";
 	public final static String DIR = "eclipse.p2.directory.watcher.dir";
-	public final static String DEBUG = "eclipse.p2.directory.watcher.debug";
-	private static long debug;
+	private static final long DEFAULT_POLL_FREQUENCY = 2000;
 
 	public static void log(String string, Throwable e) {
 		System.err.println(string + ": " + e);
-		if (debug > 0)
-			e.printStackTrace();
 	}
 
-	File targetDirectory;
-	boolean done = false;
+	final File[] directories;
+
 	long poll = 2000;
-	Map processedBundles = new HashMap();
-	Map processedConfigs = new HashMap();
 	private Set listeners = new HashSet();
 	private HashSet scannedFiles = new HashSet();
 	private HashSet removals;
 	private Set pendingDeletions;
-	private Object runningLock = new Object();
-	private boolean running = false;
+	private WatcherThread watcher;
 
 	public DirectoryWatcher(Dictionary properties, BundleContext context) {
-		super("Directory Watcher");
-		poll = getLong(context.getProperty(POLL), poll);
-		debug = getLong(context.getProperty(DEBUG), -1);
-
 		String dir = (String) properties.get(DIR);
 		if (dir == null)
 			dir = "./load";
 
-		try {
-			targetDirectory = new File(dir).getCanonicalFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		File targetDirectory = new File(dir);
 		targetDirectory.mkdirs();
+		directories = new File[] {targetDirectory};
 	}
 
-	public void addListener(IDirectoryChangeListener listener) {
+	public DirectoryWatcher(File[] directories) {
+		if (directories == null)
+			throw new IllegalArgumentException("Folders must not be null");
+
+		if (directories.length == 0)
+			throw new IllegalArgumentException("Folders must not be 0 length");
+		this.directories = directories;
+	}
+
+	public synchronized void addListener(DirectoryChangeListener listener) {
 		listeners.add(listener);
 	}
 
+	public synchronized void removeListener(DirectoryChangeListener listener) {
+		listeners.remove(listener);
+	}
+
 	public void start() {
-		super.start();
-		synchronized (runningLock) {
-			while (!running)
-				try {
-					runningLock.wait();
-				} catch (InterruptedException e) {
-					// reset interrupted state
-					Thread.currentThread().interrupt();
+		start(DEFAULT_POLL_FREQUENCY);
+	}
+
+	public synchronized void poll() {
+		startPoll();
+		scanDirectories();
+		stopPoll();
+	}
+
+	public synchronized void start(final long pollFrequency) {
+		if (watcher != null)
+			throw new IllegalStateException("Already Started");
+
+		watcher = new WatcherThread(pollFrequency);
+		watcher.start();
+	}
+
+	public synchronized void stop() {
+		if (watcher == null)
+			throw new IllegalStateException("Not Started");
+
+		watcher.done();
+		watcher = null;
+	}
+
+	public File[] getDirectories() {
+		return directories;
+	}
+
+	private void startPoll() {
+		removals = scannedFiles;
+		scannedFiles = new HashSet();
+		pendingDeletions = new HashSet();
+		for (Iterator i = listeners.iterator(); i.hasNext();)
+			((DirectoryChangeListener) i.next()).startPoll();
+	}
+
+	private void scanDirectories() {
+		for (int dirIndex = 0; dirIndex < directories.length; ++dirIndex) {
+			File list[] = directories[dirIndex].listFiles();
+			if (list == null)
+				return;
+			for (int i = 0; i < list.length; i++) {
+				File file = list[i];
+				// if this is a deletion marker then add to the list of pending deletions.
+				if (list[i].getPath().endsWith(".del")) {
+					File target = new File(file.getPath().substring(0, file.getPath().length() - 4));
+					removals.add(target);
+					pendingDeletions.add(target);
+				} else {
+					// else remember that we saw the file and remove it from this list of files to be 
+					// removed at the end.  Then notify all the listeners as needed.
+					scannedFiles.add(file);
+					removals.remove(file);
+					for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
+						DirectoryChangeListener listener = (DirectoryChangeListener) iterator.next();
+						if (isInterested(listener, file))
+							processFile(file, listener);
+					}
 				}
+			}
 		}
 	}
 
-	public synchronized void close() {
-		done = true;
-		notify();
+	private void stopPoll() {
+		notifyRemovals();
+		removals = scannedFiles;
+		for (Iterator i = listeners.iterator(); i.hasNext();)
+			((DirectoryChangeListener) i.next()).stopPoll();
+		processPendingDeletions();
 	}
 
-	private long getLong(String value, long defaultValue) {
-		if (value != null)
-			try {
-				return Long.parseLong(value);
-			} catch (Exception e) {
-				System.out.println(value + " is not a long");
-			}
-		return defaultValue;
-	}
-
-	public File getTargetDirectory() {
-		return targetDirectory;
-	}
-
-	private boolean isInterested(IDirectoryChangeListener listener, File file) {
+	private boolean isInterested(DirectoryChangeListener listener, File file) {
 		String[] extensions = listener.getExtensions();
 		for (int i = 0; i < extensions.length; i++)
 			if (file.getPath().endsWith(extensions[i]))
@@ -107,7 +179,7 @@ public class DirectoryWatcher extends Thread {
 	private void notifyRemovals() {
 		Set removed = removals;
 		for (Iterator i = listeners.iterator(); i.hasNext();) {
-			IDirectoryChangeListener listener = (IDirectoryChangeListener) i.next();
+			DirectoryChangeListener listener = (DirectoryChangeListener) i.next();
 			for (Iterator j = removed.iterator(); j.hasNext();) {
 				File file = (File) j.next();
 				if (isInterested(listener, file))
@@ -116,7 +188,7 @@ public class DirectoryWatcher extends Thread {
 		}
 	}
 
-	private void processFile(File file, IDirectoryChangeListener listener) {
+	private void processFile(File file, DirectoryChangeListener listener) {
 		try {
 			Long oldTimestamp = listener.getSeenFile(file);
 			if (oldTimestamp == null) {
@@ -145,86 +217,4 @@ public class DirectoryWatcher extends Thread {
 		}
 	}
 
-	public void run() {
-		if (debug > 0) {
-			System.out.println(POLL + "(ms) " + poll);
-			System.out.println(DIR + "  " + targetDirectory.getAbsolutePath());
-			System.out.println(DEBUG + " " + debug);
-		}
-		synchronized (this) {
-			signalRunning();
-			do {
-				try {
-					startPoll();
-					scanDirectory();
-					stopPoll();
-					notify();
-					wait(poll);
-				} catch (InterruptedException e) {
-					// ignore
-				} catch (Throwable e) {
-					e.printStackTrace();
-					log("In main loop, we have serious trouble", e);
-					done = true;
-				}
-			} while (!done);
-		}
-	}
-
-	private void signalRunning() {
-		synchronized (runningLock) {
-			running = true;
-			runningLock.notify();
-		}
-	}
-
-	private void scanDirectory() {
-		File list[] = targetDirectory.listFiles();
-		if (list == null)
-			return;
-		for (int i = 0; i < list.length; i++) {
-			File file = list[i];
-			// if this is a deletion marker then add to the list of pending deletions.
-			if (list[i].getPath().endsWith(".del")) {
-				File target = new File(file.getPath().substring(0, file.getPath().length() - 4));
-				removals.add(target);
-				pendingDeletions.add(target);
-			} else {
-				// else remember that we saw the file and remove it from this list of files to be 
-				// removed at the end.  Then notify all the listeners as needed.
-				scannedFiles.add(file);
-				removals.remove(file);
-				for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-					IDirectoryChangeListener listener = (IDirectoryChangeListener) iterator.next();
-					if (isInterested(listener, file))
-						processFile(file, listener);
-				}
-			}
-		}
-	}
-
-	private void startPoll() {
-		removals = scannedFiles;
-		scannedFiles = new HashSet();
-		pendingDeletions = new HashSet();
-		for (Iterator i = listeners.iterator(); i.hasNext();)
-			((IDirectoryChangeListener) i.next()).startPoll();
-	}
-
-	private void stopPoll() {
-		notifyRemovals();
-		removals = scannedFiles;
-		for (Iterator i = listeners.iterator(); i.hasNext();)
-			((IDirectoryChangeListener) i.next()).stopPoll();
-		processPendingDeletions();
-	}
-
-	public synchronized void poll() {
-		notify();
-		try {
-			wait();
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-	}
 }
