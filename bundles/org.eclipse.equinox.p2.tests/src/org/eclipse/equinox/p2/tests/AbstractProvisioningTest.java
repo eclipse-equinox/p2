@@ -344,6 +344,10 @@ public class AbstractProvisioningTest extends TestCase {
 		return createProfile(name, null);
 	}
 
+	public String getUniqueString() {
+		return System.currentTimeMillis() + "-" + Math.random();
+	}
+
 	/**
 	 * Creates a profile with the given name. Ensures that no such profile
 	 * already exists.  The returned profile will be removed automatically
@@ -496,6 +500,65 @@ public class AbstractProvisioningTest extends TestCase {
 		assertNotNull(repoMan);
 		repoMan.addRepository(repo);
 		metadataRepos.add(repo);
+	}
+
+	/*
+	 * Copy
+	 * - if we have a file, then copy the file
+	 * - if we have a directory then merge
+	 */
+	public static void copy(File source, File target) throws IOException {
+		if (!source.exists())
+			return;
+		if (source.isDirectory()) {
+			if (target.exists() && target.isFile())
+				target.delete();
+			if (!target.exists())
+				target.mkdirs();
+			File[] children = source.listFiles();
+			for (int i = 0; i < children.length; i++)
+				copy(children[i], new File(target, children[i].getName()));
+			return;
+		}
+		InputStream input = null;
+		OutputStream output = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(source));
+			output = new BufferedOutputStream(new FileOutputStream(target));
+
+			byte[] buffer = new byte[8192];
+			int bytesRead = 0;
+			while ((bytesRead = input.read(buffer)) != -1)
+				output.write(buffer, 0, bytesRead);
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
+			if (output != null) {
+				try {
+					output.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public static boolean delete(File file) {
+		if (!file.exists())
+			return true;
+		if (file.isDirectory()) {
+			File[] children = file.listFiles();
+			for (int i = 0; i < children.length; i++)
+				delete(children[i]);
+		}
+		return file.delete();
 	}
 
 	/* (non-Javadoc)

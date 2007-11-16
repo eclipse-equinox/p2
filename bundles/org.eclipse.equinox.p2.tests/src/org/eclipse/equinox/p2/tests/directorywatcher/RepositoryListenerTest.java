@@ -1,111 +1,49 @@
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Hashtable;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
-public class RepositoryListenerTest extends TestCase {
+public class RepositoryListenerTest extends AbstractProvisioningTest {
 
 	public RepositoryListenerTest(String name) {
 		super(name);
 	}
 
-	protected void setUp() throws Exception {
-	}
-
-	protected void tearDown() throws Exception {
-	}
-
-	public static void copyFile(File source, File target) throws Exception {
-		InputStream input = null;
-		OutputStream output = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(source));
-			output = new BufferedOutputStream(new FileOutputStream(target));
-
-			byte[] buffer = new byte[8192];
-			int bytesRead = 0;
-			while ((bytesRead = input.read(buffer)) != -1)
-				output.write(buffer, 0, bytesRead);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
-			if (output != null) {
-				try {
-					output.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	public static boolean copyDirectory(File source, File target) throws Exception {
-		if (source.exists() && source.isDirectory() && target.exists() && target.isDirectory()) {
-			File[] files = source.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				File newFile = new File(target, files[i].getName());
-				if (files[i].isDirectory()) {
-					newFile.mkdir();
-					copyDirectory(files[i], newFile);
-				} else {
-					copyFile(files[i], newFile);
-				}
-			}
-		}
-		return true;
-	}
-
-	public static boolean deleteDirectory(File directory) {
-		if (directory.exists() && directory.isDirectory()) {
-			File[] files = directory.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory()) {
-					deleteDirectory(files[i]);
-				} else {
-					files[i].delete();
-				}
-			}
-		}
-		return directory.delete();
-	}
-
 	private void removeContents(File source, File target) throws Exception {
 		if (source.exists() && source.isDirectory() && target.exists() && target.isDirectory()) {
 			File[] files = source.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				File doomedFile = new File(target, files[i].getName());
-				if (files[i].isDirectory()) {
-					deleteDirectory(doomedFile);
-				} else {
-					doomedFile.delete();
-				}
-			}
+			for (int i = 0; i < files.length; i++)
+				delete(new File(target, files[i].getName()));
 		}
 	}
 
-	public void testDirectoryWatcherListener() throws Exception {
+	public void testDirectoryWatcherListener() {
 		URL base = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
-		File baseFolder = new File(FileLocator.toFileURL(base).getPath());
+		File baseFolder = null;
+		try {
+			baseFolder = new File(FileLocator.toFileURL(base).getPath());
+		} catch (IOException e) {
+			fail("0.99", e);
+		}
 
 		URL base2 = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher2");
-		File baseFolder2 = new File(FileLocator.toFileURL(base2).getPath());
+		File baseFolder2 = null;
+		try {
+			baseFolder2 = new File(FileLocator.toFileURL(base2).getPath());
+		} catch (IOException e) {
+			fail("0.100", e);
+		}
 
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File folder = new File(tempDir, "testWatcher");
-		deleteDirectory(folder);
+		delete(folder);
 		folder.mkdir();
 
 		Hashtable props = new Hashtable();
@@ -124,33 +62,45 @@ public class RepositoryListenerTest extends TestCase {
 		assertEquals("2.0", 0, listener.getMetadataRepository().getInstallableUnits(null).length);
 		assertEquals("2.1", 0, listener.getArtifactRepository().getArtifactKeys().length);
 
-		copyDirectory(baseFolder, folder);
+		try {
+			copy(baseFolder, folder);
+		} catch (IOException e) {
+			fail("2.99", e);
+		}
 		watcher.poll();
 		watcher.stop();
 
-		assertEquals("3.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals("3.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("3.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("3.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
 		watcher.start();
 
-		assertEquals("4.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals("4.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("4.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("4.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
-		copyDirectory(baseFolder2, folder);
+		try {
+			copy(baseFolder2, folder);
+		} catch (IOException e) {
+			fail("4.99", e);
+		}
 		watcher.poll();
 
-		assertEquals("5.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals("5.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("5.0", 3, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("5.1", 3, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher.stop();
 
 		watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
-		watcher.stop();
+		watcher.start();
 
-		removeContents(baseFolder, folder);
+		try {
+			removeContents(baseFolder, folder);
+		} catch (Exception e) {
+			fail("5.99", e);
+		}
 		watcher.poll();
 
 		assertEquals("6.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
@@ -158,6 +108,6 @@ public class RepositoryListenerTest extends TestCase {
 
 		watcher.stop();
 
-		deleteDirectory(folder);
+		delete(folder);
 	}
 }

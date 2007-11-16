@@ -99,32 +99,67 @@ public class RepositoryListener extends DirectoryChangeListener {
 			throw new IllegalStateException("Couldn't create listener metadata repository for: " + stateDirURL);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#added(java.io.File)
+	 */
 	public boolean added(File file) {
-		currentFiles.put(file, new Long(file.lastModified()));
+		if (isInteresting(file))
+			currentFiles.put(file, new Long(file.lastModified()));
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#changed(java.io.File)
+	 */
 	public boolean changed(File file) {
-		currentFiles.put(file, new Long(file.lastModified()));
+		if (isInteresting(file))
+			currentFiles.put(file, new Long(file.lastModified()));
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#removed(java.io.File)
+	 */
 	public boolean removed(File file) {
+		// note that we can't call #isInteresting here because we can't tell if the file handle
+		// points to a directory because its already been removed.
 		currentFiles.remove(file);
 		return true;
 	}
 
-	public String[] getExtensions() {
-		return new String[] {".jar"};
+	/*
+	 * Return a boolean value indicating whether or not we are interested in
+	 * processing the given file. Currently we handle JAR files and directories.
+	 */
+	private boolean isInteresting(File file) {
+		return file.isDirectory() || file.getAbsolutePath().endsWith(".jar");
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#getExtensions()
+	 */
+	public String[] getExtensions() {
+		// TODO use the empty string here for now to indicate that we are interested in everything
+		return new String[] {""};
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#getSeenFile(java.io.File)
+	 */
 	public Long getSeenFile(File file) {
 		return (Long) currentFiles.get(file);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#startPoll()
+	 */
 	public void startPoll() {
+		// do nothing
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#stopPoll()
+	 */
 	public void stopPoll() {
 		synchronizeMetadataRepository();
 		synchronizeArtifactRepository();
@@ -190,8 +225,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private IInstallableUnit[] generateIUs(Collection files) {
 		List ius = new ArrayList();
-		int i = 0;
-		for (Iterator it = files.iterator(); it.hasNext(); i++) {
+		for (Iterator it = files.iterator(); it.hasNext();) {
 			File bundle = (File) it.next();
 			IInstallableUnit iu = generateIU(bundle);
 			if (iu != null)
@@ -208,7 +242,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		props.setProperty("file.name", bundle.getAbsolutePath());
 		props.setProperty("file.lastModified", Long.toString(bundle.lastModified()));
 		IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-		IInstallableUnit iu = (IInstallableUnit) MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
+		IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
 		return iu;
 	}
 

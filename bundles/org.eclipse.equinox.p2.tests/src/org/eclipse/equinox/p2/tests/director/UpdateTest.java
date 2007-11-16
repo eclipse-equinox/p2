@@ -52,7 +52,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstall() {
-		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()).getSeverity());
+		assertOK(director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()));
 		for (Iterator iterator = profile.getInstallableUnits(); iterator.hasNext();) {
 			System.out.println(iterator.next());
 		}

@@ -3,22 +3,16 @@ package org.eclipse.equinox.p2.tests.directorywatcher;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
-import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
-public class DirectoryWatcherTest extends TestCase {
+public class DirectoryWatcherTest extends AbstractProvisioningTest {
 
 	public DirectoryWatcherTest(String name) {
 		super(name);
-	}
-
-	protected void setUp() throws Exception {
-	}
-
-	protected void tearDown() throws Exception {
 	}
 
 	public void testCreateDirectoryWatcherZeroDirectory() throws Exception {
