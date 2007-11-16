@@ -48,7 +48,6 @@ Import-Package: ie.wombat.jbdiff,
  org.xml.sax
 Bundle-Activator: org.eclipse.equinox.p2.tests.TestActivator
 Bundle-ClassPath: .
-Bundle-RequiredExecutionEnviron: J2SE-1.4
 Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.common,
