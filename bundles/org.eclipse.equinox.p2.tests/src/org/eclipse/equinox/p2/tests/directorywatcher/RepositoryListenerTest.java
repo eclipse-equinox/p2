@@ -22,16 +22,34 @@ public class RepositoryListenerTest extends TestCase {
 	}
 
 	public static void copyFile(File source, File target) throws Exception {
-		FileInputStream fis = new FileInputStream(source);
-		FileOutputStream fos = new FileOutputStream(target);
+		InputStream input = null;
+		OutputStream output = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(source));
+			output = new BufferedOutputStream(new FileOutputStream(target));
 
-		byte[] buf = new byte[1024];
-		int i = 0;
-		while ((i = fis.read(buf)) != -1) {
-			fos.write(buf, 0, i);
+			byte[] buffer = new byte[8192];
+			int bytesRead = 0;
+			while ((bytesRead = input.read(buffer)) != -1)
+				output.write(buffer, 0, bytesRead);
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
+			if (output != null) {
+				try {
+					output.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
 		}
-		fis.close();
-		fos.close();
 	}
 
 	public static boolean copyDirectory(File source, File target) throws Exception {
@@ -96,35 +114,35 @@ public class RepositoryListenerTest extends TestCase {
 
 		RepositoryListener listener = new RepositoryListener(TestActivator.getContext(), folder);
 
-		assertEquals(0, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals(0, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("1.0", 0, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("1.1", 0, listener.getArtifactRepository().getArtifactKeys().length);
 
 		DirectoryWatcher watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
 		watcher.start();
 
-		assertEquals(0, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals(0, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("2.0", 0, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("2.1", 0, listener.getArtifactRepository().getArtifactKeys().length);
 
 		copyDirectory(baseFolder, folder);
 		watcher.poll();
 		watcher.close();
 
-		assertEquals(1, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals(1, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("3.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("3.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
 		watcher.start();
 
-		assertEquals(1, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals(1, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("4.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("4.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
 
 		copyDirectory(baseFolder2, folder);
 		watcher.poll();
 
-		assertEquals(2, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals(2, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("5.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("5.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher.close();
 
@@ -135,8 +153,8 @@ public class RepositoryListenerTest extends TestCase {
 		removeContents(baseFolder, folder);
 		watcher.poll();
 
-		assertEquals(1, listener.getMetadataRepository().getInstallableUnits(null).length);
-		assertEquals(1, listener.getArtifactRepository().getArtifactKeys().length);
+		assertEquals("6.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("6.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher.close();
 
