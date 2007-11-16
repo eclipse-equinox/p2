@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 
 public class Utils {
@@ -253,6 +252,11 @@ public class Utils {
 				//	System.out.println("key=" + key + " value=" + value);
 			}
 			//	System.out.println("");
+			try {
+				jarConnection.getJarFile().close();
+			} catch (IOException e) {
+				//Ignore
+			}
 			return table;
 		} catch (MalformedURLException e1) {
 			// TODO log
