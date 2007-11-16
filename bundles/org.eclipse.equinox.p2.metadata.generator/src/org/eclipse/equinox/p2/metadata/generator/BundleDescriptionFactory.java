@@ -17,15 +17,24 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
+import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
+import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class BundleDescriptionFactory {
 	static final String DIR = "dir";
 	static final String JAR = "jar";
+	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml";
+	private static final String PLUGIN_FILENAME_DESCRIPTOR = "plugin.xml";
+	private static final String FRAGMENT_FILENAME_DESCRIPTOR = "fragment.xml";
+
 	static String BUNDLE_FILE_KEY = "eclipse.p2.bundle.format";
 
 	StateObjectFactory factory;
@@ -35,6 +44,44 @@ public class BundleDescriptionFactory {
 		this.factory = factory;
 		this.state = state;
 		//TODO find a state and a factory when not provided
+	}
+
+	private PluginConverter acquirePluginConverter() {
+		return (PluginConverter) ServiceHelper.getService(Activator.getContext(), PluginConverter.class.getName());
+	}
+
+	private Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
+		PluginConverter converter;
+		try {
+			converter = acquirePluginConverter();
+			if (converter == null)
+				return null;
+			return converter.convertManifest(bundleLocation, false, null, true, null);
+		} catch (PluginConversionException convertException) {
+			if (bundleLocation.getName().equals(FEATURE_FILENAME_DESCRIPTOR))
+				return null;
+			if (!new File(bundleLocation, PLUGIN_FILENAME_DESCRIPTOR).exists() && !new File(bundleLocation, FRAGMENT_FILENAME_DESCRIPTOR).exists())
+				return null;
+			if (logConversionException) {
+				IStatus status = new Status(IStatus.WARNING, Activator.ID, 0, NLS.bind(Messages.exception_errorConverting, bundleLocation.getAbsolutePath()), convertException);
+				System.out.println(status);
+				//TODO Need to find a way to get a logging service to log
+			}
+			return null;
+		}
+	}
+
+	public BundleDescription getBundleDescription(Dictionary enhancedManifest, File bundleLocation) {
+		try {
+			BundleDescription descriptor = factory.createBundleDescription(state, enhancedManifest, bundleLocation != null ? bundleLocation.getAbsolutePath() : null, 1); //TODO Do we need to have a real bundle id
+			descriptor.setUserObject(enhancedManifest);
+			return descriptor;
+		} catch (BundleException e) {
+			//			IStatus status = new Status(IStatus.WARNING, IPDEBuildConstants.PI_PDEBUILD, EXCEPTION_STATE_PROBLEM, NLS.bind(Messages.exception_stateAddition, enhancedManifest.get(Constants.BUNDLE_NAME)), e);
+			//			BundleHelper.getDefault().getLog().log(status);
+			System.err.println("An error has occured while adding the bundle" + bundleLocation != null ? bundleLocation.getAbsoluteFile() : null);
+			return null;
+		}
 	}
 
 	public BundleDescription getBundleDescription(File bundleLocation) {
@@ -76,29 +123,59 @@ public class BundleDescriptionFactory {
 			//ignore
 		}
 
-		if (manifestStream == null)
-			return null;
-		try {
-			Dictionary manifest = manifestToProperties(new Manifest(manifestStream).getMainAttributes());
-			// remember the format of the bundle as we found it
-			manifest.put(BUNDLE_FILE_KEY, bundleLocation.isDirectory() ? DIR : JAR);
-			localizeManifest(manifest, bundleLocation);
-			return manifest;
-		} catch (IOException ioe) {
-			return null;
-		} finally {
+		Dictionary manifest = null;
+		if (manifestStream != null) {
 			try {
-				manifestStream.close();
-			} catch (IOException e1) {
-				//Ignore
+				manifest = manifestToProperties(new Manifest(manifestStream).getMainAttributes());
+			} catch (IOException ioe) {
+				return null;
+			} finally {
+				try {
+					manifestStream.close();
+				} catch (IOException e1) {
+					//Ignore
+				}
+				try {
+					if (jarFile != null)
+						jarFile.close();
+				} catch (IOException e2) {
+					//Ignore
+				}
 			}
-			try {
-				if (jarFile != null)
-					jarFile.close();
-			} catch (IOException e2) {
-				//Ignore
-			}
+		} else {
+			manifest = convertPluginManifest(bundleLocation, true);
 		}
+
+		if (manifest == null)
+			return null;
+
+		manifest.put(BUNDLE_FILE_KEY, bundleLocation.isDirectory() ? DIR : JAR);
+		localizeManifest(manifest, bundleLocation);
+		return manifest;
+	}
+
+	private Properties loadProperties(File bundleLocation, String localizationFile) throws IOException {
+		Properties result = new Properties();
+		InputStream propertyStream = null;
+		try {
+			try {
+				if (bundleLocation.isDirectory())
+					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
+				else {
+					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection();
+					connection.setUseCaches(false);
+					propertyStream = connection.getInputStream();
+				}
+			} catch (FileNotFoundException e) {
+				// if there is no messages file then just return;
+				return result;
+			}
+			result.load(propertyStream);
+		} finally {
+			if (propertyStream != null)
+				propertyStream.close();
+		}
+		return result;
 	}
 
 	// TODO this is a temporary hack to eagerly bind the translations (i.e., english) strings
@@ -127,30 +204,6 @@ public class BundleDescriptionFactory {
 		}
 	}
 
-	private Properties loadProperties(File bundleLocation, String localizationFile) throws IOException {
-		Properties result = new Properties();
-		InputStream propertyStream = null;
-		try {
-			try {
-				if (bundleLocation.isDirectory())
-					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
-				else {
-					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection();
-					connection.setUseCaches(false);
-					propertyStream = connection.getInputStream();
-				}
-			} catch (FileNotFoundException e) {
-				// if there is no messages file then just return;
-				return result;
-			}
-			result.load(propertyStream);
-		} finally {
-			if (propertyStream != null)
-				propertyStream.close();
-		}
-		return result;
-	}
-
 	private Properties manifestToProperties(Attributes attributes) {
 		Properties result = new Properties();
 		for (Iterator i = attributes.keySet().iterator(); i.hasNext();) {
@@ -158,18 +211,5 @@ public class BundleDescriptionFactory {
 			result.put(key.toString(), attributes.get(key));
 		}
 		return result;
-	}
-
-	public BundleDescription getBundleDescription(Dictionary enhancedManifest, File bundleLocation) {
-		try {
-			BundleDescription descriptor = factory.createBundleDescription(state, enhancedManifest, bundleLocation != null ? bundleLocation.getAbsolutePath() : null, 1); //TODO Do we need to have a real bundle id
-			descriptor.setUserObject(enhancedManifest);
-			return descriptor;
-		} catch (BundleException e) {
-			//			IStatus status = new Status(IStatus.WARNING, IPDEBuildConstants.PI_PDEBUILD, EXCEPTION_STATE_PROBLEM, NLS.bind(Messages.exception_stateAddition, enhancedManifest.get(Constants.BUNDLE_NAME)), e);
-			//			BundleHelper.getDefault().getLog().log(status);
-			System.err.println("An error has occured while adding the bundle" + bundleLocation != null ? bundleLocation.getAbsoluteFile() : null);
-			return null;
-		}
 	}
 }
