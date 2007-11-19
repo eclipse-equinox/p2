@@ -24,6 +24,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
@@ -181,25 +182,14 @@ public class ProvisioningHelper {
 	 * Install the described IU
 	 */
 	public static IStatus install(String unitId, String version, Profile profile, IProgressMonitor progress) throws ProvisionException {
-		IMetadataRepository[] repos = getMetadataRepositories();
-		if (repos == null || profile == null)
+		if (profile == null)
 			return null;
-		// search for a matching IU in the known repositories
-		IInstallableUnit toInstall = null;
-		Version unitVersion = new Version(version);
-		outer: for (int i = 0; i < repos.length; i++) {
-			IInstallableUnit[] ius = repos[i].getInstallableUnits(progress);
-			for (int j = 0; j < ius.length; j++) {
-				if (unitId.equals(ius[j].getId()) && unitVersion.equals(ius[j].getVersion())) {
-					toInstall = ius[j];
-					break outer;
-				}
-			}
-		}
-		if (toInstall == null) {
+		Collector units = getInstallableUnits(null, new InstallableUnitQuery(unitId, new Version(version)), progress);
+		if (units.isEmpty()) {
 			StringBuffer error = new StringBuffer();
-			error.append("Installable unit not found: " + unitId + ' ' + unitVersion + '\n');
+			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
 			error.append("Repositories searched:\n");
+			IMetadataRepository[] repos = getMetadataRepositories();
 			for (int i = 0; i < repos.length; i++)
 				error.append(repos[i].getLocation() + "\n");
 			throw new ProvisionException(error.toString());
@@ -212,7 +202,8 @@ public class ProvisioningHelper {
 		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
-		ProvisioningPlan result = planner.getInstallPlan(new IInstallableUnit[] {toInstall}, profile, progress);
+		IInstallableUnit[] toInstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);
+		ProvisioningPlan result = planner.getInstallPlan(toInstall, profile, progress);
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 
