@@ -11,19 +11,37 @@ package org.eclipse.equinox.p2.directorywatcher;
 
 import java.io.File;
 
+/*
+ * Abstract class which contains stub methods. Sub-classes to over-ride
+ * methods which they are interested in.
+ */
 public abstract class DirectoryChangeListener {
 
-	public abstract void startPoll();
+	public void startPoll() {
+		// do nothing
+	}
 
-	public abstract void stopPoll();
+	public void stopPoll() {
+		// do nothing
+	}
 
-	public abstract String[] getExtensions();
+	public String[] getExtensions() {
+		return null;
+	}
 
-	public abstract boolean added(File file);
+	public boolean added(File file) {
+		return false;
+	}
 
-	public abstract boolean removed(File file);
+	public boolean removed(File file) {
+		return false;
+	}
 
-	public abstract boolean changed(File file);
+	public boolean changed(File file) {
+		return false;
+	}
 
-	public abstract Long getSeenFile(File file);
+	public Long getSeenFile(File file) {
+		return null;
+	}
 }
