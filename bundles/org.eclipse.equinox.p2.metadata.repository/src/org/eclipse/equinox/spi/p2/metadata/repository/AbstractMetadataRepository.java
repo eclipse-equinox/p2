@@ -12,8 +12,10 @@ package org.eclipse.equinox.spi.p2.metadata.repository;
 
 import java.net.URL;
 import java.util.Map;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.Version;
 
@@ -56,9 +58,10 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 			throw new UnsupportedOperationException("Repository not modifiable");
 	}
 
-	public void removeInstallableUnits(IInstallableUnit[] installableUnit) {
+	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
 		if (!isModifiable())
 			throw new UnsupportedOperationException("Repository not modifiable");
+		return false;
 	}
 
 }

@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 
 /**
@@ -26,13 +27,6 @@ import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository
  */
 public interface IMetadataRepository extends IRepository, IQueryable {
 
-	/**
-	 * Returns all installable units known to this repository.
-	 * @param monitor TODO
-	 * @return the installable units known to this repository
-	 */
-	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor);
-
 	/** 
 	 * Add the given installable units to this repository
 	 * @param installableUnits the installable unts to add
@@ -40,10 +34,23 @@ public interface IMetadataRepository extends IRepository, IQueryable {
 	public void addInstallableUnits(IInstallableUnit[] installableUnits);
 
 	/**
-	 * Remove the given installable units from this repository
-	 * @param installableUnits the installable units to remove
+	 * Returns all installable units known to this repository.
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return the installable units known to this repository
 	 */
-	public void removeInstallableUnits(IInstallableUnit[] installableUnits);
+	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor);
+
+	/**
+	 * Removes all installable units that match the given query from this repository.
+	 * 
+	 * @param query the installable units to remove
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return <code>true</code> if any units were actually removed, and
+	 * <code>false</code> otherwise
+	 */
+	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor);
 
 	/**
 	 * Remove all installable units from this repository.  

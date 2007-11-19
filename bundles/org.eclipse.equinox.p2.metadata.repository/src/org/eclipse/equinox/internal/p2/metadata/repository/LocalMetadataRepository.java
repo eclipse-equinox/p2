@@ -18,10 +18,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -53,7 +52,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public LocalMetadataRepository(URL location, String name) throws RepositoryCreationException {
-		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
+		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null); //$NON-NLS-1$
 		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location);
 	}
@@ -63,21 +62,16 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
-		if (monitor == null) {
+		if (monitor == null)
 			monitor = new NullProgressMonitor();
-		}
 		monitor.beginTask(NLS.bind(Messages.REPO_LOADING, location.toExternalForm()), 5);
-		IInstallableUnit[] result = query(null, null, null, false, monitor);
+		IInstallableUnit[] result = (IInstallableUnit[]) units.toArray(new IInstallableUnit[0]);
 		monitor.done();
 		return result;
 	}
 
-	public Iterator getIterator(String id, VersionRange range, RequiredCapability[] requirements, boolean and) {
-		return new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and);
-	}
-
-	public IInstallableUnit[] query(String id, VersionRange range, RequiredCapability[] requirements, boolean and, IProgressMonitor monitor) {
-		return CompoundIterator.asArray(new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and), null);
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		return query.perform(units.iterator(), collector);
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
@@ -103,9 +97,16 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		}
 	}
 
-	public void removeInstallableUnits(IInstallableUnit[] installableUnits) {
-		units.removeAll(Arrays.asList(installableUnits));
+	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+		int sizeBefore = units.size();
+		query.perform(units.iterator(), new Collector() {
+			public boolean accept(Object object) {
+				units.remove(object);
+				return true;
+			}
+		});
 		save();
+		return units.size() != sizeBefore;
 	}
 
 	public void removeAll() {
@@ -114,8 +115,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public void initializeAfterLoad(URL location) {
-		this.location = location;
+	public void initializeAfterLoad(URL aLocation) {
+		this.location = aLocation;
 	}
 
 	public void revertToBackup(LocalMetadataRepository backup) {

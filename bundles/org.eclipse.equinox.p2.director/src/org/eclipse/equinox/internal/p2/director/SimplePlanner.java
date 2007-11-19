@@ -17,8 +17,10 @@ import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
@@ -146,7 +148,8 @@ public class SimplePlanner implements IPlanner {
 	private IInstallableUnit[] inProfile(IInstallableUnit[] toFind, Profile profile, boolean found, IProgressMonitor monitor) {
 		ArrayList result = new ArrayList(toFind.length);
 		for (int i = 0; i < toFind.length; i++) {
-			if (profile.query(toFind[i].getId(), new VersionRange(toFind[i].getVersion(), true, toFind[i].getVersion(), true), null, false, monitor).length > 0) {
+			Query query = new InstallableUnitQuery(toFind[i].getId(), new VersionRange(toFind[i].getVersion(), true, toFind[i].getVersion(), true));
+			if (!profile.query(query, new HasMatchCollector(), monitor).isEmpty()) {
 				if (found)
 					result.add(toFind[i]);
 			} else {

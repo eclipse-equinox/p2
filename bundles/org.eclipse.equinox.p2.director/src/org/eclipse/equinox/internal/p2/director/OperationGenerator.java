@@ -12,7 +12,8 @@ import java.util.*;
 import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class OperationGenerator {
@@ -75,7 +76,9 @@ public class OperationGenerator {
 			if (iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM) == null)
 				continue;
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
-			Iterator updates = new CompoundIterator(new Iterator[] {from.iterator()}, iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM), new VersionRange(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_RANGE)), null, false);
+			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM), new VersionRange(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_RANGE)));
+			Iterator updates = updateQuery.perform(from.iterator(), new Collector()).iterator();
+
 			IInstallableUnit iuFrom;
 			if (!updates.hasNext()) { //Nothing to udpate from.
 				continue;

@@ -53,6 +53,11 @@ public class ProvidedCapability {
 		return namespace.hashCode() * name.hashCode() * version.hashCode();
 	}
 
+	/**
+	 * TODO The name of this method is backwards. A provided capability does not
+	 * get satisfied - it is the required capability that is satisfied or not. It should be "satisfies"
+	 * or "isSatisfied"
+	 */
 	public boolean isSatisfiedBy(RequiredCapability candidate) {
 		if (getName() == null || !getName().equals(candidate.getName()))
 			return false;

@@ -16,7 +16,7 @@ public class ProvisioningPlan {
 	private Operand[] operands;
 
 	public ProvisioningPlan(IStatus status) {
-		this(status, null);
+		this(status, new Operand[0]);
 	}
 
 	public ProvisioningPlan(IStatus status, Operand[] operands) {
@@ -30,7 +30,8 @@ public class ProvisioningPlan {
 
 	/** 
 	 * The operands to pass to the engine.
-	 * @return the operands or <code>null</code> if the the operation has not been successfull. 
+	 * @return the operands to be executed. This may be an empty array if the
+	 * plan has errors or if there is nothing to do.
 	 */
 	public Operand[] getOperands() {
 		return operands;

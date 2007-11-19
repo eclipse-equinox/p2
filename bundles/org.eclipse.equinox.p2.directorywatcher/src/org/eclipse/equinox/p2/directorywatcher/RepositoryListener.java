@@ -11,6 +11,7 @@ import org.eclipse.equinox.p2.metadata.generator.BundleDescriptionFactory;
 import org.eclipse.equinox.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -176,34 +177,29 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private void synchronizeMetadataRepository() {
 		boolean modified = false;
-		Map snapshot = new HashMap(currentFiles);
-		List toRemove = new ArrayList();
-
-		IInstallableUnit[] ius = metadataRepository.getInstallableUnits(null);
-		for (int i = 0; i < ius.length; i++) {
-			IInstallableUnit iu = ius[i];
-			File iuFile = new File(iu.getProperty("file.name"));
-			Long iuLastModified = new Long(iu.getProperty("file.lastModified"));
-
-			Long snapshotLastModified = (Long) snapshot.get(iuFile);
-			if (snapshotLastModified == null || !snapshotLastModified.equals(iuLastModified))
-				toRemove.add(iu);
-			else
+		final Map snapshot = new HashMap(currentFiles);
+		Query removeQuery = new Query() {
+			public boolean isMatch(Object candidate) {
+				if (!(candidate instanceof IInstallableUnit))
+					return false;
+				IInstallableUnit iu = (IInstallableUnit) candidate;
+				File iuFile = new File(iu.getProperty("file.name")); //$NON-NLS-1$
+				Long iuLastModified = new Long(iu.getProperty("file.lastModified")); //$NON-NLS-1$
+				Long snapshotLastModified = (Long) snapshot.get(iuFile);
+				if (snapshotLastModified == null || !snapshotLastModified.equals(iuLastModified))
+					return true;
 				snapshot.remove(iuFile);
-		}
-
-		if (!toRemove.isEmpty()) {
-			IInstallableUnit[] iusToRemove = (IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]);
-			metadataRepository.removeInstallableUnits(iusToRemove);
+				return false;
+			}
+		};
+		if (metadataRepository.removeInstallableUnits(removeQuery, null))
 			modified = true;
-		}
 
 		if (!snapshot.isEmpty()) {
+			modified = true;
 			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
 			metadataRepository.addInstallableUnits(iusToAdd);
-			modified = true;
 		}
-
 		if (modified)
 			lastModifed = System.currentTimeMillis();
 	}
@@ -225,8 +221,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 				if (descriptor != null) {
 					artifactRepository.addDescriptor(descriptor);
 					modified = true;
-				}
 			}
+		}
 		}
 
 		for (Iterator it = snapshot.iterator(); it.hasNext();) {

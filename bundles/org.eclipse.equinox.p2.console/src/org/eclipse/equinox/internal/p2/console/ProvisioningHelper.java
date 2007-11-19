@@ -26,10 +26,9 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class ProvisioningHelper {
@@ -145,47 +144,26 @@ public class ProvisioningHelper {
 	}
 
 	/**
-	 * Returns the installable units with the given id and version
-	 * specifications in the given metadata repository.  <code>null</code>
-	 * can be used to indicate wildcards for any of the arguments.
+	 * Returns the installable units that match the given query
+	 * in the given metadata repository.
 	 * 
-	 * @param location The location of the metdata repo to search.  <code>null</code> indicates
+	 * @param location The location of the metadata repo to search.  <code>null</code> indicates
 	 *        search all known repos.
-	 * @param id The id of the IUs to find. <code>null</code> indicates
-	 *        wildcard.
-	 * @param range The version range of the IUs to find. <code>null</code>
-	 *        indicates wildcard.
+	 * @param query The query to perform
+	 * @param monitor A progress monitor, or <code>null</code>
 	 * @return The IUs that match the query
 	 */
-	public static IInstallableUnit[] getInstallableUnits(URL location, String id, VersionRange range, IProgressMonitor progress) {
+	public static Collector getInstallableUnits(URL location, Query query, IProgressMonitor monitor) {
 		IMetadataRepository[] repositories = null;
-		if (location == null)
+		Collector collector = new Collector();
+		if (location == null) {
 			repositories = getMetadataRepositories();
-		else
-			repositories = new IMetadataRepository[] {getMetadataRepository(location)};
-		Iterator i = Query.getIterator(repositories, id, range, null, false);
-		return CompoundIterator.asArray(i, progress);
-	}
-
-	/**
-	 * Returns the installable units with the given id and version
-	 * specifications.
-	 * 
-	 * @param profileId The profile to search
-	 * @param id The id of the IUs to find. <code>null</code> indicates
-	 *        wildcard.
-	 * @param range The version range of the IUs to find. <code>null</code>
-	 *        indicates wildcard.
-	 * @return The IUs that match the query
-	 */
-	public static IInstallableUnit[] getInstallableUnits(String profileId, String id, VersionRange range, IProgressMonitor progress) {
-		Profile[] profiles = null;
-		if (profileId == null)
-			profiles = getProfiles();
-		else
-			profiles = new Profile[] {getProfile(profileId)};
-		Iterator i = Query.getIterator(profiles, id, range, null, false);
-		return CompoundIterator.asArray(i, progress);
+			for (int i = 0; i < repositories.length; i++)
+				repositories[i].query(query, collector, monitor);
+		} else {
+			getMetadataRepository(location).query(query, collector, null);
+		}
+		return collector;
 	}
 
 	public static IMetadataRepository[] getMetadataRepositories() {

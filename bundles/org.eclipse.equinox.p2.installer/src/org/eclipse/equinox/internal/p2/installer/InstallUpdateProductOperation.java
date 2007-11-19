@@ -22,8 +22,10 @@ import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -140,9 +142,11 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			range = new VersionRange(version, true, version, true);
 		IMetadataRepository[] repos = metadataRepoMan.getKnownRepositories();
 		for (int i = 0; i < repos.length; i++) {
-			IInstallableUnit[] found = repos[i].query(id, range, null, true, null);
-			if (found.length > 0)
-				return found[0];
+			Query query = new InstallableUnitQuery(id, range);
+			Collector collector = new Collector();
+			Iterator result = repos[i].query(query, collector, null).iterator();
+			if (result.hasNext())
+				return (IInstallableUnit) result.next();
 		}
 		throw fail("Installable unit not found: " + id);
 	}

@@ -18,10 +18,7 @@ import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.query.QueryableArray;
-import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 
 public class Profile implements IQueryable {
@@ -208,12 +205,8 @@ public class Profile implements IQueryable {
 		return profile.getInstallableUnits();
 	}
 
-	public Iterator getIterator(String id, VersionRange range, RequiredCapability[] requirements, boolean and) {
-		return new QueryableArray(getAllInstallableUnits()).getIterator(id, range, requirements, and);
-	}
-
-	public IInstallableUnit[] query(String id, VersionRange range, RequiredCapability[] requirements, boolean and, IProgressMonitor progress) {
-		return new QueryableArray(getAllInstallableUnits()).query(id, range, requirements, and, progress);
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		return query.perform(Arrays.asList(getAllInstallableUnits()).iterator(), collector);
 	}
 
 	public Iterator getInstallableUnits() {

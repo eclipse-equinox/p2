@@ -15,11 +15,10 @@ import junit.framework.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 /**
@@ -55,10 +54,8 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public IInstallableUnit find(String id, String versionString) {
-		Version iuVersion = new Version(versionString);
-		VersionRange range = new VersionRange(iuVersion, true, iuVersion, true);
-		IInstallableUnit[] result = query(id, range, null, true, null);
-		return result.length != 1 ? null : result[0];
+		Iterator result = query(new InstallableUnitQuery(id, new Version(versionString)), new Collector(), null).iterator();
+		return (IInstallableUnit) (result.hasNext() ? result.next() : null);
 	}
 
 	public Object getAdapter(Class adapter) {
@@ -69,26 +66,23 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
-		IInstallableUnit[] result = query(null, null, null, false, monitor);
-		return result;
+		return (IInstallableUnit[]) units.toArray(new IInstallableUnit[0]);
 	}
 
-	public Iterator getIterator(String id, VersionRange range, RequiredCapability[] requirements, boolean and) {
-		return new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and);
-	}
-
-	public IInstallableUnit[] query(String id, VersionRange range, RequiredCapability[] requirements, boolean and, IProgressMonitor monitor) {
-		return CompoundIterator.asArray(new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and), null);
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		return query.perform(units.iterator(), collector);
 	}
 
 	public void removeAll() {
 		units.clear();
 	}
 
-	public void removeInstallableUnits(IInstallableUnit[] toRemove) {
+	public boolean removeInstallableUnits(IInstallableUnit[] toRemove) {
+		boolean modified = false;
 		for (int i = 0; i < toRemove.length; i++) {
-			units.remove(toRemove[i]);
+			modified |= units.remove(toRemove[i]);
 		}
+		return modified;
 	}
 
 	public void initialize(RepositoryState state) {

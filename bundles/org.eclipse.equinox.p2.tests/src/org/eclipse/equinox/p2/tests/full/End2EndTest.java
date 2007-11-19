@@ -17,8 +17,10 @@ import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
@@ -101,7 +103,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertEquals(false, profile2.getInstallableUnits().hasNext()); //the profile should be empty since we uninstalled everything
 		IInstallableUnit[] snapshots = getIUs("profile2");
 		assertTrue("snap" + snapshots.length, snapshots.length >= 2);//TODO Normally here it should be 2!!!
-		assertEquals(false, profile2.getIterator("sdk", VersionRange.emptyRange, null, false).hasNext());
+		assertTrue(profile2.query(new InstallableUnitQuery("sdk", VersionRange.emptyRange), new Collector(), null).isEmpty());
 
 		// Now test the rollback to a previous state, in this case we reinstall the SDK
 		s = director.become(snapshots[0].equals(firstSnapshot) ? snapshots[1] : snapshots[0], profile2, new NullProgressMonitor());
@@ -138,7 +140,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	public IInstallableUnit[] getIUs(String id) {
 		Collection result = new ArrayList();
 		for (int i = 0; i < repos.length; i++) {
-			Iterator it = repos[i].getIterator(id, VersionRange.emptyRange, null, false);
+			Iterator it = repos[i].query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).iterator();
 			while (it.hasNext()) {
 				result.add(it.next());
 			}
@@ -148,8 +150,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	public IInstallableUnit getIU(String id) {
 		for (int i = 0; i < repos.length; i++) {
-			Iterator it = repos[i].getIterator(id, VersionRange.emptyRange, null, false);
-			while (it.hasNext()) {
+			Iterator it = repos[i].query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).iterator();
+			if (it.hasNext()) {
 				return (IInstallableUnit) it.next();
 			}
 		}
@@ -158,7 +160,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	public IInstallableUnit getIU(String id, Version v) {
 		for (int i = 0; i < repos.length; i++) {
-			Iterator it = repos[i].getIterator(id, new VersionRange("[" + v.toString() + "," + v.toString() + "]"), null, false);
+			Iterator it = repos[i].query(new InstallableUnitQuery(id, v), new Collector(), null).iterator();
 			while (it.hasNext()) {
 				return (IInstallableUnit) it.next();
 			}

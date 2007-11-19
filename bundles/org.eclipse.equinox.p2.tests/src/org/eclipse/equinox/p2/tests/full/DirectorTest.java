@@ -20,10 +20,13 @@ import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -122,9 +125,9 @@ public class DirectorTest extends TestCase {
 		if (!operationStatus.isOK())
 			fail("The installation has failed");
 
-		IInstallableUnit[] result = p.query(allRoots[0].getId(), null, null, false, null);
+		IInstallableUnit[] result = (IInstallableUnit[]) p.query(new InstallableUnitQuery(allRoots[0].getId(), VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
 		assertEquals(result.length, (!doUninstall ? 1 : 0));
-		result = p.query("toolingdefault", null, null, false, null);
+		result = (IInstallableUnit[]) p.query(new InstallableUnitQuery("toolingdefault", VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
 
 		ensureFragmentAssociationIsNotPersisted(mgr);
 	}
@@ -135,7 +138,7 @@ public class DirectorTest extends TestCase {
 		mgr.removeRepository(mgr.getRepository(location.getMetadataRepositoryURL()));
 		IMetadataRepository repo = null;
 		repo = mgr.loadRepository(location.getMetadataRepositoryURL(), null);
-		Iterator it = repo.getIterator("org.eclipse.equinox.simpleconfigurator", null, null, false);
+		Iterator it = repo.query(new InstallableUnitQuery("org.eclipse.equinox.simpleconfigurator", VersionRange.emptyRange), new Collector(), null).iterator();
 		if (!it.hasNext())
 			return;
 		IInstallableUnit sc = (IInstallableUnit) it.next();

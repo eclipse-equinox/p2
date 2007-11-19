@@ -14,7 +14,8 @@ import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.resolution.UnsatisfiedCapability;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
@@ -589,8 +590,9 @@ public class NewDependencyExpander {
 	}
 
 	private IInstallableUnit match(Collection close, IInstallableUnit picked) {
-		CompoundIterator it = new CompoundIterator(new Iterator[] {close.iterator()}, null, null, picked.getRequiredCapabilities(), true);
-		if (it.hasNext())
+		Collector result = new HasMatchCollector();
+		new CapabilityQuery(picked.getRequiredCapabilities()).perform(close.iterator(), result);
+		if (!result.isEmpty())
 			return picked;
 		return null;
 	}

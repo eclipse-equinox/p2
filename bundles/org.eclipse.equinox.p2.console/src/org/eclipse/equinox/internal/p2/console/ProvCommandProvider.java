@@ -19,8 +19,10 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.query.Query;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -30,8 +32,8 @@ import org.eclipse.osgi.service.resolver.VersionRange;
  * with the provisioning system.
  */
 public class ProvCommandProvider implements CommandProvider {
+	private static final String WILDCARD_ANY = "*"; //$NON-NLS-1$
 	public static final String NEW_LINE = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-	private static final String IU_KIND_NAMESPACE = "org.eclipse.equinox.p2.type";
 
 	//	private Profile profile;
 
@@ -130,8 +132,7 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	/**
-	 * Lists the known metadata repositories, or the contents of a given
-	 * metadata repository.
+	 * Lists the installable units that match the given URL, id, and/or version.
 	 * 
 	 * @param interpreter
 	 */
@@ -140,9 +141,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String version = processArgument(interpreter.nextArgument());
 		URL repoURL = null;
-		if (urlString != null && !urlString.equals("*"))
+		if (urlString != null && !urlString.equals(WILDCARD_ANY))
 			repoURL = toURL(interpreter, urlString);
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoURL, id, new VersionRange(version), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoURL, new InstallableUnitQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -168,7 +169,7 @@ public class ProvCommandProvider implements CommandProvider {
 		URL repoURL = toURL(interpreter, urlString);
 		if (repoURL == null)
 			return;
-		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoURL, id, new VersionRange(version), null));
+		IInstallableUnit[] units = sort(ProvisioningHelper.getInstallableUnits(repoURL, new InstallableUnitQuery(id, new VersionRange(version)), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -196,8 +197,12 @@ public class ProvCommandProvider implements CommandProvider {
 				return;
 			repositories = new IMetadataRepository[] {repo};
 		}
-		RequiredCapability requirement = new RequiredCapability(IU_KIND_NAMESPACE, "group", null, null, false, false);
-		IInstallableUnit[] units = sort(Query.query(repositories, null, null, new RequiredCapability[] {requirement}, false, null));
+		RequiredCapability requirement = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false); //$NON-NLS-1$
+		Query query = new CapabilityQuery(requirement);
+		Collector result = new Collector();
+		for (int i = 0; i < repositories.length; i++)
+			repositories[i].query(query, result, null);
+		IInstallableUnit[] units = sort(result);
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}
@@ -262,7 +267,7 @@ public class ProvCommandProvider implements CommandProvider {
 	}
 
 	private String processArgument(String arg) {
-		if (arg == null || arg.equals("*"))
+		if (arg == null || arg.equals(WILDCARD_ANY))
 			return null;
 		return arg;
 	}
@@ -291,12 +296,13 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 
 		// list the profile contents
-		IInstallableUnit[] result = sort(Query.query(new Profile[] {target}, id, new VersionRange(range), null, false, null));
+		IInstallableUnit[] result = sort(target.query(new InstallableUnitQuery(id, new VersionRange(range)), new Collector(), null));
 		for (int i = 0; i < result.length; i++)
 			interpreter.println(result[i]);
 	}
 
-	private IInstallableUnit[] sort(IInstallableUnit[] units) {
+	private IInstallableUnit[] sort(Collector collector) {
+		IInstallableUnit[] units = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 		Arrays.sort(units, new Comparator() {
 			public int compare(Object arg0, Object arg1) {
 				return arg0.toString().compareTo(arg1.toString());

@@ -18,10 +18,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
-import org.eclipse.equinox.p2.query.CompoundIterator;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -81,12 +80,8 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return content;
 	}
 
-	public Iterator getIterator(String id, VersionRange range, RequiredCapability[] requirements, boolean and) {
-		return new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and);
-	}
-
-	public IInstallableUnit[] query(String id, VersionRange range, RequiredCapability[] requirements, boolean and, IProgressMonitor progress) {
-		return CompoundIterator.asArray(new CompoundIterator(new Iterator[] {units.iterator()}, id, range, requirements, and), null);
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		return query.perform(units.iterator(), collector);
 	}
 
 	// Use this method to setup any transient fields etc after the object has been restored from a stream

@@ -26,8 +26,13 @@ public class UninstallTest extends AbstractProvisioningTest {
 	}
 
 	public void testUninstall() {
-		System.out.println(director.install(new IInstallableUnit[] {a1}, profile, null));
-		director.uninstall(new IInstallableUnit[] {a1}, profile, null);
+		IInstallableUnit[] units = new IInstallableUnit[] {a1};
+		System.out.println(director.install(units, profile, null));
+		assertProfileContains("1.0", profile, units);
+		director.uninstall(units, profile, null);
+		assertEmptyProfile(profile);
+		//uninstalling on empty profile should be a no-op
+		director.uninstall(units, profile, null);
 		assertEmptyProfile(profile);
 	}
 }
