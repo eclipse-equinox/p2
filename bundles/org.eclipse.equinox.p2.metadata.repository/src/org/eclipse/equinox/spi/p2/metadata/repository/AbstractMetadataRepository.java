@@ -17,6 +17,12 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.Version;
 
+/**
+ * The common base class for all metadata repositories.
+ * <p>
+ * Clients may subclass this class.
+ * <p>
+ */
 public abstract class AbstractMetadataRepository extends AbstractRepository implements IMetadataRepository {
 
 	public static class RepositoryState {

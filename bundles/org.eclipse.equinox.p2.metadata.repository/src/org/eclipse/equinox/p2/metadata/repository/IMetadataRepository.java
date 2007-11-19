@@ -14,11 +14,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 
 /**
  * A metadata repository stores information about a set of installable units
  * <p>
- * Clients may implement this interface.
+ * This interface is not intended to be implemented by clients.  Metadata repository
+ * implementations must subclass {@link AbstractMetadataRepository} rather than 
+ * implementing this interface directly.
  * </p>
  */
 public interface IMetadataRepository extends IRepository, IQueryable {
