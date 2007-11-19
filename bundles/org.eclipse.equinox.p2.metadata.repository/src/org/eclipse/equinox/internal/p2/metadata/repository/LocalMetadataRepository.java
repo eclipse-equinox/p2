@@ -29,10 +29,9 @@ import org.eclipse.osgi.util.NLS;
  * and combine any metadata repository files that are found.
  */
 public class LocalMetadataRepository extends AbstractMetadataRepository {
-
+	static final private String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = LocalMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
-	static final private String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 
 	protected HashSet units = new LinkedHashSet();
 
@@ -51,14 +50,25 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		super();
 	}
 
+	protected LocalMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
+		super(name, type, version, location, description, provider);
+	}
+
 	public LocalMetadataRepository(URL location, String name) throws RepositoryCreationException {
 		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null); //$NON-NLS-1$
 		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location);
 	}
 
-	protected LocalMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
-		super(name, type, version, location, description, provider);
+	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
+		units.addAll(Arrays.asList(installableUnits));
+		save();
+	}
+
+	// Get a non-modifiable collection of the installable units
+	// from the repository.
+	public Set getInstallableUnits() {
+		return Collections.unmodifiableSet(units);
 	}
 
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
@@ -70,13 +80,56 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return result;
 	}
 
+	public void initialize(RepositoryState state) {
+		this.name = state.Name;
+		this.type = state.Type;
+		this.version = state.Version.toString();
+		this.provider = state.Provider;
+		this.description = state.Description;
+		this.location = state.Location;
+		this.properties = state.Properties;
+		this.units.addAll(Arrays.asList(state.Units));
+	}
+
+	// use this method to setup any transient fields etc after the object has been restored from a stream
+	public void initializeAfterLoad(URL aLocation) {
+		this.location = aLocation;
+	}
+
+	public boolean isModifiable() {
+		return true;
+	}
+
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(units.iterator(), collector);
 	}
 
-	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
-		units.addAll(Arrays.asList(installableUnits));
+	public void removeAll() {
+		units.clear();
 		save();
+	}
+
+	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+		int sizeBefore = units.size();
+		query.perform(units.iterator(), new Collector() {
+			public boolean accept(Object object) {
+				units.remove(object);
+				return true;
+			}
+		});
+		save();
+		return units.size() != sizeBefore;
+	}
+
+	public void revertToBackup(LocalMetadataRepository backup) {
+		name = backup.name;
+		type = backup.type;
+		version = backup.version;
+		location = backup.location;
+		description = backup.description;
+		provider = backup.provider;
+		properties = backup.properties;
+		units = backup.units;
 	}
 
 	private void save() {
@@ -95,59 +148,5 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-
-	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
-		int sizeBefore = units.size();
-		query.perform(units.iterator(), new Collector() {
-			public boolean accept(Object object) {
-				units.remove(object);
-				return true;
-			}
-		});
-		save();
-		return units.size() != sizeBefore;
-	}
-
-	public void removeAll() {
-		units.clear();
-		save();
-	}
-
-	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public void initializeAfterLoad(URL aLocation) {
-		this.location = aLocation;
-	}
-
-	public void revertToBackup(LocalMetadataRepository backup) {
-		name = backup.name;
-		type = backup.type;
-		version = backup.version;
-		location = backup.location;
-		description = backup.description;
-		provider = backup.provider;
-		properties = backup.properties;
-		units = backup.units;
-	}
-
-	public boolean isModifiable() {
-		return true;
-	}
-
-	// Get a non-modifiable collection of the installable units
-	// from the repository.
-	public Set getInstallableUnits() {
-		return Collections.unmodifiableSet(units);
-	}
-
-	public void initialize(RepositoryState state) {
-		this.name = state.Name;
-		this.type = state.Type;
-		this.version = state.Version.toString();
-		this.provider = state.Provider;
-		this.description = state.Description;
-		this.location = state.Location;
-		this.properties = state.Properties;
-		this.units.addAll(Arrays.asList(state.Units));
 	}
 }

@@ -28,9 +28,9 @@ import org.eclipse.osgi.util.NLS;
  */
 public class URLMetadataRepository extends AbstractMetadataRepository {
 
+	static final protected String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
-	static final protected String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 
 	transient protected URL content;
 	protected HashSet units = new LinkedHashSet();
@@ -50,6 +50,10 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		}
 	}
 
+	public URLMetadataRepository() {
+		super();
+	}
+
 	protected URLMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
 		super(name, type, version, location, description, provider);
 	}
@@ -59,12 +63,14 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		content = getActualLocation(location);
 	}
 
-	public URLMetadataRepository() {
-		super();
+	protected URL getContentURL() {
+		return content;
 	}
 
-	protected boolean load() throws RepositoryCreationException {
-		return new SimpleMetadataRepositoryFactory().load(location) != null;
+	// Get a non-modifiable collection of the installable units
+	// from the repository.
+	public Set getInstallableUnits() {
+		return Collections.unmodifiableSet(units);
 	}
 
 	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
@@ -76,18 +82,33 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return result;
 	}
 
-	protected URL getContentURL() {
-		return content;
-	}
-
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		return query.perform(units.iterator(), collector);
+	public void initialize(RepositoryState state) {
+		this.name = state.Name;
+		this.type = state.Type;
+		this.version = state.Version.toString();
+		this.provider = state.Provider;
+		this.description = state.Description;
+		this.location = state.Location;
+		this.properties = state.Properties;
+		this.units.addAll(Arrays.asList(state.Units));
 	}
 
 	// Use this method to setup any transient fields etc after the object has been restored from a stream
 	public void initializeAfterLoad(URL repoLocation) {
 		this.location = repoLocation;
 		content = getActualLocation(location);
+	}
+
+	public boolean isModifiable() {
+		return false;
+	}
+
+	protected boolean load() throws RepositoryCreationException {
+		return new SimpleMetadataRepositoryFactory().load(location) != null;
+	}
+
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		return query.perform(units.iterator(), collector);
 	}
 
 	public void revertToBackup(URLMetadataRepository backup) {
@@ -99,26 +120,5 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		provider = backup.provider;
 		properties = backup.properties;
 		units = backup.units;
-	}
-
-	public boolean isModifiable() {
-		return false;
-	}
-
-	// Get a non-modifiable collection of the installable units
-	// from the repository.
-	public Set getInstallableUnits() {
-		return Collections.unmodifiableSet(units);
-	}
-
-	public void initialize(RepositoryState state) {
-		this.name = state.Name;
-		this.type = state.Type;
-		this.version = state.Version.toString();
-		this.provider = state.Provider;
-		this.description = state.Description;
-		this.location = state.Location;
-		this.properties = state.Properties;
-		this.units.addAll(Arrays.asList(state.Units));
 	}
 }
