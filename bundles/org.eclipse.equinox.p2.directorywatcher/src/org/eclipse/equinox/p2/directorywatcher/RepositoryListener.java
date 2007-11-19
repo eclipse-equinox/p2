@@ -22,6 +22,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private final BundleDescriptionFactory bundleDescriptionFactory;
 	private final Map currentFiles = new HashMap();
 	private final String repositoryName;
+	private long lastModifed;
 
 	public RepositoryListener(BundleContext context, String repositoryName) {
 
@@ -174,6 +175,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private void synchronizeMetadataRepository() {
+		boolean modified = false;
 		Map snapshot = new HashMap(currentFiles);
 		List toRemove = new ArrayList();
 
@@ -193,15 +195,21 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (!toRemove.isEmpty()) {
 			IInstallableUnit[] iusToRemove = (IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]);
 			metadataRepository.removeInstallableUnits(iusToRemove);
+			modified = true;
 		}
 
 		if (!snapshot.isEmpty()) {
 			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
 			metadataRepository.addInstallableUnits(iusToAdd);
+			modified = true;
 		}
+
+		if (modified)
+			lastModifed = System.currentTimeMillis();
 	}
 
 	private void synchronizeArtifactRepository() {
+		boolean modified = false;
 		List snapshot = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
 
 		IInstallableUnit[] ius = metadataRepository.getInstallableUnits(null);
@@ -214,15 +222,21 @@ public class RepositoryListener extends DirectoryChangeListener {
 			if (!snapshot.remove(artifact)) {
 				File iuFile = new File(iu.getProperty("file.name"));
 				IArtifactDescriptor descriptor = generateArtifactDescriptor(iuFile);
-				if (descriptor != null)
+				if (descriptor != null) {
 					artifactRepository.addDescriptor(descriptor);
+					modified = true;
+				}
 			}
 		}
 
 		for (Iterator it = snapshot.iterator(); it.hasNext();) {
 			IArtifactKey key = (IArtifactKey) it.next();
 			artifactRepository.removeDescriptor(key);
+			modified = true;
 		}
+
+		if (modified)
+			lastModifed = System.currentTimeMillis();
 	}
 
 	private IArtifactDescriptor generateArtifactDescriptor(File bundle) {
@@ -260,5 +274,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	public IArtifactRepository getArtifactRepository() {
 		return artifactRepository;
+	}
+
+	public long getLastModified() {
+		return lastModifed;
 	}
 }
