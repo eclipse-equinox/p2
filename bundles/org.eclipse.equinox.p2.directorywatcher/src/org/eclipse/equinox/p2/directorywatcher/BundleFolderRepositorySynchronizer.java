@@ -21,30 +21,6 @@ public class BundleFolderRepositorySynchronizer {
 		watcher.addListener(listener);
 
 		DirectoryChangeListener updatedListener = new DirectoryChangeListener() {
-
-			public boolean added(File file) {
-				return false;
-			}
-
-			public boolean changed(File file) {
-				return false;
-			}
-
-			public String[] getExtensions() {
-				return null;
-			}
-
-			public Long getSeenFile(File file) {
-				return null;
-			}
-
-			public boolean removed(File file) {
-				return false;
-			}
-
-			public void startPoll() {
-			}
-
 			public void stopPoll() {
 				checkForUpdates();
 			}
