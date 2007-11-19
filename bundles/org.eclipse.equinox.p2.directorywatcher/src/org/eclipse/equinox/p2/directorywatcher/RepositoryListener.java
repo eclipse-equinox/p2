@@ -17,14 +17,16 @@ import org.osgi.framework.ServiceReference;
 
 public class RepositoryListener extends DirectoryChangeListener {
 
-	IMetadataRepository metadataRepository;
-	IArtifactRepository artifactRepository;
-	BundleDescriptionFactory bundleDescriptionFactory;
-	Map currentFiles = new HashMap();
+	private final IMetadataRepository metadataRepository;
+	private final IArtifactRepository artifactRepository;
+	private final BundleDescriptionFactory bundleDescriptionFactory;
+	private final Map currentFiles = new HashMap();
+	private final String repositoryName;
 
-	public RepositoryListener(BundleContext context, File bundleDirectory) {
+	public RepositoryListener(BundleContext context, String repositoryName) {
 
-		String stateDirName = "listener_" + bundleDirectory.getAbsolutePath().hashCode();
+		this.repositoryName = repositoryName;
+		String stateDirName = "listener_" + repositoryName;
 		File stateDir = context.getDataFile(stateDirName);
 		stateDir.mkdirs();
 
@@ -35,12 +37,12 @@ public class RepositoryListener extends DirectoryChangeListener {
 			throw new IllegalStateException(e.getMessage());
 		}
 
-		initializeMetadataRepository(context, stateDirURL);
-		initializeArtifactRepository(context, stateDirURL);
-		initializeBundleDescriptionFactory(context);
+		metadataRepository = initializeMetadataRepository(context, stateDirURL);
+		artifactRepository = initializeArtifactRepository(context, stateDirURL);
+		bundleDescriptionFactory = initializeBundleDescriptionFactory(context);
 	}
 
-	private void initializeBundleDescriptionFactory(BundleContext context) {
+	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
 
 		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
 		if (reference == null)
@@ -51,13 +53,13 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		try {
 			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();
-			bundleDescriptionFactory = new BundleDescriptionFactory(stateObjectFactory, null);
+			return new BundleDescriptionFactory(stateObjectFactory, null);
 		} finally {
 			context.ungetService(reference);
 		}
 	}
 
-	private void initializeArtifactRepository(BundleContext context, URL stateDirURL) {
+	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL) {
 		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
 		if (reference == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
@@ -66,19 +68,22 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
 
+		IArtifactRepository repository = null;
 		try {
-			artifactRepository = manager.getRepository(stateDirURL);
-			if (artifactRepository == null)
-				artifactRepository = manager.createRepository(stateDirURL, "artifact listener", "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+			repository = manager.getRepository(stateDirURL);
+			if (repository == null)
+				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
 		} finally {
 			context.ungetService(reference);
 		}
 
-		if (artifactRepository == null)
+		if (repository == null)
 			throw new IllegalStateException("Couldn't create listener artifact repository for: " + stateDirURL);
+
+		return repository;
 	}
 
-	private void initializeMetadataRepository(BundleContext context, URL stateDirURL) {
+	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL) {
 		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
 		if (reference == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered.");
@@ -87,16 +92,19 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered.");
 
+		IMetadataRepository repository = null;
 		try {
-			metadataRepository = manager.getRepository(stateDirURL);
-			if (metadataRepository == null)
-				metadataRepository = manager.createRepository(stateDirURL, "metadata listener", "org.eclipse.equinox.p2.metadata.repository.simpleRepository");
+			repository = manager.getRepository(stateDirURL);
+			if (repository == null)
+				repository = manager.createRepository(stateDirURL, "metadata listener " + repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository");
 		} finally {
 			context.ungetService(reference);
 		}
 
-		if (metadataRepository == null)
+		if (repository == null)
 			throw new IllegalStateException("Couldn't create listener metadata repository for: " + stateDirURL);
+
+		return repository;
 	}
 
 	/* (non-Javadoc)

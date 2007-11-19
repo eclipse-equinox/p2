@@ -50,7 +50,7 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
 		props.put(DirectoryWatcher.POLL, "500");
 
-		RepositoryListener listener = new RepositoryListener(TestActivator.getContext(), folder);
+		RepositoryListener listener = new RepositoryListener(TestActivator.getContext(), "test" + folder.getAbsolutePath().hashCode());
 
 		assertEquals("1.0", 0, listener.getMetadataRepository().getInstallableUnits(null).length);
 		assertEquals("1.1", 0, listener.getArtifactRepository().getArtifactKeys().length);
