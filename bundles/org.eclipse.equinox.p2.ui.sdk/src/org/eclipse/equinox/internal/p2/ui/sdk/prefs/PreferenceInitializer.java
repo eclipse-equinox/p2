@@ -24,9 +24,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	 */
 	public void initializeDefaultPreferences() {
 		Preferences node = new DefaultScope().getNode("org.eclipse.equinox.p2.ui.sdk"); //$NON-NLS-1$
-		node.putBoolean(PreferenceConstants.P_ENABLED, false);
-		node.put(PreferenceConstants.P_SCHEDULE, PreferenceConstants.VALUE_ON_STARTUP);
-		node.putBoolean(PreferenceConstants.P_DOWNLOAD, false);
+		node.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false);
+		node.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
+		node.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false);
+		node.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true);
 	}
 
 }

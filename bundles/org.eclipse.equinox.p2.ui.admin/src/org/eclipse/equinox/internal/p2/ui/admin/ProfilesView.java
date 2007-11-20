@@ -18,11 +18,12 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.UninstallAction;
 import org.eclipse.equinox.p2.ui.actions.UpdateAction;
-import org.eclipse.equinox.p2.ui.model.*;
+import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
+import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.p2.ui.model.Profiles;
 import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveProfilesOperation;
-import org.eclipse.equinox.p2.ui.viewers.InstallIUDropAdapter;
-import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
+import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.DND;
@@ -55,9 +56,9 @@ public class ProfilesView extends ProvView {
 			List list = getSelection().toList();
 			List profilesOnly = new ArrayList();
 			for (int i = 0; i < list.size(); i++) {
-				Object element;
-				if ((element = list.get(i)) instanceof Profile) {
-					profilesOnly.add(element);
+				Profile profile = (Profile) ProvUI.getAdapter(list.get(i), Profile.class);
+				if (profile != null) {
+					profilesOnly.add(profile);
 				}
 			}
 			ProfileOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (Profile[]) profilesOnly.toArray(new Profile[profilesOnly.size()]));
@@ -73,8 +74,7 @@ public class ProfilesView extends ProvView {
 		}
 
 		public void run() {
-			Profile[] profiles = (Profile[]) ((ITreeContentProvider) viewer.getContentProvider()).getElements(null);
-			new AddProfileDialog(viewer.getControl().getShell(), profiles).open();
+			new AddProfileDialog(viewer.getControl().getShell(), ((ITreeContentProvider) viewer.getContentProvider()).getElements(null)).open();
 		}
 	}
 
@@ -99,7 +99,7 @@ public class ProfilesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE);
+		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, ProvAdminUIActivator.getDefault().getQueryProvider());
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 	}
 
@@ -179,14 +179,16 @@ public class ProfilesView extends ProvView {
 		removeProfileAction.setEnabled(false);
 		if (ss.size() == 1) {
 			propertiesAction.setEnabled(true);
-			if (ss.getFirstElement() instanceof Profile)
+			Profile profile = (Profile) ProvUI.getAdapter(ss.getFirstElement(), Profile.class);
+			if (profile != null)
 				installAction.setEnabled(true);
 		}
 		Object[] selectionArray = ss.toArray();
 		if (selectionArray.length > 0) {
 			removeProfileAction.setEnabled(true);
 			for (int i = 0; i < selectionArray.length; i++) {
-				if (!(selectionArray[i] instanceof Profile)) {
+				Profile profile = (Profile) ProvUI.getAdapter(selectionArray[i], Profile.class);
+				if (profile == null) {
 					removeProfileAction.setEnabled(false);
 					break;
 				}
@@ -199,11 +201,11 @@ public class ProfilesView extends ProvView {
 	}
 
 	protected IContentProvider getContentProvider() {
-		return new ProfileContentProvider();
+		return new DeferredQueryContentProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
 	}
 
 	protected Object getInput() {
-		return new AllProfiles();
+		return new Profiles();
 	}
 
 	IProfileChooser getProfileChooser() {
@@ -213,10 +215,7 @@ public class ProfilesView extends ProvView {
 				if (firstElement instanceof InstalledIUElement) {
 					return ((InstalledIUElement) firstElement).getProfile();
 				}
-				if (firstElement instanceof Profile) {
-					return (Profile) firstElement;
-				}
-				return null;
+				return (Profile) ProvUI.getAdapter(firstElement, Profile.class);
 			}
 
 			public String getLabel() {

@@ -8,20 +8,24 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
 package org.eclipse.equinox.p2.ui.model;
 
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.QueriedElement;
+
 /**
- * Content provider for metadata repositories. The raw repositories are the
- * elements, and the raw IU's are the children of the repositories.
+ * Element class that represents the root of a metadata
+ * repository viewer.  Its children are obtained using the
+ * metadata repository query specified by the client in the
+ * content provider.
  * 
  * @since 3.4
- * 
+ *
  */
-public class MetadataRepositoryContentProvider extends RepositoryContentProvider {
-	public Object[] getElements(Object input) {
-		if (input == null)
-			return getChildren(new AllMetadataRepositories());
-		return getChildren(input);
+public class MetadataRepositories extends QueriedElement {
+
+	protected int getQueryType() {
+		return IProvElementQueryProvider.METADATA_REPOS;
 	}
+
 }

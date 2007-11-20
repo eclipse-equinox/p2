@@ -8,10 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.model;
+package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 
@@ -21,14 +22,18 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
  * 
  * @since 3.4
  */
-public class ArtifactRepositoryElement extends RepositoryElement {
+public class ArtifactRepositoryElement extends RemoteQueriedElement {
+
+	IArtifactRepository repo;
 
 	public ArtifactRepositoryElement(IArtifactRepository repo) {
-		super(repo);
+		this.repo = repo;
 	}
 
 	public Object getAdapter(Class adapter) {
 		if (adapter == IArtifactRepository.class)
+			return repo;
+		if (adapter == IRepository.class)
 			return repo;
 		return super.getAdapter(adapter);
 	}
@@ -38,11 +43,26 @@ public class ArtifactRepositoryElement extends RepositoryElement {
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		IArtifactKey[] keys = ((IArtifactRepository) repo).getArtifactKeys();
+		IArtifactKey[] keys = repo.getArtifactKeys();
 		ArtifactElement[] elements = new ArtifactElement[keys.length];
 		for (int i = 0; i < keys.length; i++) {
-			elements[i] = new ArtifactElement(keys[i], (IArtifactRepository) repo);
+			elements[i] = new ArtifactElement(keys[i], repo);
 		}
 		return elements;
 	}
+
+	public String getLabel(Object o) {
+		String name = repo.getName();
+		if (name != null && name.length() > 0) {
+			return name;
+		}
+		return repo.getLocation().toExternalForm();
+
+	}
+
+	// Not used because we override fetchChildren
+	protected int getQueryType() {
+		return 0;
+	}
+
 }

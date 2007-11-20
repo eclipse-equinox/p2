@@ -8,39 +8,25 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.model;
+package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.ui.query.ElementQueryDescriptor;
+import org.eclipse.equinox.p2.ui.query.QueriedElement;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
 
 /**
- * Element wrapper class for repository that gets its contents
- * in a deferred manner.
+ * Element wrapper class for objects that gets their children using
+ * a deferred query.
  * 
  * @since 3.4
  */
-public abstract class RepositoryElement extends ProvElement implements IDeferredWorkbenchAdapter {
-
-	IRepository repo;
-
-	public RepositoryElement(IRepository repo) {
-		this.repo = repo;
-	}
+public abstract class RemoteQueriedElement extends QueriedElement implements IDeferredWorkbenchAdapter {
 
 	public Object getParent(Object o) {
 		return null;
-	}
-
-	public String getLabel(Object o) {
-		String name = repo.getName();
-		if (name != null && name.length() > 0) {
-			return name;
-		}
-		return repo.getLocation().toExternalForm();
-
 	}
 
 	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
@@ -52,12 +38,14 @@ public abstract class RepositoryElement extends ProvElement implements IDeferred
 		return fetchChildren(o, null);
 	}
 
-	protected abstract Object[] fetchChildren(Object o, IProgressMonitor monitor);
-
-	public Object getAdapter(Class adapter) {
-		if (adapter == IRepository.class)
-			return repo;
-		return super.getAdapter(adapter);
+	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+		if (getQueryProvider() == null)
+			return new Object[0];
+		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this, getQueryType());
+		if (queryDescriptor == null)
+			return new Object[0];
+		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.result, monitor);
+		return queryDescriptor.result.toArray(Object.class);
 	}
 
 	public ISchedulingRule getRule(Object object) {

@@ -15,8 +15,7 @@ import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.*;
-import org.eclipse.equinox.p2.ui.model.AllMetadataRepositories;
-import org.eclipse.equinox.p2.ui.model.MetadataRepositoryContentProvider;
+import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.operations.RemoveColocatedRepositoryOperation;
 import org.eclipse.equinox.p2.ui.viewers.*;
@@ -24,7 +23,8 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -76,10 +76,9 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		// Table of available repositories
 		repositoryViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		setTableColumns(repositoryViewer.getTable());
-		repositoryViewer.setContentProvider(new MetadataRepositoryContentProvider());
-		repositoryViewer.setInput(new AllMetadataRepositories());
+		repositoryViewer.setContentProvider(new RepositoryContentProvider(ProvSDKUIActivator.getDefault().getQueryProvider()));
+		repositoryViewer.setInput(new MetadataRepositories());
 		repositoryViewer.setLabelProvider(new ProvElementLabelProvider());
-		repositoryViewer.setFilters(new ViewerFilter[] {new InternalRepositoryFilter()});
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
@@ -92,7 +91,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		Composite verticalButtonBar = (Composite) createVerticalButtonBar(composite);
 		data = new GridData(GridData.FILL_VERTICAL);
 		verticalButtonBar.setLayoutData(data);
-		listener = new StructuredViewerProvisioningListener(repositoryViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY);
+		listener = new StructuredViewerProvisioningListener(repositoryViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, ProvSDKUIActivator.getDefault().getQueryProvider());
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 		composite.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent event) {

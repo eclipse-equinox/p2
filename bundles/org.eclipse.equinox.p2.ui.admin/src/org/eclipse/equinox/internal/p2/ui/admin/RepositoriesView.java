@@ -12,7 +12,9 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.p2.ui.viewers.RepositoryContentProvider;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
@@ -71,7 +73,7 @@ abstract class RepositoriesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY);
+		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, ProvAdminUIActivator.getDefault().getQueryProvider());
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 	}
 
@@ -131,7 +133,7 @@ abstract class RepositoriesView extends ProvView {
 	}
 
 	protected void selectionChanged(IStructuredSelection selection) {
-		propertiesAction.setEnabled(selection.size() == 1 && ((selection.getFirstElement() instanceof IInstallableUnit) || (isRepository(selection.getFirstElement()))));
+		propertiesAction.setEnabled(selection.size() == 1 && ((ProvUI.getAdapter(selection.getFirstElement(), IInstallableUnit.class) != null) || (isRepository(selection.getFirstElement()))));
 		boolean enabled = false;
 		Object[] selectionArray = selection.toArray();
 		for (int i = 0; i < selectionArray.length; i++) {
@@ -142,6 +144,11 @@ abstract class RepositoriesView extends ProvView {
 			enabled = true;
 		}
 		removeRepositoryAction.setEnabled(enabled);
+	}
+
+	protected IContentProvider getContentProvider() {
+		return new RepositoryContentProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
+
 	}
 
 	protected abstract int openAddRepositoryDialog(Shell shell, Object[] elements);

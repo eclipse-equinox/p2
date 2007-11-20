@@ -16,7 +16,9 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
-import org.eclipse.equinox.p2.ui.model.*;
+import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.p2.ui.model.ProfileElement;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -48,7 +50,7 @@ public class UpdateAndInstallGroup {
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	TabFolder tabFolder;
 	TableViewer installedIUViewer;
-	TableViewer availableIUViewer;
+	TreeViewer availableIUViewer;
 	Profile profile;
 	IRepositoryManipulator repositoryManipulator;
 	IProfileChooser profileChooser;
@@ -59,11 +61,7 @@ public class UpdateAndInstallGroup {
 	 * Create an instance of this group.
 	 * 
 	 */
-	// TODO we currently specify the filtering for what IU's we want to see with
-	// a viewer filter. More likely we would pass in the required
-	// capability/version info
-	// and use the iterator API rather than get all IU's and then filter them
-	public UpdateAndInstallGroup(Composite parent, Profile profile, ViewerFilter[] installedIUFilters, ViewerFilter[] availableIUFilters, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, FontMetrics fm) {
+	public UpdateAndInstallGroup(Composite parent, Profile profile, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, IProvElementQueryProvider queryProvider, FontMetrics fm) {
 
 		this.profile = profile;
 		this.repositoryManipulator = repositoryManipulator;
@@ -81,19 +79,19 @@ public class UpdateAndInstallGroup {
 		// Installed IU's
 		TabItem installedTab = new TabItem(tabFolder, SWT.NONE);
 		installedTab.setText(installedString);
-		installedTab.setControl(createInstalledIUsPage(tabFolder, installedIUFilters));
+		installedTab.setControl(createInstalledIUsPage(tabFolder, queryProvider));
 
 		// Find IU's
 		TabItem availableTab = new TabItem(tabFolder, SWT.NONE);
 		availableTab.setText(availableString);
-		availableTab.setControl(createAvailableIUsPage(tabFolder, availableIUFilters));
+		availableTab.setControl(createAvailableIUsPage(tabFolder, queryProvider));
 	}
 
 	public TabFolder getTabFolder() {
 		return tabFolder;
 	}
 
-	private Control createAvailableIUsPage(Composite parent, ViewerFilter[] iuFilters) {
+	private Control createAvailableIUsPage(Composite parent, IProvElementQueryProvider queryProvider) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
@@ -106,19 +104,19 @@ public class UpdateAndInstallGroup {
 		composite.setLayout(layout);
 
 		// Table of available IU's
-		availableIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		availableIUViewer = new TreeViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		final IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
 		labelProvider.setToolTipProperty(IInstallableUnit.PROP_DESCRIPTION);
 
 		// TODO Kind of a hack, but there was no need to go with column label providers
-		availableIUViewer.getTable().addListener(SWT.MouseHover, new Listener() {
+		availableIUViewer.getTree().addListener(SWT.MouseHover, new Listener() {
 			public void handleEvent(Event event) {
 				switch (event.type) {
 					case SWT.MouseHover :
-						Table table = availableIUViewer.getTable();
-						TableItem item = table.getItem(new Point(event.x, event.y));
+						Tree tree = availableIUViewer.getTree();
+						TreeItem item = tree.getItem(new Point(event.x, event.y));
 						if (item != null) {
-							table.setToolTipText(labelProvider.getToolTipText(item.getData()));
+							tree.setToolTipText(labelProvider.getToolTipText(item.getData()));
 						}
 						break;
 				}
@@ -127,17 +125,15 @@ public class UpdateAndInstallGroup {
 		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		if (iuFilters != null) {
-			availableIUViewer.setFilters(iuFilters);
-		}
-		availableIUViewer.setComparator(new ViewerComparator());
+		availableIUViewer.setComparator(new IUComparator(IUComparator.IU_ID));
+		availableIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
-		availableIUViewer.setContentProvider(new AvailableIUContentProvider());
-		availableIUViewer.setInput(new AllMetadataRepositories());
+		availableIUViewer.setContentProvider(new AvailableIUContentProvider(queryProvider));
+		availableIUViewer.setInput(new MetadataRepositories());
 
 		// Now the presentation, columns before label provider.
-		setTableColumns(availableIUViewer.getTable());
+		setTreeColumns(availableIUViewer.getTree());
 		availableIUViewer.setLabelProvider(labelProvider);
 
 		GridData data = new GridData(GridData.FILL_BOTH);
@@ -158,15 +154,16 @@ public class UpdateAndInstallGroup {
 			}
 		});
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider);
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
+
 		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				ProvUIActivator.getDefault().removeProvisioningListener(listener);
 			}
 		});
 
-		validateAvailableIUButtons(installedIUViewer.getSelection());
+		validateAvailableIUButtons(availableIUViewer.getSelection());
 		return composite;
 	}
 
@@ -194,7 +191,7 @@ public class UpdateAndInstallGroup {
 			repoButton.setData(BUTTONACTION, new Action() {
 				public void runWithEvent(Event event) {
 					if (repositoryManipulator.manipulateRepositories(getTabFolder().getShell())) {
-						availableIUViewer.setInput(new AllMetadataRepositories());
+						availableIUViewer.refresh();
 					}
 				}
 			});
@@ -210,7 +207,7 @@ public class UpdateAndInstallGroup {
 		updateEnablement(installButton);
 	}
 
-	private Control createInstalledIUsPage(Composite parent, ViewerFilter[] iuFilters) {
+	private Control createInstalledIUsPage(Composite parent, IProvElementQueryProvider queryProvider) {
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -226,14 +223,12 @@ public class UpdateAndInstallGroup {
 		installedIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		if (iuFilters != null) {
-			installedIUViewer.setFilters(iuFilters);
-		}
-		installedIUViewer.setComparator(new ViewerComparator());
+		installedIUViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
+		installedIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
-		installedIUViewer.setContentProvider(new ProfileContentProvider());
-		installedIUViewer.setInput(profile);
+		installedIUViewer.setContentProvider(new DeferredQueryContentProvider(queryProvider));
+		installedIUViewer.setInput(new ProfileElement(profile));
 
 		// Now the visuals, columns before labels.
 		setTableColumns(installedIUViewer.getTable());
@@ -257,7 +252,7 @@ public class UpdateAndInstallGroup {
 			}
 		});
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, queryProvider);
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -385,7 +380,6 @@ public class UpdateAndInstallGroup {
 	}
 
 	private void setTableColumns(Table table) {
-		// TODO will we ever let callers set the column config?
 		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
 		table.setHeaderVisible(true);
 
@@ -397,4 +391,23 @@ public class UpdateAndInstallGroup {
 		}
 	}
 
+	private void setTreeColumns(Tree tree) {
+		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
+		tree.setHeaderVisible(true);
+
+		for (int i = 0; i < columns.length; i++) {
+			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
+			tc.setResizable(true);
+			tc.setText(columns[i].columnTitle);
+			tc.setWidth(convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH));
+		}
+	}
+
+	public StructuredViewer getAvailableIUViewer() {
+		return availableIUViewer;
+	}
+
+	public StructuredViewer getInstalledIUViewer() {
+		return installedIUViewer;
+	}
 }

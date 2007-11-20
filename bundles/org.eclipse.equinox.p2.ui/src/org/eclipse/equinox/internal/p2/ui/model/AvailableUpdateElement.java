@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.model;
+package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 

@@ -15,6 +15,9 @@ import java.util.EventObject;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.ui.IProvisioningListener;
+import org.eclipse.equinox.p2.ui.model.ProfileElement;
+import org.eclipse.equinox.p2.ui.operations.SizingPhaseSet;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
 
@@ -35,29 +38,42 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 	int eventTypes = 0;
 	StructuredViewer viewer;
 	Display display;
+	IProvElementQueryProvider queryProvider;
 
-	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes) {
+	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes, IProvElementQueryProvider queryProvider) {
 		this.viewer = viewer;
 		this.eventTypes = eventTypes;
 		this.display = viewer.getControl().getDisplay();
+		this.queryProvider = queryProvider;
 	}
 
 	public void notify(EventObject o) {
 		// Commit operations on a profile will refresh the structure of the profile
-		if (o instanceof CommitOperationEvent && (((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE) || (eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU)) {
+		if (o instanceof CommitOperationEvent) {
 			CommitOperationEvent event = (CommitOperationEvent) o;
-			final Profile profile = event.getProfile();
-			display.asyncExec(new Runnable() {
-				public void run() {
-					if (viewer.getInput() instanceof Profile)
-						viewer.refresh();
-					else
-						viewer.refresh(profile);
-				}
-			});
+			// TODO this is a workaround
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208251
+			if (event.getPhaseSet() instanceof SizingPhaseSet)
+				return;
+			if (((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE) || (eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) {
+				final Profile profile = event.getProfile();
+				display.asyncExec(new Runnable() {
+					public void run() {
+						// We want to refresh the affected profile, so we
+						// construct a profile element on this profile.
+						// We can't match on the raw profile because the viewer
+						// will set its item backpointer to the refreshed element
+						ProfileElement element = new ProfileElement(profile);
+						element.setQueryProvider(queryProvider);
+						viewer.refresh(element);
+					}
+				});
+			}
 		} else if (o instanceof ProfileEvent && ((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU)) {
-			// We assume for now that it was either an add or remove of a
-			// profile, so rather than update a profile, we update everything.
+			// We don't respond to ProfileEvent.CHANGED because it is incomplete.
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
+			if (((ProfileEvent) o).getReason() == ProfileEvent.CHANGED)
+				return;
 			display.asyncExec(new Runnable() {
 				public void run() {
 					viewer.refresh();

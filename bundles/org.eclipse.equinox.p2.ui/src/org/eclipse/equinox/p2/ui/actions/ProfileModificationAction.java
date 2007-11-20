@@ -52,7 +52,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		List iusList = new ArrayList(elements.size());
 
 		for (int i = 0; i < elements.size(); i++) {
-			IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(elements.get(i), IInstallableUnit.class);
+			IInstallableUnit iu = getIU(elements.get(i));
 			if (iu != null)
 				iusList.add(iu);
 		}
@@ -91,5 +91,10 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 	protected abstract void performOperation(IInstallableUnit[] ius, Profile targetProfile);
 
 	protected abstract String getTaskName();
+
+	IInstallableUnit getIU(Object element) {
+		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+
+	}
 
 }

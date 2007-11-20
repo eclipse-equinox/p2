@@ -14,10 +14,9 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.model.*;
+import org.eclipse.equinox.p2.ui.model.ArtifactRepositories;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveArtifactRepositoryOperation;
-import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -34,12 +33,8 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		// constructor
 	}
 
-	protected IContentProvider getContentProvider() {
-		return new ArtifactRepositoryContentProvider();
-	}
-
 	protected Object getInput() {
-		return new AllArtifactRepositories();
+		return new ArtifactRepositories();
 	}
 
 	protected String getAddCommandLabel() {
@@ -69,7 +64,7 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected boolean isRepository(Object element) {
-		return element instanceof IArtifactRepository || element instanceof ArtifactRepositoryElement;
+		return ProvUI.getAdapter(element, IArtifactRepository.class) != null;
 	}
 
 }

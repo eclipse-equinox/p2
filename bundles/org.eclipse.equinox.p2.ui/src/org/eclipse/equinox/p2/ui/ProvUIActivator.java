@@ -20,8 +20,10 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.operations.SizingPhaseSet;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -116,14 +118,14 @@ public class ProvUIActivator extends AbstractUIPlugin {
 						try {
 							Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfile().getProfileId()))) {
-								// TODO below is what we should do but not until we fix bug #208251
-								/*
-								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-									public void run() {
-										ProvUI.requestRestart(false, null);
-									}
-								});
-								*/
+								// TODO checking the phase set is a workaround
+								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208251
+								if (event.getPhaseSet() instanceof SizingPhaseSet)
+									PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+										public void run() {
+											ProvUI.requestRestart(false, null);
+										}
+									});
 							}
 						} catch (ProvisionException e) {
 							ProvUI.handleException(e, null);
@@ -181,6 +183,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		createImageDescriptor(ProvUIImages.IMG_ARTIFACT_REPOSITORY);
 		createImageDescriptor(ProvUIImages.IMG_IU);
 		createImageDescriptor(ProvUIImages.IMG_UNINSTALLED_IU);
+		createImageDescriptor(ProvUIImages.IMG_CATEGORY);
 		createImageDescriptor(ProvUIImages.IMG_PROFILE);
 	}
 

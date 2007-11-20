@@ -120,6 +120,8 @@ public class ProvUI {
 	}
 
 	public static Object getAdapter(Object object, Class adapterType) {
+		if (object == null)
+			return null;
 		if (adapterType.isInstance(object))
 			return object;
 		if (object instanceof IAdaptable)

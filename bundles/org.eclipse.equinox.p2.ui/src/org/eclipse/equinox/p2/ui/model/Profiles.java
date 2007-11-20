@@ -10,26 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
 /**
  * Element class that represents the root of a profile
- * viewer.  Its children are all installed profiles.
+ * viewer.  Its children are the profiles that match the
+ * specified query for profiles.
  * 
  * @since 3.4
  *
  */
-public class AllProfiles extends ProvElement {
-
-	public Object[] getChildren(Object o) {
-		try {
-			return ProvisioningUtil.getProfiles();
-		} catch (ProvisionException e) {
-			handleException(e, null);
-		}
-		return new Object[0];
-	}
+public class Profiles extends QueriedElement {
 
 	/*
 	 * (non-Javadoc)
@@ -49,4 +41,7 @@ public class AllProfiles extends ProvElement {
 		return null;
 	}
 
+	protected int getQueryType() {
+		return IProvElementQueryProvider.PROFILES;
+	}
 }

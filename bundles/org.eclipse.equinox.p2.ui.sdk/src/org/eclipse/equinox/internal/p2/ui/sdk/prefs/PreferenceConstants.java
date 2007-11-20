@@ -14,11 +14,12 @@ package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
  * @since 3.4
  */
 public class PreferenceConstants {
-	public static final String AUTO_UPDATES_PAGE = "org.eclipse.equinox.p2.ui.sdk.AutomaticUpdatesPreferencePage"; //$NON-NLS-1$
-	public static final String P_ENABLED = "enabled"; //$NON-NLS-1$
-	public static final String P_SCHEDULE = "schedule"; //$NON-NLS-1$
-	public static final String VALUE_ON_STARTUP = "on-startup"; //$NON-NLS-1$
-	public static final String VALUE_ON_SCHEDULE = "on-schedule"; //$NON-NLS-1$
-	public static final String P_DOWNLOAD = "download"; // value is true or false, default is false //$NON-NLS-1$
-
+	public static final String PREF_PAGE_PROVISIONING = "org.eclipse.equinox.p2.ui.sdk.ProvisioningPreferencePage"; //$NON-NLS-1$
+	public static final String PREF_PAGE_AUTO_UPDATES = "org.eclipse.equinox.p2.ui.sdk.AutomaticUpdatesPreferencePage"; //$NON-NLS-1$
+	public static final String PREF_AUTO_UPDATE_ENABLED = "enabled"; //$NON-NLS-1$
+	public static final String PREF_AUTO_UPDATE_SCHEDULE = "schedule"; //$NON-NLS-1$
+	public static final String PREF_UPDATE_ON_STARTUP = "on-startup"; //$NON-NLS-1$
+	public static final String PREF_UPDATE_ON_SCHEDULE = "on-schedule"; //$NON-NLS-1$
+	public static final String PREF_DOWNLOAD_ONLY = "download"; // value is true or false, default is false //$NON-NLS-1$
+	public static final String PREF_SHOW_LATEST_VERSION = "showLatestVersion"; //$NON-NLS-1$
 }

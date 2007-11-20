@@ -11,12 +11,12 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.StaticContentProvider;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
+import org.eclipse.equinox.internal.p2.ui.model.StaticContentProvider;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.ui.viewers.IUDetailsLabelProvider;

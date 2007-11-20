@@ -8,22 +8,23 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+package org.eclipse.equinox.p2.ui.model;
 
-package org.eclipse.equinox.p2.ui.viewers;
-
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
 /**
- * Viewer filter which filters IU's so that only those with the kind "group" are
- * included.
+ * Element class that represents the root of an artifact
+ * repository viewer.  Its children are the artifact repositories
+ * obtained using the query installed in the content provider.
  * 
  * @since 3.4
+ *
  */
-public class IUGroupFilter extends IUCapabilityFilter {
+public class ArtifactRepositories extends QueriedElement {
 
-	public IUGroupFilter() {
-		super(new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)}); //$NON-NLS-1$
-
+	protected int getQueryType() {
+		return IProvElementQueryProvider.ARTIFACT_REPOS;
 	}
+
 }

@@ -9,35 +9,29 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.p2.ui.model;
+package org.eclipse.equinox.p2.ui.viewers;
 
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 
 /**
- * Content provider for artifact repository viewers.
- * The repositories themselves are the elements.  The
- * artifact keys are the children of the artifact
- * repositories.
+ * Content provider for provisioning repositories. The repositories are the
+ * elements and the repository children are retrieved asynchronously
+ * using the IDeferredWorkbenchAdapter mechanism.
  * 
  * @since 3.4
+ * 
  */
-public class ArtifactRepositoryContentProvider extends RepositoryContentProvider {
+public class RepositoryContentProvider extends DeferredQueryContentProvider {
 
-	public Object[] getElements(Object input) {
-		if (input == null) {
-			return getChildren(new AllArtifactRepositories());
-		}
-		return getChildren(input);
+	public RepositoryContentProvider(IProvElementQueryProvider queryProvider) {
+		super(queryProvider);
 	}
 
 	public Object[] getChildren(final Object parent) {
 		Object[] children = super.getChildren(parent);
 		if (children != null)
 			return children;
-		if (parent instanceof ArtifactElement) {
-			ArtifactElement element = (ArtifactElement) parent;
-			return element.getArtifactRepository().getArtifactDescriptors(element.getArtifactKey());
-		}
 		if (parent instanceof IArtifactDescriptor) {
 			return ((IArtifactDescriptor) parent).getProcessingSteps();
 		}

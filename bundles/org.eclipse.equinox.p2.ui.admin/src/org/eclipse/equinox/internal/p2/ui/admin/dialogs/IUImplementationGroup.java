@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.dialogs.IUGroup;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -195,11 +195,11 @@ public class IUImplementationGroup extends IUGroup {
 	 */
 	public IStatus verify() {
 		if (id.getText().trim().length() == 0) {
-			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvAdminUIMessages.IUGroup_IU_ID_Required, null);
+			return new Status(IStatus.ERROR, ProvAdminUIActivator.PLUGIN_ID, 0, ProvAdminUIMessages.IUGroup_IU_ID_Required, null);
 		}
 
 		// TODO what kind of validation do we perform for other properties?
-		return new Status(IStatus.OK, ProvUIActivator.PLUGIN_ID, IStatus.OK, "", null); //$NON-NLS-1$
+		return new Status(IStatus.OK, ProvAdminUIActivator.PLUGIN_ID, IStatus.OK, "", null); //$NON-NLS-1$
 
 	}
 

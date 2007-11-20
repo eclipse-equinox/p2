@@ -45,7 +45,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 * The constructor.
 	 */
 	public AutomaticUpdateScheduler() {
-		ProvSDKUIActivator.setScheduler(this);
+		ProvSDKUIActivator.getDefault().setScheduler(this);
 		checker = (UpdateChecker) ServiceHelper.getService(ProvSDKUIActivator.getContext(), UpdateChecker.class.getName());
 		if (checker == null) {
 			// Something did not initialize properly
@@ -75,11 +75,11 @@ public class AutomaticUpdateScheduler implements IStartup {
 	public void rescheduleUpdate() {
 		removeUpdateListener();
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
-		String schedule = pref.getString(PreferenceConstants.P_SCHEDULE);
+		String schedule = pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE);
 		// See if we have a scheduled check or startup only.  If it is
 		// startup only, there is nothing more to do now, a listener will
 		// be created on the next startup.
-		if (schedule.equals(PreferenceConstants.VALUE_ON_STARTUP)) {
+		if (schedule.equals(PreferenceConstants.PREF_UPDATE_ON_STARTUP)) {
 			return;
 		}
 		scheduleUpdate();
@@ -88,12 +88,12 @@ public class AutomaticUpdateScheduler implements IStartup {
 	private void scheduleUpdate() {
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
 		// See if automatic search is enabled at all
-		if (pref.getBoolean(PreferenceConstants.P_ENABLED) == false)
+		if (pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED) == false)
 			return;
-		String schedule = pref.getString(PreferenceConstants.P_SCHEDULE);
+		String schedule = pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE);
 		long delay = UpdateChecker.ONE_TIME_CHECK;
 		long poll = UpdateChecker.ONE_TIME_CHECK;
-		if (!schedule.equals(PreferenceConstants.VALUE_ON_STARTUP)) {
+		if (!schedule.equals(PreferenceConstants.PREF_UPDATE_ON_STARTUP)) {
 			delay = computeDelay(pref);
 			poll = computePoll(pref);
 		}

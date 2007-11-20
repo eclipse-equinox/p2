@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
@@ -55,7 +54,6 @@ abstract class ProvView extends ViewPart {
 		display = parent.getDisplay();
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		viewer.getTree().setHeaderVisible(true);
-		viewer.setComparator(new ViewerComparator());
 		configureViewer(viewer);
 		// Do this after setting up sorters, filters, etc.
 		// Otherwise it will retrieve content on each change.
@@ -154,8 +152,10 @@ abstract class ProvView extends ViewPart {
 		preferenceListener = new IPropertyChangeListener() {
 
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_GROUPS_ONLY) || event.getProperty().equals(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS)) {
-					configureViewerFilter(viewer);
+				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_GROUPS_ONLY) || event.getProperty().equals(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS) || event.getProperty().equals(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS) || event.getProperty().equals(PreferenceConstants.PREF_USE_CATEGORIES)) {
+					// Refresh all model content.  The SDK query provider will provide an updated
+					// query for content based on these pref changes.
+					viewer.refresh();
 				}
 			}
 
@@ -168,7 +168,6 @@ abstract class ProvView extends ViewPart {
 		if (preferenceListener != null) {
 			IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
 			store.removePropertyChangeListener(preferenceListener);
-
 		}
 	}
 
@@ -185,9 +184,8 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected void configureViewer(final TreeViewer treeViewer) {
-		// Filter IU's by group if the preference calls for it
-		// TODO probably want a filter menu on the view
-		configureViewerFilter(treeViewer);
+		viewer.setComparator(new IUComparator(IUComparator.IU_ID));
+		viewer.setComparer(new ProvElementComparer());
 	}
 
 	protected void selectionChanged(IStructuredSelection selection) {
@@ -198,18 +196,6 @@ abstract class ProvView extends ViewPart {
 
 	protected Object getInput() {
 		return null;
-	}
-
-	protected void configureViewerFilter(TreeViewer treeViewer) {
-		ArrayList filters = new ArrayList();
-		IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
-		if (store.getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY)) {
-			filters.add(new IUGroupFilter());
-		}
-		if (store.getBoolean(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS)) {
-			filters.add(new InternalRepositoryFilter());
-		}
-		treeViewer.setFilters((ViewerFilter[]) filters.toArray(new ViewerFilter[filters.size()]));
 	}
 
 	protected void setTreeColumns(Tree tree) {
@@ -225,4 +211,5 @@ abstract class ProvView extends ViewPart {
 	protected ILabelProvider getLabelProvider() {
 		return new ProvElementLabelProvider();
 	}
+
 }

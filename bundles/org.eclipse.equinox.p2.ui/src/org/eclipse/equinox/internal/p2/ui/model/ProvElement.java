@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.model;
+package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
@@ -89,12 +89,11 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 
 	public boolean hasChildren(Object o) {
 		if (this instanceof IDeferredWorkbenchAdapter)
-			return true;
+			return ((IDeferredWorkbenchAdapter) this).isContainer();
 		Object[] children = getChildren(o);
 		if (children == null) {
 			return false;
 		}
 		return children.length > 0;
 	}
-
 }

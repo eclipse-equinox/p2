@@ -28,7 +28,6 @@ public class ProvAdminUIMessages extends NLS {
 	public static String AddProfileDialog_Title;
 	public static String AddRepositoryDialog_InvalidURL;
 	public static String AddMetadataRepositoryDialog_OperationLabel;
-	public static String ProfilesView_AlwaysConfirmSelectionInstallOps;
 	public static String MetadataRepositoriesView_AddRepositoryTooltip;
 	public static String MetadataRepositoriesView_AddRepositoryLabel;
 	public static String MetadataRepositoriesView_ChooseProfileDialogTitle;
@@ -47,7 +46,9 @@ public class ProvAdminUIMessages extends NLS {
 	public static String InstalledIUPropertyPage_NoInfoAvailable;
 	public static String ProvisioningPrefPage_HideInternalRepos;
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
+	public static String ProvisioningPrefPage_CollapseIUVersions;
 	public static String ProvisioningPrefPage_Description;
+	public static String ProvisioningPrefPage_UseCategories;
 
 	public static String Ops_RemoveProfileOperationLabel;
 	public static String AddProfileDialog_OperationLabel;

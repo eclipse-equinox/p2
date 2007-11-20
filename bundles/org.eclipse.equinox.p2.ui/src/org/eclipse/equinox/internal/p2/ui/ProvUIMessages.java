@@ -26,6 +26,7 @@ public class ProvUIMessages extends NLS {
 	}
 
 	public static String ApplyProfileChangesDialog_ApplyChanges;
+	public static String CategoryElementCollector_Uncategorized;
 	public static String ChooseProfileDialog_DefaultDialogTitle;
 	public static String InstallDialog_InstallSelectionMessage;
 	public static String IUPropertiesGroup_CopyrightProperty;
@@ -56,6 +57,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvDropAdapter_InvalidDropTarget;
 	public static String ProvDropAdapter_NoIUsToDrop;
 	public static String ProvDropAdapter_UnsupportedDropOperation;
+	public static String ProvElementQueryResult_CouldNotInstantiateElement;
 
 	// Provisioning operations
 	public static String ProvisioningOperation_ExecuteErrorTitle;

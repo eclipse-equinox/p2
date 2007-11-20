@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.p2.ui.viewers;
 
+import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
@@ -20,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.ProvElement;
+import org.eclipse.equinox.p2.ui.model.CategoryElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -74,7 +75,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			return ProvUIImages.getImage(ProvUIImages.IMG_PROFILE);
 		}
 		if (obj instanceof IInstallableUnit) {
-			return ProvUIImages.getImage(ProvUIImages.IMG_IU);
+			return ProvUIImages.getImage(ProvUIImages.IMG_UNINSTALLED_IU);
 		}
 		if (obj instanceof IArtifactRepository) {
 			return ProvUIImages.getImage(ProvUIImages.IMG_ARTIFACT_REPOSITORY);
@@ -108,6 +109,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				if (element instanceof Profile) {
 					return ((Profile) element).getValue(Profile.PROP_NAME);
 				}
+				if (element instanceof CategoryElement)
+					return null;
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (iu != null) {
 					return iu.getVersion().toString();

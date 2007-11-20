@@ -66,9 +66,7 @@
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.ProfilePropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.ProfilePropertyPage">
             <enabledWhen>
-             <instanceof
-                  value="org.eclipse.equinox.p2.engine.Profile">
-             </instanceof>
+             <adapt type="org.eclipse.equinox.p2.engine.Profile"/>
           </enabledWhen>
       </page>
       <page
@@ -76,16 +74,8 @@
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.IUImplementationPropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.IUImplementationPropertyPage">
             <enabledWhen>
-            <or>
-             <instanceof
-                  value="org.eclipse.equinox.p2.metadata.IInstallableUnit">
-             </instanceof>
-             <instanceof
-                  value="org.eclipse.equinox.p2.ui.model.InstalledIUElement">
-             </instanceof>
- 
-             </or>
-          </enabledWhen>
+             <adapt type="org.eclipse.equinox.p2.metadata.IInstallableUnit"/>
+           </enabledWhen>
       </page>
             <page
             name="%InstalledIU.name"
@@ -97,26 +87,13 @@
              </instanceof>
           </enabledWhen>
       </page>
-      
-      
       <page
             name="%Repository.name"
             class="org.eclipse.equinox.internal.p2.ui.admin.dialogs.RepositoryImplementationPropertyPage"
             id="org.eclipse.equinox.internal.p2.ui.admin.dialogs.RepositoryImplementationPropertyPage">
             <enabledWhen>
-            <or>
-             <instanceof
-                  value="org.eclipse.equinox.p2.metadata.repository.IMetadataRepository">
-             </instanceof>
-             <instanceof
-                  value="org.eclipse.equinox.p2.artifact.repository.IArtifactRepository">
-             </instanceof>
-             <instanceof
-                  value="org.eclipse.equinox.p2.ui.model.RepositoryElement">
-             </instanceof>
- 
-             </or>
-          </enabledWhen>
+             <adapt type="org.eclipse.equinox.p2.core.repository.IRepository"/>
+           </enabledWhen>
       </page>
       
       </extension>

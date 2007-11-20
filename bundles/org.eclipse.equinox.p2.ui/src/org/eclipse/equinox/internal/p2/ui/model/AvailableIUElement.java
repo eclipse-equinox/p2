@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.model;
+package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
@@ -37,7 +37,7 @@ public class AvailableIUElement extends ProvElement {
 	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
 	protected String getImageID(Object obj) {
-		return ProvUIImages.IMG_IU;
+		return ProvUIImages.IMG_UNINSTALLED_IU;
 	}
 
 	public String getLabel(Object o) {

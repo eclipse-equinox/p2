@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.operations.AddProfileOperation;
@@ -36,10 +38,10 @@ public class AddProfileDialog extends StatusDialog {
 	private Profile[] knownProfiles;
 	private Profile addedProfile;
 
-	public AddProfileDialog(Shell parentShell, Profile[] knownProfiles) {
+	public AddProfileDialog(Shell parentShell, Object[] knownProfileElements) {
 
 		super(parentShell);
-		this.knownProfiles = knownProfiles;
+		recordProfiles(knownProfileElements);
 		setTitle(ProvAdminUIMessages.AddProfileDialog_Title);
 	}
 
@@ -106,6 +108,16 @@ public class AddProfileDialog extends StatusDialog {
 			}
 		}
 		return false;
+	}
+
+	private void recordProfiles(Object[] profileElements) {
+		java.util.ArrayList profiles = new ArrayList();
+		for (int i = 0; i < profileElements.length; i++) {
+			Profile profile = (Profile) ProvUI.getAdapter(profileElements[i], Profile.class);
+			if (profile != null)
+				profiles.add(profile);
+		}
+		knownProfiles = (Profile[]) profiles.toArray(new Profile[profiles.size()]);
 	}
 
 	protected void updateButtonsEnableState(IStatus status) {

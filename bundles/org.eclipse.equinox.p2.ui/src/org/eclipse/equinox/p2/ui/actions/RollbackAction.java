@@ -62,9 +62,9 @@ public class RollbackAction extends ProfileModificationAction {
 	 */
 	public void selectionChanged(IStructuredSelection selection) {
 		Object[] selectionArray = selection.toArray();
-		if (selectionArray.length == 1 && selectionArray[0] instanceof IInstallableUnit) {
-			IInstallableUnit iu = (IInstallableUnit) selectionArray[0];
-			setEnabled(Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PROFILE_IU_KEY)).booleanValue());
+		if (selectionArray.length == 1) {
+			IInstallableUnit iu = getIU(selectionArray[0]);
+			setEnabled(iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PROFILE_IU_KEY)).booleanValue());
 		} else {
 			setEnabled(false);
 		}

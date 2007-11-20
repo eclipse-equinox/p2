@@ -9,27 +9,44 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.p2.ui.model;
+package org.eclipse.equinox.p2.ui.viewers;
 
+import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.QueriedElement;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.ui.progress.DeferredTreeContentManager;
 
 /**
- * Content provider for provisioning repositories. The repositories are the
- * elements and the repository children are retrieved asynchronously
- * using the IDeferredWorkbenchAdapter mechanism.
+ * Content provider that retrieves children asynchronously where
+ * possible using the IDeferredWorkbenchAdapter and provisioning
+ * query mechanisms.
  * 
  * @since 3.4
  * 
  */
-public abstract class RepositoryContentProvider implements IStructuredContentProvider, ITreeContentProvider {
+public class DeferredQueryContentProvider implements ITreeContentProvider {
 
 	DeferredTreeContentManager manager;
+	IProvElementQueryProvider queryProvider;
+
+	public DeferredQueryContentProvider(IProvElementQueryProvider queryProvider) {
+		this.queryProvider = queryProvider;
+	}
 
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		if (v instanceof AbstractTreeViewer) {
 			manager = new DeferredTreeContentManager((AbstractTreeViewer) v);
 		}
+	}
+
+	public Object[] getElements(Object input) {
+		if (input instanceof QueriedElement) {
+			QueriedElement element = (QueriedElement) input;
+			element.setQueryProvider(queryProvider);
+			return element.getChildren(null);
+		}
+		return null;
 	}
 
 	public void dispose() {
@@ -44,14 +61,18 @@ public abstract class RepositoryContentProvider implements IStructuredContentPro
 	}
 
 	public boolean hasChildren(Object element) {
+		if (manager != null) {
+			if (manager.isDeferredAdapter(element))
+				return manager.mayHaveChildren(element);
+		}
 		if (element instanceof ProvElement)
 			return ((ProvElement) element).hasChildren(element);
 		return false;
 	}
 
-	public Object[] getChildren(final Object element) {
+	public Object[] getChildren(final Object parent) {
 		if (manager != null) {
-			Object[] children = manager.getChildren(element);
+			Object[] children = manager.getChildren(parent);
 			if (children != null) {
 				// This will be a placeholder to indicate 
 				// that the real children are being fetched
@@ -60,8 +81,8 @@ public abstract class RepositoryContentProvider implements IStructuredContentPro
 		}
 		// We don't have a deferred content manager or else it could
 		// not retrieve deferred content.
-		if (element instanceof ProvElement) {
-			return ((ProvElement) element).getChildren(null);
+		if (parent instanceof ProvElement) {
+			return ((ProvElement) parent).getChildren(parent);
 		}
 		return null;
 	}

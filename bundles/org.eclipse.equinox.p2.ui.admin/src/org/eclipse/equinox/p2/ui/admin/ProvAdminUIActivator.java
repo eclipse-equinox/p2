@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.admin;
 
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -24,6 +26,8 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.admin"; //$NON-NLS-1$
 	public static final String PERSPECTIVE_ID = "org.eclipse.equinox.p2.ui.admin.ProvisioningPerspective"; //$NON-NLS-1$
+
+	private IProvElementQueryProvider queryProvider;
 
 	public static BundleContext getContext() {
 		return context;
@@ -68,5 +72,11 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin = null;
 		super.stop(bundleContext);
+	}
+
+	public IProvElementQueryProvider getQueryProvider() {
+		if (queryProvider == null)
+			queryProvider = new ProvAdminQueryProvider();
+		return queryProvider;
 	}
 }

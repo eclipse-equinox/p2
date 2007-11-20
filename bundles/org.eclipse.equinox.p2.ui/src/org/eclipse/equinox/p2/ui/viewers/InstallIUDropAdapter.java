@@ -65,8 +65,9 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * IU, return its parent profile.
 	 */
 	private Profile getProfileTarget(Object mouseTarget) {
-		if (mouseTarget instanceof Profile) {
-			return (Profile) mouseTarget;
+		Profile profile = (Profile) ProvUI.getAdapter(mouseTarget, Profile.class);
+		if (profile != null) {
+			return profile;
 		}
 
 		if (mouseTarget instanceof InstalledIUElement) {

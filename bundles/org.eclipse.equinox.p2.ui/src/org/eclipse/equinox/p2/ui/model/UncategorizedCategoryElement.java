@@ -8,27 +8,18 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+package org.eclipse.equinox.p2.ui.model;
 
-package org.eclipse.equinox.p2.ui.viewers;
-
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
- * Viewer filter which shows only IUs that have a property matching
- * the specified value.
+ * Element wrapper class for an IU that shows all uncategorized IU's.
  * 
  * @since 3.4
  */
-public class IUProfilePropertyFilter extends IUPropertyFilter {
+public class UncategorizedCategoryElement extends CategoryElement {
 
-	public IUProfilePropertyFilter(String name, String value) {
-		super(name, value);
-	}
-
-	protected String getProperty(IInstallableUnit iu, Object parentElement, String key) {
-		if (parentElement instanceof Profile)
-			return ((Profile) parentElement).getInstallableUnitProfileProperty(iu, key);
-		return super.getProperty(iu, parentElement, key);
+	public UncategorizedCategoryElement(IInstallableUnit iu) {
+		super(iu);
 	}
 }

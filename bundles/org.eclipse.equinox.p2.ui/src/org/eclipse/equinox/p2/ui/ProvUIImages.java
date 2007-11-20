@@ -37,6 +37,7 @@ public class ProvUIImages {
 	public final static String IMG_IU = "obj/iu_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_UNINSTALLED_IU = "obj/uninstalled_iu_obj.gif"; //$NON-NLS-1$
 	public final static String IMG_PROFILE = "obj/profile_obj.gif"; //$NON-NLS-1$
+	public final static String IMG_CATEGORY = "obj/category_obj.gif"; //$NON-NLS-1$
 
 	/**
 	 * Returns the image descriptor for the given image ID. Returns

@@ -19,14 +19,14 @@ import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.p2.ui.actions.RollbackAction;
-import org.eclipse.equinox.p2.ui.model.*;
+import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
+import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.p2.ui.model.Profiles;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveMetadataRepositoryOperation;
-import org.eclipse.equinox.p2.ui.viewers.IUDragAdapter;
-import org.eclipse.equinox.p2.ui.viewers.ProvElementLabelProvider;
+import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.dnd.*;
@@ -51,12 +51,8 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		// constructor
 	}
 
-	protected IContentProvider getContentProvider() {
-		return new MetadataRepositoryContentProvider();
-	}
-
 	protected Object getInput() {
-		return new AllMetadataRepositories();
+		return new MetadataRepositories();
 	}
 
 	protected String getAddCommandLabel() {
@@ -97,8 +93,8 @@ public class MetadataRepositoriesView extends RepositoriesView {
 			public Profile getProfile() {
 				// TODO would be nice if the profile chooser dialog let you
 				// create a new profile
-				ProfileContentProvider provider = new ProfileContentProvider();
-				if (provider.getElements(null).length == 0) {
+				DeferredQueryContentProvider provider = new DeferredQueryContentProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
+				if (provider.getElements(new Profiles()).length == 0) {
 					AddProfileDialog dialog = new AddProfileDialog(getShell(), new Profile[0]);
 					if (dialog.open() == Window.OK) {
 						return dialog.getAddedProfile();
@@ -109,13 +105,12 @@ public class MetadataRepositoriesView extends RepositoriesView {
 				ListDialog dialog = new ListDialog(getShell());
 				dialog.setTitle(ProvAdminUIMessages.MetadataRepositoriesView_ChooseProfileDialogTitle);
 				dialog.setLabelProvider(new ProvElementLabelProvider());
-				dialog.setInput(new AllProfiles());
+				dialog.setInput(new Profiles());
 				dialog.setContentProvider(provider);
 				dialog.open();
 				Object[] result = dialog.getResult();
-				if (result != null && result.length > 0 && result[0] instanceof Profile) {
-					return (Profile) result[0];
-				}
+				if (result != null && result.length > 0)
+					return (Profile) ProvUI.getAdapter(result[0], Profile.class);
 				return null;
 			}
 
@@ -135,7 +130,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected boolean isRepository(Object element) {
-		return element instanceof IMetadataRepository || element instanceof MetadataRepositoryElement;
+		return ProvUI.getAdapter(element, IMetadataRepository.class) != null;
 	}
 
 	protected void configureViewer(final TreeViewer treeViewer) {

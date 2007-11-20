@@ -10,21 +10,19 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.core.runtime.Preferences;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.IRepositoryManipulator;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
@@ -42,7 +40,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
 	private static final String SELECTED_TAB_SETTING = "SelectedTab"; //$NON-NLS-1$
 	private Profile profile;
-	private UpdateAndInstallGroup group;
+	UpdateAndInstallGroup group;
 
 	/**
 	 * Create an instance of this Dialog.
@@ -71,24 +69,30 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		group = new UpdateAndInstallGroup(comp, profile, new ViewerFilter[] {ProvSDKPolicies.getInstalledIUFilter()}, new ViewerFilter[] {ProvSDKPolicies.getAvailableIUFilter()}, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, fontMetrics);
+		group = new UpdateAndInstallGroup(comp, profile, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, ProvSDKUIActivator.getDefault().getQueryProvider(), fontMetrics);
 		final Button checkBox = new Button(comp, SWT.CHECK);
-		final Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
+		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
 		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);
-		checkBox.setSelection(pref.getBoolean(PreferenceConstants.P_ENABLED));
+		checkBox.setSelection(store.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
 		checkBox.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				pref.setValue(PreferenceConstants.P_ENABLED, checkBox.getSelection());
+				store.setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, checkBox.getSelection());
 			}
 		});
 
-		pref.addPropertyChangeListener(new IPropertyChangeListener() {
-
+		final IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.P_ENABLED))
-					checkBox.setSelection(pref.getBoolean(PreferenceConstants.P_ENABLED));
+				if (event.getProperty().equals(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED))
+					checkBox.setSelection(store.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
+				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
+					group.getAvailableIUViewer().refresh();
 			}
-
+		};
+		store.addPropertyChangeListener(preferenceListener);
+		comp.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				store.removePropertyChangeListener(preferenceListener);
+			}
 		});
 
 		Link updatePrefsLink = new Link(comp, SWT.LEFT | SWT.WRAP);
@@ -98,7 +102,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		updatePrefsLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 
-				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.AUTO_UPDATES_PAGE, null, null);
+				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
 				dialog.open();
 			}
 		});

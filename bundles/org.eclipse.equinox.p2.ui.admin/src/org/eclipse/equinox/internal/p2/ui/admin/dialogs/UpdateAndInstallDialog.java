@@ -11,16 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
-import org.eclipse.equinox.p2.ui.viewers.IUGroupFilter;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.TrayDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.*;
@@ -54,12 +50,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
-		ViewerFilter[] filters = null;
-		if (store.getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY)) {
-			filters = new ViewerFilter[] {new IUGroupFilter()};
-		}
-		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profile, filters, filters, ProvAdminUIMessages.UpdateAndInstallDialog_InstalledIUsPageLabel, ProvAdminUIMessages.UpdateAndInstallDialog_AvailableIUsPageLabel, null, null, fontMetrics);
+		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profile, ProvAdminUIMessages.UpdateAndInstallDialog_InstalledIUsPageLabel, ProvAdminUIMessages.UpdateAndInstallDialog_AvailableIUsPageLabel, null, null, ProvAdminUIActivator.getDefault().getQueryProvider(), fontMetrics);
 		Dialog.applyDialogFont(group.getTabFolder());
 		return group.getTabFolder();
 	}

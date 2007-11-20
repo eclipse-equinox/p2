@@ -14,10 +14,12 @@ package org.eclipse.equinox.p2.ui.viewers;
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
+import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.AvailableIUElement;
+import org.eclipse.equinox.p2.ui.model.CategoryElement;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.osgi.util.NLS;
@@ -67,21 +69,30 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			case IUColumnConfig.COLUMN_ID :
 				return iu.getId();
 			case IUColumnConfig.COLUMN_NAME :
+				if (element instanceof CategoryElement) {
+					return iu.getId();
+				}
 				String name = iu.getProperty(IInstallableUnit.PROP_NAME);
 				if (name != null)
 					return name;
 				return BLANK;
 			case IUColumnConfig.COLUMN_VERSION :
+				if (element instanceof CategoryElement)
+					return BLANK;
 				return iu.getVersion().toString();
 			case IUColumnConfig.COLUMN_SIZE :
-				return getIUSize(element);
+				if (element instanceof CategoryElement)
+					return getIUSize(element);
 		}
 		return BLANK;
 	}
 
 	public Image getColumnImage(Object element, int index) {
-		if (index == PRIMARY_COLUMN && ProvUI.getAdapter(element, IInstallableUnit.class) != null) {
-			return ProvUIImages.getImage(ProvUIImages.IMG_IU);
+		if (index == PRIMARY_COLUMN) {
+			if (element instanceof ProvElement)
+				return ((ProvElement) element).getImage(element);
+			if (ProvUI.getAdapter(element, IInstallableUnit.class) != null)
+				return ProvUIImages.getImage(ProvUIImages.IMG_IU);
 		}
 		return null;
 	}
