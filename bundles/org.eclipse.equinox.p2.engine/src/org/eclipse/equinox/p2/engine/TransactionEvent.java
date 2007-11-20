@@ -28,4 +28,10 @@ public abstract class TransactionEvent extends EventObject {
 	public Profile getProfile() {
 		return profile;
 	}
+
+	// TODO this was added as a workaround 
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=208251
+	public PhaseSet getPhaseSet() {
+		return phaseSet;
+	}
 }
