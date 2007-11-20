@@ -24,6 +24,17 @@ public class InstallableUnitQuery extends Query {
 
 	/**
 	 * Creates a query that will match any {@link IInstallableUnit} with the given
+	 * id, regardless of version.
+	 * 
+	 * @param id The installable unit id to match, or <code>null</code> to match any id
+	 */
+	public InstallableUnitQuery(String id) {
+		this.id = id;
+		this.range = null;
+	}
+
+	/**
+	 * Creates a query that will match any {@link IInstallableUnit} with the given
 	 * id, and whose version falls in the provided range.
 	 * 
 	 * @param id The installable unit id to match, or <code>null</code> to match any id
