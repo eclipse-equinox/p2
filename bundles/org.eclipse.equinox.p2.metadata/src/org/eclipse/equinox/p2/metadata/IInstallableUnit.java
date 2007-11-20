@@ -38,6 +38,7 @@ public interface IInstallableUnit extends Comparable {
 	//TODO This is not the ideal location for these constants
 	public static final String PROP_PROFILE_IU_KEY = "profileIU"; //$NON-NLS-1$	 
 	public static final String PROP_PROFILE_ROOT_IU = "profileRootIU"; //$NON-NLS-1$
+	public static final String PROP_CATEGORY_IU = "categoryIU"; //$NON-NLS-1$
 
 	/**
 	 * A property key (value <code>"equinox.p2.contact"</code>) representing a 
