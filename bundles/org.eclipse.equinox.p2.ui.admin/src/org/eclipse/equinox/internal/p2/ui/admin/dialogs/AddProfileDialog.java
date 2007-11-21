@@ -112,6 +112,8 @@ public class AddProfileDialog extends StatusDialog {
 
 	private void recordProfiles(Object[] profileElements) {
 		java.util.ArrayList profiles = new ArrayList();
+		if (profileElements == null)
+			return;
 		for (int i = 0; i < profileElements.length; i++) {
 			Profile profile = (Profile) ProvUI.getAdapter(profileElements[i], Profile.class);
 			if (profile != null)

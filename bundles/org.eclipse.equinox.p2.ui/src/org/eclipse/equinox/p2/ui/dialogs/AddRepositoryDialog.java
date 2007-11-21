@@ -170,6 +170,8 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	private IRepository[] makeRepositories(Object[] elements) {
 		ArrayList list = new ArrayList();
+		if (elements == null)
+			return new IRepository[0];
 		for (int i = 0; i < elements.length; i++) {
 			IRepository repo = (IRepository) ProvUI.getAdapter(elements[i], IRepository.class);
 			if (repo != null)
