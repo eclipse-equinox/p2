@@ -147,6 +147,12 @@ public class ResolutionHelper {
 		Collection result = new HashSet(toAttach.size());
 		for (Iterator iterator = toAttach.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			//just return fragments as they are
+			if (iu.isFragment()) {
+				result.add(iu);
+				continue;
+			}
+			//return a new IU that combines the IU with its bound fragments
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) fragmentBindings.get(iu);
 			IInstallableUnitFragment[] fragments;
 			if (fragment == null)
