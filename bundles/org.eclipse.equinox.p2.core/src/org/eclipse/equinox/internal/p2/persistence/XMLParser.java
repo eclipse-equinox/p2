@@ -40,7 +40,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected String bundleId; // parser class bundle id
 
 	protected XMLReader xmlReader; // the XML reader for the parser
-	protected ErrorHandler errorHandler; // the error handler for the parser
 
 	protected MultiStatus status = null; // accumulation of non-fatal errors
 	protected Locator locator = null; // document locator, if supported by the parser
@@ -253,13 +252,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 
 		/**
-		 * Parse the attributes of an element with a single required attribute.
-		 */
-		protected String parseRequiredAttribute(Attributes attributes, String name) {
-			return parseRequiredAttributes(attributes, new String[] {name})[0];
-		}
-
-		/**
 		 * Parse the attributes of an element with two required attributes.
 		 */
 		protected String[] parseRequiredAttributes(Attributes attributes, String name1, String name2) {
@@ -320,13 +312,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		public DocHandler(String rootName, RootHandler rootHandler) {
 			super(null, rootName);
 			this.rootHandler = rootHandler;
-		}
-
-		public void ProcessingInstruction(String target, String data) throws SAXException {
-			// Do nothing by default (except suppress warning)
-			if (false) {
-				throw new SAXException(""); //$NON-NLS-1$
-			}
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -496,39 +481,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return (valueIndex >= 0 ? tokens[valueIndex] : ""); //$NON-NLS-1$
 	}
 
-	public class ParserStatus extends Status implements IStatus {
-
-		int lineNumber = 0;
-		int columnNumber = 0;
-
-		public ParserStatus(int severity, int code, String message) {
-			super(severity, Activator.ID, code, message, null);
-		}
-
-		public ParserStatus(int severity, int code, String message, int lineNumber, int columnNumber) {
-			super(severity, Activator.ID, code, message, null);
-			setLineNumber(lineNumber);
-			setColumnNumber(columnNumber);
-		}
-
-		public int getColumnNumber() {
-			return columnNumber;
-		}
-
-		public void setColumnNumber(int columnNumber) {
-			this.columnNumber = columnNumber;
-		}
-
-		public int getLineNumber() {
-			return lineNumber;
-		}
-
-		public void setLineNumber(int lineNumber) {
-			this.lineNumber = lineNumber;
-		}
-
-	}
-
 	public void error(SAXParseException ex) {
 		addError(ex);
 	}
@@ -588,7 +540,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		}
 		// TODO: support logging
 		// getLogger().warning(errMsg);
-		IStatus currStatus = new ParserStatus(IStatus.ERROR, IStatus.OK, errMsg, line, column);
+		IStatus currStatus = new Status(IStatus.ERROR, Activator.ID, errMsg);
 		if (this.status == null) {
 			this.status = new MultiStatus(bundleId, IStatus.OK, new IStatus[] {currStatus}, getErrorMessage(), null);
 		} else {
@@ -635,10 +587,6 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			sb.append(value);
 			sb.append('"');
 		}
-	}
-
-	public void error(String msg) {
-		addError(msg);
 	}
 
 	public void checkRequiredAttribute(String element, String name, Object value) {

@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.persistence;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.Pattern;
 import org.osgi.framework.Version;
 
 public class XMLWriter implements XMLConstants {
@@ -27,21 +26,6 @@ public class XMLWriter implements XMLConstants {
 
 		// The standard UTF-8 processing instruction
 		public static final String XML_UTF8 = "<?xml version='1.0' encoding='UTF-8'?>"; //$NON-NLS-1$
-
-		public ProcessingInstruction(String target, String data) {
-			this.target = target;
-			this.data = new String[] {data};
-		}
-
-		public ProcessingInstruction(String target) {
-			this.target = target;
-			this.data = new String[0];
-		}
-
-		public ProcessingInstruction(String target, String[] data) {
-			this.target = target;
-			this.data = data;
-		}
 
 		public ProcessingInstruction(String target, String[] attrs, String[] values) {
 			// Lengths of attributes and values must be the same
@@ -70,8 +54,6 @@ public class XMLWriter implements XMLConstants {
 		}
 	}
 
-	protected static ProcessingInstruction[] noPIs = new ProcessingInstruction[0];
-
 	private Stack elements; // XML elements that have not yet been closed
 	private boolean open; // Can attributes be added to the current element?
 	private String indent; // used for each level of indentation
@@ -88,14 +70,6 @@ public class XMLWriter implements XMLConstants {
 		this.indent = "  "; //$NON-NLS-1$
 	}
 
-	public XMLWriter(OutputStream output, ProcessingInstruction piElement, boolean writeXMLProcessingInstruction) throws UnsupportedEncodingException {
-		this(output, new ProcessingInstruction[] {piElement}, writeXMLProcessingInstruction);
-	}
-
-	public XMLWriter(OutputStream output, ProcessingInstruction piElement) throws UnsupportedEncodingException {
-		this(output, new ProcessingInstruction[] {piElement}, true /* writeXMLProcessingInstruction */);
-	}
-
 	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements, boolean writeXMLProcessingInstruction) throws UnsupportedEncodingException {
 		this(output, writeXMLProcessingInstruction);
 		if (piElements != null) {
@@ -107,11 +81,6 @@ public class XMLWriter implements XMLConstants {
 
 	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
 		this(output, piElements, true /*writeXMLProcessingInstruction*/);
-	}
-
-	// String used for each level of indentation; default is two spaces.
-	public void setIndent(String indent) {
-		this.indent = indent;
 	}
 
 	// start a new element
@@ -154,6 +123,35 @@ public class XMLWriter implements XMLConstants {
 		this.open = false;
 	}
 
+	public static String escape(String txt) {
+		// Traverse the string from right to left as the length
+		// may increase as result of processing
+		for (int i = txt.length() - 1; i >= 0; i -= 1) {
+			String replace;
+			switch (txt.charAt(i)) {
+				case '<' :
+					replace = "&lt;"; //$NON-NLS-1$
+					break;
+				case '>' :
+					replace = "&gt;"; //$NON-NLS-1$
+					break;
+				case '"' :
+					replace = "&quot;"; //$NON-NLS-1$
+					break;
+				case '\'' :
+					replace = "&apos;"; //$NON-NLS-1$
+					break;
+				case '&' :
+					replace = "&amp;"; //$NON-NLS-1$
+					break;
+				default :
+					continue;
+			}
+			txt = txt.substring(0, i) + replace + txt.substring(i + 1);
+		}
+		return txt;
+	}
+
 	// write a boolean attribute if it doesn't have the default value
 	public void attribute(String name, boolean value, boolean defaultValue) {
 		if (value != defaultValue) {
@@ -185,7 +183,7 @@ public class XMLWriter implements XMLConstants {
 		print(' ');
 		print(name);
 		print("='"); //$NON-NLS-1$
-		print(XMLUtils.escape(value.toString()));
+		print(escape(value.toString()));
 		print('\'');
 	}
 
@@ -203,22 +201,6 @@ public class XMLWriter implements XMLConstants {
 		}
 	}
 
-	public void cdataLines(String data, boolean escape) {
-		if (this.open) {
-			println('>');
-			this.open = false;
-		}
-		if (data.indexOf('\n') == -1) {
-			// simple case: one line
-			printlnIndented(data, escape);
-		} else {
-			String[] lines = Pattern.compile("\\s*\\n").split(data, 0); //$NON-NLS-1$
-			for (int i = 0; i < lines.length; i += 1) {
-				printlnIndented(lines[i].trim(), escape);
-			}
-		}
-	}
-
 	public void flush() {
 		while (!this.elements.empty()) {
 			try {
@@ -228,11 +210,6 @@ public class XMLWriter implements XMLConstants {
 			}
 		}
 		this.pw.flush();
-	}
-
-	public void close() {
-		flush();
-		this.pw.close();
 	}
 
 	public void writeProperties(Map properties) {
@@ -251,30 +228,6 @@ public class XMLWriter implements XMLConstants {
 		}
 	}
 
-	// Support writing properties with an auxiliary map
-	// of keys to localized values
-	public void writeProperties(Map properties, Map localizedValues) {
-		writeProperties(PROPERTIES_ELEMENT, properties, localizedValues);
-	}
-
-	// Support writing properties with an auxiliary map
-	// of keys to localized values
-	public void writeProperties(String propertiesElement, Map properties, Map localizedValues) {
-		if (properties != null && properties.size() > 0 && localizedValues != null) {
-			start(propertiesElement);
-			for (Iterator I = properties.entrySet().iterator(); I.hasNext();) {
-				Map.Entry property = (Map.Entry) I.next();
-				String key = (String) property.getKey();
-				String val = (String) property.getValue();
-				if (localizedValues.containsKey(key)) {
-					val = (String) localizedValues.get(key);
-				}
-				writeProperty(key, val);
-			}
-			end(propertiesElement);
-		}
-	}
-
 	public void writeProperty(String name, String value) {
 		start(PROPERTY_ELEMENT);
 		attribute(PROPERTY_NAME_ATTRIBUTE, name);
@@ -286,7 +239,7 @@ public class XMLWriter implements XMLConstants {
 		if (value == null) {
 			return EMPTY_ATTR; // optional attribute with no value
 		}
-		return name + "='" + XMLUtils.escape(value) + '\''; //$NON-NLS-1$
+		return name + "='" + escape(value) + '\''; //$NON-NLS-1$
 	}
 
 	private void println(char c) {
@@ -314,7 +267,7 @@ public class XMLWriter implements XMLConstants {
 			println();
 		} else {
 			indent();
-			println(escape ? XMLUtils.escape(s) : s);
+			println(escape ? escape(s) : s);
 		}
 	}
 
