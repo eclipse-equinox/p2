@@ -12,7 +12,8 @@ package org.eclipse.equinox.p2.tests.metadata;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
@@ -53,7 +54,8 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 				assertEquals(iu.getFragments()[0].getId(), iu3.getId());
 			}
 			if (iu.getId().equals(iu3.getId())) {
-				assertEquals(0, iu.getFragments().length);
+				//fragments don't have fragments
+				assertNull(iu.getFragments());
 			}
 		}
 
