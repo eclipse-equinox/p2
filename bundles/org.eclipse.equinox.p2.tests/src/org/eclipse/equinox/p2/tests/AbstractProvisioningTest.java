@@ -17,8 +17,7 @@ import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -40,11 +39,11 @@ public class AbstractProvisioningTest extends TestCase {
 	protected static final Version DEFAULT_VERSION = new Version(1, 0, 0);
 	protected static final TouchpointType ECLIPSE_TOUCHPOINT = new TouchpointType("eclipse", new Version(1, 0, 0));
 
-	protected static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
 	protected static final Map NO_PROPERTIES = Collections.EMPTY_MAP;
-	protected static final TouchpointData NO_TP_DATA = null;
-
+	protected static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
 	protected static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
+
+	protected static final TouchpointData NO_TP_DATA = null;
 
 	/**
 	 * Tracks the metadata repositories created by this test instance. The repositories
@@ -129,13 +128,61 @@ public class AbstractProvisioningTest extends TestCase {
 			fail(message + " profile " + profile.getProfileId() + " did not contain expected units: " + expected);
 	}
 
+	/*
+	 * Copy
+	 * - if we have a file, then copy the file
+	 * - if we have a directory then merge
+	 */
+	public static void copy(File source, File target) throws IOException {
+		if (!source.exists())
+			return;
+		if (source.isDirectory()) {
+			if (target.exists() && target.isFile())
+				target.delete();
+			if (!target.exists())
+				target.mkdirs();
+			File[] children = source.listFiles();
+			for (int i = 0; i < children.length; i++)
+				copy(children[i], new File(target, children[i].getName()));
+			return;
+		}
+		InputStream input = null;
+		OutputStream output = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(source));
+			output = new BufferedOutputStream(new FileOutputStream(target));
+
+			byte[] buffer = new byte[8192];
+			int bytesRead = 0;
+			while ((bytesRead = input.read(buffer)) != -1)
+				output.write(buffer, 0, bytesRead);
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
+			if (output != null) {
+				try {
+					output.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
 	/**
 	 * 	Create an eclipse InstallableUnitFragment with the given name that is hosted
 	 *  by any bundle. The fragment has the default version, and the default self and
 	 *  fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createBundleFragment(String name) {
-		return createIUFragment(name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, NO_TP_DATA);
+		return createIUFragment(null, name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, NO_TP_DATA);
 	}
 
 	/**
@@ -144,7 +191,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 *  are added to the IU.
 	 */
 	public static IInstallableUnitFragment createBundleFragment(String name, Version version, TouchpointData tpData) {
-		return createIUFragment(name, version, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, tpData);
+		return createIUFragment(null, name, version, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, tpData);
 	}
 
 	public static IDirector createDirector() {
@@ -173,6 +220,10 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	public static IInstallableUnit createEclipseIU(String name, Version version, RequiredCapability[] requires, TouchpointData touchpointData) {
 		return createIU(name, version, null, requires, BUNDLE_CAPABILITY, NO_PROPERTIES, ECLIPSE_TOUCHPOINT, touchpointData, false);
+	}
+
+	public static Engine createEngine() {
+		return (Engine) ServiceHelper.getService(TestActivator.getContext(), Engine.class.getName());
 	}
 
 	/**
@@ -226,8 +277,16 @@ public class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, String filter, ProvidedCapability[] additionalProvides) {
-		return createIU(name, version, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	public static IInstallableUnit createIU(String name, Version version) {
+		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
+	 * assume default values, and the default self capability is also added to the IU.
+	 */
+	public static IInstallableUnit createIU(String name, Version version, boolean singleton) {
+		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton);
 	}
 
 	/**
@@ -236,14 +295,6 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	public static IInstallableUnit createIU(String name, Version version, ProvidedCapability[] additionalProvides) {
 		return createIU(name, version, null, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
-	}
-
-	/**
-	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
-	 * assume default values, and the default self capability is also added to the IU.
-	 */
-	public static IInstallableUnit createIU(String name, Version version) {
-		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
@@ -266,8 +317,8 @@ public class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnit with the given attributes. All other attributes
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
-	public static IInstallableUnit createIU(String name, Version version, boolean singleton) {
-		return createIU(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton);
+	public static IInstallableUnit createIU(String name, Version version, String filter, ProvidedCapability[] additionalProvides) {
+		return createIU(name, version, filter, NO_REQUIRES, additionalProvides, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false);
 	}
 
 	/**
@@ -302,8 +353,37 @@ public class AbstractProvisioningTest extends TestCase {
 	 * 	Create a basic InstallableUnitFragment with the given attributes. 
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
+	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version) {
+		return createIUFragment(host, name, version, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnitFragment with the given attributes. 
+	 * The self and fragment provided capabilities are added to the IU.
+	 */
+	public static IInstallableUnitFragment createIUFragment(IInstallableUnit host, String name, Version version, RequiredCapability[] required, TouchpointType tpType, TouchpointData tpData) {
+		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
+		fragment.setId(name);
+		fragment.setVersion(version);
+		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(name, version), IInstallableUnitFragment.FRAGMENT_CAPABILITY};
+		fragment.setCapabilities(cap);
+		fragment.setRequiredCapabilities(required);
+		fragment.setTouchpointType(tpType);
+		if (tpData != null)
+			fragment.addTouchpointData(tpData);
+		if (host != null) {
+			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
+			fragment.setHost(host.getId(), hostRange);
+		}
+		return MetadataFactory.createInstallableUnitFragment(fragment);
+	}
+
+	/**
+	 * 	Create a basic InstallableUnitFragment with the given attributes. 
+	 * The self and fragment provided capabilities are added to the IU.
+	 */
 	public static IInstallableUnitFragment createIUFragment(String name) {
-		return createIUFragment(name, DEFAULT_VERSION, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
+		return createIUFragment(null, name, DEFAULT_VERSION, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
 	}
 
 	/**
@@ -311,58 +391,11 @@ public class AbstractProvisioningTest extends TestCase {
 	 * The self and fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createIUFragment(String name, Version version) {
-		return createIUFragment(name, version, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
-	}
-
-	/**
-	 * 	Create a basic InstallableUnitFragment with the given attributes. 
-	 * The self and fragment provided capabilities are added to the IU.
-	 */
-	public static IInstallableUnitFragment createIUFragment(String name, Version version, RequiredCapability[] required, TouchpointType tpType, TouchpointData tpData) {
-		InstallableUnitFragmentDescription iu = new InstallableUnitFragmentDescription();
-		iu.setId(name);
-		iu.setVersion(version);
-		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(name, version), IInstallableUnitFragment.FRAGMENT_CAPABILITY};
-		iu.setCapabilities(cap);
-		iu.setRequiredCapabilities(required);
-		iu.setTouchpointType(tpType);
-		if (tpData != null)
-			iu.addTouchpointData(tpData);
-		return MetadataFactory.createInstallableUnitFragment(iu);
+		return createIUFragment(null, name, version, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
 	}
 
 	public static IPlanner createPlanner() {
 		return (IPlanner) ServiceHelper.getService(TestActivator.getContext(), IPlanner.class.getName());
-	}
-
-	/**
-	 * Creates a profile with the given name. Ensures that no such profile
-	 * already exists.  The returned profile will be removed automatically
-	 * in the tearDown method.
-	 */
-	protected Profile createProfile(String name) {
-		return createProfile(name, null);
-	}
-
-	public String getUniqueString() {
-		return System.currentTimeMillis() + "-" + Math.random();
-	}
-
-	/**
-	 * Creates a profile with the given name. Ensures that no such profile
-	 * already exists.  The returned profile will be removed automatically
-	 * in the tearDown method.
-	 */
-	protected Profile createProfile(String name, Profile parent) {
-		//remove any existing profile with the same name
-		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-		Profile profile = profileRegistry.getProfile(name);
-		if (profile != null)
-			profileRegistry.removeProfile(profile);
-		//create and return a new profile
-		profile = new Profile(name, parent);
-		profilesToRemove.add(profile);
-		return profile;
 	}
 
 	/**
@@ -377,6 +410,36 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	protected static RequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
 		return new RequiredCapability[] {new RequiredCapability(namespace, name, range, filter, false, false)};
+	}
+
+	public static boolean delete(File file) {
+		if (!file.exists())
+			return true;
+		if (file.isDirectory()) {
+			File[] children = file.listFiles();
+			for (int i = 0; i < children.length; i++)
+				delete(children[i]);
+		}
+		return file.delete();
+	}
+
+	/**
+	 * 	Compare two 2-dimensional arrays of strings for equality
+	 */
+	protected static boolean equal(String[][] tuples0, String[][] tuples1) {
+		if (tuples0.length != tuples1.length)
+			return false;
+		for (int i = 0; i < tuples0.length; i++) {
+			String[] tuple0 = tuples0[i];
+			String[] tuple1 = tuples1[i];
+			if (tuple0.length != tuple1.length)
+				return false;
+			for (int j = 0; j < tuple0.length; j++) {
+				if (!tuple0[j].equals(tuple1[j]))
+					return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -397,17 +460,17 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
-	 * 	Get the 'self' capability for an installable unit with the give id and version.
-	 */
-	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
-		return new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, installableUnitId, installableUnitVersion);
-	}
-
-	/**
 	 * 	Get the 'self' capability for the given installable unit.
 	 */
 	protected static ProvidedCapability getSelfCapability(IInstallableUnit iu) {
 		return getSelfCapability(iu.getId(), iu.getVersion());
+	}
+
+	/**
+	 * 	Get the 'self' capability for an installable unit with the give id and version.
+	 */
+	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
+		return new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, installableUnitId, installableUnitVersion);
 	}
 
 	private static void indent(OutputStream output, int indent) {
@@ -491,6 +554,39 @@ public class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
+	 * Creates a profile with the given name. Ensures that no such profile
+	 * already exists.  The returned profile will be removed automatically
+	 * in the tearDown method.
+	 */
+	protected Profile createProfile(String name) {
+		return createProfile(name, null);
+	}
+
+	/**
+	 * Creates a profile with the given name. Ensures that no such profile
+	 * already exists.  The returned profile will be removed automatically
+	 * in the tearDown method.
+	 */
+	protected Profile createProfile(String name, Profile parent) {
+		//remove any existing profile with the same name
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		Profile profile = profileRegistry.getProfile(name);
+		if (profile != null)
+			profileRegistry.removeProfile(profile);
+		//create and return a new profile
+		profile = new Profile(name, parent);
+		profilesToRemove.add(profile);
+		return profile;
+	}
+
+	/**
+	 * Returns a resolved IU corresponding to the given IU, with no attached fragments.
+	 */
+	protected IInstallableUnit createResolvedIU(IInstallableUnit unit) {
+		return MetadataFactory.createResolvedInstallableUnit(unit, new IInstallableUnitFragment[0]);
+	}
+
+	/**
 	 * Adds a test metadata repository to the system that provides the given units. 
 	 * The repository will automatically be removed in the tearDown method.
 	 */
@@ -502,63 +598,8 @@ public class AbstractProvisioningTest extends TestCase {
 		metadataRepos.add(repo);
 	}
 
-	/*
-	 * Copy
-	 * - if we have a file, then copy the file
-	 * - if we have a directory then merge
-	 */
-	public static void copy(File source, File target) throws IOException {
-		if (!source.exists())
-			return;
-		if (source.isDirectory()) {
-			if (target.exists() && target.isFile())
-				target.delete();
-			if (!target.exists())
-				target.mkdirs();
-			File[] children = source.listFiles();
-			for (int i = 0; i < children.length; i++)
-				copy(children[i], new File(target, children[i].getName()));
-			return;
-		}
-		InputStream input = null;
-		OutputStream output = null;
-		try {
-			input = new BufferedInputStream(new FileInputStream(source));
-			output = new BufferedOutputStream(new FileOutputStream(target));
-
-			byte[] buffer = new byte[8192];
-			int bytesRead = 0;
-			while ((bytesRead = input.read(buffer)) != -1)
-				output.write(buffer, 0, bytesRead);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
-			if (output != null) {
-				try {
-					output.close();
-				} catch (IOException e) {
-					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	public static boolean delete(File file) {
-		if (!file.exists())
-			return true;
-		if (file.isDirectory()) {
-			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++)
-				delete(children[i]);
-		}
-		return file.delete();
+	public String getUniqueString() {
+		return System.currentTimeMillis() + "-" + Math.random();
 	}
 
 	/* (non-Javadoc)
@@ -592,31 +633,5 @@ public class AbstractProvisioningTest extends TestCase {
 		//		((InstallRegistry) installRegistry).persist();
 		//		IMetadataRepository cache = MetadataCache.getCacheInstance((MetadataRepositoryManager) repoMan);
 		//		cache.removeAll();
-	}
-
-	/**
-	 * Returns a resolved IU corresponding to the given IU, with no attached fragments.
-	 */
-	protected IInstallableUnit createResolvedIU(IInstallableUnit unit) {
-		return MetadataFactory.createResolvedInstallableUnit(unit, new IInstallableUnitFragment[0]);
-	}
-
-	/**
-	 * 	Compare two 2-dimensional arrays of strings for equality
-	 */
-	protected static boolean equal(String[][] tuples0, String[][] tuples1) {
-		if (tuples0.length != tuples1.length)
-			return false;
-		for (int i = 0; i < tuples0.length; i++) {
-			String[] tuple0 = tuples0[i];
-			String[] tuple1 = tuples1[i];
-			if (tuple0.length != tuple1.length)
-				return false;
-			for (int j = 0; j < tuple0.length; j++) {
-				if (!tuple0[j].equals(tuple1[j]))
-					return false;
-			}
-		}
-		return true;
 	}
 }
