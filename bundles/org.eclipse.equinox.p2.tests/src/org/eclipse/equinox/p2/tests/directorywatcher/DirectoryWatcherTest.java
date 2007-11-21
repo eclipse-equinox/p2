@@ -15,9 +15,9 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 		super(name);
 	}
 
-	public void testCreateDirectoryWatcherZeroDirectory() throws Exception {
+	public void testCreateDirectoryWatcherNullDirectory() throws Exception {
 		try {
-			new DirectoryWatcher(new File[] {});
+			new DirectoryWatcher(null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
@@ -27,19 +27,7 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 	public void testCreateDirectoryWatcherOneDirectory() throws Exception {
 		URL base = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
 		File folder = new File(FileLocator.toFileURL(base).getPath());
-		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {folder});
-		watcher.start();
-		watcher.stop();
-	}
-
-	public void testCreateDirectoryWatcherTwoDirectory() throws Exception {
-		URL base1 = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
-		File folder1 = new File(FileLocator.toFileURL(base1).getPath());
-
-		URL base2 = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher2");
-		File folder2 = new File(FileLocator.toFileURL(base2).getPath());
-
-		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {folder1, folder2});
+		DirectoryWatcher watcher = new DirectoryWatcher(folder);
 		watcher.start();
 		watcher.stop();
 	}

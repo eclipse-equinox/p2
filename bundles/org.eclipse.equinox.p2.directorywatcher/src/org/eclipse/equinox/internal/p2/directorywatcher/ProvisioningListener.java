@@ -16,8 +16,8 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.metadata.generator.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
@@ -131,11 +131,9 @@ public class ProvisioningListener extends DirectoryChangeListener {
 	}
 
 	private void generate() {
-		File[] directories = watcher.getDirectories();
-		for (int i = 0; i < directories.length; ++i) {
-			IGeneratorInfo info = getProvider(new File[] {directories[i]}, directories[i]);
-			new Generator(info).generate();
-		}
+		File directory = watcher.getDirectory();
+		IGeneratorInfo info = getProvider(new File[] {directory}, directory);
+		new Generator(info).generate();
 	}
 
 	public Long getSeenFile(File file) {

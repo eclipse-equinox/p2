@@ -21,12 +21,8 @@ public class BundleFolderRepositorySynchronizer {
 	private long lastModified;
 
 	public BundleFolderRepositorySynchronizer(File directory) {
-		this(new File[] {directory});
-	}
-
-	public BundleFolderRepositorySynchronizer(File[] directories) {
-		watcher = new DirectoryWatcher(directories);
-		listener = new RepositoryListener(Activator.getContext(), Integer.toString(directories[0].hashCode()));
+		watcher = new DirectoryWatcher(directory);
+		listener = new RepositoryListener(Activator.getContext(), Integer.toString(directory.hashCode()));
 		watcher.addListener(listener);
 
 		DirectoryChangeListener updatedListener = new DirectoryChangeListener() {
