@@ -111,12 +111,9 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
 		int sizeBefore = units.size();
-		query.perform(units.iterator(), new Collector() {
-			public boolean accept(Object object) {
-				units.remove(object);
-				return true;
-			}
-		});
+		for (Iterator it = units.iterator(); it.hasNext();)
+			if (query.isMatch(it.next()))
+				it.remove();
 		save();
 		return units.size() != sizeBefore;
 	}
