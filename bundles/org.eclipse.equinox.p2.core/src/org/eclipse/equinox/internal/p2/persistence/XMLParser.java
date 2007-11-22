@@ -15,6 +15,7 @@ import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
+import org.eclipse.equinox.internal.p2.core.Tracing;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -25,10 +26,6 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 public abstract class XMLParser extends DefaultHandler implements XMLConstants {
-
-	// TODO: support logging
-	// Get the logger associated with the class.
-	// protected abstract Logger getLogger();
 
 	// Get the root object that is being parsed.
 	protected abstract Object getRootObject();
@@ -482,16 +479,11 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void error(SAXParseException ex) {
-		addError(ex);
+		addError(IStatus.WARNING, ex.getMessage(), ex);
 	}
 
-	public void fatalError(SAXParseException ex) throws SAXException {
-		addError(ex);
-		throw ex;
-	}
-
-	protected void addError(SAXParseException ex) {
-		addError(ex.getMessage());
+	public void fatalError(SAXParseException ex) {
+		addError(IStatus.ERROR, ex.getMessage(), ex);
 	}
 
 	protected String getErrorPrefix() {
@@ -502,12 +494,10 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return null;
 	}
 
-	// Log an error message and add it to the current status.
-	//
-	// TODO: should we have a flag to throw an exception on error,
-	//		 so parsing can be aborted?
-	// TODO: flag to produce warnings instead of errors? etc. 
-	public final void addError(String msg) {
+	/**
+	 * Collects an error or warning that occurred during parsing.
+	 */
+	public final void addError(int severity, String msg, Throwable exception) {
 		int line = 0;
 		int column = 0;
 		String key = msg;
@@ -538,9 +528,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		if (suffix != null) {
 			errMsg = errMsg + suffix;
 		}
-		// TODO: support logging
-		// getLogger().warning(errMsg);
-		IStatus currStatus = new Status(IStatus.ERROR, Activator.ID, errMsg);
+		IStatus currStatus = new Status(severity, Activator.ID, errMsg, exception);
 		if (this.status == null) {
 			this.status = new MultiStatus(bundleId, IStatus.OK, new IStatus[] {currStatus}, getErrorMessage(), null);
 		} else {
@@ -591,7 +579,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 
 	public void checkRequiredAttribute(String element, String name, Object value) {
 		if (value == null) {
-			addError(NLS.bind(Messages.XMLParser_Missing_Required_Attribute, element, name));
+			addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Missing_Required_Attribute, element, name), null);
 		}
 	}
 
@@ -643,23 +631,26 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void unexpectedAttribute(String element, String attribute, String value) {
-		addError(NLS.bind(Messages.XMLParser_Unexpected_Attribute, new Object[] {element, attribute, value}));
+		if (Tracing.DEBUG_PARSING)
+			Tracing.debug("Unexpected attribute for element " + element + ": " + attribute + '=' + value); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void invalidAttributeValue(String element, String attribute, String value) {
-		addError(NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, new Object[] {attribute, element, value}));
+		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Illegal_Value_For_Attribute, new Object[] {attribute, element, value}), null);
 	}
 
 	public void unexpectedElement(AbstractHandler handler, String element, Attributes attributes) {
-		addError(NLS.bind(Messages.XMLParser_Unexpected_Element, new Object[] {handler.getName(), element, toString(attributes)}));
+		if (Tracing.DEBUG_PARSING)
+			Tracing.debug("Unexpected element in element " + handler.getName() + ": <" + element + toString(attributes) + '>'); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public void duplicateElement(AbstractHandler handler, String element, Attributes attributes) {
-		addError(NLS.bind(Messages.XMLParser_Duplicate_Element, new Object[] {handler.getName(), element, toString(attributes)}));
+		addError(IStatus.WARNING, NLS.bind(Messages.XMLParser_Duplicate_Element, new Object[] {handler.getName(), element, toString(attributes)}), null);
 	}
 
 	public void unexpectedCharacterData(AbstractHandler handler, String cdata) {
-		addError(NLS.bind(Messages.XMLParser_Unexpected_Character_Data, handler.getName(), cdata.trim()));
+		if (Tracing.DEBUG_PARSING)
+			Tracing.debug("Unexpected character data in element " + handler.getName() + ": " + cdata.trim()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

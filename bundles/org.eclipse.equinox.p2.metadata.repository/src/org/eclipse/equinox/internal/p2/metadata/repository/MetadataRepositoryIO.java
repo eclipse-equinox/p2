@@ -26,7 +26,6 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository.RepositoryState;
 import org.eclipse.osgi.service.resolver.VersionRange;
-import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
 import org.xml.sax.*;
@@ -102,6 +101,7 @@ public class MetadataRepositoryIO {
 	}
 
 	protected XMLWriter.ProcessingInstruction[] createPI(Class repositoryClass) {
+		//TODO We should remove this processing instruction, but currently old clients rely on this. See bug 210450.
 		return new XMLWriter.ProcessingInstruction[] {XMLWriter.ProcessingInstruction.makeClassVersionInstruction(XMLConstants.PI_REPOSITORY_TARGET, repositoryClass, XMLConstants.CURRENT_VERSION)};
 	}
 
@@ -169,7 +169,7 @@ public class MetadataRepositoryIO {
 				//		 or restrictions on concurrent parsing
 				getParser();
 				RepositoryHandler repositoryHandler = new RepositoryHandler();
-				xmlReader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
+				xmlReader.setContentHandler(new DocHandler(REPOSITORY_ELEMENT, repositoryHandler));
 				xmlReader.parse(new InputSource(stream));
 				if (isValidXML()) {
 					theRepository = repositoryHandler.getRepository();
@@ -193,34 +193,6 @@ public class MetadataRepositoryIO {
 
 		protected Object getRootObject() {
 			return theRepository;
-		}
-
-		private final class RepositoryDocHandler extends DocHandler {
-
-			public RepositoryDocHandler(String rootName, RootHandler rootHandler) {
-				super(rootName, rootHandler);
-			}
-
-			public void processingInstruction(String target, String data) throws SAXException {
-				if (PI_REPOSITORY_TARGET.equals(target)) {
-					// TODO: should the root handler be constructed based on class
-					// 		 via an extension registry mechanism?
-					String clazz = extractPIClass(data);
-					try {
-						theRepositoryClass = Class.forName(clazz);
-					} catch (ClassNotFoundException e) {
-						// throw new SAXException(NLS.bind(Messages.MetadataRepositoryIO_Repository_Class_Not_Found, clazz));
-						throw new SAXException("Metadata repository class '" + clazz + "' not found"); //$NON-NLS-1$//$NON-NLS-2$
-					}
-
-					// TODO: version tolerance by extension?
-					Version repositoryVersion = extractPIVersion(target, data);
-					if (!MetadataRepositoryIO.XMLConstants.XML_TOLERANCE.isIncluded(repositoryVersion)) {
-						throw new SAXException(NLS.bind(Messages.MetadataRepositoryIO_Parser_Has_Incompatible_Version, repositoryVersion, MetadataRepositoryIO.XMLConstants.XML_TOLERANCE));
-					}
-				}
-			}
-
 		}
 
 		private final class RepositoryHandler extends RootHandler {
@@ -279,7 +251,8 @@ public class MetadataRepositoryIO {
 					state.Units = (unitsHandler == null ? new IInstallableUnit[0] //
 							: unitsHandler.getUnits());
 					try {
-						Object repositoryObject = theRepositoryClass.newInstance();
+						Class clazz = Class.forName(state.Type);
+						Object repositoryObject = clazz.newInstance();
 						if (repositoryObject instanceof AbstractMetadataRepository) {
 							repository = (AbstractMetadataRepository) repositoryObject;
 							repository.initialize(state);
@@ -288,6 +261,9 @@ public class MetadataRepositoryIO {
 						// TODO: Throw a SAXException
 						e.printStackTrace();
 					} catch (IllegalAccessException e) {
+						// TODO: Throw a SAXException
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
 						// TODO: Throw a SAXException
 						e.printStackTrace();
 					}

@@ -16,9 +16,6 @@ import org.osgi.framework.Version;
 
 public class XMLWriter implements XMLConstants {
 
-	// Miscellaneous
-	public static final String EMPTY_ATTR = ""; //$NON-NLS-1$
-
 	public static class ProcessingInstruction {
 
 		private String target;
@@ -60,27 +57,17 @@ public class XMLWriter implements XMLConstants {
 
 	private PrintWriter pw;
 
-	private XMLWriter(OutputStream output, boolean writeXMLProcessingInstruction) throws UnsupportedEncodingException {
+	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
 		this.pw = new PrintWriter(new OutputStreamWriter(output, "UTF8"), true); //$NON-NLS-1$
-		if (writeXMLProcessingInstruction) {
-			println(ProcessingInstruction.XML_UTF8);
-		}
+		println(ProcessingInstruction.XML_UTF8);
 		this.elements = new Stack();
 		this.open = false;
 		this.indent = "  "; //$NON-NLS-1$
-	}
-
-	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements, boolean writeXMLProcessingInstruction) throws UnsupportedEncodingException {
-		this(output, writeXMLProcessingInstruction);
 		if (piElements != null) {
 			for (int i = 0; i < piElements.length; i++) {
 				println(piElements[i].toString());
 			}
 		}
-	}
-
-	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
-		this(output, piElements, true /*writeXMLProcessingInstruction*/);
 	}
 
 	// start a new element
@@ -237,7 +224,7 @@ public class XMLWriter implements XMLConstants {
 
 	protected static String attributeImage(String name, String value) {
 		if (value == null) {
-			return EMPTY_ATTR; // optional attribute with no value
+			return ""; // optional attribute with no value
 		}
 		return name + "='" + escape(value) + '\''; //$NON-NLS-1$
 	}

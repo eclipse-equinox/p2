@@ -1,0 +1,5 @@
+#Turn on debugging for p2
+org.eclipse.equinox.p2.core/debug=false
+
+#Detailed debugging information while parsing p2 data files
+org.eclipse.equinox.p2.core/persistence/parsing=false
