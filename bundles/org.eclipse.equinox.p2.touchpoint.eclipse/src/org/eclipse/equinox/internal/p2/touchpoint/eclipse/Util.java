@@ -3,6 +3,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
@@ -35,7 +37,7 @@ public class Util {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	static URL getBundlePoolLocation(Profile profile) {
+	private static URL getBundlePoolLocation(Profile profile) {
 		String path = profile.getValue(CACHE_PATH);
 		if (path == null)
 			path = Activator.getContext().getProperty(CACHE_PATH);
@@ -52,17 +54,14 @@ public class Util {
 		return location.getDataArea(Activator.ID);
 	}
 
-	static IFileArtifactRepository getBundlePoolRepo(Profile profile) {
+	static IFileArtifactRepository getBundlePoolRepository(Profile profile) {
 		URL location = getBundlePoolLocation(profile);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		IArtifactRepository bundlePool = manager.loadRepository(location, null);
 		if (bundlePool == null) {
 			// 	the given repo location is not an existing repo so we have to create something
-			// TODO for now create a random repo by default.
 			String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
 			bundlePool = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.touchpoint.eclipse.bundlePool"); //$NON-NLS-1$
-			// TODO: do we still need to do this
-			tagAsImplementation(bundlePool);
 		}
 
 		if (bundlePool == null) {
@@ -71,40 +70,22 @@ public class Util {
 		return (IFileArtifactRepository) bundlePool;
 	}
 
-	private static URL getDownloadCacheLocation() {
-		AgentLocation location = getAgentLocation();
-		return (location != null ? location.getArtifactRepositoryURL() : null);
-	}
+	static IFileArtifactRepository getAggregatedBundleRepository(Profile profile) {
+		Set bundleRepositories = new HashSet();
+		bundleRepositories.add(Util.getBundlePoolRepository(profile));
 
-	static IFileArtifactRepository getDownloadCacheRepo() {
-		URL location = getDownloadCacheLocation();
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (repository == null) {
-			// 	the given repo location is not an existing repo so we have to create something
-			// TODO for now create a random repo by default.
-			String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
-			repository = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
-			// TODO: do we still need to do this
-			tagAsImplementation(repository);
+		IArtifactRepository[] knownRepositories = manager.getKnownRepositories();
+		for (int i = 0; i < knownRepositories.length; i++) {
+			IArtifactRepository repository = knownRepositories[i];
+			if (BundlePool.REPOSITORY_TYPE.equals(repository.getType())) {
+				String profileExtension = (String) repository.getProperties().get(BundlePool.PROFILE_EXTENSION);
+				if (profileExtension != null && profileExtension.equals(profile.getProfileId()))
+					bundleRepositories.add(repository);
+			}
 		}
 
-		IFileArtifactRepository downloadCache = (IFileArtifactRepository) repository.getAdapter(IFileArtifactRepository.class);
-		if (downloadCache == null) {
-			throw new IllegalArgumentException("Agent download cache not writeable: " + location); //$NON-NLS-1$
-		}
-		return downloadCache;
-	}
-
-	// TODO: Will there be other repositories to tag as implementation?  Should this
-	//		 method to some utility?
-	private static void tagAsImplementation(IArtifactRepository repository) {
-		//		if (repository != null && repository.getProperties().getProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY) == null) {
-		//			IWritableRepositoryInfo writableInfo = (IWritableRepositoryInfo) repository.getAdapter(IWritableRepositoryInfo.class);
-		//			if (writableInfo != null) {
-		//				writableInfo.getModifiableProperties().setProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
-		//			}
-		//		}
+		return new AggregatedBundleRepository(bundleRepositories);
 	}
 
 	static BundleInfo createBundleInfo(File bundleFile, String manifest) {
@@ -128,8 +109,8 @@ public class Util {
 	}
 
 	static File getBundleFile(IArtifactKey artifactKey, Profile profile) throws IOException {
-		IFileArtifactRepository bundlePool = getBundlePoolRepo(profile);
-		File bundleJar = bundlePool.getArtifactFile(artifactKey);
+		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(profile);
+		File bundleJar = aggregatedView.getArtifactFile(artifactKey);
 		return bundleJar;
 	}
 

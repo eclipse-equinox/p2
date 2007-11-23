@@ -12,9 +12,11 @@ import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
-public class BundlePool implements IArtifactRepository, IFileArtifactRepository {
+public class BundlePool implements IFileArtifactRepository {
 
+	public static final String REPOSITORY_TYPE = BundlePool.class.getName();
 	private static final String BUNDLE_FOLDER = "bundle.folder";
+	public static final String PROFILE_EXTENSION = "profile.extension";
 
 	// TODO: optimize
 	// we could stream right into the folder
@@ -233,7 +235,7 @@ public class BundlePool implements IArtifactRepository, IFileArtifactRepository 
 	}
 
 	public String getType() {
-		return repository.getType();
+		return REPOSITORY_TYPE;
 	}
 
 	public String getVersion() {

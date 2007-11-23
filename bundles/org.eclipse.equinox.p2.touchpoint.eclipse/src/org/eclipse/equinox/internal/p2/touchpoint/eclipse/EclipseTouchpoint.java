@@ -64,27 +64,25 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (toDownload == null || toDownload.length == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
 
-		IFileArtifactRepository bundlePool = Util.getBundlePoolRepo(profile);
-		if (isCompletelyInRepo(bundlePool, toDownload))
-			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
-
-		//If the installable unit has installation information, then the artifact is put in the download cache
-		//otherwise it is a jar'ed bundle and we directly store it in the plugin cache
-
+		IArtifactRepository aggregatedRepositoryView = Util.getAggregatedBundleRepository(profile);
+		IArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
 		List requests = new ArrayList();
 		for (int i = 0; i < toDownload.length; i++) {
 			IArtifactKey key = toDownload[i];
-			if (!bundlePool.contains(key)) {
-				Properties descriptorProperties = getArtifactDescriptorProperties(installableUnit);
+			if (!aggregatedRepositoryView.contains(key)) {
+				Properties descriptorProperties = createArtifactDescriptorProperties(installableUnit);
 				requests.add(Util.getArtifactRepositoryManager().createMirrorRequest(key, bundlePool, descriptorProperties));
 			}
 		}
+
+		if (requests.isEmpty())
+			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
 
 		IArtifactRequest[] result = (IArtifactRequest[]) requests.toArray(new IArtifactRequest[requests.size()]);
 		return result;
 	}
 
-	private Properties getArtifactDescriptorProperties(IInstallableUnit installableUnit) {
+	private Properties createArtifactDescriptorProperties(IInstallableUnit installableUnit) {
 		Properties descriptorProperties = null;
 		if (isZipped(installableUnit.getTouchpointData())) {
 			descriptorProperties = new Properties();
@@ -530,14 +528,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		manipulator.getConfigData().addBundle(bundleInfo);
 
 		return Status.OK_STATUS;
-	}
-
-	private boolean isCompletelyInRepo(IArtifactRepository repo, IArtifactKey[] toDownload) {
-		for (int i = 0; i < toDownload.length; i++) {
-			if (!repo.contains(toDownload[i]))
-				return false;
-		}
-		return true;
 	}
 
 	boolean isZipped(TouchpointData[] data) {
