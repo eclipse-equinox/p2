@@ -97,7 +97,7 @@ public class MetadataRepositoryIO {
 		// A format version number for metadata repository XML.
 		public static final String XML_VERSION = "0.0.1"; //$NON-NLS-1$
 		public static final Version CURRENT_VERSION = new Version(XML_VERSION);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(CURRENT_VERSION.getMajor() + 1, 0,0), true);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
 
 		// Constants for processing Instructions
 		public static final String PI_REPOSITORY_TARGET = "metadataRepository"; //$NON-NLS-1$

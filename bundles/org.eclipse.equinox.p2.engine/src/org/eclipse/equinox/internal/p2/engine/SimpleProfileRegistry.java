@@ -201,11 +201,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		// Constants defining the structure of the XML for a SimpleProfileRegistry
 
 		// A format version number for simple profile registry XML.
-		public static final String XML_CURRENT = "0.0.2"; //$NON-NLS-1$
-		public static final Version CURRENT_VERSION = new Version(XML_CURRENT);
-		public static final String XML_COMPATIBLE = "0.0.1"; //$NON-NLS-1$
-		public static final Version COMPATIBLE_VERSION = new Version(XML_CURRENT);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, CURRENT_VERSION, true);
+		public static final Version CURRENT_VERSION = new Version(0, 0, 2);
+		public static final Version COMPATIBLE_VERSION = new Version(0, 0, 1);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 
 		// Constants for processing instructions
 		public static final String PI_REPOSITORY_TARGET = "profileRegistry"; //$NON-NLS-1$

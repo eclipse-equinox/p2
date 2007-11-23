@@ -294,9 +294,8 @@ public class InstallRegistry implements IInstallRegistry {
 		// Constants defining the structure of the XML for a SimpleProfileRegistry
 
 		// A format version number for install registry XML.
-		public static final String XML_VERSION = "0.0.1"; //$NON-NLS-1$
-		public static final Version CURRENT_VERSION = new Version(XML_VERSION);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, CURRENT_VERSION, true);
+		public static final Version CURRENT_VERSION = new Version(0, 0, 1);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
 
 		// Constants for processing instructions
 		public static final String PI_REPOSITORY_TARGET = "installRegistry"; //$NON-NLS-1$

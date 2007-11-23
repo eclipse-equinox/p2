@@ -20,11 +20,9 @@ import org.osgi.framework.Version;
 public interface ProfileXMLConstants extends XMLConstants {
 
 	// A format version number for profile XML.
-	public static final String XML_CURRENT = "0.0.2"; //$NON-NLS-1$
-	public static final Version CURRENT_VERSION = new Version(XML_CURRENT);
-	public static final String XML_COMPATIBLE = "0.0.1"; //$NON-NLS-1$
-	public static final Version COMPATIBLE_VERSION = new Version(XML_CURRENT);
-	public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, CURRENT_VERSION, true);
+	public static final Version CURRENT_VERSION = new Version(0, 0, 2);
+	public static final Version COMPATIBLE_VERSION = new Version(0, 0, 1);
+	public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 
 	// Constants for profile elements
 	public static final String PROFILES_ELEMENT = "profiles"; //$NON-NLS-1$
