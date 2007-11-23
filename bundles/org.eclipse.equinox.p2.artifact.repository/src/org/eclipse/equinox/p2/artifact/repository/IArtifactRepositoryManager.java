@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.artifact.repository;
 
 import java.net.URL;
+import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -81,5 +82,14 @@ public interface IArtifactRepositoryManager {
 	 * @return the newly created request object
 	 */
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination);
+
+	/**
+	 * Return a new request to mirror the given artifact into the destination repository.
+	 * @param key the artifact to mirror
+	 * @param destination the destination where the artifact will be mirrored
+	 * @param destinationDescriptorProperties additional properties for use in creating the repositor's ArtifactDescriptor
+	 * @return the newly created request object
+	 */
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties);
 
 }

@@ -102,7 +102,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	private IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
+	public IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
 		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
 			// look for a descriptor that matches the key and is "complete"
@@ -112,7 +112,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return null;
 	}
 
-	private String getLocation(IArtifactDescriptor descriptor) {
+	public String getLocation(IArtifactDescriptor descriptor) {
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
@@ -130,7 +130,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return null;
 	}
 
-	private String createLocation(ArtifactDescriptor descriptor) {
+	public String createLocation(ArtifactDescriptor descriptor) {
 		// if the descriptor is canonical, clear out any UUID that might be set and use the Mapper
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
@@ -199,15 +199,16 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
-		destination = addPostSteps(handler, descriptor, destination, monitor);
-		destination = handler.createAndLink(descriptor.getProcessingSteps(), descriptor, destination, monitor);
-		destination = addPreSteps(handler, descriptor, destination, monitor);
+		destination = processDestination(handler, descriptor, destination, monitor);
 		IStatus status = handler.checkStatus(destination);
 		if (!status.isOK() && status.getSeverity() != IStatus.INFO)
 			return status;
-		String toDownload = getLocation(descriptor);
-		status = getTransport().download(toDownload, destination, monitor);
 
+		status = downloadArtifact(descriptor, destination, monitor);
+		return reportStatus(descriptor, destination, status);
+	}
+
+	public IStatus reportStatus(IArtifactDescriptor descriptor, OutputStream destination, IStatus status) {
 		// If the destination is just a normal stream then the status is simple.  Just return
 		// it and do not close the destination
 		if (!(destination instanceof ProcessingStep))
@@ -226,10 +227,22 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (!stepStatus.isMultiStatus() && stepStatus.isOK())
 			return status;
 		// else gather up the status from the 
-		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, new IStatus[0], "Status of getting artifact " + toDownload, null);
+		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, new IStatus[0], "Status of getting artifact " + descriptor.getArtifactKey(), null);
 		result.merge(status);
 		result.merge(stepStatus);
 		return result;
+	}
+
+	public OutputStream processDestination(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		destination = addPostSteps(handler, descriptor, destination, monitor);
+		destination = handler.createAndLink(descriptor.getProcessingSteps(), descriptor, destination, monitor);
+		destination = addPreSteps(handler, descriptor, destination, monitor);
+		return destination;
+	}
+
+	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		String toDownload = getLocation(descriptor);
+		return getTransport().download(toDownload, destination, monitor);
 	}
 
 	private OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
@@ -269,7 +282,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
-	private class ArtifactOutputStream extends OutputStream {
+	public class ArtifactOutputStream extends OutputStream {
 		private OutputStream destination;
 		private IArtifactDescriptor descriptor;
 		private long count = 0;

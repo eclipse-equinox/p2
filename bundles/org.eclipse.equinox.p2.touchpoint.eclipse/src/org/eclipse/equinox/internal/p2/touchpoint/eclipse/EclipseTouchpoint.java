@@ -10,8 +10,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
@@ -61,11 +60,9 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	// TODO: Here we may want to consult multiple caches
 	IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) {
-		IArtifactRepository targetRepo = null;
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null || toDownload.length == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
-		IArtifactRequest[] requests = new IArtifactRequest[toDownload.length];
 
 		IFileArtifactRepository bundlePool = Util.getBundlePoolRepo(profile);
 		if (isCompletelyInRepo(bundlePool, toDownload))
@@ -73,24 +70,27 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		//If the installable unit has installation information, then the artifact is put in the download cache
 		//otherwise it is a jar'ed bundle and we directly store it in the plugin cache
-		if (isZipped(installableUnit.getTouchpointData())) {
-			targetRepo = Util.getDownloadCacheRepo();
-		} else {
-			targetRepo = bundlePool;
-		}
-		int count = 0;
+
+		List requests = new ArrayList();
 		for (int i = 0; i < toDownload.length; i++) {
 			IArtifactKey key = toDownload[i];
-			if (!targetRepo.contains(key)) {
-				requests[count++] = Util.getArtifactRepositoryManager().createMirrorRequest(key, targetRepo);
+			if (!bundlePool.contains(key)) {
+				Properties descriptorProperties = getArtifactDescriptorProperties(installableUnit);
+				requests.add(Util.getArtifactRepositoryManager().createMirrorRequest(key, bundlePool, descriptorProperties));
 			}
 		}
 
-		if (requests.length == count)
-			return requests;
-		IArtifactRequest[] result = new IArtifactRequest[count];
-		System.arraycopy(requests, 0, result, 0, count);
+		IArtifactRequest[] result = (IArtifactRequest[]) requests.toArray(new IArtifactRequest[requests.size()]);
 		return result;
+	}
+
+	private Properties getArtifactDescriptorProperties(IInstallableUnit installableUnit) {
+		Properties descriptorProperties = null;
+		if (isZipped(installableUnit.getTouchpointData())) {
+			descriptorProperties = new Properties();
+			descriptorProperties.setProperty("bundle.folder", "true");
+		}
+		return descriptorProperties;
 	}
 
 	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
@@ -169,7 +169,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						File fileLocation = null;
 						try {
-							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
+							fileLocation = Util.getBundleFile(artifactKey, profile);
 						} catch (IOException e) {
 							return createError(e.getMessage(), e);
 						}
@@ -199,7 +199,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						File fileLocation = null;
 						try {
-							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
+							fileLocation = Util.getBundleFile(artifactKey, profile);
 						} catch (IOException e) {
 							return createError(e.getMessage(), e);
 						}
@@ -233,7 +233,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						File fileLocation = null;
 						try {
-							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
+							fileLocation = Util.getBundleFile(artifactKey, profile);
 						} catch (IOException e) {
 							return createError(e.getMessage(), e);
 						}
@@ -263,7 +263,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						File fileLocation = null;
 						try {
-							fileLocation = Util.getBundleFile(artifactKey, isZipped(iu.getTouchpointData()), profile);
+							fileLocation = Util.getBundleFile(artifactKey, profile);
 						} catch (IOException e) {
 							return createError(e.getMessage(), e);
 						}
@@ -511,10 +511,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (artifactKey == null)
 			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
 
-		boolean isZipped = isZipped(iu.getTouchpointData());
 		File bundleFile;
 		try {
-			bundleFile = Util.getBundleFile(artifactKey, isZipped, profile);
+			bundleFile = Util.getBundleFile(artifactKey, profile);
 			if (bundleFile == null)
 				return createError("The artifact " + artifactKey.toString() + " to install was not found.");
 
@@ -579,10 +578,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (artifactKey == null)
 			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
 
-		boolean isZipped = isZipped(iu.getTouchpointData());
 		File bundleFile;
 		try {
-			bundleFile = Util.getBundleFile(artifactKey, isZipped, profile);
+			bundleFile = Util.getBundleFile(artifactKey, profile);
 			if (bundleFile == null)
 				return createError("The artifact " + artifactKey.toString() + " to uninstall was not found.");
 

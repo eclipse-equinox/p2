@@ -7,7 +7,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.Headers;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -54,21 +55,20 @@ public class Util {
 	static IFileArtifactRepository getBundlePoolRepo(Profile profile) {
 		URL location = getBundlePoolLocation(profile);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (repository == null) {
+		IArtifactRepository bundlePool = manager.loadRepository(location, null);
+		if (bundlePool == null) {
 			// 	the given repo location is not an existing repo so we have to create something
 			// TODO for now create a random repo by default.
 			String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
-			repository = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+			bundlePool = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.touchpoint.eclipse.bundlePool"); //$NON-NLS-1$
 			// TODO: do we still need to do this
-			tagAsImplementation(repository);
+			tagAsImplementation(bundlePool);
 		}
 
-		IFileArtifactRepository bundlePool = (IFileArtifactRepository) repository.getAdapter(IFileArtifactRepository.class);
 		if (bundlePool == null) {
 			throw new IllegalArgumentException("BundlePool repository not writeable: " + location); //$NON-NLS-1$
 		}
-		return bundlePool;
+		return (IFileArtifactRepository) bundlePool;
 	}
 
 	private static URL getDownloadCacheLocation() {
@@ -127,29 +127,10 @@ public class Util {
 		return bundleInfo;
 	}
 
-	static File getBundleFile(IArtifactKey artifactKey, boolean isZipped, Profile profile) throws IOException {
-
-		if (!isZipped) {
-			IFileArtifactRepository bundlePool = getBundlePoolRepo(profile);
-			File bundleJar = bundlePool.getArtifactFile(artifactKey);
-			return bundleJar;
-		}
-
-		// Handle zipped
-		IFileArtifactRepository downloadCache = getDownloadCacheRepo();
-		File bundleJar = downloadCache.getArtifactFile(artifactKey);
-		if (bundleJar == null)
-			return null;
-
-		File bundleFolder = new File(getBundlePoolLocation(profile).getFile(), "plugins/" + artifactKey.getId() + '_' + artifactKey.getVersion()); //$NON-NLS-1$
-		if (bundleFolder.exists())
-			return bundleFolder;
-
-		if (!bundleFolder.mkdir())
-			throw new IOException("Can't create the folder: " + bundleFolder);
-
-		FileUtils.unzipFile(bundleJar, bundleFolder);
-		return bundleFolder;
+	static File getBundleFile(IArtifactKey artifactKey, Profile profile) throws IOException {
+		IFileArtifactRepository bundlePool = getBundlePoolRepo(profile);
+		File bundleJar = bundlePool.getArtifactFile(artifactKey);
+		return bundleJar;
 	}
 
 	static File getConfigurationFolder(Profile profile) {

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
@@ -21,11 +22,19 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 public class MirrorRequest extends ArtifactRequest {
 	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
-	private IArtifactRepository target;
+	private final IArtifactRepository target;
 
-	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository) {
+	private final Properties targetDescriptorProperties;
+
+	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Properties targetDescriptorProperties) {
 		super(key);
 		target = targetRepository;
+		if (targetDescriptorProperties == null || targetDescriptorProperties.isEmpty()) {
+			this.targetDescriptorProperties = null;
+		} else {
+			this.targetDescriptorProperties = new Properties();
+			this.targetDescriptorProperties.putAll(targetDescriptorProperties);
+		}
 	}
 
 	public void perform(IProgressMonitor monitor) {
@@ -75,6 +84,9 @@ public class MirrorRequest extends ArtifactRequest {
 		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
 		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
 		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, null);
+
+		if (targetDescriptorProperties != null)
+			destinationDescriptor.addProperties(targetDescriptorProperties);
 
 		OutputStream destination = target.getOutputStream(destinationDescriptor);
 		if (destination == null) {
