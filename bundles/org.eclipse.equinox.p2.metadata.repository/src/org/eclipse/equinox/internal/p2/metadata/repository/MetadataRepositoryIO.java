@@ -251,6 +251,9 @@ public class MetadataRepositoryIO {
 					state.Units = (unitsHandler == null ? new IInstallableUnit[0] //
 							: unitsHandler.getUnits());
 					try {
+						//can't create repository if missing type - this is already logged when parsing attributes
+						if (state.Type == null)
+							return;
 						Class clazz = Class.forName(state.Type);
 						Object repositoryObject = clazz.newInstance();
 						if (repositoryObject instanceof AbstractMetadataRepository) {

@@ -272,7 +272,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		/**
 		 * Parse the attributes of an element, given the list of required and optional ones.
 		 * Return values in same order, null for those not present.
-		 * Report errors for missing required attributes or extra ones.
+		 * Log warnings for extra attributes or missing required attributes.
 		 */
 		protected String[] parseAttributes(Attributes attributes, String[] required, String[] optional) {
 			String[] result = new String[required.length + optional.length];
@@ -608,9 +608,14 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return result;
 	}
 
+	/**
+	 * Converts a version string to a Version object. Returns the version object,
+	 * or {@link Version#emptyVersion} if the value was not a valid version.
+	 */
 	public Version checkVersion(String element, String attribute, String value) {
 		try {
-			return new Version(value);
+			if (value != null)
+				return new Version(value);
 		} catch (IllegalArgumentException iae) {
 			invalidAttributeValue(element, attribute, value);
 		} catch (NullPointerException npe) {
