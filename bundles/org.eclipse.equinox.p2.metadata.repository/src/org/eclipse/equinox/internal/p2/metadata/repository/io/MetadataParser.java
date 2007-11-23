@@ -77,7 +77,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		public InstallableUnitHandler(AbstractHandler parentHandler, Attributes attributes, List units) {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
-
+			//skip entire IU if the id is missing
+			if (values[0] == null)
+				return;
 			Version version = checkVersion(INSTALLABLE_UNIT_ELEMENT, VERSION_ATTRIBUTE, values[1]);
 			boolean singleton = checkBoolean(INSTALLABLE_UNIT_ELEMENT, SINGLETON_ATTRIBUTE, values[2], true).booleanValue();
 			boolean isFragment = checkBoolean(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_ATTRIBUTE, values[3], false).booleanValue();
