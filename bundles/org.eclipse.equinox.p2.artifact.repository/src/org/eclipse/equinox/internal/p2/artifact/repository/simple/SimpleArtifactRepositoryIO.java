@@ -13,9 +13,10 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
@@ -77,8 +78,15 @@ class SimpleArtifactRepositoryIO {
 				bufferedInput = new BufferedInputStream(input);
 				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
 				repositoryParser.parse(input);
-				if (!repositoryParser.isValidXML()) {
-					throw new RepositoryCreationException(new CoreException(repositoryParser.getStatus()));
+				IStatus result = repositoryParser.getStatus();
+				switch (result.getSeverity()) {
+					case IStatus.CANCEL :
+						throw new OperationCanceledException();
+					case IStatus.ERROR :
+						throw new RepositoryCreationException(new CoreException(result));
+					case IStatus.WARNING :
+					case IStatus.INFO :
+						LogHelper.log(result);
 				}
 				return repositoryParser.getRepository();
 			} finally {

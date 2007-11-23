@@ -14,8 +14,9 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
@@ -118,6 +119,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				bif = new BufferedInputStream(getRegistryLocation().openStream());
 				Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 				parser.parse(bif);
+				IStatus result = parser.getStatus();
+				if (!result.isOK())
+					LogHelper.log(result);
 			} finally {
 				if (bif != null)
 					bif.close();
@@ -125,8 +129,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		} catch (FileNotFoundException e) {
 			//This is ok.
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error restoring profile registry", e)); //$NON-NLS-1$
 		}
 	}
 
@@ -134,10 +137,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		OutputStream os;
 		try {
 			Location agent = (Location) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-			if (agent == null)
-				// TODO should likely do something here since we failed to persist.
+			if (agent == null) {
+				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Unable to persist profile registry due to missing AgentLocation")); //$NON-NLS-1$
 				return;
-
+			}
 			URL registryLocation = getRegistryLocation();
 			if (!registryLocation.getProtocol().equals("file")) //$NON-NLS-1$
 				throw new IOException(NLS.bind(Messages.SimpleProfileRegistry_Persist_To_Non_File_URL_Error, registryLocation));
@@ -152,12 +155,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			} finally {
 				os.close();
 			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error persisting profile registry", e)); //$NON-NLS-1$
 		}
 
 	}

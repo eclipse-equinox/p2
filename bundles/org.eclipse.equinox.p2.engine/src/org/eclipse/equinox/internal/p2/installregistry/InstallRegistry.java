@@ -15,9 +15,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.engine.*;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
@@ -129,6 +130,9 @@ public class InstallRegistry implements IInstallRegistry {
 				bif = new BufferedInputStream(getRegistryLocation().openStream());
 				Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 				parser.parse(bif);
+				IStatus result = parser.getStatus();
+				if (!result.isOK())
+					LogHelper.log(result);
 				profileRegistries = parser.getProfileInstallRegistries();
 			} finally {
 				if (bif != null)

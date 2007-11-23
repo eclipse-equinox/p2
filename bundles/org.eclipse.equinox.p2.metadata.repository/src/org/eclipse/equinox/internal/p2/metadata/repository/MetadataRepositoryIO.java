@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 import java.io.*;
 import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
@@ -48,11 +48,17 @@ public class MetadataRepositoryIO {
 
 				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
 				repositoryParser.parse(input);
-				if (!repositoryParser.isValidXML()) {
-					throw new RepositoryCreationException(new CoreException(repositoryParser.getStatus()));
+				IStatus result = repositoryParser.getStatus();
+				switch (result.getSeverity()) {
+					case IStatus.CANCEL :
+						throw new OperationCanceledException();
+					case IStatus.ERROR :
+						throw new RepositoryCreationException(new CoreException(result));
+					case IStatus.WARNING :
+					case IStatus.INFO :
+						LogHelper.log(result);
 				}
-				IMetadataRepository theRepository = repositoryParser.getRepository();
-				return theRepository;
+				return repositoryParser.getRepository();
 			} finally {
 				if (bufferedInput != null)
 					bufferedInput.close();
