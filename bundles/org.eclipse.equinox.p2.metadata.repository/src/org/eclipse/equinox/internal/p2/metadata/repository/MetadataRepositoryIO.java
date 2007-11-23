@@ -26,6 +26,7 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository.RepositoryState;
 import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
 import org.xml.sax.*;
@@ -96,7 +97,7 @@ public class MetadataRepositoryIO {
 		// A format version number for metadata repository XML.
 		public static final String XML_VERSION = "0.0.1"; //$NON-NLS-1$
 		public static final Version CURRENT_VERSION = new Version(XML_VERSION);
-		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, CURRENT_VERSION, true);
+		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(CURRENT_VERSION.getMajor() + 1, 0,0), true);
 
 		// Constants for processing Instructions
 		public static final String PI_REPOSITORY_TARGET = "metadataRepository"; //$NON-NLS-1$
@@ -175,7 +176,7 @@ public class MetadataRepositoryIO {
 				//		 or restrictions on concurrent parsing
 				getParser();
 				RepositoryHandler repositoryHandler = new RepositoryHandler();
-				xmlReader.setContentHandler(new DocHandler(REPOSITORY_ELEMENT, repositoryHandler));
+				xmlReader.setContentHandler(new RepositoryDocHandler(REPOSITORY_ELEMENT, repositoryHandler));
 				xmlReader.parse(new InputSource(stream));
 				if (isValidXML()) {
 					theRepository = repositoryHandler.getRepository();
@@ -199,6 +200,23 @@ public class MetadataRepositoryIO {
 
 		protected Object getRootObject() {
 			return theRepository;
+		}
+
+		private final class RepositoryDocHandler extends DocHandler {
+
+			public RepositoryDocHandler(String rootName, RootHandler rootHandler) {
+				super(rootName, rootHandler);
+			}
+
+			public void processingInstruction(String target, String data) throws SAXException {
+				if (PI_REPOSITORY_TARGET.equals(target)) {
+					Version repositoryVersion = extractPIVersion(target, data);
+					if (!MetadataRepositoryIO.XMLConstants.XML_TOLERANCE.isIncluded(repositoryVersion)) {
+						throw new SAXException(NLS.bind(Messages.MetadataRepositoryIO_Parser_Has_Incompatible_Version, repositoryVersion, MetadataRepositoryIO.XMLConstants.XML_TOLERANCE));
+					}
+				}
+			}
+
 		}
 
 		private final class RepositoryHandler extends RootHandler {
