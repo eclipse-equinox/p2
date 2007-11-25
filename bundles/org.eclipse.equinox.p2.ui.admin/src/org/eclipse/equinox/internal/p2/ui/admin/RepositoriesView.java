@@ -55,7 +55,7 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			openAddRepositoryDialog(getShell(), ((ITreeContentProvider) viewer.getContentProvider()).getElements(null));
+			openAddRepositoryDialog(getShell(), ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput()));
 		}
 	}
 

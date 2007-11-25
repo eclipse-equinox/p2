@@ -74,7 +74,7 @@ public class ProfilesView extends ProvView {
 		}
 
 		public void run() {
-			new AddProfileDialog(viewer.getControl().getShell(), ((ITreeContentProvider) viewer.getContentProvider()).getElements(null)).open();
+			new AddProfileDialog(viewer.getControl().getShell(), ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput())).open();
 		}
 	}
 
