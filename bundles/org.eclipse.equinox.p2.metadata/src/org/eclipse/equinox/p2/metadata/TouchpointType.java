@@ -24,34 +24,10 @@ public class TouchpointType {
 	public static final TouchpointType NONE = new TouchpointType("null", new Version("0")); //$NON-NLS-1$//$NON-NLS-2$
 	private String id;
 	private Version versionObject;
-	private String version;
 
 	public TouchpointType(String id, Version aVersion) {
 		this.id = id;
 		this.versionObject = aVersion;
-		this.version = aVersion == null ? null : aVersion.toString();
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public Version getVersion() {
-		if (versionObject == null)
-			versionObject = version == null ? Version.emptyVersion : new Version(version);
-		return versionObject;
-	}
-
-	public String toString() {
-		return "Touchpoint: " + id + ' ' + getVersion();
-	}
-
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
-		return result;
 	}
 
 	public boolean equals(Object obj) {
@@ -73,6 +49,26 @@ public class TouchpointType {
 		} else if (!getVersion().equals(other.getVersion()))
 			return false;
 		return true;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public Version getVersion() {
+		return versionObject;
+	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
+		return result;
+	}
+
+	public String toString() {
+		return "Touchpoint: " + id + ' ' + getVersion();
 	}
 
 }
