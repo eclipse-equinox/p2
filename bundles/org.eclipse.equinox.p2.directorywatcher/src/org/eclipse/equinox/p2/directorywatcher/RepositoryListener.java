@@ -83,7 +83,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		try {
 			repository = manager.getRepository(stateDirURL);
 			if (repository == null)
-				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.touchpoint.eclipse.bundlePool");
 		} finally {
 			context.ungetService(reference);
 		}
@@ -247,7 +247,13 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private IArtifactDescriptor generateArtifactDescriptor(File bundle) {
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundle);
 		IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-		return MetadataGeneratorHelper.createArtifactDescriptor(key, bundle, true, false);
+		IArtifactDescriptor basicDescriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, bundle, true, false);
+		if (bundle.isFile())
+			return basicDescriptor;
+
+		ArtifactDescriptor folderDescriptor = new ArtifactDescriptor(basicDescriptor);
+		folderDescriptor.setProperty("bundle.folder", "true");
+		return folderDescriptor;
 	}
 
 	private IInstallableUnit[] generateIUs(Collection files) {
