@@ -14,8 +14,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.Activator;
-import org.eclipse.equinox.internal.p2.core.Tracing;
+import org.eclipse.equinox.internal.p2.core.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -41,6 +40,8 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected MultiStatus status = null; // accumulation of non-fatal errors
 	protected Locator locator = null; // document locator, if supported by the parser
 
+	protected StringPool stringPool = new StringPool();//used to eliminate string duplication
+
 	private static ServiceTracker xmlTracker = null;
 
 	public XMLParser(BundleContext context, String pluginId) {
@@ -54,6 +55,14 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	 */
 	public IStatus getStatus() {
 		return (status != null ? status : Status.OK_STATUS);
+	}
+
+	/**
+	 * Returns the canonical form of a string. Used to eliminate duplicate equal 
+	 * strings.
+	 */
+	protected String canonicalize(String string) {
+		return stringPool == null ? string : stringPool.add(string);
 	}
 
 	public boolean isValidXML() {
@@ -278,7 +287,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			String[] result = new String[required.length + optional.length];
 			for (int i = 0; i < attributes.getLength(); i += 1) {
 				String name = attributes.getLocalName(i);
-				String value = attributes.getValue(i).trim();
+				String value = canonicalize(attributes.getValue(i).trim());
 				int j;
 				if ((j = indexOf(required, name)) >= 0) {
 					result[j] = value;
