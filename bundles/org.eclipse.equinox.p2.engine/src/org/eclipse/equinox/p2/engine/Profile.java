@@ -181,7 +181,7 @@ public class Profile implements IQueryable {
 	}
 
 	public Dictionary getSelectionContext() {
-		OrderedProperties result = new OrderedProperties(storage);
+		Hashtable result = new Hashtable(storage);
 		String environments = getValue(PROP_ENVIRONMENTS);
 		if (environments == null)
 			return result;
