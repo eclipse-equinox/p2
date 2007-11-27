@@ -121,8 +121,7 @@ abstract class ProvView extends ViewPart {
 		undoRedoGroup = new UndoRedoActionGroup(getSite(), ProvUI.getProvisioningUndoContext(), true);
 		refreshAction = new Action(ProvAdminUIMessages.ProvView_RefreshCommandLabel) {
 			public void run() {
-				// TODO there should be some underlying API to call to refresh the underlying core object.
-				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=204177
+				refreshUnderlyingModel();
 				viewer.refresh();
 			}
 		};
@@ -214,4 +213,8 @@ abstract class ProvView extends ViewPart {
 		return new ProvElementLabelProvider();
 	}
 
+	protected void refreshUnderlyingModel() {
+		// TODO there should be some underlying API to call to refresh the underlying core object.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=207678
+	}
 }
