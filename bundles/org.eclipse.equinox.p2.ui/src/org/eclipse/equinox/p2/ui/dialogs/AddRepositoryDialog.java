@@ -124,14 +124,17 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	}
 
 	protected void okPressed() {
-		addRepository();
-		super.okPressed();
+		if (addRepository())
+			super.okPressed();
 	}
 
-	protected void addRepository() {
+	protected boolean addRepository() {
 		URL newURL = makeRepositoryURL(url.getText().trim());
-		if (newURL != null)
+		if (newURL != null) {
 			ProvisioningOperationRunner.schedule(getOperation(newURL), getShell());
+			return true;
+		}
+		return false;
 	}
 
 	protected abstract ProvisioningOperation getOperation(URL repoURL);

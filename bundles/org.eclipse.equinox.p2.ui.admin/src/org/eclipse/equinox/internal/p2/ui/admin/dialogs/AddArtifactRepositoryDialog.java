@@ -43,5 +43,8 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 			ProvUI.handleException(e, ProvAdminUIMessages.AddRepositoryDialog_InvalidURL);
 			return null;
 		}
+		// TODO need to do better validation of the URL
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
+
 	}
 }

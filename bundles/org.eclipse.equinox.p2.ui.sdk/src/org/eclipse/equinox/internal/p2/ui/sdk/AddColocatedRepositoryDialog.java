@@ -38,6 +38,8 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 	}
 
 	protected URL makeRepositoryURL(String urlString) {
+		// TODO need to do better validation of the URL
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
 		URL newURL;
 		try {
 			newURL = new URL(urlString);
