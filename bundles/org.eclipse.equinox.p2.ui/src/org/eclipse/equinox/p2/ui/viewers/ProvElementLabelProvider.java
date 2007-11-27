@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -109,8 +109,10 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				if (element instanceof Profile) {
 					return ((Profile) element).getValue(Profile.PROP_NAME);
 				}
-				if (element instanceof CategoryElement)
-					return null;
+				if (element instanceof IUElement) {
+					if (((IUElement) element).shouldShowVersion())
+						return ((IUElement) element).getIU().getVersion().toString();
+				}
 				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 				if (iu != null) {
 					return iu.getVersion().toString();

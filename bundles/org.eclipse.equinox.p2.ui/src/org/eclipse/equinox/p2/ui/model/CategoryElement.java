@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
  * 
  * @since 3.4
  */
-public class CategoryElement extends RemoteQueriedElement {
+public class CategoryElement extends RemoteQueriedElement implements IUElement {
 
 	private IInstallableUnit iu;
 
@@ -54,6 +54,18 @@ public class CategoryElement extends RemoteQueriedElement {
 
 	public IInstallableUnit getIU() {
 		return iu;
+	}
+
+	public long getSize() {
+		return SIZE_UNKNOWN;
+	}
+
+	public boolean shouldShowSize() {
+		return false;
+	}
+
+	public boolean shouldShowVersion() {
+		return false;
 	}
 
 }

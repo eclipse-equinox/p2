@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
+import org.eclipse.equinox.p2.ui.model.IUElement;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -20,9 +21,8 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
  * 
  * @since 3.4
  */
-public class AvailableIUElement extends ProvElement {
+public class AvailableIUElement extends ProvElement implements IUElement {
 
-	public static final long SIZE_UNKNOWN = -1;
 	long size;
 	IInstallableUnit iu;
 
@@ -64,5 +64,17 @@ public class AvailableIUElement extends ProvElement {
 
 	public long getSize() {
 		return size;
+	}
+
+	public IInstallableUnit getIU() {
+		return iu;
+	}
+
+	public boolean shouldShowSize() {
+		return true;
+	}
+
+	public boolean shouldShowVersion() {
+		return true;
 	}
 }

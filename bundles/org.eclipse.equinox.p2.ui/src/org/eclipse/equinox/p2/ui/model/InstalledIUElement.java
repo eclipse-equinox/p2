@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
  * 
  * @since 3.4
  */
-public class InstalledIUElement extends ProvElement {
+public class InstalledIUElement extends ProvElement implements IUElement {
 
 	Profile parent;
 	IInstallableUnit iu;
@@ -69,5 +69,19 @@ public class InstalledIUElement extends ProvElement {
 
 	public IInstallableUnit getIU() {
 		return iu;
+	}
+
+	// TODO Later we might consider showing this in the installed views,
+	// but it is less important than before install.
+	public long getSize() {
+		return SIZE_UNKNOWN;
+	}
+
+	public boolean shouldShowSize() {
+		return false;
+	}
+
+	public boolean shouldShowVersion() {
+		return true;
 	}
 }

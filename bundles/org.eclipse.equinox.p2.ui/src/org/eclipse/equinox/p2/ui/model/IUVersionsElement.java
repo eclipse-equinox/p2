@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
  * 
  * @since 3.4
  */
-public class IUVersionsElement extends CachedQueryElement {
+public class IUVersionsElement extends CachedQueryElement implements IUElement {
 
 	IInstallableUnit iu;
 
@@ -53,5 +53,17 @@ public class IUVersionsElement extends CachedQueryElement {
 
 	protected int getQueryType() {
 		return IProvElementQueryProvider.AVAILABLE_IUS;
+	}
+
+	public long getSize() {
+		return SIZE_UNKNOWN;
+	}
+
+	public boolean shouldShowSize() {
+		return false;
+	}
+
+	public boolean shouldShowVersion() {
+		return true;
 	}
 }

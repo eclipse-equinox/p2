@@ -14,12 +14,11 @@ package org.eclipse.equinox.p2.ui.viewers;
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.osgi.util.NLS;
@@ -69,20 +68,19 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			case IUColumnConfig.COLUMN_ID :
 				return iu.getId();
 			case IUColumnConfig.COLUMN_NAME :
-				if (element instanceof CategoryElement) {
-					return iu.getId();
-				}
 				String name = iu.getProperty(IInstallableUnit.PROP_NAME);
 				if (name != null)
 					return name;
 				return BLANK;
 			case IUColumnConfig.COLUMN_VERSION :
-				if (element instanceof CategoryElement)
-					return BLANK;
-				return iu.getVersion().toString();
+				if (element instanceof IUElement && ((IUElement) element).shouldShowVersion())
+					return iu.getVersion().toString();
+				return BLANK;
+
 			case IUColumnConfig.COLUMN_SIZE :
-				if (element instanceof CategoryElement)
-					return getIUSize(element);
+				if (element instanceof IUElement && ((IUElement) element).shouldShowSize())
+					return getIUSize((IUElement) element);
+				return BLANK;
 		}
 		return BLANK;
 	}
@@ -97,12 +95,10 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		return null;
 	}
 
-	private String getIUSize(Object element) {
-		if (element instanceof AvailableIUElement) {
-			long size = ((AvailableIUElement) element).getSize();
-			if (size != AvailableIUElement.SIZE_UNKNOWN) {
-				return getFormattedSize(size);
-			}
+	private String getIUSize(IUElement element) {
+		long size = element.getSize();
+		if (size != IUElement.SIZE_UNKNOWN) {
+			return getFormattedSize(size);
 		}
 		return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 	}
