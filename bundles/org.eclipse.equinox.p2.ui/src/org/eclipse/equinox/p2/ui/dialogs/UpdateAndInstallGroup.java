@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.equinox.internal.p2.ui.PropertyDialogAction;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -34,7 +35,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.dialogs.PropertyDialogAction;
 
 /**
  * Dialog group that shows installed IU's and allows user to update or search
