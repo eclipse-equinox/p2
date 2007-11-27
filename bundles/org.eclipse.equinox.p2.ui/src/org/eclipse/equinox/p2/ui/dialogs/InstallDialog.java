@@ -10,16 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.swt.widgets.Shell;
 
@@ -33,14 +32,16 @@ public class InstallDialog extends UpdateInstallDialog {
 		return ProvUIMessages.InstallIUOperationLabelWithMnemonic;
 	}
 
-	protected long getSize(IInstallableUnit iu) {
+	protected long getSize(IInstallableUnit iu, IProgressMonitor monitor) {
 		long size;
+		SubMonitor sub = SubMonitor.convert(monitor);
+		sub.setWorkRemaining(100);
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, new NullProgressMonitor());
-			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, new NullProgressMonitor());
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, sub.newChild(50));
+			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, sub.newChild(50));
 			size = info.getDiskSize();
 		} catch (ProvisionException e) {
-			size = AvailableIUElement.SIZE_UNKNOWN;
+			size = IUElement.SIZE_UNKNOWN;
 		}
 		return size;
 	}
@@ -51,11 +52,11 @@ public class InstallDialog extends UpdateInstallDialog {
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements) {
 		try {
-			IInstallableUnit[] ius = elementsToIUs(selectedElements);
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, profile, null);
+			IInstallableUnit[] selected = elementsToIUs(selectedElements);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, profile, null);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
-				return new InstallOperation(getOperationLabel(), profile.getProfileId(), plan, ius);
+				return new InstallOperation(getOperationLabel(), profile.getProfileId(), plan, selected);
 			ProvUI.reportStatus(status);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);

@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.model.StaticContentProvider;
@@ -17,17 +22,20 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.equinox.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 
 abstract class ProfileModificationDialog extends TrayDialog {
 	private static final int DEFAULT_HEIGHT = 20;
@@ -36,14 +44,13 @@ abstract class ProfileModificationDialog extends TrayDialog {
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private String title;
 	private String message;
-	private IInstallableUnit[] ius;
+	IInstallableUnit[] ius;
 	Profile profile;
 	CheckboxTableViewer listViewer;
 	StaticContentProvider contentProvider;
 
 	ProfileModificationDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
 		super(parentShell);
-		this.setBlockOnOpen(false);
 		this.title = title;
 		this.message = message;
 		this.ius = ius;
@@ -77,7 +84,20 @@ abstract class ProfileModificationDialog extends TrayDialog {
 			} else
 				tc.setWidth(convertWidthInCharsToPixels(DEFAULT_COLUMN_WIDTH));
 		}
-		contentProvider = new StaticContentProvider(makeElements(ius));
+		final List list = new ArrayList(ius.length);
+		IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) {
+				makeElements(ius, list, monitor);
+			}
+		};
+		try {
+			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(runnable);
+		} catch (InterruptedException e) {
+			// don't report thread interruption
+		} catch (InvocationTargetException e) {
+			ProvUI.handleException(e.getCause(), null);
+		}
+		contentProvider = new StaticContentProvider(list.toArray());
 		listViewer.setContentProvider(contentProvider);
 		listViewer.setInput(new Object());
 		listViewer.setLabelProvider(new IUDetailsLabelProvider(getColumnConfig()));
@@ -88,12 +108,13 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		return composite;
 	}
 
-	protected AvailableIUElement[] makeElements(IInstallableUnit[] iusToShow) {
-		AvailableIUElement[] elements = new AvailableIUElement[iusToShow.length];
+	protected void makeElements(IInstallableUnit[] iusToShow, List list, IProgressMonitor monitor) {
+		SubMonitor sub = SubMonitor.convert(monitor);
+		sub.setWorkRemaining(iusToShow.length);
 		for (int i = 0; i < iusToShow.length; i++) {
-			elements[i] = new AvailableIUElement(iusToShow[i], getSize(iusToShow[i]));
+			list.add(new AvailableIUElement(iusToShow[i], getSize(iusToShow[i], sub.newChild(1))));
 		}
-		return elements;
+		monitor.done();
 	}
 
 	/*
@@ -171,7 +192,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		return ProvUI.getIUColumnConfig();
 	}
 
-	protected long getSize(IInstallableUnit iu) {
-		return AvailableIUElement.SIZE_UNKNOWN;
+	protected long getSize(IInstallableUnit iu, IProgressMonitor monitor) {
+		return IUElement.SIZE_UNKNOWN;
 	}
 }

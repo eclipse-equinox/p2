@@ -66,7 +66,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 			}
 		};
 		try {
-			new ProgressMonitorDialog(getShell()).run(false, true, runnable);
+			new ProgressMonitorDialog(getShell()).run(true, true, runnable);
 		} catch (InterruptedException e) {
 			// don't report thread interruption
 		} catch (InvocationTargetException e) {
