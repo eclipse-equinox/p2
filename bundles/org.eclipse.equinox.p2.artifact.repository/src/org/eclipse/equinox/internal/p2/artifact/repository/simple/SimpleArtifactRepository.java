@@ -418,10 +418,24 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		File file = getArtifactFile(descriptor);
 		if (file == null)
 			return false;
-		file.delete();
+		delete(file);
 		if (!file.exists())
 			return artifactDescriptors.remove(descriptor);
 		return false;
+	}
+
+	private void delete(File toDelete) {
+		if (toDelete.isFile()) {
+			toDelete.delete();
+			return;
+		}
+		if (toDelete.isDirectory()) {
+			File[] children = toDelete.listFiles();
+			for (int i = 0; i < children.length; i++) {
+				delete(children[i]);
+			}
+			toDelete.delete();
+		}
 	}
 
 	public void removeAll() {
