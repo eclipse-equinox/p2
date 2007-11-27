@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.ui.query;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.query.IQueryable;
@@ -74,6 +75,15 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		unit.setId(ProvUIMessages.CategoryElementCollector_Uncategorized);
 		unit.setProperty(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
 		unit.setVersion(Version.emptyVersion);
+		if (queryable instanceof IRepository) {
+			IRepository repo = (IRepository) queryable;
+			String name = repo.getName();
+			if (name == null)
+				name = repo.getLocation().toExternalForm();
+			unit.setProperty(IInstallableUnit.PROP_NAME, name);
+		} else {
+			unit.setProperty(IInstallableUnit.PROP_NAME, ProvUIMessages.CategoryElementCollector_Uncategorized);
+		}
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(unit);
 		CategoryElement element = new UncategorizedCategoryElement(iu);
 		element.setQueryable(queryable);
