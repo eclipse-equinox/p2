@@ -33,10 +33,15 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			return result;
 		}
 		IMetadataRepository[] repos = manager.getKnownRepositories();
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		monitor.beginTask(ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repos.length);
 		for (int i = 0; i < repos.length; i++) {
 			if (query.isMatch(repos[i]))
 				result.accept(new MetadataRepositoryElement(repos[i]));
+			monitor.worked(1);
 		}
+		monitor.done();
 		return result;
 	}
 }

@@ -113,6 +113,9 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_IDColumnTitle;
 	public static String OptionalPlatformRestartMessage;
+	public static String QueryableArtifactRepositoryManager_RepositoryQueryProgress;
+	public static String QueryableMetadataRepositoryManager_RepositoryQueryProgress;
+	public static String QueryableProfileRegistry_QueryProfileProgress;
 	public static String SizingPhaseSet_PhaseSetName;
 
 	// Operations
