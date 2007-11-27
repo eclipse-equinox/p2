@@ -19,4 +19,5 @@ public class PreferenceConstants {
 	public static final String PREF_HIDE_IMPLEMENTATION_REPOS = "org.eclipse.equinox.p2.ui.admin.hideImplementationRepos"; //$NON-NLS-1$
 	public static final String PREF_COLLAPSE_IU_VERSIONS = "org.eclipse.equinox.p2.ui.admin.collapseIUVersions"; //$NON-NLS-1$
 	public static final String PREF_USE_CATEGORIES = "org.eclipse.equinox.p2.ui.admin.useCategories"; //$NON-NLS-1$
+	public static final String PREF_SHOW_INSTALL_ROOTS_ONLY = "org.eclipse.equinox.p2.ui.admin.showInstallRoots"; //$NON-NLS-1$
 }

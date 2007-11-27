@@ -46,6 +46,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String InstalledIUPropertyPage_NoInfoAvailable;
 	public static String ProvisioningPrefPage_HideInternalRepos;
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
+	public static String ProvisioningPrefPage_ShowInstallRootsOnly;
 	public static String ProvisioningPrefPage_CollapseIUVersions;
 	public static String ProvisioningPrefPage_Description;
 	public static String ProvisioningPrefPage_UseCategories;

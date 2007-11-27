@@ -46,6 +46,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 		boolean hideImpl = store.getBoolean(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS);
 		boolean showLatest = store.getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		boolean useCategories = store.getBoolean(PreferenceConstants.PREF_USE_CATEGORIES);
+		boolean showRootsOnly = store.getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
 		Query groupQuery = new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)); //$NON-NLS-1$
 		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
 		Query query;
@@ -98,10 +99,13 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 
 			case IProvElementQueryProvider.INSTALLED_IUS :
 				profile = (Profile) ProvUI.getAdapter(element, Profile.class);
-				Query rootQuery = new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+				if (showRootsOnly)
+					query = new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+				else
+					query = allQuery;
 				if (showGroupsOnly)
-					new ElementQueryDescriptor(profile, new CompoundQuery(new Query[] {rootQuery, groupQuery}, false), new InstalledIUCollector(this, profile));
-				return new ElementQueryDescriptor(profile, rootQuery, new InstalledIUCollector(this, profile));
+					new ElementQueryDescriptor(profile, new CompoundQuery(new Query[] {query, groupQuery}, true), new InstalledIUCollector(this, profile));
+				return new ElementQueryDescriptor(profile, query, new InstalledIUCollector(this, profile));
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
 				query = hideImpl ? new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false) : allQuery;
