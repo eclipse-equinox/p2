@@ -80,7 +80,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {groupQuery, membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionCollector(this, element.getQueryable()) : new Collector());
+						return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionCollector(this, element.getQueryable()) : new Collector());
 					if (showLatest)
 						// We are not querying groups, but we are showing the latest version only
 						return new ElementQueryDescriptor(element.getQueryable(), membersOfCategoryQuery, new LatestIUVersionCollector(this, element.getQueryable()));

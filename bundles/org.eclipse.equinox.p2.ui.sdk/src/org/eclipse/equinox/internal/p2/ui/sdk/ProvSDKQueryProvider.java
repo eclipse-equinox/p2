@@ -38,8 +38,9 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 				return new ElementQueryDescriptor(queryable, new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false), new QueriedElementCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				CapabilityQuery groupQuery = new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)); //$NON-NLS-1$
+				Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
 				if (element instanceof MetadataRepositoryElement) {
-					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {groupQuery, new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true))}, true), new CategoryElementCollector(this, element.getQueryable(), false));
+					return new ElementQueryDescriptor(element.getQueryable(), categoryQuery, new CategoryElementCollector(this, element.getQueryable(), false));
 				}
 				if (element instanceof CategoryElement) {
 					Query membersOfCategoryQuery;
@@ -57,8 +58,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 						collector = new LatestIUVersionCollector(this, element.getQueryable());
 					else
 						collector = new AvailableIUCollector(this, element.getQueryable());
-					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {membersOfCategoryQuery, new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false))}, true), //$NON-NLS-1$ 
-							collector);
+					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {membersOfCategoryQuery, new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false)}, true), collector);
 				}
 				// If we are showing only the latest version, we never represent other versions as children.
 				if (element instanceof IUVersionsElement) {

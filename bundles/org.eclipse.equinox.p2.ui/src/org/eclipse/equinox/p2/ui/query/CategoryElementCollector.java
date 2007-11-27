@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.model.CategoryElement;
@@ -29,6 +28,7 @@ import org.osgi.framework.Version;
 public class CategoryElementCollector extends QueriedElementCollector {
 
 	private boolean allowEmpty;
+	private Set referredIUs = new HashSet();
 
 	public CategoryElementCollector(IProvElementQueryProvider queryProvider, IQueryable queryable, boolean allowEmpty) {
 		super(queryProvider, queryable);
@@ -45,18 +45,27 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	public boolean accept(Object match) {
 		if (!(match instanceof IInstallableUnit))
 			return true;
-		return super.accept(new CategoryElement((IInstallableUnit) match));
+		IInstallableUnit iu = (IInstallableUnit) match;
+		RequiredCapability[] requirements = iu.getRequiredCapabilities();
+		for (int i = 0; i < requirements.length; i++) {
+			if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU)) {
+				referredIUs.add(requirements[i].getName());
+			}
+		}
+		return super.accept(new CategoryElement(iu));
 	}
 
 	public Iterator iterator() {
-		if (!allowEmpty)
+		if (!allowEmpty && getList().isEmpty())
 			createDummyCategory();
+		removeNestedCategories();
 		return super.iterator();
 	}
 
 	public Object[] toArray(Class clazz) {
-		if (!allowEmpty)
+		if (!allowEmpty && getList().isEmpty())
 			createDummyCategory();
+		removeNestedCategories();
 		return super.toArray(clazz);
 	}
 
@@ -70,5 +79,15 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		element.setQueryable(queryable);
 		element.setQueryProvider(queryProvider);
 		getList().add(element);
+	}
+
+	private void removeNestedCategories() {
+		CategoryElement[] ius = (CategoryElement[]) getList().toArray(new CategoryElement[getList().size()]);
+		// If any other element refers to a category element, remove it from the list
+		for (int i = 0; i < ius.length; i++) {
+			if (referredIUs.contains(ius[i].getIU().getId())) {
+				getList().remove(ius[i]);
+			}
+		}
 	}
 }

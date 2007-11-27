@@ -22,7 +22,7 @@ public class AnyRequiredCapabilityQuery extends Query {
 	private RequiredCapability[] requirements;
 
 	/**
-	 * Creates a new query on the given property name and value.
+	 * Creates a new query for the capabilities of the given IU.
 	 */
 	public AnyRequiredCapabilityQuery(IInstallableUnit iu) {
 		this.requirements = iu.getRequiredCapabilities();
