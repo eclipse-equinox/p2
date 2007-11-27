@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.UpdateAndInstallDialog;
+import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.UninstallAction;
@@ -222,5 +223,11 @@ public class ProfilesView extends ProvView {
 				return ProvAdminUIMessages.MetadataRepositoriesView_ChooseProfileDialogTitle;
 			}
 		};
+	}
+
+	protected List getVisualProperties() {
+		List list = super.getVisualProperties();
+		list.add(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
+		return list;
 	}
 }

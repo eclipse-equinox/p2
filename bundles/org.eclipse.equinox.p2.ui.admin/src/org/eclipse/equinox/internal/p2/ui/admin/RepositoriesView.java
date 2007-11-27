@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import java.util.List;
+import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
@@ -166,4 +168,12 @@ abstract class RepositoriesView extends ProvView {
 	protected abstract String getRemoveCommandTooltip();
 
 	protected abstract boolean isRepository(Object element);
+
+	protected List getVisualProperties() {
+		List list = super.getVisualProperties();
+		list.add(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS);
+		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
+		list.add(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
+		return list;
+	}
 }

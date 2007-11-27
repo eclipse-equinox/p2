@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
@@ -153,7 +155,7 @@ abstract class ProvView extends ViewPart {
 		preferenceListener = new IPropertyChangeListener() {
 
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_GROUPS_ONLY) || event.getProperty().equals(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS) || event.getProperty().equals(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS) || event.getProperty().equals(PreferenceConstants.PREF_USE_CATEGORIES)) {
+				if (getVisualProperties().contains(event.getProperty())) {
 					// Refresh all model content.  The SDK query provider will provide an updated
 					// query for content based on these pref changes.
 					viewer.refresh();
@@ -216,5 +218,11 @@ abstract class ProvView extends ViewPart {
 	protected void refreshUnderlyingModel() {
 		// TODO there should be some underlying API to call to refresh the underlying core object.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=207678
+	}
+
+	protected List getVisualProperties() {
+		ArrayList list = new ArrayList(1);
+		list.add(PreferenceConstants.PREF_SHOW_GROUPS_ONLY);
+		return list;
 	}
 }
