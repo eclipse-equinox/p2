@@ -24,5 +24,6 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.director.app.Activator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
  J2SE-1.4
-Require-Bundle: org.eclipse.equinox.common
+Require-Bundle: org.eclipse.equinox.common,
+ org.eclipse.osgi;bundle-version="3.4.0"
 Export-Package: org.eclipse.equinox.internal.p2.director.app;x-internal:=true

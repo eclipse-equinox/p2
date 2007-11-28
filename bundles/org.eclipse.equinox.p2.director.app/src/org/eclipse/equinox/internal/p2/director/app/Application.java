@@ -25,13 +25,10 @@ import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
-/**
- * @since 3.3
- */
 public class Application implements IApplication {
-
 	private String destination;
 	private URL artifactRepositoryLocation;
 	private URL metadataRepositoryLocation;
@@ -50,13 +47,13 @@ public class Application implements IApplication {
 	private String getEnvironmentProperty() {
 		Properties values = new Properties();
 		if (os != null)
-			values.put("osgi.os", os);
+			values.put("osgi.os", os); //$NON-NLS-1$
 		if (nl != null)
-			values.put("osgi.nl", nl);
+			values.put("osgi.nl", nl); //$NON-NLS-1$
 		if (ws != null)
-			values.put("osgi.ws", ws);
+			values.put("osgi.ws", ws); //$NON-NLS-1$
 		if (arch != null)
-			values.put("osgi.arch", arch);
+			values.put("osgi.arch", arch); //$NON-NLS-1$
 		if (values.isEmpty())
 			return null;
 		return toString(values);
@@ -67,7 +64,7 @@ public class Application implements IApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 
-			if (args[i].equals("-roaming")) {
+			if (args[i].equals("-roaming")) { //$NON-NLS-1$
 				roamingProfile = true;
 			}
 
@@ -84,50 +81,50 @@ public class Application implements IApplication {
 
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-profile"))
+			if (args[i - 1].equalsIgnoreCase("-profile")) //$NON-NLS-1$
 				profileId = arg;
 
 			// we create a path object here to handle ../ entries in the middle of paths
-			if (args[i - 1].equalsIgnoreCase("-destination") || args[i - 1].equalsIgnoreCase("-dest"))
+			if (args[i - 1].equalsIgnoreCase("-destination") || args[i - 1].equalsIgnoreCase("-dest")) //$NON-NLS-1$ //$NON-NLS-2$
 				destination = new Path(arg).toOSString();
 
 			// we create a path object here to handle ../ entries in the middle of paths
-			if (args[i - 1].equalsIgnoreCase("-bundlepool") || args[i - 1].equalsIgnoreCase("-bp"))
+			if (args[i - 1].equalsIgnoreCase("-bundlepool") || args[i - 1].equalsIgnoreCase("-bp")) //$NON-NLS-1$ //$NON-NLS-2$
 				bundlePool = new Path(arg).toOSString();
 
-			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr"))
+			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataRepositoryLocation = new URL(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar"))
+			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactRepositoryLocation = new URL(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-flavor"))
+			if (args[i - 1].equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 				flavor = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-installIU")) {
+			if (args[i - 1].equalsIgnoreCase("-installIU")) { //$NON-NLS-1$
 				root = arg;
 				install = true;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-version")) {
+			if (args[i - 1].equalsIgnoreCase("-version")) { //$NON-NLS-1$
 				version = new Version(arg);
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-uninstallIU")) {
+			if (args[i - 1].equalsIgnoreCase("-uninstallIU")) { //$NON-NLS-1$
 				root = arg;
 				install = false;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-p2.os")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.os")) { //$NON-NLS-1$
 				os = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-p2.ws")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.ws")) { //$NON-NLS-1$
 				ws = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-p2.nl")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.nl")) { //$NON-NLS-1$
 				nl = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-p2.arch")) {
+			if (args[i - 1].equalsIgnoreCase("-p2.arch")) { //$NON-NLS-1$
 				arch = arg;
 			}
 		}
@@ -141,12 +138,12 @@ public class Application implements IApplication {
 		props.setProperty(Profile.PROP_INSTALL_FOLDER, destination);
 		props.setProperty(Profile.PROP_FLAVOR, flavor);
 		if (bundlePool != null)
-			if (bundlePool.equals("<destination>"))
-				props.setProperty("eclipse.p2.cache", destination);
+			if (bundlePool.equals(Messages.destination_commandline))
+				props.setProperty("eclipse.p2.cache", destination); //$NON-NLS-1$
 			else
-				props.setProperty("eclipse.p2.cache", bundlePool);
+				props.setProperty("eclipse.p2.cache", bundlePool); //$NON-NLS-1$
 		if (roamingProfile)
-			props.setProperty("eclipse.p2.roaming", "true");
+			props.setProperty("eclipse.p2.roaming", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		String env = getEnvironmentProperty();
 		if (env != null)
@@ -154,19 +151,19 @@ public class Application implements IApplication {
 		Profile profile = ProvisioningHelper.addProfile(profileId, props);
 		String currentFlavor = profile.getValue(Profile.PROP_FLAVOR);
 		if (currentFlavor != null && !currentFlavor.endsWith(flavor))
-			throw new RuntimeException("Install flavor not consistent with profile flavor");
+			throw new RuntimeException(Messages.Inconsistent_flavor);
 
 		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
 		if (director == null)
-			throw new RuntimeException("Director could not be loaded");
+			throw new RuntimeException(Messages.Missing_director);
 
 		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
 		if (planner == null)
-			throw new RuntimeException("Planner could not be loaded");
+			throw new RuntimeException(Messages.Missing_planner);
 
 		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
 		if (engine == null)
-			throw new RuntimeException("Engine could not be loaded");
+			throw new RuntimeException(Messages.Missing_Engine);
 
 		ProvisioningHelper.addArtifactRepository(artifactRepositoryLocation);
 		IMetadataRepository metadataRepository = ProvisioningHelper.addMetadataRepository(metadataRepositoryLocation);
@@ -184,21 +181,21 @@ public class Application implements IApplication {
 				operationStatus = result.getStatus();
 			else {
 				Sizing sizeComputer = new Sizing(100, "Compute sizes"); //$NON-NLS-1$
-				PhaseSet set = new PhaseSet(new Phase[] {sizeComputer}) {};
+				PhaseSet set = new PhaseSet(new Phase[] {sizeComputer}) {/*empty */};
 				operationStatus = engine.perform(profile, set, result.getOperands(), new NullProgressMonitor());
-				System.out.println("Estimated size on disk " + sizeComputer.getDiskSize());
-				System.out.println("Estimated download size " + sizeComputer.getDlSize());
-				operationStatus = engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), new NullProgressMonitor());
+				System.out.println(Messages.Disk_size + sizeComputer.getDiskSize());
+				System.out.println(Messages.Download_size + sizeComputer.getDlSize());
+				operationStatus = director.install(roots, profile, new NullProgressMonitor());
 			}
 		} else {
-			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.p2.director.test", "The installable unit '" + root + "' has not been found");
+			operationStatus = new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.Missing_IU, root));
 		}
 
 		time += System.currentTimeMillis();
 		if (operationStatus.isOK()) {
-			System.out.println((install ? "installation" : "uninstallation") + " complete (" + time + "ms)");
+			System.out.println(NLS.bind(install ? Messages.Installation_complete : Messages.Uninstallation_complete, new Long(time)));
 		} else {
-			System.out.println((install ? "installation" : "uninstallation") + " failed. " + operationStatus);
+			System.out.println(install ? Messages.Installation_failed : Messages.Uninstallation_failed + operationStatus);
 			LogHelper.log(operationStatus);
 		}
 		return null;
@@ -210,10 +207,11 @@ public class Application implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) throws Exception {
-		return run((String[]) context.getArguments().get("application.args"));
+		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
 	public void stop() {
+		//nothing to do
 	}
 
 	private String toString(Properties context) {
