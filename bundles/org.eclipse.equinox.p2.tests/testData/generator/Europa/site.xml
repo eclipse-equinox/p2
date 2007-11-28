@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site digestURL="http://download.eclipse.org/releases/europa/" mirrorsURL="http://www.eclipse.org/downloads/download.php?file=/releases/europa/site.xml&amp;format=xml&amp;protocol=http" pack200="true">
+
+    <description url="http://www.eclipse.org/europa/">
+        This Europa Discovery Site contains a number of Eclipse based projects 
+        released simultaneously, June 2007.
+    </description>
+
+    <category-def label="C and C++ Developement" name="C and C++ Developement">
+        <description>Integrated Developement for C and C++ programs.</description>
+    </category-def>
+    <category-def label="Charting and Reporting" name="Charting and Reporting">
+        <description>Business Intelligence and Reporting Tools</description>
+    </category-def>
+    <category-def label="Collaboration Tools" name="Collaboration Tools">
+        <description>
+            Collaboration and integration tools for the Eclipse environment.
+        </description>
+    </category-def>
+    <category-def label="Communications" name="Communications">
+        <description>
+            Real-time communications for Eclipse.  To use applications (e.g. IM, real-time collab, etc.), both the Core API and Application features are required.
+        </description>
+    </category-def>
+    <category-def label="Database Development" name="Database Development">
+        <description>Tools to allow integration with and easy use of Databases.</description>
+    </category-def>
+    <category-def label="Graphical Editors and Frameworks" name="Graphical Editors and Frameworks">
+        <description>A framework to create graphical editors.</description>
+    </category-def>
+    <category-def label="Java Development" name="Java Development">
+        <description>
+            Integrated development tools for Java Development, including plugin developement with Java, and J2EE applications.
+        </description>
+    </category-def>
+    <category-def label="Models and Model Development" name="Models and Model Development">
+        <description>
+            Model creation and manipulation frameworks (e.g. EMF, GMF) and specific models (SDO, JEM, XSD Infoset).
+        </description>
+    </category-def>
+    <category-def label="Remote Access and Device Development" name="Remote Access and Device Development">
+        <description>Tools and Frameworks for accessing and managing remote computers or embedded devices</description>
+    </category-def>
+    <category-def label="SOA Development" name="SOA Development">
+        <description>A platform and tools for developing
+        Service-Oriented Component-based  Applications.</description>
+    </category-def>
+    <category-def label="Testing and Performance" name="Testing and Performance">
+        <description>Tools and Frameworks to improve performance and automatic testing.</description>
+    </category-def>
+    <category-def label="Web and JEE Development" name="Web and JEE Development">
+        <description>A platform and tools for developing XML, WebServices, and JEE Applications.</description>
+    </category-def>
+    <category-def label="Programming Languages" name="Programming Languages">
+        <description>
+            Tools and Frameworks supporting programming languages for the Eclipse environment.
+        </description>
+    </category-def>
+    <category-def label="Other Tools" name="Other Tools">
+        <description>
+            Other tools for the Eclipse environment.
+        </description>
+    </category-def>
+    <category-def label="Enabling Features" name="Enabling Features">
+        <description>
+            These features provide functionality required by one or more projects, but do not provide end-user functionality by
+            themselves.
+        </description>
+    </category-def>
+
+    <feature id="org.eclipse.eclipsemonkey" patch="false" url="features/org.eclipse.eclipsemonkey_1.0.0.200706060947.jar" version="1.0.0.200706060947">
+        <category name="Other Tools"/>
+    </feature>
+    <feature id="org.apache.batik" patch="false" url="features/org.apache.batik_1.6.0.v20061222-1222-0842283444-3444.jar" version="1.6.0.v20061222-1222-0842283444-3444">
+        <category name="Enabling Features"/>
+    </feature>
+
+
+
+    <feature id="org.eclipse.platform" patch="false" url="features/org.eclipse.platform_3.3.2.R33x_v20071022-_19UEksF-G8Yc6bUv3Dz.jar" version="3.3.2.R33x_v20071022-_19UEksF-G8Yc6bUv3Dz">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.cvs" patch="false" url="features/org.eclipse.cvs_1.0.1.R33x_r20070802-7C79_9_KKG-mDM9e3H5D.jar" version="1.0.1.R33x_r20070802-7C79_9_KKG-mDM9e3H5D">
+        <category name="Collaboration Tools"/>
+    </feature>
+
+
+    <feature id="org.eclipse.equinox" patch="false" url="features/org.eclipse.equinox_3.3.1.R33x_r20070918-7n7LECgEKVsLIM1aGBO4b00.jar" version="3.3.1.R33x_r20070918-7n7LECgEKVsLIM1aGBO4b00">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.birt" patch="false" url="features/org.eclipse.birt_2.2.1.v20070709-7M7M7A3OP2Mz-yAItil64r9z0tw0.jar" version="2.2.1.v20070709-7M7M7A3OP2Mz-yAItil64r9z0tw0">
+        <category name="Charting and Reporting"/>
+    </feature>
+    <feature id="org.eclipse.birt.doc" patch="false" url="features/org.eclipse.birt.doc_2.2.1.v20070709-110-s332Aw31181_2_.jar" version="2.2.1.v20070709-110-s332Aw31181_2_">
+        <category name="Charting and Reporting"/>
+    </feature>
+    
+    <feature id="org.apache.derby.core" url="features/org.apache.derby.core_10.1.2.1.jar" version="10.1.2.1">
+        <category name="Enabling Features"/>
+    </feature>
+
+    <feature id="com.lowagie.itext" url="features/com.lowagie.itext_1.5.2.v20070608-041-w31181821.jar" version="1.5.2.v20070608-041-w31181821">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.apache.commons.codec" url="features/org.apache.commons.codec_1.3.0.v20070907-02--w311817222849.jar" version="1.3.0.v20070907-02--w311817222849">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.mozilla.rhino" url="features/org.mozilla.rhino_1.6.0.v20070406-05--w31181821.jar" version="1.6.0.v20070406-05--w31181821">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.w3c.sac" url="features/org.w3c.sac_1.3.0.v20070406-02--w31181821.jar" version="1.3.0.v20070406-02--w31181821">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.cdt" patch="false" url="features/org.eclipse.cdt_4.0.1.200709241202.jar" version="4.0.1.200709241202">
+        <category name="C and C++ Developement"/>
+    </feature>
+    <feature id="org.eclipse.jdt" patch="false" url="features/org.eclipse.jdt_3.3.1.r331_v20070629-7o7jE72EDlXAbqAcnbmyg1rf8RIL.jar" version="3.3.1.r331_v20070629-7o7jE72EDlXAbqAcnbmyg1rf8RIL">
+        <category name="Java Development"/>
+    </feature>
+    <feature id="org.eclipse.pde" patch="false" url="features/org.eclipse.pde_3.3.2.R33x_r20071022-7N7M4CYWLBCz-yHkMIuHN.jar" version="3.3.2.R33x_r20071022-7N7M4CYWLBCz-yHkMIuHN">
+        <category name="Java Development"/>
+    </feature>
+
+    <feature id="org.eclipse.emf" patch="false" url="features/org.eclipse.emf_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.emf.sdk" patch="false" url="features/org.eclipse.emf.sdk_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.emf.ecore.sdo" patch="false" url="features/org.eclipse.emf.ecore.sdo_2.3.0.v200709252135.jar" version="2.3.0.v200709252135">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.emf.ecore.sdo.sdk" patch="false" url="features/org.eclipse.emf.ecore.sdo.sdk_2.3.0.v200709252135.jar" version="2.3.0.v200709252135">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.xsd" patch="false" url="features/org.eclipse.xsd_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.xsd.sdk" patch="false" url="features/org.eclipse.xsd.sdk_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Models and Model Development"/>
+    </feature>
+
+    <feature id="org.eclipse.emf.common" patch="false" url="features/org.eclipse.emf.common_2.3.0.v200709252135.jar" version="2.3.0.v200709252135">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.common.ui" patch="false" url="features/org.eclipse.emf.common.ui_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.ecore" patch="false" url="features/org.eclipse.emf.ecore_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.ecore.edit" patch="false" url="features/org.eclipse.emf.ecore.edit_2.3.0.v200709252135.jar" version="2.3.0.v200709252135">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.edit" patch="false" url="features/org.eclipse.emf.edit_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.edit.ui" patch="false" url="features/org.eclipse.emf.edit.ui_2.3.1.v200709252135.jar" version="2.3.1.v200709252135">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.xsd.edit" patch="false" url="features/org.eclipse.xsd.edit_2.3.0.v200709252135.jar" version="2.3.0.v200709252135">
+        <category name="Enabling Features"/>
+    </feature>
+
+    <feature id="org.eclipse.emf.emfqtv.all" patch="false" url="features/org.eclipse.emf.emfqtv.all_1.1.1.v200707252036-652_sIRHttoHhmdpTYReXV-2KEZZ.jar" version="1.1.1.v200707252036-652_sIRHttoHhmdpTYReXV-2KEZZ">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.emf.emfqtv.all.sdk" patch="false" url="features/org.eclipse.emf.emfqtv.all.sdk_1.1.1.v200707252036-7A7_3DjfUA5Xin8dz-9aGNVIHYlK.jar" version="1.1.1.v200707252036-7A7_3DjfUA5Xin8dz-9aGNVIHYlK">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.emf.query" patch="false" url="features/org.eclipse.emf.query_1.1.0.v200706071712-10-7w311817182823.jar" version="1.1.0.v200706071712-10-7w311817182823">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.query.ocl" patch="false" url="features/org.eclipse.emf.query.ocl_1.1.0.v200706071712-10-7w311817182823.jar" version="1.1.0.v200706071712-10-7w311817182823">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.validation" patch="false" url="features/org.eclipse.emf.validation_1.1.1.v200708161445-318Z9oA55P5O6O8IC_.jar" version="1.1.1.v200708161445-318Z9oA55P5O6O8IC_">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.validation.ocl" patch="false" url="features/org.eclipse.emf.validation.ocl_1.1.0.v200706071520-10-7w311817182631.jar" version="1.1.0.v200706071520-10-7w311817182631">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.transaction" patch="false" url="features/org.eclipse.emf.transaction_1.1.1.v200708231948-208Z8s733G3G5C5I9D.jar" version="1.1.1.v200708231948-208Z8s733G3G5C5I9D">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.workspace" patch="false" url="features/org.eclipse.emf.workspace_1.1.1.v200707252036-208Z8s733G3F5E6_8B.jar" version="1.1.1.v200707252036-208Z8s733G3F5E6_8B">
+        <category name="Enabling Features"/>
+    </feature>
+    
+    <feature id="org.eclipse.jet" patch="false" url="features/org.eclipse.jet_0.8.1.v20070913-17E19oA55P5V_8.jar" version="0.8.1.v20070913-17E19oA55P5V_8">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.jet.sdk" patch="false" url="features/org.eclipse.jet.sdk_0.8.1.v20070913-07U182TZ7cjWEGkBuJH.jar" version="0.8.1.v20070913-07U182TZ7cjWEGkBuJH">
+        <category name="Models and Model Development"/>
+    </feature>
+
+    <feature id="org.eclipse.gmf.europa" patch="false" url="features/org.eclipse.gmf.europa_2.0.1.v20070809-0000-7X77__EIn-hz0YSfRy8HJNAMTFfk.jar" version="2.0.1.v20070809-0000-7X77__EIn-hz0YSfRy8HJNAMTFfk">
+        <category name="Models and Model Development"/>
+    </feature>
+
+	<feature id="org.eclipse.eodm" patch="false" url="features/org.eclipse.eodm_0.9.1.v200710090302.jar" version="0.9.1.v200710090302">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.eodm.sdk" patch="false" url="features/org.eclipse.eodm.sdk_0.9.1.v200710090302.jar" version="0.9.1.v200710090302">
+        <category name="Models and Model Development"/>
+    </feature>
+	<feature id="org.eclipse.ocl.all" patch="false" url="features/org.eclipse.ocl.all_1.1.1.v200707131415-3227_75ThLBBkBkFRGdQZ.jar" version="1.1.1.v200707131415-3227_75ThLBBkBkFRGdQZ">
+		<category name="Models and Model Development"/>
+	</feature>
+	<feature id="org.eclipse.ocl.all.sdk" patch="false" url="features/org.eclipse.ocl.all.sdk_1.1.1.v200707131415-653_-JAYPRgmMdz-YXRDlgnKonBk.jar" version="1.1.1.v200707131415-653_-JAYPRgmMdz-YXRDlgnKonBk">
+		<category name="Models and Model Development"/>
+	</feature>
+    <feature id="org.eclipse.ocl" patch="false" url="features/org.eclipse.ocl_1.1.1.v200707131415-3209oA55P5N7F8JDH.jar" version="1.1.1.v200707131415-3209oA55P5N7F8JDH">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.ocl.uml" patch="false" url="features/org.eclipse.ocl.uml_1.1.1.v200707131415-1007w311818242526.jar" version="1.1.1.v200707131415-1007w311818242526">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.emf.ocl" patch="false" url="features/org.eclipse.emf.ocl_1.1.1.v200709121956-1007w31181_232_67.jar" version="1.1.1.v200709121956-1007w31181_232_67">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.uml2" patch="false" url="features/org.eclipse.uml2_2.1.1.v200708301222.jar" version="2.1.1.v200708301222">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.uml2.sdk" patch="false" url="features/org.eclipse.uml2.sdk_2.1.1.v200708301222.jar" version="2.1.1.v200708301222">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.uml2tools" patch="false" url="features/org.eclipse.uml2tools_0.7.1.v200710010534.jar" version="0.7.1.v200710010534">
+        <category name="Models and Model Development"/>
+    </feature>
+    <feature id="org.eclipse.uml2tools.sdk" patch="false" url="features/org.eclipse.uml2tools.sdk_0.7.1.v200710010534.jar" version="0.7.1.v200710010534">
+        <category name="Models and Model Development"/>
+    </feature>
+
+    <feature id="org.eclipse.tptp.birt" patch="false" url="features/org.eclipse.tptp.birt_4.4.1.v200706132116-7I7G_B-hthrMpLSZUYptCTz-cV-E.jar" version="4.4.1.v200706132116-7I7G_B-hthrMpLSZUYptCTz-cV-E">
+        <category name="Testing and Performance"/>
+    </feature>
+    <feature id="org.eclipse.tptp.wtp" patch="false" url="features/org.eclipse.tptp.wtp_4.4.1.v200709261752-7748a-CIHlAZ8lIHAlCqJfJeRF.jar" version="4.4.1.v200709261752-7748a-CIHlAZ8lIHAlCqJfJeRF">
+        <category name="Testing and Performance"/>
+    </feature>
+    <feature id="org.eclipse.tptp.monitoring.runtime" patch="false" url="features/org.eclipse.tptp.monitoring.runtime_4.4.1.v200706132116-7U7R_E-wavnIGH7KFhrm5z08Zs8T.jar" version="4.4.1.v200706132116-7U7R_E-wavnIGH7KFhrm5z08Zs8T">
+        <category name="Testing and Performance"/>
+    </feature>
+    <feature id="org.eclipse.tptp.platform.runtime" patch="false" url="features/org.eclipse.tptp.platform.runtime_4.4.1.v200706132116-8I83EIX1JNK7dwt7tHntrj6xnH84.jar" version="4.4.1.v200706132116-8I83EIX1JNK7dwt7tHntrj6xnH84">
+        <category name="Testing and Performance"/>
+    </feature>
+    <feature id="org.eclipse.tptp.test.runtime" patch="false" url="features/org.eclipse.tptp.test.runtime_4.3.101.v200709261752-7E7_Ak-QhKUAY67ta21mO89G_GXO.jar" version="4.3.101.v200709261752-7E7_Ak-QhKUAY67ta21mO89G_GXO">
+        <category name="Testing and Performance"/>
+    </feature>
+    <feature id="org.eclipse.tptp.trace.runtime" patch="false" url="features/org.eclipse.tptp.trace.runtime_4.3.1.v200709261752-7E783-UUENBmM3RiQ4UxVz-eZD8.jar" version="4.3.1.v200709261752-7E783-UUENBmM3RiQ4UxVz-eZD8">
+        <category name="Testing and Performance"/>
+    </feature>
+
+    <feature id="org.eclipse.wst.xml_ui.feature" url="features/org.eclipse.wst.xml_ui.feature_2.0.1.v200709110650-7A1ECGCnbckz0bnr5wCp8KNAjipR.jar" version="2.0.1.v200709110650-7A1ECGCnbckz0bnr5wCp8KNAjipR">
+        <category name="Web and JEE Development"/>
+    </feature>
+    <feature id="org.eclipse.wst" patch="false" url="features/org.eclipse.wst_2.0.1.v200709110510-7C-778k0JWNr93WEIHvplSVojWel.jar" version="2.0.1.v200709110510-7C-778k0JWNr93WEIHvplSVojWel">
+        <category name="Web and JEE Development"/>
+    </feature>
+    <feature id="org.eclipse.jst" patch="false" url="features/org.eclipse.jst_2.0.1.v200709110510-7B-68dDTNImaz0di_Tvks1JyDPVe.jar" version="2.0.1.v200709110510-7B-68dDTNImaz0di_Tvks1JyDPVe">
+        <category name="Web and JEE Development"/>
+        <category name="Java Development"/>
+    </feature>
+    <feature id="org.eclipse.jpt.feature" patch="false" url="features/org.eclipse.jpt.feature_1.0.1.v200709130000-77-5CYQCCz-D7LQCCCD.jar" version="1.0.1.v200709130000-77-5CYQCCz-D7LQCCCD">
+        <category name="Web and JEE Development"/>
+        <category name="Java Development"/>
+    </feature>
+
+    <feature id="org.eclipse.wst.common_ui.feature" url="features/org.eclipse.wst.common_ui.feature_2.0.1.v200709110622-7C5EH2E9RvTVnijrspVz0bgOmfz-.jar" version="2.0.1.v200709110622-7C5EH2E9RvTVnijrspVz0bgOmfz-">
+        <category name="Enabling Features"/>
+    </feature>        
+    
+    
+    <feature id="org.eclipse.gef" patch="false" url="features/org.eclipse.gef_3.3.1.v20070814.jar" version="3.3.1.v20070814">
+        <category name="Graphical Editors and Frameworks"/>
+    </feature>
+    
+    <feature id="org.eclipse.gef.sdk" patch="false" url="features/org.eclipse.gef.sdk_3.3.1.v20070814.jar" version="3.3.1.v20070814">
+        <category name="Graphical Editors and Frameworks"/>
+    </feature>
+    
+    <feature id="org.eclipse.datatools.connectivity.feature" patch="false" url="features/org.eclipse.datatools.connectivity.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.connectivity.oda.designer.feature" patch="false" url="features/org.eclipse.datatools.connectivity.oda.designer.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.connectivity.oda.feature" patch="false" url="features/org.eclipse.datatools.connectivity.oda.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.doc.user" patch="false" url="features/org.eclipse.datatools.doc.user_1.5.1.200710161.jar" version="1.5.1.200710161">
+        <category name="Database Development"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.apache.derby.feature" patch="false" url="features/org.eclipse.datatools.enablement.apache.derby.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.feature" patch="false" url="features/org.eclipse.datatools.enablement.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Database Development"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.hsqldb.feature" patch="false" url="features/org.eclipse.datatools.enablement.hsqldb.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.ibm.feature" patch="false" url="features/org.eclipse.datatools.enablement.ibm.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.jdbc.feature" patch="false" url="features/org.eclipse.datatools.enablement.jdbc.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.jdt.feature" patch="false" url="features/org.eclipse.datatools.enablement.jdt.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.msft.feature" patch="false" url="features/org.eclipse.datatools.enablement.msft.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.mysql.feature" patch="false" url="features/org.eclipse.datatools.enablement.mysql.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.oda.designer.feature" patch="false" url="features/org.eclipse.datatools.enablement.oda.designer.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.oda.feature" patch="false" url="features/org.eclipse.datatools.enablement.oda.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.oracle.feature" patch="false" url="features/org.eclipse.datatools.enablement.oracle.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.postgresql.feature" patch="false" url="features/org.eclipse.datatools.enablement.postgresql.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.enablement.sybase.feature" patch="false" url="features/org.eclipse.datatools.enablement.sybase.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.intro" patch="false" url="features/org.eclipse.datatools.intro_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Database Development"/>
+    </feature>
+    <feature id="org.eclipse.datatools.modelbase.feature" patch="false" url="features/org.eclipse.datatools.modelbase.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.sdk.feature" patch="false" url="features/org.eclipse.datatools.sdk.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Database Development"/>
+    </feature>
+    <feature id="org.eclipse.datatools.sqldevtools.data.feature" patch="false" url="features/org.eclipse.datatools.sqldevtools.data.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.sqldevtools.ddl.feature" patch="false" url="features/org.eclipse.datatools.sqldevtools.ddl.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.sqldevtools.feature" patch="false" url="features/org.eclipse.datatools.sqldevtools.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Database Development"/>
+    </feature>
+    <feature id="org.eclipse.datatools.sqldevtools.parsers.feature" patch="false" url="features/org.eclipse.datatools.sqldevtools.parsers.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    <feature id="org.eclipse.datatools.sqldevtools.results.feature" patch="false" url="features/org.eclipse.datatools.sqldevtools.results.feature_1.5.1.200709261.jar" version="1.5.1.200709261">
+        <category name="Enabling Features"/>
+    </feature>
+    
+    <feature id="org.eclipse.rse" patch="false" url="features/org.eclipse.rse_2.0.2.v20071030-7D-68mJIkR9WAviqV8z0U9vz-C.jar" version="2.0.2.v20071030-7D-68mJIkR9WAviqV8z0U9vz-C">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+    <feature id="org.eclipse.rse.sdk" patch="false" url="features/org.eclipse.rse.sdk_2.0.2.v20071030-7J-79E7ZoHPP5ZoeZ-oUe1z-wJnl.jar" version="2.0.2.v20071030-7J-79E7ZoHPP5ZoeZ-oUe1z-wJnl">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+    <feature id="org.eclipse.rse.remotecdt" patch="false" url="features/org.eclipse.rse.remotecdt_2.0.1.v20070926-4-18s733G3K5H.jar" version="2.0.1.v20070926-4-18s733G3K5H">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+    <feature id="org.eclipse.tm.terminal.sdk" patch="false" url="features/org.eclipse.tm.terminal.sdk_1.0.2.v20071030-7_-7CAvNKwNabWDLhQglhNDDmGSL.jar" version="1.0.2.v20071030-7_-7CAvNKwNabWDLhQglhNDDmGSL">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+    <feature id="org.eclipse.tm.discovery" patch="false" url="features/org.eclipse.tm.discovery_2.0.0.v20070611-7J--E8McIJNJCPr.jar" version="2.0.0.v20070611-7J--E8McIJNJCPr">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+
+    <feature id="org.eclipse.dd.dsf.sdk" patch="false" url="features/org.eclipse.dd.dsf.sdk_0.9.0.v20070615.jar" version="0.9.0.v20070615">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+    <feature id="org.eclipse.dd.dsf.gdb" patch="false" url="features/org.eclipse.dd.dsf.gdb_0.9.0.v20070615.jar" version="0.9.0.v20070615">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+    <feature id="org.eclipse.dd.debug.memory.renderings" patch="false" url="features/org.eclipse.dd.debug.memory.renderings_0.9.0.v20070615.jar" version="0.9.0.v20070615">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+    <feature id="org.eclipse.dd.ipxact" patch="false" url="features/org.eclipse.dd.ipxact_0.2.0.v20070615.jar" version="0.2.0.v20070615">
+        <category name="Remote Access and Device Development"/>
+    </feature>
+
+    <feature id="org.eclipse.ecf.core" patch="false" url="features/org.eclipse.ecf.core_1.2.0.v20071019-1300.jar" version="1.2.0.v20071019-1300">
+        <category name="Communications"/>
+    </feature>
+    <feature id="org.eclipse.ecf.examples" patch="false" url="features/org.eclipse.ecf.examples_1.2.0.v20071019-1300.jar" version="1.2.0.v20071019-1300">
+        <category name="Communications"/>
+    </feature>
+
+    <feature id="org.eclipse.ajdt" patch="false" url="features/org.eclipse.ajdt_1.5.0.200706070619.jar" version="1.5.0.200706070619">
+        <category name="Java Development"/>
+        <category name="Programming Languages"/>
+    </feature>
+    
+    <feature id="org.eclipse.dltk.core" patch="false" url="features/org.eclipse.dltk.core_0.9.1.r09_v20070920-08O2E8AWjpkOySy5VAPB.jar" version="0.9.1.r09_v20070920-08O2E8AWjpkOySy5VAPB">
+        <category name="Enabling Features"/>
+    </feature>
+
+    <feature id="org.eclipse.dltk.ruby" patch="false" url="features/org.eclipse.dltk.ruby_0.9.1.r09_v20070920-07q2BMEkrz-IMCd7gEK.jar" version="0.9.1.r09_v20070920-07q2BMEkrz-IMCd7gEK">
+        <category name="Programming Languages"/>
+    </feature>
+
+    <feature id="org.eclipse.dltk.tcl" patch="false" url="features/org.eclipse.dltk.tcl_0.9.1.r09_v20070920-07z1CQMUYXGgJt3K73.jar" version="0.9.1.r09_v20070920-07z1CQMUYXGgJt3K73">
+        <category name="Programming Languages"/>
+    </feature>
+
+
+	   <feature id="org.eclipse.buckminster.core.feature" url="features/org.eclipse.buckminster.core.feature_0.2.0.r3636.jar" version="0.2.0.r3636">
+	      <category name="Other Tools"/>
+	   </feature>
+	   <feature id="org.eclipse.buckminster.cvs.feature" url="features/org.eclipse.buckminster.cvs.feature_0.2.0.r3383.jar" version="0.2.0.r3383">
+	      <category name="Other Tools"/>
+	   </feature>
+	   <feature id="org.eclipse.buckminster.maven.feature" url="features/org.eclipse.buckminster.maven.feature_0.2.0.r3388.jar" version="0.2.0.r3388">
+	      <category name="Other Tools"/>
+	   </feature>
+	   <feature id="org.eclipse.buckminster.p4.feature" url="features/org.eclipse.buckminster.p4.feature_0.2.0.r3381.jar" version="0.2.0.r3381">
+	      <category name="Other Tools"/>
+	   </feature>
+	   <feature id="org.eclipse.buckminster.pde.feature" url="features/org.eclipse.buckminster.pde.feature_0.2.0.r3636.jar" version="0.2.0.r3636">
+	      <category name="Other Tools"/>
+	   </feature>
+
+        <category-def label="Mylyn" name="Mylyn"/>
+   <feature id="org.eclipse.mylyn_feature" url="features/org.eclipse.mylyn_feature_2.1.0.v20070927-0900.jar" version="2.1.0.v20070927-0900">
+      <category name="Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.context_feature" url="features/org.eclipse.mylyn.context_feature_2.1.0.v20070927-0900.jar" version="2.1.0.v20070927-0900">
+      <category name="Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.ide_feature" url="features/org.eclipse.mylyn.ide_feature_2.1.0.v20070927-0900.jar" version="2.1.0.v20070927-0900">
+      <category name="Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.java_feature" url="features/org.eclipse.mylyn.java_feature_2.1.0.v20070927-0900.jar" version="2.1.0.v20070927-0900">
+      <category name="Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.pde_feature" url="features/org.eclipse.mylyn.pde_feature_2.1.0.v20070927-0900.jar" version="2.1.0.v20070927-0900">
+      <category name="Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.bugzilla_feature" url="features/org.eclipse.mylyn.bugzilla_feature_2.1.0.v20070927-0900.jar" version="2.1.0.v20070927-0900">
+      <category name="Mylyn"/>
+   </feature>
+   <feature id="org.eclipse.mylyn.trac_feature" url="features/org.eclipse.mylyn.trac_feature_2.1.0.v20070927-0900.jar" version="2.1.0.v20070927-0900">
+      <category name="Mylyn"/>
+   </feature>
+
+   <!-- SOA Tools -->
+   <feature id="org.eclipse.stp.b2j.feature" url="features/org.eclipse.stp.b2j.feature_0.7.0.200710161054-07C-7733G535E53CA.jar" version="0.7.0.200710161054-07C-7733G535E53CA">
+     <category name="SOA Development"/>
+   </feature>
+   
+   <feature id="org.eclipse.stp.bpmn.feature" url="features/org.eclipse.stp.bpmn.feature_0.7.0.200710161054-07Q-7E77YA7AUA7QM.jar" version="0.7.0.200710161054-07Q-7E77YA7AUA7QM">
+     <category name="SOA Development"/>
+   </feature>
+
+   <feature id="org.eclipse.stp.core.feature" url="features/org.eclipse.stp.core.feature_0.7.0.200710161054-07Q-7E77YA7AUA7QM.jar" version="0.7.0.200710161054-07Q-7E77YA7AUA7QM">
+     <category name="SOA Development"/>
+   </feature>
+   
+   <feature id="org.eclipse.stp.servicecreation" url="features/org.eclipse.stp.servicecreation_0.7.0.200710161054-07l-7MAAqGAGkGAeY.jar" version="0.7.0.200710161054-07l-7MAAqGAGkGAeY">
+     <category name="SOA Development"/>
+   </feature>
+   
+   <feature id="org.eclipse.stp.sc.jaxws.feature" url="features/org.eclipse.stp.sc.jaxws.feature_0.7.0.200710161054-07J-7A55P858M85JG.jar" version="0.7.0.200710161054-07J-7A55P858M85JG">
+     <category name="SOA Development"/>
+   </feature>
+   
+   <feature id="org.eclipse.stp.sc.sca.feature" url="features/org.eclipse.stp.sc.sca.feature_0.7.0.200710161054-07J-7A55P858M85JG.jar" version="0.7.0.200710161054-07J-7A55P858M85JG">
+     <category name="SOA Development"/>
+   </feature>
+   
+   <feature id="org.eclipse.stp.soas.feature" url="features/org.eclipse.stp.soas.feature_0.7.0.200710161054-07e-7MAAqGAGkGAeY.jar" version="0.7.0.200710161054-07e-7MAAqGAGkGAeY">
+     <category name="SOA Development"/>
+   </feature>
+   
+   <feature id="org.eclipse.stp.soas.runtime.feature" url="features/org.eclipse.stp.soas.runtime.feature_0.7.0.200710161054-07J-7A55P858M85JG.jar" version="0.7.0.200710161054-07J-7A55P858M85JG">
+     <category name="SOA Development"/>
+   </feature>
+</site>
