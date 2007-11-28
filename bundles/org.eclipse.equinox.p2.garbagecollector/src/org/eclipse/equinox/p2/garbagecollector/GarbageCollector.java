@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.garbagecollector;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -41,6 +40,17 @@ public class GarbageCollector {
 
 	public void runGC(Profile profileToGC) {
 		markSet = new HashMap();
+		if (!traverseMainProfile(profileToGC))
+			return;
+
+		//Complete each MarkSet with the MarkSets provided by all of the other registered Profiles
+		traverseRegisteredProfiles();
+
+		//Run the GC on each MarkSet
+		invokeCoreGC();
+	}
+
+	private boolean traverseMainProfile(Profile profileToGC) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
 
@@ -59,18 +69,18 @@ public class GarbageCollector {
 				SafeRunner.run(providerExecutor);
 				MarkSet[] inProfileRootSets = providerExecutor.getResult();
 				if (inProfileRootSets[0] == null)
-					return;
+					return false;
 
 				for (int j = 0; j < inProfileRootSets.length; j++) {
 					if (inProfileRootSets[j] == null) {
 						continue;
 					}
-					ArrayList keysList = (ArrayList) markSet.get(inProfileRootSets[j].getRepo());
-					if (keysList == null) {
-						keysList = new ArrayList();
-						markSet.put(inProfileRootSets[j].getRepo(), keysList);
+					Collection keys = (Collection) markSet.get(inProfileRootSets[j].getRepo());
+					if (keys == null) {
+						keys = new HashSet();
+						markSet.put(inProfileRootSets[j].getRepo(), keys);
 					}
-					addKeys(keysList, inProfileRootSets[j].getKeys());
+					addKeys(keys, inProfileRootSets[j].getKeys());
 				}
 
 			} catch (ClassCastException e) {
@@ -78,17 +88,16 @@ public class GarbageCollector {
 				continue;
 			}
 		}
+		return true;
+	}
 
-		//Complete each MarkSet with the MarkSets provided by all of the other registered Profiles
-		traverseRegisteredProfiles();
-
-		//Run the GC on each MarkSet
+	private void invokeCoreGC() {
 		Iterator keyIterator = markSet.keySet().iterator();
 		while (keyIterator.hasNext()) {
 			IArtifactRepository nextRepo = (IArtifactRepository) keyIterator.next();
-			IArtifactKey[] keys = (IArtifactKey[]) ((ArrayList) markSet.get(nextRepo)).toArray(new IArtifactKey[0]);
+			IArtifactKey[] keys = (IArtifactKey[]) ((Collection) markSet.get(nextRepo)).toArray(new IArtifactKey[0]);
 			MarkSet aRootSet = new MarkSet(keys, nextRepo);
-			CoreGarbageCollector.cleanRootSet(aRootSet);
+			new CoreGarbageCollector().clean(aRootSet.getKeys(), aRootSet.getRepo());
 		}
 	}
 
@@ -104,7 +113,7 @@ public class GarbageCollector {
 				continue;
 			}
 
-			IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(GCActivator.getContext(), IProfileRegistry.class.getName());
+			IProfileRegistry profileRegistry = (IProfileRegistry) GCActivator.getService(GCActivator.getContext(), IProfileRegistry.class.getName());
 			if (profileRegistry == null)
 				return;
 			Profile[] registeredProfiles = profileRegistry.getProfiles();
@@ -148,9 +157,9 @@ public class GarbageCollector {
 			ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, aProfile);
 			SafeRunner.run(providerExecutor);
 			MarkSet[] aProfileRootSets = providerExecutor.getResult();
-
 			if (aProfileRootSets[0] == null)
 				return;
+
 			for (int j = 0; j < aProfileRootSets.length; j++) {
 				if (aProfileRootSets[j] == null) {
 					continue;
@@ -158,9 +167,9 @@ public class GarbageCollector {
 
 				//contribute any keys that are relevant to the Profile being GC'ed
 				if (markSet.containsKey(aProfileRootSets[j].getRepo())) {
-					ArrayList keysList = (ArrayList) markSet.get(aProfileRootSets[j].getRepo());
-					addKeys(keysList, aProfileRootSets[j].getKeys());
-					markSet.put(aProfileRootSets[j].getRepo(), keysList);
+					Collection keys = (Collection) markSet.get(aProfileRootSets[j].getRepo());
+					addKeys(keys, aProfileRootSets[j].getKeys());
+					markSet.put(aProfileRootSets[j].getRepo(), keys);
 				}
 			}
 
@@ -169,11 +178,8 @@ public class GarbageCollector {
 		}
 	}
 
-	private void addKeys(ArrayList keyList, IArtifactKey[] keyArray) {
-		for (int i = 0; i < keyArray.length; i++) {
-			if (!(keyList.contains(keyArray[i]))) {
-				keyList.add(keyArray[i]);
-			}
-		}
+	private void addKeys(Collection keyList, IArtifactKey[] keyArray) {
+		for (int i = 0; i < keyArray.length; i++)
+			keyList.add(keyArray[i]);
 	}
 }

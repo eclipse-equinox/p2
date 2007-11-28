@@ -27,18 +27,6 @@ public class CoreGarbageCollector {
 	 */
 	private static boolean debugMode = false;
 
-	private CoreGarbageCollector() {
-		//empty constructor
-	}
-
-	/**
-	 * Public API.  Run the Garbage Collector on the given MarkSet
-	 * @param inRootSet the MarkSet on which a garbage collection is to be run
-	 */
-	public static void cleanRootSet(MarkSet inRootSet) {
-		new CoreGarbageCollector().clean(inRootSet.getKeys(), inRootSet.getRepo());
-	}
-
 	/**
 	 * Given a list of IArtifactKeys and an IArtifactRepository, removes all artifacts
 	 * in aRepository that are not mapped to by an IArtifactKey in rootSet
@@ -60,14 +48,6 @@ public class CoreGarbageCollector {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Convenience method.  Sets debugMode to true then calls clean()
-	 */
-	public static void cleanRootSetWithInfo(MarkSet inRootSet) {
-		setDebugMode(true);
-		new CoreGarbageCollector().clean(inRootSet.getKeys(), inRootSet.getRepo());
 	}
 
 	/**
