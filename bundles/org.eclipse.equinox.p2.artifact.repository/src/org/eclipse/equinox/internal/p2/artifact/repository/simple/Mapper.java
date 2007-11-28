@@ -123,7 +123,7 @@ public class Mapper {
 		String[][] result = new String[filters.length][2];
 		for (int i = 0; i < filters.length; i++) {
 			result[i][0] = filters[i].toString();
-			result[i][1] = outputStrings[i].toString();
+			result[i][1] = outputStrings[i];
 		}
 		return result;
 	}
