@@ -10,16 +10,16 @@ package org.eclipse.equinox.p2.metadata.generator;
 
 /**
  */
-public class FeatureEntry implements IPlatformEntry {
-	private String id;
-	private String version;
+public class FeatureEntry {
+	private final String id;
+	private final String version;
 	private String url;
 	private String os;
 	private String ws;
 	private String arch;
 	private String nl;
 	private String match;
-	private boolean isPlugin;
+	private final boolean isPlugin;
 	private boolean isFragment = false;
 	private boolean isRequires = false;
 	private boolean unpack = true;
@@ -45,51 +45,6 @@ public class FeatureEntry implements IPlatformEntry {
 		this.isPlugin = isPlugin;
 	}
 
-	public String getURL() {
-		return url;
-	}
-
-	public void setURL(String value) {
-		url = value;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public boolean isPlugin() {
-		return isPlugin;
-	}
-
-	public boolean isRequires() {
-		return isRequires;
-	}
-
-	public boolean isFragment() {
-		return isFragment;
-	}
-
-	public String toString() {
-		StringBuffer result = new StringBuffer();
-
-		result.append(isPlugin ? "Plugin: " : "Feature: "); //$NON-NLS-1$
-		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
-		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
-		return result.toString();
-	}
-
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((version == null) ? 0 : version.hashCode());
-		return result;
-	}
-
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
@@ -111,27 +66,78 @@ public class FeatureEntry implements IPlatformEntry {
 		return true;
 	}
 
-	public void setEnvironment(String os, String ws, String arch, String nl) {
-		this.os = os;
-		this.ws = ws;
-		this.arch = arch;
-		this.nl = nl;
+	public String getArch() {
+		return arch;
 	}
 
-	public void setFragment(boolean value) {
-		isFragment = value;
+	/**
+	 * Temporary method to add provisioning filters to features
+	 */
+	public String getFilter() {
+		return filter;
 	}
 
-	public void setUnpack(boolean value) {
-		unpack = value;
+	public String getId() {
+		return id;
+	}
+
+	public String getMatch() {
+		return match;
+	}
+
+	public String getNL() {
+		return nl;
+	}
+
+	public String getOS() {
+		return os;
+	}
+
+	public String getURL() {
+		return url;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public String getWS() {
+		return ws;
+	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
+		return result;
+	}
+
+	public boolean isFragment() {
+		return isFragment;
+	}
+
+	public boolean isOptional() {
+		return optional;
+	}
+
+	public boolean isPlugin() {
+		return isPlugin;
+	}
+
+	public boolean isRequires() {
+		return isRequires;
 	}
 
 	public boolean isUnpack() {
 		return unpack;
 	}
 
-	public void setOptional(boolean value) {
-		optional = value;
+	public void setEnvironment(String os, String ws, String arch, String nl) {
+		this.os = os;
+		this.ws = ws;
+		this.arch = arch;
+		this.nl = nl;
 	}
 
 	/**
@@ -142,34 +148,28 @@ public class FeatureEntry implements IPlatformEntry {
 
 	}
 
-	/**
-	 * Temporary method to add provisioning filters to features
-	 */
-	public String getFilter() {
-		return filter;
+	public void setFragment(boolean value) {
+		isFragment = value;
 	}
 
-	public String getMatch() {
-		return match;
+	public void setOptional(boolean value) {
+		optional = value;
 	}
 
-	public boolean isOptional() {
-		return optional;
+	public void setUnpack(boolean value) {
+		unpack = value;
 	}
 
-	public String getOS() {
-		return os;
+	public void setURL(String value) {
+		url = value;
 	}
 
-	public String getWS() {
-		return ws;
-	}
+	public String toString() {
+		StringBuffer result = new StringBuffer();
 
-	public String getArch() {
-		return arch;
-	}
-
-	public String getNL() {
-		return nl;
+		result.append(isPlugin ? "Plugin: " : "Feature: "); //$NON-NLS-1$
+		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
+		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
+		return result.toString();
 	}
 }
