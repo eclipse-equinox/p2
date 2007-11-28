@@ -11,7 +11,8 @@ package org.eclipse.equinox.p2.engine.phases;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class Configure extends Phase {
@@ -25,12 +26,9 @@ public class Configure extends Phase {
 	}
 
 	protected ProvisioningAction[] getActions(Operand currentOperand) {
-		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Configuring_IU, unit.getId()));
-
 		IInstallableUnit unit = currentOperand.second();
 		if (unit.isFragment())
 			return null;
-
 		return getActions(unit, phaseId);
 	}
 

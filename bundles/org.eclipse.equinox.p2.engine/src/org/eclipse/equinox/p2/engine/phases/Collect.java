@@ -34,7 +34,6 @@ public class Collect extends Phase {
 	}
 
 	protected ProvisioningAction[] getActions(Operand currentOperand) {
-		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Collecting_For_IU, unit.getId()));
 		ProvisioningAction action = getTouchpoint(currentOperand).getAction(phaseId);
 		return new ProvisioningAction[] {action};
 	}
