@@ -16,6 +16,7 @@ import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;

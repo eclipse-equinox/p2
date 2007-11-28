@@ -8,10 +8,10 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.core;
+package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.util.Date;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.Activator;
 import org.eclipse.osgi.service.debug.DebugOptions;
 
 /**
@@ -24,6 +24,7 @@ public class Tracing {
 
 	//debug constants
 	public static boolean DEBUG_PARSING = false;
+	public static boolean DEBUG_GENERATOR_PARSING = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
@@ -31,6 +32,7 @@ public class Tracing {
 			DEBUG = options.getBooleanOption(Activator.ID + "/debug", false); //$NON-NLS-1$
 			if (DEBUG) {
 				DEBUG_PARSING = options.getBooleanOption(Activator.ID + "/persistence/parsing", false); //$NON-NLS-1$
+				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
 			}
 		}
 	}
