@@ -28,6 +28,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		node.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		node.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false);
 		node.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true);
+		node.putBoolean(PreferenceConstants.PREF_ENABLE_GC, false);
+		node.putBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY, true);
 	}
 
 }

@@ -35,8 +35,6 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	private Button searchAndDownloadRadio;
 	private Group updateScheduleGroup;
 	private Group downloadGroup;
-	private Group gcGroup;
-	private Button garbageCollectorCheck;
 
 	public void init(IWorkbench workbench) {
 		// nothing to init
@@ -126,25 +124,6 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		gd.horizontalSpan = 3;
 		searchAndDownloadRadio.setLayoutData(gd);
 		searchAndDownloadRadio.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				pageChanged();
-			}
-		});
-
-		gcGroup = new Group(container, SWT.NONE);
-		gcGroup.setText(ProvSDKMessages.AutomaticUpdatesPreferencePage_gcGroup);
-		layout = new GridLayout();
-		layout.numColumns = 3;
-		gcGroup.setLayout(layout);
-		gd = new GridData(GridData.FILL_HORIZONTAL);
-		gcGroup.setLayoutData(gd);
-
-		garbageCollectorCheck = new Button(gcGroup, SWT.CHECK);
-		garbageCollectorCheck.setText(ProvSDKMessages.AutomaticUpdatesPreferencePage_garbageCollection);
-		gd = new GridData();
-		gd.horizontalSpan = 3;
-		garbageCollectorCheck.setLayoutData(gd);
-		garbageCollectorCheck.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				pageChanged();
 			}
