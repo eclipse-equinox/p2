@@ -56,7 +56,6 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		showLatestRadio.setText(ProvSDKMessages.ProvisioningPreferencePage_ShowLatestVersions);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
-		gd.horizontalIndent = INDENT;
 		showLatestRadio.setLayoutData(gd);
 		showLatestRadio.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -68,7 +67,6 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		showAllRadio.setText(ProvSDKMessages.ProvisioningPreferencePage_ShowAllVersions);
 		gd = new GridData();
 		gd.horizontalSpan = 3;
-		gd.horizontalIndent = INDENT;
 		showAllRadio.setLayoutData(gd);
 		showAllRadio.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
