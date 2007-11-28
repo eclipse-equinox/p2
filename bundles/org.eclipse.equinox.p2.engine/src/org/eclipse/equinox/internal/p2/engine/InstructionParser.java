@@ -1,6 +1,7 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.engine.*;
 
 public class InstructionParser {
@@ -9,6 +10,8 @@ public class InstructionParser {
 	Touchpoint touchpoint;
 
 	public InstructionParser(Phase phase, Touchpoint touchpoint) {
+		Assert.isNotNull(phase);
+		Assert.isNotNull(touchpoint);
 		this.phase = phase;
 		this.touchpoint = touchpoint;
 	}
