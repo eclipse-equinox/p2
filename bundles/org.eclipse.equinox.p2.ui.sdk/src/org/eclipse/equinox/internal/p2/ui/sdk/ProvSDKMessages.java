@@ -90,6 +90,7 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesJob_Updates;
 	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
 	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
+	public static String ProvisioningPreferencePage_BrowsingPrefsGroup;
 	public static String ProvisioningPreferencePage_ShowLatestVersions;
 	public static String ProvisioningPreferencePage_ShowAllVersions;
 	public static String ProvisioningPreferencePage_gcGroup;

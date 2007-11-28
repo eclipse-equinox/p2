@@ -32,9 +32,10 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 
 public class ProvisioningPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
-	private Group gcGroup;
+	private Group browsingGroup, gcGroup;
 	private Button garbageCollectorCheck;
 	private Button deleteImmediatelyRadio, scheduleRadio;
+	private Button showLatestRadio, showAllRadio;
 	private static final int INDENT = 30;
 
 	protected Control createContents(Composite parent) {
@@ -43,12 +44,43 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		layout.marginWidth = layout.marginHeight = 0;
 		container.setLayout(layout);
 
+		browsingGroup = new Group(container, SWT.NONE);
+		browsingGroup.setText(ProvSDKMessages.ProvisioningPreferencePage_BrowsingPrefsGroup);
+		layout = new GridLayout();
+		layout.numColumns = 3;
+		browsingGroup.setLayout(layout);
+		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		browsingGroup.setLayoutData(gd);
+
+		showLatestRadio = new Button(browsingGroup, SWT.RADIO);
+		showLatestRadio.setText(ProvSDKMessages.ProvisioningPreferencePage_ShowLatestVersions);
+		gd = new GridData();
+		gd.horizontalSpan = 3;
+		gd.horizontalIndent = INDENT;
+		showLatestRadio.setLayoutData(gd);
+		showLatestRadio.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				pageChanged();
+			}
+		});
+
+		showAllRadio = new Button(browsingGroup, SWT.RADIO);
+		showAllRadio.setText(ProvSDKMessages.ProvisioningPreferencePage_ShowAllVersions);
+		gd = new GridData();
+		gd.horizontalSpan = 3;
+		gd.horizontalIndent = INDENT;
+		showAllRadio.setLayoutData(gd);
+		showAllRadio.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				pageChanged();
+			}
+		});
 		gcGroup = new Group(container, SWT.NONE);
 		gcGroup.setText(ProvSDKMessages.ProvisioningPreferencePage_gcGroup);
 		layout = new GridLayout();
 		layout.numColumns = 3;
 		gcGroup.setLayout(layout);
-		GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
 		gcGroup.setLayoutData(gd);
 
 		garbageCollectorCheck = new Button(gcGroup, SWT.CHECK);
@@ -98,6 +130,8 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		garbageCollectorCheck.setSelection(pref.getBoolean(PreferenceConstants.PREF_ENABLE_GC));
 		scheduleRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY));
 		deleteImmediatelyRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY));
+		showLatestRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
+		showAllRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
 		pageChanged();
 	}
 
@@ -105,19 +139,25 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		boolean enabled = garbageCollectorCheck.getSelection();
 		scheduleRadio.setEnabled(enabled);
 		deleteImmediatelyRadio.setEnabled(enabled);
+
 	}
 
 	protected void performDefaults() {
 		super.performDefaults();
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
 		garbageCollectorCheck.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_ENABLE_GC));
+		deleteImmediatelyRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY));
+		scheduleRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY));
+		showLatestRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
+		showAllRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
 		pageChanged();
 	}
 
 	public boolean performOk() {
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
-		pref.setValue(PreferenceConstants.PREF_DOWNLOAD_ONLY, garbageCollectorCheck.getSelection());
-
+		pref.setValue(PreferenceConstants.PREF_ENABLE_GC, garbageCollectorCheck.getSelection());
+		pref.setValue(PreferenceConstants.PREF_SHOW_LATEST_VERSION, showLatestRadio.getSelection());
+		pref.setValue(PreferenceConstants.PREF_GC_IMMEDIATELY, deleteImmediatelyRadio.getSelection());
 		ProvSDKUIActivator.getDefault().savePluginPreferences();
 		return true;
 	}
