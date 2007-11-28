@@ -39,7 +39,10 @@ public class InstallDialog extends UpdateInstallDialog {
 		try {
 			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, sub.newChild(50));
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, sub.newChild(50));
-			size = info.getDiskSize();
+			if (info == null)
+				size = IUElement.SIZE_UNKNOWN;
+			else
+				size = info.getDiskSize();
 		} catch (ProvisionException e) {
 			size = IUElement.SIZE_UNKNOWN;
 		}
