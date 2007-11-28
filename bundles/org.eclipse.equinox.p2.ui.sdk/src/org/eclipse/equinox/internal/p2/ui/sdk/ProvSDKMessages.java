@@ -87,6 +87,9 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesPreferencePage_searchAndNotify;
 	public static String AutomaticUpdatesPreferencePage_downloadAndNotify;
 	public static String AutomaticUpdatesPreferencePage_at;
+	public static String AutomaticUpdatesPreferencePage_garbageCollection;
+	public static String AutomaticUpdatesPreferencePage_retentionTimeMessage;
+	public static String AutomaticUpdatesPreferencePage_gcGroup;
 	public static String AutomaticUpdatesJob_Updates;
 	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
 	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
