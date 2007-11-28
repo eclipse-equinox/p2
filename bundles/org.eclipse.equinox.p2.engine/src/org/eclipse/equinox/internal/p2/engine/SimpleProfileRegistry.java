@@ -192,10 +192,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		properties.remove(key);
 	}
 
-	private SimpleProfileRegistry getRegistry() {
-		return this;
-	}
-
 	private interface XMLConstants extends org.eclipse.equinox.internal.p2.persistence.XMLConstants {
 
 		// Constants defining the structure of the XML for a SimpleProfileRegistry
@@ -264,12 +260,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 		}
 
-		public SimpleProfileRegistry getContainingRegistry() {
-			return getRegistry();
-		}
-
 		protected Object getRootObject() {
-			return getRegistry();
+			return SimpleProfileRegistry.this;
 		}
 
 		private final class ProfileRegistryDocHandler extends DocHandler {
