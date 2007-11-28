@@ -131,6 +131,7 @@ public abstract class Phase {
 			try {
 				actions = getActions(operand);
 			} catch (Throwable t) {
+				//TODO Should never catch throwable. Use SafeRunner if calling third party code
 				status.add(new Status(IStatus.ERROR, phaseId, t.getMessage(), t));
 				return;
 			}
@@ -196,13 +197,13 @@ public abstract class Phase {
 	}
 
 	protected final ProvisioningAction[] getActions(IInstallableUnit unit, String key) {
-
 		String[] instructions = getInstructionsFor(unit, key);
 		if (instructions == null || instructions.length == 0)
 			return null;
-
-		TouchpointManager touchpointManager = TouchpointManager.getInstance();
-		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
+		Touchpoint touchpoint = getTouchpoint(unit);
+		//TODO Likely need to propagate an exception if the touchpoint is not present
+		if (touchpoint == null)
+			return null;
 		InstructionParser parser = new InstructionParser(this, touchpoint);
 		return parser.parseActions(instructions[0]);
 	}
@@ -237,7 +238,6 @@ public abstract class Phase {
 		IInstallableUnit unit = operand.second();
 		if (unit == null)
 			unit = operand.first();
-
 		if (unit == null)
 			return null;
 		return getTouchpoint(unit);
