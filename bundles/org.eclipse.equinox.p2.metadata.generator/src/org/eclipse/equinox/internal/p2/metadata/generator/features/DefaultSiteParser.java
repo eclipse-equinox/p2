@@ -24,52 +24,36 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Default site parser.
- * Parses the site manifest file as defined by the platform. Defers
- * to a model factory to create the actual concrete model objects. The 
- * update framework supplies two factory implementations:
- * <ul>
- * <li>@see org.eclipse.update.core.model.SiteModelFactory
- * <li>@see org.eclipse.update.core.BaseSiteFactory
- * </ul>
- * 
- * <p>
- * <b>Note:</b> This class/interface is part of an interim API that is still under development and expected to
- * change significantly before reaching stability. It is being made available at this early stage to solicit feedback
- * from pioneering adopters on the understanding that any code that uses this API will almost certainly be broken
- * (repeatedly) as the API evolves.
- * </p>
- * @since 2.0
+ * Parses a site.xml file.
+ * This class was initially copied from org.eclipse.update.core.model.DefaultSiteParser.
  */
 public class DefaultSiteParser extends DefaultHandler {
 
 	private static final String ARCHIVE = "archive"; //$NON-NLS-1$
-
 	private static final String CATEGORY = "category"; //$NON-NLS-1$
 	private static final String CATEGORY_DEF = "category-def"; //$NON-NLS-1$
 
 	//private static final String ASSOCIATE_SITES = "associateSites"; //$NON-NLS-1$
 	//	private static final String ASSOCIATE_SITE = "associateSite"; //$NON-NLS-1$
 	private static final String DEFAULT_INFO_URL = "index.html"; //$NON-NLS-1$
-
 	private static final String DESCRIPTION = "description"; //$NON-NLS-1$
-
 	private static final String FEATURE = "feature"; //$NON-NLS-1$
 	private static final String FEATURES = "features/"; //$NON-NLS-1$
 	private static final String MIRROR = "mirror"; //$NON-NLS-1$
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private static final String PLUGIN_ID = Activator.ID;
 	private static final String SITE = "site"; //$NON-NLS-1$
+
 	private static final int STATE_ARCHIVE = 3;
 	private static final int STATE_CATEGORY = 4;
 	private static final int STATE_CATEGORY_DEF = 5;
 	private static final int STATE_DESCRIPTION_CATEGORY_DEF = 7;
-
 	private static final int STATE_DESCRIPTION_SITE = 6;
 	private static final int STATE_FEATURE = 2;
 	private static final int STATE_IGNORED_ELEMENT = -1;
 	private static final int STATE_INITIAL = 0;
 	private static final int STATE_SITE = 1;
+
 	private int currentState;
 
 	private boolean DESCRIPTION_SITE_ALREADY_SEEN = false;
@@ -248,7 +232,7 @@ public class DefaultSiteParser extends DefaultHandler {
 				if (objectStack.peek() instanceof String) {
 					text = (String) objectStack.pop();
 					SiteModel site = (SiteModel) objectStack.peek();
-					site.getDescriptionModel().setAnnotation(text);
+					site.getDescription().setAnnotation(text);
 				}
 				//do not pop the object
 				break;
@@ -263,7 +247,7 @@ public class DefaultSiteParser extends DefaultHandler {
 				if (objectStack.peek() instanceof String) {
 					text = (String) objectStack.pop();
 					SiteCategory category = (SiteCategory) objectStack.peek();
-					category.getDescriptionModel().setAnnotation(text);
+					category.setDescription(text);
 				}
 				objectStack.pop();
 				break;
@@ -294,7 +278,7 @@ public class DefaultSiteParser extends DefaultHandler {
 				// when parsing site tag
 				if (DESCRIPTION_SITE_ALREADY_SEEN)
 					debug(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] {getState(state)})));
-				siteModel.setDescriptionModel(info);
+				siteModel.setDescription(info);
 				DESCRIPTION_SITE_ALREADY_SEEN = true;
 				break;
 
@@ -319,10 +303,10 @@ public class DefaultSiteParser extends DefaultHandler {
 					info.setAnnotation(text);
 
 				SiteCategory category = (SiteCategory) objectStack.peek();
-				if (category.getDescriptionModel() != null)
+				if (category.getDescription() != null)
 					internalError(NLS.bind(Messages.DefaultSiteParser_ElementAlreadySet, (new String[] {getState(state), category.getLabel()})));
 				else
-					category.setDescriptionModel(info);
+					category.setDescription(info.getAnnotation());
 				break;
 
 			default :
@@ -593,7 +577,7 @@ public class DefaultSiteParser extends DefaultHandler {
 			archive.setURL(url);
 
 			SiteModel site = (SiteModel) objectStack.peek();
-			site.addArchiveReferenceModel(archive);
+			site.addArchive(archive);
 		}
 		if (Tracing.DEBUG_GENERATOR_PARSING)
 			debug("End processing Archive: path:" + id + " url:" + url);//$NON-NLS-1$ //$NON-NLS-2$
@@ -623,7 +607,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		category.setLabel(label);
 
 		SiteModel site = (SiteModel) objectStack.peek();
-		site.addCategoryModel(category);
+		site.addCategory(category);
 		objectStack.push(category);
 
 		if (Tracing.DEBUG_GENERATOR_PARSING)
@@ -698,7 +682,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		feature.setPatch(patch);
 
 		SiteModel site = (SiteModel) objectStack.peek();
-		site.addFeatureReferenceModel(feature);
+		site.addFeature(feature);
 		feature.setSiteModel(site);
 
 		objectStack.push(feature);
@@ -743,7 +727,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		// If <description> is specified, for the site,  it takes precedence		
 		URLEntry description = new URLEntry();
 		description.setURL(DEFAULT_INFO_URL);
-		site.setDescriptionModel(description);
+		site.setDescription(description);
 
 		// verify we can parse the site ...if the site has
 		// a different type throw an exception to force reparsing
@@ -756,7 +740,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		if (mirrorsURL != null && mirrorsURL.trim().length() > 0) {
 			URLEntry[] mirrors = getMirrors(mirrorsURL);
 			if (mirrors != null)
-				site.setMirrorSiteEntryModels(mirrors);
+				site.setMirrors(mirrors);
 			else
 				site.setMirrorsURLString(mirrorsURL);
 		}

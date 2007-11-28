@@ -13,31 +13,18 @@ package org.eclipse.equinox.internal.p2.metadata.generator.features;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Comparator;
-import org.eclipse.equinox.p2.metadata.generator.URLEntry;
 
 /**
- * Feature category definition model object.
- * <p>
- * This class may be instantiated or subclassed by clients. However, in most 
- * cases clients should instead instantiate or subclass the provided 
- * concrete implementation of this model.
- * </p>
- * <p>
- * <b>Note:</b> This class/interface is part of an interim API that is still under development and expected to
- * change significantly before reaching stability. It is being made available at this early stage to solicit feedback
- * from pioneering adopters on the understanding that any code that uses this API will almost certainly be broken
- * (repeatedly) as the API evolves.
- * </p>
- * @since 2.0
+ * A category in an update site.
+ * 
+ * Based on org.eclipse.update.core.model.CategoryModel.
  */
-
 public class SiteCategory {
 
 	private static Comparator comp;
-	private String name;
+	private String description;
 	private String label;
-	private String localizedLabel;
-	private URLEntry description;
+	private String name;
 
 	/**
 	 * Returns a comparator for category models.
@@ -98,21 +85,8 @@ public class SiteCategory {
 	 * @return category description, or <code>null</code>.
 	 * @since 2.0
 	 */
-	public URLEntry getDescriptionModel() {
+	public String getDescription() {
 		return description;
-	}
-
-	/**
-	 * Retrieve the displayable label for the category. If the model
-	 * object has been resolved, the label is localized.
-	 * 
-	 * @return displayable label, or <code>null</code>.
-	 * @since 2.0
-	 */
-	public String getLabel() {
-		if (localizedLabel != null)
-			return localizedLabel;
-		return label;
 	}
 
 	/**
@@ -121,7 +95,7 @@ public class SiteCategory {
 	 * @return non-localized displayable label, or <code>null</code>.
 	 * @since 2.0
 	 */
-	public String getLabelNonLocalized() {
+	public String getLabel() {
 		return label;
 	}
 
@@ -172,7 +146,7 @@ public class SiteCategory {
 	 * @param description category description
 	 * @since 2.0
 	 */
-	public void setDescriptionModel(URLEntry description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 
@@ -185,7 +159,6 @@ public class SiteCategory {
 	 */
 	public void setLabel(String label) {
 		this.label = label;
-		this.localizedLabel = null;
 	}
 
 	/**

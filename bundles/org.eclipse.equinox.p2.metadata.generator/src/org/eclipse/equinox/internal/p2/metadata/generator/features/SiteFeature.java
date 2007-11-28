@@ -17,19 +17,9 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * Feature reference model object.
- * <p>
- * This class may be instantiated or subclassed by clients. However, in most 
- * cases clients should instead instantiate or subclass the provided 
- * concrete implementation of this model.
- * </p>
- * <p>
- * <b>Note:</b> This class/interface is part of an interim API that is still under development and expected to
- * change significantly before reaching stability. It is being made available at this early stage to solicit feedback
- * from pioneering adopters on the understanding that any code that uses this API will almost certainly be broken
- * (repeatedly) as the API evolves.
- * </p>
- * @since 2.0
+ * A reference to a feature in an update site.xml file.
+ * 
+ * Based on org.eclipse.update.core.model.FeatureReferenceModel.
  */
 public class SiteFeature {
 
@@ -84,8 +74,6 @@ public class SiteFeature {
 
 	/**
 	 * Creates an uninitialized feature reference model object.
-	 * 
-	 * @since 2.0
 	 */
 	public SiteFeature() {
 		super();
@@ -96,7 +84,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param categoryName category name
-	 * @since 2.0
 	 */
 	public void addCategoryName(String categoryName) {
 		if (this.categoryNames == null)
@@ -125,7 +112,6 @@ public class SiteFeature {
 	 * @param object feature reference model to compare with
 	 * @return <code>true</code> if the two models are equal, 
 	 * <code>false</code> otherwise
-	 * @since 2.0 
 	 */
 	public boolean equals(Object object) {
 
@@ -146,7 +132,6 @@ public class SiteFeature {
 	 * Returns the names of categories the referenced feature belongs to.
 	 * 
 	 * @return an array of names, or an empty array.
-	 * @since 2.0
 	 */
 	public String[] getCategoryNames() {
 		if (categoryNames == null)
@@ -159,7 +144,6 @@ public class SiteFeature {
 	 * Returns the feature identifier as a string
 	 * 
 	 * @return feature identifier
-	 * @since 2.0
 	 */
 	public String getFeatureIdentifier() {
 		return featureId;
@@ -169,7 +153,6 @@ public class SiteFeature {
 	 * Returns the feature version as a string
 	 * 
 	 * @return feature version 
-	 * @since 2.0
 	 */
 	public String getFeatureVersion() {
 		return featureVersion;
@@ -180,7 +163,6 @@ public class SiteFeature {
 	 * object has been resolved, the label is localized.
 	 *
 	 * @return displayable label, or <code>null</code>.
-	 * @since 2.0
 	 */
 	public String getLabel() {
 		return label;
@@ -190,7 +172,6 @@ public class SiteFeature {
 	 * Retrieve the non-localized displayable label for the feature reference.
 	 *
 	 * @return non-localized displayable label, or <code>null</code>.
-	 * @since 2.0
 	 */
 	public String getLabelNonLocalized() {
 		return label;
@@ -200,7 +181,6 @@ public class SiteFeature {
 	 * Get optional locale specification as a comma-separated string.
 	 *
 	 * @return the locale specification string, or <code>null</code>.
-	 * @since 2.1
 	 */
 	public String getNL() {
 		return nl;
@@ -210,7 +190,6 @@ public class SiteFeature {
 	 * Get optional operating system specification as a comma-separated string.
 	 *
 	 * @return the operating system specification string, or <code>null</code>.
-	 * @since 2.1
 	 */
 	public String getOS() {
 		return os;
@@ -220,7 +199,6 @@ public class SiteFeature {
 	 * Get optional system architecture specification as a comma-separated string.
 	 *
 	 * @return the system architecture specification string, or <code>null</code>.
-	 * @since 2.1
 	 */
 	public String getOSArch() {
 		return arch;
@@ -248,7 +226,6 @@ public class SiteFeature {
 	 * 
 	 * @return feature type, or <code>null</code> representing the default
 	 * feature type for the site
-	 * @since 2.0
 	 */
 	public String getType() {
 		return type;
@@ -258,7 +235,6 @@ public class SiteFeature {
 	 * Returns the resolved URL for the feature reference.
 	 * 
 	 * @return url string
-	 * @since 2.0
 	 */
 	public URL getURL() {
 		delayedResolve();
@@ -269,7 +245,6 @@ public class SiteFeature {
 	 * Returns the unresolved URL string for the reference.
 	 *
 	 * @return url string
-	 * @since 2.0
 	 */
 	public String getURLString() {
 		return urlString;
@@ -279,7 +254,6 @@ public class SiteFeature {
 	 * Get optional windowing system specification as a comma-separated string.
 	 *
 	 * @return the windowing system specification string, or <code>null</code>.
-	 * @since 2.1
 	 */
 	public String getWS() {
 		return ws;
@@ -295,7 +269,6 @@ public class SiteFeature {
 	 * @param resolveBase URL
 	 * @param bundleURL resource bundle URL
 	 * @exception MalformedURLException
-	 * @since 2.0
 	 */
 	public void resolve(URL resolveBase, URL bundleURL) throws MalformedURLException {
 		this.base = resolveBase;
@@ -306,7 +279,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 *
 	 * @param arch system architecture specification as a comma-separated list
-	 * @since 2.1
 	 */
 	public void setArch(String arch) {
 		this.arch = arch;
@@ -317,7 +289,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param categoryNames an array of category names
-	 * @since 2.0
 	 */
 	public void setCategoryNames(String[] categoryNames) {
 		if (categoryNames == null)
@@ -331,7 +302,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param featureId feature identifier
-	 * @since 2.0
 	 */
 	public void setFeatureIdentifier(String featureId) {
 		this.featureId = featureId;
@@ -342,7 +312,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param featureVersion feature version
-	 * @since 2.0
 	 */
 	public void setFeatureVersion(String featureVersion) {
 		this.featureVersion = featureVersion;
@@ -361,7 +330,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 *
 	 * @param nl locale specification as a comma-separated list
-	 * @since 2.1
 	 */
 	public void setNL(String nl) {
 		this.nl = nl;
@@ -372,7 +340,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 *
 	 * @param os operating system specification as a comma-separated list
-	 * @since 2.1
 	 */
 	public void setOS(String os) {
 		this.os = os;
@@ -390,7 +357,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param site site for the reference
-	 * @since 2.0
 	 */
 	public void setSiteModel(SiteModel site) {
 		this.site = site;
@@ -401,7 +367,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param type referenced feature type
-	 * @since 2.0
 	 */
 	public void setType(String type) {
 		this.type = type;
@@ -412,7 +377,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param urlString unresolved URL string
-	 * @since 2.0
 	 */
 	public void setURLString(String urlString) {
 		this.urlString = urlString;
@@ -424,7 +388,6 @@ public class SiteFeature {
 	 * Throws a runtime exception if this object is marked read-only.
 	 *
 	 * @param ws windowing system specification as a comma-separated list
-	 * @since 2.1
 	 */
 	public void setWS(String ws) {
 		this.ws = ws;

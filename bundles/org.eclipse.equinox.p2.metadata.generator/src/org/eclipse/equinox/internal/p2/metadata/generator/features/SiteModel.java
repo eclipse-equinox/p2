@@ -16,26 +16,22 @@ import java.util.*;
 import org.eclipse.equinox.p2.metadata.generator.URLEntry;
 
 /**
- * Site model object.
- * <p>
- * This class may be instantiated or subclassed by clients. However, in most 
- * cases clients should instead instantiate or subclass the provided 
- * concrete implementation of this model.
- * </p>
- * <p>
- * <b>Note:</b> This class/interface is part of an interim API that is still under development and expected to
- * change significantly before reaching stability. It is being made available at this early stage to solicit feedback
- * from pioneering adopters on the understanding that any code that uses this API will almost certainly be broken
- * (repeatedly) as the API evolves.
- * </p>
- * @since 2.0
+ * A model of an update site.
+ * 
+ * Copied from org.eclipse.update.core.model.SiteModel.
  */
 public class SiteModel {
 
 	private List /*of ArchiveReferenceModel*/archiveReferences;
-	private Set /*of SiteCategory*/categories;
+	/**
+	 * Map of String (category id) -> SiteCategory
+	 */
+	private Map categories;
 	private URLEntry description;
-	private List /*of SiteFeature*/featureReferences;
+	/**
+	 * Map of String (feature id) -> SiteFeature
+	 */
+	private Map features;
 	private URL locationURL;
 	private String locationURLString;
 	private List /* of URLEntry */mirrors;
@@ -59,7 +55,7 @@ public class SiteModel {
 	 * @param archiveReference archive reference model
 	 * @since 2.0
 	 */
-	public void addArchiveReferenceModel(URLEntry archiveReference) {
+	public void addArchive(URLEntry archiveReference) {
 		if (this.archiveReferences == null)
 			this.archiveReferences = new ArrayList();
 		if (!this.archiveReferences.contains(archiveReference))
@@ -67,42 +63,35 @@ public class SiteModel {
 	}
 
 	/**
-	 * Adds a category model to site.
-	 * Throws a runtime exception if this object is marked read-only.
+	 * Adds a category to the site.
 	 * 
 	 * @param category category model
-	 * @since 2.0
 	 */
-	public void addCategoryModel(SiteCategory category) {
-		if (this.categories == null)
-			this.categories = new TreeSet(SiteCategory.getComparator());
-		if (!this.categories.contains(category))
-			this.categories.add(category);
+	public void addCategory(SiteCategory category) {
+		if (categories == null)
+			categories = new HashMap();
+		if (!categories.containsKey(category.getName()))
+			categories.put(category.getName(), category);
 	}
 
 	/**
 	 * Adds a feature reference model to site.
-	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param featureReference feature reference model
-	 * @since 2.0
 	 */
-	public void addFeatureReferenceModel(SiteFeature featureReference) {
-		if (this.featureReferences == null)
-			this.featureReferences = new ArrayList();
-		// PERF: do not check if already present 
-		//if (!this.featureReferences.contains(featureReference))
-		this.featureReferences.add(featureReference);
+	public void addFeature(SiteFeature featureReference) {
+		if (this.features == null)
+			this.features = new HashMap();
+		this.features.put(featureReference.getFeatureIdentifier(), featureReference);
 	}
 
 	/**
 	 * Adds a mirror site.
-	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param mirror mirror model 
 	 * @since 3.1
 	 */
-	public void addMirrorModel(URLEntry mirror) {
+	public void addMirror(URLEntry mirror) {
 		if (this.mirrors == null)
 			this.mirrors = new ArrayList();
 		if (!this.mirrors.contains(mirror))
@@ -124,7 +113,7 @@ public class SiteModel {
 	 * no archives known to this site.
 	 * @since 2.0
 	 */
-	public URLEntry[] getArchiveReferenceModels() {
+	public URLEntry[] getArchives() {
 		if (archiveReferences == null || archiveReferences.size() == 0)
 			return new URLEntry[0];
 
@@ -137,41 +126,51 @@ public class SiteModel {
 	 * @return array of site category models, or an empty array.
 	 * @since 2.0
 	 */
-	public SiteCategory[] getCategoryModels() {
+	public SiteCategory[] getCategories() {
 		if (categories == null || categories.size() == 0)
 			return new SiteCategory[0];
+		return (SiteCategory[]) categories.values().toArray(new SiteCategory[0]);
+	}
 
-		return (SiteCategory[]) categories.toArray(new SiteCategory[0]);
+	/**
+	 * Returns the category with the given name.
+	 * @return the category with the given name, or <code>null</code>
+	 */
+	public SiteCategory getCategory(String name) {
+		return (SiteCategory) (categories == null ? null : categories.get(name));
 	}
 
 	/**
 	 * Returns the site description.
 	 * 
 	 * @return site description, or <code>null</code>.
-	 * @since 2.0
 	 */
-	public URLEntry getDescriptionModel() {
+	public URLEntry getDescription() {
 		return description;
+	}
+
+	/**
+	 * Returns the feature with the given id, or <code>null</code>
+	 */
+	public SiteFeature getFeature(String id) {
+		return (SiteFeature) (features == null ? null : features.get(id));
 	}
 
 	/**
 	 * Returns an array of feature reference models on this site.
 	 * 
 	 * @return an array of feature reference models, or an empty array.
-	 * @since 2.0
 	 */
-	public SiteFeature[] getFeatureReferenceModels() {
-		if (featureReferences == null || featureReferences.size() == 0)
+	public SiteFeature[] getFeatures() {
+		if (features == null || features.size() == 0)
 			return new SiteFeature[0];
-
-		return (SiteFeature[]) featureReferences.toArray(new SiteFeature[0]);
+		return (SiteFeature[]) features.values().toArray(new SiteFeature[0]);
 	}
 
 	/**
 	 * Returns the resolved URL for the site.
 	 * 
 	 * @return url, or <code>null</code>
-	 * @since 2.0
 	 */
 	public URL getLocationURL() {
 		return locationURL;
@@ -181,7 +180,6 @@ public class SiteModel {
 	 * Returns the unresolved URL string for the site.
 	 *
 	 * @return url string, or <code>null</code>
-	 * @since 2.0
 	 */
 	public String getLocationURLString() {
 		return locationURLString;
@@ -193,7 +191,7 @@ public class SiteModel {
 	 * @return an array of mirror entries, or an empty array.
 	 * @since 3.1
 	 */
-	public URLEntry[] getMirrorSiteEntryModels() {
+	public URLEntry[] getMirrors() {
 		//delayedResolve(); no delay;
 		if (mirrors == null || mirrors.size() == 0)
 			// see if we can get mirrors from the provided url
@@ -256,18 +254,16 @@ public class SiteModel {
 
 	/**
 	 * Sets the site description.
-	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param description site description
 	 * @since 2.0
 	 */
-	public void setDescriptionModel(URLEntry description) {
+	public void setDescription(URLEntry description) {
 		this.description = description;
 	}
 
 	/**
 	 * Sets the unresolved URL for the site.
-	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param locationURLString url for the site (as a string)
 	 * @since 2.0
@@ -278,12 +274,11 @@ public class SiteModel {
 
 	/**
 	 * Sets additional mirror sites
-	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param mirrors additional update site mirrors
 	 * @since 3.1
 	 */
-	public void setMirrorSiteEntryModels(URLEntry[] mirrors) {
+	public void setMirrors(URLEntry[] mirrors) {
 		doSetMirrorSiteEntryModels(mirrors);
 	}
 
@@ -291,7 +286,6 @@ public class SiteModel {
 	 * Sets the mirrors url. Mirror sites will then be obtained from this mirror url later.
 	 * This method is complementary to setMirrorsiteEntryModels(), and only one of these 
 	 * methods should be called.
-	 * Throws a runtime exception if this object is marked read-only.
 	 * 
 	 * @param mirrorsURL additional update site mirrors
 	 * @since 3.1
