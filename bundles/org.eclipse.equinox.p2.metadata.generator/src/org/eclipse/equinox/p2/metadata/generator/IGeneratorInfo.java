@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.metadata.generator;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 import org.eclipse.equinox.frameworkadmin.ConfigData;
@@ -29,8 +30,6 @@ public interface IGeneratorInfo {
 
 	public ConfigData getConfigData();
 
-	public File getJRELocation();
-
 	public File getConfigurationLocation();
 
 	public ArrayList getDefaultIUs(Set ius);
@@ -41,6 +40,8 @@ public interface IGeneratorInfo {
 
 	public String getFlavor();
 
+	public File getJRELocation();
+
 	public LauncherData getLauncherData();
 
 	public String[][] getMappingRules();
@@ -50,6 +51,13 @@ public interface IGeneratorInfo {
 	public String getRootId();
 
 	public String getRootVersion();
+
+	/**
+	 * Returns the location of the site.xml file, or <code>null</code> if not
+	 * generating for an update site.
+	 * @return The location of site.xml, or <code>null</code>
+	 */
+	public URL getSiteLocation();
 
 	public boolean publishArtifactRepository();
 

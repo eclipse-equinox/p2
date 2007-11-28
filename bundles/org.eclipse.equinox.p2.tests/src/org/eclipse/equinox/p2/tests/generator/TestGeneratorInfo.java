@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.generator;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
 import org.eclipse.equinox.frameworkadmin.ConfigData;
@@ -28,11 +29,12 @@ import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 public class TestGeneratorInfo implements IGeneratorInfo {
 
 	private IArtifactRepository artifactRepo;
+	private File baseLocation;
 	private String flavor;
 	private IMetadataRepository metadataRepo;
 	private String rootId;
 	private String rootVersion;
-	private File baseLocation;
+	private URL siteLocation;
 
 	public TestGeneratorInfo(File baseLocation) {
 		this.baseLocation = baseLocation;
@@ -81,6 +83,10 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		return flavor;
 	}
 
+	public File getJRELocation() {
+		return null;
+	}
+
 	public LauncherData getLauncherData() {
 		return null;
 	}
@@ -101,6 +107,10 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 
 	public String getRootVersion() {
 		return rootVersion;
+	}
+
+	public URL getSiteLocation() {
+		return siteLocation;
 	}
 
 	public boolean publishArtifactRepository() {
@@ -130,8 +140,8 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		this.rootId = value;
 	}
 
-	public File getJRELocation() {
-		return null;
+	public void setSiteLocation(URL location) {
+		this.siteLocation = location;
 	}
 
 }

@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
@@ -66,16 +67,49 @@ public class MetadataGeneratorHelper {
 		return result;
 	}
 
+	/**
+	 * Creates an IU corresponding to an update site category
+	 * @param category The category descriptor
+	 * @param featureIUs The IUs of the features that belong to the category
+	 * @param parentCategory The parent category, or <code>null</code>
+	 * @return an IU representing the category
+	 */
+	public static IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
+		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
+		cat.setSingleton(true);
+		cat.setId(category.getName());
+		cat.setVersion(Version.emptyVersion);
+		cat.setProperty(IInstallableUnit.PROP_NAME, category.getLabel());
+		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
+
+		ArrayList reqsConfigurationUnits = new ArrayList(featureIUs.size());
+		for (Iterator iterator = featureIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), range, iu.getFilter(), false, false));
+		}
+		//note that update sites don't currently support nested categories, but it may be useful to add in the future
+		if (parentCategory != null) {
+			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
+		}
+		cat.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
+		cat.setCapabilities(new ProvidedCapability[] {new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, category.getName(), Version.emptyVersion)});
+		cat.setApplicabilityFilter(""); //$NON-NLS-1$
+		cat.setArtifacts(new IArtifactKey[0]);
+		cat.setProperty(IInstallableUnit.PROP_CATEGORY_IU, "true"); //$NON-NLS-1$
+		return MetadataFactory.createInstallableUnit(cat);
+	}
+
 	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
 		if (configInfo == null)
-			return "";
+			return ""; //$NON-NLS-1$
 
 		String configScript = "";//$NON-NLS-1$
 		if (!isBundleFragment && configInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-			configScript += "setStartLevel(startLevel:" + configInfo.getStartLevel() + ");";
+			configScript += "setStartLevel(startLevel:" + configInfo.getStartLevel() + ");"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (!isBundleFragment && configInfo.isMarkedAsStarted()) {
-			configScript += "markStarted(started: true);";
+			configScript += "markStarted(started: true);"; //$NON-NLS-1$
 		}
 
 		if (configInfo.getSpecialConfigCommands() != null) {

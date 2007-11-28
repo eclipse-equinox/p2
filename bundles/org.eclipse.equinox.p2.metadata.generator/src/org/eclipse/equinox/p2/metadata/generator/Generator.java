@@ -9,14 +9,14 @@
 package org.eclipse.equinox.p2.metadata.generator;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.*;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
-import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.*;
@@ -159,6 +159,18 @@ public class Generator {
 				IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bd, (Map) bd.getUserObject(), isDir, key);
 				resultantIUs.add(iu);
 			}
+		}
+	}
+
+	/**
+	 * Generates IUs corresponding to update site categories.
+	 * @param categoriesToFeatures Map of SiteCategory ->Set (Feature IUs in that category).
+	 * @param resultantIUs The set where any generated IUs should be placed
+	 */
+	protected void generateCategoryIUs(Map categoriesToFeatures, Set resultantIUs) {
+		for (Iterator it = categoriesToFeatures.keySet().iterator(); it.hasNext();) {
+			SiteCategory category = (SiteCategory) it.next();
+			resultantIUs.add(MetadataGeneratorHelper.createCategoryIU(category, (Set) categoriesToFeatures.get(category), null));
 		}
 	}
 
@@ -307,10 +319,27 @@ public class Generator {
 	}
 
 	protected void generateFeatureIUs(Feature[] features, Set resultantIUs) {
+		Map categoriesToFeatureIUs = new HashMap();
+		Map featureIdsToCategories = getFeatureToCategoryMappings();
+		//Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
-			resultantIUs.add(MetadataGeneratorHelper.createGroupIU(feature));
+			IInstallableUnit generated = MetadataGeneratorHelper.createGroupIU(feature);
+			resultantIUs.add(generated);
+			Set categories = (Set) featureIdsToCategories.get(feature.getId());
+			if (categories != null) {
+				for (Iterator it = categories.iterator(); it.hasNext();) {
+					SiteCategory category = (SiteCategory) it.next();
+					Set featureIUs = (Set) categoriesToFeatureIUs.get(category);
+					if (featureIUs == null) {
+						featureIUs = new HashSet();
+						categoriesToFeatureIUs.put(category, featureIUs);
+					}
+					featureIUs.add(generated);
+				}
+			}
 		}
+		generateCategoryIUs(categoriesToFeatureIUs, resultantIUs);
 	}
 
 	protected void generateNativeIUs(File executableLocation, Set resultantIUs, IArtifactRepository destination) {
@@ -380,6 +409,45 @@ public class Generator {
 				result.add(feature);
 		}
 		return (Feature[]) result.toArray(new Feature[result.size()]);
+	}
+
+	/**
+	 * Computes the mapping of features to categories as defined in the site.xml,
+	 * if available. Returns an empty map if there is not site.xml, or no categories.
+	 * @return A map of String(feature id) -> Set<SiteCategory>.
+	 */
+	protected Map getFeatureToCategoryMappings() {
+		HashMap mappings = new HashMap();
+		URL siteLocation = info.getSiteLocation();
+		if (siteLocation == null)
+			return mappings;
+		InputStream input;
+		SiteModel site = null;
+		try {
+			input = new BufferedInputStream(siteLocation.openStream());
+			site = new DefaultSiteParser().parse(input);
+		} catch (Exception e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing update site: " + siteLocation, e)); //$NON-NLS-1$
+		}
+		if (site == null)
+			return mappings;
+		SiteFeature[] features = site.getFeatures();
+		for (int i = 0; i < features.length; i++) {
+			//add a mapping for each category this feature belongs to
+			String[] categoryNames = features[i].getCategoryNames();
+			for (int j = 0; j < categoryNames.length; j++) {
+				SiteCategory category = site.getCategory(categoryNames[j]);
+				if (category != null) {
+					Set categories = (Set) mappings.get(features[i].getFeatureIdentifier());
+					if (categories == null) {
+						categories = new HashSet();
+						mappings.put(features[i].getFeatureIdentifier(), categories);
+					}
+					categories.add(category);
+				}
+			}
+		}
+		return mappings;
 	}
 
 	protected IGeneratorInfo getGeneratorInfo() {

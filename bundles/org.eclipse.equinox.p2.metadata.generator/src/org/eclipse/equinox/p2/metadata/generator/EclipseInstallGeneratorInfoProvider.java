@@ -12,6 +12,8 @@ package org.eclipse.equinox.p2.metadata.generator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -53,6 +55,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private boolean publishArtifacts = false;
 	private String rootId;
 	private String rootVersion;
+	private URL siteLocation;
 
 	/**
 	 * Returns a default name for the executable.
@@ -268,6 +271,17 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return rootVersion;
 	}
 
+	public URL getSiteLocation() {
+		//TODO: hard-code the Eclipse update site for now
+		if (siteLocation == null)
+			try {
+				return new URL("http://download.eclipse.org/eclipse/updates/3.3/site.xml"); //$NON-NLS-1$
+			} catch (MalformedURLException e) {
+				return null;
+			}
+		return siteLocation;
+	}
+
 	public void initialize(File base) {
 		initialize(base, new File(base, "configuration"), new File(base, getDefaultExecutableName()), new File[] {new File(base, "plugins")}, new File(base, "features"));
 	}
@@ -365,5 +379,12 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	public void setRootVersion(String value) {
 		rootVersion = value;
+	}
+
+	/**
+	 * Sets the location of site.xml if applicable.
+	 */
+	public void setSiteLocation(URL location) {
+		this.siteLocation = location;
 	}
 }
