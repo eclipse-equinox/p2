@@ -85,8 +85,8 @@ public class GCActivator implements BundleActivator {
 	}
 
 	public void stop(BundleContext inContext) throws Exception {
-		GCActivator.context = null;
 		unregisterGCTrigger();
+		GCActivator.context = null;
 	}
 
 	public static BundleContext getContext() {
