@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.p2.engine.Touchpoint;
 import org.eclipse.equinox.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.p2.engine.Touchpoint;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 
 /**
@@ -35,7 +35,7 @@ public class NullTouchpoint extends Touchpoint {
 	}
 
 	public boolean supports(String phaseId) {
-		if (phaseId.equals("install") || phaseId.equals("uninstall"))
+		if (phaseId.equals("install") || phaseId.equals("uninstall")) //$NON-NLS-1$ //$NON-NLS-2$
 			return true;
 		return false;
 	}

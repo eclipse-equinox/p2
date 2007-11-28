@@ -52,7 +52,7 @@ public class InstructionParser {
 			action = touchpoint.getAction(actionId);
 
 		if (action == null)
-			throw new IllegalArgumentException("No action found for " + actionId + "."); //$NON-NLS-2$
+			throw new IllegalArgumentException("No action found for " + actionId + '.'); //$NON-NLS-1$
 
 		return action;
 	}
