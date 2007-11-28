@@ -5,10 +5,16 @@
 			class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.EclipseTouchpoint"
 			version="1.0.0"/>
 	</extension>
- <extension id="bundlePool"
+  <extension id="bundlePool"
        point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
     <factory
           class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.BundlePoolFactory">
     </factory>
  </extension>
-</plugin>
+	<extension
+			point="org.eclipse.equinox.p2.garbagecollector.marksetproviders"
+			id="EclipseTouchpoint">
+			<run 
+				class="org.eclipse.equinox.internal.p2.touchpoint.eclipse.MarkSetProvider"/>
+	</extension>
+	</plugin>
