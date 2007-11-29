@@ -14,8 +14,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.TouchpointData;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class Phase {
@@ -72,10 +71,13 @@ public abstract class Phase {
 	void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
 		touchpointToTouchpointParameters = new HashMap();
 		for (int i = 0; i < operands.length; i++) {
-			Touchpoint touchpoint = getTouchpoint(operands[i]);
-			if (touchpoint == null)
-				continue;
-
+			TouchpointType type = getTouchpointType(operands[i]);
+			Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(type);
+			//abort the entire phase if any required touchpoint is missing
+			if (touchpoint == null) {
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.TouchpointManager_Required_Touchpoint_Not_Found, type), null));
+				return;
+			}
 			if (!touchpointToTouchpointParameters.containsKey(touchpoint)) {
 				touchpointToTouchpointParameters.put(touchpoint, null);
 			}
@@ -234,19 +236,26 @@ public abstract class Phase {
 
 	protected abstract ProvisioningAction[] getActions(Operand currentOperand);
 
+	/**
+	 * Returns the touchpoint corresponding to the operand, or null if no corresponding
+	 * touchpoint is available.
+	 */
 	protected static Touchpoint getTouchpoint(Operand operand) {
+		return TouchpointManager.getInstance().getTouchpoint(getTouchpointType(operand));
+	}
+
+	/**
+	 * Returns the touchpoint type corresponding to the operand. Never returns null.
+	 */
+	protected static TouchpointType getTouchpointType(Operand operand) {
 		IInstallableUnit unit = operand.second();
 		if (unit == null)
 			unit = operand.first();
-		if (unit == null)
-			return null;
-		return getTouchpoint(unit);
+		return unit.getTouchpointType();
 	}
 
 	private static Touchpoint getTouchpoint(IInstallableUnit unit) {
-		TouchpointManager touchpointManager = TouchpointManager.getInstance();
-		Touchpoint touchpoint = touchpointManager.getTouchpoint(unit.getTouchpointType());
-		return touchpoint;
+		return TouchpointManager.getInstance().getTouchpoint(unit.getTouchpointType());
 	}
 
 	private static String[] getInstructionsFor(IInstallableUnit unit, String key) {
