@@ -53,10 +53,10 @@ public class InstallDialog extends UpdateInstallDialog {
 		return ProvUIMessages.InstallIUOperationLabel;
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements) {
+	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
 			IInstallableUnit[] selected = elementsToIUs(selectedElements);
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, profile, null);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, profile, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new InstallOperation(getOperationLabel(), profile.getProfileId(), plan, selected);

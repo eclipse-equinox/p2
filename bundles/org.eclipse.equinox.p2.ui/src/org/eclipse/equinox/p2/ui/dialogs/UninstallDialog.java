@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -27,9 +28,9 @@ public class UninstallDialog extends ProfileModificationDialog {
 		super(parentShell, ius, profile, ProvUIMessages.UninstallIUOperationLabel, ProvUIMessages.UninstallDialog_UninstallMessage);
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements) {
+	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(elementsToIUs(selectedElements), profile, null);
+			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(elementsToIUs(selectedElements), profile, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new ProfileModificationOperation(ProvUIMessages.UninstallIUOperationLabel, profile.getProfileId(), plan);

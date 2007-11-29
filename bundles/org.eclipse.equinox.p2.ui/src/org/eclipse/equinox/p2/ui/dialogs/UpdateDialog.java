@@ -84,9 +84,9 @@ public class UpdateDialog extends UpdateInstallDialog {
 		return ProvUIMessages.UpdateIUOperationLabel;
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements) {
+	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), profile, null);
+			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), profile, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new ProfileModificationOperation(getOperationLabel(), profile.getProfileId(), plan);

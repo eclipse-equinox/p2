@@ -168,11 +168,25 @@ abstract class ProfileModificationDialog extends TrayDialog {
 	}
 
 	protected void okPressed() {
-		ProvisioningOperationRunner.schedule(createProfileModificationOperation(getSelectedElements()), getShell());
+
+		final ProfileModificationOperation[] op = new ProfileModificationOperation[1];
+		try {
+			final Object[] selections = getSelectedElements();
+			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+				public void run(IProgressMonitor monitor) {
+					op[0] = createProfileModificationOperation(selections, monitor);
+				}
+			});
+			ProvisioningOperationRunner.schedule(op[0], getShell());
+		} catch (InterruptedException e) {
+			// don't report thread interruption
+		} catch (InvocationTargetException e) {
+			ProvUI.handleException(e.getCause(), null);
+		}
 		super.okPressed();
 	}
 
-	private Object[] getSelectedElements() {
+	Object[] getSelectedElements() {
 		return listViewer.getCheckedElements();
 	}
 
@@ -184,7 +198,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		return theIUs;
 	}
 
-	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements);
+	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor);
 
 	protected abstract String getOkButtonString();
 
