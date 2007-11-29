@@ -102,7 +102,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
+	public synchronized IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
 		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
 			// look for a descriptor that matches the key and is "complete"
@@ -112,7 +112,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return null;
 	}
 
-	public String getLocation(IArtifactDescriptor descriptor) {
+	public synchronized String getLocation(IArtifactDescriptor descriptor) {
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
@@ -130,7 +130,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return null;
 	}
 
-	public String createLocation(ArtifactDescriptor descriptor) {
+	public synchronized String createLocation(ArtifactDescriptor descriptor) {
 		// if the descriptor is canonical, clear out any UUID that might be set and use the Mapper
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
@@ -171,7 +171,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return bytes;
 	}
 
-	public IArtifactKey[] getArtifactKeys() {
+	public synchronized IArtifactKey[] getArtifactKeys() {
 		// there may be more descriptors than keys to collect up the unique keys
 		HashSet result = new HashSet(artifactDescriptors.size());
 		for (Iterator it = artifactDescriptors.iterator(); it.hasNext();)
@@ -200,7 +200,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ProcessingStepHandler handler = new ProcessingStepHandler();
 		destination = processDestination(handler, descriptor, destination, monitor);
-		IStatus status = handler.checkStatus(destination);
+		IStatus status = ProcessingStepHandler.checkStatus(destination);
 		if (!status.isOK() && status.getSeverity() != IStatus.INFO)
 			return status;
 
@@ -245,7 +245,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return getTransport().download(toDownload, destination, monitor);
 	}
 
-	private OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList steps = new ArrayList();
 		if (signatureVerification)
 			steps.add(new SignatureVerifier());
@@ -272,7 +272,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return ECFTransport.getInstance();
 	}
 
-	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
 		ArrayList result = new ArrayList();
 		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
@@ -320,7 +320,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public void addDescriptor(IArtifactDescriptor toAdd) {
+	public synchronized void addDescriptor(IArtifactDescriptor toAdd) {
 		// TODO perhaps the argument here should be ArtifactDescriptor.  IArtifactDescriptos are for 
 		// people who are reading the repo.
 		// TODO: here we may want to ensure that the artifact has not been added concurrently
@@ -349,15 +349,16 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// create a copy of the original descriptor that we can manipulate
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
 		// Determine writing location
-		String location = createLocation(newDescriptor);
-		if (location == null)
+		String newLocation = createLocation(newDescriptor);
+		if (newLocation == null)
 			// TODO: Log an error, or throw an exception?
 			return null;
 		String file = null;
 		try {
-			file = new URL(location).getFile();
+			file = new URL(newLocation).getFile();
 		} catch (MalformedURLException e1) {
 			// This should not happen
+			Assert.isTrue(false, "Unexpected failure: " + e1); //$NON-NLS-1$
 		}
 
 		// TODO at this point we have to assume that the repo is file-based.  Eventually 
@@ -380,11 +381,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return null;
 	}
 
-	public boolean contains(IArtifactDescriptor descriptor) {
+	public synchronized boolean contains(IArtifactDescriptor descriptor) {
 		return artifactDescriptors.contains(descriptor);
 	}
 
-	public boolean contains(IArtifactKey key) {
+	public synchronized boolean contains(IArtifactKey key) {
 		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
 			if (descriptor.getArtifactKey().equals(key))
@@ -393,15 +394,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return false;
 	}
 
-	public Set getDescriptors() {
+	public synchronized Set getDescriptors() {
 		return artifactDescriptors;
 	}
 
-	public String[][] getRules() {
+	public synchronized String[][] getRules() {
 		return mappingRules;
 	}
 
-	public void setRules(String[][] rules) {
+	public synchronized void setRules(String[][] rules) {
 		mappingRules = rules;
 	}
 
@@ -438,7 +439,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public void removeAll() {
+	public synchronized void removeAll() {
 		IArtifactDescriptor[] toRemove = (IArtifactDescriptor[]) artifactDescriptors.toArray(new IArtifactDescriptor[artifactDescriptors.size()]);
 		boolean changed = false;
 		for (int i = 0; i < toRemove.length; i++)
@@ -447,12 +448,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			save();
 	}
 
-	public void removeDescriptor(IArtifactDescriptor descriptor) {
+	public synchronized void removeDescriptor(IArtifactDescriptor descriptor) {
 		if (doRemoveArtifact(descriptor))
 			save();
 	}
 
-	public void removeDescriptor(IArtifactKey key) {
+	public synchronized void removeDescriptor(IArtifactKey key) {
 		IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
 		boolean changed = false;
 		for (int i = 0; i < toRemove.length; i++)
@@ -462,7 +463,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public void initializeAfterLoad(URL location) {
+	public synchronized void initializeAfterLoad(URL location) {
 		this.location = location;
 		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
 		if (mapper == null)
@@ -473,11 +474,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public boolean getSignatureVerification() {
+	public synchronized boolean getSignatureVerification() {
 		return signatureVerification;
 	}
 
-	public void setSignatureVerification(boolean value) {
+	public synchronized void setSignatureVerification(boolean value) {
 		signatureVerification = value;
 	}
 
