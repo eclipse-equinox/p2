@@ -89,7 +89,7 @@ public class BasicLocation implements AgentLocation {
 		return defaultValue;
 	}
 
-	public Location getParentLocation() {
+	public synchronized Location getParentLocation() {
 		return parent;
 	}
 
