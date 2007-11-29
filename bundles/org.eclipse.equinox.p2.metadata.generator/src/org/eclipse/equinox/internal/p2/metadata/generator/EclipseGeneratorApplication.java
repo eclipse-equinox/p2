@@ -224,6 +224,9 @@ public class EclipseGeneratorApplication implements IApplication {
 
 			if (args[i - 1].equalsIgnoreCase("-p2.os"))
 				provider.setOS(arg);
+
+			if (args[i - 1].equalsIgnoreCase("-site"))
+				provider.setSiteLocation(new URL(arg));
 		}
 	}
 
