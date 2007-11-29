@@ -79,7 +79,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 			return;
 		if (this.configApplier == null)
 			configApplier = new ConfigApplier(context, this);
-		configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), isExclusiveInstallation());
+		configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), url, isExclusiveInstallation());
 	}
 
 	private boolean isExclusiveInstallation() {

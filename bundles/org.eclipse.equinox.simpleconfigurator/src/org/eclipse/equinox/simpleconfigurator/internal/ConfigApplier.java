@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.simpleconfigurator.internal;
 
+import java.io.*;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.*;
@@ -38,12 +40,26 @@ class ConfigApplier {
 
 	}
 
-	void install(BundleInfo[] expectedState, boolean uninstall) {
+	void install(BundleInfo[] expectedState, URL url, boolean exclusiveMode) {
+		HashSet toUninstall = null;
+		if (!exclusiveMode) {
+			BundleInfo[] lastInstalledBundles = getLastState();
+			if (lastInstalledBundles != null) {
+				toUninstall = new HashSet(Arrays.asList(lastInstalledBundles));
+				toUninstall.removeAll(Arrays.asList(expectedState));
+			}
+			saveStateAsLast(url);
+		}
+
 		Collection toRefresh = new ArrayList();
 		Collection toStart = new ArrayList();
-		toRefresh.addAll(installBundles(expectedState, toStart));
-		if (uninstall)
+		if (exclusiveMode) {
+			toRefresh.addAll(installBundles(expectedState, toStart));
 			toRefresh.addAll(uninstallBundles(expectedState, adminService));
+		} else {
+			toRefresh.addAll(installBundles(expectedState, toStart));
+			toRefresh.addAll(uninstallBundles(toUninstall));
+		}
 		refreshPackages((Bundle[]) toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
 		//if time stamps are the same
@@ -53,6 +69,50 @@ class ConfigApplier {
 		//  force the list in the fwk
 		//else
 		//  discover bundles in folders and force the list in the fwk
+	}
+
+	private Collection uninstallBundles(HashSet toUninstall) {
+		Collection removedBundles = new ArrayList(toUninstall.size());
+		for (Iterator iterator = toUninstall.iterator(); iterator.hasNext();) {
+			BundleInfo current = (BundleInfo) iterator.next();
+			Bundle[] toAdd = adminService.getBundles(current.getSymbolicName(), current.getVersion());
+			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
+				removedBundles.remove(toAdd[j]);
+			}
+		}
+		return removedBundles;
+	}
+
+	private void saveStateAsLast(URL url) {
+		InputStream sourceStream = null;
+		OutputStream destinationStream = null;
+
+		File lastBundlesTxt = manipulatingContext.getDataFile("last.bundles.txt");
+		try {
+			try {
+				destinationStream = new FileOutputStream(lastBundlesTxt);
+				sourceStream = url.openStream();
+				SimpleConfiguratorUtils.transferStreams(sourceStream, destinationStream);
+			} finally {
+				if (destinationStream != null)
+					destinationStream.close();
+				if (sourceStream != null)
+					sourceStream.close();
+			}
+		} catch (IOException e) {
+			//nothing
+		}
+	}
+
+	private BundleInfo[] getLastState() {
+		File lastBundlesTxt = manipulatingContext.getDataFile("last.bundles.txt");
+		if (!lastBundlesTxt.isFile())
+			return null;
+		try {
+			return (BundleInfo[]) SimpleConfiguratorUtils.readConfiguration(lastBundlesTxt.toURL()).toArray(new BundleInfo[1]);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	private ArrayList installBundles(BundleInfo[] finalList, Collection toStart) {
@@ -201,26 +261,25 @@ class ConfigApplier {
 	 */
 	private Collection uninstallBundles(BundleInfo[] finalList, PackageAdmin adminService) {
 		Bundle[] allBundles = manipulatingContext.getBundles();
-		//	String symbolicNameSystem = manipulatingContext.getBundle(0).getSymbolicName();
 
 		//Build a set with all the bundles from the system
-		Set installedBundles = new HashSet(allBundles.length);
+		Set removedBundles = new HashSet(allBundles.length);
 		//		configurator.setPrerequisiteBundles(allBundles);
 		for (int i = 0; i < allBundles.length; i++) {
 			if (allBundles[i].getBundleId() == 0)
 				continue;
-			installedBundles.add(allBundles[i]);
+			removedBundles.add(allBundles[i]);
 		}
 
 		//Remove all the bundles appearing in the final list from the set of installed bundles
 		for (int i = 0; i < finalList.length; i++) {
 			Bundle[] toAdd = adminService.getBundles(finalList[i].getSymbolicName(), finalList[i].getVersion());
 			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
-				installedBundles.remove(toAdd[j]);
+				removedBundles.remove(toAdd[j]);
 			}
 		}
 
-		for (Iterator iter = installedBundles.iterator(); iter.hasNext();) {
+		for (Iterator iter = removedBundles.iterator(); iter.hasNext();) {
 			try {
 				Bundle bundle = ((Bundle) iter.next());
 				bundle.uninstall();
@@ -232,7 +291,6 @@ class ConfigApplier {
 			}
 		}
 
-		return installedBundles;
+		return removedBundles;
 	}
-
 }
