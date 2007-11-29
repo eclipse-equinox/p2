@@ -102,7 +102,7 @@ public class GarbageCollector {
 	}
 
 	private void traverseRegisteredProfiles() {
-		IExtensionRegistry registry = Platform.getExtensionRegistry();
+		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
 		for (int i = 0; i < configElts.length; i++) {
 			if (!(configElts[i].getName().equals("run"))) { //$NON-NLS-1$
