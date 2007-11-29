@@ -61,7 +61,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			if (elements[i].getName().equals(element))
 				return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
 		}
-		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "Malformed extension"));
+		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "Malformed extension")); //$NON-NLS-1$
 	}
 
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination) {
@@ -249,11 +249,14 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			String url = child.get(KEY_URL, null);
 			if (url == null)
 				continue;
+			String type = child.get(KEY_TYPE, null);
 			try {
-				IArtifactRepository repository = loadRepository(new URL(url), (IProgressMonitor) null);
+				IArtifactRepository repository = restoreRepository(new URL(url), type);
 				// If we could not restore the repo then remove it from the preferences.
 				if (repository == null)
 					child.removeNode();
+				else
+					repositories.add(repository);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + url, e); //$NON-NLS-1$
 			} catch (BackingStoreException e) {
@@ -287,6 +290,30 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		}
 		// restore the persisted list of repositories
 		restoreFromPreferences();
+	}
+
+	private IArtifactRepository restoreRepository(URL location, String type) {
+		if (getRepository(location) != null) {
+			//already restored
+			return null;
+		}
+
+		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
+		if (extension == null) {
+			// TODO: remove next milestone or otherwise the next time we need a metadata format change 
+			// this is to allow us to get away with missing or bad types in older artifact repos
+			return loadRepository(location, "artifacts.xml"); //$NON-NLS-1$
+		}
+
+		IArtifactRepositoryFactory factory = null;
+		try {
+			factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+		} catch (CoreException e) {
+			log("Failed to restore artifact repository extension: " + location, e); //$NON-NLS-1$
+		}
+		if (factory == null)
+			return null;
+		return factory.load(location);
 	}
 
 	/*

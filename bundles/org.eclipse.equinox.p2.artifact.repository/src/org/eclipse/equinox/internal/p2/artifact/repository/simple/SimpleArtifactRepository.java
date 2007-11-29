@@ -25,7 +25,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
 	static final private String CONTENT_FILENAME = "artifacts.xml"; //$NON-NLS-1$
-	static final private String REPOSITORY_TYPE = SimpleArtifactRepository.class.getName();
+	static final private String REPOSITORY_TYPE = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final public String[][] DEFAULT_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
