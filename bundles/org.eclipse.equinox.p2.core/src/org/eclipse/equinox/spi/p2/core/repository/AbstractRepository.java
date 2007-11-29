@@ -47,7 +47,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns the name of the repository.
 	 * @return the name of the repository.
 	 */
-	public String getName() {
+	public synchronized String getName() {
 		return name;
 	}
 
@@ -81,7 +81,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns a brief description of the repository.
 	 * @return the description of the repository.
 	 */
-	public String getDescription() {
+	public synchronized String getDescription() {
 		return description;
 	}
 
@@ -89,7 +89,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns the name of the provider of the repository.
 	 * @return the provider of this repository.
 	 */
-	public String getProvider() {
+	public synchronized String getProvider() {
 		return provider;
 	}
 
@@ -101,15 +101,15 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
-	public void setName(String value) {
-		name = value;
+	public synchronized void setName(String value) {
+		this.name = value;
 	}
 
-	public void setDescription(String description) {
+	public synchronized void setDescription(String description) {
 		this.description = description;
 	}
 
-	public void setProvider(String provider) {
+	public synchronized void setProvider(String provider) {
 		this.provider = provider;
 	}
 
