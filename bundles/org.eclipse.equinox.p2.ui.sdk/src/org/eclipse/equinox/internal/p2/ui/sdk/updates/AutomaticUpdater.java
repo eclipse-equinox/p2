@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
@@ -37,7 +38,6 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	public AutomaticUpdater() {
 		prefs = ProvSDKUIActivator.getDefault().getPluginPreferences();
-
 	}
 
 	public void updatesAvailable(final UpdateEvent event) {
@@ -57,7 +57,7 @@ public class AutomaticUpdater implements IUpdateListener {
 							if (status.isOK()) {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 									public void run() {
-										new AutomaticUpdatesPopup(toUpdate, event.getProfile(), true).open();
+										new AutomaticUpdatesPopup(toUpdate, event.getProfile(), true, prefs).open();
 									}
 								});
 							} else if (status.getSeverity() != IStatus.CANCEL) {
@@ -69,7 +69,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			} else {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					public void run() {
-						new AutomaticUpdatesPopup(toUpdate, event.getProfile(), false).open();
+						new AutomaticUpdatesPopup(toUpdate, event.getProfile(), false, prefs).open();
 					}
 				});
 			}
@@ -93,7 +93,12 @@ public class AutomaticUpdater implements IUpdateListener {
 				return result;
 			}
 		};
-		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(null, IProvElementQueryProvider.AVAILABLE_UPDATES);
-		return (IInstallableUnit[]) rootQueryable.query(descriptor.query, descriptor.result, null).toArray(IInstallableUnit.class);
+		ProfileElement element = new ProfileElement(event.getProfile());
+		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(element, IProvElementQueryProvider.AVAILABLE_UPDATES);
+		Object[] elements = rootQueryable.query(descriptor.query, descriptor.result, null).toArray(Object.class);
+		IInstallableUnit[] result = new IInstallableUnit[elements.length];
+		for (int i = 0; i < result.length; i++)
+			result[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
+		return result;
 	}
 }

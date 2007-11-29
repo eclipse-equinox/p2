@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.osgi.service.prefs.Preferences;
 
 /**
@@ -27,9 +28,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		node.putBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, false);
 		node.put(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		node.putBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY, false);
+		node.putBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
 		node.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true);
 		node.putBoolean(PreferenceConstants.PREF_ENABLE_GC, false);
 		node.putBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY, true);
+		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, ProvSDKMessages.AutomaticUpdateScheduler_5Minutes);
 	}
 
 }

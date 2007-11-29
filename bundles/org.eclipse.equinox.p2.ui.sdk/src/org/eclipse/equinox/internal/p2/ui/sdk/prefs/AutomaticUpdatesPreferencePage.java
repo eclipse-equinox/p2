@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
+import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdatesPopup;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
@@ -26,15 +27,14 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
 public class AutomaticUpdatesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private Button enabledCheck;
-	private Button onStartupRadio;
-	private Button onScheduleRadio;
+	private Button onStartupRadio, onScheduleRadio;
 	private Combo dayCombo;
 	private Label atLabel;
 	private Combo hourCombo;
-	private Button searchOnlyRadio;
-	private Button searchAndDownloadRadio;
-	private Group updateScheduleGroup;
-	private Group downloadGroup;
+	private Button searchOnlyRadio, searchAndDownloadRadio;
+	private Button remindOnceRadio, remindScheduleRadio;
+	private Combo remindElapseCombo;
+	private Group updateScheduleGroup, downloadGroup, remindGroup;
 
 	public void init(IWorkbench workbench) {
 		// nothing to init
@@ -129,6 +129,46 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 			}
 		});
 
+		createSpacer(container, 1);
+
+		remindGroup = new Group(container, SWT.NONE);
+		remindGroup.setText(ProvSDKMessages.AutomaticUpdatesPreferencePage_RemindGroup);
+		layout = new GridLayout();
+		layout.numColumns = 3;
+		remindGroup.setLayout(layout);
+		gd = new GridData(GridData.FILL_HORIZONTAL);
+		remindGroup.setLayoutData(gd);
+
+		remindOnceRadio = new Button(remindGroup, SWT.RADIO);
+		remindOnceRadio.setText(ProvSDKMessages.AutomaticUpdatesPreferencePage_RemindOnce);
+		gd = new GridData();
+		gd.horizontalSpan = 3;
+		remindOnceRadio.setLayoutData(gd);
+		remindOnceRadio.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				pageChanged();
+			}
+		});
+
+		remindScheduleRadio = new Button(remindGroup, SWT.RADIO);
+		remindScheduleRadio.setText(ProvSDKMessages.AutomaticUpdatesPreferencePage_RemindSchedule);
+		gd = new GridData();
+		gd.horizontalSpan = 3;
+		remindScheduleRadio.setLayoutData(gd);
+		remindScheduleRadio.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				pageChanged();
+			}
+		});
+
+		remindElapseCombo = new Combo(remindGroup, SWT.READ_ONLY);
+		remindElapseCombo.setItems(AutomaticUpdatesPopup.ELAPSED);
+
+		gd = new GridData();
+		gd.widthHint = 200;
+		gd.horizontalIndent = 30;
+		remindElapseCombo.setLayoutData(gd);
+
 		initialize();
 
 		enabledCheck.addSelectionListener(new SelectionAdapter() {
@@ -156,6 +196,9 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref, false)]);
 		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref, false)]);
 
+		remindScheduleRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindOnceRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindElapseCombo.setText(pref.getString(PreferenceConstants.PREF_REMIND_ELAPSED));
 		searchOnlyRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 
@@ -180,6 +223,10 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		downloadGroup.setEnabled(master);
 		searchOnlyRadio.setEnabled(master);
 		searchAndDownloadRadio.setEnabled(master);
+		remindGroup.setEnabled(master);
+		remindScheduleRadio.setEnabled(master);
+		remindOnceRadio.setEnabled(master);
+		remindElapseCombo.setEnabled(master && remindScheduleRadio.getSelection());
 	}
 
 	protected void performDefaults() {
@@ -192,6 +239,10 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 
 		dayCombo.setText(AutomaticUpdateScheduler.DAYS[getDay(pref, true)]);
 		hourCombo.setText(AutomaticUpdateScheduler.HOURS[getHour(pref, true)]);
+
+		remindOnceRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindScheduleRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE));
+		remindElapseCombo.setText(pref.getDefaultString(PreferenceConstants.PREF_REMIND_ELAPSED));
 
 		searchOnlyRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
 		searchAndDownloadRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY));
@@ -209,6 +260,11 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_STARTUP);
 		else
 			pref.setValue(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE, PreferenceConstants.PREF_UPDATE_ON_SCHEDULE);
+
+		if (remindScheduleRadio.getSelection()) {
+			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
+			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED, remindElapseCombo.getText());
+		}
 
 		pref.setValue(AutomaticUpdateScheduler.P_DAY, dayCombo.getText());
 		pref.setValue(AutomaticUpdateScheduler.P_HOUR, hourCombo.getText());

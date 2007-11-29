@@ -21,6 +21,8 @@ public class PreferenceConstants {
 	public static final String PREF_UPDATE_ON_STARTUP = "on-startup"; //$NON-NLS-1$
 	public static final String PREF_UPDATE_ON_SCHEDULE = "on-schedule"; //$NON-NLS-1$
 	public static final String PREF_DOWNLOAD_ONLY = "download"; // value is true or false, default is false //$NON-NLS-1$
+	public static final String PREF_REMIND_SCHEDULE = "remindOnSchedule"; // value is true or false //$NON-NLS-1$
+	public static final String PREF_REMIND_ELAPSED = "remindElapsedTime"; // string value defined in AutomaticUpdateScheduler //$NON-NLS-1$
 	public static final String PREF_SHOW_LATEST_VERSION = "showLatestVersion"; //$NON-NLS-1$
 	public static final String PREF_ENABLE_GC = "enableArtifactGC"; //$NON-NLS-1$
 	public static final String PREF_GC_IMMEDIATELY = "gcUnusedFilesImmediately"; //$NON-NLS-1$

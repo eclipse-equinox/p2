@@ -74,7 +74,13 @@ public class ProvSDKMessages extends NLS {
 	public static String SchedulerStartup_11PM;
 	public static String SchedulerStartup_12AM;
 	public static String AutomaticUpdatesJob_AutomaticUpdateSearch;
+	public static String AutomaticUpdatesPopup_RemindAndPrefLink;
+	public static String AutomaticUpdatesPopup_ReminderJobTitle;
 	public static String AutomaticUpdatesPreferencePage_findUpdates;
+	public static String AutomaticUpdateScheduler_15Minutes;
+	public static String AutomaticUpdateScheduler_30Minutes;
+	public static String AutomaticUpdateScheduler_5Minutes;
+	public static String AutomaticUpdateScheduler_60Minutes;
 	public static String AutomaticUpdateScheduler_UpdateNotInitialized;
 	public static String AutomaticUpdatesDialog_DownloadedNotification;
 	public static String AutomaticUpdatesDialog_UpdatesAvailableTitle;
@@ -87,6 +93,9 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesPreferencePage_searchAndNotify;
 	public static String AutomaticUpdatesPreferencePage_downloadAndNotify;
 	public static String AutomaticUpdatesPreferencePage_at;
+	public static String AutomaticUpdatesPreferencePage_RemindGroup;
+	public static String AutomaticUpdatesPreferencePage_RemindSchedule;
+	public static String AutomaticUpdatesPreferencePage_RemindOnce;
 	public static String AutomaticUpdatesJob_Updates;
 	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
 	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
