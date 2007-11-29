@@ -58,7 +58,8 @@ class ConfigApplier {
 			toRefresh.addAll(uninstallBundles(expectedState, adminService));
 		} else {
 			toRefresh.addAll(installBundles(expectedState, toStart));
-			toRefresh.addAll(uninstallBundles(toUninstall));
+			if (toUninstall != null)
+				toRefresh.addAll(uninstallBundles(toUninstall));
 		}
 		refreshPackages((Bundle[]) toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
