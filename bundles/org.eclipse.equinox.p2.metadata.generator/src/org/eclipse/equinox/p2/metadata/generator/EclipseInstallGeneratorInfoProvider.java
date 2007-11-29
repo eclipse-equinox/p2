@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.metadata.generator;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.frameworkadmin.*;
@@ -272,13 +271,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public URL getSiteLocation() {
-		//TODO: hard-code the Eclipse update site for now
-		if (siteLocation == null)
-			try {
-				return new URL("http://download.eclipse.org/eclipse/updates/3.3/site.xml"); //$NON-NLS-1$
-			} catch (MalformedURLException e) {
-				return null;
-			}
 		return siteLocation;
 	}
 
