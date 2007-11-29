@@ -64,12 +64,12 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 						return new ElementQueryDescriptor(element.getQueryable(), categoryQuery, new CategoryElementCollector(this, element.getQueryable(), false));
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), groupQuery, showLatest ? new LatestIUVersionCollector(this, element.getQueryable()) : new QueriedElementCollector(this, element.getQueryable()));
+						return new ElementQueryDescriptor(element.getQueryable(), groupQuery, showLatest ? new LatestIUVersionCollector(this, element.getQueryable(), false) : new AvailableIUCollector(this, element.getQueryable(), false));
 					if (showLatest)
 						// We are not querying groups, but we are showing the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), allQuery, new LatestIUVersionCollector(this, element.getQueryable()));
+						return new ElementQueryDescriptor(element.getQueryable(), allQuery, new LatestIUVersionCollector(this, element.getQueryable(), false));
 					// Show 'em all!
-					return new ElementQueryDescriptor(element.getQueryable(), allQuery, new AvailableIUCollector(this, element.getQueryable()));
+					return new ElementQueryDescriptor(element.getQueryable(), allQuery, new AvailableIUCollector(this, element.getQueryable(), false));
 				}
 				// Things have been grouped by category, now what?
 				if (element instanceof CategoryElement) {
@@ -81,12 +81,12 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionCollector(this, element.getQueryable()) : new Collector());
+						return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionCollector(this, element.getQueryable(), true) : new AvailableIUCollector(this, element.getQueryable(), true));
 					if (showLatest)
 						// We are not querying groups, but we are showing the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), membersOfCategoryQuery, new LatestIUVersionCollector(this, element.getQueryable()));
+						return new ElementQueryDescriptor(element.getQueryable(), membersOfCategoryQuery, new LatestIUVersionCollector(this, element.getQueryable(), true));
 					// Show 'em all!
-					return new ElementQueryDescriptor(element.getQueryable(), membersOfCategoryQuery, new AvailableIUCollector(this, element.getQueryable()));
+					return new ElementQueryDescriptor(element.getQueryable(), membersOfCategoryQuery, new AvailableIUCollector(this, element.getQueryable(), true));
 				}
 				// We've already collapsed all versions, show the rest
 				if (element instanceof IUVersionsElement) {

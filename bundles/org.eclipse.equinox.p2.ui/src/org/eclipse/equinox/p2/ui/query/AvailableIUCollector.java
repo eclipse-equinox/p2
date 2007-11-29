@@ -24,8 +24,11 @@ import org.eclipse.equinox.p2.ui.model.CategoryElement;
  */
 public class AvailableIUCollector extends QueriedElementCollector {
 
-	public AvailableIUCollector(IProvElementQueryProvider queryProvider, IQueryable queryable) {
+	private boolean makeCategories;
+
+	public AvailableIUCollector(IProvElementQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
 		super(queryProvider, queryable);
+		this.makeCategories = makeCategories;
 	}
 
 	/**
@@ -39,7 +42,7 @@ public class AvailableIUCollector extends QueriedElementCollector {
 		if (!(match instanceof IInstallableUnit))
 			return super.accept(match);
 		IInstallableUnit iu = (IInstallableUnit) match;
-		if (isCategory(iu))
+		if (makeCategories && isCategory(iu))
 			return super.accept(new CategoryElement(iu));
 		return super.accept(makeDefaultElement(iu));
 	}
@@ -52,5 +55,9 @@ public class AvailableIUCollector extends QueriedElementCollector {
 		String isCategory = iu.getProperty(IInstallableUnit.PROP_CATEGORY_IU);
 		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
 
+	}
+
+	protected boolean makeCategory() {
+		return makeCategories;
 	}
 }

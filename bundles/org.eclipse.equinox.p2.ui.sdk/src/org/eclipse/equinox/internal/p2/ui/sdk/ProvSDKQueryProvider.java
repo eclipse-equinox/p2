@@ -55,9 +55,9 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 					IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
 					Collector collector;
 					if (store.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
-						collector = new LatestIUVersionCollector(this, element.getQueryable());
+						collector = new LatestIUVersionCollector(this, element.getQueryable(), true);
 					else
-						collector = new AvailableIUCollector(this, element.getQueryable());
+						collector = new AvailableIUCollector(this, element.getQueryable(), true);
 					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {membersOfCategoryQuery, new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false)}, true), collector);
 				}
 				// If we are showing only the latest version, we never represent other versions as children.

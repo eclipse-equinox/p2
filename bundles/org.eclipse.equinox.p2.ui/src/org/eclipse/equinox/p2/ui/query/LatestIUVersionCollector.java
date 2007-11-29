@@ -25,8 +25,8 @@ public class LatestIUVersionCollector extends AvailableIUCollector {
 
 	private HashMap uniqueIds = new HashMap();
 
-	public LatestIUVersionCollector(IProvElementQueryProvider queryProvider, IQueryable queryable) {
-		super(queryProvider, queryable);
+	public LatestIUVersionCollector(IProvElementQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
+		super(queryProvider, queryable, makeCategories);
 	}
 
 	/**
@@ -40,10 +40,10 @@ public class LatestIUVersionCollector extends AvailableIUCollector {
 		if (!(match instanceof IInstallableUnit))
 			return true;
 		IInstallableUnit iu = (IInstallableUnit) match;
-		// If it's a category, treat it as such
-		if (isCategory(iu))
+		// If it's a category, treat it as such if we are to build categories
+		if (makeCategory() && isCategory(iu))
 			return super.accept(match);
-		// It is not a category.  Look for the latest element
+		// Look for the latest element
 		IUVersionsElement matchElement = (IUVersionsElement) uniqueIds.get(iu.getId());
 		if (matchElement == null) {
 			matchElement = new IUVersionsElement(iu);
