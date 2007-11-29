@@ -120,7 +120,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfile().getProfileId()))) {
 								// TODO checking the phase set is a workaround
 								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208251
-								if (event.getPhaseSet() instanceof SizingPhaseSet)
+								if (!(event.getPhaseSet() instanceof SizingPhaseSet))
 									PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 										public void run() {
 											ProvUI.requestRestart(false, null);
