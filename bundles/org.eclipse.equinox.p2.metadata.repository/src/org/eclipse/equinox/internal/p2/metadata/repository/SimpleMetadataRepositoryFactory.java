@@ -66,6 +66,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 
 	public void restore(AbstractRepository repository, URL location) {
 		AbstractRepository source = (AbstractRepository) load(location);
+		if (source == null)
+			return;
 		if (repository.getClass() != source.getClass())
 			throw new IllegalArgumentException("Repository type mismatch");
 		if (repository instanceof LocalMetadataRepository)
