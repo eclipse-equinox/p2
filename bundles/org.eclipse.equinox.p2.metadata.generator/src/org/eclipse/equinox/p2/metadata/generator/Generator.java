@@ -426,6 +426,8 @@ public class Generator {
 		try {
 			input = new BufferedInputStream(siteLocation.openStream());
 			site = new DefaultSiteParser().parse(input);
+		} catch (FileNotFoundException e) {
+			//don't complain if the update site is not present
 		} catch (Exception e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing update site: " + siteLocation, e)); //$NON-NLS-1$
 		}
