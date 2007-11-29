@@ -10,13 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class Operand {
 	private final IInstallableUnit first;
 	private final IInstallableUnit second;
 
+	/**
+	 * Creates a new operand that represents replacing an installable unit
+	 * with another. At least one of the provided installable units must be
+	 * non-null.
+	 * 
+	 * @param first The installable unit being removed, or <code>null</code>
+	 * @param second The installable unit being added, or <code>null</code>
+	 */
 	public Operand(IInstallableUnit first, IInstallableUnit second) {
+		//the operand must have at least one non-null units
+		Assert.isTrue(first != null || second != null);
 		this.first = first;
 		this.second = second;
 	}

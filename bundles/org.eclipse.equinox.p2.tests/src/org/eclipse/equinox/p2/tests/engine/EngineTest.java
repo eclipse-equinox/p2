@@ -103,10 +103,10 @@ public class EngineTest extends AbstractProvisioningTest {
 		Operand[] operands = null;
 		try {
 			engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+			fail();
 		} catch (IllegalArgumentException expected) {
-			return;
+			//expected
 		}
-		fail();
 	}
 
 	public void testEmptyOperands() {
@@ -131,12 +131,12 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	public void testPerformSingleNullOperand() {
-
-		Profile profile = createProfile("test");
-		PhaseSet phaseSet = new DefaultPhaseSet();
-		Operand[] operands = new Operand[] {new Operand(null, null)};
-		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
-		assertTrue(result.isOK());
+		try {
+			new Operand(null, null);
+			fail("Should not allow null operand");
+		} catch (RuntimeException e) {
+			//expected
+		}
 	}
 
 	public void testPerformInstallOSGiFramework() {

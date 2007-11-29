@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.engine;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -191,8 +192,8 @@ public class PhaseTest extends AbstractProvisioningTest {
 		};
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 		Profile profile = createProfile("PhaseTest");
-
-		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, null)}, new NullProgressMonitor());
+		IInstallableUnit unit = createIU("unit");
+		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, unit)}, new NullProgressMonitor());
 		assertTrue(phase.initializePhase);
 		assertTrue(phase.completePhase);
 	}
@@ -219,8 +220,9 @@ public class PhaseTest extends AbstractProvisioningTest {
 		};
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 		Profile profile = createProfile("PhaseTest");
+		IInstallableUnit unit = createIU("testInitCompleteOperand");
 
-		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, null)}, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, unit)}, new NullProgressMonitor());
 		assertTrue(phase.initializeOperand);
 		assertTrue(phase.completeOperand);
 	}
