@@ -14,9 +14,10 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 public class BundlePool implements IFileArtifactRepository {
 
-	public static final String REPOSITORY_TYPE = BundlePool.class.getName();
-	private static final String BUNDLE_FOLDER = "bundle.folder";
-	public static final String PROFILE_EXTENSION = "profile.extension";
+	public static final String REPOSITORY_TYPE = "org.eclipse.equinox.p2.touchpoint.eclipse.bundlePool"; //$NON-NLS-1$
+	private static final String BUNDLE_FOLDER = "bundle.folder"; //$NON-NLS-1$
+	private static final String TMP_ZIP = "tmp.zip"; //$NON-NLS-1$
+	public static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 
 	// TODO: optimize
 	// we could stream right into the folder
@@ -28,7 +29,7 @@ public class BundlePool implements IFileArtifactRepository {
 
 		public ZippedFolderOutputStream(File bundleFolder) throws FileNotFoundException {
 			this.bundleFolder = bundleFolder;
-			zipFile = new File(bundleFolder, "tmp.zip");
+			zipFile = new File(bundleFolder, TMP_ZIP);
 			fos = new FileOutputStream(zipFile);
 		}
 
@@ -62,6 +63,8 @@ public class BundlePool implements IFileArtifactRepository {
 	private final SimpleArtifactRepository repository;
 
 	public BundlePool(SimpleArtifactRepository repository) {
+		if (repository == null)
+			throw new IllegalArgumentException("repository must not be null");
 		this.repository = repository;
 	}
 
@@ -74,12 +77,7 @@ public class BundlePool implements IFileArtifactRepository {
 
 			if (bundleFolder.exists()) {
 				System.err.println("Artifact repository out of synch. Overwriting " + bundleFolder.getAbsoluteFile()); //$NON-NLS-1$
-				try {
-					FileUtils.deleteAll(bundleFolder);
-				} catch (IOException e) {
-					// Unexpected ad we should log this however we should continue on
-					e.printStackTrace();
-				}
+				FileUtils.deleteAll(bundleFolder);
 			}
 
 			bundleFolder.mkdirs();
@@ -254,16 +252,43 @@ public class BundlePool implements IFileArtifactRepository {
 		return repository.isModifiable();
 	}
 
+	/**
+	 * Removes the given descriptor, and the physical artifact corresponding
+	 * to that descriptor. Returns <code>true</code> if and only if the
+	 * descriptor existed in the repository, and was successfully removed.
+	 */
+	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
+		File file = getArtifactFile(descriptor);
+		if (file == null)
+			return false;
+
+		FileUtils.deleteAll(file);
+		if (!file.exists())
+			return getDescriptors().remove(descriptor);
+		return false;
+	}
+
 	public void removeAll() {
-		repository.removeAll();
+		IArtifactDescriptor[] toRemove = (IArtifactDescriptor[]) getDescriptors().toArray(new IArtifactDescriptor[getDescriptors().size()]);
+		boolean changed = false;
+		for (int i = 0; i < toRemove.length; i++)
+			changed |= doRemoveArtifact(toRemove[i]);
+		if (changed)
+			save();
 	}
 
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
-		repository.removeDescriptor(descriptor);
+		if (doRemoveArtifact(descriptor))
+			save();
 	}
 
 	public void removeDescriptor(IArtifactKey key) {
-		repository.removeDescriptor(key);
+		IArtifactDescriptor[] toRemove = getArtifactDescriptors(key);
+		boolean changed = false;
+		for (int i = 0; i < toRemove.length; i++)
+			changed |= doRemoveArtifact(toRemove[i]);
+		if (changed)
+			save();
 	}
 
 	public void save() {

@@ -114,7 +114,7 @@ public class FileUtils {
 	}
 
 	// Delete the given file whether it is a file or a directory
-	public static void deleteAll(File file) throws IOException {
+	public static void deleteAll(File file) {
 		if (!file.exists())
 			return;
 		if (file.isDirectory()) {
