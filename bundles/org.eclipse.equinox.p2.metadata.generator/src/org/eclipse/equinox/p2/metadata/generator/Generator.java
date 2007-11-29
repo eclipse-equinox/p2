@@ -58,10 +58,10 @@ public class Generator {
 			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), range, iu.getFilter(), false, false));
 		}
 		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
-		root.setApplicabilityFilter("");
+		root.setApplicabilityFilter(""); //$NON-NLS-1$
 		root.setArtifacts(new IArtifactKey[0]);
 
-		root.setProperty("lineUp", "true");
+		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setProperty(IInstallableUnit.PROP_UPDATE_FROM, configurationIdentification);
 		root.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
 		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
@@ -69,8 +69,8 @@ public class Generator {
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
 
-		String configurationData = "";
-		String unconfigurationData = "";
+		String configurationData = ""; //$NON-NLS-1$
+		String unconfigurationData = ""; //$NON-NLS-1$
 
 		ConfigData configData = info.getConfigData();
 		if (configData != null) {
@@ -129,7 +129,7 @@ public class Generator {
 		generateConfigIUs(info.getConfigData() == null ? null : info.getConfigData().getBundles(), ius);
 
 		if (info.addDefaultIUs())
-			generateDefaultConfigIU(ius, info);
+			generateDefaultConfigIU(ius);
 
 		generateRootIU(ius, info.getRootId(), info.getRootVersion());
 
@@ -182,12 +182,12 @@ public class Generator {
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);");
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);"); //$NON-NLS-1$
 			}
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
 			}
 			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), null);
 			if (cu != null)
@@ -209,7 +209,7 @@ public class Generator {
 		}
 	}
 
-	private void generateDefaultConfigIU(Set ius, IGeneratorInfo info) {
+	private void generateDefaultConfigIU(Set ius) {
 		//		TODO this is a bit of a hack.  We need to have the default IU fragment generated with code that configures
 		//		and unconfigures.  the Generator should be decoupled from any particular provider but it is not clear
 		//		 that we should add the create* methods to IGeneratorInfo...
@@ -241,7 +241,7 @@ public class Generator {
 		}
 		if (executableFeatureDir == null)
 			return false;
-		File binDir = new File(executableFeatureDir, "bin");
+		File binDir = new File(executableFeatureDir, "bin"); //$NON-NLS-1$
 		if (!binDir.exists())
 			return false;
 		//the bin directory is dividing into a directory tree of the form /bin/ws/os/arch
@@ -320,13 +320,13 @@ public class Generator {
 
 	protected void generateFeatureIUs(Feature[] features, Set resultantIUs) {
 		Map categoriesToFeatureIUs = new HashMap();
-		Map featureIdsToCategories = getFeatureToCategoryMappings();
+		Map featuresToCategories = getFeatureToCategoryMappings();
 		//Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
 			IInstallableUnit generated = MetadataGeneratorHelper.createGroupIU(feature);
 			resultantIUs.add(generated);
-			Set categories = (Set) featureIdsToCategories.get(feature.getId());
+			Set categories = getCategories(feature, featuresToCategories);
 			if (categories != null) {
 				for (Iterator it = categories.iterator(); it.hasNext();) {
 					SiteCategory category = (SiteCategory) it.next();
@@ -384,7 +384,7 @@ public class Generator {
 		if (addSimpleConfigurator) {
 			//Add simple configurator to the list of bundles
 			try {
-				File location = new File(FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar")).getFile());
+				File location = new File(FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar")).getFile()); //$NON-NLS-1$
 				result[result.length - 1] = factory.getBundleDescription(location);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -394,8 +394,24 @@ public class Generator {
 	}
 
 	protected BundleDescriptionFactory getBundleFactory() {
-		BundleDescriptionFactory factory = new BundleDescriptionFactory(stateObjectFactory, null);
-		return factory;
+		return new BundleDescriptionFactory(stateObjectFactory, null);
+	}
+
+	/**
+	 * Returns the categories corresponding to the given feature, or null if there
+	 * are no applicable categories.
+	 * @param feature The feature to return categories for
+	 * @param featuresToCategories A map of SiteFeature->Set<SiteCategory>
+	 * @return A Set<SiteCategory> of the categories corresponding to the feature, or <code>null</code>
+	 */
+	private Set getCategories(Feature feature, Map featuresToCategories) {
+		//find the SiteFeature corresponding to the given feature
+		for (Iterator it = featuresToCategories.keySet().iterator(); it.hasNext();) {
+			SiteFeature siteFeature = (SiteFeature) it.next();
+			if (siteFeature.getFeatureIdentifier().equals(feature.getId()) && siteFeature.getFeatureVersion().equals(feature.getVersion()))
+				return (Set) featuresToCategories.get(siteFeature);
+		}
+		return null;
 	}
 
 	private Feature[] getFeatures(File folder) {
@@ -414,7 +430,7 @@ public class Generator {
 	/**
 	 * Computes the mapping of features to categories as defined in the site.xml,
 	 * if available. Returns an empty map if there is not site.xml, or no categories.
-	 * @return A map of String(feature id) -> Set<SiteCategory>.
+	 * @return A map of SiteFeature -> Set<SiteCategory>.
 	 */
 	protected Map getFeatureToCategoryMappings() {
 		HashMap mappings = new HashMap();
@@ -440,10 +456,10 @@ public class Generator {
 			for (int j = 0; j < categoryNames.length; j++) {
 				SiteCategory category = site.getCategory(categoryNames[j]);
 				if (category != null) {
-					Set categories = (Set) mappings.get(features[i].getFeatureIdentifier());
+					Set categories = (Set) mappings.get(features[i]);
 					if (categories == null) {
 						categories = new HashSet();
-						mappings.put(features[i].getFeatureIdentifier(), categories);
+						mappings.put(features[i], categories);
 					}
 					categories.add(category);
 				}
@@ -509,7 +525,7 @@ public class Generator {
 		} else {
 			File tempFile = null;
 			try {
-				tempFile = File.createTempFile("p2.generator", "");
+				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				FileUtils.zip(files, tempFile);
 				if (!destination.contains(descriptor)) {
 					OutputStream output = destination.getOutputStream(descriptor);
