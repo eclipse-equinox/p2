@@ -201,15 +201,19 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, t));
 	}
 
-	public void removeRepository(IMetadataRepository toRemove) {
-		repositories.remove(toRemove);
+	public boolean removeRepository(URL toRemove) {
+		IMetadataRepository repository = getRepository(toRemove);
+		if (repository == null)
+			return false;
+		repositories.remove(repository);
 		// remove the repository from the preference store
 		try {
-			getPreferences().node(getKey(toRemove)).removeNode();
+			getPreferences().node(getKey(repository)).removeNode();
 			saveRepositoryList();
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
+		return true;
 	}
 
 	public void restoreRepositories() {

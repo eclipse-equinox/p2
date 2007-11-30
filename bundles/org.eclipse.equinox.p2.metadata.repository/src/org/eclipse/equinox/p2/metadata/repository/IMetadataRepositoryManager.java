@@ -41,5 +41,14 @@ public interface IMetadataRepositoryManager {
 
 	public IMetadataRepository getRepository(URL repo); //TODO Should this throw an exception
 
-	public void removeRepository(IMetadataRepository toRemove);
+	/**
+	 * Removes the metadata repository at the given location from the list of
+	 * metadata repositories tracked by the repository manager.  The underlying
+	 * repository is not deleted.
+	 * 
+	 * @param location The location of the repository to remove
+	 * @return <code>true</code> if a repository was removed, and 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean removeRepository(URL location);
 }

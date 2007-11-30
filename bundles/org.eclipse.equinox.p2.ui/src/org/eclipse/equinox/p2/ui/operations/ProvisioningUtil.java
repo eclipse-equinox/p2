@@ -69,11 +69,8 @@ public class ProvisioningUtil {
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		IMetadataRepository repo = manager.getRepository(location);
-		if (repo != null)
-			manager.removeRepository(repo);
-		EventObject event = new EventObject(IProvisioningListener.REPO_REMOVED);
-		ProvUIActivator.getDefault().notifyListeners(event);
+		if (manager.removeRepository(location))
+			ProvUIActivator.getDefault().notifyListeners(new EventObject(IProvisioningListener.REPO_REMOVED));
 
 	}
 

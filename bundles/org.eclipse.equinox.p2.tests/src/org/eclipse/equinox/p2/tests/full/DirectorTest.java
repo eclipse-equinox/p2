@@ -135,7 +135,7 @@ public class DirectorTest extends TestCase {
 	private void ensureFragmentAssociationIsNotPersisted(IMetadataRepositoryManager mgr) {
 		//Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=177661
 		AgentLocation location = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
-		mgr.removeRepository(mgr.getRepository(location.getMetadataRepositoryURL()));
+		mgr.removeRepository(location.getMetadataRepositoryURL());
 		IMetadataRepository repo = null;
 		repo = mgr.loadRepository(location.getMetadataRepositoryURL(), null);
 		Iterator it = repo.query(new InstallableUnitQuery("org.eclipse.equinox.simpleconfigurator", VersionRange.emptyRange), new Collector(), null).iterator();

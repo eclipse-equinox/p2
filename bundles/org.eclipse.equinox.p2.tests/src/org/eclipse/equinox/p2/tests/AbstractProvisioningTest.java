@@ -612,7 +612,7 @@ public class AbstractProvisioningTest extends TestCase {
 		if (!metadataRepos.isEmpty()) {
 			for (Iterator it = metadataRepos.iterator(); it.hasNext();) {
 				IMetadataRepository repo = (IMetadataRepository) it.next();
-				repoMan.removeRepository(repo);
+				repoMan.removeRepository(repo.getLocation());
 			}
 			metadataRepos.clear();
 		}

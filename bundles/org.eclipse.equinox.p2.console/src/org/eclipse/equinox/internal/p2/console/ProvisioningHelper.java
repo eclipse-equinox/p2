@@ -60,9 +60,7 @@ public class ProvisioningHelper {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
-		IMetadataRepository repo = manager.getRepository(location);
-		if (repo != null)
-			manager.removeRepository(repo);
+		manager.removeRepository(location);
 	}
 
 	public static IArtifactRepository addArtifactRepository(URL location) {
