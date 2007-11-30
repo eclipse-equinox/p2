@@ -68,7 +68,7 @@ public class BundlePool implements IFileArtifactRepository {
 		this.repository = repository;
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor, IArtifactRequest request) {
 
 		if (Boolean.valueOf(descriptor.getProperty(BUNDLE_FOLDER)).booleanValue()) {
 			File bundleFolder = getBundleFolder(descriptor);
@@ -85,14 +85,13 @@ public class BundlePool implements IFileArtifactRepository {
 			// finally create and return an output stream suitably wrapped so that when it is 
 			// closed the repository is updated with the descriptor
 			try {
-				return repository.new ArtifactOutputStream(new BufferedOutputStream(new ZippedFolderOutputStream(bundleFolder)), descriptor);
+				return repository.new ArtifactOutputStream(new BufferedOutputStream(new ZippedFolderOutputStream(bundleFolder)), descriptor, request, bundleFolder);
 			} catch (FileNotFoundException e) {
-				// unexpected
-				e.printStackTrace();
+				Assert.isTrue(false, "Unexpected exception:" + e);
 			}
 			return null;
 		}
-		return repository.getOutputStream(descriptor);
+		return repository.getOutputStream(descriptor, request);
 	}
 
 	private File getBundleFolder(IArtifactDescriptor descriptor) {
