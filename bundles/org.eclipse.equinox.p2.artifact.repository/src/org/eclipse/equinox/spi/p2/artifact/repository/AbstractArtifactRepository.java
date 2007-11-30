@@ -37,7 +37,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 
 	public abstract IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor);
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor, IArtifactRequest request) {
 		if (!isModifiable())
 			throw new UnsupportedOperationException("Repository not modifiable");
 		return null;

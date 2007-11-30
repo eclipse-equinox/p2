@@ -170,7 +170,7 @@ public class Optimizer {
 			newDescriptor.setProperty(IArtifactDescriptor.FORMAT, JAR_DELTA_FORMAT);
 			OutputStream repositoryStream = null;
 			try {
-				repositoryStream = repository.getOutputStream(newDescriptor);
+				repositoryStream = repository.getOutputStream(newDescriptor, null);
 
 				// Add in all the processing steps needed to optimize (e.g., pack200, ...)
 				ProcessingStep optimizerStep = new JarDeltaOptimizerStep(repository);
