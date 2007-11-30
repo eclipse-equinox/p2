@@ -14,8 +14,8 @@ package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
  * @since 3.4
  */
 public class PreferenceConstants {
-	public static final String PREF_PAGE_PROVISIONING = "org.eclipse.equinox.p2.ui.sdk.ProvisioningPreferencePage"; //$NON-NLS-1$
-	public static final String PREF_PAGE_AUTO_UPDATES = "org.eclipse.equinox.p2.ui.sdk.AutomaticUpdatesPreferencePage"; //$NON-NLS-1$
+	public static final String PREF_PAGE_PROVISIONING = "org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"; //$NON-NLS-1$
+	public static final String PREF_PAGE_AUTO_UPDATES = "org.eclipse.equinox.internal.p2.ui.sdk.AutomaticUpdatesPreferencePage"; //$NON-NLS-1$
 	public static final String PREF_AUTO_UPDATE_ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String PREF_AUTO_UPDATE_SCHEDULE = "schedule"; //$NON-NLS-1$
 	public static final String PREF_UPDATE_ON_STARTUP = "on-startup"; //$NON-NLS-1$
