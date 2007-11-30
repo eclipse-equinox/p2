@@ -105,7 +105,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		IMetadataRepository repository = null;
 		try {
-			repository = manager.getRepository(stateDirURL);
+			repository = manager.loadRepository(stateDirURL, null);
 			if (repository == null)
 				repository = manager.createRepository(stateDirURL, "metadata listener " + repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository");
 		} finally {

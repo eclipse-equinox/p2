@@ -21,13 +21,6 @@ public interface IMetadataRepositoryManager {
 	public void addRepository(IMetadataRepository repository);
 
 	/**
-	 * Adds a repository corresponding to the given URL.
-	 * @param url The URL of the repository to add
-	 * @param progress TODO
-	 */
-	public IMetadataRepository loadRepository(URL url, IProgressMonitor progress);
-
-	/**
 	 * Creates and returns a metadata repository of the given type at the given location.
 	 * If a repository already exists at that location <code>null</code> is returned.
 	 * @param location the location for the new repository
@@ -39,7 +32,21 @@ public interface IMetadataRepositoryManager {
 
 	public IMetadataRepository[] getKnownRepositories();
 
-	public IMetadataRepository getRepository(URL repo); //TODO Should this throw an exception
+	/**
+	 * Returns the locations of the repositories managed by this repository manager.
+	 * 
+	 * @return the locations of the repositories managed by this repository manager.
+	 */
+	public URL[] getKnownRepositories2();
+
+	/**
+	 * Adds a repository corresponding to the given URL.
+	 * 
+	 * @param url The URL of the repository to add
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 */
+	public IMetadataRepository loadRepository(URL url, IProgressMonitor monitor);
 
 	/**
 	 * Removes the metadata repository at the given location from the list of

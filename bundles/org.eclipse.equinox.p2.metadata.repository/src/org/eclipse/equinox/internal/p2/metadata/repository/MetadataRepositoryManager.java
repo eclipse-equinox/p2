@@ -26,13 +26,13 @@ import org.osgi.service.prefs.Preferences;
 public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private static final String FACTORY = "factory"; //$NON-NLS-1$
 
-	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String KEY_NAME = "name"; //$NON-NLS-1$
 	private static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
+	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
 	private List repositories = Collections.synchronizedList(new ArrayList());
 
@@ -44,6 +44,193 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		repositories.add(repository);
 		// save the given repository in the preferences.
 		remember(repository);
+	}
+
+	private Object createExecutableExtension(IExtension extension, String element) throws CoreException {
+		IConfigurationElement[] elements = extension.getConfigurationElements();
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i].getName().equals(element))
+				return elements[i].createExecutableExtension("class");
+		}
+		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "Malformed extension"));
+	}
+
+	// TODO This method really should not be here.  There could be lots of different kinds of
+	// repositories and many different ways to create them.
+	// for now discriminate by the type of URL but this is bogus.
+	public IMetadataRepository createRepository(URL location, String name, String type) {
+		IMetadataRepository result = loadRepository(location, (IProgressMonitor) null);
+		if (result != null)
+			return result;
+		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
+		if (extension == null)
+			return null;
+		try {
+			IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, FACTORY);
+			if (factory == null)
+				return null;
+			result = factory.create(location, name, type);
+			if (result != null)
+				addRepository(result);
+			return result;
+		} catch (CoreException e) {
+			return null;
+		}
+	}
+
+	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
+		IConfigurationElement[] elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+		int count = 0;
+		for (int i = 0; i < elt.length; i++) {
+			if (elt[i].getName().equals("filter")) {
+				if (!elt[i].getAttribute("suffix").equals(suffix)) {
+					elt[i] = null;
+				} else {
+					count++;
+				}
+			} else {
+				elt[i] = null;
+			}
+		}
+		IExtension[] results = new IExtension[count];
+		for (int i = 0; i < elt.length; i++) {
+			if (elt[i] != null)
+				results[--count] = elt[i].getDeclaringExtension();
+		}
+		return results;
+	}
+
+	private String[] getAllSuffixes() {
+		IConfigurationElement[] elements = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+		ArrayList result = new ArrayList(elements.length);
+		for (int i = 0; i < elements.length; i++)
+			if (elements[i].getName().equals("filter"))
+				result.add(elements[i].getAttribute("suffix"));
+		return (String[]) result.toArray(new String[result.size()]);
+	}
+
+	/*
+	 * Return a string key suitable based on the given repository which
+	 * is suitable for use as a preference node name.
+	 */
+	private String getKey(IMetadataRepository repository) {
+		return repository.getLocation().toExternalForm().replace('/', '_');
+	}
+
+	public IMetadataRepository[] getKnownRepositories() {
+		return (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[repositories.size()]);
+	}
+
+	public URL[] getKnownRepositories2() {
+		URL[] result = new URL[repositories.size()];
+		int i = 0;
+		for (Iterator it = repositories.iterator(); it.hasNext(); i++) {
+			IMetadataRepository repository = (IMetadataRepository) it.next();
+			result[i] = repository.getLocation();
+		}
+		return result;
+	}
+
+	/*
+	 * Return the preference node which is the root for where we store the repository information.
+	 */
+	private Preferences getPreferences() {
+		return new ConfigurationScope().getNode(Activator.PI_METADATA_REPOSITORY).node(NODE_REPOSITORIES);
+	}
+
+	public IMetadataRepository getRepository(URL location) {
+		if (repositories == null)
+			restoreRepositories();
+		for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
+			IMetadataRepository match = (IMetadataRepository) iterator.next();
+			if (Utils.sameURL(match.getLocation(), location))
+				return match;
+		}
+		return null;
+	}
+
+	public IMetadataRepository loadRepository(URL location, IProgressMonitor progress) {
+		// TODO do some thing with the monitor
+		IMetadataRepository result = getRepository(location);
+		if (result != null)
+			return result;
+		String[] suffixes = getAllSuffixes();
+		if (progress == null)
+			progress = new NullProgressMonitor();
+		progress.beginTask(NLS.bind(Messages.REPOMGR_ADDING_REPO, location.toExternalForm()), 1);
+		for (int i = 0; i < suffixes.length; i++) {
+			result = loadRepository(location, suffixes[i]);
+			if (result != null) {
+				addRepository(result);
+				progress.done();
+				return result;
+			}
+		}
+		progress.done();
+		return null;
+	}
+
+	/**
+	 * Try to load a pre-existing repo at the given location
+	 */
+	// TODO this method should do some repo type discovery something like is done with
+	// the artifact repos.  For now just discriminate on the type of URL
+	private IMetadataRepository loadRepository(URL location, String suffix) {
+		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
+		// Loop over the candidates and return the first one that successfully loads
+		for (int i = 0; i < providers.length; i++)
+			try {
+				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[i], FACTORY);
+				if (factory != null)
+					return factory.load(location);
+			} catch (CoreException e) {
+				log("Error loading repository extension: " + providers[i].getUniqueIdentifier(), e); //$NON-NLS-1$
+			}
+		return null;
+	}
+
+	protected void log(String message, Throwable t) {
+		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, t));
+	}
+
+	/*
+	 * Save the list of repositories in the preference store.
+	 */
+	private void remember(IMetadataRepository repository) {
+		Preferences node = getPreferences().node(getKey(repository));
+		String value = repository.getLocation().toExternalForm();
+		node.put(KEY_URL, value);
+		value = repository.getDescription();
+		if (value != null)
+			node.put(KEY_DESCRIPTION, value);
+		value = repository.getName();
+		if (value != null)
+			node.put(KEY_NAME, value);
+		value = repository.getProvider();
+		if (value != null)
+			node.put(KEY_PROVIDER, value);
+		value = repository.getType();
+		if (value != null)
+			node.put(KEY_TYPE, value);
+		value = repository.getVersion();
+		if (value != null)
+			node.put(KEY_VERSION, value);
+		saveRepositoryList();
+	}
+
+	public boolean removeRepository(URL toRemove) {
+		IMetadataRepository repository = getRepository(toRemove);
+		if (repository == null)
+			return false;
+		repositories.remove(repository);
+		// remove the repository from the preference store
+		try {
+			getPreferences().node(getKey(repository)).removeNode();
+			saveRepositoryList();
+		} catch (BackingStoreException e) {
+			log("Error saving preferences", e); //$NON-NLS-1$
+		}
+		return true;
 	}
 
 	/*
@@ -75,145 +262,6 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				log("Error while restoring repository: " + url, e); //$NON-NLS-1$
 			}
 		}
-	}
-
-	/*
-	 * Save the list of repositories in the preference store.
-	 */
-	private void remember(IMetadataRepository repository) {
-		Preferences node = getPreferences().node(getKey(repository));
-		String value = repository.getLocation().toExternalForm();
-		node.put(KEY_URL, value);
-		value = repository.getDescription();
-		if (value != null)
-			node.put(KEY_DESCRIPTION, value);
-		value = repository.getName();
-		if (value != null)
-			node.put(KEY_NAME, value);
-		value = repository.getProvider();
-		if (value != null)
-			node.put(KEY_PROVIDER, value);
-		value = repository.getType();
-		if (value != null)
-			node.put(KEY_TYPE, value);
-		value = repository.getVersion();
-		if (value != null)
-			node.put(KEY_VERSION, value);
-		saveRepositoryList();
-	}
-
-	/*
-	 * Return a string key suitable based on the given repository which
-	 * is suitable for use as a preference node name.
-	 */
-	private String getKey(IMetadataRepository repository) {
-		return repository.getLocation().toExternalForm().replace('/', '_');
-	}
-
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor progress) {
-		// TODO do some thing with the monitor
-		IMetadataRepository result = getRepository(location);
-		if (result != null)
-			return result;
-		String[] suffixes = getAllSuffixes();
-		if (progress == null)
-			progress = new NullProgressMonitor();
-		progress.beginTask(NLS.bind(Messages.REPOMGR_ADDING_REPO, location.toExternalForm()), 1);
-		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i]);
-			if (result != null) {
-				addRepository(result);
-				progress.done();
-				return result;
-			}
-		}
-		progress.done();
-		return null;
-	}
-
-	private String[] getAllSuffixes() {
-		IConfigurationElement[] elements = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
-		ArrayList result = new ArrayList(elements.length);
-		for (int i = 0; i < elements.length; i++)
-			if (elements[i].getName().equals("filter"))
-				result.add(elements[i].getAttribute("suffix"));
-		return (String[]) result.toArray(new String[result.size()]);
-	}
-
-	// TODO This method really should not be here.  There could be lots of different kinds of
-	// repositories and many different ways to create them.
-	// for now discriminate by the type of URL but this is bogus.
-	public IMetadataRepository createRepository(URL location, String name, String type) {
-		IMetadataRepository result = loadRepository(location, (IProgressMonitor) null);
-		if (result != null)
-			return result;
-		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
-		if (extension == null)
-			return null;
-		try {
-			IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, FACTORY);
-			if (factory == null)
-				return null;
-			result = factory.create(location, name, type);
-			if (result != null)
-				addRepository(result);
-			return result;
-		} catch (CoreException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * Try to load a pre-existing repo at the given location
-	 */
-	// TODO this method should do some repo type discovery something like is done with
-	// the artifact repos.  For now just discriminate on the type of URL
-	private IMetadataRepository loadRepository(URL location, String suffix) {
-		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
-		// Loop over the candidates and return the first one that successfully loads
-		for (int i = 0; i < providers.length; i++)
-			try {
-				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[i], FACTORY);
-				if (factory != null)
-					return factory.load(location);
-			} catch (CoreException e) {
-				log("Error loading repository extension: " + providers[i].getUniqueIdentifier(), e); //$NON-NLS-1$
-			}
-		return null;
-	}
-
-	public IMetadataRepository[] getKnownRepositories() {
-		return (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[repositories.size()]);
-	}
-
-	public IMetadataRepository getRepository(URL location) {
-		if (repositories == null)
-			restoreRepositories();
-		for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-			IMetadataRepository match = (IMetadataRepository) iterator.next();
-			if (Utils.sameURL(match.getLocation(), location))
-				return match;
-		}
-		return null;
-	}
-
-	protected void log(String message, Throwable t) {
-		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, t));
-	}
-
-	public boolean removeRepository(URL toRemove) {
-		IMetadataRepository repository = getRepository(toRemove);
-		if (repository == null)
-			return false;
-		repositories.remove(repository);
-		// remove the repository from the preference store
-		try {
-			getPreferences().node(getKey(repository)).removeNode();
-			saveRepositoryList();
-		} catch (BackingStoreException e) {
-			log("Error saving preferences", e); //$NON-NLS-1$
-		}
-		return true;
 	}
 
 	public void restoreRepositories() {
@@ -250,13 +298,6 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	/*
-	 * Return the preference node which is the root for where we store the repository information.
-	 */
-	private Preferences getPreferences() {
-		return new ConfigurationScope().getNode(Activator.PI_METADATA_REPOSITORY).node(NODE_REPOSITORIES);
-	}
-
-	/*
 	 * Save the repository list in the file-system
 	 */
 	private void saveRepositoryList() {
@@ -265,36 +306,5 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e);
 		}
-	}
-
-	private Object createExecutableExtension(IExtension extension, String element) throws CoreException {
-		IConfigurationElement[] elements = extension.getConfigurationElements();
-		for (int i = 0; i < elements.length; i++) {
-			if (elements[i].getName().equals(element))
-				return elements[i].createExecutableExtension("class");
-		}
-		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "Malformed extension"));
-	}
-
-	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
-		IConfigurationElement[] elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
-		int count = 0;
-		for (int i = 0; i < elt.length; i++) {
-			if (elt[i].getName().equals("filter")) {
-				if (!elt[i].getAttribute("suffix").equals(suffix)) {
-					elt[i] = null;
-				} else {
-					count++;
-				}
-			} else {
-				elt[i] = null;
-			}
-		}
-		IExtension[] results = new IExtension[count];
-		for (int i = 0; i < elt.length; i++) {
-			if (elt[i] != null)
-				results[--count] = elt[i].getDeclaringExtension();
-		}
-		return results;
 	}
 }
