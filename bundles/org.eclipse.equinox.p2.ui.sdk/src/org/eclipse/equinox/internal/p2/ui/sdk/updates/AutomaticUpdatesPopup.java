@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.updates;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
@@ -52,6 +53,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	IInstallableUnit[] toUpdate;
 	Profile profile;
 	boolean downloaded;
+	boolean hidden = false;
 
 	public AutomaticUpdatesPopup(IInstallableUnit[] toUpdate, Profile profile, boolean alreadyDownloaded, Preferences prefs) {
 		super((Shell) null, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, true, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
@@ -94,18 +96,20 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		// spacer
 		new Label(parent, SWT.NONE);
 
-		Link remindLink = new Link(parent, SWT.MULTI | SWT.WRAP);
+		Link remindLink = new Link(parent, SWT.MULTI | SWT.WRAP | SWT.RIGHT);
 		remindLink.setText(NLS.bind(ProvSDKMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {REMIND_HREF, prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED), PREFS_HREF}));
 		remindLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (REMIND_HREF.equals(e.text)) {
 					if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 						// We are already on a remind schedule, so just set up the reminder
+						hidden = true;
 						getShell().setVisible(false);
 						scheduleRemindJob();
 					} else {
 						// We were not on a schedule.  Setting the pref value
 						// will activate our listener and start the remind job
+						hidden = true;
 						getShell().setVisible(false);
 						prefs.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
 					}
@@ -132,6 +136,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	}
 
 	public boolean close() {
+		if (hidden)
+			return false;
 		prefs.removePropertyChangeListener(listener);
 		cancelRemindJob();
 		remindJob = null;
@@ -151,12 +157,15 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		remindJob = new WorkbenchJob(ProvSDKMessages.AutomaticUpdatesPopup_ReminderJobTitle) {
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				Shell shell = getShell();
-				if (shell != null && !shell.isDisposed())
+				if (shell != null && !shell.isDisposed()) {
 					shell.setVisible(true);
+					hidden = false;
+				}
 				return Status.OK_STATUS;
 			}
 		};
 		remindJob.setSystem(true);
+		remindJob.setPriority(Job.INTERACTIVE);
 		remindJob.schedule(remindDelay);
 
 	}
