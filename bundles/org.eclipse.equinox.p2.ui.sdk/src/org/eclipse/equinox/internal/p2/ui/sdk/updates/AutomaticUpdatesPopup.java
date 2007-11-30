@@ -173,8 +173,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 					switch (d) {
 						case 0 :
 							// 5 minutes
-							//return 5 * MINUTE;
-							return 2000L;
+							return 5 * MINUTE;
 						case 1 :
 							// 15 minutes
 							return 15 * MINUTE;
