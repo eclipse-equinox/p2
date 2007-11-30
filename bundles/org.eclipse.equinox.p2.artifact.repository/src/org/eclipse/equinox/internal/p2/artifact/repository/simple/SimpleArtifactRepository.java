@@ -285,11 +285,19 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public class ArtifactOutputStream extends OutputStream {
 		private OutputStream destination;
 		private IArtifactDescriptor descriptor;
+		private IArtifactRequest request;
+		private File file;
 		private long count = 0;
 
-		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor) {
+		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor, IArtifactRequest request) {
+			this(os, descriptor, request, null);
+		}
+
+		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor, IArtifactRequest request, File file) {
 			this.destination = os;
 			this.descriptor = descriptor;
+			this.request = request;
+			this.file = file;
 		}
 
 		public void write(int b) throws IOException {
@@ -308,15 +316,28 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 
 		public void close() throws IOException {
-			destination.close();
+			boolean requestOK = request == null ? true : request.getResult().isOK();
+			try {
+				destination.close();
+			} catch (IOException e) {
+				// cleanup if possible
+				if (file != null)
+					delete(file);
+				if (requestOK)
+					throw e;
+				// if the request had already a problem e.g. CANCEL, we can return - the status is already set correctly 
+				return;
+			}
 			// if the steps ran ok and there was actual content, write the artifact descriptor
 			// TODO the count check is a bit bogus but helps in some error cases (e.g., the optimizer)
 			// where errors occured in a processing step earlier in the chain.  We likely need a better
 			// or more explicit way of handling this case.
-			if (ProcessingStepHandler.checkStatus(destination).isOK() && count > 0) {
+			if (requestOK && ProcessingStepHandler.checkStatus(destination).isOK() && count > 0) {
 				((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
 				addDescriptor(descriptor);
-			}
+			} else if (file != null)
+				// cleanup if possible
+				delete(file);
 		}
 	}
 
@@ -339,7 +360,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor, IArtifactRequest request) {
 		// TODO we need a better way of distinguishing between errors and cases where 
 		// the stuff just already exists
 		// Check if the artifact is already in this repository
@@ -374,7 +395,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// finally create and return an output stream suitably wrapped so that when it is 
 		// closed the repository is updated with the descriptor
 		try {
-			return new ArtifactOutputStream(new BufferedOutputStream(new FileOutputStream(file)), newDescriptor);
+			return new ArtifactOutputStream(new BufferedOutputStream(new FileOutputStream(file)), newDescriptor, request, outputFile);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -425,7 +446,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return false;
 	}
 
-	private void delete(File toDelete) {
+	static void delete(File toDelete) {
 		if (toDelete.isFile()) {
 			toDelete.delete();
 			return;
