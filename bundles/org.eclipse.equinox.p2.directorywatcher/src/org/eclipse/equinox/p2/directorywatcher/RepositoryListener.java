@@ -155,11 +155,10 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#getExtensions()
+	 * @see org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
 	 */
-	public String[] getExtensions() {
-		// TODO use the empty string here for now to indicate that we are interested in everything
-		return new String[] {""};
+	public boolean isInterested(File file) {
+		return true;
 	}
 
 	/* (non-Javadoc)

@@ -90,8 +90,8 @@ public class JARFileListener extends DirectoryChangeListener {
 		return true;
 	}
 
-	public String[] getExtensions() {
-		return new String[] {".jar"};
+	public boolean isInterested(File file) {
+		return file.getName().endsWith(".jar");
 	}
 
 	public boolean removed(File file) {

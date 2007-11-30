@@ -86,8 +86,8 @@ public class ConfigFileListener extends DirectoryChangeListener {
 		}
 	}
 
-	public String[] getExtensions() {
-		return new String[] {".cfg"};
+	public boolean isInterested(File file) {
+		return file.getName().endsWith("");
 	}
 
 	public Long getSeenFile(File file) {

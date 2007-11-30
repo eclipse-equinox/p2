@@ -83,8 +83,8 @@ public class ProvisioningListener extends DirectoryChangeListener {
 		return true;
 	}
 
-	public String[] getExtensions() {
-		return new String[] {".iu", ".jar"};
+	public boolean isInterested(File file) {
+		return file.getName().endsWith(".iu") || file.getName().endsWith(".jar");
 	}
 
 	private void initialize() {

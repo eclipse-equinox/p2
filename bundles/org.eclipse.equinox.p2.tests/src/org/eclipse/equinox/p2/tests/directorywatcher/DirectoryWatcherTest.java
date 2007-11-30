@@ -73,8 +73,8 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 				return true;
 			}
 
-			public String[] getExtensions() {
-				return new String[] {""};
+			public boolean isInterested(File file) {
+				return true;
 			}
 
 			public Long getSeenFile(File file) {

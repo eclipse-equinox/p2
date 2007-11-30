@@ -25,8 +25,8 @@ public abstract class DirectoryChangeListener {
 		// do nothing
 	}
 
-	public String[] getExtensions() {
-		return null;
+	public boolean isInterested(File file) {
+		return false;
 	}
 
 	public boolean added(File file) {

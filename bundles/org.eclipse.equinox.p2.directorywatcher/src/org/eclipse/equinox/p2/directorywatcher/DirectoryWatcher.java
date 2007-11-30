@@ -162,11 +162,7 @@ public class DirectoryWatcher {
 	}
 
 	private boolean isInterested(DirectoryChangeListener listener, File file) {
-		String[] extensions = listener.getExtensions();
-		for (int i = 0; i < extensions.length; i++)
-			if (file.getPath().endsWith(extensions[i]))
-				return true;
-		return false;
+		return listener.isInterested(file);
 	}
 
 	/**
