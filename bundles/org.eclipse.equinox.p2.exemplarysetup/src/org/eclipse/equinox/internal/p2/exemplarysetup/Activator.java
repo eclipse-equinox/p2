@@ -19,6 +19,7 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 
@@ -65,9 +66,14 @@ public class Activator implements BundleActivator {
 		//registered first because the director finds it in its constructor.
 		registerPlanner();
 		registerDirector();
+		startGarbageCollector();
 
 		//create artifact repositories
 		//		registerDefaultArtifactRepoManager();
+	}
+
+	private void startGarbageCollector() {
+		new GarbageCollector();
 	}
 
 	public void stop(BundleContext aContext) throws Exception {

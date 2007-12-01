@@ -15,6 +15,7 @@ Import-Package: org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.p2.core.location,
  org.eclipse.equinox.p2.director,
  org.eclipse.equinox.p2.engine,
+ org.eclipse.equinox.p2.garbagecollector,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.repository,
  org.osgi.framework;version="1.3.0"
