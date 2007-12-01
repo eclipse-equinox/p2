@@ -14,7 +14,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.engine.Profile;
 
 /** 
- * Any class which declares itself as an extension to the org.eclipse.equinox.p2.garbagecollector.rootsetproviders
+ * Any class which declares itself as an extension to the org.eclipse.equinox.p2.garbagecollector.marksetproviders
  * extension point must implement this interface.  Given a Profile, implementors will need to provide an array of
  * MarkSet objects, each of which should contain an IArtifactRepository and the IArtifactKeys used by the given
  * Profile.
@@ -28,7 +28,7 @@ public interface IMarkSetProvider {
 	 * @param p A profile whose ArtifactRepositories require a garbage collection
 	 * @return An array of MarkSet object(s) containing p's IArtifactRepository and its root set of IArtifactKeys
 	 */
-	public MarkSet[] getRootSets(Profile p);
+	public MarkSet[] getMarkSets(Profile p);
 	
 	/**
 	 * Returns the IArtifactRepository for which this IMarkSetProvider provides a MarkSet.

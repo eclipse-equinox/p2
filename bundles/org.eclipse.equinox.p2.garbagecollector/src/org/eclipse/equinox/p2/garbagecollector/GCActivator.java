@@ -11,7 +11,10 @@
 package org.eclipse.equinox.p2.garbagecollector;
 
 import java.util.EventObject;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
@@ -50,7 +53,7 @@ public class GCActivator implements BundleActivator {
 	private void registerGCTrigger() {
 		ProvisioningEventBus eventBus = (ProvisioningEventBus) getService(GCActivator.context, ProvisioningEventBus.class.getName());
 		if (eventBus == null) {
-			System.err.println(Messages.GCActivator_0); //TODO Clean up.
+			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Missing_bus));
 		}
 		eventBus.addListener(busListener = new SynchronousProvisioningListener() {
 			//The GC is triggered when an uninstall event occured during a "transaction" and the transaction is committed.   

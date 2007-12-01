@@ -22,11 +22,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * The main control point for the p2 garbage collector.  Takes a Profile and runs the CoreGarbageCollector with the
  * appropriate MarkSets for the repositories used by that Profile.
  * 
- * Takes the profile passed in and creates a set (rootSetMap) that maps the artifact repositories it uses to the
+ * Takes the profile passed in and creates a set (markSet) that maps the artifact repositories it uses to the
  * artifact keys its IUs hold.  This is done by getting MarkSets from all registered IMarkSetProviders.
  * 
  * Then, the MarkSets are obtained for every other registered Profile in a similar fashion.  Each MarkSet is
- * checked to see if its artifact repository is already a key in rootSetMap.  If so, that MarkSet's artifact keys 
+ * checked to see if its artifact repository is already a key in markSet.  If so, that MarkSet's artifact keys 
  * are added to the list that is mapped to by the artifact repository. 
  */
 public class GarbageCollector {
@@ -64,29 +64,7 @@ public class GarbageCollector {
 				continue;
 			}
 
-			try {
-				ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, profileToGC);
-				SafeRunner.run(providerExecutor);
-				MarkSet[] inProfileRootSets = providerExecutor.getResult();
-				if (inProfileRootSets[0] == null)
-					return false;
-
-				for (int j = 0; j < inProfileRootSets.length; j++) {
-					if (inProfileRootSets[j] == null) {
-						continue;
-					}
-					Collection keys = (Collection) markSet.get(inProfileRootSets[j].getRepo());
-					if (keys == null) {
-						keys = new HashSet();
-						markSet.put(inProfileRootSets[j].getRepo(), keys);
-					}
-					addKeys(keys, inProfileRootSets[j].getKeys());
-				}
-
-			} catch (ClassCastException e) {
-				LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.CoreGarbageCollector_0, e));
-				continue;
-			}
+			contributeMarkSets(runAttribute, profileToGC, true);
 		}
 		return true;
 	}
@@ -96,8 +74,8 @@ public class GarbageCollector {
 		while (keyIterator.hasNext()) {
 			IArtifactRepository nextRepo = (IArtifactRepository) keyIterator.next();
 			IArtifactKey[] keys = (IArtifactKey[]) ((Collection) markSet.get(nextRepo)).toArray(new IArtifactKey[0]);
-			MarkSet aRootSet = new MarkSet(keys, nextRepo);
-			new CoreGarbageCollector().clean(aRootSet.getKeys(), aRootSet.getRepo());
+			MarkSet aMarkSet = new MarkSet(keys, nextRepo);
+			new CoreGarbageCollector().clean(aMarkSet.getKeys(), aMarkSet.getRepo());
 		}
 	}
 
@@ -119,7 +97,7 @@ public class GarbageCollector {
 			Profile[] registeredProfiles = profileRegistry.getProfiles();
 
 			for (int j = 0; j < registeredProfiles.length; j++) {
-				contributeRootSets(runAttribute, registeredProfiles[j]);
+				contributeMarkSets(runAttribute, registeredProfiles[j], false);
 			}
 		}
 	}
@@ -127,7 +105,7 @@ public class GarbageCollector {
 	private class ParameterizedSafeRunnable implements ISafeRunnable {
 		IConfigurationElement cfg;
 		Profile aProfile;
-		MarkSet[] aProfileRootSets;
+		MarkSet[] aProfileMarkSets;
 
 		public ParameterizedSafeRunnable(IConfigurationElement runtAttribute, Profile profile) {
 			cfg = runtAttribute;
@@ -135,46 +113,50 @@ public class GarbageCollector {
 		}
 
 		public void handleException(Throwable exception) {
-			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.GarbageCollector_3, exception));
+			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Error_in_extension, exception));
 		}
 
 		public void run() throws Exception {
-			IMarkSetProvider aRootSetProvider = (IMarkSetProvider) cfg.createExecutableExtension(ATTRIBUTE_CLASS);
-			if (aRootSetProvider == null) {
-				aProfileRootSets = null;
+			IMarkSetProvider aMarkSetProvider = (IMarkSetProvider) cfg.createExecutableExtension(ATTRIBUTE_CLASS);
+			if (aMarkSetProvider == null) {
+				aProfileMarkSets = null;
 				return;
 			}
-			aProfileRootSets = aRootSetProvider.getRootSets(aProfile);
+			aProfileMarkSets = aMarkSetProvider.getMarkSets(aProfile);
 		}
 
 		public MarkSet[] getResult() {
-			return aProfileRootSets;
+			return aProfileMarkSets;
 		}
 	}
 
-	private void contributeRootSets(IConfigurationElement runAttribute, Profile aProfile) {
-		try {
-			ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, aProfile);
-			SafeRunner.run(providerExecutor);
-			MarkSet[] aProfileRootSets = providerExecutor.getResult();
-			if (aProfileRootSets[0] == null)
-				return;
+	private void contributeMarkSets(IConfigurationElement runAttribute, Profile aProfile, boolean addRepositories) {
+		ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, aProfile);
+		SafeRunner.run(providerExecutor);
+		MarkSet[] aProfileMarkSets = providerExecutor.getResult();
+		if (aProfileMarkSets[0] == null)
+			return;
 
-			for (int j = 0; j < aProfileRootSets.length; j++) {
-				if (aProfileRootSets[j] == null) {
-					continue;
-				}
-
-				//contribute any keys that are relevant to the Profile being GC'ed
-				if (markSet.containsKey(aProfileRootSets[j].getRepo())) {
-					Collection keys = (Collection) markSet.get(aProfileRootSets[j].getRepo());
-					addKeys(keys, aProfileRootSets[j].getKeys());
-					markSet.put(aProfileRootSets[j].getRepo(), keys);
-				}
+		for (int i = 0; i < aProfileMarkSets.length; i++) {
+			if (aProfileMarkSets[i] == null) {
+				continue;
 			}
 
-		} catch (ClassCastException e) {
-			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.CoreGarbageCollector_0, e));
+			for (int j = 0; j < aProfileMarkSets.length; j++) {
+				if (aProfileMarkSets[j] == null) {
+					continue;
+				}
+				Collection keys = (Collection) markSet.get(aProfileMarkSets[j].getRepo());
+				if (keys == null) {
+					if (addRepositories) {
+						keys = new HashSet();
+						markSet.put(aProfileMarkSets[j].getRepo(), keys);
+						addKeys(keys, aProfileMarkSets[j].getKeys());
+					}
+				} else {
+					addKeys(keys, aProfileMarkSets[j].getKeys());
+				}
+			}
 		}
 	}
 

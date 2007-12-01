@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.garbagecollector;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
@@ -29,14 +27,14 @@ public class CoreGarbageCollector {
 
 	/**
 	 * Given a list of IArtifactKeys and an IArtifactRepository, removes all artifacts
-	 * in aRepository that are not mapped to by an IArtifactKey in rootSet
+	 * in aRepository that are not mapped to by an IArtifactKey in markSet
 	 */
-	public synchronized void clean(IArtifactKey[] rootSet, IArtifactRepository aRepository) {
+	public synchronized void clean(IArtifactKey[] markSet, IArtifactRepository aRepository) {
 		IArtifactKey[] repositoryKeys = aRepository.getArtifactKeys();
 		for (int j = 0; j < repositoryKeys.length; j++) {
 			boolean artifactIsActive = false;
-			for (int k = 0; k < rootSet.length; k++) {
-				if (repositoryKeys[j].equals(rootSet[k])) {
+			for (int k = 0; k < markSet.length; k++) {
+				if (repositoryKeys[j].equals(markSet[k])) {
 					artifactIsActive = true;
 					break;
 				}
@@ -44,21 +42,17 @@ public class CoreGarbageCollector {
 			if (!artifactIsActive) {
 				aRepository.removeDescriptor(repositoryKeys[j]);
 				if (debugMode) {
-					LogHelper.log(new Status(IStatus.INFO, GCActivator.ID, Messages.CoreGarbageCollector_0 + repositoryKeys[j]));
+					Tracing.debug("Key removed:" + repositoryKeys[j]); //$NON-NLS-1$
 				}
 			}
 		}
 	}
 
-	/**
+	/*
 	 * If set to true, debug mode will log information about each artifact deleted by the CoreGarbageCollector
 	 * @param inDebugMode
 	 */
 	public static void setDebugMode(boolean inDebugMode) {
-		if (inDebugMode) {
-			LogHelper.log(new Status(Status.INFO, GCActivator.ID, Messages.CoreGarbageCollector_1));
-		}
 		debugMode = inDebugMode;
 	}
-
 }

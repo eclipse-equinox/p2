@@ -3,7 +3,7 @@
 <schema targetNamespace="org.eclipse.equinox.p2.garbagecollector">
 <annotation>
       <appInfo>
-         <meta.schema plugin="org.eclipse.equinox.p2.garbagecollector" id="GarbageCollector" name="Garbage Collector"/>
+         <meta.schema plugin="org.eclipse.equinox.p2.garbagecollector" id="marksetproviders" name="Profile-based mark set providers"/>
       </appInfo>
       <documentation>
          [Enter description of this extension point.]
@@ -12,6 +12,9 @@
 
    <element name="extension">
       <complexType>
+         <sequence>
+            <element ref="run"/>
+         </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -19,20 +22,25 @@
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="id" type="string">
+         <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
                   
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="name" type="string">
+      </complexType>
+   </element>
+
+   <element name="run">
+      <complexType>
+         <attribute name="class" type="string" use="required">
             <annotation>
                <documentation>
                   
                </documentation>
                <appInfo>
-                  <meta.attribute translatable="true"/>
+                  <meta.attribute kind="java" basedOn="org.eclipse.equinox.p2.garbagecollector.IMarkSetProvider"/>
                </appInfo>
             </annotation>
          </attribute>
@@ -75,13 +83,5 @@
       </documentation>
    </annotation>
 
-   <annotation>
-      <appInfo>
-         <meta.section type="copyright"/>
-      </appInfo>
-      <documentation>
-         
-      </documentation>
-   </annotation>
 
 </schema>
