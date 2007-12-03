@@ -366,7 +366,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor, IArtifactRequest request) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 		// TODO we need a better way of distinguishing between errors and cases where 
 		// the stuff just already exists
 		// Check if the artifact is already in this repository
