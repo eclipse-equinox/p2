@@ -17,13 +17,14 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.IStateful;
 
 /**
  * ProcessingSteps process the data written to them and pass the resultant data on
  * to a configured destination stream.  Steps may monitor (e.g., count) the data, compute information 
  * about the data (e.g., checksum or hash) or transform the data (e.g., unpack200).
  */
-public abstract class ProcessingStep extends OutputStream {
+public abstract class ProcessingStep extends OutputStream implements IStateful {
 	//TODO It's generally not good to expose fields as API. It raises difficulties about
 	//when the subclass should be writing the fields, when the fields will have
 	//meaningful values, etc. It's generally better to pass values as parameters
@@ -86,6 +87,14 @@ public abstract class ProcessingStep extends OutputStream {
 		monitor = null;
 	}
 
+	public IStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(IStatus status) {
+		this.status = status;
+	}
+
 	/**
 	 * Return the status of this step.  The status will be <code>null</code> if the
 	 * step has not yet executed. If the step has executed the returned status
@@ -95,7 +104,7 @@ public abstract class ProcessingStep extends OutputStream {
 	 */
 	public IStatus getStatus(boolean deep) {
 		if (!deep)
-			return status;
+			return getStatus();
 		ArrayList list = new ArrayList();
 		int severity = collectStatus(list);
 		if (severity == IStatus.OK)
@@ -105,14 +114,14 @@ public abstract class ProcessingStep extends OutputStream {
 	}
 
 	private int collectStatus(ArrayList list) {
-		list.add(status);
+		list.add(getStatus());
 		if (!(destination instanceof ProcessingStep))
-			return status.getSeverity();
+			return getStatus().getSeverity();
 		int result = ((ProcessingStep) destination).collectStatus(list);
 		// TODO greater than test here is a little brittle but it is very unlikely that we will add
 		// a new status severity.
-		if (status.getSeverity() > result)
-			return status.getSeverity();
+		if (getStatus().getSeverity() > result)
+			return getStatus().getSeverity();
 		return result;
 
 	}
