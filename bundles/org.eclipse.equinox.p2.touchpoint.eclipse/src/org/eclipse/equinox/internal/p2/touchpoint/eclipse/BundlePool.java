@@ -69,7 +69,7 @@ public class BundlePool implements IFileArtifactRepository {
 		this.repository = repository;
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor, IArtifactRequest request) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
 
 		if (Boolean.valueOf(descriptor.getProperty(BUNDLE_FOLDER)).booleanValue()) {
 			File bundleFolder = getBundleFolder(descriptor);
@@ -86,13 +86,13 @@ public class BundlePool implements IFileArtifactRepository {
 			// finally create and return an output stream suitably wrapped so that when it is 
 			// closed the repository is updated with the descriptor
 			try {
-				return repository.new ArtifactOutputStream(new BufferedOutputStream(new ZippedFolderOutputStream(bundleFolder)), descriptor, request, bundleFolder);
+				return repository.new ArtifactOutputStream(new BufferedOutputStream(new ZippedFolderOutputStream(bundleFolder)), descriptor, bundleFolder);
 			} catch (FileNotFoundException e) {
 				Assert.isTrue(false, "Unexpected exception:" + e);
 			}
 			return null;
 		}
-		return repository.getOutputStream(descriptor, request);
+		return repository.getOutputStream(descriptor);
 	}
 
 	private File getBundleFolder(IArtifactDescriptor descriptor) {
@@ -154,7 +154,7 @@ public class BundlePool implements IFileArtifactRepository {
 		if (Boolean.valueOf(descriptor.getProperty(BUNDLE_FOLDER)).booleanValue()) {
 			ProcessingStepHandler handler = new ProcessingStepHandler();
 			destination = repository.processDestination(handler, descriptor, destination, monitor);
-			IStatus status = handler.checkStatus(destination);
+			IStatus status = ProcessingStepHandler.checkStatus(destination);
 			if (!status.isOK() && status.getSeverity() != IStatus.INFO)
 				return status;
 

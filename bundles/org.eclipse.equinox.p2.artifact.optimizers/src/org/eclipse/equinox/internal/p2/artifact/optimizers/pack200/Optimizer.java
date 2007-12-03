@@ -56,7 +56,7 @@ public class Optimizer {
 		newDescriptor.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
 		OutputStream repositoryStream = null;
 		try {
-			repositoryStream = repository.getOutputStream(newDescriptor, null);
+			repositoryStream = repository.getOutputStream(newDescriptor);
 
 			// Add in all the processing steps needed to optimize (e.g., pack200, ...)
 			ProcessingStepHandler handler = new ProcessingStepHandler();

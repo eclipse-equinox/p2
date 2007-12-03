@@ -183,7 +183,7 @@ public class Optimizer {
 			newDescriptor.setProperty(IArtifactDescriptor.FORMAT, strategy);
 			OutputStream repositoryStream = null;
 			try {
-				repositoryStream = repository.getOutputStream(newDescriptor, null);
+				repositoryStream = repository.getOutputStream(newDescriptor);
 
 				// Add in all the processing steps needed to optimize (e.g., pack200, ...)
 				ProcessingStep diffStep = getProcessingStep(strategy);

@@ -512,7 +512,7 @@ public class Generator {
 		if (asIs && files.length == 1) {
 			try {
 				if (!destination.contains(descriptor)) {
-					OutputStream output = destination.getOutputStream(descriptor, null);
+					OutputStream output = destination.getOutputStream(descriptor);
 					if (output == null)
 						throw new IOException("unable to open output stream for " + descriptor);
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, new BufferedOutputStream(output), true);
@@ -528,7 +528,7 @@ public class Generator {
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				FileUtils.zip(files, tempFile);
 				if (!destination.contains(descriptor)) {
-					OutputStream output = destination.getOutputStream(descriptor, null);
+					OutputStream output = destination.getOutputStream(descriptor);
 					if (output == null)
 						throw new IOException("unable to open output stream for " + descriptor);
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, new BufferedOutputStream(output), true);
