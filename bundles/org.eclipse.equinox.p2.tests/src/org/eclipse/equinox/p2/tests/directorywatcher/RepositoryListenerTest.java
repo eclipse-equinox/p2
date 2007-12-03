@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.BundlePool;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -65,10 +67,16 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		try {
 			copy(baseFolder, folder);
 		} catch (IOException e) {
-			fail("2.99", e);
+			fail("2.2", e);
 		}
 		watcher.poll();
 		watcher.stop();
+
+		BundlePool repo = (BundlePool) listener.getArtifactRepository();
+		IArtifactKey[] keys = repo.getArtifactKeys();
+		for (int i = 0; i < keys.length; i++) {
+			assertTrue("2.3", repo.getArtifactFile(keys[i]).toString().startsWith(folder.getAbsolutePath().toString()));
+		}
 
 		assertEquals("3.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
 		assertEquals("3.1", 2, listener.getArtifactRepository().getArtifactKeys().length);

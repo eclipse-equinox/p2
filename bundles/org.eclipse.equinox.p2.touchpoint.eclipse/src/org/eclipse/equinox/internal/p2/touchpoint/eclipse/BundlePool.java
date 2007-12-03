@@ -15,7 +15,8 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 public class BundlePool implements IFileArtifactRepository {
 
 	public static final String REPOSITORY_TYPE = "org.eclipse.equinox.p2.touchpoint.eclipse.bundlePool"; //$NON-NLS-1$
-	private static final String BUNDLE_FOLDER = "bundle.folder"; //$NON-NLS-1$
+	public static final String BUNDLE_FOLDER = "bundle.folder"; //$NON-NLS-1$
+	public static final String BUNDLE_PATH = "bundle.path"; //$NON-NLS-1$
 	private static final String TMP_ZIP = "tmp.zip"; //$NON-NLS-1$
 	public static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 
@@ -102,6 +103,10 @@ public class BundlePool implements IFileArtifactRepository {
 	}
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
+		String path = descriptor.getProperty(BUNDLE_PATH);
+		if (path != null)
+			return new File(path);
+
 		if (Boolean.valueOf(descriptor.getProperty(BUNDLE_FOLDER)).booleanValue()) {
 			String location = repository.getLocation(descriptor);
 			return toBundleFolder(location);
@@ -257,6 +262,9 @@ public class BundlePool implements IFileArtifactRepository {
 	 * descriptor existed in the repository, and was successfully removed.
 	 */
 	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
+		if (descriptor.getProperty(BUNDLE_PATH) != null)
+			return getDescriptors().remove(descriptor);
+
 		File file = getArtifactFile(descriptor);
 		if (file == null)
 			return false;

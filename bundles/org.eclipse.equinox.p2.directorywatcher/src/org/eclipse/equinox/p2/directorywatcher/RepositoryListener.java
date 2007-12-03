@@ -247,12 +247,13 @@ public class RepositoryListener extends DirectoryChangeListener {
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundle);
 		IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor basicDescriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, bundle, true, false);
-		if (bundle.isFile())
-			return basicDescriptor;
 
-		ArtifactDescriptor folderDescriptor = new ArtifactDescriptor(basicDescriptor);
-		folderDescriptor.setProperty("bundle.folder", "true");
-		return folderDescriptor;
+		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
+		pathDescriptor.setProperty("bundle.path", bundle.getAbsolutePath());
+		if (bundle.isDirectory())
+			pathDescriptor.setProperty("bundle.folder", "true");
+
+		return pathDescriptor;
 	}
 
 	private IInstallableUnit[] generateIUs(Collection files) {
