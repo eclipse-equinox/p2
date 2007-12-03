@@ -20,8 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.director.IPlanner;
-import org.eclipse.equinox.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -64,10 +63,12 @@ public class ProvisioningUtil {
 		return repo;
 	}
 
-	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static IMetadataRepository getRollbackRepository(IProgressMonitor monitor) throws ProvisionException {
+		IDirector director = getDirector();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		URL location = director.getRollbackLocation();
 		IMetadataRepository repo = manager.loadRepository(location, monitor);
 		if (repo == null) {
 			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location.toExternalForm()));
@@ -304,5 +305,13 @@ public class ProvisioningUtil {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoPlannerFound);
 		}
 		return planner;
+	}
+
+	public static IDirector getDirector() throws ProvisionException {
+		IDirector director = (IDirector) ServiceHelper.getService(ProvUIActivator.getContext(), IDirector.class.getName());
+		if (director == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoDirectorFound);
+		}
+		return director;
 	}
 }
