@@ -43,7 +43,7 @@ public class Mirror {
 			OutputStream repositoryStream = null;
 			try {
 				System.out.println("Mirroring: " + descriptor.getArtifactKey()); //$NON-NLS-1$
-				repositoryStream = destination.getOutputStream(newDescriptor, null);
+				repositoryStream = destination.getOutputStream(newDescriptor);
 				if (repositoryStream == null)
 					return;
 				source.getArtifact(descriptor, repositoryStream, new NullProgressMonitor());

@@ -88,7 +88,7 @@ public class MirrorRequest extends ArtifactRequest {
 		if (targetDescriptorProperties != null)
 			destinationDescriptor.addProperties(targetDescriptorProperties);
 
-		OutputStream destination = target.getOutputStream(destinationDescriptor, this);
+		OutputStream destination = target.getOutputStream(destinationDescriptor);
 		if (destination == null) {
 			setResult(new Status(IStatus.ERROR, Activator.ID, "Can't get an output stream to " + target + " to store " + getArtifactKey()));
 			return;
