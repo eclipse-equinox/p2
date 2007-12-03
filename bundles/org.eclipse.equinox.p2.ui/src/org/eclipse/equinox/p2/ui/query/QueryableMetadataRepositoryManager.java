@@ -21,7 +21,7 @@ import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement;
 
 /**
- * An object that adds queryable support to an artifact repository 
+ * An object that adds queryable support to a metadata repository 
  * manager.
  */
 public class QueryableMetadataRepositoryManager implements IQueryable {

@@ -20,8 +20,7 @@ import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIActivator;
 
 /**
- * An object that adds queryable support to an artifact repository 
- * manager.
+ * An object that adds queryable support to the profile registry.
  */
 public class QueryableProfileRegistry implements IQueryable {
 
