@@ -83,10 +83,10 @@ public interface IArtifactRepository extends IRepository {
 	 * artifact descriptor.
 	 * @param descriptor the descriptor describing the artifact data to be written to the 
 	 * resultant stream
-	 * @param request may be null if not getting filled by an <code>IArtifactRequest</code>
-	 * @return the stream to which the artifact content can be written
+	 * @return the stream to which the artifact content can be written. The returned output
+	 *  stream may implement <code>IStateful</code>.
 	 */
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor, IArtifactRequest request);
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor);
 
 	/**
 	 * Remove the all keys, descriptors, and contents from this repository.
