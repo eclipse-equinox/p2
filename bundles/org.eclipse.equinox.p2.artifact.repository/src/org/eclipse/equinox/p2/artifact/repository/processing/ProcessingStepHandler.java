@@ -67,7 +67,7 @@ public class ProcessingStepHandler {
 		}
 		int severity = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 		ProcessingStep result = new ProcessingStep() {};
-		result.status = new Status(severity, Activator.ID, "Could not instantiate step:" + descriptor.getProcessorId(), error);
+		result.setStatus(new Status(severity, Activator.ID, "Could not instantiate step:" + descriptor.getProcessorId(), error));
 		return result;
 	}
 
