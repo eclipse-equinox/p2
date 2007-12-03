@@ -198,6 +198,9 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-exe"))
 				provider.setExecutableLocation(arg);
 
+			if (args[i - 1].equalsIgnoreCase("-launcherConfig"))
+				provider.setLauncherConfig(arg);
+
 			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr"))
 				metadataLocation = arg;
 

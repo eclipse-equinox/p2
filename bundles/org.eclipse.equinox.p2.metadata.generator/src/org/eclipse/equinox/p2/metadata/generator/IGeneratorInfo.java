@@ -42,6 +42,8 @@ public interface IGeneratorInfo {
 
 	public File getJRELocation();
 
+	public String getLauncherConfig();
+
 	public LauncherData getLauncherData();
 
 	public String[][] getMappingRules();

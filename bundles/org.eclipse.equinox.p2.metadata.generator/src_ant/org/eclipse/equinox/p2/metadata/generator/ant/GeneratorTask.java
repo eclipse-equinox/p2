@@ -27,7 +27,7 @@ public class GeneratorTask extends Task {
 
 	URL metadataRepository, artifactRepository;
 	File source, inplace, updateSite, config;
-	String rootVersion, root, flavor, p2OS;
+	String rootVersion, root, flavor, p2OS, launcherConfig;
 	boolean publishArtifacts, publishArtifactRepository, append, noDefaultIUs;
 	File exe, base, features, bundles;
 
@@ -84,6 +84,10 @@ public class GeneratorTask extends Task {
 		if (exe != null) {
 			result.add("-exe");
 			result.add(exe.getAbsolutePath());
+		}
+		if (launcherConfig != null) {
+			result.add("-launcherConfig"); //$NON-NLS-1$
+			result.add(launcherConfig);
 		}
 		if (features != null) {
 			result.add("-features");
@@ -150,6 +154,10 @@ public class GeneratorTask extends Task {
 
 	public void setInplace(String value) {
 		this.inplace = new File(value);
+	}
+
+	public void setLauncherConfig(String launcherConfig) {
+		this.launcherConfig = launcherConfig;
 	}
 
 	public void setMetadataRepository(String location) {

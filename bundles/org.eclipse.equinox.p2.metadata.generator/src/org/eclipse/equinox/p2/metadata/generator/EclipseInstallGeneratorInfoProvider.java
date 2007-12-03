@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.*;
+import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
@@ -32,7 +33,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)";
 	//String filterLauncherVersion = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_VERSION + "=" + props.getProperty("equinox.launcher.version") + ")";
 	private final static String frameworkAdminFillter = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")";
-	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator";
+	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
+	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
+	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 
 	private static String os;
 	private boolean addDefaultIUs = true;
@@ -54,6 +57,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private boolean publishArtifacts = false;
 	private String rootId;
 	private String rootVersion;
+	private String launcherConfig;
+
 	private URL siteLocation;
 
 	/**
@@ -152,6 +157,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	private void expandBundleLocations() {
+		if (bundleLocations == null) {
+			bundleLocations = new File[] {};
+			return;
+		}
 		ArrayList result = new ArrayList();
 		for (int i = 0; i < bundleLocations.length; i++) {
 			File location = bundleLocations[i];
@@ -228,7 +237,14 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		//		} catch (InterruptedException e) {
 		//			// ignore
 		//		}
-		return (FrameworkAdmin) frameworkAdminTracker.getService();
+
+		FrameworkAdmin admin = (FrameworkAdmin) frameworkAdminTracker.getService();
+		if (admin == null) {
+			startBundle(ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX);
+			startBundle(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR);
+			admin = (FrameworkAdmin) frameworkAdminTracker.getService();
+		}
+		return admin;
 	}
 
 	private Collection getIUs(Set ius, String prefix) {
@@ -246,6 +262,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		if (executableLocation == null)
 			return null;
 		return new File(executableLocation.getParentFile(), "jre"); //$NON-NLS-1$
+	}
+
+	public String getLauncherConfig() {
+		return launcherConfig;
 	}
 
 	public LauncherData getLauncherData() {
@@ -345,6 +365,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		flavor = value;
 	}
 
+	public void setLauncherConfig(String value) {
+		launcherConfig = value;
+	}
+
 	public void setMappingRules(String[][] value) {
 		mappingRules = value;
 	}
@@ -378,5 +402,26 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	 */
 	public void setSiteLocation(URL location) {
 		this.siteLocation = location;
+	}
+
+	private boolean startBundle(String bundleId) {
+		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(Activator.getContext(), PackageAdmin.class.getName());
+		if (packageAdmin == null)
+			return false;
+
+		Bundle[] bundles = packageAdmin.getBundles(bundleId, null);
+		if (bundles != null && bundles.length > 0) {
+			for (int i = 0; i < bundles.length; i++) {
+				try {
+					if ((bundles[0].getState() & Bundle.INSTALLED) > 0) {
+						bundles[0].start();
+						return true;
+					}
+				} catch (BundleException e) {
+					// failed, try next bundle
+				}
+			}
+		}
+		return false;
 	}
 }

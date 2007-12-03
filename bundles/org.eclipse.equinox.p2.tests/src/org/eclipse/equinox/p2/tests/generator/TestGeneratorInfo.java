@@ -34,6 +34,7 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 	private IMetadataRepository metadataRepo;
 	private String rootId;
 	private String rootVersion;
+	private String launcherConfig;
 	private URL siteLocation;
 
 	public TestGeneratorInfo(File baseLocation) {
@@ -113,6 +114,10 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		return siteLocation;
 	}
 
+	public String getLauncherConfig() {
+		return launcherConfig;
+	}
+
 	public boolean publishArtifactRepository() {
 		return false;
 	}
@@ -142,6 +147,10 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 
 	public void setSiteLocation(URL location) {
 		this.siteLocation = location;
+	}
+
+	public void setLauncherConfig(String launcherConfig) {
+		this.launcherConfig = launcherConfig;
 	}
 
 }

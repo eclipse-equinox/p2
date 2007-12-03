@@ -29,9 +29,27 @@ public class Generator {
 
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator";
 	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator";
+
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
+	/**
+	 * Convert a list of tokens into an array. The list separator has to be
+	 * specified.
+	 */
+	public static String[] getArrayFromString(String list, String separator) {
+		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+			return new String[0];
+		List result = new ArrayList();
+		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
+			String token = tokens.nextToken().trim();
+			if (!token.equals("")) //$NON-NLS-1$
+				result.add(token);
+		}
+		return (String[]) result.toArray(new String[result.size()]);
+	}
+
 	private final IGeneratorInfo info;
+
 	private StateObjectFactory stateObjectFactory;
 
 	public Generator(IGeneratorInfo infoProvider) {
@@ -226,7 +244,7 @@ public class Generator {
 	 */
 	private boolean generateExecutableFeatureIUs(Set resultantIUs, IArtifactRepository destination) {
 		File parentDir = info.getFeaturesLocation();
-		if (!parentDir.exists())
+		if (parentDir == null || !parentDir.exists())
 			return false;
 		File[] featureDirs = parentDir.listFiles();
 		if (featureDirs == null)
@@ -347,6 +365,12 @@ public class Generator {
 		File jreLocation = info.getJRELocation();
 		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, resultantIUs);
 		publishArtifact(artifact, new File[] {jreLocation}, destination, false);
+
+		if (info.getLauncherConfig() != null) {
+			String[] config = getArrayFromString(info.getLauncherConfig(), "_"); //$NON-NLS-1$
+			generateExecutableIUs(config[1], config[0], config[2], "1.0.0", executableLocation.getParentFile(), resultantIUs, destination); //$NON-NLS-1$
+			return;
+		}
 
 		//If the executable feature is present, use it to generate IUs for launchers
 		if (generateExecutableFeatureIUs(resultantIUs, destination) || executableLocation == null)
