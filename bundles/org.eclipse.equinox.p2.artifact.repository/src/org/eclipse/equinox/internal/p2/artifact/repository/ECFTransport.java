@@ -19,6 +19,7 @@ import org.eclipse.ecf.filetransfer.identity.FileCreateException;
 import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.p2.artifact.repository.IStateful;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
@@ -133,6 +134,10 @@ public class ECFTransport extends Transport {
 						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unexpected interrupt while waiting on ECF transfer", e)); //$NON-NLS-1$
 				}
 			}
+		}
+
+		if (target instanceof IStateful) {
+			((IStateful) target).setStatus(result[0]);
 		}
 		return result[0];
 	}
