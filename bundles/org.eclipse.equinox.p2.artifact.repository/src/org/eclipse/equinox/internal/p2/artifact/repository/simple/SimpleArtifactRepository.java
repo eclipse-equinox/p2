@@ -282,22 +282,29 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
-	public class ArtifactOutputStream extends OutputStream {
+	public class ArtifactOutputStream extends OutputStream implements IStateful {
 		private OutputStream destination;
 		private IArtifactDescriptor descriptor;
-		private IArtifactRequest request;
+		private IStatus status = Status.OK_STATUS;
 		private File file;
 		private long count = 0;
 
-		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor, IArtifactRequest request) {
-			this(os, descriptor, request, null);
+		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor) {
+			this(os, descriptor, null);
 		}
 
-		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor, IArtifactRequest request, File file) {
+		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor, File file) {
 			this.destination = os;
 			this.descriptor = descriptor;
-			this.request = request;
 			this.file = file;
+		}
+
+		public IStatus getStatus() {
+			return status;
+		}
+
+		public void setStatus(IStatus status) {
+			this.status = status;
 		}
 
 		public void write(int b) throws IOException {
@@ -316,23 +323,22 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 
 		public void close() throws IOException {
-			boolean requestOK = request == null ? true : request.getResult().isOK();
 			try {
 				destination.close();
 			} catch (IOException e) {
 				// cleanup if possible
 				if (file != null)
 					delete(file);
-				if (requestOK)
+				if (getStatus().isOK())
 					throw e;
-				// if the request had already a problem e.g. CANCEL, we can return - the status is already set correctly 
+				// if the stream has already been e.g. canceled, we can return - the status is already set correctly 
 				return;
 			}
 			// if the steps ran ok and there was actual content, write the artifact descriptor
 			// TODO the count check is a bit bogus but helps in some error cases (e.g., the optimizer)
-			// where errors occured in a processing step earlier in the chain.  We likely need a better
+			// where errors occurred in a processing step earlier in the chain.  We likely need a better
 			// or more explicit way of handling this case.
-			if (requestOK && ProcessingStepHandler.checkStatus(destination).isOK() && count > 0) {
+			if (getStatus().isOK() && ProcessingStepHandler.checkStatus(destination).isOK() && count > 0) {
 				((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
 				addDescriptor(descriptor);
 			} else if (file != null)
@@ -395,7 +401,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// finally create and return an output stream suitably wrapped so that when it is 
 		// closed the repository is updated with the descriptor
 		try {
-			return new ArtifactOutputStream(new BufferedOutputStream(new FileOutputStream(file)), newDescriptor, request, outputFile);
+			return new ArtifactOutputStream(new BufferedOutputStream(new FileOutputStream(file)), newDescriptor, outputFile);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
