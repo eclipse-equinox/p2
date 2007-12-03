@@ -56,7 +56,7 @@ public class SimpleDirector implements IDirector {
 			throw new IllegalStateException("Unable to find provisioning planner");
 	}
 
-	private URL getRollbackLocation() {
+	public URL getRollbackLocation() {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName());
 		try {
 			return new URL(agentLocation.getDataArea(DirectorActivator.PI_DIRECTOR), ROLLBACK_LOCATION);

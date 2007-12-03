@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.director;
 
+import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -49,6 +50,10 @@ public interface IDirector {
 	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
 
 	public IStatus revert(IInstallableUnit previous, Profile profile, IProgressMonitor monitor);
+
 	//TODO And many more operations for uninstallation and the rest ! See bug 179819
 
+	//TODO we might want to register a service for this instead?
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211810
+	public URL getRollbackLocation();
 }
