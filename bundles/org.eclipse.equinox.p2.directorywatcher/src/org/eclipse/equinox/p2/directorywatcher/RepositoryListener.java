@@ -205,7 +205,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		if (!snapshot.isEmpty()) {
 			modified = true;
-			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
+			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet(), metadataRepository.getLocation().toExternalForm());
 			metadataRepository.addInstallableUnits(iusToAdd);
 		}
 		if (modified)
@@ -256,22 +256,23 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return pathDescriptor;
 	}
 
-	private IInstallableUnit[] generateIUs(Collection files) {
+	private IInstallableUnit[] generateIUs(Collection files, String repositoryId) {
 		List ius = new ArrayList();
 		for (Iterator it = files.iterator(); it.hasNext();) {
 			File bundle = (File) it.next();
-			IInstallableUnit iu = generateIU(bundle);
+			IInstallableUnit iu = generateIU(bundle, repositoryId);
 			if (iu != null)
 				ius.add(iu);
 		}
 		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
 	}
 
-	private IInstallableUnit generateIU(File bundle) {
+	private IInstallableUnit generateIU(File bundle, String repositoryId) {
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundle);
 		if (bundleDescription == null)
 			return null;
 		Properties props = new Properties();
+		props.setProperty("repository.id", bundle.getAbsolutePath());
 		props.setProperty("file.name", bundle.getAbsolutePath());
 		props.setProperty("file.lastModified", Long.toString(bundle.lastModified()));
 		IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
