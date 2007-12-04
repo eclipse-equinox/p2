@@ -87,7 +87,7 @@ public class Activator implements BundleActivator, ManagedServiceFactory {
 	public void updated(String pid, Dictionary properties) throws ConfigurationException {
 		deleted(pid);
 		DirectoryWatcher watcher = new DirectoryWatcher(properties, context);
-		watchers.put(pid, properties);
+		watchers.put(pid, watcher);
 		watcher.addListener(new JARFileListener());
 		watcher.start();
 	}
