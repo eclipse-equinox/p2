@@ -307,6 +307,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				info.url = new URL(locationString);
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
+				repositories.put(getKey(info.url), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
 			}
