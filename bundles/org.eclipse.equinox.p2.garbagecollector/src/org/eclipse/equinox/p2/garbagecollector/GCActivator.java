@@ -54,6 +54,7 @@ public class GCActivator implements BundleActivator {
 		ProvisioningEventBus eventBus = (ProvisioningEventBus) getService(GCActivator.context, ProvisioningEventBus.class.getName());
 		if (eventBus == null) {
 			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Missing_bus));
+			return;
 		}
 		eventBus.addListener(busListener = new SynchronousProvisioningListener() {
 			//The GC is triggered when an uninstall event occured during a "transaction" and the transaction is committed.   
