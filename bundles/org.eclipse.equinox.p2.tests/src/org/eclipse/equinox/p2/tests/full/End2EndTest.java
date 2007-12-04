@@ -124,19 +124,6 @@ public class End2EndTest extends AbstractProvisioningTest {
 		//		assertEmptyProfile(profile2);
 	}
 
-	public IInstallableUnit[] getIU(String property, String value) {
-		Collection result = new ArrayList();
-		for (int i = 0; i < repos.length; i++) {
-			IInstallableUnit[] ius = repos[i].getInstallableUnits(null);
-			for (int j = 0; j < ius.length; j++) {
-				String v = ius[j].getProperty(property);
-				if (v != null && v.equals(value))
-					result.add(ius[j]);
-			}
-		}
-		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
-	}
-
 	public IInstallableUnit[] getIUs(String id) {
 		Collection result = new ArrayList();
 		for (int i = 0; i < repos.length; i++) {
