@@ -63,7 +63,8 @@ public class ECFTransport extends Transport {
 	public IStatus download(String toDownload, OutputStream target, IProgressMonitor monitor) {
 		IRetrieveFileTransferFactory factory = (IRetrieveFileTransferFactory) retrievalFactoryTracker.getService();
 		if (factory == null)
-			return new Status(IStatus.ERROR, Activator.ID, "ECF Transfer manager not available");
+			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, "ECF Transfer manager not available"));
+
 		return transfer(factory.newInstance(), toDownload, target, monitor);
 	}
 
@@ -78,7 +79,11 @@ public class ECFTransport extends Transport {
 							rse.receive(target);
 						}
 					} catch (IOException e) {
-						e.printStackTrace();
+						IStatus status = convertToStatus(e);
+						synchronized (result) {
+							result[0] = status;
+							result.notify();
+						}
 					}
 				}
 				if (event instanceof IIncomingFileTransferReceiveDataEvent) {
@@ -120,9 +125,9 @@ public class ECFTransport extends Transport {
 		try {
 			retrievalContainer.sendRetrieveRequest(FileIDFactory.getDefault().createFileID(retrievalContainer.getRetrieveNamespace(), toDownload), listener, null);
 		} catch (IncomingFileTransferException e) {
-			return new Status(IStatus.ERROR, Activator.ID, "error during transfer", e);
+			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, "error during transfer", e));
 		} catch (FileCreateException e) {
-			return new Status(IStatus.ERROR, Activator.ID, "error during transfer - could not create file", e);
+			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, "error during transfer - could not create file", e));
 		}
 		synchronized (result) {
 			while (result[0] == null) {
@@ -136,9 +141,12 @@ public class ECFTransport extends Transport {
 			}
 		}
 
-		if (target instanceof IStateful) {
-			((IStateful) target).setStatus(result[0]);
-		}
-		return result[0];
+		return statusOn(target, result[0]);
+	}
+
+	private static IStatus statusOn(OutputStream target, IStatus status) {
+		if (target instanceof IStateful)
+			((IStateful) target).setStatus(status);
+		return status;
 	}
 }
