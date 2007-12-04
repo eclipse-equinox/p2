@@ -18,8 +18,8 @@ import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -202,18 +202,16 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource) {
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		IMetadataRepository[] repos = repoMgr.getKnownRepositories();
 		List results = new ArrayList();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
 				results.add(additionalSource[i]);
 			}
 		}
-
-		for (int i = 0; i < repos.length; i++) {
-			results.addAll(Arrays.asList(repos[i].getInstallableUnits(null)));
-		}
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
+		Iterator matches = repoMgr.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), null).iterator();
+		while (matches.hasNext())
+			results.add(matches.next());
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
 	}
 

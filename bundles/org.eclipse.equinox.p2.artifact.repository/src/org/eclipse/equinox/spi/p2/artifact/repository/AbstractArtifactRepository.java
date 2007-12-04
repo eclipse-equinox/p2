@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.core.helpers.Utils;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
@@ -70,7 +70,7 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 		if (!(o instanceof AbstractArtifactRepository)) {
 			return false;
 		}
-		if (Utils.sameURL(getLocation(), ((AbstractArtifactRepository) o).getLocation()))
+		if (URLUtil.sameURL(getLocation(), ((AbstractArtifactRepository) o).getLocation()))
 			return true;
 		return false;
 	}

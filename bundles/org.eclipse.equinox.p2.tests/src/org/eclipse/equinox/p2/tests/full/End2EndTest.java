@@ -8,7 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import java.util.*;
+import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -18,7 +18,6 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -30,23 +29,20 @@ import org.osgi.framework.Version;
 
 public class End2EndTest extends AbstractProvisioningTest {
 
-	private IMetadataRepository[] repos;
+	private IMetadataRepositoryManager repoManager;
 	private IDirector director;
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
 		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
-		if (sr == null) {
+		if (sr == null)
 			throw new RuntimeException("Director service not available");
-		}
 		director = createDirector();
 		planner = createPlanner();
 		ServiceReference sr2 = TestActivator.context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		IMetadataRepositoryManager mgr = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
-		if (mgr == null) {
+		repoManager = (IMetadataRepositoryManager) TestActivator.context.getService(sr2);
+		if (repoManager == null)
 			throw new RuntimeException("Repository manager could not be loaded");
-		}
-		repos = mgr.getKnownRepositories();
 	}
 
 	protected Profile createProfile(String profileId) {
@@ -125,33 +121,20 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	public IInstallableUnit[] getIUs(String id) {
-		Collection result = new ArrayList();
-		for (int i = 0; i < repos.length; i++) {
-			Iterator it = repos[i].query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).iterator();
-			while (it.hasNext()) {
-				result.add(it.next());
-			}
-		}
-		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
+		return (IInstallableUnit[]) repoManager.query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
 	}
 
 	public IInstallableUnit getIU(String id) {
-		for (int i = 0; i < repos.length; i++) {
-			Iterator it = repos[i].query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).iterator();
-			if (it.hasNext()) {
-				return (IInstallableUnit) it.next();
-			}
-		}
+		Iterator it = repoManager.query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).iterator();
+		if (it.hasNext())
+			return (IInstallableUnit) it.next();
 		return null;
 	}
 
 	public IInstallableUnit getIU(String id, Version v) {
-		for (int i = 0; i < repos.length; i++) {
-			Iterator it = repos[i].query(new InstallableUnitQuery(id, v), new Collector(), null).iterator();
-			while (it.hasNext()) {
-				return (IInstallableUnit) it.next();
-			}
-		}
+		Iterator it = repoManager.query(new InstallableUnitQuery(id, v), new Collector(), null).iterator();
+		if (it.hasNext())
+			return (IInstallableUnit) it.next();
 		return null;
 	}
 }

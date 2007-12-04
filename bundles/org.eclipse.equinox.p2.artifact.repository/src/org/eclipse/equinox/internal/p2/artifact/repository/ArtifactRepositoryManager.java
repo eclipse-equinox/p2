@@ -154,7 +154,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			restoreRepositories();
 		for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
 			IArtifactRepository match = (IArtifactRepository) iterator.next();
-			if (Utils.sameURL(match.getLocation(), location))
+			if (URLUtil.sameURL(match.getLocation(), location))
 				return match;
 		}
 		return null;

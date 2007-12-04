@@ -27,8 +27,7 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.Query;
+import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.Version;
 
@@ -153,24 +152,21 @@ public class ProvisioningHelper {
 	 * @return The IUs that match the query
 	 */
 	public static Collector getInstallableUnits(URL location, Query query, IProgressMonitor monitor) {
-		IMetadataRepository[] repositories = null;
-		Collector collector = new Collector();
+		IQueryable queryable = null;
 		if (location == null) {
-			repositories = getMetadataRepositories();
-			for (int i = 0; i < repositories.length; i++)
-				repositories[i].query(query, collector, monitor);
+			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		} else {
-			getMetadataRepository(location).query(query, collector, null);
+			queryable = getMetadataRepository(location);
 		}
-		return collector;
+		return queryable.query(query, new Collector(), null);
 	}
 
-	public static IMetadataRepository[] getMetadataRepositories() {
+	public static URL[] getMetadataRepositories() {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
 			return null;
-		IMetadataRepository[] repos = manager.getKnownRepositories();
+		URL[] repos = manager.getKnownRepositories();
 		if (repos.length > 0)
 			return repos;
 		return null;
@@ -187,9 +183,9 @@ public class ProvisioningHelper {
 			StringBuffer error = new StringBuffer();
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
 			error.append("Repositories searched:\n");
-			IMetadataRepository[] repos = getMetadataRepositories();
+			URL[] repos = getMetadataRepositories();
 			for (int i = 0; i < repos.length; i++)
-				error.append(repos[i].getLocation() + "\n");
+				error.append(repos[i] + "\n");
 			throw new ProvisionException(error.toString());
 		}
 

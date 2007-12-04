@@ -183,7 +183,13 @@ public class ProvisioningUtil {
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		return manager.getKnownRepositories();
+		URL[] locations = manager.getKnownRepositories();
+		//TODO Shouldn't be eagerly loading all repositories here
+		IMetadataRepository[] repositories = new IMetadataRepository[locations.length];
+		for (int i = 0; i < repositories.length; i++) {
+			repositories[i] = manager.loadRepository(locations[i], null);
+		}
+		return repositories;
 	}
 
 	/*

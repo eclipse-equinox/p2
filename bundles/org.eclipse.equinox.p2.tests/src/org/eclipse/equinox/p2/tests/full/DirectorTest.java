@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import java.util.*;
+import java.util.Iterator;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -51,16 +51,8 @@ public class DirectorTest extends TestCase {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}
 
-		IMetadataRepository[] repos = mgr.getKnownRepositories();
-		Collection allJobs = new ArrayList();
 		String autoInstall = System.getProperty("eclipse.p2.autoInstall");
-		for (int i = 0; i < repos.length; i++) {
-			IInstallableUnit[] ius = repos[i].getInstallableUnits(null);
-			for (int j = 0; j < ius.length; j++) {
-				if (ius[j].getId().equals(autoInstall))
-					allJobs.add(ius[j]);
-			}
-		}
+		Collector allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), new Collector(), null);
 
 		String installFolder = System.getProperty(Profile.PROP_INSTALL_FOLDER);
 		ServiceReference profileRegSr = TestActivator.context.getServiceReference(IProfileRegistry.class.getName());
@@ -97,7 +89,7 @@ public class DirectorTest extends TestCase {
 
 		IInstallableUnit[] allRoots = new IInstallableUnit[1];
 		IStatus operationStatus = null;
-		if (allJobs.size() != 0) {
+		if (!allJobs.isEmpty()) {
 			allRoots[0] = (IInstallableUnit) allJobs.iterator().next();
 			if (!doUninstall) {
 				operationStatus = director.install(allRoots, p, new NullProgressMonitor());

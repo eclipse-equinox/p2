@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
+import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -32,16 +33,15 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager));
 			return result;
 		}
-		IMetadataRepository[] repos = manager.getKnownRepositories();
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
-		monitor.beginTask(ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repos.length);
+		URL[] repos = manager.getKnownRepositories();
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repos.length * 2);
 		for (int i = 0; i < repos.length; i++) {
+			IMetadataRepository repository = manager.loadRepository(repos[i], sub.newChild(1));
 			if (query.isMatch(repos[i]))
-				result.accept(new MetadataRepositoryElement(repos[i]));
-			monitor.worked(1);
+				result.accept(new MetadataRepositoryElement(repository));
+			sub.worked(1);
 		}
-		monitor.done();
+		sub.done();
 		return result;
 	}
 }

@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -21,7 +22,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
@@ -159,11 +160,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String version = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			IMetadataRepository[] repositories = ProvisioningHelper.getMetadataRepositories();
-			if (repositories == null)
-				return;
+			URL[] repositories = ProvisioningHelper.getMetadataRepositories();
 			for (int i = 0; i < repositories.length; i++)
-				interpreter.println(repositories[i].getLocation());
+				interpreter.println(repositories[i]);
 			return;
 		}
 		URL repoURL = toURL(interpreter, urlString);
@@ -182,27 +181,22 @@ public class ProvCommandProvider implements CommandProvider {
 	 */
 	public void _provlg(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
-		IMetadataRepository[] repositories;
+		IQueryable queryable = null;
 		if (urlString == null) {
-			repositories = ProvisioningHelper.getMetadataRepositories();
-			if (repositories == null)
+			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+			if (queryable == null)
 				return;
 		} else {
 			URL repoURL = toURL(interpreter, urlString);
 			if (repoURL == null)
 				return;
-			IMetadataRepository repo = null;
-			repo = ProvisioningHelper.getMetadataRepository(repoURL);
-			if (repo == null)
+			queryable = ProvisioningHelper.getMetadataRepository(repoURL);
+			if (queryable == null)
 				return;
-			repositories = new IMetadataRepository[] {repo};
 		}
 		RequiredCapability requirement = new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false); //$NON-NLS-1$
 		Query query = new CapabilityQuery(requirement);
-		Collector result = new Collector();
-		for (int i = 0; i < repositories.length; i++)
-			repositories[i].query(query, result, null);
-		IInstallableUnit[] units = sort(result);
+		IInstallableUnit[] units = sort(queryable.query(query, new Collector(), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);
 	}

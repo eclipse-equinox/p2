@@ -14,16 +14,24 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Utils;
-import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
 public class MetadataRepositoryManager implements IMetadataRepositoryManager {
+	static class RepositoryInfo {
+		String description;
+		String name;
+		IMetadataRepository repository;
+		URL url;
+	}
+
 	private static final String FACTORY = "factory"; //$NON-NLS-1$
 
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
@@ -34,25 +42,48 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
-	private List repositories = Collections.synchronizedList(new ArrayList());
+	private Map repositories = null;
+	//lock object to be held when referring repositories field
+	private final Object repositoryLock = new Object();
 
 	public MetadataRepositoryManager() {
-		restoreRepositories();
+		//initialize repositories lazily
 	}
 
 	public void addRepository(IMetadataRepository repository) {
-		repositories.add(repository);
+		RepositoryInfo info = new RepositoryInfo();
+		info.repository = repository;
+		info.name = repository.getName();
+		info.description = repository.getDescription();
+		info.url = repository.getLocation();
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			repositories.put(getKey(repository), info);
+		}
 		// save the given repository in the preferences.
 		remember(repository);
 	}
 
-	private Object createExecutableExtension(IExtension extension, String element) throws CoreException {
+	/**
+	 * Returns the executable extension, or <code>null</code> if there
+	 * was no corresponding extension, or an error occurred loading it
+	 */
+	private Object createExecutableExtension(IExtension extension, String element) {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
+		CoreException failure = null;
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i].getName().equals(element))
-				return elements[i].createExecutableExtension("class");
+			if (elements[i].getName().equals(element)) {
+				try {
+					return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
+				} catch (CoreException e) {
+					log("Error loading repository extension: " + extension.getUniqueIdentifier(), failure); //$NON-NLS-1$
+					return null;
+				}
+			}
 		}
-		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "Malformed extension"));
+		log("Malformed repository extension: " + extension.getUniqueIdentifier(), null); //$NON-NLS-1$
+		return null;
 	}
 
 	// TODO This method really should not be here.  There could be lots of different kinds of
@@ -65,25 +96,21 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 		if (extension == null)
 			return null;
-		try {
-			IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, FACTORY);
-			if (factory == null)
-				return null;
-			result = factory.create(location, name, type);
-			if (result != null)
-				addRepository(result);
-			return result;
-		} catch (CoreException e) {
+		IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, FACTORY);
+		if (factory == null)
 			return null;
-		}
+		result = factory.create(location, name, type);
+		if (result != null)
+			addRepository(result);
+		return result;
 	}
 
 	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
 		IConfigurationElement[] elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
 		int count = 0;
 		for (int i = 0; i < elt.length; i++) {
-			if (elt[i].getName().equals("filter")) {
-				if (!elt[i].getAttribute("suffix").equals(suffix)) {
+			if (elt[i].getName().equals("filter")) { //$NON-NLS-1$
+				if (!elt[i].getAttribute("suffix").equals(suffix)) { //$NON-NLS-1$
 					elt[i] = null;
 				} else {
 					count++;
@@ -104,31 +131,39 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		IConfigurationElement[] elements = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
 		ArrayList result = new ArrayList(elements.length);
 		for (int i = 0; i < elements.length; i++)
-			if (elements[i].getName().equals("filter"))
-				result.add(elements[i].getAttribute("suffix"));
+			if (elements[i].getName().equals("filter")) //$NON-NLS-1$
+				result.add(elements[i].getAttribute("suffix")); //$NON-NLS-1$
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
 	/*
-	 * Return a string key suitable based on the given repository which
+	 * Return a string key based on the given repository which
 	 * is suitable for use as a preference node name.
 	 */
 	private String getKey(IMetadataRepository repository) {
-		return repository.getLocation().toExternalForm().replace('/', '_');
+		return getKey(repository.getLocation());
 	}
 
-	public IMetadataRepository[] getKnownRepositories() {
-		return (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[repositories.size()]);
+	/*
+	 * Return a string key based on the given repository location which
+	 * is suitable for use as a preference node name.
+	 */
+	private String getKey(URL location) {
+		return location.toExternalForm().replace('/', '_');
 	}
 
-	public URL[] getKnownRepositories2() {
-		URL[] result = new URL[repositories.size()];
-		int i = 0;
-		for (Iterator it = repositories.iterator(); it.hasNext(); i++) {
-			IMetadataRepository repository = (IMetadataRepository) it.next();
-			result[i] = repository.getLocation();
+	public URL[] getKnownRepositories() {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			URL[] result = new URL[repositories.size()];
+			int i = 0;
+			for (Iterator it = repositories.values().iterator(); it.hasNext(); i++) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				result[i] = info.url;
+			}
+			return result;
 		}
-		return result;
 	}
 
 	/*
@@ -139,18 +174,19 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	public IMetadataRepository getRepository(URL location) {
-		if (repositories == null)
-			restoreRepositories();
-		for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-			IMetadataRepository match = (IMetadataRepository) iterator.next();
-			if (Utils.sameURL(match.getLocation(), location))
-				return match;
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.url, location))
+					return info.repository;
+			}
+			return null;
 		}
-		return null;
 	}
 
 	public IMetadataRepository loadRepository(URL location, IProgressMonitor progress) {
-		// TODO do some thing with the monitor
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
 			return result;
@@ -178,19 +214,31 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private IMetadataRepository loadRepository(URL location, String suffix) {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
 		// Loop over the candidates and return the first one that successfully loads
-		for (int i = 0; i < providers.length; i++)
-			try {
-				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[i], FACTORY);
-				if (factory != null)
-					return factory.load(location);
-			} catch (CoreException e) {
-				log("Error loading repository extension: " + providers[i].getUniqueIdentifier(), e); //$NON-NLS-1$
-			}
+		for (int i = 0; i < providers.length; i++) {
+			IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[i], FACTORY);
+			if (factory != null)
+				return factory.load(location);
+		}
 		return null;
 	}
 
 	protected void log(String message, Throwable t) {
 		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, t));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.Query, org.eclipse.equinox.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
+	 */
+	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		URL[] locations = getKnownRepositories();
+		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
+		for (int i = 0; i < locations.length; i++) {
+			IMetadataRepository repository = loadRepository(locations[i], sub.newChild(9));
+			if (repository != null)
+				repository.query(query, collector, sub.newChild(1));
+		}
+		sub.done();
+		return collector;
 	}
 
 	/*
@@ -215,25 +263,28 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		value = repository.getVersion();
 		if (value != null)
 			node.put(KEY_VERSION, value);
-		saveRepositoryList();
+		saveToPreferences();
 	}
 
 	public boolean removeRepository(URL toRemove) {
-		IMetadataRepository repository = getRepository(toRemove);
-		if (repository == null)
-			return false;
-		repositories.remove(repository);
+		final String repoKey = getKey(toRemove);
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			if (repositories.remove(repoKey) == null)
+				return false;
+		}
 		// remove the repository from the preference store
 		try {
-			getPreferences().node(getKey(repository)).removeNode();
-			saveRepositoryList();
+			getPreferences().node(repoKey).removeNode();
+			saveToPreferences();
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
 		return true;
 	}
 
-	/*
+	/**
 	 * Restore the list of repositories from the preference store.
 	 */
 	private void restoreFromPreferences() {
@@ -248,63 +299,59 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 		for (int i = 0; i < children.length; i++) {
 			Preferences child = node.node(children[i]);
-			String url = child.get(KEY_URL, null);
-			if (url == null)
+			String locationString = child.get(KEY_URL, null);
+			if (locationString == null)
 				continue;
 			try {
-				IMetadataRepository repository = loadRepository(new URL(url), (IProgressMonitor) null);
-				// If we could not restore the repo then remove it from the preferences.
-				if (repository == null)
-					child.removeNode();
+				RepositoryInfo info = new RepositoryInfo();
+				info.url = new URL(locationString);
+				info.name = child.get(KEY_NAME, null);
+				info.description = child.get(KEY_DESCRIPTION, null);
 			} catch (MalformedURLException e) {
-				log("Error while restoring repository: " + url, e); //$NON-NLS-1$
-			} catch (BackingStoreException e) {
-				log("Error while restoring repository: " + url, e); //$NON-NLS-1$
+				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
 			}
 		}
 	}
 
-	public void restoreRepositories() {
-		//TODO we may want to have proxies on repo instead of the real repo object to limit what is activated.
-		URL path = null;
-		//		try {
-		//			AgentLocation location = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
-		//			if (location == null)
-		//				// TODO should do something here since we are failing to restore.
-		//				return;
-		//			path = location.getMetadataRepositoryURL();
-		//			repositories.add(new MetadataCache(path));
-		//		} catch (RepositoryCreationException e) {
-		//			log("Error while restoring repository " + path, e);
-		//		}
-		try {
-			String locationString = Activator.getContext().getProperty("eclipse.p2.metadataRepository");
-			if (locationString != null) {
-				StringTokenizer tokenizer = new StringTokenizer(locationString, ",");
-				while (tokenizer.hasMoreTokens()) {
-					try {
-						path = new URL(tokenizer.nextToken());
-						loadRepository(path, (IProgressMonitor) null);
-					} catch (MalformedURLException e) {
-						throw new RepositoryCreationException(e);
-					}
-				}
+	/**
+	 * Restores metadata repositories specified as system properties.
+	 */
+	private void restoreFromSystemProperty() {
+		String locationString = Activator.getContext().getProperty("eclipse.p2.metadataRepository"); //$NON-NLS-1$
+		if (locationString == null)
+			return;
+		StringTokenizer tokenizer = new StringTokenizer(locationString, ","); //$NON-NLS-1$
+		while (tokenizer.hasMoreTokens()) {
+			String pathString = tokenizer.nextToken();
+			try {
+				RepositoryInfo info = new RepositoryInfo();
+				info.url = new URL(pathString);
+				repositories.put(getKey(info.url), info);
+			} catch (MalformedURLException e) {
+				log("Error while restoring repository " + pathString, e); //$NON-NLS-1$
 			}
-		} catch (RepositoryCreationException e) {
-			log("Error while restoring repository " + path, e);
 		}
-		// load the list which is stored in the preferences
-		restoreFromPreferences();
+	}
+
+	/**
+	 * Restores the repository list.
+	 */
+	protected void restoreRepositories() {
+		synchronized (repositoryLock) {
+			repositories = new HashMap();
+			restoreFromSystemProperty();
+			restoreFromPreferences();
+		}
 	}
 
 	/*
 	 * Save the repository list in the file-system
 	 */
-	private void saveRepositoryList() {
+	private void saveToPreferences() {
 		try {
 			getPreferences().flush();
 		} catch (BackingStoreException e) {
-			log("Error while saving repositories in preferences", e);
+			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
 		}
 	}
 }
