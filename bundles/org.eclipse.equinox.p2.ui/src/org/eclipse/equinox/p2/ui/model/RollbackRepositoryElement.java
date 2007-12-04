@@ -8,31 +8,26 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui;
+package org.eclipse.equinox.p2.ui.model;
 
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 
 /**
- * Interface for a mechanism that chooses a profile from the profile registry.
- * the mechanism may or may not involve the user.
+ * Element wrapper class for a rollback repository.
  * 
  * @since 3.4
- * 
  */
+public class RollbackRepositoryElement extends MetadataRepositoryElement {
 
-public interface IProfileChooser {
-	/**
-	 * Return a chosen profile, or <code>null</code> if there is no profile
-	 * chosen.
-	 */
-	public Profile getProfile(Shell shell);
+	Profile profile;
 
-	/**
-	 * Return a String that could be used to label this chooser.
-	 * For example, if the chooser uses a dialog, the label could be used
-	 * in the button that launches the dialog.
-	 */
-	public String getLabel();
+	public RollbackRepositoryElement(IMetadataRepository repo, Profile profile) {
+		super(repo);
+		this.profile = profile;
+	}
 
+	public Profile getProfile() {
+		return profile;
+	}
 }

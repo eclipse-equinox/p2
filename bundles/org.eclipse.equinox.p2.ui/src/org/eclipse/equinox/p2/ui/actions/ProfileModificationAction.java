@@ -41,7 +41,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 		// viewer element that can tell us.
 		Profile targetProfile = profile;
 		if (targetProfile == null && profileChooser != null) {
-			targetProfile = profileChooser.getProfile();
+			targetProfile = profileChooser.getProfile(getShell());
 		}
 		// We could not figure out a profile to operate on, so return
 		if (targetProfile == null) {

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.IRepositoryManipulator;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.jface.dialogs.*;
@@ -21,6 +22,7 @@ import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -39,7 +41,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 
 	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
 	private static final String SELECTED_TAB_SETTING = "SelectedTab"; //$NON-NLS-1$
-	private Profile profile;
+	Profile profile;
 	UpdateAndInstallGroup group;
 
 	/**
@@ -69,7 +71,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		group = new UpdateAndInstallGroup(comp, profile, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), null, ProvSDKUIActivator.getDefault().getQueryProvider(), fontMetrics);
+		group = new UpdateAndInstallGroup(comp, profile, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), getProfileChooser(), ProvSDKUIActivator.getDefault().getQueryProvider(), fontMetrics);
 		final Button checkBox = new Button(comp, SWT.CHECK);
 		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
 		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);
@@ -133,6 +135,21 @@ public class UpdateAndInstallDialog extends TrayDialog {
 				return true;
 			}
 
+		};
+	}
+
+	private IProfileChooser getProfileChooser() {
+		return new IProfileChooser() {
+			public String getLabel() {
+				return ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel;
+
+			}
+
+			public Profile getProfile(Shell shell) {
+				if (new RevertDialog(shell, profile).open() == Window.OK)
+					return profile;
+				return null;
+			}
 		};
 	}
 

@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * AutomaticUpdatesPopup invokes the new provisioning update UI.
+ * UpdateHandler invokes the main update/install UI.
  * 
  * @since 3.4
  */
@@ -45,13 +45,17 @@ public class UpdateHandler extends AbstractHandler {
 			message = ProvSDKMessages.UpdateHandler_NoProfilesDefined;
 		}
 		if (profile != null) {
-			UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(shell, profile);
-			dialog.open();
+			openDialog(shell, profile);
 		} else {
 			if (message == null)
 				message = ProvSDKMessages.UpdateHandler_NoProfileInstanceDefined;
 			MessageDialog.openInformation(shell, ProvSDKMessages.UpdateHandler_SDKUpdateUIMessageTitle, message);
 		}
 		return null;
+	}
+
+	protected void openDialog(Shell shell, Profile profile) {
+		UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(shell, profile);
+		dialog.open();
 	}
 }

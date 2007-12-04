@@ -16,8 +16,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
@@ -64,6 +63,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 			ProcessingStepDescriptor descriptor = (ProcessingStepDescriptor) obj;
 			return descriptor.getProcessorId();
 		}
+		if (obj instanceof RequiredCapability) {
+			return ((RequiredCapability) obj).getName();
+		}
 		return obj.toString();
 	}
 
@@ -85,6 +87,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		}
 		if (obj instanceof IArtifactKey) {
 			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_FILE);
+		}
+		if (obj instanceof RequiredCapability) {
+			return ProvUIImages.getImage(ProvUIImages.IMG_UNINSTALLED_IU);
 		}
 		return null;
 	}
@@ -125,6 +130,10 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 					IArtifactKey key = (IArtifactKey) element;
 					return key.getVersion().toString();
 				}
+				if (element instanceof RequiredCapability) {
+					return ((RequiredCapability) element).getRange().getMaximum().toString();
+				}
+
 		}
 		return null;
 	}

@@ -90,12 +90,12 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	private IProfileChooser getProfileChooser() {
 		return new IProfileChooser() {
 
-			public Profile getProfile() {
+			public Profile getProfile(Shell shell) {
 				// TODO would be nice if the profile chooser dialog let you
 				// create a new profile
 				DeferredQueryContentProvider provider = new DeferredQueryContentProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
 				if (provider.getElements(new Profiles()).length == 0) {
-					AddProfileDialog dialog = new AddProfileDialog(getShell(), new Profile[0]);
+					AddProfileDialog dialog = new AddProfileDialog(shell, new Profile[0]);
 					if (dialog.open() == Window.OK) {
 						return dialog.getAddedProfile();
 					}

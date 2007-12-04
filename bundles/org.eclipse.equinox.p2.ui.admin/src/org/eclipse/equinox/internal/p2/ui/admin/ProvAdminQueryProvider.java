@@ -57,6 +57,12 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 				query = hideImpl ? new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
+				// Is it a rollback repository?
+				if (element instanceof RollbackRepositoryElement) {
+					Query profileQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfile().getProfileId());
+					return new ElementQueryDescriptor(element.getQueryable(), profileQuery, new AvailableIUCollector(this, element.getQueryable(), false));
+				}
+				// It is a regular repository.
 				// What should we show as a child of a repository?
 				if (element instanceof MetadataRepositoryElement) {
 					if (useCategories)

@@ -29,6 +29,7 @@ import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
@@ -86,7 +87,7 @@ public class ProfilesView extends ProvView {
 		}
 
 		public void run() {
-			Profile profile = getProfileChooser().getProfile();
+			Profile profile = getProfileChooser().getProfile(getShell());
 			if (profile != null) {
 				UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(getShell(), profile);
 				dialog.open();
@@ -211,7 +212,7 @@ public class ProfilesView extends ProvView {
 
 	IProfileChooser getProfileChooser() {
 		return new IProfileChooser() {
-			public Profile getProfile() {
+			public Profile getProfile(Shell shell) {
 				Object firstElement = getSelection().getFirstElement();
 				if (firstElement instanceof InstalledIUElement) {
 					return ((InstalledIUElement) firstElement).getProfile();

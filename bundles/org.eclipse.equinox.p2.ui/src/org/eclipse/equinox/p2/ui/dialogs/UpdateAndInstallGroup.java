@@ -74,6 +74,8 @@ public class UpdateAndInstallGroup {
 		this.fm = fm;
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.heightHint = convertVerticalDLUsToPixels(DEFAULT_HEIGHT);
+		gd.grabExcessHorizontalSpace = true;
+		gd.grabExcessVerticalSpace = true;
 		tabFolder.setLayoutData(gd);
 
 		// Installed IU's
@@ -288,15 +290,14 @@ public class UpdateAndInstallGroup {
 			Button profileButton = createVerticalButton(composite, profileChooser.getLabel(), false);
 			profileButton.setData(BUTTONACTION, new Action() {
 				public void runWithEvent(Event event) {
-					Profile chosenProfile = profileChooser.getProfile();
+					Profile chosenProfile = profileChooser.getProfile(tabFolder.getShell());
 					if (chosenProfile != null) {
 						profile = chosenProfile;
-						installedIUViewer.setInput(profile);
+						installedIUViewer.setInput(new ProfileElement(profile));
 					}
 				}
 			});
 		}
-
 		return composite;
 	}
 
