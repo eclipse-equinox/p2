@@ -220,8 +220,10 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	}
 
 	public void removeRepository(IArtifactRepository toRemove) {
-		if (toRemove != null)
-			repositories.remove(toRemove);
+		if (toRemove == null)
+			return;
+
+		repositories.remove(toRemove);
 		// remove the repository from the preferences
 		try {
 			forget(toRemove);
