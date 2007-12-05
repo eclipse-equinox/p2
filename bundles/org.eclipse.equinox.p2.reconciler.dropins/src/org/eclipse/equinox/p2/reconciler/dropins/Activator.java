@@ -13,13 +13,12 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
-import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
 
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
+	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 
 	public void start(BundleContext context) throws Exception {
@@ -42,13 +41,19 @@ public class Activator implements BundleActivator {
 		IMetadataRepository metadataRepository = listener.getMetadataRepository();
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, metadataRepository);
 
-		removeIUs(context, profile, synchronizer.getIUsToRemove());
+		IInstallableUnit[] toRemove = synchronizer.getIUsToRemove();
+		if (toRemove != null)
+			removeIUs(context, profile, toRemove);
 
 		// disable repo cleanup for now until we see how we want to handle support for links folders and eclipse extensions
 		//removeUnwatchedRepositories(context, profile, watchedFolder);
 
-		addIUs(context, profile, synchronizer.getIUsToAdd());
-		applyConfiguration(context);
+		IInstallableUnit[] toAdd = synchronizer.getIUsToAdd();
+		if (toAdd != null)
+			addIUs(context, profile, synchronizer.getIUsToAdd());
+
+		if (toAdd != null || toRemove != null)
+			applyConfiguration(context);
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -66,35 +71,17 @@ public class Activator implements BundleActivator {
 			return null;
 		}
 
-		Filter filter = null;
 		try {
-			filter = context.createFilter(Location.INSTALL_FILTER);
-		} catch (InvalidSyntaxException e) {
-			// should not happen
+			URL baseURL = new URL(context.getProperty(OSGI_INSTALL_AREA));
+			URL folderURL = new URL(baseURL, DROPINS);
+			File folder = new File(folderURL.getPath());
+			if (folder.isDirectory())
+				return folder;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
 		}
-		ServiceTracker installLocationTracker = new ServiceTracker(context, filter, null);
-		installLocationTracker.open();
-		try {
-			Location installLocation = (Location) installLocationTracker.getService();
-			if (installLocation == null)
-				return null;
+		return null;
 
-			URL baseURL = installLocation.getURL();
-			if (baseURL == null)
-				return null;
-
-			try {
-				URL folderURL = new URL(baseURL, DROPINS);
-				File folder = new File(folderURL.getPath());
-				if (folder.isDirectory())
-					return folder;
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-			return null;
-		} finally {
-			installLocationTracker.close();
-		}
 	}
 
 	private void addIUs(BundleContext context, Profile profile, IInstallableUnit[] toAdd) {
@@ -178,6 +165,8 @@ public class Activator implements BundleActivator {
 
 	private Profile getCurrentProfile(BundleContext context) {
 		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
+		if (reference == null)
+			return null;
 		IProfileRegistry profileRegistry = (IProfileRegistry) context.getService(reference);
 		try {
 			return profileRegistry.getProfile(IProfileRegistry.SELF);

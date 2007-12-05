@@ -278,7 +278,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (bundleDescription == null)
 			return null;
 		Properties props = new Properties();
-		props.setProperty("repository.id", bundle.getAbsolutePath());
+		props.setProperty("repository.id", repositoryId);
 		props.setProperty("file.name", bundle.getAbsolutePath());
 		props.setProperty("file.lastModified", Long.toString(bundle.lastModified()));
 		IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
