@@ -76,10 +76,11 @@ class ConfigApplier {
 		Collection removedBundles = new ArrayList(toUninstall.size());
 		for (Iterator iterator = toUninstall.iterator(); iterator.hasNext();) {
 			BundleInfo current = (BundleInfo) iterator.next();
-			Bundle[] toAdd = adminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
-			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
+			Bundle[] matchingBundles = adminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
+			for (int j = 0; matchingBundles != null && j < matchingBundles.length; j++) {
 				try {
-					toAdd[j].uninstall();
+					removedBundles.add(matchingBundles[j]);
+					matchingBundles[j].uninstall();
 				} catch (BundleException e) {
 					//TODO log in debug mode...
 				}
