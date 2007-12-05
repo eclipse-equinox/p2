@@ -15,17 +15,18 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
-import org.eclipse.equinox.internal.p2.ui.dialogs.UninstallDialog;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.dialogs.UninstallWizard;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
 public class UninstallAction extends ProfileModificationAction {
@@ -70,7 +71,8 @@ public class UninstallAction extends ProfileModificationAction {
 	}
 
 	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
-		UninstallDialog dialog = new UninstallDialog(getShell(), ius, targetProfile);
+		UninstallWizard wizard = new UninstallWizard(targetProfile, ius);
+		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.open();
 	}
 

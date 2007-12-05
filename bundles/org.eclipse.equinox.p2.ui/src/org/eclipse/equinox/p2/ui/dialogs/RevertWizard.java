@@ -8,29 +8,34 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.ui.sdk;
+package org.eclipse.equinox.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.RevertProfileWizardPage;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.jface.wizard.Wizard;
 
 /**
  * @since 3.4
  */
-public class RevertProfileWizard extends Wizard {
+public class RevertWizard extends Wizard {
 
 	RevertProfileWizardPage page;
 	Profile profile;
+	IProvElementQueryProvider queryProvider;
 
-	public RevertProfileWizard(Profile profile) {
+	public RevertWizard(Profile profile, IProvElementQueryProvider queryProvider) {
 		super();
-		setWindowTitle(ProvSDKMessages.RevertDialog_Title);
+		setWindowTitle(ProvUIMessages.RevertDialog_Title);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_REVERT));
 		this.profile = profile;
+		this.queryProvider = queryProvider;
 	}
 
 	public void addPages() {
-		page = new RevertProfileWizardPage(profile);
+		page = new RevertProfileWizardPage(profile, queryProvider);
 		addPage(page);
 	}
 

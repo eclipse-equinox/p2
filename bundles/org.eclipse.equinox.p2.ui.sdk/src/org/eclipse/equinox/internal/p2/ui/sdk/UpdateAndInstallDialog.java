@@ -14,7 +14,7 @@ import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.IRepositoryManipulator;
-import org.eclipse.equinox.p2.ui.dialogs.RevertProfileWizard;
+import org.eclipse.equinox.p2.ui.dialogs.RevertWizard;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -151,7 +151,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 			}
 
 			public Profile getProfile(Shell shell) {
-				RevertProfileWizard wizard = new RevertProfileWizard(profile, ProvSDKUIActivator.getDefault().getQueryProvider());
+				RevertWizard wizard = new RevertWizard(profile, ProvSDKUIActivator.getDefault().getQueryProvider());
 				WizardDialog dialog = new WizardDialog(shell, wizard);
 				dialog.create();
 				dialog.getShell().setSize(600, 500);

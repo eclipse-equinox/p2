@@ -20,12 +20,13 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.swt.widgets.Shell;
 
-public class UninstallDialog extends ProfileModificationDialog {
+public class UninstallWizardPage extends ProfileModificationWizardPage {
 
-	public UninstallDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile) {
-		super(parentShell, ius, profile, ProvUIMessages.UninstallIUOperationLabel, ProvUIMessages.UninstallDialog_UninstallMessage);
+	public UninstallWizardPage(IInstallableUnit[] ius, Profile profile) {
+		super("UninstallWizard", ius, profile); //$NON-NLS-1$
+		setTitle(ProvUIMessages.UninstallIUOperationLabel);
+		setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
 	}
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {

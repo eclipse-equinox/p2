@@ -19,11 +19,12 @@ import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.dialogs.UpdateDialog;
+import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -93,7 +94,9 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			infoLink.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewNotDownloaded);
 		infoLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new UpdateDialog(null, toUpdate, profile).open();
+				UpdateWizard wizard = new UpdateWizard(profile, toUpdate);
+				WizardDialog dialog = new WizardDialog(getShell(), wizard);
+				dialog.open();
 			}
 		});
 		infoLink.setLayoutData(new GridData(GridData.FILL_BOTH));

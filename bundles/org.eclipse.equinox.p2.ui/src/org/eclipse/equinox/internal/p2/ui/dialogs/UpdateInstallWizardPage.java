@@ -14,11 +14,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.swt.widgets.Shell;
 
-public abstract class UpdateInstallDialog extends ProfileModificationDialog {
-	protected UpdateInstallDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
-		super(parentShell, ius, profile, title, message);
+public abstract class UpdateInstallWizardPage extends ProfileModificationWizardPage {
+	protected UpdateInstallWizardPage(String id, IInstallableUnit[] ius, Profile profile) {
+		super(id, ius, profile);
 	}
 
 	protected abstract String getOperationLabel();

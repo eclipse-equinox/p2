@@ -11,31 +11,31 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.RevertProfileWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.UninstallWizardPage;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.jface.wizard.Wizard;
 
 /**
  * @since 3.4
  */
-public class RevertProfileWizard extends Wizard {
+public class UninstallWizard extends Wizard {
 
-	RevertProfileWizardPage page;
+	UninstallWizardPage page;
 	Profile profile;
-	IProvElementQueryProvider queryProvider;
+	IInstallableUnit[] ius;
 
-	public RevertProfileWizard(Profile profile, IProvElementQueryProvider queryProvider) {
+	public UninstallWizard(Profile profile, IInstallableUnit[] ius) {
 		super();
-		setWindowTitle(ProvUIMessages.RevertDialog_Title);
-		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_REVERT));
+		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
+		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
 		this.profile = profile;
-		this.queryProvider = queryProvider;
+		this.ius = ius;
 	}
 
 	public void addPages() {
-		page = new RevertProfileWizardPage(profile, queryProvider);
+		page = new UninstallWizardPage(ius, profile);
 		addPage(page);
 	}
 

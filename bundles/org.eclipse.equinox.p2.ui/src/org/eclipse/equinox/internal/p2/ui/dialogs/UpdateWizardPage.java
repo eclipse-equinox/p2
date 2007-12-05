@@ -8,12 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.UpdateInstallDialog;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
@@ -24,16 +23,13 @@ import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.swt.widgets.Shell;
 
-public class UpdateDialog extends UpdateInstallDialog {
+public class UpdateWizardPage extends UpdateInstallWizardPage {
 
-	public UpdateDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile) {
-		super(parentShell, ius, profile, ProvUIMessages.UpdateAction_UpdatesAvailableTitle, ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
-	}
-
-	protected String getOkButtonString() {
-		return ProvUIMessages.UpdateIUOperationLabelWithMnemonic;
+	public UpdateWizardPage(IInstallableUnit[] ius, Profile profile) {
+		super("UpdateWizardPage", ius, profile); //$NON-NLS-1$
+		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
+		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 	}
 
 	protected void makeElements(IInstallableUnit[] ius, List elements, IProgressMonitor monitor) {
@@ -41,7 +37,7 @@ public class UpdateDialog extends UpdateInstallDialog {
 		sub.setWorkRemaining(ius.length * 2);
 		for (int i = 0; i < ius.length; i++) {
 			if (monitor.isCanceled())
-				close();
+				getWizard().performCancel();
 			try {
 				IInstallableUnit[] replacementIUs = ProvisioningUtil.updatesFor(new IInstallableUnit[] {ius[i]}, sub.newChild(1));
 				SubMonitor loopMonitor = sub.newChild(1);
@@ -49,7 +45,7 @@ public class UpdateDialog extends UpdateInstallDialog {
 				for (int j = 0; j < replacementIUs.length; j++) {
 					elements.add(new AvailableUpdateElement(replacementIUs[j], getSize(ius[i], replacementIUs[j], loopMonitor.newChild(1)), ius[i]));
 					if (monitor.isCanceled())
-						close();
+						getWizard().performCancel();
 				}
 			} catch (ProvisionException e) {
 				break;

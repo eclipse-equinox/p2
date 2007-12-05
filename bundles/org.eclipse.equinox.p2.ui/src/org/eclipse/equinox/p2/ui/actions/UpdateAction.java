@@ -19,11 +19,12 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
-import org.eclipse.equinox.p2.ui.dialogs.UpdateDialog;
+import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
 public class UpdateAction extends ProfileModificationAction {
@@ -44,7 +45,10 @@ public class UpdateAction extends ProfileModificationAction {
 					iusWithUpdates.add(ius[i]);
 			}
 			if (iusWithUpdates.size() > 0) {
-				new UpdateDialog(getShell(), (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), targetProfile).open();
+
+				UpdateWizard wizard = new UpdateWizard(targetProfile, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]));
+				WizardDialog dialog = new WizardDialog(getShell(), wizard);
+				dialog.open();
 			}
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);

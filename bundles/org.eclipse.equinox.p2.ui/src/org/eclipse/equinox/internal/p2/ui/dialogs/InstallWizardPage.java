@@ -20,16 +20,13 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.*;
-import org.eclipse.swt.widgets.Shell;
 
-public class InstallDialog extends UpdateInstallDialog {
+public class InstallWizardPage extends UpdateInstallWizardPage {
 
-	public InstallDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile) {
-		super(parentShell, ius, profile, ProvUIMessages.InstallIUOperationLabel, ProvUIMessages.InstallDialog_InstallSelectionMessage);
-	}
-
-	protected String getOkButtonString() {
-		return ProvUIMessages.InstallIUOperationLabelWithMnemonic;
+	public InstallWizardPage(IInstallableUnit[] ius, Profile profile) {
+		super("InstallWizardPage", ius, profile); //$NON-NLS-1$
+		setTitle(ProvUIMessages.InstallIUOperationLabel);
+		setDescription(ProvUIMessages.InstallDialog_InstallSelectionMessage);
 	}
 
 	protected long getSize(IInstallableUnit iu, IProgressMonitor monitor) {

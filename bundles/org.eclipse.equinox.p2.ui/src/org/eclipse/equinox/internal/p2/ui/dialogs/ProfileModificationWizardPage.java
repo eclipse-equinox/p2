@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -24,48 +23,43 @@ import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.viewers.*;
-import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.CheckboxTableViewer;
+import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.PlatformUI;
 
-public abstract class ProfileModificationDialog extends TrayDialog {
+public abstract class ProfileModificationWizardPage extends WizardPage {
 	private static final int DEFAULT_HEIGHT = 20;
 	private static final int DEFAULT_WIDTH = 120;
 	private static final int DEFAULT_COLUMN_WIDTH = 50;
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
-	private String title;
-	private String message;
 	private IInstallableUnit[] ius;
 	private Profile profile;
 	CheckboxTableViewer listViewer;
 	StaticContentProvider contentProvider;
 
-	protected ProfileModificationDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
-		super(parentShell);
-		this.title = title;
-		this.message = message;
+	protected ProfileModificationWizardPage(String id, IInstallableUnit[] ius, Profile profile) {
+		super(id);
 		this.ius = ius;
 		this.profile = profile;
 	}
 
-	protected Control createDialogArea(Composite parent) {
-		Composite composite = (Composite) super.createDialogArea(parent);
+	public void createControl(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		composite.setLayout(layout);
+		GridData data = new GridData(GridData.FILL_BOTH);
+		composite.setLayoutData(data);
 		initializeDialogUnits(composite);
 
-		// Create message area;
-		Label label = new Label(composite, SWT.NONE);
-		if (message != null) {
-			label.setText(message);
-		}
 		listViewer = CheckboxTableViewer.newCheckList(composite, SWT.BORDER | SWT.FULL_SELECTION);
-		GridData data = new GridData(GridData.FILL_BOTH);
+		data = new GridData(GridData.FILL_BOTH);
 		data.heightHint = convertHeightInCharsToPixels(DEFAULT_HEIGHT);
 		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
 		Table table = listViewer.getTable();
@@ -89,21 +83,25 @@ public abstract class ProfileModificationDialog extends TrayDialog {
 			}
 		};
 		try {
-			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(runnable);
+			getContainer().run(true, true, runnable);
 		} catch (InterruptedException e) {
 			// don't report thread interruption
 		} catch (InvocationTargetException e) {
 			ProvUI.handleException(e.getCause(), null);
 		}
+
+		listViewer.addCheckStateListener(new ICheckStateListener() {
+			public void checkStateChanged(CheckStateChangedEvent event) {
+				validatePage();
+			}
+		});
 		contentProvider = new StaticContentProvider(list.toArray());
 		listViewer.setContentProvider(contentProvider);
 		listViewer.setInput(new Object());
 		listViewer.setLabelProvider(new IUDetailsLabelProvider(getColumnConfig()));
 		listViewer.setAllChecked(true);
-
-		addSelectionButtons(composite);
+		setControl(composite);
 		Dialog.applyDialogFont(composite);
-		return composite;
 	}
 
 	protected void makeElements(IInstallableUnit[] iusToShow, List list, IProgressMonitor monitor) {
@@ -115,62 +113,12 @@ public abstract class ProfileModificationDialog extends TrayDialog {
 		monitor.done();
 	}
 
-	/*
-	 * (non-Javadoc) Method declared in Window.
-	 */
-	protected void configureShell(Shell shell) {
-		super.configureShell(shell);
-		if (title != null) {
-			shell.setText(title);
-		}
-	}
-
-	/*
-	 * (non-Javadoc) Method declared on Dialog.
-	 */
-	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.OK_ID, getOkButtonString(), true);
-		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
-	}
-
-	/**
-	 * Add the selection and deselection buttons to the dialog.
-	 * @param composite org.eclipse.swt.widgets.Composite
-	 */
-	private void addSelectionButtons(Composite composite) {
-		Composite buttonComposite = new Composite(composite, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 0;
-		layout.marginWidth = 0;
-		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
-		buttonComposite.setLayout(layout);
-		buttonComposite.setLayoutData(new GridData(SWT.END, SWT.TOP, true, false));
-
-		Button selectButton = createButton(buttonComposite, IDialogConstants.SELECT_ALL_ID, ProvUIMessages.UpdateAndInstallSelectionDialog_SelectAllLabel, false);
-
-		SelectionListener listener = new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				listViewer.setAllChecked(true);
-			}
-		};
-		selectButton.addSelectionListener(listener);
-
-		Button deselectButton = createButton(buttonComposite, IDialogConstants.DESELECT_ALL_ID, ProvUIMessages.UpdateAndInstallSelectionDialog_DeselectAllLabel, false);
-
-		listener = new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				listViewer.setAllChecked(false);
-			}
-		};
-		deselectButton.addSelectionListener(listener);
-	}
-
-	protected void okPressed() {
+	public boolean performFinish() {
 
 		final ProfileModificationOperation[] op = new ProfileModificationOperation[1];
 		try {
 			final Object[] selections = getSelectedElements();
-			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+			getContainer().run(true, true, new IRunnableWithProgress() {
 				public void run(IProgressMonitor monitor) {
 					op[0] = createProfileModificationOperation(selections, monitor);
 				}
@@ -181,7 +129,7 @@ public abstract class ProfileModificationDialog extends TrayDialog {
 		} catch (InvocationTargetException e) {
 			ProvUI.handleException(e.getCause(), null);
 		}
-		super.okPressed();
+		return true;
 	}
 
 	protected Object[] getSelectedElements() {
@@ -206,13 +154,19 @@ public abstract class ProfileModificationDialog extends TrayDialog {
 
 	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor);
 
-	protected abstract String getOkButtonString();
-
 	protected IUColumnConfig[] getColumnConfig() {
 		return ProvUI.getIUColumnConfig();
 	}
 
 	protected long getSize(IInstallableUnit iu, IProgressMonitor monitor) {
 		return IUElement.SIZE_UNKNOWN;
+	}
+
+	protected void validatePage() {
+		setPageComplete(isPageComplete());
+	}
+
+	public boolean isPageComplete() {
+		return getSelectedElements().length > 0;
 	}
 }
