@@ -21,12 +21,6 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.simpleRepository";
 
 	/**
-	 * Adds a new metadata repository to the set of known repositories.
-	 * @param repository
-	 */
-	public void addRepository(IMetadataRepository repository);
-
-	/**
 	 * Creates and returns a metadata repository of the given type at the given location.
 	 * If a repository already exists at that location <code>null</code> is returned.
 	 * @param location the location for the new repository

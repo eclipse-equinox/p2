@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
+import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.*;
@@ -592,7 +593,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	protected void createTestMetdataRepository(IInstallableUnit[] units) {
 		IMetadataRepository repo = new TestMetadataRepository(units);
-		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		assertNotNull(repoMan);
 		repoMan.addRepository(repo);
 		metadataRepos.add(repo);
