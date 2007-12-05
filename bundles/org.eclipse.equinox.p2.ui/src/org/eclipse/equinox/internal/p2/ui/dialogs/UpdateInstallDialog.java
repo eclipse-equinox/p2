@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.swt.widgets.Shell;
 
 public abstract class UpdateInstallDialog extends ProfileModificationDialog {
-	UpdateInstallDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
+	protected UpdateInstallDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
 		super(parentShell, ius, profile, title, message);
 	}
 

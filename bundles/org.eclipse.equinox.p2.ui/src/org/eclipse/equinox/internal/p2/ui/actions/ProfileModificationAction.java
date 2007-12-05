@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.equinox.p2.ui.actions;
+package org.eclipse.equinox.internal.p2.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -25,12 +25,12 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
 
-abstract class ProfileModificationAction extends ProvisioningAction {
+public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	Profile profile;
 	IProfileChooser profileChooser;
 
-	public ProfileModificationAction(String text, ISelectionProvider selectionProvider, Profile profile, IProfileChooser profileChooser, Shell shell) {
+	protected ProfileModificationAction(String text, ISelectionProvider selectionProvider, Profile profile, IProfileChooser profileChooser, Shell shell) {
 		super(text, selectionProvider, shell);
 		this.profile = profile;
 		this.profileChooser = profileChooser;
@@ -92,7 +92,7 @@ abstract class ProfileModificationAction extends ProvisioningAction {
 
 	protected abstract String getTaskName();
 
-	IInstallableUnit getIU(Object element) {
+	protected IInstallableUnit getIU(Object element) {
 		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 
 	}

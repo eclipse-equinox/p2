@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.ui.actions;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;

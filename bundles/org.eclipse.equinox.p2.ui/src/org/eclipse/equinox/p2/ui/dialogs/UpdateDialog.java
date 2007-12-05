@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.UpdateInstallDialog;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
@@ -71,8 +72,8 @@ public class UpdateDialog extends UpdateInstallDialog {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		sub.setWorkRemaining(100);
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToRemove}, new IInstallableUnit[] {iuToAdd}, profile, sub.newChild(50));
-			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, sub.newChild(50));
+			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToRemove}, new IInstallableUnit[] {iuToAdd}, getProfile(), sub.newChild(50));
+			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfile(), sub.newChild(50));
 			size = info.getDiskSize();
 		} catch (ProvisionException e) {
 			size = IUElement.SIZE_UNKNOWN;
@@ -86,10 +87,10 @@ public class UpdateDialog extends UpdateInstallDialog {
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), profile, monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), getProfile(), monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
-				return new ProfileModificationOperation(getOperationLabel(), profile.getProfileId(), plan);
+				return new ProfileModificationOperation(getOperationLabel(), getProfile().getProfileId(), plan);
 			ProvUI.reportStatus(status);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);

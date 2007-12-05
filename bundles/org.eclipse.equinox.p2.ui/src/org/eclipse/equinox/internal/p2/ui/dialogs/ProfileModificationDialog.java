@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -35,19 +35,19 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 
-abstract class ProfileModificationDialog extends TrayDialog {
+public abstract class ProfileModificationDialog extends TrayDialog {
 	private static final int DEFAULT_HEIGHT = 20;
 	private static final int DEFAULT_WIDTH = 120;
 	private static final int DEFAULT_COLUMN_WIDTH = 50;
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private String title;
 	private String message;
-	IInstallableUnit[] ius;
-	Profile profile;
+	private IInstallableUnit[] ius;
+	private Profile profile;
 	CheckboxTableViewer listViewer;
 	StaticContentProvider contentProvider;
 
-	ProfileModificationDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
+	protected ProfileModificationDialog(Shell parentShell, IInstallableUnit[] ius, Profile profile, String title, String message) {
 		super(parentShell);
 		this.title = title;
 		this.message = message;
@@ -85,7 +85,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		final List list = new ArrayList(ius.length);
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
-				makeElements(ius, list, monitor);
+				makeElements(getIUs(), list, monitor);
 			}
 		};
 		try {
@@ -184,7 +184,7 @@ abstract class ProfileModificationDialog extends TrayDialog {
 		super.okPressed();
 	}
 
-	Object[] getSelectedElements() {
+	protected Object[] getSelectedElements() {
 		return listViewer.getCheckedElements();
 	}
 
@@ -194,6 +194,14 @@ abstract class ProfileModificationDialog extends TrayDialog {
 			theIUs[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 		}
 		return theIUs;
+	}
+
+	protected Profile getProfile() {
+		return profile;
+	}
+
+	protected IInstallableUnit[] getIUs() {
+		return ius;
 	}
 
 	protected abstract ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor);

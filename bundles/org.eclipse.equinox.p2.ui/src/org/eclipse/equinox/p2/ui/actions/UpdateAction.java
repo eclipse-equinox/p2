@@ -14,6 +14,7 @@ package org.eclipse.equinox.p2.ui.actions;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;

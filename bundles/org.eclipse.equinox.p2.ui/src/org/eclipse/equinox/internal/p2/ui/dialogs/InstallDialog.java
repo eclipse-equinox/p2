@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -37,8 +37,8 @@ public class InstallDialog extends UpdateInstallDialog {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		sub.setWorkRemaining(100);
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, profile, sub.newChild(50));
-			Sizing info = ProvisioningUtil.getSizeInfo(plan, profile, sub.newChild(50));
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, getProfile(), sub.newChild(50));
+			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfile(), sub.newChild(50));
 			if (info == null)
 				size = IUElement.SIZE_UNKNOWN;
 			else
@@ -56,10 +56,10 @@ public class InstallDialog extends UpdateInstallDialog {
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
 			IInstallableUnit[] selected = elementsToIUs(selectedElements);
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, profile, monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, getProfile(), monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
-				return new InstallOperation(getOperationLabel(), profile.getProfileId(), plan, selected);
+				return new InstallOperation(getOperationLabel(), getProfile().getProfileId(), plan, selected);
 			ProvUI.reportStatus(status);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);
