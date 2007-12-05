@@ -278,6 +278,9 @@ public class MetadataRepositoryIO {
 						//can't create repository if missing type - this is already logged when parsing attributes
 						if (state.Type == null)
 							return;
+						//migration support for change to MetadataCache (bug 211934)
+						if (state.Type.equals("org.eclipse.equinox.internal.p2.installregistry.MetadataCache")) //$NON-NLS-1$
+							state.Type = "org.eclipse.equinox.internal.p2.metadata.repository.LocalMetadataRepository"; //$NON-NLS-1$
 						Class clazz = Class.forName(state.Type);
 						Object repositoryObject = clazz.newInstance();
 						if (repositoryObject instanceof AbstractMetadataRepository) {

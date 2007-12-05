@@ -10,57 +10,57 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installregistry;
 
-import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.metadata.repository.*;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.osgi.framework.ServiceReference;
 
-public class MetadataCache extends URLMetadataRepository {
-
+public class MetadataCache {
 	static final private String REPOSITORY_NAME = "Agent Metadata Cache"; //$NON-NLS-1$
-	static final private String REPOSITORY_TYPE = MetadataCache.class.getName();
-	static final private Integer REPOSITORY_VERSION = new Integer(1);
-
-	transient private ServiceReference busReference;
-	transient private ProvisioningEventBus bus;
+	private ServiceReference busReference;
+	private ProvisioningEventBus bus;
+	private URL location;
+	//tracks the IUs that have been installed but not yet committed
+	final ArrayList toAdd = new ArrayList();
 
 	public MetadataCache() {
-		super();
-	}
-
-	public static MetadataCache getCacheInstance(MetadataRepositoryManager manager) {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-		URL url = (agentLocation != null ? agentLocation.getMetadataRepositoryURL() : null);
-		URL content = getActualLocation(url);
-		IMetadataRepository repository = manager.loadRepository(content, null);
-		if (repository == null || !(repository instanceof MetadataCache)) {
-			repository = new MetadataCache(url);
-			((MetadataCache) repository).initializeAfterLoad(url);
-			manager.addRepository(repository);
+		location = (agentLocation != null ? agentLocation.getMetadataRepositoryURL() : null);
+		registerRepository();
+		hookListener();
+	}
+
+	private void registerRepository() {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		URL[] locations = manager.getKnownRepositories();
+		for (int i = 0; i < locations.length; i++) {
+			//nothing to do if repository manager already knows about metadata cache
+			if (URLUtil.sameURL(locations[i], location))
+				return;
 		}
-		return (MetadataCache) repository;
-	}
-
-	// These are always created with file: URLs.  At least for now...
-	public MetadataCache(URL cacheLocation) {
-		super(REPOSITORY_NAME, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), cacheLocation, null, null);
-		content = getActualLocation(location);
+		//instruct the repository manager to construct a new metadata cache 
+		AbstractMetadataRepository repository = (AbstractMetadataRepository) manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		// Set property indicating that the metadata cache is an implementation detail.
-		getModifiableProperties().put(IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 	}
 
-	public void initializeAfterLoad(URL repoLocation) {
-		super.initializeAfterLoad(repoLocation);
+	AbstractMetadataRepository getRepository() {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		return (AbstractMetadataRepository) manager.loadRepository(location, null);
+	}
 
+	private void hookListener() {
 		// TODO: We should check for writing permission here, otherwise it may be too late
 		busReference = EngineActivator.getContext().getServiceReference(ProvisioningEventBus.class.getName());
 		bus = (ProvisioningEventBus) EngineActivator.getContext().getService(busReference);
@@ -74,30 +74,19 @@ public class MetadataCache extends URLMetadataRepository {
 					if (event.isPost() && event.getResult().isOK() && event.isInstall()) {
 						IInstallableUnit installedIU = event.getOperand().second();
 						if (installedIU != null)
-							units.add(installedIU.unresolved());
+							toAdd.add(installedIU);
 						return;
 					}
 				}
-				if (o instanceof CommitOperationEvent)
-					persist();
+				if (o instanceof CommitOperationEvent) {
+					IInstallableUnit[] toAddArray = (IInstallableUnit[]) toAdd.toArray(new IInstallableUnit[toAdd.size()]);
+					toAdd.clear();
+					getRepository().addInstallableUnits(toAddArray);
+				}
 				if (o instanceof RollbackOperationEvent)
-					new SimpleMetadataRepositoryFactory().restore(MetadataCache.this, location);
+					toAdd.clear();
 			}
 		});
-	}
-
-	protected void persist() {
-		if (!getContentURL().getProtocol().equals("file"))
-			throw new IllegalStateException("only file: URLs are supported for the metadata cache");
-		File contentFile = new File(getContentURL().getFile());
-		if (!contentFile.getParentFile().exists() && !contentFile.getParentFile().mkdirs())
-			throw new RuntimeException("can't persist the metadata cache");
-		try {
-			OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(contentFile, false));;
-			new MetadataRepositoryIO().write(this, outputStream);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("can't persist the metadata cache");
-		}
 	}
 
 }

@@ -32,9 +32,6 @@ public class Activator implements BundleActivator {
 	private IInstallRegistry installRegistry;
 	private ServiceRegistration registrationInstallRegistry;
 
-	private MetadataCache metadataCache;
-	private ServiceRegistration registrationMetadataCache;
-
 	private MetadataRepositoryManager defaultManager;
 	private ServiceRegistration registrationDefaultManager;
 
@@ -81,7 +78,6 @@ public class Activator implements BundleActivator {
 		unregisterDirector();
 		unregisterPlanner();
 		unregisterInstallRegistry();
-		unregisterMetadataCache();
 		unregisterDefaultMetadataRepoManager();
 		unregisterProfileRegistry();
 		unregisterEventBus();
@@ -144,18 +140,10 @@ public class Activator implements BundleActivator {
 	//	}
 
 	private void registerMetadataCache() {
-		metadataCache = MetadataCache.getCacheInstance(defaultManager);
-		if (metadataCache != null) {
-			registrationMetadataCache = context.registerService(MetadataCache.class.getName(), metadataCache, null);
-		}
-	}
-
-	private void unregisterMetadataCache() {
-		if (registrationMetadataCache != null) {
-			registrationMetadataCache.unregister();
-		}
-		registrationMetadataCache = null;
-		metadataCache = null;
+		//TODO: we need to start metadata cache at a specific time, because it relies on IMetadataRepositoryManager
+		//being present. Really, MetadataCache should just wait until metadata repository service
+		//is available and then initialize itself
+		new MetadataCache();
 	}
 
 	private void registerInstallRegistry() {

@@ -43,7 +43,7 @@ public class SimpleDirector implements IDirector {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		IMetadataRepository rollbackRepo = manager.loadRepository(rollbackLocation, null);
 		if (rollbackRepo == null)
-			rollbackRepo = manager.createRepository(rollbackLocation, "Agent rollback repo", "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$//$NON-NLS-2$
+			rollbackRepo = manager.createRepository(rollbackLocation, "Agent rollback repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
 		if (rollbackRepo == null)
 			throw new IllegalStateException("Unable to open or create Agent's rollback repository");
 		tagAsImplementation(rollbackRepo);

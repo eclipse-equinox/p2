@@ -37,7 +37,7 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repos.length * 2);
 		for (int i = 0; i < repos.length; i++) {
 			IMetadataRepository repository = manager.loadRepository(repos[i], sub.newChild(1));
-			if (query.isMatch(repository))
+			if (repository != null && query.isMatch(repository))
 				result.accept(new MetadataRepositoryElement(repository));
 			sub.worked(1);
 		}

@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
+import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -28,7 +29,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	static class RepositoryInfo {
 		String description;
 		String name;
-		IMetadataRepository repository;
+		SoftReference repository;
 		URL url;
 	}
 
@@ -52,7 +53,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 
 	public void addRepository(IMetadataRepository repository) {
 		RepositoryInfo info = new RepositoryInfo();
-		info.repository = repository;
+		info.repository = new SoftReference(repository);
 		info.name = repository.getName();
 		info.description = repository.getDescription();
 		info.url = repository.getLocation();
@@ -179,8 +180,11 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				restoreRepositories();
 			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
 				RepositoryInfo info = (RepositoryInfo) it.next();
-				if (URLUtil.sameURL(info.url, location))
-					return info.repository;
+				if (URLUtil.sameURL(info.url, location)) {
+					if (info.repository == null)
+						return null;
+					return (IMetadataRepository) info.repository.get();
+				}
 			}
 			return null;
 		}

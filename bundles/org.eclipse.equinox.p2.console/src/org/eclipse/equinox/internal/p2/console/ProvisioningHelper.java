@@ -44,7 +44,7 @@ public class ProvisioningHelper {
 		// for convenience create and add a repo here
 		// TODO need to get rid o fthe factory method.
 		String repositoryName = location + " - metadata"; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
+		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		return result;
 	}
 

@@ -54,7 +54,7 @@ public class JarURLRepositoryTest extends TestCase {
 		deleteDirectory(testRepo);
 		testRepo.mkdir();
 		provider.setFlavor("jartest");
-		provider.setMetadataRepository(manager.createRepository(testRepo.toURL(), "testRepo", "org.eclipse.equinox.p2.metadata.repository.simpleRepository"));
+		provider.setMetadataRepository(manager.createRepository(testRepo.toURL(), "testRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY));
 		IStatus result = new Generator(provider).generate();
 		FileUtils.zip(new File[] {testRepo}, new File(tempDir, "testRepo.jar"));
 		testRepoJar = new File(tempDir, "testRepo.jar");

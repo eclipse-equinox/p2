@@ -16,6 +16,11 @@ import org.eclipse.equinox.p2.query.IQueryable;
 
 public interface IMetadataRepositoryManager extends IQueryable {
 	/**
+	 * Repository type for a simple repository based on a URL or local file system location.
+	 */
+	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.simpleRepository";
+
+	/**
 	 * Adds a new metadata repository to the set of known repositories.
 	 * @param repository
 	 */

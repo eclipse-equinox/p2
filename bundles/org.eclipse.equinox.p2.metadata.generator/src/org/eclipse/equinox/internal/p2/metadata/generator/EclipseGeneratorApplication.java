@@ -142,7 +142,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = metadataLocation + " - metadata"; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.metadata.repository.simpleRepository"); //$NON-NLS-1$
+		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		if (result != null)
 			provider.setMetadataRepository(result);
 	}
