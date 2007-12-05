@@ -21,6 +21,8 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		//TODO This test currently fails because our file formats are not stable
 		suite.addTestSuite(JarURLRepositoryTest.class);
+		suite.addTestSuite(MetadataRepositoryManagerTest.class);
+
 		return suite;
 	}
 
