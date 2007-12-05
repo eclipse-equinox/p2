@@ -12,8 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
@@ -287,10 +286,15 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		BundleInfo[] bInfos = new BundleInfo[bundles.length];
 		for (int i = 0; i < bundles.length; i++) {
 			//			System.out.println("bundles[" + i + "]=" + bundles[i]);
-			if (bundles[i].getBundleId() == 0) // SystemBundle
-				bInfos[i] = new BundleInfo(fwJarLocation, startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
-			else
-				bInfos[i] = new BundleInfo(FileUtils.getRealLocation(this, bundles[i].getLocation(), true), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]), bundles[i].getBundleId());
+			try {
+				if (bundles[i].getBundleId() == 0) // SystemBundle
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsolutePath(), -1, true);
+				else {
+					bInfos[i] = new BundleInfo(bundles[i].getSymbolicName(), (String) bundles[i].getHeaders().get(Constants.BUNDLE_VERSION), FileLocator.getBundleFile(bundles[i]).getAbsolutePath(), startLevel.getBundleStartLevel(bundles[i]), startLevel.isBundlePersistentlyStarted(bundles[i]));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		configData.setBundles(bInfos);
 		platformProperties = this.getRunningPlatformProperties();
