@@ -119,6 +119,15 @@ public class ProvUIMessages extends NLS {
 	public static String QueryableMetadataRepositoryManager_RepositoryQueryProgress;
 	public static String QueryableProfileRegistry_QueryProfileProgress;
 	public static String SizingPhaseSet_PhaseSetName;
+	public static String RevertDialog_ConfigContentsLabel;
+	public static String RevertDialog_ConfigsLabel;
+	public static String RevertDialog_ConfirmRestartMessage;
+	public static String RevertDialog_Description;
+	public static String RevertDialog_PageTitle;
+	public static String RevertDialog_RevertError;
+	public static String RevertDialog_RevertOperationLabel;
+	public static String RevertDialog_SelectMessage;
+	public static String RevertDialog_Title;
 
 	// Operations
 	public static String UpdateAndInstallGroup_Properties;

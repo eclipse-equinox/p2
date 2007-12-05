@@ -32,15 +32,6 @@ public class ProvSDKMessages extends NLS {
 	public static String RepositoryManipulationDialog_RemoveButton;
 	public static String RepositoryManipulationDialog_RemoveOperationLabel;
 	public static String RepositoryManipulationDialog_UpdateSitesDialogTitle;
-	public static String RevertDialog_ConfigContentsLabel;
-	public static String RevertDialog_ConfigsLabel;
-	public static String RevertDialog_ConfirmRestartMessage;
-	public static String RevertDialog_Description;
-	public static String RevertDialog_PageTitle;
-	public static String RevertDialog_RevertError;
-	public static String RevertDialog_RevertOperationLabel;
-	public static String RevertDialog_SelectMessage;
-	public static String RevertDialog_Title;
 	public static String UpdateAndInstallDialog_AvailableFeatures;
 	public static String UpdateAndInstallDialog_InstalledFeatures;
 	public static String UpdateAndInstallDialog_ManageSites;
