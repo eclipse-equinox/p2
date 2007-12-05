@@ -185,6 +185,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		createImageDescriptor(ProvUIImages.IMG_UNINSTALLED_IU);
 		createImageDescriptor(ProvUIImages.IMG_CATEGORY);
 		createImageDescriptor(ProvUIImages.IMG_PROFILE);
+		createImageDescriptor(ProvUIImages.IMG_TOOL_UPDATE);
 	}
 
 	/**
