@@ -8,19 +8,25 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.rollback;
 
+import java.net.URL;
 import java.util.EventObject;
 import java.util.Hashtable;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.IUTransformationHelper;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.osgi.framework.Version;
 
 public class FormerState {
-	IMetadataRepository storage = null;
+	URL location = null;
 
 	Hashtable generatedIUs = new Hashtable(); //key profile id, value the iu representing this profile
 
@@ -28,7 +34,7 @@ public class FormerState {
 		if (bus == null || repo == null) {
 			throw new IllegalArgumentException("bus and storage can' be null"); //$NON-NLS-1$
 		}
-		storage = repo;
+		location = repo.getLocation();
 
 		//listen for pre-event. to memorize the state of the profile
 		bus.addListener(new SynchronousProvisioningListener() {
@@ -39,7 +45,7 @@ public class FormerState {
 					generatedIUs.put(event.getProfile().getProfileId(), iuForProfile);
 				} else if (o instanceof CommitOperationEvent) {
 					CommitOperationEvent event = (CommitOperationEvent) o;
-					storage.addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) generatedIUs.get(event.getProfile().getProfileId())});
+					getRepository().addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) generatedIUs.get(event.getProfile().getProfileId())});
 					return;
 				} else if (o instanceof RollbackOperationEvent) {
 					RollbackOperationEvent event = (RollbackOperationEvent) o;
@@ -57,6 +63,11 @@ public class FormerState {
 			}
 
 		});
+	}
+
+	AbstractMetadataRepository getRepository() {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
+		return (AbstractMetadataRepository) manager.loadRepository(location, null);
 	}
 
 	IInstallableUnit profileToIU(Profile toConvert) {
