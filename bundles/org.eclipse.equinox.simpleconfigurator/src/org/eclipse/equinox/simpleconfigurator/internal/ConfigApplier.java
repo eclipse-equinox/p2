@@ -76,7 +76,7 @@ class ConfigApplier {
 		Collection removedBundles = new ArrayList(toUninstall.size());
 		for (Iterator iterator = toUninstall.iterator(); iterator.hasNext();) {
 			BundleInfo current = (BundleInfo) iterator.next();
-			Bundle[] toAdd = adminService.getBundles(current.getSymbolicName(), current.getVersion());
+			Bundle[] toAdd = adminService.getBundles(current.getSymbolicName(), getVersionRange(current.getVersion()));
 			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
 				try {
 					toAdd[j].uninstall();
@@ -144,7 +144,7 @@ class ConfigApplier {
 
 			String version = (String) manifest.get(Constants.BUNDLE_VERSION);
 			if (symbolicName != null && version != null)
-				matches = adminService.getBundles(symbolicName, version);
+				matches = adminService.getBundles(symbolicName, getVersionRange(version));
 
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
@@ -278,7 +278,7 @@ class ConfigApplier {
 
 		//Remove all the bundles appearing in the final list from the set of installed bundles
 		for (int i = 0; i < finalList.length; i++) {
-			Bundle[] toAdd = adminService.getBundles(finalList[i].getSymbolicName(), finalList[i].getVersion());
+			Bundle[] toAdd = adminService.getBundles(finalList[i].getSymbolicName(), getVersionRange(finalList[i].getVersion()));
 			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
 				removedBundles.remove(toAdd[j]);
 			}
@@ -297,5 +297,9 @@ class ConfigApplier {
 		}
 
 		return removedBundles;
+	}
+
+	private String getVersionRange(String version) {
+		return version == null ? null : new StringBuffer().append('[').append(version).append(',').append(version).append(']').toString();
 	}
 }
