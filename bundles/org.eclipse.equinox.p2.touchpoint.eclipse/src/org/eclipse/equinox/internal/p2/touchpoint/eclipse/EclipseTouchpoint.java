@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
 public class EclipseTouchpoint extends Touchpoint {
+	private static final String ARTIFACT_FOLDER = "artifact.folder";
 	private static final TouchpointType TOUCHPOINT_TYPE = new TouchpointType("eclipse", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String ACTION_ADD_JVM_ARG = "addJvmArg"; //$NON-NLS-1$
 	private static final String ACTION_ADD_PROGRAM_ARG = "addProgramArg"; //$NON-NLS-1$
@@ -86,7 +87,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		Properties descriptorProperties = null;
 		if (isZipped(installableUnit.getTouchpointData())) {
 			descriptorProperties = new Properties();
-			descriptorProperties.setProperty("bundle.folder", "true");
+			descriptorProperties.setProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
 		}
 		return descriptorProperties;
 	}

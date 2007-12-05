@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
@@ -31,6 +32,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
+	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
+	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
+	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 
 	transient private Mapper mapper = new Mapper();
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
@@ -118,12 +122,21 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (uuid != null)
 			return blobStore.fileFor(bytesFromHexString(uuid));
 
+		// if the artifact is just a reference then return the reference location
+		String artifactReference = descriptor.getProperty(ARTIFACT_REFERENCE);
+		if (artifactReference != null)
+			return artifactReference;
+
 		// if the descriptor is complete then use the mapping rules...
 		if (descriptor.getProcessingSteps().length == 0) {
 			IArtifactKey key = descriptor.getArtifactKey();
 			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString());
-			if (result != null)
+			if (result != null) {
+				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
+					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
+
 				return result;
+			}
 		}
 
 		// in the end there is not enough information so return null 
@@ -136,8 +149,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			descriptor.setProperty(ARTIFACT_UUID, null);
 			IArtifactKey key = descriptor.getArtifactKey();
 			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString());
-			if (result != null)
+			if (result != null) {
+				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
+					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
+
 				return result;
+			}
 		}
 
 		// Otherwise generate a location by creating a UUID, remembering it in the properties 
@@ -145,6 +162,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		byte[] bytes = new UniversalUniqueIdentifier().toBytes();
 		descriptor.setProperty(ARTIFACT_UUID, bytesToHexString(bytes));
 		return blobStore.fileFor(bytes);
+	}
+
+	private boolean isFolderBased(IArtifactDescriptor descriptor) {
+		return Boolean.valueOf(descriptor.getProperty(ARTIFACT_FOLDER)).booleanValue();
 	}
 
 	private String bytesToHexString(byte[] bytes) {
@@ -241,6 +262,25 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+
+		if (isFolderBased(descriptor)) {
+			File artifactFolder = getArtifactFile(descriptor);
+			// TODO: optimize and ensure manifest is written first
+			File zipFile = null;
+			try {
+				zipFile = File.createTempFile(artifactFolder.getName(), JAR_EXTENSION, null);
+				FileUtils.zip(new File[] {artifactFolder}, zipFile);
+				FileInputStream fis = new FileInputStream(zipFile);
+				FileUtils.copyStream(fis, true, destination, true);
+			} catch (IOException e) {
+				return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
+			} finally {
+				if (zipFile != null)
+					zipFile.delete();
+			}
+			return Status.OK_STATUS;
+		}
+
 		String toDownload = getLocation(descriptor);
 		return getTransport().download(toDownload, destination, monitor);
 	}
@@ -392,17 +432,33 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// we should end up with writeable URLs...
 		// Make sure that the file does not exist and that the parents do
 		File outputFile = new File(file);
-		if (outputFile.exists())
+		if (outputFile.exists()) {
 			System.err.println("Artifact repository out of synch. Overwriting " + outputFile.getAbsoluteFile()); //$NON-NLS-1$
-		if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
-			// TODO: Log an error, or throw an exception?
-			return null;
+			delete(outputFile);
+		}
 
-		// finally create and return an output stream suitably wrapped so that when it is 
-		// closed the repository is updated with the descriptor
+		OutputStream target = null;
 		try {
-			return new ArtifactOutputStream(new BufferedOutputStream(new FileOutputStream(file)), newDescriptor, outputFile);
-		} catch (FileNotFoundException e) {
+			if (isFolderBased(descriptor)) {
+				outputFile.mkdirs();
+				if (!outputFile.exists())
+					// TODO: Log an error, or throw an exception?
+					return null;
+
+				target = new ZippedFolderOutputStream(outputFile);
+			} else {
+				// file based
+				if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
+					// TODO: Log an error, or throw an exception?
+					return null;
+				target = new FileOutputStream(file);
+			}
+
+			// finally create and return an output stream suitably wrapped so that when it is 
+			// closed the repository is updated with the descriptor
+
+			return new ArtifactOutputStream(new BufferedOutputStream(target), newDescriptor, outputFile);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -443,13 +499,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * descriptor existed in the repository, and was successfully removed.
 	 */
 	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
-		File file = getArtifactFile(descriptor);
-		if (file == null)
-			return false;
-		delete(file);
-		if (!file.exists())
-			return artifactDescriptors.remove(descriptor);
-		return false;
+		if (descriptor.getProperty(ARTIFACT_REFERENCE) == null) {
+			File file = getArtifactFile(descriptor);
+			if (file == null)
+				return false;
+			delete(file);
+			if (file.exists())
+				return false;
+		}
+		return artifactDescriptors.remove(descriptor);
 	}
 
 	static void delete(File toDelete) {
@@ -519,6 +577,47 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public boolean isModifiable() {
 		return true;
+	}
+
+	// TODO: optimize
+	// we could stream right into the folder
+	public static class ZippedFolderOutputStream extends OutputStream {
+
+		private final File folder;
+		private final FileOutputStream fos;
+		private final File zipFile;
+
+		public ZippedFolderOutputStream(File folder) throws IOException {
+			this.folder = folder;
+			zipFile = File.createTempFile(folder.getName(), JAR_EXTENSION, null);
+			fos = new FileOutputStream(zipFile);
+		}
+
+		public void close() throws IOException {
+			fos.close();
+			FileUtils.unzipFile(zipFile, folder);
+			zipFile.delete();
+		}
+
+		public void flush() throws IOException {
+			fos.flush();
+		}
+
+		public String toString() {
+			return fos.toString();
+		}
+
+		public void write(byte[] b, int off, int len) throws IOException {
+			fos.write(b, off, len);
+		}
+
+		public void write(byte[] b) throws IOException {
+			fos.write(b);
+		}
+
+		public void write(int b) throws IOException {
+			fos.write(b);
+		}
 	}
 
 }

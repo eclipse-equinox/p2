@@ -83,7 +83,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		try {
 			repository = manager.getRepository(stateDirURL);
 			if (repository == null)
-				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.touchpoint.eclipse.bundlePool");
+				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
 		} finally {
 			context.ungetService(reference);
 		}
@@ -249,9 +249,15 @@ public class RepositoryListener extends DirectoryChangeListener {
 		IArtifactDescriptor basicDescriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, bundle, true, false);
 
 		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
-		pathDescriptor.setProperty("bundle.path", bundle.getAbsolutePath());
+		try {
+			pathDescriptor.setProperty("artifact.reference", bundle.toURL().toExternalForm());
+		} catch (MalformedURLException e) {
+			// unexpected
+			e.printStackTrace();
+			return null;
+		}
 		if (bundle.isDirectory())
-			pathDescriptor.setProperty("bundle.folder", "true");
+			pathDescriptor.setProperty("artifact.folder", "true");
 
 		return pathDescriptor;
 	}

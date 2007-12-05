@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.equinox.configurator.Configurator;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
@@ -36,6 +37,8 @@ public class Activator implements BundleActivator {
 		watcher.addListener(listener);
 		watcher.poll();
 
+		IArtifactRepository artifactRepository = listener.getArtifactRepository();
+		artifactRepository.getModifiableProperties().put("profile.extension", profile.getProfileId());
 		IMetadataRepository metadataRepository = listener.getMetadataRepository();
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, metadataRepository);
 

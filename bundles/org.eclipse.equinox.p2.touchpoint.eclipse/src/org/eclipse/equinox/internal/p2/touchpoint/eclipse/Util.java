@@ -28,6 +28,8 @@ public class Util {
 	 */
 	private final static String CACHE_PATH = "eclipse.p2.cache"; //$NON-NLS-1$
 	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
+	private static final String REPOSITORY_TYPE = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
+	private static final Object PROFILE_EXTENSION = "profile.extension";
 
 	static AgentLocation getAgentLocation() {
 		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
@@ -61,7 +63,7 @@ public class Util {
 		if (bundlePool == null) {
 			// 	the given repo location is not an existing repo so we have to create something
 			String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
-			bundlePool = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.touchpoint.eclipse.bundlePool"); //$NON-NLS-1$
+			bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
 		}
 
 		if (bundlePool == null) {
@@ -78,11 +80,10 @@ public class Util {
 		IArtifactRepository[] knownRepositories = manager.getKnownRepositories();
 		for (int i = 0; i < knownRepositories.length; i++) {
 			IArtifactRepository repository = knownRepositories[i];
-			if (BundlePool.REPOSITORY_TYPE.equals(repository.getType())) {
-				String profileExtension = (String) repository.getProperties().get(BundlePool.PROFILE_EXTENSION);
-				if (profileExtension != null && profileExtension.equals(profile.getProfileId()))
-					bundleRepositories.add(repository);
-			}
+			String profileExtension = (String) repository.getProperties().get(PROFILE_EXTENSION);
+			if (profileExtension != null && profileExtension.equals(profile.getProfileId()))
+				bundleRepositories.add(repository);
+
 		}
 
 		return new AggregatedBundleRepository(bundleRepositories);

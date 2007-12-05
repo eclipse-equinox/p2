@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.p2.touchpoint.eclipse.BundlePool;
+import org.eclipse.equinox.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -72,7 +72,7 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		watcher.poll();
 		watcher.stop();
 
-		BundlePool repo = (BundlePool) listener.getArtifactRepository();
+		IFileArtifactRepository repo = (IFileArtifactRepository) listener.getArtifactRepository();
 		IArtifactKey[] keys = repo.getArtifactKeys();
 		for (int i = 0; i < keys.length; i++) {
 			assertTrue("2.3", repo.getArtifactFile(keys[i]).toString().startsWith(folder.getAbsolutePath().toString()));
