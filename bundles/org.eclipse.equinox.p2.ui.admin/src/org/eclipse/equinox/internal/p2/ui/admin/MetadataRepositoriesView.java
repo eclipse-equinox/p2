@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
-import org.eclipse.equinox.p2.ui.actions.RollbackAction;
+import org.eclipse.equinox.p2.ui.actions.RevertAction;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.Profiles;
@@ -42,7 +42,7 @@ import org.eclipse.ui.part.PluginTransfer;
 public class MetadataRepositoriesView extends RepositoriesView {
 
 	private InstallAction installAction;
-	private RollbackAction becomeAction;
+	private RevertAction revertAction;
 
 	/**
 	 * The constructor.
@@ -84,7 +84,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	protected void makeActions() {
 		super.makeActions();
 		installAction = new InstallAction(viewer, null, getProfileChooser(), getShell());
-		becomeAction = new RollbackAction(viewer, null, getProfileChooser(), getShell());
+		revertAction = new RevertAction(viewer, null, getProfileChooser(), getShell());
 	}
 
 	private IProfileChooser getProfileChooser() {
@@ -124,7 +124,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		if (installAction.isEnabled()) {
 			manager.add(new Separator());
 			manager.add(installAction);
-			manager.add(becomeAction);
+			manager.add(revertAction);
 		}
 		super.fillContextMenu(manager);
 	}

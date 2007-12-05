@@ -81,11 +81,11 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateIUCommandLabel;
 	public static String UpdateIUCommandTooltip;
 	public static String UpdateIUProgress;
-	public static String RollbackIUOperationLabel;
-	public static String RollbackIUOperationLabelWithMnemonic;
-	public static String RollbackIUCommandLabel;
-	public static String RollbackIUCommandTooltip;
-	public static String RollbackIUProgress;
+	public static String RevertIUOperationLabel;
+	public static String RevertIUOperationLabelWithMnemonic;
+	public static String RevertIUCommandLabel;
+	public static String RevertIUCommandTooltip;
+	public static String RevertIUProgress;
 
 	// Property pages
 	public static String IUPropertyPage_NoIUSelected;

@@ -241,10 +241,10 @@ public class ProvisioningUtil {
 	/*
 	 * Get a plan for becoming
 	 */
-	public static ProvisioningPlan getBecomePlan(IInstallableUnit toBecome, Profile profile, IProgressMonitor monitor) throws ProvisionException {
+	public static ProvisioningPlan getRevertPlan(IInstallableUnit profileIU, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
-		Assert.isNotNull(toBecome);
-		return getPlanner().getBecomePlan(toBecome, profile, monitor);
+		Assert.isNotNull(profileIU);
+		return getPlanner().getRevertPlan(profileIU, profile, monitor);
 	}
 
 	/*

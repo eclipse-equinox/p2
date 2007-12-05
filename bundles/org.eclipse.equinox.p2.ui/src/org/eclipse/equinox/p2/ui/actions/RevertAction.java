@@ -23,17 +23,17 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
-public class RollbackAction extends ProfileModificationAction {
+public class RevertAction extends ProfileModificationAction {
 
-	public RollbackAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
+	public RevertAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
 		super(ProvUI.ROLLBACK_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
 		setToolTipText(ProvUI.ROLLBACK_COMMAND_TOOLTIP);
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] toBecome, Profile targetProfile, IProgressMonitor monitor) {
-		if (toBecome.length == 1) {
+	protected IStatus validateOperation(IInstallableUnit[] toRevert, Profile targetProfile, IProgressMonitor monitor) {
+		if (toRevert.length == 1) {
 			try {
-				ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, monitor);
+				ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toRevert[0], targetProfile, monitor);
 				return plan.getStatus();
 			} catch (ProvisionException e) {
 				return ProvUI.handleException(e, null);
@@ -46,8 +46,8 @@ public class RollbackAction extends ProfileModificationAction {
 	protected void performOperation(IInstallableUnit[] toBecome, Profile targetProfile) {
 		// TODO bogus because we do this twice...
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getBecomePlan(toBecome[0], targetProfile, null);
-			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RollbackIUOperationLabel, targetProfile.getProfileId(), plan);
+			ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toBecome[0], targetProfile, null);
+			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertIUOperationLabel, targetProfile.getProfileId(), plan);
 			ProvisioningOperationRunner.schedule(op, getShell());
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);
@@ -71,7 +71,7 @@ public class RollbackAction extends ProfileModificationAction {
 	}
 
 	protected String getTaskName() {
-		return ProvUIMessages.RollbackIUProgress;
+		return ProvUIMessages.RevertIUProgress;
 	}
 
 }
