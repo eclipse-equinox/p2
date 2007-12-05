@@ -37,13 +37,13 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 		EclipseVersion version = new EclipseVersion(versionSt);
 		int value = version.compareTo(new EclipseVersion(EquinoxConstants.FW_VERSION));
 		if (value > 0) {
-			return false;
+			return true;
 		}
 		// TODO need to identify the version of eclipse.exe used for this launch, if used. 
 
 		//		String eclipseCommandsSt = context.getProperty(EquinoxConstants.PROP_ECLIPSE_COMMANDS);
 		//	StringTokenizer tokenizer = new StringTokenizer(eclipseCommandsSt,"\n");
-		return true;
+		return false;
 	}
 
 	BundleContext context = null;

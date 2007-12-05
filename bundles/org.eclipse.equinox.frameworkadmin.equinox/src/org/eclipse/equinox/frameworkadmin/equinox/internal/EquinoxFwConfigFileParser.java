@@ -279,7 +279,7 @@ public class EquinoxFwConfigFileParser {
 		}
 
 		//Start figuring out stuffs 
-		URL rootURL = launcherData.getLauncher().getParentFile().toURL();
+		URL rootURL = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURL() : null;
 
 		//Extracting fwkJar location needs to be done first 
 		String launcherName = null;
