@@ -135,6 +135,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher.");
 		for (Iterator iterator = launchers.iterator(); iterator.hasNext();) {
 			IInstallableUnit object = (IInstallableUnit) iterator.next();
+			if (object.getId().endsWith(".source"))
+				continue;
 			GeneratorBundleInfo temp = new GeneratorBundleInfo();
 			temp.setSymbolicName(object.getId());
 			temp.setVersion(object.getVersion().toString());
