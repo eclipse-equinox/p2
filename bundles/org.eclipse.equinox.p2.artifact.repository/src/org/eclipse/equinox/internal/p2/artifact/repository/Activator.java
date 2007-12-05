@@ -16,13 +16,13 @@ import org.osgi.framework.*;
 public class Activator implements BundleActivator {
 	public static final String ID = "org.eclipse.equinox.p2.artifact.repository"; //$NON-NLS-1$
 	public static final String REPO_PROVIDER_XPT = ID + '.' + "artifactRepositories"; //$NON-NLS-1$
+
 	private static BundleContext context;
+	private ServiceRegistration repositoryManagerRegistration;
 
 	public static BundleContext getContext() {
 		return Activator.context;
 	}
-
-	private ServiceRegistration repositoryManagerRegistration;
 
 	public void start(BundleContext context) throws Exception {
 		Activator.context = context;
