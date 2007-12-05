@@ -18,11 +18,19 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
-	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.simpleRepository";
+	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.simpleRepository"; //$NON-NLS-1$
+
+	/**
+	 * Adds a repository to the list of metadata repositories tracked by the repository
+	 * manager.
+	 * @param location The location of the metadata repository to add
+	 */
+	public void addRepository(URL location);
 
 	/**
 	 * Creates and returns a metadata repository of the given type at the given location.
 	 * If a repository already exists at that location <code>null</code> is returned.
+	 * 
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
@@ -40,11 +48,11 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	/**
 	 * Adds a repository corresponding to the given URL.
 	 * 
-	 * @param url The URL of the repository to add
+	 * @param location The location of the repository to add
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public IMetadataRepository loadRepository(URL url, IProgressMonitor monitor);
+	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor);
 
 	/**
 	 * Removes the metadata repository at the given location from the list of

@@ -28,9 +28,9 @@ import org.osgi.service.prefs.Preferences;
 public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	static class RepositoryInfo {
 		String description;
+		URL location;
 		String name;
 		SoftReference repository;
-		URL url;
 	}
 
 	private static final String FACTORY = "factory"; //$NON-NLS-1$
@@ -56,7 +56,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		info.repository = new SoftReference(repository);
 		info.name = repository.getName();
 		info.description = repository.getDescription();
-		info.url = repository.getLocation();
+		info.location = repository.getLocation();
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -64,6 +64,19 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 		// save the given repository in the preferences.
 		remember(repository);
+	}
+
+	public void addRepository(URL location) {
+		Assert.isNotNull(location);
+		RepositoryInfo info = new RepositoryInfo();
+		info.location = location;
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			repositories.put(getKey(location), info);
+		}
+		// save the given repository in the preferences.
+		remember(info);
 	}
 
 	/**
@@ -91,6 +104,9 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	// repositories and many different ways to create them.
 	// for now discriminate by the type of URL but this is bogus.
 	public IMetadataRepository createRepository(URL location, String name, String type) {
+		Assert.isNotNull(location);
+		Assert.isNotNull(name);
+		Assert.isNotNull(type);
 		IMetadataRepository result = loadRepository(location, (IProgressMonitor) null);
 		if (result != null)
 			return result;
@@ -161,7 +177,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			int i = 0;
 			for (Iterator it = repositories.values().iterator(); it.hasNext(); i++) {
 				RepositoryInfo info = (RepositoryInfo) it.next();
-				result[i] = info.url;
+				result[i] = info.location;
 			}
 			return result;
 		}
@@ -180,7 +196,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				restoreRepositories();
 			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
 				RepositoryInfo info = (RepositoryInfo) it.next();
-				if (URLUtil.sameURL(info.url, location)) {
+				if (URLUtil.sameURL(info.location, location)) {
 					if (info.repository == null)
 						return null;
 					return (IMetadataRepository) info.repository.get();
@@ -191,6 +207,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	public IMetadataRepository loadRepository(URL location, IProgressMonitor progress) {
+		Assert.isNotNull(location);
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
 			return result;
@@ -270,7 +287,21 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		saveToPreferences();
 	}
 
+	/*
+	 * Save the list of repositories in the preference store.
+	 */
+	private void remember(RepositoryInfo info) {
+		Preferences node = getPreferences().node(getKey(info.location));
+		node.put(KEY_URL, info.location.toExternalForm());
+		if (info.description != null)
+			node.put(KEY_DESCRIPTION, info.description);
+		if (info.name != null)
+			node.put(KEY_NAME, info.name);
+		saveToPreferences();
+	}
+
 	public boolean removeRepository(URL toRemove) {
+		Assert.isNotNull(toRemove);
 		final String repoKey = getKey(toRemove);
 		synchronized (repositoryLock) {
 			if (repositories == null)
@@ -308,10 +339,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				continue;
 			try {
 				RepositoryInfo info = new RepositoryInfo();
-				info.url = new URL(locationString);
+				info.location = new URL(locationString);
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
-				repositories.put(getKey(info.url), info);
+				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
 			}
@@ -330,8 +361,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			String pathString = tokenizer.nextToken();
 			try {
 				RepositoryInfo info = new RepositoryInfo();
-				info.url = new URL(pathString);
-				repositories.put(getKey(info.url), info);
+				info.location = new URL(pathString);
+				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository " + pathString, e); //$NON-NLS-1$
 			}
