@@ -21,6 +21,8 @@ public class ServiceHelper {
 	 * @return The requested service
 	 */
 	public static Object getService(BundleContext context, String name) {
+		if (context == null)
+			return null;
 		ServiceReference reference = context.getServiceReference(name);
 		if (reference == null)
 			return null;
