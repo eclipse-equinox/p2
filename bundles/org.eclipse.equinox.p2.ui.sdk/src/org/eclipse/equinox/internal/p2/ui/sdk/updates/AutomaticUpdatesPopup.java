@@ -14,12 +14,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateDialog;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
@@ -30,6 +31,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.*;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.WorkbenchJob;
 
@@ -42,18 +44,20 @@ import org.eclipse.ui.progress.WorkbenchJob;
 public class AutomaticUpdatesPopup extends PopupDialog {
 	public static final String[] ELAPSED = {ProvSDKMessages.AutomaticUpdateScheduler_5Minutes, ProvSDKMessages.AutomaticUpdateScheduler_15Minutes, ProvSDKMessages.AutomaticUpdateScheduler_30Minutes, ProvSDKMessages.AutomaticUpdateScheduler_60Minutes};
 	private static final long MINUTE = 60 * 1000L;
+	private static final String REMIND_HREF = "RMD"; //$NON-NLS-1$
+	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
+	public static final String AUTO_UPDATE_STATUS_ITEM = "AutomaticUpdatesPopup"; //$NON-NLS-1$
+	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
+
 	Preferences prefs;
 	long remindDelay = -1L;
 	IPropertyChangeListener listener;
 	WorkbenchJob remindJob;
-
-	private static final String REMIND_HREF = "RMD"; //$NON-NLS-1$
-	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
-	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
 	IInstallableUnit[] toUpdate;
 	Profile profile;
 	boolean downloaded;
 	boolean hidden = false;
+	StatusLineCLabelContribution item;
 
 	public AutomaticUpdatesPopup(IInstallableUnit[] toUpdate, Profile profile, boolean alreadyDownloaded, Preferences prefs) {
 		super((Shell) null, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, true, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
@@ -72,6 +76,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			}
 		};
 		prefs.addPropertyChangeListener(listener);
+		createStatusLineItem();
 
 	}
 
@@ -103,14 +108,12 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 				if (REMIND_HREF.equals(e.text)) {
 					if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 						// We are already on a remind schedule, so just set up the reminder
-						hidden = true;
-						getShell().setVisible(false);
+						hide();
 						scheduleRemindJob();
 					} else {
 						// We were not on a schedule.  Setting the pref value
 						// will activate our listener and start the remind job
-						hidden = true;
-						getShell().setVisible(false);
+						hide();
 						prefs.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
 					}
 				}
@@ -142,6 +145,13 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		cancelRemindJob();
 		remindJob = null;
 		listener = null;
+		IStatusLineManager manager = getStatusLineManager();
+		if (manager != null) {
+			manager.remove(item);
+		}
+		manager.update(true);
+		item.dispose();
+		item = null;
 		return super.close();
 	}
 
@@ -158,8 +168,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				Shell shell = getShell();
 				if (shell != null && !shell.isDisposed()) {
-					shell.setVisible(true);
-					hidden = false;
+					show();
 				}
 				return Status.OK_STATUS;
 			}
@@ -207,4 +216,63 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		super.configureShell(newShell);
 		newShell.setText(ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle);
 	}
+
+	private void createStatusLineItem() {
+		item = new StatusLineCLabelContribution(AUTO_UPDATE_STATUS_ITEM, 5);
+		item.addListener(SWT.MouseDown, new Listener() {
+			public void handleEvent(Event event) {
+				show();
+			}
+		});
+		item.setTooltip(ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle);
+		item.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE));
+		IStatusLineManager manager = getStatusLineManager();
+		if (manager != null) {
+			manager.add(item);
+		}
+		item.setVisible(false);
+
+	}
+
+	IStatusLineManager getStatusLineManager() {
+		// TODO  YUCK!  Am I missing an easier way to do this??
+		IWorkbenchPartSite site = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite();
+		if (site instanceof IViewSite) {
+			return ((IViewSite) site).getActionBars().getStatusLineManager();
+		} else if (site instanceof IEditorSite) {
+			return ((IViewSite) site).getActionBars().getStatusLineManager();
+		}
+		return null;
+	}
+
+	public void hide() {
+		hidden = true;
+		Shell shell = getShell();
+		if (shell != null && !shell.isDisposed())
+			shell.setVisible(false);
+		if (item != null) {
+			item.setVisible(true);
+			updateStatusLine();
+		}
+	}
+
+	public void show() {
+		Shell shell = getShell();
+		if (shell != null && !shell.isDisposed()) {
+			shell.setVisible(true);
+			hidden = false;
+			if (item != null) {
+				item.setVisible(false);
+				updateStatusLine();
+			}
+
+		}
+	}
+
+	void updateStatusLine() {
+		IStatusLineManager manager = getStatusLineManager();
+		if (manager != null)
+			manager.update(true);
+	}
+
 }

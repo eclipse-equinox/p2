@@ -32,7 +32,7 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 		PlatformUI.getWorkbench().getProgressService();
 		configurer.setInitialSize(new Point(800, 600));
 		configurer.setShowCoolBar(false);
-		configurer.setShowStatusLine(false);
+		configurer.setShowStatusLine(true);
 		configurer.setShowProgressIndicator(true);
 		configurer.setTitle(ProvAdminUIMessages.ApplicationWindowTitle);
 	}
