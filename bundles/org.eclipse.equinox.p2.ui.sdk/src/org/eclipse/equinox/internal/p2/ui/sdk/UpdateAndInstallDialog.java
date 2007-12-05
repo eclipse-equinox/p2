@@ -23,6 +23,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -67,6 +68,9 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		layout.numColumns = 1;
 		comp.setLayout(layout);
 
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		comp.setLayoutData(gd);
+
 		gc.setFont(JFaceResources.getDialogFont());
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
@@ -98,7 +102,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		});
 
 		Link updatePrefsLink = new Link(comp, SWT.LEFT | SWT.WRAP);
-		GridData gd = new GridData();
+		gd = new GridData();
 		gd.horizontalIndent = convertHorizontalDLUsToPixels(IDialogConstants.SMALL_INDENT);
 		updatePrefsLink.setLayoutData(gd);
 		updatePrefsLink.addSelectionListener(new SelectionAdapter() {
@@ -146,7 +150,11 @@ public class UpdateAndInstallDialog extends TrayDialog {
 			}
 
 			public Profile getProfile(Shell shell) {
-				if (new RevertDialog(shell, profile).open() == Window.OK)
+				RevertProfileWizard wizard = new RevertProfileWizard(profile);
+				WizardDialog dialog = new WizardDialog(shell, wizard);
+				dialog.create();
+				dialog.getShell().setSize(600, 500);
+				if (dialog.open() == Window.OK)
 					return profile;
 				return null;
 			}

@@ -28,56 +28,62 @@ import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * Dialog that allows users to update their installed IU's or find new ones.
- * 
  * @since 3.4
  */
-public class RevertDialog extends TrayDialog {
+public class RevertProfileWizardPage extends WizardPage {
 
+	Profile profile;
+	private TableViewer configsViewer;
+	private TableViewer configContentsViewer;
+	private SashForm sashForm;
 	private static final String DIALOG_SETTINGS_SECTION = "RevertDialog"; //$NON-NLS-1$
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 
-	Profile profile;
-	TableViewer configsViewer;
-	TableViewer configContentsViewer;
-
-	/**
-	 * Create an instance of this Dialog.
-	 * 
-	 */
-	public RevertDialog(Shell shell, Profile profile) {
-		super(shell);
+	public RevertProfileWizardPage(Profile profile) {
+		super("RevertConfiguration"); //$NON-NLS-1$
+		setTitle(ProvSDKMessages.RevertDialog_PageTitle);
+		setDescription(ProvSDKMessages.RevertDialog_Description);
 		this.profile = profile;
-		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.MAX | SWT.RESIZE | getDefaultOrientation());
-		setBlockOnOpen(false);
+
 	}
 
-	protected void configureShell(Shell shell) {
-		shell.setText(ProvSDKMessages.RevertDialog_Title);
-		super.configureShell(shell);
+	public void createControl(Composite parent) {
+		sashForm = new SashForm(parent, SWT.HORIZONTAL);
+		sashForm.setLayout(new GridLayout());
+		sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
+		initializeDialogUnits(sashForm);
+
+		createConfigurationsSection(sashForm);
+		createContentsSection(sashForm);
+		setControl(sashForm);
+
+		Object element = configsViewer.getElementAt(0);
+		if (element != null)
+			configsViewer.setSelection(new StructuredSelection(element));
+		Dialog.applyDialogFont(sashForm);
 	}
 
-	protected Control createDialogArea(Composite parent) {
-		Composite comp = new Composite(parent, SWT.NONE);
+	private void createConfigurationsSection(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		comp.setLayout(layout);
-		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-		comp.setLayoutData(gd);
-		Label label = new Label(comp, SWT.WRAP);
-		label.setText(ProvSDKMessages.RevertDialog_SelectMessage);
-		gd = new GridData();
-		gd.horizontalSpan = 2;
-		label.setLayoutData(gd);
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		composite.setLayout(layout);
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		composite.setLayoutData(gd);
 
-		configsViewer = new TableViewer(comp, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		Label label = new Label(composite, SWT.NONE);
+		label.setText(ProvSDKMessages.RevertDialog_ConfigsLabel);
+		configsViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		configsViewer.setContentProvider(new RepositoryContentProvider(ProvSDKUIActivator.getDefault().getQueryProvider()));
 		configsViewer.setInput(getInput());
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
@@ -89,76 +95,33 @@ public class RevertDialog extends TrayDialog {
 		}));
 		configsViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				RevertDialog.this.selectionChanged((IStructuredSelection) event.getSelection());
+				handleSelectionChanged((IStructuredSelection) event.getSelection());
 			}
 
 		});
 		gd = new GridData(GridData.FILL_BOTH);
 		configsViewer.getControl().setLayoutData(gd);
+	}
 
-		configContentsViewer = new TableViewer(comp, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+	private void createContentsSection(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		composite.setLayout(layout);
+		GridData gd = new GridData(GridData.FILL_BOTH);
+		composite.setLayoutData(gd);
+
+		Label label = new Label(composite, SWT.NONE);
+		label.setText(ProvSDKMessages.RevertDialog_ConfigContentsLabel);
+		configContentsViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		configContentsViewer.setContentProvider(new StaticContentProvider(new Object[0]));
 		configContentsViewer.setInput(new Object[0]);
 		configContentsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configContentsViewer.setComparator(new ViewerComparator());
 		setTableColumns(configContentsViewer.getTable());
 		gd = new GridData(GridData.FILL_BOTH);
-		gd.grabExcessHorizontalSpace = true;
-		gd.grabExcessVerticalSpace = true;
 		configContentsViewer.getControl().setLayoutData(gd);
-
-		selectionChanged((IStructuredSelection) configsViewer.getSelection());
-		Dialog.applyDialogFont(comp);
-		return comp;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.dialogs.Dialog#isResizable()
-	 */
-	protected boolean isResizable() {
-		return true;
-	}
-
-	protected void okPressed() {
-		revert();
-		super.okPressed();
-	}
-
-	protected IDialogSettings getDialogBoundsSettings() {
-		IDialogSettings settings = ProvSDKUIActivator.getDefault().getDialogSettings();
-		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
-		if (section == null) {
-			section = settings.addNewSection(DIALOG_SETTINGS_SECTION);
-		}
-		return section;
-	}
-
-	private void revert() {
-		final IInstallableUnit iu = getSelectedIU();
-		if (iu == null)
-			return;
-		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				try {
-					plan[0] = ProvisioningUtil.getBecomePlan(iu, profile, monitor);
-				} catch (ProvisionException e) {
-					ProvUI.handleException(e, ProvSDKMessages.RevertDialog_RevertError);
-				}
-			}
-		};
-		try {
-			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(runnable);
-			ProvisioningOperation op = new ProfileModificationOperation(ProvSDKMessages.RevertDialog_RevertOperationLabel, profile.getProfileId(), plan[0]);
-			Job job = ProvisioningOperationRunner.schedule(op, getShell());
-			job.join();
-		} catch (InterruptedException e) {
-			// don't report thread interruption
-		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), ProvSDKMessages.RevertDialog_RevertError);
-		}
 
 	}
 
@@ -173,11 +136,8 @@ public class RevertDialog extends TrayDialog {
 		}
 	}
 
-	void selectionChanged(IStructuredSelection selection) {
-		if (selection.isEmpty()) {
-			setEnabled(false);
-		} else {
-			setEnabled(true);
+	void handleSelectionChanged(IStructuredSelection selection) {
+		if (!selection.isEmpty()) {
 			Object selected = selection.getFirstElement();
 			if (selected instanceof RollbackProfileElement)
 				configContentsViewer.setInput(((RollbackProfileElement) selected).getChildren(null));
@@ -202,10 +162,65 @@ public class RevertDialog extends TrayDialog {
 		return null;
 	}
 
-	private void setEnabled(boolean enabled) {
-		Button okButton = getButton(IDialogConstants.OK_ID);
-		if (okButton != null && !okButton.isDisposed()) {
-			okButton.setEnabled(enabled);
+	public boolean performFinish() {
+		Shell shell = getContainer().getShell();
+		boolean result = MessageDialog.openQuestion(shell, shell.getText(), ProvSDKMessages.RevertDialog_ConfirmRestartMessage);
+		if (!result)
+			return false;
+
+		boolean finish = revert();
+		if (finish) {
+			PlatformUI.getWorkbench().restart();
 		}
+		return finish;
+	}
+
+	private boolean revert() {
+		final IInstallableUnit iu = getSelectedIU();
+		if (iu == null)
+			return false;
+		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
+		IRunnableWithProgress runnable = new IRunnableWithProgress() {
+			public void run(IProgressMonitor monitor) {
+				try {
+					plan[0] = ProvisioningUtil.getBecomePlan(iu, profile, monitor);
+				} catch (ProvisionException e) {
+					ProvUI.handleException(e, ProvSDKMessages.RevertDialog_RevertError);
+				}
+			}
+		};
+		try {
+			getContainer().run(true, true, runnable);
+			ProvisioningOperation op = new ProfileModificationOperation(ProvSDKMessages.RevertDialog_RevertOperationLabel, profile.getProfileId(), plan[0]);
+			Job job = ProvisioningOperationRunner.schedule(op, getShell());
+			job.join();
+		} catch (InterruptedException e) {
+			// don't report thread interruption
+		} catch (InvocationTargetException e) {
+			ProvUI.handleException(e.getCause(), ProvSDKMessages.RevertDialog_RevertError);
+		}
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.dialogs.Dialog#isResizable()
+	 */
+	protected boolean isResizable() {
+		return true;
+	}
+
+	protected IDialogSettings getDialogBoundsSettings() {
+		IDialogSettings settings = ProvSDKUIActivator.getDefault().getDialogSettings();
+		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
+		if (section == null) {
+			section = settings.addNewSection(DIALOG_SETTINGS_SECTION);
+		}
+		return section;
+	}
+
+	public boolean isPageComplete() {
+		return getSelectedIU() != null;
 	}
 }

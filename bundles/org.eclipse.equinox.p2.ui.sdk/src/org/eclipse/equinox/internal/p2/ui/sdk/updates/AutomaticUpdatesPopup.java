@@ -60,7 +60,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	StatusLineCLabelContribution item;
 
 	public AutomaticUpdatesPopup(IInstallableUnit[] toUpdate, Profile profile, boolean alreadyDownloaded, Preferences prefs) {
-		super((Shell) null, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, true, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
+		super((Shell) null, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
 		downloaded = alreadyDownloaded;
 		this.profile = profile;
 		this.toUpdate = toUpdate;

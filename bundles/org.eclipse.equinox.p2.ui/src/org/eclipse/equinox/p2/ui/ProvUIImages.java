@@ -41,6 +41,12 @@ public class ProvUIImages {
 	// tools
 	public final static String IMG_TOOL_UPDATE = "tool/update.gif"; //$NON-NLS-1$
 
+	// wizard graphics
+	public final static String WIZARD_BANNER_INSTALL = "wizban/install_wiz.gif"; //$NON-NLS-1$
+	public final static String WIZARD_BANNER_UNINSTALL = "wizban/uninstall_wiz.gif"; //$NON-NLS-1$
+	public final static String WIZARD_BANNER_UPDATE = "wizban/update_wiz.gif"; //$NON-NLS-1$
+	public final static String WIZARD_BANNER_REVERT = "wizban/revert_wiz.gif"; //$NON-NLS-1$
+
 	/**
 	 * Returns the image descriptor for the given image ID. Returns
 	 * <code>null</code> if there is no such image.
