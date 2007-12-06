@@ -54,10 +54,6 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		super();
 	}
 
-	protected URLMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
-		super(name, type, version, location, description, provider);
-	}
-
 	public URLMetadataRepository(URL location, String name) {
 		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null); //$NON-NLS-1$
 		content = getActualLocation(location);

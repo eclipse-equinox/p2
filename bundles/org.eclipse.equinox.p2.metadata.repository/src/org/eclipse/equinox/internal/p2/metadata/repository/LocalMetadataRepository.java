@@ -45,18 +45,24 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return new File(spec);
 	}
 
+	/**
+	 * This no argument constructor is called when restoring an existing repository.
+	 */
 	public LocalMetadataRepository() {
 		super();
 	}
 
-	protected LocalMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
-		super(name, type, version, location, description, provider);
-	}
-
+	/**
+	 * This constructor is used when creating a new local repository.
+	 * @param location The location of the repository
+	 * @param name The name of the repository
+	 */
 	public LocalMetadataRepository(URL location, String name) {
 		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null); //$NON-NLS-1$
 		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
-			throw new IllegalArgumentException("Invalid local repository location: " + location);
+			throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
+		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed
+		save();
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
