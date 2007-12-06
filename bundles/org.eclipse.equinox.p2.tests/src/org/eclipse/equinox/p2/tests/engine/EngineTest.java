@@ -120,7 +120,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testEmptyPhaseSet() {
 
-		Profile profile = createProfile("test");
+		Profile profile = createProfile("testEmptyPhaseSet");
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
 			// empty PhaseSet
 		};
@@ -141,7 +141,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformInstallOSGiFramework() {
 
-		Profile profile = createProfile("test");
+		Profile profile = createProfile("testPerformInstallOSGiFramework");
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
@@ -160,7 +160,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformUpdateOSGiFramework() {
 
-		Profile profile = createProfile("test");
+		Profile profile = createProfile("testPerformUpdateOSGiFramework");
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		Operand[] operands = new Operand[] {new Operand(createOSGiIU(), createOSGiIU())};
@@ -172,7 +172,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformUninstallOSGiFramework() {
 
-		Profile profile = createProfile("test");
+		Profile profile = createProfile("testPerformUninstallOSGiFramework");
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		Operand[] operands = new Operand[] {new Operand(createOSGiIU(), null)};
@@ -184,7 +184,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformRollback() {
 
-		Profile profile = createProfile("test");
+		Profile profile = createProfile("testPerformRollback");
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
