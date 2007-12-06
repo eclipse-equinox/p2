@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.ecf.core.identity.ID;
 import org.eclipse.ecf.filetransfer.*;
 import org.eclipse.ecf.filetransfer.events.*;
 import org.eclipse.ecf.filetransfer.identity.FileCreateException;
@@ -88,9 +87,7 @@ public class ECFTransport extends Transport {
 				}
 				if (event instanceof IIncomingFileTransferReceiveDataEvent) {
 					IIncomingFileTransfer source = ((IIncomingFileTransferReceiveDataEvent) event).getSource();
-					// TODO do proper monitor things here.
 					if (monitor != null) {
-						monitor.subTask("Transferring " + prettyName(source.getID()) + " (" + (int) (source.getPercentComplete() * 100) + "% complete)");
 						if (monitor.isCanceled())
 							source.cancel();
 					}
@@ -102,23 +99,6 @@ public class ECFTransport extends Transport {
 						result.notify();
 					}
 				}
-			}
-
-			/**
-			 * Create a nice, simple name for the given id, suitable for progress messages.
-			 */
-			private String prettyName(ID id) {
-				if (id == null)
-					return ""; //$NON-NLS-1$
-				String simpleName = id.getName();
-				//if the name is not too long, just return it
-				if (simpleName.length() < 30)
-					return simpleName;
-				int lastSlash = simpleName.lastIndexOf('/');
-				//if it is a segmented name, use only the last segment for a cleaner task message
-				if (lastSlash > 0 && lastSlash < (simpleName.length() - 1))
-					simpleName = simpleName.substring(lastSlash + 1);
-				return simpleName;
 			}
 		};
 
