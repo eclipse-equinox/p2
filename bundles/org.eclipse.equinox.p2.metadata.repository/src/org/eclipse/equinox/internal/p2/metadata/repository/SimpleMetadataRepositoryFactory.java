@@ -15,6 +15,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
@@ -23,20 +24,20 @@ import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
 	public IMetadataRepository create(URL location, String name, String type) {
-		try {
-			if (location.getProtocol().equals("file")) //$NON-NLS-1$
-				return new LocalMetadataRepository(location, name);
-			return new URLMetadataRepository(location, name);
-		} catch (RepositoryCreationException e) {
-			log(e);
-			// if the exception has no cause then it was just a missing repo so we'll return null 
-			return null;
-		}
+		if (location.getProtocol().equals("file")) //$NON-NLS-1$
+			return new LocalMetadataRepository(location, name);
+		return new URLMetadataRepository(location, name);
 	}
 
 	public IMetadataRepository load(URL location) {
 		if (location == null)
 			return null;
+		long time = 0;
+		final String debugMsg = "Restoring metadata repository "; //$NON-NLS-1$
+		if (Tracing.DEBUG_METADATA_PARSING) {
+			Tracing.debug(debugMsg + location);
+			time = -System.currentTimeMillis();
+		}
 		try {
 			InputStream descriptorStream = new BufferedInputStream(URLMetadataRepository.getActualLocation(location).openStream());
 			try {
@@ -45,9 +46,13 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					((LocalMetadataRepository) result).initializeAfterLoad(location);
 				if (result instanceof URLMetadataRepository)
 					((URLMetadataRepository) result).initializeAfterLoad(location);
+				if (Tracing.DEBUG_METADATA_PARSING) {
+					time += System.currentTimeMillis();
+					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
+				}
 				return result;
 			} catch (RepositoryCreationException e) {
-				log(e);
+				log(debugMsg, e);
 			} finally {
 				if (descriptorStream != null)
 					descriptorStream.close();
@@ -55,13 +60,13 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		} catch (FileNotFoundException e) {
 			//if the repository doesn't exist, then it's fine to return null
 		} catch (IOException e) {
-			log(e);
+			log(debugMsg, e);
 		}
 		return null;
 	}
 
-	private void log(Exception e) {
-		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, "Error loading repository", e));
+	private void log(String message, Exception e) {
+		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, e));
 	}
 
 	public void restore(AbstractRepository repository, URL location) {
@@ -69,7 +74,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		if (source == null)
 			return;
 		if (repository.getClass() != source.getClass())
-			throw new IllegalArgumentException("Repository type mismatch");
+			throw new IllegalArgumentException("Repository type mismatch"); //$NON-NLS-1$
 		if (repository instanceof LocalMetadataRepository)
 			((LocalMetadataRepository) repository).revertToBackup((LocalMetadataRepository) source);
 		else if (repository instanceof URLMetadataRepository)

@@ -16,7 +16,6 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
@@ -54,7 +53,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		super(name, type, version, location, description, provider);
 	}
 
-	public LocalMetadataRepository(URL location, String name) throws RepositoryCreationException {
+	public LocalMetadataRepository(URL location, String name) {
 		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null); //$NON-NLS-1$
 		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location);
