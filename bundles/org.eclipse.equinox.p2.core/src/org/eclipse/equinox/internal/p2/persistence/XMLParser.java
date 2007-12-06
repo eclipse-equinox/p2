@@ -646,7 +646,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void unexpectedAttribute(String element, String attribute, String value) {
-		if (Tracing.DEBUG_PARSING)
+		if (Tracing.DEBUG_PARSE_PROBLEMS)
 			Tracing.debug("Unexpected attribute for element " + element + ": " + attribute + '=' + value); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -655,7 +655,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void unexpectedElement(AbstractHandler handler, String element, Attributes attributes) {
-		if (Tracing.DEBUG_PARSING)
+		if (Tracing.DEBUG_PARSE_PROBLEMS)
 			Tracing.debug("Unexpected element in element " + handler.getName() + ": <" + element + toString(attributes) + '>'); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -664,7 +664,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	}
 
 	public void unexpectedCharacterData(AbstractHandler handler, String cdata) {
-		if (Tracing.DEBUG_PARSING)
+		if (Tracing.DEBUG_PARSE_PROBLEMS)
 			Tracing.debug("Unexpected character data in element " + handler.getName() + ": " + cdata.trim()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 

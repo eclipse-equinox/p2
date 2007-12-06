@@ -23,16 +23,20 @@ public class Tracing {
 	public static boolean DEBUG = false;
 
 	//debug constants
-	public static boolean DEBUG_PARSING = false;
+	public static boolean DEBUG_PARSE_PROBLEMS = false;
 	public static boolean DEBUG_GENERATOR_PARSING = false;
+	public static boolean DEBUG_INSTALL_REGISTRY = false;
+	public static boolean DEBUG_METADATA_PARSING = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
 		if (options != null) {
 			DEBUG = options.getBooleanOption(Activator.ID + "/debug", false); //$NON-NLS-1$
 			if (DEBUG) {
-				DEBUG_PARSING = options.getBooleanOption(Activator.ID + "/persistence/parsing", false); //$NON-NLS-1$
+				DEBUG_PARSE_PROBLEMS = options.getBooleanOption(Activator.ID + "/core/parseproblems", false); //$NON-NLS-1$
 				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
+				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
+				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
 			}
 		}
 	}
