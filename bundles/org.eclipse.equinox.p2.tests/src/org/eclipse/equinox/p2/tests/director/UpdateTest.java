@@ -11,7 +11,7 @@ package org.eclipse.equinox.p2.tests.director;
 import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
@@ -27,6 +27,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 	IInstallableUnit fa;
 	IInstallableUnit fap;
 	IDirector director;
+	IPlanner planner;
 	Profile profile;
 
 	protected void setUp() throws Exception {
@@ -46,12 +47,15 @@ public class UpdateTest extends AbstractProvisioningTest {
 
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
-		director.install(new IInstallableUnit[] {fa}, profile, null);
-
+		planner = createPlanner();
+		assertOK(director.install(new IInstallableUnit[] {fa}, profile, null));
+		assertProfileContains("Profile setup", profile, new IInstallableUnit[] {f1, fa});
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4});
 	}
 
 	public void testInstall() {
+		ProvisioningPlan plan = planner.getInstallPlan(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor());
+		assertOK(plan.getStatus());
 		assertOK(director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()));
 		for (Iterator iterator = profile.getInstallableUnits(); iterator.hasNext();) {
 			System.out.println(iterator.next());
