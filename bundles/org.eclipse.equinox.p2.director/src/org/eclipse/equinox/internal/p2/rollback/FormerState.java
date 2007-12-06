@@ -20,7 +20,6 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.osgi.framework.Version;
@@ -30,14 +29,14 @@ public class FormerState {
 
 	Hashtable generatedIUs = new Hashtable(); //key profile id, value the iu representing this profile
 
-	public FormerState(ProvisioningEventBus bus, IMetadataRepository repo) {
-		if (bus == null || repo == null) {
-			throw new IllegalArgumentException("bus and storage can' be null"); //$NON-NLS-1$
-		}
-		location = repo.getLocation();
+	public FormerState(URL repoLocation) {
+		if (repoLocation == null)
+			throw new IllegalArgumentException("Repository location can't be null"); //$NON-NLS-1$
+		ProvisioningEventBus eventBus = (ProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, ProvisioningEventBus.class.getName());
+		location = repoLocation;
 
 		//listen for pre-event. to memorize the state of the profile
-		bus.addListener(new SynchronousProvisioningListener() {
+		eventBus.addListener(new SynchronousProvisioningListener() {
 			public void notify(EventObject o) {
 				if (o instanceof BeginOperationEvent) {
 					BeginOperationEvent event = (BeginOperationEvent) o;

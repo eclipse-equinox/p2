@@ -12,8 +12,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.director.*;
@@ -38,22 +38,33 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public SimpleDirector() {
-		URL rollbackLocation = getRollbackLocation();
-		ProvisioningEventBus eventBus = (ProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, ProvisioningEventBus.class.getName());
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		IMetadataRepository rollbackRepo = manager.loadRepository(rollbackLocation, null);
-		if (rollbackRepo == null)
-			rollbackRepo = manager.createRepository(rollbackLocation, "Agent rollback repo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
-		if (rollbackRepo == null)
-			throw new IllegalStateException("Unable to open or create Agent's rollback repository");
-		tagAsImplementation(rollbackRepo);
-		new FormerState(eventBus, rollbackRepo);
+		initializeRollbackRepository();
 		engine = (Engine) ServiceHelper.getService(DirectorActivator.context, Engine.class.getName());
 		if (engine == null)
-			throw new IllegalStateException("Provisioning engine is not registered");
+			throw new IllegalStateException("Provisioning engine is not registered"); //$NON-NLS-1$
 		planner = (IPlanner) ServiceHelper.getService(DirectorActivator.context, IPlanner.class.getName());
 		if (planner == null)
-			throw new IllegalStateException("Unable to find provisioning planner");
+			throw new IllegalStateException("Unable to find provisioning planner"); //$NON-NLS-1$
+	}
+
+	private void initializeRollbackRepository() {
+		URL rollbackLocation = getRollbackLocation();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
+		URL[] locations = manager.getKnownRepositories();
+		boolean found = false;
+		for (int i = 0; i < locations.length; i++) {
+			if (URLUtil.sameURL(locations[i], rollbackLocation)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			IMetadataRepository rollbackRepo = manager.createRepository(rollbackLocation, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
+			if (rollbackRepo == null)
+				throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
+			tagAsImplementation(rollbackRepo);
+		}
+		new FormerState(rollbackLocation);
 	}
 
 	public URL getRollbackLocation() {
