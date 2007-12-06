@@ -183,4 +183,37 @@ public class Utils {
 		}
 		return st;
 	}
+
+	public static void log(int level, Object obj, String method, String message, Throwable e) {
+		String msg = "";
+		if (method == null) {
+			if (obj != null)
+				msg = "(" + obj.getClass().getName() + ")";
+		} else if (obj == null)
+			msg = "[" + method + "]" + message;
+		else
+			msg = "[" + method + "](" + obj.getClass().getName() + ")";
+		msg += message;
+
+//		if (LogService logService = Activator.getLogService();
+//		if (logService != null) {
+//			logService.log(level, msg, e);
+//		} else {
+		String levelSt = null;
+		if (level == 1)
+			levelSt = "DEBUG";
+		else if (level == 2)
+			levelSt = "INFO";
+		else if (level == 3)
+			levelSt = "WARNING";
+		else if (level == 4) {
+			levelSt = "ERROR";
+//				useLog = true;
+		}
+//			if (useLog) {
+		System.err.println("[" + levelSt + "]" + msg);
+		if (e != null)
+			e.printStackTrace();
+//			}
+	}
 }

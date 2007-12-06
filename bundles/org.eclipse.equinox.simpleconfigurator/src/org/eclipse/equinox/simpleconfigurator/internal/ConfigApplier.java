@@ -17,6 +17,8 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
+	private static final String LAST_BUNDLES_TXT = "last.bundles.txt";
+
 	private BundleContext manipulatingContext;
 	private PackageAdmin adminService = null;
 	private StartLevel startLevelService = null;
@@ -93,7 +95,7 @@ class ConfigApplier {
 		InputStream sourceStream = null;
 		OutputStream destinationStream = null;
 
-		File lastBundlesTxt = manipulatingContext.getDataFile("last.bundles.txt");
+		File lastBundlesTxt = getLastBundleTxt();
 		try {
 			try {
 				destinationStream = new FileOutputStream(lastBundlesTxt);
@@ -110,8 +112,12 @@ class ConfigApplier {
 		}
 	}
 
+	private File getLastBundleTxt() {
+		return manipulatingContext.getDataFile(LAST_BUNDLES_TXT);
+	}
+
 	private BundleInfo[] getLastState() {
-		File lastBundlesTxt = manipulatingContext.getDataFile("last.bundles.txt");
+		File lastBundlesTxt = getLastBundleTxt();
 		if (!lastBundlesTxt.isFile())
 			return null;
 		try {
@@ -127,11 +133,19 @@ class ConfigApplier {
 
 		boolean useReference = Boolean.valueOf(manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE)).booleanValue();
 		for (int i = 0; i < finalList.length; i++) {
+			if (finalList[i] == null)
+				continue;
 			//TODO here we do not deal with bundles that don't have a symbolic id
 			//TODO Need to handle the case where getBundles return multiple value
 
 			Bundle[] matches = null;
 			Dictionary manifest = Utils.getOSGiManifest(finalList[i].getLocation());
+			if (manifest == null) {
+				Utils.log(1, null, null, "No bundle found at: " + finalList[i].getLocation(), null);
+				finalList[i] = null;
+				continue;
+			}
+
 			String symbolicName = null;
 			//if (manifest != null)
 			try {
@@ -155,6 +169,7 @@ class ConfigApplier {
 						continue;
 					if (runningOnEquinox && useReference && location.startsWith("file:")) //$NON-NLS-1$
 						location = "reference:" + location; //$NON-NLS-1$
+
 					//TODO Need to eliminate System Bundle.
 					// If a system bundle doesn't have a SymbolicName header, like Knopflerfish 4.0.0,
 					// it will be installed unfortunately. 
@@ -177,9 +192,7 @@ class ConfigApplier {
 							if (!SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME.equals(name))
 								startLevelService.setBundleStartLevel(current, startLevel);
 					} catch (IllegalArgumentException ex) {
-						//TODO Log
-						System.err.println("fail to set start level of Bundle:" + finalList[i]);
-						ex.printStackTrace();
+						Utils.log(4, null, null, "fail to set start level of Bundle:" + finalList[i], ex);
 					}
 				}
 			if (finalList[i].isMarkedAsStarted()) {
@@ -188,17 +201,6 @@ class ConfigApplier {
 		}
 		return installed;
 	}
-
-//	private void printSystemBundle() {
-//		Bundle bundle = manipulatingContext.getBundle(0);
-//		System.out.println("bundle.getSymbolicName()=" + bundle.getSymbolicName());
-//		Dictionary headers = bundle.getHeaders();
-//		System.out.println(headers.size() + ":Headers=");
-//		for (Enumeration enumeration = headers.keys(); enumeration.hasMoreElements();) {
-//			Object key = enumeration.nextElement();
-//			System.out.println(" (" + key + "," + headers.get(key) + ")");
-//		}
-//	}
 
 	private void refreshPackages(Bundle[] bundles, BundleContext manipulatingContext) {
 		if (bundles.length == 0)
@@ -279,6 +281,8 @@ class ConfigApplier {
 
 		//Remove all the bundles appearing in the final list from the set of installed bundles
 		for (int i = 0; i < finalList.length; i++) {
+			if (finalList[i] == null)
+				continue;
 			Bundle[] toAdd = adminService.getBundles(finalList[i].getSymbolicName(), getVersionRange(finalList[i].getVersion()));
 			for (int j = 0; toAdd != null && j < toAdd.length; j++) {
 				removedBundles.remove(toAdd[j]);
