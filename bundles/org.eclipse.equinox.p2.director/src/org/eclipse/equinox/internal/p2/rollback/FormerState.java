@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.IUTransformationHelper;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -66,7 +67,14 @@ public class FormerState {
 
 	AbstractMetadataRepository getRepository() {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		return (AbstractMetadataRepository) manager.loadRepository(location, null);
+		AbstractMetadataRepository repository = (AbstractMetadataRepository) manager.loadRepository(location, null);
+		if (repository != null)
+			return repository;
+		repository = (AbstractMetadataRepository) manager.createRepository(location, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
+		if (repository == null)
+			throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
+		((IRepository) repository).getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		return repository;
 	}
 
 	IInstallableUnit profileToIU(Profile toConvert) {

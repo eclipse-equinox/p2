@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.IRepository;
@@ -20,7 +19,6 @@ import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleDirector implements IDirector {
@@ -48,23 +46,7 @@ public class SimpleDirector implements IDirector {
 	}
 
 	private void initializeRollbackRepository() {
-		URL rollbackLocation = getRollbackLocation();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		URL[] locations = manager.getKnownRepositories();
-		boolean found = false;
-		for (int i = 0; i < locations.length; i++) {
-			if (URLUtil.sameURL(locations[i], rollbackLocation)) {
-				found = true;
-				break;
-			}
-		}
-		if (!found) {
-			IMetadataRepository rollbackRepo = manager.createRepository(rollbackLocation, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
-			if (rollbackRepo == null)
-				throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
-			tagAsImplementation(rollbackRepo);
-		}
-		new FormerState(rollbackLocation);
+		new FormerState(getRollbackLocation());
 	}
 
 	public URL getRollbackLocation() {
