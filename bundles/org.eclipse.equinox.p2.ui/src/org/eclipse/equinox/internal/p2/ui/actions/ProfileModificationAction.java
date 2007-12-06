@@ -18,8 +18,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.IProfileChooser;
-import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -29,11 +28,13 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	Profile profile;
 	IProfileChooser profileChooser;
+	LicenseManager licenseManager;
 
-	protected ProfileModificationAction(String text, ISelectionProvider selectionProvider, Profile profile, IProfileChooser profileChooser, Shell shell) {
+	protected ProfileModificationAction(String text, ISelectionProvider selectionProvider, Profile profile, IProfileChooser profileChooser, LicenseManager licenseManager, Shell shell) {
 		super(text, selectionProvider, shell);
 		this.profile = profile;
 		this.profileChooser = profileChooser;
+		this.licenseManager = licenseManager;
 	}
 
 	public void run() {
@@ -95,6 +96,10 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	protected IInstallableUnit getIU(Object element) {
 		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 
+	}
+
+	protected LicenseManager getLicenseManager() {
+		return licenseManager;
 	}
 
 }

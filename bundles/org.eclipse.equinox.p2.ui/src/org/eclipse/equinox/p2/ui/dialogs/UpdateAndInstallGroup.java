@@ -54,6 +54,7 @@ public class UpdateAndInstallGroup {
 	Profile profile;
 	IRepositoryManipulator repositoryManipulator;
 	IProfileChooser profileChooser;
+	LicenseManager licenseManager;
 	private FontMetrics fm;
 	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton;
 
@@ -61,11 +62,12 @@ public class UpdateAndInstallGroup {
 	 * Create an instance of this group.
 	 * 
 	 */
-	public UpdateAndInstallGroup(Composite parent, Profile profile, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, IProvElementQueryProvider queryProvider, FontMetrics fm) {
+	public UpdateAndInstallGroup(Composite parent, Profile profile, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, IProvElementQueryProvider queryProvider, LicenseManager licenseManager, FontMetrics fm) {
 
 		this.profile = profile;
 		this.repositoryManipulator = repositoryManipulator;
 		this.profileChooser = profileChooser;
+		this.licenseManager = licenseManager;
 
 		// tab folder
 		tabFolder = new TabFolder(parent, SWT.NONE);
@@ -187,7 +189,7 @@ public class UpdateAndInstallGroup {
 		availablePropButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Properties, false);
 		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUViewer));
 		installButton = createVerticalButton(composite, ProvUIMessages.InstallIUCommandLabel, false);
-		installButton.setData(BUTTONACTION, new InstallAction(availableIUViewer, profile, null, parent.getShell()));
+		installButton.setData(BUTTONACTION, new InstallAction(availableIUViewer, profile, null, licenseManager, parent.getShell()));
 		if (repositoryManipulator != null) {
 			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
 			repoButton.setData(BUTTONACTION, new Action() {
@@ -285,7 +287,7 @@ public class UpdateAndInstallGroup {
 		uninstallButton = createVerticalButton(composite, ProvUIMessages.UninstallIUCommandLabel, false);
 		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUViewer, profile, null, parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateIUCommandLabel, false);
-		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUViewer, profile, null, parent.getShell()));
+		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUViewer, profile, null, licenseManager, parent.getShell()));
 		if (profileChooser != null) {
 			Button profileButton = createVerticalButton(composite, profileChooser.getLabel(), false);
 			profileButton.setData(BUTTONACTION, new Action() {

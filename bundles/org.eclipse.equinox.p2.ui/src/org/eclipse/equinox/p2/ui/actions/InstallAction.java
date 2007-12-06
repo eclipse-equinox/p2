@@ -19,8 +19,7 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.IProfileChooser;
-import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -30,8 +29,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class InstallAction extends ProfileModificationAction {
 
-	public InstallAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
+	public InstallAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, LicenseManager licenseManager, Shell shell) {
+		super(ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, licenseManager, shell);
 		setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
 	}
 
@@ -62,7 +61,7 @@ public class InstallAction extends ProfileModificationAction {
 	}
 
 	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
-		InstallWizard wizard = new InstallWizard(targetProfile, ius);
+		InstallWizard wizard = new InstallWizard(targetProfile, ius, getLicenseManager());
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.open();
 	}

@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.Shell;
 public class RevertAction extends ProfileModificationAction {
 
 	public RevertAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
+		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profile, chooser, null, shell);
 		setToolTipText(ProvUI.REVERT_COMMAND_TOOLTIP);
 	}
 

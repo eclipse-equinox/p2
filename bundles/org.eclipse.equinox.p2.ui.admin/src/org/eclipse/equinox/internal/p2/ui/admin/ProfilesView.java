@@ -112,7 +112,7 @@ public class ProfilesView extends ProvView {
 
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
-		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer);
+		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer, null);
 		adapter.setFeedbackEnabled(false);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);
@@ -158,7 +158,7 @@ public class ProfilesView extends ProvView {
 		addProfileAction = new AddProfileAction();
 		removeProfileAction = new RemoveProfileAction();
 		uninstallAction = new UninstallAction(viewer, null, getProfileChooser(), getShell());
-		updateAction = new UpdateAction(viewer, null, getProfileChooser(), getShell());
+		updateAction = new UpdateAction(viewer, null, getProfileChooser(), null, getShell());
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
 		installAction = new InstallIntoProfileAction();
 

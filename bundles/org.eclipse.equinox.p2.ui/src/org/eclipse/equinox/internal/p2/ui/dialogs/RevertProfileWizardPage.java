@@ -19,14 +19,15 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.RollbackProfileElement;
 import org.eclipse.equinox.p2.ui.model.RollbackRepositoryElement;
 import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.equinox.p2.ui.viewers.*;
-import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
@@ -44,10 +45,8 @@ public class RevertProfileWizardPage extends WizardPage {
 
 	private TableViewer configsViewer;
 	private TableViewer configContentsViewer;
-	private SashForm sashForm;
 	Profile profile;
 	IProvElementQueryProvider queryProvider;
-	private static final String DIALOG_SETTINGS_SECTION = "RevertDialog"; //$NON-NLS-1$
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 
 	public RevertProfileWizardPage(Profile profile, IProvElementQueryProvider queryProvider) {
@@ -60,7 +59,7 @@ public class RevertProfileWizardPage extends WizardPage {
 	}
 
 	public void createControl(Composite parent) {
-		sashForm = new SashForm(parent, SWT.HORIZONTAL);
+		SashForm sashForm = new SashForm(parent, SWT.HORIZONTAL);
 		sashForm.setLayout(new GridLayout());
 		sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
 		initializeDialogUnits(sashForm);
@@ -203,24 +202,6 @@ public class RevertProfileWizardPage extends WizardPage {
 			ProvUI.handleException(e.getCause(), ProvUIMessages.RevertDialog_RevertError);
 		}
 		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.jface.dialogs.Dialog#isResizable()
-	 */
-	protected boolean isResizable() {
-		return true;
-	}
-
-	protected IDialogSettings getDialogBoundsSettings() {
-		IDialogSettings settings = ProvUIActivator.getDefault().getDialogSettings();
-		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
-		if (section == null) {
-			section = settings.addNewSection(DIALOG_SETTINGS_SECTION);
-		}
-		return section;
 	}
 
 	public boolean isPageComplete() {

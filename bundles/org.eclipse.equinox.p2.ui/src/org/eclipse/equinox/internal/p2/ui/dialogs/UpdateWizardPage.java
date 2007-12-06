@@ -24,10 +24,10 @@ import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
-public class UpdateWizardPage extends UpdateInstallWizardPage {
+public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 
-	public UpdateWizardPage(IInstallableUnit[] ius, Profile profile) {
-		super("UpdateWizardPage", ius, profile); //$NON-NLS-1$
+	public UpdateWizardPage(IInstallableUnit[] ius, Profile profile, UpdateOrInstallWizard wizard) {
+		super("UpdateWizardPage", ius, profile, wizard); //$NON-NLS-1$
 		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 	}

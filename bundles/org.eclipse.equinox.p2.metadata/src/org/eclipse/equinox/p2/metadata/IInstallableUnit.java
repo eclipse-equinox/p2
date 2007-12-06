@@ -77,6 +77,17 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_LICENSE = "equinox.p2.license"; //$NON-NLS-1$
 	/**
+	 * A property key (value <code>"equinox.p2.license.id"</code>) representing a 
+	 * String property containing a unique id for the specified license.  The id
+	 * is used when remembering which licenses have already been accepted.  If the license
+	 * for an installable unit changes, its id should also be changed so that the
+	 * user must accept it again.
+	 * 
+	 * @see #getProperty(String)
+	 */
+	public static final String PROP_LICENSE_ID = "equinox.p2.license.id"; //$NON-NLS-1$
+
+	/**
 	 * A property key (value <code>"equinox.p2.name"</code>) representing a 
 	 * String property containing a human-readable name for the installable unit.
 	 * 

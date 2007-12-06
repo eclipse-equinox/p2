@@ -11,36 +11,24 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.dialogs.InstallWizardPage;
+import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.jface.wizard.Wizard;
 
 /**
  * @since 3.4
  */
-public class InstallWizard extends Wizard {
+public class InstallWizard extends UpdateOrInstallWizard {
 
-	InstallWizardPage page;
-	Profile profile;
-	IInstallableUnit[] ius;
-
-	public InstallWizard(Profile profile, IInstallableUnit[] ius) {
-		super();
+	public InstallWizard(Profile profile, IInstallableUnit[] ius, LicenseManager licenseManager) {
+		super(profile, ius, licenseManager);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
-		this.profile = profile;
-		this.ius = ius;
 	}
 
-	public void addPages() {
-		page = new InstallWizardPage(ius, profile);
-		addPage(page);
+	protected UpdateOrInstallWizardPage createMainPage(Profile profile, IInstallableUnit[] ius) {
+		return new InstallWizardPage(ius, profile, this);
 	}
-
-	public boolean performFinish() {
-		return page.performFinish();
-	}
-
 }

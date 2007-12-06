@@ -94,7 +94,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			infoLink.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewNotDownloaded);
 		infoLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				UpdateWizard wizard = new UpdateWizard(profile, toUpdate);
+				UpdateWizard wizard = new UpdateWizard(profile, toUpdate, ProvSDKUIActivator.getDefault().getLicenseManager());
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.open();
 			}

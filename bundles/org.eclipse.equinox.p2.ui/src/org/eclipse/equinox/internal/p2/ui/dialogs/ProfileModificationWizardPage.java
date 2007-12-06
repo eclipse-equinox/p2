@@ -31,6 +31,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 
 public abstract class ProfileModificationWizardPage extends WizardPage {
 	private static final int DEFAULT_HEIGHT = 20;
@@ -83,7 +84,8 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			}
 		};
 		try {
-			getContainer().run(true, true, runnable);
+			// We are not open yet so we can't use the local progress control
+			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(runnable);
 		} catch (InterruptedException e) {
 			// don't report thread interruption
 		} catch (InvocationTargetException e) {
@@ -92,7 +94,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 		listViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				validatePage();
+				selectedIUsChanged();
 			}
 		});
 		contentProvider = new StaticContentProvider(list.toArray());
@@ -100,6 +102,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		listViewer.setInput(new Object());
 		listViewer.setLabelProvider(new IUDetailsLabelProvider(getColumnConfig()));
 		listViewer.setAllChecked(true);
+		selectedIUsChanged();
 		setControl(composite);
 		Dialog.applyDialogFont(composite);
 	}
@@ -144,6 +147,10 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return theIUs;
 	}
 
+	public IInstallableUnit[] getSelectedIUs() {
+		return elementsToIUs(getSelectedElements());
+	}
+
 	protected Profile getProfile() {
 		return profile;
 	}
@@ -162,11 +169,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return IUElement.SIZE_UNKNOWN;
 	}
 
-	protected void validatePage() {
-		setPageComplete(isPageComplete());
-	}
-
-	public boolean isPageComplete() {
-		return getSelectedElements().length > 0;
+	protected void selectedIUsChanged() {
+		setPageComplete(getSelectedIUs().length > 0);
 	}
 }

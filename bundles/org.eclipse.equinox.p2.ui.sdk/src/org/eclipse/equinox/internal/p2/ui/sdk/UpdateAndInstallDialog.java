@@ -76,7 +76,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		group = new UpdateAndInstallGroup(comp, profile, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), getProfileChooser(), ProvSDKUIActivator.getDefault().getQueryProvider(), fontMetrics);
+		group = new UpdateAndInstallGroup(comp, profile, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), getProfileChooser(), ProvSDKUIActivator.getDefault().getQueryProvider(), ProvSDKUIActivator.getDefault().getLicenseManager(), fontMetrics);
 		final Button checkBox = new Button(comp, SWT.CHECK);
 		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
 		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);

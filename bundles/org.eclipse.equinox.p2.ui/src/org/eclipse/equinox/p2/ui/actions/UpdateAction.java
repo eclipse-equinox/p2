@@ -29,8 +29,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class UpdateAction extends ProfileModificationAction {
 
-	public UpdateAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
+	public UpdateAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, LicenseManager licenseManager, Shell shell) {
+		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profile, chooser, licenseManager, shell);
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
@@ -46,7 +46,7 @@ public class UpdateAction extends ProfileModificationAction {
 			}
 			if (iusWithUpdates.size() > 0) {
 
-				UpdateWizard wizard = new UpdateWizard(targetProfile, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]));
+				UpdateWizard wizard = new UpdateWizard(targetProfile, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), getLicenseManager());
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.open();
 			}

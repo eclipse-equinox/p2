@@ -83,7 +83,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	protected void makeActions() {
 		super.makeActions();
-		installAction = new InstallAction(viewer, null, getProfileChooser(), getShell());
+		installAction = new InstallAction(viewer, null, getProfileChooser(), null, getShell());
 		revertAction = new RevertAction(viewer, null, getProfileChooser(), getShell());
 	}
 

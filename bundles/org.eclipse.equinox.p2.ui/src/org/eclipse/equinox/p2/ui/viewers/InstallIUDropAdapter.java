@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -35,6 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	static boolean DEBUG = false;
+	LicenseManager licenseManager;
 
 	/**
 	 * Constructs a new drop adapter.
@@ -42,8 +42,9 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * @param viewer
 	 *            the navigator's viewer
 	 */
-	public InstallIUDropAdapter(StructuredViewer viewer) {
+	public InstallIUDropAdapter(StructuredViewer viewer, LicenseManager licenseManager) {
 		super(viewer);
+		this.licenseManager = licenseManager;
 	}
 
 	/**
@@ -143,7 +144,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(selectionProvider, profile, null, getShell());
+			InstallAction action = new InstallAction(selectionProvider, profile, null, licenseManager, getShell());
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();

@@ -15,9 +15,13 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 
-public abstract class UpdateInstallWizardPage extends ProfileModificationWizardPage {
-	protected UpdateInstallWizardPage(String id, IInstallableUnit[] ius, Profile profile) {
+public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizardPage {
+
+	protected UpdateOrInstallWizard wizard;
+
+	protected UpdateOrInstallWizardPage(String id, IInstallableUnit[] ius, Profile profile, UpdateOrInstallWizard wizard) {
 		super(id, ius, profile);
+		this.wizard = wizard;
 	}
 
 	protected abstract String getOperationLabel();
@@ -25,4 +29,10 @@ public abstract class UpdateInstallWizardPage extends ProfileModificationWizardP
 	protected IUColumnConfig[] getColumnConfig() {
 		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION), new IUColumnConfig(ProvUIMessages.ProvUI_SizeColumnTitle, IUColumnConfig.COLUMN_SIZE)};
 	}
+
+	protected void selectedIUsChanged() {
+		wizard.iusChanged(getSelectedIUs());
+		super.selectedIUsChanged();
+	}
+
 }

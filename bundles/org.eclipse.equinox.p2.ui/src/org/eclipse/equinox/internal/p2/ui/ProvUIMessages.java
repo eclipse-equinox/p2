@@ -25,6 +25,15 @@ public class ProvUIMessages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, ProvUIMessages.class);
 	}
 
+	public static String AcceptLicensesWizardPage_AcceptMultiple;
+	public static String AcceptLicensesWizardPage_AcceptSingle;
+	public static String AcceptLicensesWizardPage_ItemsLabel;
+	public static String AcceptLicensesWizardPage_LicenseTextLabel;
+	public static String AcceptLicensesWizardPage_NoLicensesDescription;
+	public static String AcceptLicensesWizardPage_RejectMultiple;
+	public static String AcceptLicensesWizardPage_RejectSingle;
+	public static String AcceptLicensesWizardPage_ReviewLicensesDescription;
+	public static String AcceptLicensesWizardPage_Title;
 	public static String ApplyProfileChangesDialog_ApplyChanges;
 	public static String CategoryElementCollector_Uncategorized;
 	public static String ChooseProfileDialog_DefaultDialogTitle;
@@ -114,6 +123,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUI_SizeColumnTitle;
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_IDColumnTitle;
+	public static String ProvUILicenseManager_ParsingError;
 	public static String OptionalPlatformRestartMessage;
 	public static String QueryableArtifactRepositoryManager_RepositoryQueryProgress;
 	public static String QueryableMetadataRepositoryManager_RepositoryQueryProgress;

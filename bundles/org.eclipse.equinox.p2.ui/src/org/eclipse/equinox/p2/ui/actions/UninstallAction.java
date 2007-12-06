@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Shell;
 public class UninstallAction extends ProfileModificationAction {
 
 	public UninstallAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, shell);
+		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, null, shell);
 		setToolTipText(ProvUI.UNINSTALL_COMMAND_TOOLTIP);
 	}
 

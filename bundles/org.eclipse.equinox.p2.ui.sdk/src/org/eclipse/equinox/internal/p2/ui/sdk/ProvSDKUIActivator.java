@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.io.*;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.ui.ProfileFactory;
+import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -29,10 +29,12 @@ import org.osgi.framework.BundleContext;
 public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	private static final String DEFAULT_PROFILE_ID = "DefaultProfile"; //$NON-NLS-1$
+	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
 	private AutomaticUpdateScheduler scheduler;
 	private IProvElementQueryProvider queryProvider;
+	private SimpleLicenseManager licenseManager;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
 
@@ -74,9 +76,41 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		ProvSDKUIActivator.context = bundleContext;
+		readLicenseRegistry();
+	}
+
+	private void readLicenseRegistry() {
+		IPath location = getStateLocation().append(LICENSE_STORAGE);
+		File f = location.toFile();
+		BufferedInputStream stream = null;
+		if (f.exists()) {
+			try {
+				stream = new BufferedInputStream(new FileInputStream(f));
+				getLicenseManager().read(stream);
+				stream.close();
+			} catch (IOException e) {
+				ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_LicenseManagerReadError, e));
+			}
+		}
+	}
+
+	private void writeLicenseRegistry() {
+		if (!getLicenseManager().hasAcceptedLicenses())
+			return;
+		IPath location = getStateLocation().append(LICENSE_STORAGE);
+		File f = location.toFile();
+		BufferedOutputStream stream = null;
+		try {
+			stream = new BufferedOutputStream(new FileOutputStream(f, false));
+			getLicenseManager().write(stream);
+			stream.close();
+		} catch (IOException e) {
+			ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, "Error writing license registry.  Accepted licenses will not be remembered.", e));
+		}
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
+		writeLicenseRegistry();
 		plugin = null;
 		if (scheduler != null) {
 			scheduler.shutdown();
@@ -125,5 +159,11 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (queryProvider == null)
 			queryProvider = new ProvSDKQueryProvider();
 		return queryProvider;
+	}
+
+	public SimpleLicenseManager getLicenseManager() {
+		if (licenseManager == null)
+			licenseManager = new SimpleLicenseManager();
+		return licenseManager;
 	}
 }

@@ -21,10 +21,10 @@ import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.*;
 
-public class InstallWizardPage extends UpdateInstallWizardPage {
+public class InstallWizardPage extends UpdateOrInstallWizardPage {
 
-	public InstallWizardPage(IInstallableUnit[] ius, Profile profile) {
-		super("InstallWizardPage", ius, profile); //$NON-NLS-1$
+	public InstallWizardPage(IInstallableUnit[] ius, Profile profile, UpdateOrInstallWizard wizard) {
+		super("InstallWizardPage", ius, profile, wizard); //$NON-NLS-1$
 		setTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDescription(ProvUIMessages.InstallDialog_InstallSelectionMessage);
 	}
