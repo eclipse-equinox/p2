@@ -14,7 +14,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
@@ -37,27 +36,18 @@ public class MetadataCache {
 	public MetadataCache() {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
 		location = (agentLocation != null ? agentLocation.getMetadataRepositoryURL() : null);
-		registerRepository();
 		hookListener();
-	}
-
-	private void registerRepository() {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		URL[] locations = manager.getKnownRepositories();
-		for (int i = 0; i < locations.length; i++) {
-			//nothing to do if repository manager already knows about metadata cache
-			if (URLUtil.sameURL(locations[i], location))
-				return;
-		}
-		//instruct the repository manager to construct a new metadata cache 
-		AbstractMetadataRepository repository = (AbstractMetadataRepository) manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		// Set property indicating that the metadata cache is an implementation detail.
-		repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 	}
 
 	AbstractMetadataRepository getRepository() {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		return (AbstractMetadataRepository) manager.loadRepository(location, null);
+		AbstractMetadataRepository repository = (AbstractMetadataRepository) manager.loadRepository(location, null);
+		if (repository != null)
+			return repository;
+		//instruct the repository manager to construct a new metadata cache 
+		repository = (AbstractMetadataRepository) manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		return repository;
 	}
 
 	private void hookListener() {
