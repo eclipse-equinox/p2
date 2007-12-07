@@ -30,13 +30,13 @@ public class Engine {
 
 		// TODO -- Messages
 		if (profile == null)
-			throw new IllegalArgumentException("Profile must not be null.");
+			throw new IllegalArgumentException("Profile must not be null."); //$NON-NLS-1$
 
 		if (phaseSet == null)
-			throw new IllegalArgumentException("PhaseSet must not be null.");
+			throw new IllegalArgumentException("PhaseSet must not be null."); //$NON-NLS-1$
 
 		if (operands == null)
-			throw new IllegalArgumentException("Operands must not be null.");
+			throw new IllegalArgumentException("Operands must not be null."); //$NON-NLS-1$
 
 		if (monitor == null)
 			monitor = new NullProgressMonitor();

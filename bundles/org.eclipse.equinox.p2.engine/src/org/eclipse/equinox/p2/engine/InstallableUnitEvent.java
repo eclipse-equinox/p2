@@ -39,7 +39,7 @@ public class InstallableUnitEvent extends EventObject {
 		this.profile = profile;
 		this.operand = operand;
 		if (type != UNINSTALL && type != INSTALL)
-			throw new IllegalArgumentException("type must be either UNINSTALL(0) or INSTALL(1)");
+			throw new IllegalArgumentException("type must be either UNINSTALL(0) or INSTALL(1)"); //$NON-NLS-1$
 		this.type = type;
 		this.result = result;
 
