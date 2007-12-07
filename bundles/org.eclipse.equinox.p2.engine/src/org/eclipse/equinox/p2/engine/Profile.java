@@ -247,8 +247,10 @@ public class Profile implements IQueryable {
 
 	public String setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
 		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
-		if (properties == null)
-			return null;
+		if (properties == null) {
+			properties = new OrderedProperties();
+			iuProperties.put(iu, properties);
+		}
 
 		changed = true;
 		return (String) properties.setProperty(key, value);
@@ -280,13 +282,16 @@ public class Profile implements IQueryable {
 	}
 
 	public void addInstallableUnit(IInstallableUnit iu) {
+		if (iuProperties.containsKey(iu))
+			return;
+
 		iuProperties.put(iu, new OrderedProperties());
 		changed = true;
 	}
 
 	public void removeInstallableUnit(IInstallableUnit iu) {
-		iuProperties.remove(iu);
-		changed = true;
+		if (iuProperties.remove(iu) != null)
+			changed = true;
 	}
 
 	public OrderedProperties getInstallableUnitProfileProperties(IInstallableUnit iu) {

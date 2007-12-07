@@ -115,8 +115,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		for (Iterator it = toUpdate.getInstallableUnits(); it.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) it.next();
 			profileInstallRegistry.addInstallableUnits(iu);
-			OrderedProperties properties = toUpdate.getInstallableUnitProfileProperties(iu);
-			for (Iterator propIt = properties.entrySet().iterator(); propIt.hasNext();) {
+			OrderedProperties iuProperties = toUpdate.getInstallableUnitProfileProperties(iu);
+			for (Iterator propIt = iuProperties.entrySet().iterator(); propIt.hasNext();) {
 				Entry propertyEntry = (Entry) propIt.next();
 				String key = (String) propertyEntry.getKey();
 				String value = (String) propertyEntry.getValue();
