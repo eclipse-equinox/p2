@@ -134,18 +134,9 @@ public class EquinoxBundlesState implements BundlesState {
 
 	private static File getSystemBundleFromBundleInfos(BundleInfo[] bundleInfos) {
 		for (int i = 0; i < bundleInfos.length; i++) {
-			String bundleLocation = bundleInfos[i].getLocation();
-			if (bundleLocation.startsWith(EquinoxConstants.REFERENCE)) {
-				bundleLocation = bundleLocation.substring(EquinoxConstants.REFERENCE.length());
-			}
-			if (bundleLocation.startsWith("file:")) {
-				String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
-				if (bundleLocation.indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0) {
-					if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0]))) {
-						return new File(bundleLocation.substring("file:".length()));
-					}
-				}
-			}
+			File match = isSystemBundle(bundleInfos[i]);
+			if (match != null)
+				return match;
 		}
 		return null;
 	}
@@ -172,18 +163,24 @@ public class EquinoxBundlesState implements BundlesState {
 		return ret;
 	}
 
-	public static boolean isSystemBundle(BundleInfo bundleInfo) {
+	public static File isSystemBundle(BundleInfo bundleInfo) {
+		if (bundleInfo == null || bundleInfo.getLocation() == null)
+			return null;
 		String bundleLocation = bundleInfo.getLocation();
 		if (bundleLocation.startsWith(EquinoxConstants.REFERENCE))
 			bundleLocation = bundleLocation.substring(EquinoxConstants.REFERENCE.length());
 		if (bundleLocation.startsWith("file:")) {
-			String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
-			if (bundleLocation.indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
-				if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
-					return true;
+			try {
+				String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
+				if (bundleLocation.indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
+					if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
+						return new File(bundleLocation.substring("file:".length()));
+			} catch (RuntimeException e) {
+				e.printStackTrace();
+			}
 		}
 
-		return false;
+		return null;
 	}
 
 	// "osgi.os", "osgi.ws", "osgi.nl", "osgi.arch",
@@ -375,7 +372,7 @@ public class EquinoxBundlesState implements BundlesState {
 		if (flagNewState) {
 			int indexSystemBundle = -1;
 			for (int j = 0; j < bInfos.length; j++)
-				if (isSystemBundle(bInfos[j])) {
+				if (isSystemBundle(bInfos[j]) != null) {
 					indexSystemBundle = j;
 					break;
 				}
@@ -396,9 +393,8 @@ public class EquinoxBundlesState implements BundlesState {
 				this.installBundle(bInfos[j]);
 				// System.out.println("install bInfos[" + j + "]=" + bInfos[j]);
 			} catch (RuntimeException e) {
+			   //catch the exception and continue
 				Log.log(LogService.LOG_ERROR, this, "composeExpectedState()", "BundleInfo:" + bInfos[j], e);
-				e.printStackTrace();
-				throw e;
 			}
 		}
 		return true;
@@ -594,22 +590,24 @@ public class EquinoxBundlesState implements BundlesState {
 		BundleDescription[] currentInstalledBundles = state.getBundles();
 		String newLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
 		Dictionary manifest = Utils.getOSGiManifest(newLocation);
-		String newSymbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
-		int position = newSymbolicName.indexOf(";");
-		if (position >= 0)
-			newSymbolicName = newSymbolicName.substring(0, position).trim();
-		String newVersion = (String) manifest.get(Constants.BUNDLE_VERSION);
-		for (int i = 0; i < currentInstalledBundles.length; i++) {
-			String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation(), true);
-			if (newLocation.equals(location)) {
-				found = true;
-				break;
-			}
-			String symbolicName = currentInstalledBundles[i].getSymbolicName();
-			String version = currentInstalledBundles[i].getVersion().toString();
-			if (newSymbolicName.equals(symbolicName) && newVersion.equals(version)) {
-				found = true;
-				break;
+		if (manifest != null) {
+			String newSymbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+			int position = newSymbolicName.indexOf(";");
+			if (position >= 0)
+				newSymbolicName = newSymbolicName.substring(0, position).trim();
+			String newVersion = (String) manifest.get(Constants.BUNDLE_VERSION);
+			for (int i = 0; i < currentInstalledBundles.length; i++) {
+				String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation(), true);
+				if (newLocation.equals(location)) {
+					found = true;
+					break;
+				}
+				String symbolicName = currentInstalledBundles[i].getSymbolicName();
+				String version = currentInstalledBundles[i].getVersion().toString();
+				if (newSymbolicName.equals(symbolicName) && newVersion.equals(version)) {
+					found = true;
+					break;
+				}
 			}
 		}
 		if (!found) {

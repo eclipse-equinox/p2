@@ -1,6 +1,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -92,7 +93,8 @@ public class Util {
 	static BundleInfo createBundleInfo(File bundleFile, String manifest) {
 		BundleInfo bundleInfo = new BundleInfo();
 		try {
-			bundleInfo.setLocation(bundleFile.toURL().toExternalForm());
+			if (bundleFile != null)
+				bundleInfo.setLocation(bundleFile.toURL().toExternalForm());
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -109,7 +111,7 @@ public class Util {
 		return bundleInfo;
 	}
 
-	static File getBundleFile(IArtifactKey artifactKey, Profile profile) throws IOException {
+	static File getBundleFile(IArtifactKey artifactKey, Profile profile) {
 		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(profile);
 		File bundleJar = aggregatedView.getArtifactFile(artifactKey);
 		return bundleJar;

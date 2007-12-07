@@ -166,12 +166,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						IArtifactKey artifactKey = artifacts[0];
 
-						File fileLocation = null;
-						try {
-							fileLocation = Util.getBundleFile(artifactKey, profile);
-						} catch (IOException e) {
-							return createError(e.getMessage(), e);
-						}
+						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
 							return createError("The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
@@ -196,12 +191,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						IArtifactKey artifactKey = artifacts[0];
 
-						File fileLocation = null;
-						try {
-							fileLocation = Util.getBundleFile(artifactKey, profile);
-						} catch (IOException e) {
-							return createError(e.getMessage(), e);
-						}
+						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
 							return createError("The file is not available" + fileLocation.getAbsolutePath());
 						programArg = fileLocation.getAbsolutePath();
@@ -230,12 +220,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						IArtifactKey artifactKey = artifacts[0];
 
-						File fileLocation = null;
-						try {
-							fileLocation = Util.getBundleFile(artifactKey, profile);
-						} catch (IOException e) {
-							return createError(e.getMessage(), e);
-						}
+						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
 							return createError("The artifact for " + artifactKey + " is not available");
 						programArg = fileLocation.getAbsolutePath();
@@ -260,12 +245,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						IArtifactKey artifactKey = artifacts[0];
 
-						File fileLocation = null;
-						try {
-							fileLocation = Util.getBundleFile(artifactKey, profile);
-						} catch (IOException e) {
-							return createError(e.getMessage(), e);
-						}
+						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
 							return createError("The artifact for " + artifactKey + " is not available");
 						programArg = fileLocation.getAbsolutePath();
@@ -510,15 +490,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (artifactKey == null)
 			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
 
-		File bundleFile;
-		try {
-			bundleFile = Util.getBundleFile(artifactKey, profile);
-			if (bundleFile == null)
-				return createError("The artifact " + artifactKey.toString() + " to install was not found.");
-
-		} catch (IOException e) {
-			return createError(e.getMessage(), e);
-		}
+		File bundleFile = Util.getBundleFile(artifactKey, profile);
+		if (bundleFile == null)
+			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
 
 		// TODO: do we really need the manifest here or just the bsn and version?
 		String manifest = Util.getManifest(iu.getTouchpointData());
@@ -569,16 +543,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (artifactKey == null)
 			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
 
-		File bundleFile;
-		try {
-			bundleFile = Util.getBundleFile(artifactKey, profile);
-			if (bundleFile == null)
-				return createError("The artifact " + artifactKey.toString() + " to uninstall was not found.");
-
-		} catch (IOException e) {
-			return createError(e.getMessage(), e);
-		}
-
+		File bundleFile = Util.getBundleFile(artifactKey, profile);
 		// TODO: do we really need the manifest here or just the bsn and version?
 		String manifest = Util.getManifest(iu.getTouchpointData());
 		if (manifest == null)
