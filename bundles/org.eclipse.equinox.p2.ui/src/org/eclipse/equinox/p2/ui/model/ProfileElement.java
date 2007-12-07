@@ -22,16 +22,14 @@ import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
  * @since 3.4
  */
 public class ProfileElement extends RemoteQueriedElement {
-	Profile profile;
 
 	public ProfileElement(Profile profile) {
-		this.profile = profile;
 		setQueryable(profile);
 	}
 
 	public Object getAdapter(Class adapter) {
 		if (adapter == Profile.class)
-			return profile;
+			return getQueryable();
 		return super.getAdapter(adapter);
 	}
 
@@ -40,7 +38,7 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	public String getLabel(Object o) {
-		return profile.getProfileId();
+		return ((Profile) getQueryable()).getProfileId();
 	}
 
 	protected int getQueryType() {

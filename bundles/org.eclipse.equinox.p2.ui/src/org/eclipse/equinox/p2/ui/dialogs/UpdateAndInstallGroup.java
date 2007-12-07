@@ -13,12 +13,14 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.PropertyDialogAction;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
@@ -224,7 +226,21 @@ public class UpdateAndInstallGroup {
 		composite.setLayout(layout);
 
 		// Table of installed IU's
-		installedIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		installedIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER) {
+			public void refresh() {
+				// TODO this is a hack to deal with the fact that profile instances can
+				// get stale under the new profile event scheme.
+				if (this.getInput() != null)
+					try {
+						ProfileElement element = (ProfileElement) this.getInput();
+						profile = ProvisioningUtil.getProfile(profile.getProfileId());
+						element.setQueryable(profile);
+					} catch (ProvisionException e) {
+						ProvUI.handleException(e, null);
+					}
+				super.refresh();
+			}
+		};
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		installedIUViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
