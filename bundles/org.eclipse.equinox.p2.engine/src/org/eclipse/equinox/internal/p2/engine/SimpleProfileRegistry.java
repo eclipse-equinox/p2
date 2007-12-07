@@ -74,11 +74,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			persist();
 	}
 
-	public String toString() {
+	public synchronized String toString() {
 		return this.profiles.toString();
 	}
 
-	public Profile getProfile(String id) {
+	public synchronized Profile getProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
 		Profile profile = (Profile) profiles.get(id);
@@ -87,7 +87,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return copyProfile(profile);
 	}
 
-	public Profile[] getProfiles() {
+	public synchronized Profile[] getProfiles() {
 		Profile[] result = new Profile[profiles.size()];
 		int i = 0;
 		for (Iterator it = profiles.values().iterator(); it.hasNext(); i++) {
@@ -97,7 +97,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return result;
 	}
 
-	public void updateProfile(Profile toUpdate) {
+	public synchronized void updateProfile(Profile toUpdate) {
 		String id = toUpdate.getProfileId();
 		if (SELF.equals(id))
 			id = self;
@@ -132,7 +132,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		broadcastChangeEvent(toUpdate, ProfileEvent.CHANGED);
 	}
 
-	public void addProfile(Profile toAdd) throws IllegalArgumentException {
+	public synchronized void addProfile(Profile toAdd) throws IllegalArgumentException {
 		if (isNamedSelf(toAdd))
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toAdd.getProfileId()));
 		String id = toAdd.getProfileId();
@@ -167,7 +167,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
 	}
 
-	public void removeProfile(Profile toRemove) {
+	public synchronized void removeProfile(Profile toRemove) {
 		if (isNamedSelf(toRemove))
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toRemove.getProfileId()));
 
@@ -262,19 +262,19 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return false;
 	}
 
-	public Map getProperties() {
+	public synchronized Map getProperties() {
 		return properties;
 	}
 
-	public String getProperty(String key) {
+	public synchronized String getProperty(String key) {
 		return properties.getProperty(key);
 	}
 
-	public void setProperty(String key, String value) {
+	public synchronized void setProperty(String key, String value) {
 		properties.setProperty(key, value);
 	}
 
-	public void removeProperty(String key) {
+	public synchronized void removeProperty(String key) {
 		properties.remove(key);
 	}
 
