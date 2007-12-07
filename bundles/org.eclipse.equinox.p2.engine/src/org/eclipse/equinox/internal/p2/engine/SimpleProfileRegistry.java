@@ -58,14 +58,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (!Boolean.valueOf(selfProfile.getValue(Profile.PROP_ROAMING)).booleanValue())
 			return;
 		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
-		String locationString = installLocation.getURL().getPath();
+		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
-		if (!locationString.equals(selfProfile.getValue(Profile.PROP_INSTALL_FOLDER))) {
-			selfProfile.setValue(Profile.PROP_INSTALL_FOLDER, locationString);
+		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_INSTALL_FOLDER)))) {
+			selfProfile.setValue(Profile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
 			changed = true;
 		}
-		if (!locationString.equals(selfProfile.getValue(Profile.PROP_CACHE))) {
-			selfProfile.setValue(Profile.PROP_CACHE, locationString);
+		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_CACHE)))) {
+			selfProfile.setValue(Profile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
 		if (changed)
