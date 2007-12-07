@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
@@ -87,11 +86,21 @@ public class Profile implements IQueryable {
 	 */
 	private OrderedProperties storage = new OrderedProperties();
 
+	/**
+	 * iuProperties are stored by the install registry
+	 */
+	private Map iuProperties = new HashMap();
+	private boolean changed = false;
+
 	public Profile(String profileId) {
-		this(profileId, null);
+		this(profileId, null, null);
 	}
 
 	public Profile(String profileId, Profile parent) {
+		this(profileId, parent, null);
+	}
+
+	public Profile(String profileId, Profile parent, Map properties) {
 		if (profileId == null || profileId.length() == 0) {
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Null_Profile_Id, null));
 		}
@@ -100,11 +109,30 @@ public class Profile implements IQueryable {
 		if (parent != null) {
 			parent.addSubprofile(this);
 		}
+		if (properties != null)
+			storage.putAll(properties);
+
+		populateIUs();
 	}
 
-	public Profile(String profileId, Profile parent, Map properties) {
-		this(profileId, parent);
-		storage.putAll(properties);
+	private void populateIUs() {
+		IInstallRegistry installRegistry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (installRegistry == null)
+			return;
+		//TODO: Should be using profile id not "this"
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(this);
+		if (profileInstallRegistry == null)
+			return;
+
+		IInstallableUnit[] ius = profileInstallRegistry.getInstallableUnits();
+		if (ius == null)
+			return;
+
+		for (int i = 0; i < ius.length; i++) {
+			IInstallableUnit iu = ius[i];
+			OrderedProperties properties = profileInstallRegistry.getInstallableUnitProfileProperties(iu);
+			iuProperties.put(iu, new OrderedProperties(properties));
+		}
 	}
 
 	public String getProfileId() {
@@ -178,6 +206,7 @@ public class Profile implements IQueryable {
 	 */
 	public void setValue(String key, String value) {
 		storage.setProperty(key, value);
+		changed = true;
 	}
 
 	public Dictionary getSelectionContext() {
@@ -196,13 +225,7 @@ public class Profile implements IQueryable {
 	}
 
 	private IInstallableUnit[] getAllInstallableUnits() {
-		IInstallRegistry registry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
-		if (registry == null)
-			return null;
-		IProfileInstallRegistry profile = registry.getProfileInstallRegistry(new Profile(profileId));
-		if (profile == null)
-			return null;
-		return profile.getInstallableUnits();
+		return (IInstallableUnit[]) iuProperties.keySet().toArray(new IInstallableUnit[iuProperties.size()]);
 	}
 
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
@@ -210,34 +233,31 @@ public class Profile implements IQueryable {
 	}
 
 	public Iterator getInstallableUnits() {
+		// NOTE: this is a copy
 		return Arrays.asList(getAllInstallableUnits()).iterator();
 	}
 
 	public String getInstallableUnitProfileProperty(IInstallableUnit iu, String key) {
-		IInstallRegistry registry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
-		if (registry == null)
+		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
+		if (properties == null)
 			return null;
-		IProfileInstallRegistry profile = registry.getProfileInstallRegistry(this);
-		if (profile == null)
-			return null;
-		return profile.getInstallableUnitProfileProperty(iu, key);
+
+		return properties.getProperty(key);
 	}
 
 	public String setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
-		IInstallRegistry registry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
-		if (registry == null)
+		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
+		if (properties == null)
 			return null;
-		IProfileInstallRegistry profile = registry.getProfileInstallRegistry(this);
-		if (profile == null)
-			return null;
-		String previousValue = profile.setInstallableUnitProfileProperty(iu, key, value);
+
+		changed = true;
+		return (String) properties.setProperty(key, value);
 		// TODO this is not the ideal place for this.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
-		ProvisioningEventBus bus = (ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName());
-		if (bus != null)
-			bus.publishEvent(new ProfileEvent(this, ProfileEvent.CHANGED));
-		return previousValue;
+		//		ProvisioningEventBus bus = (ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName());
+		//		if (bus != null)
+		//			bus.publishEvent(new ProfileEvent(this, ProfileEvent.CHANGED));
 	}
 
 	/**
@@ -256,5 +276,24 @@ public class Profile implements IQueryable {
 	 */
 	public void addProperties(Map properties) {
 		storage.putAll(properties);
+		changed = true;
+	}
+
+	public void addInstallableUnit(IInstallableUnit iu) {
+		iuProperties.put(iu, new OrderedProperties());
+		changed = true;
+	}
+
+	public void removeInstallableUnit(IInstallableUnit iu) {
+		iuProperties.remove(iu);
+		changed = true;
+	}
+
+	public OrderedProperties getInstallableUnitProfileProperties(IInstallableUnit iu) {
+		return (OrderedProperties) iuProperties.get(iu);
+	}
+
+	public boolean isChanged() {
+		return changed;
 	}
 }

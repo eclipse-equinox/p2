@@ -62,6 +62,7 @@ public class AbstractProvisioningTest extends TestCase {
 		boolean containsIU = false;
 		for (Iterator iterator = p.getInstallableUnits(); iterator.hasNext();) {
 			containsIU = true;
+			break;
 		}
 		if (containsIU)
 			fail("The profile should be empty,profileId=" + p);

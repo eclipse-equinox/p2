@@ -11,16 +11,18 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.installregistry.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -51,7 +53,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * to update its install and bundle pool locations.
 	 */
 	private void updateRoamingProfile() {
-		Profile selfProfile = getProfile(SELF);
+		Profile selfProfile = (Profile) profiles.get(self);
 		if (selfProfile == null)
 			return;
 		//only update if self is a roaming profile
@@ -79,23 +81,116 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public Profile getProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
-		return (Profile) profiles.get(id);
+		Profile profile = (Profile) profiles.get(id);
+		if (profile == null)
+			return null;
+		return copyProfile(profile);
 	}
 
 	public Profile[] getProfiles() {
-		return (Profile[]) profiles.values().toArray(new Profile[profiles.size()]);
+		Profile[] result = new Profile[profiles.size()];
+		int i = 0;
+		for (Iterator it = profiles.values().iterator(); it.hasNext(); i++) {
+			Profile profile = (Profile) it.next();
+			result[i] = copyProfile(profile);
+		}
+		return result;
+	}
+
+	public void updateProfile(Profile toUpdate) {
+		String id = toUpdate.getProfileId();
+		if (SELF.equals(id))
+			id = self;
+		if (profiles.get(id) == null) {
+			throw new IllegalArgumentException("Profile to be updated does not exist:" + id);
+		}
+
+		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (installRegistry == null)
+			return;
+
+		installRegistry.removeProfileInstallRegistry(toUpdate);
+		//TODO: Should be using profile id not Profile object
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toUpdate);
+		for (Iterator it = toUpdate.getInstallableUnits(); it.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) it.next();
+			profileInstallRegistry.addInstallableUnits(iu);
+			OrderedProperties properties = toUpdate.getInstallableUnitProfileProperties(iu);
+			for (Iterator propIt = properties.entrySet().iterator(); propIt.hasNext();) {
+				Entry propertyEntry = (Entry) propIt.next();
+				String key = (String) propertyEntry.getKey();
+				String value = (String) propertyEntry.getValue();
+				profileInstallRegistry.setInstallableUnitProfileProperty(iu, key, value);
+			}
+		}
+
+		profiles.put(id, copyProfile(toUpdate));
+
+		// TODO: persists should be grouped some way to ensure they are consistent
+		installRegistry.persist();
+		persist();
+		broadcastChangeEvent(toUpdate, ProfileEvent.CHANGED);
 	}
 
 	public void addProfile(Profile toAdd) throws IllegalArgumentException {
 		if (isNamedSelf(toAdd))
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toAdd.getProfileId()));
 		String id = toAdd.getProfileId();
-		if (getProfile(id) == null) {
-			profiles.put(id, toAdd);
-		} else
+		if (SELF.equals(id))
+			id = self;
+		if (profiles.get(id) != null)
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
+
+		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (installRegistry == null)
+			return;
+
+		installRegistry.removeProfileInstallRegistry(toAdd);
+		//TODO: Should be using profile id not Profile object
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toAdd);
+		for (Iterator it = toAdd.getInstallableUnits(); it.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) it.next();
+			profileInstallRegistry.addInstallableUnits(iu);
+			OrderedProperties properties = toAdd.getInstallableUnitProfileProperties(iu);
+			for (Iterator propIt = properties.entrySet().iterator(); propIt.hasNext();) {
+				Entry propertyEntry = (Entry) propIt.next();
+				String key = (String) propertyEntry.getKey();
+				String value = (String) propertyEntry.getValue();
+				profileInstallRegistry.setInstallableUnitProfileProperty(iu, key, value);
+			}
+		}
+
+		profiles.put(id, copyProfile(toAdd));
+		// TODO: persists should be grouped some way to ensure they are consistent
+		installRegistry.persist();
+		persist();
 		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
-		persist(); //TODO This is not enough to keep track of the changes that are being done in a profile. This will likely have to be based on some event like commit
+	}
+
+	public void removeProfile(Profile toRemove) {
+		if (isNamedSelf(toRemove))
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toRemove.getProfileId()));
+
+		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (installRegistry == null)
+			return;
+
+		if (profiles.remove(toRemove.getProfileId()) == null)
+			return;
+		installRegistry.removeProfileInstallRegistry(toRemove);
+
+		installRegistry.persist();
+		persist();
+		broadcastChangeEvent(toRemove, ProfileEvent.REMOVED);
+	}
+
+	private Profile copyProfile(Profile profile) {
+		Profile parent = profile.getParentProfile();
+		if (parent != null)
+			parent = copyProfile(parent);
+
+		Profile copy = new Profile(profile.getProfileId(), parent, profile.getProperties());
+		return copy;
 	}
 
 	private void broadcastChangeEvent(Profile profile, byte reason) {
@@ -159,15 +254,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error persisting profile registry", e)); //$NON-NLS-1$
 		}
 
-	}
-
-	public void removeProfile(Profile toRemove) {
-		if (isNamedSelf(toRemove))
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toRemove.getProfileId()));
-		if (profiles.remove(toRemove.getProfileId()) == null)
-			return;
-		broadcastChangeEvent(toRemove, ProfileEvent.REMOVED);
-		persist();
 	}
 
 	private boolean isNamedSelf(Profile p) {

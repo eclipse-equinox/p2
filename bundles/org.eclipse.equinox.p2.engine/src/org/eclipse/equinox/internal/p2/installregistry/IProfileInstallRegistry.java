@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installregistry;
 
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public interface IProfileInstallRegistry {
@@ -28,4 +29,5 @@ public interface IProfileInstallRegistry {
 
 	public String setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value);
 
+	public OrderedProperties getInstallableUnitProfileProperties(IInstallableUnit iu);
 }

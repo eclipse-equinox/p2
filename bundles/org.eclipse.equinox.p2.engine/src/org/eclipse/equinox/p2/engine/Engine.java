@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.engine;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 
@@ -50,6 +51,13 @@ public class Engine {
 			EngineSession session = new EngineSession(profile);
 			MultiStatus result = phaseSet.perform(session, profile, operands, monitor);
 			if (result.isOK()) {
+				if (profile.isChanged()) {
+					IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
+					if (profileRegistry.getProfile(profile.getProfileId()) == null)
+						profileRegistry.addProfile(profile);
+					else
+						profileRegistry.updateProfile(profile);
+				}
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 				session.commit();
 			} else if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {

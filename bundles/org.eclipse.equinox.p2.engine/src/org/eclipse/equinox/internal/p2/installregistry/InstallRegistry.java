@@ -23,14 +23,13 @@ import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
-import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 import org.xml.sax.*;
 
 public class InstallRegistry implements IInstallRegistry {
@@ -355,7 +354,7 @@ public class InstallRegistry implements IInstallRegistry {
 			return null;
 		}
 
-		private OrderedProperties getInstallableUnitProfileProperties(IInstallableUnit toGet) {
+		public OrderedProperties getInstallableUnitProfileProperties(IInstallableUnit toGet) {
 			OrderedProperties properties = (OrderedProperties) iuPropertiesMap.get(new IUIdentity(toGet));
 			if (properties == null) {
 				properties = new OrderedProperties();
@@ -473,8 +472,8 @@ public class InstallRegistry implements IInstallRegistry {
 
 	private static String STORAGE = "installRegistry.xml"; //$NON-NLS-1$
 
-	private transient ProvisioningEventBus bus;
-	private transient ServiceReference busReference;
+	//	private transient ProvisioningEventBus bus;
+	//	private transient ServiceReference busReference;
 
 	/**
 	 * What is installed in each profile. A map of String(Profile id) -> ProfileInstallRegistry.
@@ -483,52 +482,56 @@ public class InstallRegistry implements IInstallRegistry {
 	Map profileRegistries = null;
 
 	public InstallRegistry() {
+		/*	
 		busReference = EngineActivator.getContext().getServiceReference(ProvisioningEventBus.class.getName());
 		bus = (ProvisioningEventBus) EngineActivator.getContext().getService(busReference);
-		bus.addListener(new SynchronousProvisioningListener() {
-			public void notify(EventObject o) {
-				if (o instanceof InstallableUnitEvent) {
-					InstallableUnitEvent event = (InstallableUnitEvent) o;
-					if (event.isPre() || !event.getResult().isOK())
-						return;
-					IProfileInstallRegistry registry = getProfileInstallRegistry(event.getProfile());
-					if (event.isInstall() && event.getOperand().second() != null) {
-						registry.addInstallableUnits(event.getOperand().second().unresolved());
-					} else if (event.isUninstall() && event.getOperand().first() != null) {
-						IInstallableUnit original = event.getOperand().first().unresolved();
-						String value = registry.getInstallableUnitProfileProperty(original, IInstallableUnit.PROP_PROFILE_ROOT_IU);
-						boolean isRoot = value != null && value.equals(Boolean.toString(true));
-						registry.removeInstallableUnits(original);
-						// TODO this is odd because I'm setting up a property for something
-						// not yet installed in the registry.  The implementation allows it and
-						// the assumption is that the second operand will get installed or else 
-						// this change will never be committed.  The alternative is to remember
-						// a transitory root value that we set when the install is received.
-						// The ideal solution is that this is handled in a profile delta by
-						// the engine.
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077 
-						if (isRoot && event.getOperand().second() != null) {
-							registry.setInstallableUnitProfileProperty(event.getOperand().second().unresolved(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+
+		
+				bus.addListener(new SynchronousProvisioningListener() {
+					public void notify(EventObject o) {
+						if (o instanceof InstallableUnitEvent) {
+							InstallableUnitEvent event = (InstallableUnitEvent) o;
+							if (event.isPre() || !event.getResult().isOK())
+								return;
+							IProfileInstallRegistry registry = getProfileInstallRegistry(event.getProfile());
+							if (event.isInstall() && event.getOperand().second() != null) {
+								registry.addInstallableUnits(event.getOperand().second().unresolved());
+							} else if (event.isUninstall() && event.getOperand().first() != null) {
+								IInstallableUnit original = event.getOperand().first().unresolved();
+								String value = registry.getInstallableUnitProfileProperty(original, IInstallableUnit.PROP_PROFILE_ROOT_IU);
+								boolean isRoot = value != null && value.equals(Boolean.toString(true));
+								registry.removeInstallableUnits(original);
+								// TODO this is odd because I'm setting up a property for something
+								// not yet installed in the registry.  The implementation allows it and
+								// the assumption is that the second operand will get installed or else 
+								// this change will never be committed.  The alternative is to remember
+								// a transitory root value that we set when the install is received.
+								// The ideal solution is that this is handled in a profile delta by
+								// the engine.
+								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077 
+								if (isRoot && event.getOperand().second() != null) {
+									registry.setInstallableUnitProfileProperty(event.getOperand().second().unresolved(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+								}
+							}
+						} else if (o instanceof CommitOperationEvent) {
+							persist();
+							return;
+						} else if (o instanceof RollbackOperationEvent) {
+							restore();
+							return;
+						} else if (o instanceof ProfileEvent) {
+							ProfileEvent pe = (ProfileEvent) o;
+							if (pe.getReason() == ProfileEvent.REMOVED) {
+								getRegistryMap().remove(pe.getProfile().getProfileId());
+								persist();
+							} else if (pe.getReason() == ProfileEvent.CHANGED) {
+								// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
+								persist();
+							}
 						}
 					}
-				} else if (o instanceof CommitOperationEvent) {
-					persist();
-					return;
-				} else if (o instanceof RollbackOperationEvent) {
-					restore();
-					return;
-				} else if (o instanceof ProfileEvent) {
-					ProfileEvent pe = (ProfileEvent) o;
-					if (pe.getReason() == ProfileEvent.REMOVED) {
-						getRegistryMap().remove(pe.getProfile().getProfileId());
-						persist();
-					} else if (pe.getReason() == ProfileEvent.CHANGED) {
-						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
-						persist();
-					}
-				}
-			}
-		});
+				});
+				*/
 	}
 
 	public synchronized Collection getProfileInstallRegistries() {
@@ -544,6 +547,12 @@ public class InstallRegistry implements IInstallRegistry {
 			registry.put(profileId, result);
 		}
 		return result;
+	}
+
+	public synchronized void removeProfileInstallRegistry(Profile profile) {
+		String profileId = profile.getProfileId();
+		Map registry = getRegistryMap();
+		registry.remove(profileId);
 	}
 
 	private URL getRegistryLocation() {
@@ -575,7 +584,7 @@ public class InstallRegistry implements IInstallRegistry {
 		return profileRegistries;
 	}
 
-	synchronized void persist() {
+	public synchronized void persist() {
 		//if we haven't restored, there is nothing to persist
 		if (profileRegistries == null)
 			return;

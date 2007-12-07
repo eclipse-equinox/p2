@@ -50,4 +50,11 @@ public interface IProfileRegistry {
 	 */
 	void removeProfile(Profile toRemove);
 
+	/**
+	 * Update the given profile stored in this profile registry.
+	 * 
+	 * @param toUpdate the profile to update
+	 */
+	void updateProfile(Profile toUpdate);
+
 }

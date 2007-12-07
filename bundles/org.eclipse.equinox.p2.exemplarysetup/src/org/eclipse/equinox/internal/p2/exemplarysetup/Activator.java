@@ -53,11 +53,11 @@ public class Activator implements BundleActivator {
 
 		registerEventBus();
 		//create the profile registry
+		registerInstallRegistry();
 		registerProfileRegistry();
 		//create metadata repositories
 		registerDefaultMetadataRepoManager();
 		registerMetadataCache();
-		registerInstallRegistry();
 
 		//create the director and planner.  The planner must be
 		//registered first because the director finds it in its constructor.
@@ -77,9 +77,9 @@ public class Activator implements BundleActivator {
 		//		unregisterDefaultArtifactRepoManager();
 		unregisterDirector();
 		unregisterPlanner();
-		unregisterInstallRegistry();
 		unregisterDefaultMetadataRepoManager();
 		unregisterProfileRegistry();
+		unregisterInstallRegistry();
 		unregisterEventBus();
 		Activator.context = null;
 

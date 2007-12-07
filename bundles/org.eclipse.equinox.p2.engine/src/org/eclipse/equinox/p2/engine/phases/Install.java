@@ -16,7 +16,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
 public class Install extends Phase {
@@ -36,6 +37,8 @@ public class Install extends Phase {
 			String phaseId = (String) parameters.get("phaseId");
 			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
 			Operand operand = (Operand) parameters.get("operand");
+			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+			profile.removeInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
@@ -47,6 +50,8 @@ public class Install extends Phase {
 			String phaseId = (String) parameters.get("phaseId");
 			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
 			Operand operand = (Operand) parameters.get("operand");
+			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+			profile.addInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
