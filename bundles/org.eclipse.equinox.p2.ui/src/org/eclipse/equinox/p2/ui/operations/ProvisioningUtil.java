@@ -276,12 +276,10 @@ public class ProvisioningUtil {
 		try {
 			SubMonitor sub = SubMonitor.convert(monitor, 100);
 			sub.setTaskName(taskMessage);
-			IStatus engineResult = performProvisioningPlan(plan, new DefaultPhaseSet(), profile, sub.newChild(100));
-			if (engineResult.isOK()) {
-				// mark the roots as such
-				for (int i = 0; i < installRoots.length; i++)
-					profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			for (int i = 0; i < installRoots.length; i++) {
+				profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
+			IStatus engineResult = performProvisioningPlan(plan, new DefaultPhaseSet(), profile, sub.newChild(100));
 			return engineResult;
 		} finally {
 			monitor.done();

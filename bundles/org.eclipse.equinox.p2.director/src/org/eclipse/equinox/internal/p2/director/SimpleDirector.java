@@ -66,13 +66,11 @@ public class SimpleDirector implements IDirector {
 			ProvisioningPlan plan = planner.getInstallPlan(installRoots, profile, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
-			if (!engineResult.isOK())
-				return engineResult;
 			// mark the roots as such
-			for (int i = 0; i < installRoots.length; i++)
+			for (int i = 0; i < installRoots.length; i++) {
 				profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-
+			}
+			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
 			return engineResult;
 		} finally {
 			sub.done();
