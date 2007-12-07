@@ -31,17 +31,17 @@ public class UpdateTest extends AbstractProvisioningTest {
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		f1 = createIU("f1", DEFAULT_VERSION, true);
+		String f1Id = getName() + "f1";
+		f1 = createIU(f1Id, DEFAULT_VERSION, true);
+		f1_1 = createIU(f1Id, new Version(1, 1, 0), true);
+		f1_4 = createIU(f1Id, new Version(1, 4, 0), true);
 
-		f1_1 = createIU("f1", new Version(1, 1, 0), true);
+		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, f1Id, new VersionRange("[1.0.0, 1.3.0)"), null);
+		String faId = getName() + ".fa";
+		fa = createIU(faId, requires, false);
 
-		f1_4 = createIU("f1", new Version(1, 4, 0), true);
-
-		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
-		fa = createIU("fa", requires, false);
-
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, "f1", new VersionRange("[1.0.0, 1.4.0)"), null);
-		fap = createIU("fa", new Version(1, 1, 0), requires, NO_PROPERTIES, false);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, f1Id, new VersionRange("[1.0.0, 1.4.0)"), null);
+		fap = createIU(faId, new Version(1, 1, 0), requires, NO_PROPERTIES, false);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa});
 
