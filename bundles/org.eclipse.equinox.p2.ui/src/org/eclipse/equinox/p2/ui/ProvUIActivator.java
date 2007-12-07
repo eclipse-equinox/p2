@@ -20,7 +20,6 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.p2.ui.operations.SizingPhaseSet;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.PlatformUI;
@@ -113,14 +112,12 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		if (profileChangeListener == null) {
 			profileChangeListener = new ProvisioningListener() {
 				public void notify(EventObject o) {
-					if (o instanceof CommitOperationEvent) {
-						CommitOperationEvent event = (CommitOperationEvent) o;
+					if (o instanceof ProfileEvent) {
+						ProfileEvent event = (ProfileEvent) o;
 						try {
 							Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfile().getProfileId()))) {
-								// TODO checking the phase set is a workaround
-								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208251
-								if (!(event.getPhaseSet() instanceof SizingPhaseSet))
+								if (event.getReason() == ProfileEvent.CHANGED)
 									PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 										public void run() {
 											ProvUI.requestRestart(false, null);
