@@ -211,7 +211,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	private IInstallableUnit[] iusWithUnacceptedLicenses(IInstallableUnit[] allIUs) {
 		if (licenseManager == null)
-			return ius;
+			return allIUs;
 		List unaccepted = new ArrayList();
 		for (int i = 0; i < allIUs.length; i++) {
 			IInstallableUnit iu = allIUs[i];
