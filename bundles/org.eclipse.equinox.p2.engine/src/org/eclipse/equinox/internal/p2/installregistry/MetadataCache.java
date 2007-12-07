@@ -64,7 +64,7 @@ public class MetadataCache {
 					if (event.isPost() && event.getResult().isOK() && event.isInstall()) {
 						IInstallableUnit installedIU = event.getOperand().second();
 						if (installedIU != null)
-							toAdd.add(installedIU);
+							toAdd.add(installedIU.unresolved());
 						return;
 					}
 				}
