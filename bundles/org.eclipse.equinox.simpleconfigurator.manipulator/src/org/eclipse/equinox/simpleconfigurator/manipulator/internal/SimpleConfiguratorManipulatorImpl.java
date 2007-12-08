@@ -645,9 +645,13 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 					toUninstall.add(currentBInfos[i]);
 			}
 
-		for (int i = 0; i < toInstall.length; i++)
-			bundleState.installBundle(toInstall[i]);
-
+		for (int i = 0; i < toInstall.length; i++) {
+			try {
+				bundleState.installBundle(toInstall[i]);
+			} catch (RuntimeException e) {
+				//Ignore
+			}
+		}
 		if (exclusiveInstallation)
 			for (Iterator ite = toUninstall.iterator(); ite.hasNext();) {
 				BundleInfo bInfo = (BundleInfo) ite.next();
