@@ -491,7 +491,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
 
 		File bundleFile = Util.getBundleFile(artifactKey, profile);
-		if (bundleFile == null)
+		if (bundleFile == null || !bundleFile.exists())
 			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
 
 		// TODO: do we really need the manifest here or just the bsn and version?
