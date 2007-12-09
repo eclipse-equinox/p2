@@ -31,6 +31,7 @@ public class MetadataCache {
 	private ProvisioningEventBus bus;
 	private URL location;
 	//tracks the IUs that have been installed but not yet committed
+	//TODO: This will work if a single profile is being modified but we should consider how to handle multiple concurrent profile changes.
 	final ArrayList toAdd = new ArrayList();
 
 	public MetadataCache() {
