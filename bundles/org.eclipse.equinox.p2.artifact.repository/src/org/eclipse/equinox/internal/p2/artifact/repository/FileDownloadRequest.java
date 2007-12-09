@@ -17,11 +17,11 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 public class FileDownloadRequest extends ArtifactRequest {
 	public static FileDownloadRequest[] NO_REQUEST = new FileDownloadRequest[0];
 
-	private File destination; //The fully qualified path where the file should be written
+	private File destination; // The fully qualified path where the file should be written
 
 	public FileDownloadRequest(IArtifactKey downloadKey, IPath downloadPath) {
 		super(downloadKey);
-		destination = destination;
+		destination = downloadPath.toFile();
 	}
 
 	public void perform(IProgressMonitor monitor) {
