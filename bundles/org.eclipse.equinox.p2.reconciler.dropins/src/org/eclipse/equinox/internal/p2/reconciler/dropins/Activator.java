@@ -7,7 +7,7 @@
  * Contributors: 
  * IBM Corporation - initial implementation and ideas 
  ******************************************************************************/
-package org.eclipse.equinox.p2.reconciler.dropins;
+package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.reconciler.dropins.ProfileSynchronizer;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 

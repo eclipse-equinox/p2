@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Folderreconciler Plug-in
 Bundle-SymbolicName: org.eclipse.equinox.p2.reconciler.dropins
 Bundle-Version: 1.0.0
-Bundle-Activator: org.eclipse.equinox.p2.reconciler.dropins.Activator
+Bundle-Activator: org.eclipse.equinox.internal.p2.reconciler.dropins.Activator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
