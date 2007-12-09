@@ -23,6 +23,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.osgi.framework.*;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 public class Activator implements BundleActivator {
 
@@ -30,10 +31,21 @@ public class Activator implements BundleActivator {
 	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 
+	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
+	private ServiceReference packageAdminRef;
 
 	public void start(BundleContext context) throws Exception {
+		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
+		setPackageAdmin((PackageAdmin) context.getService(packageAdminRef));
 		bundleContext = context;
+
+		Bundle setupBundle = getBundle("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
+		if (setupBundle == null)
+			return;
+
+		setupBundle.start(Bundle.START_TRANSIENT);
+
 		Profile profile = getCurrentProfile(context);
 		if (profile == null)
 			return;
@@ -69,6 +81,8 @@ public class Activator implements BundleActivator {
 
 	public void stop(BundleContext context) throws Exception {
 		bundleContext = null;
+		setPackageAdmin(null);
+		context.ungetService(packageAdminRef);
 	}
 
 	public static BundleContext getContext() {
@@ -189,4 +203,25 @@ public class Activator implements BundleActivator {
 			context.ungetService(reference);
 		}
 	}
+
+	private static synchronized void setPackageAdmin(PackageAdmin service) {
+		packageAdmin = service;
+	}
+
+	static synchronized Bundle getBundle(String symbolicName) {
+		if (packageAdmin == null)
+			return null;
+
+		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
+		if (bundles == null)
+			return null;
+		//Return the first bundle that is not installed or uninstalled
+		for (int i = 0; i < bundles.length; i++) {
+			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
+				return bundles[i];
+			}
+		}
+		return null;
+	}
+
 }
