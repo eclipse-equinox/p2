@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.osgi.util.NLS;
 
 public class FileDownloadRequest extends ArtifactRequest {
 	public static FileDownloadRequest[] NO_REQUEST = new FileDownloadRequest[0];
@@ -35,7 +36,7 @@ public class FileDownloadRequest extends ArtifactRequest {
 					destinationStream.close();
 			}
 		} catch (IOException e) {
-			setResult(new Status(IStatus.ERROR, Activator.ID, "Error downloading " + descriptor + " to  " + destination, e));
+			setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.FileDownloadError, descriptor, destination), e));
 		};
 	}
 }

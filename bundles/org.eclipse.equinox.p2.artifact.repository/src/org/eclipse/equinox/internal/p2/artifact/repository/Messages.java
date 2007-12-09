@@ -25,6 +25,7 @@ public class Messages extends NLS {
 		// Do not instantiate
 	}
 
+	public static String FileDownloadError;
 	public static String SimpleArtifactRepositoryIO_Parser_Error_Parsing_Repository;
 	public static String SimpleArtifactRepositoryIO_Parser_Has_Incompatible_Version;
 
