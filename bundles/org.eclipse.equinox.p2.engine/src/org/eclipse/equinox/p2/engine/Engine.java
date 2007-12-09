@@ -71,12 +71,13 @@ public class Engine {
 	}
 
 	private synchronized void unlockProfile(Profile profile) {
-		lockedProfiles.remove(profile);
+		lockedProfiles.remove(profile.getProfileId());
 		notify();
 	}
 
 	private synchronized void lockProfile(Profile profile) {
-		while (lockedProfiles.contains(profile)) {
+		String profileId = profile.getProfileId();
+		while (lockedProfiles.contains(profileId)) {
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -84,6 +85,6 @@ public class Engine {
 				Thread.currentThread().interrupt();
 			}
 		}
-		lockedProfiles.add(profile);
+		lockedProfiles.add(profileId);
 	}
 }
