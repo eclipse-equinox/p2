@@ -36,16 +36,17 @@ public class FormerState {
 		ProvisioningEventBus eventBus = (ProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, ProvisioningEventBus.class.getName());
 		location = repoLocation;
 
-		//listen for pre-event. to memorize the state of the profile
+		//listen for pre-event. to snapshot the profile
 		eventBus.addListener(new SynchronousProvisioningListener() {
 			public void notify(EventObject o) {
 				if (o instanceof BeginOperationEvent) {
 					BeginOperationEvent event = (BeginOperationEvent) o;
 					IInstallableUnit iuForProfile = profileToIU(event.getProfile());
 					generatedIUs.put(event.getProfile().getProfileId(), iuForProfile);
-				} else if (o instanceof CommitOperationEvent) {
-					CommitOperationEvent event = (CommitOperationEvent) o;
-					getRepository().addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) generatedIUs.get(event.getProfile().getProfileId())});
+				} else if (o instanceof ProfileEvent) {
+					ProfileEvent event = (ProfileEvent) o;
+					if (event.getReason() == ProfileEvent.CHANGED)
+						getRepository().addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) generatedIUs.get(event.getProfile().getProfileId())});
 					return;
 				} else if (o instanceof RollbackOperationEvent) {
 					RollbackOperationEvent event = (RollbackOperationEvent) o;
