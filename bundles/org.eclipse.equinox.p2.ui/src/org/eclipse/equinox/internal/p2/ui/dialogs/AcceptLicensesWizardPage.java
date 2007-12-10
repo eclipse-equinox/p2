@@ -210,15 +210,13 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	private IInstallableUnit[] iusWithUnacceptedLicenses(IInstallableUnit[] allIUs) {
-		if (licenseManager == null)
-			return allIUs;
 		List unaccepted = new ArrayList();
 		for (int i = 0; i < allIUs.length; i++) {
 			IInstallableUnit iu = allIUs[i];
 			String licenseText = iu.getProperty(IInstallableUnit.PROP_LICENSE);
 			// It has a license, is it already accepted?
-			if (licenseText != null) {
-				if (!licenseManager.isAccepted(iu))
+			if (licenseText != null && licenseText.length() > 0) {
+				if (licenseManager == null || !licenseManager.isAccepted(iu))
 					unaccepted.add(iu);
 			}
 		}
