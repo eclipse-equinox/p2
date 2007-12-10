@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.eclipse.equinox.simpleconfigurator.internal.Activator;
 
 /**
  * This class was copied from 
@@ -86,13 +87,15 @@ public class Utils {
 			}
 			return table;
 		} catch (MalformedURLException e1) {
-			// TODO log
-			System.err.println("location=" + location);
-			e1.printStackTrace();
+			if (Activator.DEBUG) {
+				System.err.println("location=" + location);
+				e1.printStackTrace();
+			}
 		} catch (IOException e) {
-			// TODO log
-			System.err.println("location=" + location);
-			e.printStackTrace();
+			if (Activator.DEBUG) {
+				System.err.println("location=" + location);
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}

@@ -37,7 +37,7 @@ import org.osgi.framework.*;
  * 
  */
 public class Activator implements BundleActivator {
-	final static boolean DEBUG = false;
+	public final static boolean DEBUG = false;
 	private SimpleConfiguratorImpl bundleConfigurator;
 	private ServiceRegistration configuratorRegistration;
 	private ServiceRegistration commandRegistration;
