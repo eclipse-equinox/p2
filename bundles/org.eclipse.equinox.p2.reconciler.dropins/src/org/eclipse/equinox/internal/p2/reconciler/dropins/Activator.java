@@ -10,17 +10,16 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.equinox.configurator.Configurator;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.director.IDirector;
+import java.util.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.update.PlatformXmlListener;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.reconciler.dropins.ProfileSynchronizer;
 import org.osgi.framework.*;
@@ -31,88 +30,126 @@ public class Activator implements BundleActivator {
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
-
+	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
+	private List watchers = new ArrayList();
+	private static IMetadataRepository dropinRepository;
 
+	/* (non-Javadoc)
+	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
+	 */
 	public void start(BundleContext context) throws Exception {
 		packageAdminRef = context.getServiceReference(PackageAdmin.class.getName());
 		setPackageAdmin((PackageAdmin) context.getService(packageAdminRef));
 		bundleContext = context;
 
-		Bundle setupBundle = getBundle("org.eclipse.equinox.p2.exemplarysetup"); //$NON-NLS-1$
-		if (setupBundle == null)
+		if (!startEarly("org.eclipse.equinox.p2.exemplarysetup")) //$NON-NLS-1$
 			return;
-
-		setupBundle.start(Bundle.START_TRANSIENT);
-
-		Bundle simpleConfiguratorManipulatorBundle = getBundle("org.eclipse.equinox.simpleconfigurator.manipulator"); //$NON-NLS-1$
-		if (simpleConfiguratorManipulatorBundle == null)
+		if (!startEarly("org.eclipse.equinox.simpleconfigurator.manipulator")) //$NON-NLS-1$
 			return;
-
-		simpleConfiguratorManipulatorBundle.start(Bundle.START_TRANSIENT);
-
-		Bundle equinoxFrameworkAdminBundle = getBundle("org.eclipse.equinox.frameworkadmin.equinox"); //$NON-NLS-1$
-		if (equinoxFrameworkAdminBundle == null)
+		if (!startEarly("org.eclipse.equinox.frameworkadmin.equinox")) //$NON-NLS-1$
 			return;
-
-		equinoxFrameworkAdminBundle.start(Bundle.START_TRANSIENT);
-
 		Profile profile = getCurrentProfile(context);
 		if (profile == null)
 			return;
 
-		File watchedFolder = getWatchedDirectory(context);
-		if (watchedFolder == null)
-			return;
+		// create the watcher for the "drop-ins" folder
+		watchDropins(profile);
 
-		DirectoryWatcher watcher = new DirectoryWatcher(watchedFolder);
-		RepositoryListener listener = new RepositoryListener(context, Integer.toString(watchedFolder.hashCode()));
-		watcher.addListener(listener);
-		watcher.poll();
+		// create watchers for the sites specified in the platform.xml
+		// TODO
+		if (false)
+			watchConfiguration();
 
-		IArtifactRepository artifactRepository = listener.getArtifactRepository();
-		artifactRepository.getModifiableProperties().put("profile.extension", profile.getProfileId());
-		IMetadataRepository metadataRepository = listener.getMetadataRepository();
-		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, metadataRepository);
-
-		IInstallableUnit[] toRemove = synchronizer.getIUsToRemove();
-		if (toRemove != null)
-			removeIUs(context, profile, toRemove);
-
-		// disable repo cleanup for now until we see how we want to handle support for links folders and eclipse extensions
-		//removeUnwatchedRepositories(context, profile, watchedFolder);
-
-		IInstallableUnit[] toAdd = synchronizer.getIUsToAdd();
-		if (toAdd != null)
-			addIUs(context, profile, synchronizer.getIUsToAdd());
-
-		if (toAdd != null || toRemove != null)
-			applyConfiguration(context);
+		synchronize(new ArrayList(0), null);
 	}
 
+	private boolean startEarly(String bundleName) throws BundleException {
+		Bundle bundle = getBundle(bundleName);
+		if (bundle == null)
+			return false;
+		bundle.start(Bundle.START_TRANSIENT);
+		return true;
+	}
+
+	/*
+	 * Synchronize the profile.
+	 */
+	public static void synchronize(List extraRepositories, IProgressMonitor monitor) {
+		Profile profile = getCurrentProfile(bundleContext);
+		if (profile == null)
+			return;
+		// create the profile synchronizer on all available repositories
+		List repositories = new ArrayList(extraRepositories);
+		if (dropinRepository != null)
+			repositories.add(dropinRepository);
+		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
+		synchronizer.synchronize(monitor);
+	}
+
+	/*
+	 * Watch the platform.xml file.
+	 */
+	private void watchConfiguration() {
+		File configFile = new File("configuration/org.eclipse.update/platform.xml"); //$NON-NLS-1$
+		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
+		try {
+			PlatformXmlListener listener = new PlatformXmlListener(configFile);
+			watcher.addListener(listener);
+		} catch (ProvisionException e) {
+			// TODO proper logging
+			e.printStackTrace();
+		}
+		watchers.add(watcher);
+		watcher.start();
+	}
+
+	/*
+	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
+	 */
+	private void watchDropins(Profile profile) {
+		File folder = getWatchedDirectory(bundleContext);
+		if (folder == null)
+			return;
+		DirectoryWatcher watcher = new DirectoryWatcher(folder);
+		RepositoryListener listener = new RepositoryListener(Activator.getContext(), Integer.toString(folder.hashCode()));
+		listener.getArtifactRepository().getModifiableProperties().put(PROFILE_EXTENSION, profile.getProfileId());
+		watcher.addListener(listener);
+		watchers.add(watcher);
+		watcher.poll();
+		dropinRepository = listener.getMetadataRepository();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+	 */
 	public void stop(BundleContext context) throws Exception {
+		for (Iterator iter = watchers.iterator(); iter.hasNext();) {
+			DirectoryWatcher watcher = (DirectoryWatcher) iter.next();
+			watcher.stop();
+		}
 		bundleContext = null;
 		setPackageAdmin(null);
 		context.ungetService(packageAdminRef);
 	}
 
+	/*
+	 * Return the bundle context for this bundle.
+	 */
 	public static BundleContext getContext() {
 		return bundleContext;
 	}
 
 	public static File getWatchedDirectory(BundleContext context) {
-
 		String watchedDirectoryProperty = context.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null) {
 			File folder = new File(watchedDirectoryProperty);
 			if (folder.isDirectory())
 				return folder;
-
 			return null;
 		}
-
 		try {
 			URL baseURL = new URL(context.getProperty(OSGI_INSTALL_AREA));
 			URL folderURL = new URL(baseURL, DROPINS);
@@ -123,17 +160,6 @@ public class Activator implements BundleActivator {
 			e.printStackTrace();
 		}
 		return null;
-
-	}
-
-	private void addIUs(BundleContext context, Profile profile, IInstallableUnit[] toAdd) {
-		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
-		IDirector director = (IDirector) context.getService(reference);
-		try {
-			director.install(toAdd, profile, null);
-		} finally {
-			context.ungetService(reference);
-		}
 	}
 
 	// Disabled for now
@@ -182,30 +208,7 @@ public class Activator implements BundleActivator {
 	//		}
 	//	}
 
-	private void removeIUs(BundleContext context, Profile profile, IInstallableUnit[] toRemove) {
-		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
-		IDirector director = (IDirector) context.getService(reference);
-		try {
-			director.uninstall(toRemove, profile, null);
-		} finally {
-			context.ungetService(reference);
-		}
-	}
-
-	private void applyConfiguration(BundleContext context) {
-		ServiceReference reference = context.getServiceReference(Configurator.class.getName());
-		Configurator configurator = (Configurator) context.getService(reference);
-		try {
-			configurator.applyConfiguration();
-		} catch (IOException e) {
-			// unexpected -- log
-			e.printStackTrace();
-		} finally {
-			context.ungetService(reference);
-		}
-	}
-
-	private Profile getCurrentProfile(BundleContext context) {
+	private static Profile getCurrentProfile(BundleContext context) {
 		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
 		if (reference == null)
 			return null;
