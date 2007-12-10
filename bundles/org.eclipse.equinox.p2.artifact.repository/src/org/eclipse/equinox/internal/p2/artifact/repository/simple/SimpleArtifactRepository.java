@@ -269,9 +269,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			File zipFile = null;
 			try {
 				zipFile = File.createTempFile(artifactFolder.getName(), JAR_EXTENSION, null);
-				FileUtils.zip(new File[] {artifactFolder}, zipFile);
+				FileUtils.zip(artifactFolder.listFiles(), zipFile);
 				FileInputStream fis = new FileInputStream(zipFile);
-				FileUtils.copyStream(fis, true, destination, true);
+				FileUtils.copyStream(fis, true, destination, false);
 			} catch (IOException e) {
 				return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
 			} finally {
