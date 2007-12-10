@@ -258,14 +258,11 @@ public class Utils {
 				//Ignore
 			}
 			return table;
-		} catch (MalformedURLException e1) {
-			// TODO log
-			System.err.println("location=" + location);
-			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO log
-			System.err.println("location=" + location);
-			e.printStackTrace();
+			if (System.getProperty("osgi.debug") != null) {
+				System.err.println("location=" + location);
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
