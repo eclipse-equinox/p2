@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Garbagecollector Plug-in
 Bundle-SymbolicName: org.eclipse.equinox.p2.garbagecollector;singleton:=true
+Bundle-Name: %pluginName
+Bundle-Vendor: %providerName
+Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.core.runtime.preferences,
  org.eclipse.equinox.internal.p2.core.helpers,
