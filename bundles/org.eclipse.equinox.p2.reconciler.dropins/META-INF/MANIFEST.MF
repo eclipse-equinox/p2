@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Folderreconciler Plug-in
+Bundle-Name: Dropin Reconciler Plug-in
 Bundle-SymbolicName: org.eclipse.equinox.p2.reconciler.dropins
 Bundle-Version: 1.0.0
 Bundle-Activator: org.eclipse.equinox.internal.p2.reconciler.dropins.Activator

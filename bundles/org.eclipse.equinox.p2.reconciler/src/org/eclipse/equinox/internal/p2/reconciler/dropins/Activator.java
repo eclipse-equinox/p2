@@ -47,6 +47,18 @@ public class Activator implements BundleActivator {
 
 		setupBundle.start(Bundle.START_TRANSIENT);
 
+		Bundle simpleConfiguratorManipulatorBundle = getBundle("org.eclipse.equinox.simpleconfigurator.manipulator"); //$NON-NLS-1$
+		if (simpleConfiguratorManipulatorBundle == null)
+			return;
+
+		simpleConfiguratorManipulatorBundle.start(Bundle.START_TRANSIENT);
+
+		Bundle equinoxFrameworkAdminBundle = getBundle("org.eclipse.equinox.frameworkadmin.equinox"); //$NON-NLS-1$
+		if (equinoxFrameworkAdminBundle == null)
+			return;
+
+		equinoxFrameworkAdminBundle.start(Bundle.START_TRANSIENT);
+
 		Profile profile = getCurrentProfile(context);
 		if (profile == null)
 			return;
