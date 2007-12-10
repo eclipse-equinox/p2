@@ -47,7 +47,8 @@ public class InstallAction extends ProfileModificationAction {
 			setEnabled(false);
 		} else {
 			for (int i = 0; i < selectionArray.length; i++) {
-				if (getIU(selectionArray[i]) == null) {
+				IInstallableUnit iu = getIU(selectionArray[i]);
+				if (iu == null || ProvisioningUtil.isCategory(iu)) {
 					setEnabled(false);
 					return;
 				}

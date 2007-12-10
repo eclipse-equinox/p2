@@ -318,4 +318,9 @@ public class ProvisioningUtil {
 		}
 		return director;
 	}
+
+	public static boolean isCategory(IInstallableUnit iu) {
+		String isCategory = iu.getProperty(IInstallableUnit.PROP_CATEGORY_IU);
+		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
+	}
 }
