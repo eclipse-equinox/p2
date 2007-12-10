@@ -20,4 +20,8 @@ public class ProvisionException extends Exception {
 	public ProvisionException(Throwable e) {
 		super(e);
 	}
+
+	public ProvisionException(String message, Throwable e) {
+		super(message, e);
+	}
 }
