@@ -517,8 +517,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		if (toDelete.isDirectory()) {
 			File[] children = toDelete.listFiles();
-			for (int i = 0; i < children.length; i++) {
-				delete(children[i]);
+			if (children != null) {
+				for (int i = 0; i < children.length; i++) {
+					delete(children[i]);
+				}
 			}
 			toDelete.delete();
 		}
