@@ -32,6 +32,16 @@ public class Generator {
 
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
+	private final IGeneratorInfo info;
+
+	/**
+	 * Short term fix to ensure IUs that have no corresponding category are not lost.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 */
+	protected final Set rootCategory = new HashSet();
+
+	private StateObjectFactory stateObjectFactory;
+
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
 	 * specified.
@@ -47,10 +57,6 @@ public class Generator {
 		}
 		return (String[]) result.toArray(new String[result.size()]);
 	}
-
-	private final IGeneratorInfo info;
-
-	private StateObjectFactory stateObjectFactory;
 
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
@@ -227,6 +233,34 @@ public class Generator {
 		}
 	}
 
+	/**
+	 * Short term fix to ensure IUs that have no corresponding category are not lost.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 */
+	private IInstallableUnit generateDefaultCategory(IInstallableUnit rootIU) {
+		rootCategory.add(rootIU);
+
+		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
+		cat.setSingleton(true);
+		String categoryId = rootIU.getId() + ".categoryIU"; //$NON-NLS-1$
+		cat.setId(categoryId);
+		cat.setVersion(Version.emptyVersion);
+		cat.setProperty(IInstallableUnit.PROP_NAME, rootIU.getProperty(IInstallableUnit.PROP_NAME));
+		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, rootIU.getProperty(IInstallableUnit.PROP_DESCRIPTION));
+
+		ArrayList required = new ArrayList(rootCategory.size());
+		for (Iterator iterator = rootCategory.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			required.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
+		}
+		cat.setRequiredCapabilities((RequiredCapability[]) required.toArray(new RequiredCapability[required.size()]));
+		cat.setCapabilities(new ProvidedCapability[] {new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, categoryId, Version.emptyVersion)});
+		cat.setApplicabilityFilter(""); //$NON-NLS-1$
+		cat.setArtifacts(new IArtifactKey[0]);
+		cat.setProperty(IInstallableUnit.PROP_CATEGORY_IU, "true"); //$NON-NLS-1$
+		return MetadataFactory.createInstallableUnit(cat);
+	}
+
 	private void generateDefaultConfigIU(Set ius) {
 		//		TODO this is a bit of a hack.  We need to have the default IU fragment generated with code that configures
 		//		and unconfigures.  the Generator should be decoupled from any particular provider but it is not clear
@@ -355,6 +389,8 @@ public class Generator {
 					}
 					featureIUs.add(generated);
 				}
+			} else {
+				rootCategory.add(generated);
 			}
 		}
 		generateCategoryIUs(categoriesToFeatureIUs, resultantIUs);
@@ -391,7 +427,9 @@ public class Generator {
 	protected void generateRootIU(Set resultantIUs, String rootIUId, String rootIUVersion) {
 		if (rootIUId == null)
 			return;
-		resultantIUs.add(createTopLevelIU(resultantIUs, rootIUId, rootIUVersion));
+		IInstallableUnit rootIU = createTopLevelIU(resultantIUs, rootIUId, rootIUVersion);
+		resultantIUs.add(rootIU);
+		resultantIUs.add(generateDefaultCategory(rootIU));
 	}
 
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
