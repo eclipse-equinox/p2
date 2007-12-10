@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
@@ -49,14 +49,17 @@ public class Engine {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
 
 			EngineSession session = new EngineSession(profile);
+			snapshotIUProperties(profile, operands);
 			MultiStatus result = phaseSet.perform(session, profile, operands, monitor);
 			if (result.isOK()) {
 				if (profile.isChanged()) {
 					IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 					if (profileRegistry.getProfile(profile.getProfileId()) == null)
 						profileRegistry.addProfile(profile);
-					else
+					else {
+						moveIUProperties(profile, operands);
 						profileRegistry.updateProfile(profile);
+					}
 				}
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 				session.commit();
@@ -67,6 +70,34 @@ public class Engine {
 			return result;
 		} finally {
 			unlockProfile(profile);
+		}
+	}
+
+   //Support to move the IU properties as part of the engine. This is not really clean. We will have to review this.
+   //This has to be done in two calls because when we return from the phaseSet.perform the iu properties are already lost
+	Map snapshot = new HashMap();
+
+	private void snapshotIUProperties(Profile profile, Operand[] operands) {
+		for (int i = 0; i < operands.length; i++) {
+			if (operands[i].first() != null && operands[i].second() != null) {
+				snapshot.put(operands[i].first(), profile.getInstallableUnitProfileProperties(operands[i].first()));
+			}
+		}
+	}
+
+	private void moveIUProperties(Profile profile, Operand[] operands) {
+		for (int i = 0; i < operands.length; i++) {
+			if (operands[i].first() != null && operands[i].second() != null) {
+				OrderedProperties prop = (OrderedProperties) snapshot.get(operands[i].first());
+				if (prop == null)
+					continue;
+				Enumeration enumProps = prop.keys();
+				while (enumProps.hasMoreElements()) {
+					String key = (String) enumProps.nextElement();
+					profile.setInstallableUnitProfileProperty(operands[i].second(), key, (String) prop.get(key));
+					prop.remove(key);
+				}
+			}
 		}
 	}
 
