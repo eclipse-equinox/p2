@@ -6,8 +6,8 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.artifact.mirror;x-internal:=true,
- org.eclipse.equinox.internal.p2.artifact.repository;x-friends:="org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.test",
- org.eclipse.equinox.internal.p2.artifact.repository.simple;x-friends:="org.eclipse.equinox.p2.selfhosting,org.eclipse.equinox.p2.touchpoint.eclipse",
+ org.eclipse.equinox.internal.p2.artifact.repository;x-friends:="org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.tests",
+ org.eclipse.equinox.internal.p2.artifact.repository.simple;x-friends:="org.eclipse.equinox.p2.selfhosting,org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.tests",
  org.eclipse.equinox.p2.artifact.repository,
  org.eclipse.equinox.p2.artifact.repository.processing,
  org.eclipse.equinox.spi.p2.artifact.repository
