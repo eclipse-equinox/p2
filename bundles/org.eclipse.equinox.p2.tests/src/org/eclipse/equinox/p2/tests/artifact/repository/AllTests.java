@@ -13,12 +13,13 @@ package org.eclipse.equinox.p2.tests.artifact.repository;
 import junit.framework.*;
 
 /**
- * Performs all automated director tests.
+ * Performs all automated artifact repository tests.
  */
 public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(ArtifactOutputStreamTest.class);
 		//TODO This test currently fails because our file formats are not stable
 		//		suite.addTestSuite(JarURLRepositoryTest.class);
 		return suite;
