@@ -328,6 +328,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		private IStatus status = Status.OK_STATUS;
 		private File file;
 		private long count = 0;
+		private boolean closed;
 
 		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor) {
 			this(os, descriptor, null);
@@ -363,6 +364,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 
 		public void close() throws IOException {
+			if (closed)
+				return;
+			closed = true;
+
 			try {
 				destination.close();
 			} catch (IOException e) {
