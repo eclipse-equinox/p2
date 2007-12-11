@@ -117,7 +117,6 @@ public class Activator implements BundleActivator {
 		RepositoryListener listener = new RepositoryListener(Activator.getContext(), Integer.toString(folder.hashCode()));
 		listener.getArtifactRepository().getModifiableProperties().put(PROFILE_EXTENSION, profile.getProfileId());
 		watcher.addListener(listener);
-		watchers.add(watcher);
 		watcher.poll();
 		dropinRepository = listener.getMetadataRepository();
 	}
