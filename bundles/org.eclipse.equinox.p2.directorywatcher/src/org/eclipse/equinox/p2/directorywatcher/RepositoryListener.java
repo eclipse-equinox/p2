@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.generator.BundleDescriptionFactory;
@@ -82,8 +83,10 @@ public class RepositoryListener extends DirectoryChangeListener {
 		IArtifactRepository repository = null;
 		try {
 			repository = manager.getRepository(stateDirURL);
-			if (repository == null)
+			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+				repository.getProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+			}
 		} finally {
 			context.ungetService(reference);
 		}
@@ -106,8 +109,10 @@ public class RepositoryListener extends DirectoryChangeListener {
 		IMetadataRepository repository = null;
 		try {
 			repository = manager.loadRepository(stateDirURL, null);
-			if (repository == null)
+			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, "metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+				repository.getProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+			}
 		} finally {
 			context.ungetService(reference);
 		}
