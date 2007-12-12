@@ -66,6 +66,7 @@ public class OperationGenerator {
 
 	private void generateUpdates(List from, List to, ArrayList operations) {
 		Set processed = new HashSet();
+		Set removedFromTo = new HashSet();
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
 			IInstallableUnit iuTo = (IInstallableUnit) to.get(toIdx);
 			if (iuTo.getId().equals(next(from, toIdx).getId())) {
@@ -80,7 +81,7 @@ public class OperationGenerator {
 			Iterator updates = updateQuery.perform(from.iterator(), new Collector()).iterator();
 
 			IInstallableUnit iuFrom;
-			if (!updates.hasNext()) { //Nothing to udpate from.
+			if (!updates.hasNext()) { //Nothing to update from.
 				continue;
 			}
 			iuFrom = (IInstallableUnit) updates.next();
@@ -90,7 +91,7 @@ public class OperationGenerator {
 			}
 			if (iuTo.equals(iuFrom)) {
 				from.remove(iuFrom);
-				to.remove(iuTo);
+				removedFromTo.add(iuTo);
 				continue;
 			}
 			operations.add(createUpdateOperation(iuFrom, iuTo));
@@ -98,6 +99,7 @@ public class OperationGenerator {
 			processed.add(iuTo);
 		}
 		to.removeAll(processed);
+		to.removeAll(removedFromTo);
 	}
 
 	private Operand createUninstallOperation(IInstallableUnit iu) {

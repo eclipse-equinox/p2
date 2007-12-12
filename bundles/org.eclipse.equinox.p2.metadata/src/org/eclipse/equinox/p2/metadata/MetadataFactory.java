@@ -132,6 +132,8 @@ public class MetadataFactory {
 	 * @return A resolved installable unit
 	 */
 	public static IInstallableUnit createResolvedInstallableUnit(IInstallableUnit unit, IInstallableUnitFragment[] fragments) {
+		if (unit.isResolved())
+			return unit;
 		Assert.isNotNull(unit);
 		Assert.isNotNull(fragments);
 		return new ResolvedInstallableUnit(unit, fragments);

@@ -148,7 +148,7 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 	}
 
 	public IInstallableUnit unresolved() {
-		return original;
+		return original.unresolved();
 	}
 
 }
