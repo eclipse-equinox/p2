@@ -362,6 +362,8 @@ public class Generator {
 			}
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 

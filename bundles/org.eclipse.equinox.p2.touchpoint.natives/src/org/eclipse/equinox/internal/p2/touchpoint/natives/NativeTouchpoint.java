@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.natives;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
@@ -51,40 +50,26 @@ public class NativeTouchpoint extends Touchpoint {
 		if (actionId.equals("unzip")) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					String source = (String) parameters.get("source");
-					if (source == null)
-						return createError("The \"source\" parameter was not set in the \"unzip\" action.");
-					String target = (String) parameters.get("target");
-					if (target == null)
-						return createError("The \"target\" parameter was not set in the \"unzip\" action.");
-
-					if (source.equals("@artifact")) {
-						IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
-						//TODO: fix wherever this occurs -- investigate as this is probably not desired
-						if (iu.getArtifacts() == null || iu.getArtifacts().length == 0)
-							return Status.OK_STATUS;
-
-						IArtifactKey artifactKey = iu.getArtifacts()[0];
-
-						IFileArtifactRepository downloadCache = getDownloadCacheRepo();
-						if (downloadCache == null)
-							return createError("The download cache could not be found for the \"unzip\" action.");
-						File fileLocation = downloadCache.getArtifactFile(artifactKey);
-						if ((fileLocation == null) || !fileLocation.exists())
-							return createError("The artifact for " + artifactKey + " is not available");
-						source = fileLocation.getAbsolutePath();
-					}
-
-					new Zip().unzip(source, target, null);
-					return Status.OK_STATUS;
+					return unzip(parameters);
 				}
 
 				public IStatus undo(Map parameters) {
-					//TODO: implement undo
-					return Status.OK_STATUS;
+					return cleanupzip(parameters);
 				}
 			};
 		}
+		if (actionId.equals("cleanupzip")) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					return cleanupzip(parameters);
+				}
+
+				public IStatus undo(Map parameters) {
+					return unzip(parameters);
+				}
+			};
+		}
+
 		if (actionId.equals("chmod")) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
@@ -190,5 +175,82 @@ public class NativeTouchpoint extends Touchpoint {
 	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put("installFolder", getInstallFolder(profile));
 		return null;
+	}
+
+	IStatus unzip(Map parameters) {
+		String source = (String) parameters.get("source");
+		if (source == null)
+			return createError("The \"source\" parameter was not set in the \"unzip\" action.");
+
+		String originalSource = source;
+		String target = (String) parameters.get("target");
+		if (target == null)
+			return createError("The \"target\" parameter was not set in the \"unzip\" action.");
+
+		IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+		Profile profile = (Profile) parameters.get("profile");
+
+		if (source.equals("@artifact")) {
+			//TODO: fix wherever this occurs -- investigate as this is probably not desired
+			if (iu.getArtifacts() == null || iu.getArtifacts().length == 0)
+				return Status.OK_STATUS;
+
+			IArtifactKey artifactKey = iu.getArtifacts()[0];
+
+			IFileArtifactRepository downloadCache = getDownloadCacheRepo();
+			if (downloadCache == null)
+				return createError("The download cache could not be found for the \"unzip\" action.");
+			File fileLocation = downloadCache.getArtifactFile(artifactKey);
+			if ((fileLocation == null) || !fileLocation.exists())
+				return createError("The artifact for " + artifactKey + " is not available");
+			source = fileLocation.getAbsolutePath();
+		}
+
+		File[] unzippedFiles = new Zip().unzip(source, target, null);
+		StringBuffer unzippedFileNameBuffer = new StringBuffer();
+		for (int i = 0; i < unzippedFiles.length; i++)
+			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append("|");
+
+		String unzipped = profile.setInstallableUnitProfileProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
+
+		return Status.OK_STATUS;
+	}
+
+	protected IStatus cleanupzip(Map parameters) {
+		String source = (String) parameters.get("source");
+		if (source == null)
+			return createError("The \"source\" parameter was not set in the \"cleanupzip\" action.");
+		String target = (String) parameters.get("target");
+		if (target == null)
+			return createError("The \"target\" parameter was not set in the \"cleanupzip\" action.");
+
+		IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+		Profile profile = (Profile) parameters.get("profile");
+
+		String unzipped = profile.getInstallableUnitProfileProperty(iu, "unzipped" + "|" + source + "|" + target);
+
+		if (unzipped == null)
+			return Status.OK_STATUS;
+
+		StringTokenizer tokenizer = new StringTokenizer(unzipped, "|");
+		List directories = new ArrayList();
+		while (tokenizer.hasMoreTokens()) {
+			String fileName = tokenizer.nextToken();
+			File file = new File(fileName);
+			if (!file.exists())
+				continue;
+
+			if (file.isDirectory())
+				directories.add(file);
+			else
+				file.delete();
+		}
+
+		for (Iterator it = directories.iterator(); it.hasNext();) {
+			File directory = (File) it.next();
+			directory.delete();
+		}
+
+		return Status.OK_STATUS;
 	}
 }

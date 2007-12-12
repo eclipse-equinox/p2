@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.osgi.util.NLS;
@@ -21,10 +22,10 @@ public class FileUtils {
 	/**
 	 * Unzip from a File to an output directory.
 	 */
-	public static void unzipFile(File zipFile, File outputDir) throws IOException {
+	public static File[] unzipFile(File zipFile, File outputDir) throws IOException {
 		InputStream in = new FileInputStream(zipFile);
 		try {
-			unzipStream(in, zipFile.length(), outputDir, null, null);
+			return unzipStream(in, zipFile.length(), outputDir, null, null);
 		} catch (IOException e) {
 			// add the file name to the message
 			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
@@ -37,10 +38,10 @@ public class FileUtils {
 	 * Unzip from a File to an output directory, with progress indication.
 	 * monitor may be null.
 	 */
-	public static void unzipFile(File zipFile, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
+	public static File[] unzipFile(File zipFile, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
 		InputStream in = new FileInputStream(zipFile);
 		try {
-			unzipStream(in, zipFile.length(), outputDir, taskName, monitor);
+			return unzipStream(in, zipFile.length(), outputDir, taskName, monitor);
 		} catch (IOException e) {
 			// add the file name to the message
 			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
@@ -53,11 +54,11 @@ public class FileUtils {
 	 * Unzip from a URL to an output directory, with progress indication.
 	 * monitor may be null.
 	 */
-	public static void unzipURL(URL zipURL, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
+	public static File[] unzipURL(URL zipURL, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
 		int size = zipURL.openConnection().getContentLength();
 		InputStream in = zipURL.openStream();
 		try {
-			unzipStream(in, size, outputDir, taskName, monitor);
+			return unzipStream(in, size, outputDir, taskName, monitor);
 		} catch (IOException e) {
 			// add the URL to the message
 			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipURL, e.getMessage()));
@@ -69,7 +70,7 @@ public class FileUtils {
 	/**
 	 * Unzip from an InputStream to an output directory.
 	 */
-	public static void unzipStream(InputStream stream, long size, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
+	public static File[] unzipStream(InputStream stream, long size, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
 		InputStream is = monitor == null ? stream : stream; // new ProgressMonitorInputStream(stream, size, size, taskName, monitor); TODO Commented code
 		ZipInputStream in = new ZipInputStream(new BufferedInputStream(is));
 		ZipEntry ze = in.getNextEntry();
@@ -79,8 +80,10 @@ public class FileUtils {
 			in.close();
 			throw new IOException(Messages.Util_Invalid_Zip_File_Format);
 		}
+		ArrayList unzippedFiles = new ArrayList();
 		do {
 			File outFile = new File(outputDir, ze.getName());
+			unzippedFiles.add(outFile);
 			if (ze.isDirectory()) {
 				outFile.mkdirs();
 			} else {
@@ -100,6 +103,8 @@ public class FileUtils {
 			in.closeEntry();
 		} while ((ze = in.getNextEntry()) != null);
 		in.close();
+
+		return (File[]) unzippedFiles.toArray(new File[unzippedFiles.size()]);
 	}
 
 	// Delete empty directories under dir, including dir itself.

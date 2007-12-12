@@ -18,7 +18,7 @@ import org.eclipse.osgi.util.NLS;
 
 //TODO Be careful here with the permissions.... We may need to have a proper unzip technology here that supports file permissions for linux
 public class Zip {
-	public void unzip(String source, String destination, String backupDir) {
+	public File[] unzip(String source, String destination, String backupDir) {
 		//		IArtifact artifact = data.getArtifact();
 		//		String destination = performVariableSubstitutions(data.getDestination());
 		//		if (canInstallArtifact()) {
@@ -61,7 +61,7 @@ public class Zip {
 			}
 			try {
 				String taskName = NLS.bind(Messages.unzipping, source);
-				FileUtils.unzipFile(zipFile, new File(destination), taskName, new NullProgressMonitor());
+				return FileUtils.unzipFile(zipFile, new File(destination), taskName, new NullProgressMonitor());
 			} catch (IOException e) {
 				System.out.println(this.getClass().getName() + " something went wrong when unzipping");
 				System.out.println("zipfile: " + zipFile.getAbsolutePath());
@@ -75,5 +75,6 @@ public class Zip {
 			//			monitor.done();
 		}
 		//		}
+		return null;
 	}
 }

@@ -346,6 +346,8 @@ public class MetadataGeneratorHelper {
 		//Create config info for the CU
 		String configurationData = "unzip(source:@artifact, target:${installFolder});";
 		touchpointData.put("install", configurationData);
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 
@@ -393,6 +395,8 @@ public class MetadataGeneratorHelper {
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
 			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
 		touchpointData.put("install", configurationData);
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(new TouchpointData(touchpointData));
 		resultantIUs.add(MetadataFactory.createInstallableUnitFragment(cu));
 
