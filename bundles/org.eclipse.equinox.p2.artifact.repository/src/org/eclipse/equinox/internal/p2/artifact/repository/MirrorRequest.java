@@ -96,7 +96,7 @@ public class MirrorRequest extends ArtifactRequest {
 
 		// Do the actual transfer
 		try {
-			setResult(descriptor.getRepository().getArtifact(descriptor, destination, monitor));
+			setResult(getSourceRepository().getArtifact(descriptor, destination, monitor));
 			return;
 		} finally {
 			try {
@@ -108,6 +108,6 @@ public class MirrorRequest extends ArtifactRequest {
 	}
 
 	public String toString() {
-		return "Mirrroring: " + getArtifactKey() + " into " + target;
+		return "Mirroring: " + getArtifactKey() + " into " + target;
 	}
 }
