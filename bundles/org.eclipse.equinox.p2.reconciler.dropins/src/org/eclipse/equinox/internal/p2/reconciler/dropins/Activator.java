@@ -145,16 +145,13 @@ public class Activator implements BundleActivator {
 		String watchedDirectoryProperty = context.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null) {
 			File folder = new File(watchedDirectoryProperty);
-			if (folder.isDirectory())
-				return folder;
-			return null;
+			return folder;
 		}
 		try {
 			URL baseURL = new URL(context.getProperty(OSGI_INSTALL_AREA));
 			URL folderURL = new URL(baseURL, DROPINS);
 			File folder = new File(folderURL.getPath());
-			if (folder.isDirectory())
-				return folder;
+			return folder;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
