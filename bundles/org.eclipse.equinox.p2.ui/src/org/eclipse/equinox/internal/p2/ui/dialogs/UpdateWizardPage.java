@@ -93,4 +93,11 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 		}
 		return null;
 	}
+
+	protected void setInitialSelections() {
+		// Don't select anything to work around issues such as
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208470
+		// TODO when not showing the latest version we eventually
+		// want to select only the latest version.
+	}
 }

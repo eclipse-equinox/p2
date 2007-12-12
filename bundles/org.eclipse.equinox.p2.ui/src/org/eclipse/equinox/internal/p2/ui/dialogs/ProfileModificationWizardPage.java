@@ -101,7 +101,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		listViewer.setContentProvider(contentProvider);
 		listViewer.setInput(new Object());
 		listViewer.setLabelProvider(new IUDetailsLabelProvider(getColumnConfig()));
-		listViewer.setAllChecked(true);
+		setInitialSelections();
 		selectedIUsChanged();
 		setControl(composite);
 		Dialog.applyDialogFont(composite);
@@ -171,5 +171,12 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 	protected void selectedIUsChanged() {
 		setPageComplete(getSelectedIUs().length > 0);
+	}
+
+	protected void setInitialSelections() {
+		// The default is to select everything because 
+		// in most cases, the user has selected exactly
+		// what they want before this page opens.
+		listViewer.setAllChecked(true);
 	}
 }
