@@ -121,19 +121,13 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	}
 
 	private static boolean isTargetConfiguratorBundle(BundleInfo[] bInfos) {
-		boolean found = false;
 		for (int i = 0; i < bInfos.length; i++) {
-			//			if (DEBUG)
-			//				System.out.println("bInfos[" + i + "]=" + bInfos[i]);
 			if (isTargetConfiguratorBundle(bInfos[i].getLocation())) {
-				if (!bInfos[i].isResolved())
-					return false;
+				return true;
 				//TODO confirm that startlevel of configurator bundle must be no larger than beginning start level of fw. However, there is no way to know the start level of cached ones.
-				found = true;
-				break;
 			}
 		}
-		return found;
+		return false;
 	}
 
 	private static boolean isTargetConfiguratorBundle(String location) {
