@@ -10,7 +10,6 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.internal.adaptor.EclipseEnvironmentInfo;
 import org.eclipse.equinox.frameworkadmin.*;
@@ -96,7 +95,8 @@ public class EquinoxBundlesState implements BundlesState {
 				return ret;
 			}
 		}
-		return getSystemBundleBySearching(launcherData);
+		return null;
+		//		return getSystemBundleBySearching(launcherData);
 	}
 
 	private static long getMaxId(State state) {
@@ -109,28 +109,28 @@ public class EquinoxBundlesState implements BundlesState {
 		return maxId;
 	}
 
-	private static File getSystemBundleBySearching(LauncherData launcherData) {
-		File pluginsDir;
-		if (launcherData.getLauncher() == null) {
-			if (launcherData.getHome() == null)
-				return null;
-			pluginsDir = new File(launcherData.getHome(), "plugins");
-		} else {
-			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
-		}
-
-		String fullLocation = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, pluginsDir);
-		if (fullLocation == null)
-			return null;
-		URL url = null;
-		try {
-			url = new URL(fullLocation);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			Log.log(LogService.LOG_WARNING, "fullLocation is not in proper format:" + fullLocation);
-		}
-		return url == null ? null : new File(url.getFile());
-	}
+	//	private static File getSystemBundleBySearching(LauncherData launcherData) {
+	//		File pluginsDir;
+	//		if (launcherData.getLauncher() == null) {
+	//			if (launcherData.getHome() == null)
+	//				return null;
+	//			pluginsDir = new File(launcherData.getHome(), "plugins");
+	//		} else {
+	//			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
+	//		}
+	//
+	//		String fullLocation = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, pluginsDir);
+	//		if (fullLocation == null)
+	//			return null;
+	//		URL url = null;
+	//		try {
+	//			url = new URL(fullLocation);
+	//		} catch (MalformedURLException e) {
+	//			// TODO Auto-generated catch block
+	//			Log.log(LogService.LOG_WARNING, "fullLocation is not in proper format:" + fullLocation);
+	//		}
+	//		return url == null ? null : new File(url.getFile());
+	//	}
 
 	private static File getSystemBundleFromBundleInfos(BundleInfo[] bundleInfos) {
 		for (int i = 0; i < bundleInfos.length; i++) {
@@ -393,7 +393,7 @@ public class EquinoxBundlesState implements BundlesState {
 				this.installBundle(bInfos[j]);
 				// System.out.println("install bInfos[" + j + "]=" + bInfos[j]);
 			} catch (RuntimeException e) {
-			   //catch the exception and continue
+				//catch the exception and continue
 				Log.log(LogService.LOG_ERROR, this, "composeExpectedState()", "BundleInfo:" + bInfos[j], e);
 			}
 		}
