@@ -47,7 +47,7 @@ public class Util {
 		if (path != null)
 			try {
 				// TODO this is a hack for now.
-				return File.separatorChar == '/' ? new URL("file:" + path) : new URL("file:/" + path); //$NON-NLS-1$ //$NON-NLS-2$
+				return new File(path).toURL();
 			} catch (MalformedURLException e) {
 				// TODO Do nothing and use the default approach
 			}
