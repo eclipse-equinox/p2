@@ -85,7 +85,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			repository = manager.getRepository(stateDirURL);
 			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
-				repository.getProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+				repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
 			}
 		} finally {
 			context.ungetService(reference);
@@ -111,7 +111,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			repository = manager.loadRepository(stateDirURL, null);
 			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, "metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-				repository.getProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+				repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
 			}
 		} finally {
 			context.ungetService(reference);
