@@ -18,6 +18,16 @@ import java.util.List;
  */
 public class SiteDelta {
 
+	static class Change {
+		Site oldSite;
+		Site newSite;
+
+		Change(Site oldSite, Site newSite) {
+			this.oldSite = oldSite;
+			this.newSite = newSite;
+		}
+	}
+
 	private List added = new ArrayList();
 	private List removed = new ArrayList();
 	private List changed = new ArrayList();
@@ -33,17 +43,20 @@ public class SiteDelta {
 			for (int j = 0; !found && j < two.length; j++) {
 				if (two[j] != null && one[i].getUrl().equals(two[j].getUrl())) {
 					found = true;
-					if (!one[i].equals(two[j]))
-						result.changed.add(one[i]);
+					// TODO
+					if (!one[i].getUrl().equals("platform:/base/") && !one[i].equals(two[j]))
+						result.changed.add(new Change(one[i], two[j]));
 					one[i] = null;
 					two[j] = null;
 				}
 			}
-			if (!found)
+			// TODO
+			if (!found && !"platform:/base/".equals(one[i].getUrl()))
 				result.removed.add(one[i]);
 		}
 		for (int j = 0; j < two.length; j++) {
-			if (two[j] != null)
+			// TODO
+			if (two[j] != null && !"platform:/base/".equals(two[j].getUrl()))
 				result.added.add(two[j]);
 		}
 		return result;
@@ -66,11 +79,11 @@ public class SiteDelta {
 	}
 
 	/*
-	 * Return a list of the sites that were changed. May return an empty list
+	 * Return a list of the site changes that were changed. May return an empty list
 	 * but never returns null.
 	 */
-	public Site[] changed() {
-		return (Site[]) changed.toArray(new Site[changed.size()]);
+	public Change[] changed() {
+		return (Change[]) changed.toArray(new Change[changed.size()]);
 	}
 
 	/*

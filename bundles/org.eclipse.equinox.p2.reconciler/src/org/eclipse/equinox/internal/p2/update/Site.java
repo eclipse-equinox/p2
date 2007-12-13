@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.update;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 
 /*
  * Represents a site in a platform.xml file.
@@ -106,35 +107,14 @@ public class Site {
 			return false;
 		if (!getUrl().equals(other.getUrl()))
 			return false;
-		if (!equals(getLinkFile(), other.getLinkFile()))
+		if (!Activator.equals(getLinkFile(), other.getLinkFile()))
 			return false;
-		if (!equals(getPolicy(), other.getPolicy()))
+		if (!Activator.equals(getPolicy(), other.getPolicy()))
 			return false;
-		if (!equals(getList(), other.getList()))
+		if (!Activator.equals(getList(), other.getList()))
 			return false;
-		if (!equals(getFeatures(), other.getFeatures()))
+		if (!Activator.equals(getFeatures(), other.getFeatures()))
 			return false;
-		return true;
-	}
-
-	private boolean equals(Object one, Object two) {
-		return one == null ? two == null : one.equals(two);
-	}
-
-	private boolean equals(Object[] one, Object[] two) {
-		if (one == null && two == null)
-			return true;
-		if (one == null || two == null)
-			return false;
-		if (one.length != two.length)
-			return false;
-		for (int i = 0; i < one.length; i++) {
-			boolean found = false;
-			for (int j = 0; !found && j < two.length; j++)
-				found = one[i].equals(two[j]);
-			if (!found)
-				return false;
-		}
 		return true;
 	}
 }

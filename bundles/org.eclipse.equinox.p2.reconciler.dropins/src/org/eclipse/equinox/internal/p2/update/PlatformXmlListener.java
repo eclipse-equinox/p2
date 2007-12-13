@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
+import org.eclipse.equinox.internal.p2.update.SiteDelta.Change;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
@@ -119,6 +120,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			return;
 		for (int i = 0; i < added.length; i++) {
 			Site site = added[i];
+			// TODO skip for now
+			if ("platform:/base/".equals(site.getUrl()))
+				continue;
 			try {
 				URL url = new URL(site.getUrl());
 				try {
@@ -160,8 +164,26 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	/*
 	 * The given set of sites has had their contents changed.
 	 */
-	private void changed(Site[] changed) {
-		// TODO
+	private void changed(Change[] changes) throws ProvisionException {
+		for (int i = 0; i < changes.length; i++) {
+			Change change = changes[i];
+			if (majorChange(change)) {
+				removed(new Site[] {change.oldSite});
+				added(new Site[] {change.newSite});
+			}
+		}
+	}
+
+	/*
+	 * Return true if the differences between the 2 sites should cause
+	 * a new listener to be created.
+	 */
+	private boolean majorChange(Change change) {
+		Site one = change.oldSite;
+		Site two = change.newSite;
+		if (!Activator.equals(one.getPolicy(), two.getPolicy()))
+			return true;
+		return !Activator.equals(one.getList(), two.getList());
 	}
 
 	/* (non-Javadoc)
