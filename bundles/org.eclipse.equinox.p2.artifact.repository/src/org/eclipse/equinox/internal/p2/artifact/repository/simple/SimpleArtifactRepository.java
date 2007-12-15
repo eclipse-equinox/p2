@@ -393,8 +393,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd) {
-		// TODO perhaps the argument here should be ArtifactDescriptor.  IArtifactDescriptos are for 
-		// people who are reading the repo.
+		// TODO perhaps the argument here should be ArtifactDescriptor.  IArtifactDescriptors are for 
+		// people who are reading the repository.
 		// TODO: here we may want to ensure that the artifact has not been added concurrently
 		((ArtifactDescriptor) toAdd).setRepository(this);
 		artifactDescriptors.add(toAdd);

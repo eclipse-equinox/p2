@@ -185,7 +185,8 @@ public class Application implements IApplication {
 				operationStatus = engine.perform(profile, set, result.getOperands(), new NullProgressMonitor());
 				System.out.println(Messages.Disk_size + sizeComputer.getDiskSize());
 				System.out.println(Messages.Download_size + sizeComputer.getDlSize());
-				operationStatus = director.install(roots, profile, new NullProgressMonitor());
+				operationStatus = (install ? director.install(roots, profile, new NullProgressMonitor()) //
+						: director.uninstall(roots, profile, new NullProgressMonitor()));
 			}
 		} else {
 			operationStatus = new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.Missing_IU, root));

@@ -15,6 +15,7 @@ public interface IInstallableUnit extends Comparable {
 
 	// TODO: These two constants need to be moved somewhere more appropriate...
 	public static final String CAPABILITY_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
+	public static final String CAPABILITY_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
 	public static final String CAPABILITY_ECLIPSE_TYPES = "org.eclipse.equinox.p2.eclipsetouchpoint.types"; //$NON-NLS-1$
 	/**
 	 * A capability namespace representing a particular profile flavor.

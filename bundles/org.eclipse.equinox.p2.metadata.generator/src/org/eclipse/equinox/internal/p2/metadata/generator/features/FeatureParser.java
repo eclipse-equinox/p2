@@ -30,13 +30,13 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class FeatureParser extends DefaultHandler {
 
+	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private SAXParser parser;
 	private Feature result;
 	private URL url;
 	private StringBuffer characters = null;
-	private Properties messages = null;
 
-	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+	private Properties messages = null;
 
 	public FeatureParser() {
 		super();
@@ -50,42 +50,27 @@ public class FeatureParser extends DefaultHandler {
 		}
 	}
 
-	/**
-	 * Parses the specified location and constructs a feature. The given location 
-	 * should be either the location of the feature JAR or the diretory containing
-	 * the feature.
-	 * 
-	 * @param location the location of the feature to parse.  
-	 */
-	public Feature parse(File location) {
-		if (!location.exists())
-			return null;
-		if (location.isDirectory()) {
-			//skip directories that don't contain a feature.xml file
-			File file = new File(location, "feature.xml"); //$NON-NLS-1$
-			if (!file.exists())
-				return null;
-			Properties properties = loadProperties(location);
-			try {
-				InputStream input = new BufferedInputStream(new FileInputStream(file));
-				return parse(input, properties);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		} else if (location.getName().endsWith(".jar")) {
-			try {
-				JarFile jar = new JarFile(location);
-				JarEntry entry = jar.getJarEntry("feature.xml");
-				if (entry == null)
-					return null;
-				Properties properties = loadProperties(location);
-				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
-				return parse(input, properties);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	public void characters(char[] ch, int start, int length) throws SAXException {
+		if (characters == null)
+			return;
+		characters.append(ch, start, length);
+	}
+
+	protected Feature createFeature(String id, String version) {
+		return new Feature(id, version);
+	}
+
+	public void endElement(String uri, String localName, String qName) throws SAXException {
+		if (characters == null)
+			return;
+		if ("description".equals(localName)) { //$NON-NLS-1$
+			result.setDescription(localize(characters.toString().trim()));
+		} else if ("license".equals(localName)) { //$NON-NLS-1$
+			result.setLicense(localize(characters.toString().trim()));
+		} else if ("copyright".equals(localName)) { //$NON-NLS-1$
+			result.setCopyright(localize(characters.toString().trim()));
 		}
-		return null;
+		characters = null;
 	}
 
 	private Properties loadProperties(File location) {
@@ -129,6 +114,52 @@ public class FeatureParser extends DefaultHandler {
 		return null;
 	}
 
+	private String localize(String value) {
+		if (messages == null || value == null)
+			return value;
+		if (!value.startsWith("%"))
+			return value;
+		return messages.getProperty(value.substring(1), value);
+	}
+
+	/**
+	 * Parses the specified location and constructs a feature. The given location 
+	 * should be either the location of the feature JAR or the directory containing
+	 * the feature.
+	 * 
+	 * @param location the location of the feature to parse.  
+	 */
+	public Feature parse(File location) {
+		if (!location.exists())
+			return null;
+		if (location.isDirectory()) {
+			//skip directories that don't contain a feature.xml file
+			File file = new File(location, "feature.xml"); //$NON-NLS-1$
+			if (!file.exists())
+				return null;
+			Properties properties = loadProperties(location);
+			try {
+				InputStream input = new BufferedInputStream(new FileInputStream(file));
+				return parse(input, properties);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		} else if (location.getName().endsWith(".jar")) {
+			try {
+				JarFile jar = new JarFile(location);
+				JarEntry entry = jar.getJarEntry("feature.xml");
+				if (entry == null)
+					return null;
+				Properties properties = loadProperties(location);
+				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
+				return parse(input, properties);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * Parse the given input stream and return a feature object
 	 * or null. This method closes the input stream.
@@ -152,77 +183,18 @@ public class FeatureParser extends DefaultHandler {
 		return result;
 	}
 
-	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		//		Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + " qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		if ("plugin".equals(localName)) { //$NON-NLS-1$
-			processPlugin(attributes);
-		} else if ("description".equals(localName)) { //$NON-NLS-1$
-			processDescription(attributes);
-		} else if ("license".equals(localName)) { //$NON-NLS-1$
-			processLicense(attributes);
-		} else if ("copyright".equals(localName)) { //$NON-NLS-1$
-			processCopyright(attributes);
-		} else if ("feature".equals(localName)) { //$NON-NLS-1$
-			processFeature(attributes);
-		} else if ("import".equals(localName)) { //$NON-NLS-1$
-			processImport(attributes);
-		} else if ("includes".equals(localName)) { //$NON-NLS-1$
-			processIncludes(attributes);
-		} else if ("install-handler".equals(localName)) { //$NON-NLS-1$
-			processInstallHandler(attributes);
-		} else if ("update".equals(localName)) { //$NON-NLS-1$
-			processUpdateSite(attributes);
-		} else if ("discovery".equals(localName)) { //$NON-NLS-1$
-			processDiscoverySite(attributes);
-		}
+	private void processCopyright(Attributes attributes) {
+		result.setCopyrightURL(attributes.getValue("url")); //$NON-NLS-1$
+		characters = new StringBuffer();
 	}
 
-	private void processImport(Attributes attributes) {
-		String id = attributes.getValue("feature"); //$NON-NLS-1$
-		FeatureEntry entry = null;
-		if (id != null) {
-			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		} else {
-			id = attributes.getValue("plugin"); //$NON-NLS-1$
-			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		}
-		result.addEntry(entry);
-	}
-
-	private void processIncludes(Attributes attributes) {
-		FeatureEntry entry = new FeatureEntry(attributes.getValue("id"), attributes.getValue("version"), false); //$NON-NLS-1$ //$NON-NLS-2$
-		String flag = attributes.getValue("unpack"); //$NON-NLS-1$
-		if (flag != null)
-			entry.setOptional(Boolean.valueOf(flag).booleanValue());
-		setEnvironment(attributes, entry);
-		result.addEntry(entry);
-	}
-
-	private void processInstallHandler(Attributes attributes) {
-		result.setInstallHandler(attributes.getValue("handler")); //$NON-NLS-1$
-		result.setInstallHandlerLibrary(attributes.getValue("library")); //$NON-NLS-1$
-		result.setInstallHandlerURL(attributes.getValue("url")); //$NON-NLS-1$
-	}
-
-	private void processUpdateSite(Attributes attributes) {
-		result.setUpdateSiteLabel(attributes.getValue("label")); //$NON-NLS-1$
-		result.setUpdateSiteURL(attributes.getValue("url")); //$NON-NLS-1$
+	private void processDescription(Attributes attributes) {
+		result.setDescriptionURL(attributes.getValue("url")); //$NON-NLS-1$
+		characters = new StringBuffer();
 	}
 
 	private void processDiscoverySite(Attributes attributes) {
 		result.addDiscoverySite(attributes.getValue("url"), attributes.getValue("label")); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	private void setEnvironment(Attributes attributes, FeatureEntry entry) {
-		String os = attributes.getValue("os"); //$NON-NLS-1$
-		String ws = attributes.getValue("ws"); //$NON-NLS-1$
-		String nl = attributes.getValue("nl"); //$NON-NLS-1$
-		String arch = attributes.getValue("arch"); //$NON-NLS-1$
-		entry.setEnvironment(os, ws, arch, nl);
-	}
-
-	protected Feature createFeature(String id, String version) {
-		return new Feature(id, version);
 	}
 
 	protected void processFeature(Attributes attributes) {
@@ -258,12 +230,36 @@ public class FeatureParser extends DefaultHandler {
 		}
 	}
 
-	private String localize(String value) {
-		if (messages == null || value == null)
-			return value;
-		if (!value.startsWith("%"))
-			return value;
-		return messages.getProperty(value.substring(1), value);
+	private void processImport(Attributes attributes) {
+		String id = attributes.getValue("feature"); //$NON-NLS-1$
+		FeatureEntry entry = null;
+		if (id != null) {
+			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		} else {
+			id = attributes.getValue("plugin"); //$NON-NLS-1$
+			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		result.addEntry(entry);
+	}
+
+	private void processIncludes(Attributes attributes) {
+		FeatureEntry entry = new FeatureEntry(attributes.getValue("id"), attributes.getValue("version"), false); //$NON-NLS-1$ //$NON-NLS-2$
+		String flag = attributes.getValue("unpack"); //$NON-NLS-1$
+		if (flag != null)
+			entry.setOptional(Boolean.valueOf(flag).booleanValue());
+		setEnvironment(attributes, entry);
+		result.addEntry(entry);
+	}
+
+	private void processInstallHandler(Attributes attributes) {
+		result.setInstallHandler(attributes.getValue("handler")); //$NON-NLS-1$
+		result.setInstallHandlerLibrary(attributes.getValue("library")); //$NON-NLS-1$
+		result.setInstallHandlerURL(attributes.getValue("url")); //$NON-NLS-1$
+	}
+
+	private void processLicense(Attributes attributes) {
+		result.setLicenseURL(attributes.getValue("url")); //$NON-NLS-1$
+		characters = new StringBuffer();
 	}
 
 	private void processPlugin(Attributes attributes) {
@@ -290,38 +286,42 @@ public class FeatureParser extends DefaultHandler {
 		}
 	}
 
-	private void processLicense(Attributes attributes) {
-		result.setLicenseURL(attributes.getValue("url")); //$NON-NLS-1$
-		characters = new StringBuffer();
+	private void processUpdateSite(Attributes attributes) {
+		result.setUpdateSiteLabel(attributes.getValue("label")); //$NON-NLS-1$
+		result.setUpdateSiteURL(attributes.getValue("url")); //$NON-NLS-1$
 	}
 
-	private void processCopyright(Attributes attributes) {
-		result.setCopyrightURL(attributes.getValue("url")); //$NON-NLS-1$
-		characters = new StringBuffer();
+	private void setEnvironment(Attributes attributes, FeatureEntry entry) {
+		String os = attributes.getValue("os"); //$NON-NLS-1$
+		String ws = attributes.getValue("ws"); //$NON-NLS-1$
+		String nl = attributes.getValue("nl"); //$NON-NLS-1$
+		String arch = attributes.getValue("arch"); //$NON-NLS-1$
+		entry.setEnvironment(os, ws, arch, nl);
 	}
 
-	private void processDescription(Attributes attributes) {
-		result.setDescriptionURL(attributes.getValue("url")); //$NON-NLS-1$
-		characters = new StringBuffer();
-	}
-
-	public void characters(char[] ch, int start, int length) throws SAXException {
-		if (characters == null)
-			return;
-		characters.append(ch, start, length);
-	}
-
-	public void endElement(String uri, String localName, String qName) throws SAXException {
-		if (characters == null)
-			return;
-		if ("description".equals(localName)) { //$NON-NLS-1$
-			result.setDescription(localize(characters.toString().trim()));
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		//		Utils.debug("Start Element: uri:" + uri + " local Name:" + localName + " qName:" + qName); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		if ("plugin".equals(localName)) { //$NON-NLS-1$
+			processPlugin(attributes);
+		} else if ("description".equals(localName)) { //$NON-NLS-1$
+			processDescription(attributes);
 		} else if ("license".equals(localName)) { //$NON-NLS-1$
-			result.setLicense(localize(characters.toString().trim()));
+			processLicense(attributes);
 		} else if ("copyright".equals(localName)) { //$NON-NLS-1$
-			result.setCopyright(localize(characters.toString().trim()));
+			processCopyright(attributes);
+		} else if ("feature".equals(localName)) { //$NON-NLS-1$
+			processFeature(attributes);
+		} else if ("import".equals(localName)) { //$NON-NLS-1$
+			processImport(attributes);
+		} else if ("includes".equals(localName)) { //$NON-NLS-1$
+			processIncludes(attributes);
+		} else if ("install-handler".equals(localName)) { //$NON-NLS-1$
+			processInstallHandler(attributes);
+		} else if ("update".equals(localName)) { //$NON-NLS-1$
+			processUpdateSite(attributes);
+		} else if ("discovery".equals(localName)) { //$NON-NLS-1$
+			processDiscoverySite(attributes);
 		}
-		characters = null;
 	}
 
 }

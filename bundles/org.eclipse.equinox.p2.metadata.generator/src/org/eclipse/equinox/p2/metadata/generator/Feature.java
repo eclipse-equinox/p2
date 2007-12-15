@@ -41,6 +41,8 @@ public class Feature {
 	private String arch;
 	private String nl;
 
+	private String location;
+
 	public Feature(String id, String version) {
 		if (id == null)
 			throw new IllegalArgumentException();
@@ -139,6 +141,10 @@ public class Feature {
 		return null;
 	}
 
+	public String getLocation() {
+		return this.location;
+	}
+
 	public String getNL() {
 		return nl;
 	}
@@ -232,6 +238,10 @@ public class Feature {
 		if (this.license == null)
 			this.license = new URLEntry();
 		this.license.setURL(licenseURL);
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
 	}
 
 	public void setProviderName(String value) {

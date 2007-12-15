@@ -70,6 +70,11 @@ public class Profile implements IQueryable {
 	 */
 	public static final String PROP_CACHE = "eclipse.p2.cache"; //$NON-NLS-1$
 
+	/**
+	 * Profile property constant indicating the bundle pool cache location.
+	 */
+	public static final String PROP_INSTALL_FEATURES = "eclipse.p2.install.features"; //$NON-NLS-1$
+
 	//Internal id of the profile
 	private String profileId;
 
@@ -113,6 +118,7 @@ public class Profile implements IQueryable {
 			storage.putAll(properties);
 
 		populateIUs();
+		checkUpdateCompatibility();
 	}
 
 	private void populateIUs() {
@@ -132,6 +138,20 @@ public class Profile implements IQueryable {
 			IInstallableUnit iu = ius[i];
 			OrderedProperties properties = profileInstallRegistry.getInstallableUnitProfileProperties(iu);
 			iuProperties.put(iu, new OrderedProperties(properties));
+		}
+	}
+
+	/*
+	 * 	TODO: Temporary for determining whether eclipse installs
+	 * 		  in this profile should support backward compatibility
+	 * 		  with update manager.
+	 */
+	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
+
+	private void checkUpdateCompatibility() {
+		if (getValue(PROP_INSTALL_FEATURES) == null) {
+			String updateCompatible = System.getProperty(UPDATE_COMPATIBILITY, "false"); //$NON-NLS-1$
+			this.setValue(PROP_INSTALL_FEATURES, updateCompatible);
 		}
 	}
 

@@ -428,10 +428,14 @@ public class NewDependencyExpander {
 		ArrayList reallyUnsatisfied = new ArrayList(unresolved.length);
 		for (int i = 0; i < unresolved.length; i++) {
 			List all = (List) must.get(new MatchKey(unresolved[i].getRequiredCapability()));
-			for (Iterator iterator = all.iterator(); iterator.hasNext();) {
-				Match m = (Match) iterator.next();
-				if (requirementEnabled(m.req) && !oneResolved(m.candidates))
-					reallyUnsatisfied.add(unresolved[i]);
+			if (all != null) {
+				for (Iterator iterator = all.iterator(); iterator.hasNext();) {
+					Match m = (Match) iterator.next();
+					if (requirementEnabled(m.req) && !oneResolved(m.candidates))
+						reallyUnsatisfied.add(unresolved[i]);
+				}
+			} else {
+				must.get(new MatchKey(unresolved[i].getRequiredCapability()));
 			}
 		}
 		return (UnsatisfiedCapability[]) reallyUnsatisfied.toArray(new UnsatisfiedCapability[reallyUnsatisfied.size()]);

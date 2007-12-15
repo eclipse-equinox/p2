@@ -32,16 +32,6 @@ public class Generator {
 
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
-	private final IGeneratorInfo info;
-
-	/**
-	 * Short term fix to ensure IUs that have no corresponding category are not lost.
-	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
-	 */
-	protected final Set rootCategory = new HashSet();
-
-	private StateObjectFactory stateObjectFactory;
-
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
 	 * specified.
@@ -58,6 +48,16 @@ public class Generator {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
+	private final IGeneratorInfo info;
+
+	/**
+	 * Short term fix to ensure IUs that have no corresponding category are not lost.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 */
+	protected final Set rootCategory = new HashSet();
+
+	private StateObjectFactory stateObjectFactory;
+
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
 		// TODO need to figure a better way of configuring the generator...
@@ -65,6 +65,14 @@ public class Generator {
 		if (platformAdmin != null) {
 			stateObjectFactory = platformAdmin.getFactory();
 		}
+	}
+
+	private boolean checkOptionalRootDependency(IInstallableUnit iu) {
+		// TODO: This is a kludge to make the default configuration unit
+		//		 for features be optional in the root. Since there is a global
+		//		 filter to prevent features from being installed, the fragment
+		//		 needs to be optional.
+		return (iu.getId().indexOf(".feature.default") > 0 ? true : false);
 	}
 
 	protected IInstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
@@ -79,7 +87,8 @@ public class Generator {
 		for (Iterator iterator = resultantIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), range, iu.getFilter(), false, false));
+			boolean isOptional = checkOptionalRootDependency(iu);
+			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), range, iu.getFilter(), isOptional, false));
 		}
 		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
 		root.setApplicabilityFilter(""); //$NON-NLS-1$
@@ -143,7 +152,7 @@ public class Generator {
 		Set ius = new HashSet();
 
 		Feature[] features = getFeatures(info.getFeaturesLocation());
-		generateFeatureIUs(features, ius);
+		generateFeatureIUs(features, ius, info.getArtifactRepository());
 
 		BundleDescription[] bundles = getBundleDescriptions(info.getBundleLocations());
 		generateBundleIUs(bundles, ius, info.getArtifactRepository());
@@ -174,13 +183,13 @@ public class Generator {
 			if (bd != null) {
 				String format = (String) ((Dictionary) bd.getUserObject()).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
 				boolean isDir = format.equals(BundleDescriptionFactory.DIR) ? true : false;
-				IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
+				IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
 				if (isDir)
 					publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
 				else
 					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
-				IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bd, (Map) bd.getUserObject(), isDir, key);
+				IInstallableUnit iu = MetadataGeneratorHelper.createBundleIU(bd, (Map) bd.getUserObject(), isDir, key);
 				resultantIUs.add(iu);
 			}
 		}
@@ -207,13 +216,15 @@ public class Generator {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);"); //$NON-NLS-1$
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
 			}
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
 			}
-			IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), null);
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), null);
 			if (cu != null)
 				resultantIUs.add(cu);
 		}
@@ -225,7 +236,7 @@ public class Generator {
 				if (configuredIU != null)
 					bundle.setVersion(configuredIU.getVersion().toString());
 				String filter = configuredIU == null ? null : configuredIU.getFilter();
-				IInstallableUnit cu = MetadataGeneratorHelper.createEclipseConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
+				IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
 				//the configuration unit should share the same platform filter as the IU being configured.
 				if (cu != null)
 					resultantIUs.add(cu);
@@ -263,12 +274,13 @@ public class Generator {
 
 	private void generateDefaultConfigIU(Set ius) {
 		//		TODO this is a bit of a hack.  We need to have the default IU fragment generated with code that configures
-		//		and unconfigures.  the Generator should be decoupled from any particular provider but it is not clear
-		//		 that we should add the create* methods to IGeneratorInfo...
+		//		and unconfigures.  The Generator should be decoupled from any particular provider but it is not clear
+		//		that we should add the create* methods to IGeneratorInfo...
 		//		MockBundleDescription bd1 = new MockBundleDescription("defaultConfigure");
 		//		MockBundleDescription bd2 = new MockBundleDescription("defaultUnconfigure");
 		EclipseInstallGeneratorInfoProvider provider = (EclipseInstallGeneratorInfoProvider) info;
-		ius.add(MetadataGeneratorHelper.createEclipseDefaultConfigurationUnit(provider.createDefaultConfigurationBundleInfo(), provider.createDefaultUnconfigurationBundleInfo(), info.getFlavor()));
+		ius.add(MetadataGeneratorHelper.createDefaultBundleConfigurationUnit(provider.createDefaultConfigurationBundleInfo(), provider.createDefaultUnconfigurationBundleInfo(), info.getFlavor()));
+		ius.add(MetadataGeneratorHelper.createDefaultFeatureConfigurationUnit(info.getFlavor()));
 	}
 
 	/**
@@ -372,14 +384,26 @@ public class Generator {
 		publishArtifact(descriptor, root.listFiles(), destination, false);
 	}
 
-	protected void generateFeatureIUs(Feature[] features, Set resultantIUs) {
+	protected void generateFeatureIUs(Feature[] features, Set resultantIUs, IArtifactRepository destination) {
 		Map categoriesToFeatureIUs = new HashMap();
 		Map featuresToCategories = getFeatureToCategoryMappings();
 		//Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
-			IInstallableUnit generated = MetadataGeneratorHelper.createGroupIU(feature);
+			String location = feature.getLocation();
+			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
+			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureIU(feature, isExploded);
+			IArtifactKey[] artifacts = featureIU.getArtifacts();
+			for (int arti = 0; arti < artifacts.length; arti++) {
+				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
+				if (isExploded)
+					publishArtifact(ad, new File(location).listFiles(), destination, false);
+				else
+					publishArtifact(ad, new File[] {new File(location)}, destination, true);
+			}
+			IInstallableUnit generated = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
 			resultantIUs.add(generated);
+			resultantIUs.add(featureIU);
 			Set categories = getCategories(feature, featuresToCategories);
 			if (categories != null) {
 				for (Iterator it = categories.iterator(); it.hasNext();) {
@@ -485,8 +509,10 @@ public class Generator {
 		ArrayList result = new ArrayList(locations.length);
 		for (int i = 0; i < locations.length; i++) {
 			Feature feature = new FeatureParser().parse(locations[i]);
-			if (feature != null)
+			if (feature != null) {
+				feature.setLocation(locations[i].getAbsolutePath());
 				result.add(feature);
+			}
 		}
 		return (Feature[]) result.toArray(new Feature[result.size()]);
 	}
@@ -567,7 +593,7 @@ public class Generator {
 
 	// Put the artifact on the server
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs) {
-		if (descriptor == null)
+		if (descriptor == null || destination == null)
 			return;
 		if (!info.publishArtifacts()) {
 			destination.addDescriptor(descriptor);

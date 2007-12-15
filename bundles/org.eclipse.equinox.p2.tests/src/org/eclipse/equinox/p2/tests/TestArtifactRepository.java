@@ -10,8 +10,7 @@ package org.eclipse.equinox.p2.tests;
 
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
@@ -42,6 +41,11 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	 * Map of String (location) -> byte[] (contents)
 	 */
 	Map locationsToContents = new HashMap();
+
+	/**
+	 * 	Set of artifact descriptors
+	 */
+	Set artifactDescriptors = new HashSet();
 
 	Transport testhandler = new Transport() {
 		public IStatus download(String toDownload, OutputStream target, IProgressMonitor pm) {
@@ -81,7 +85,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	}
 
 	public IArtifactKey[] getArtifactKeys() {
-		return (IArtifactKey[]) keysToLocations.keySet().toArray(new IArtifactKey[0]);
+		return (IArtifactKey[]) keysToLocations.keySet().toArray(new IArtifactKey[keysToLocations.keySet().size()]);
 	}
 
 	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
@@ -126,5 +130,39 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 		if (!contains(key))
 			return null;
 		return new IArtifactDescriptor[] {new ArtifactDescriptor(key)};
+	}
+
+	public void addDescriptor(IArtifactDescriptor descriptor) {
+		((ArtifactDescriptor) descriptor).setRepository(this);
+		artifactDescriptors.add(descriptor);
+		keysToLocations.put(descriptor.getArtifactKey(), null);
+	}
+
+	public void removeDescriptor(IArtifactDescriptor descriptor) {
+		removeDescriptor(descriptor.getArtifactKey());
+	}
+
+	public void removeDescriptor(IArtifactKey key) {
+		for (Iterator iter = artifactDescriptors.iterator(); iter.hasNext();) {
+			IArtifactDescriptor nextDescriptor = (IArtifactDescriptor) iter.next();
+			if (key.equals(nextDescriptor.getArtifactKey())) {
+				artifactDescriptors.remove(nextDescriptor);
+			}
+		}
+		if (keysToLocations.containsKey(key)) {
+			String theLocation = (String) keysToLocations.get(key);
+			locationsToContents.remove(theLocation);
+			keysToLocations.remove(key);
+		}
+	}
+
+	public void removeAll() {
+		artifactDescriptors.clear();
+		keysToLocations.clear();
+		locationsToContents.clear();
+	}
+
+	public boolean isModifiable() {
+		return true;
 	}
 }

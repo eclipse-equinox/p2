@@ -10,6 +10,8 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
@@ -20,25 +22,33 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
 
 public class EclipseTouchpoint extends Touchpoint {
-	private static final String ARTIFACT_FOLDER = "artifact.folder";
+
 	private static final TouchpointType TOUCHPOINT_TYPE = new TouchpointType("eclipse", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
+
+	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ACTION_ADD_JVM_ARG = "addJvmArg"; //$NON-NLS-1$
 	private static final String ACTION_ADD_PROGRAM_ARG = "addProgramArg"; //$NON-NLS-1$
 	private static final String ACTION_COLLECT = "collect"; //$NON-NLS-1$
 	private static final String ACTION_INSTALL_BUNDLE = "installBundle"; //$NON-NLS-1$
+	private static final String ACTION_INSTALL_FEATURE = "installFeature"; //$NON-NLS-1$
 	private static final String ACTION_MARK_STARTED = "markStarted"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_JVM_ARG = "removeJvmArg"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_PROGRAM_ARG = "removeProgramArg"; //$NON-NLS-1$
 	private static final String ACTION_SET_FW_DEPENDENT_PROP = "setFwDependentProp"; //$NON-NLS-1$
 	private static final String ACTION_SET_FW_INDEPENDENT_PROP = "setFwIndependentProp"; //$NON-NLS-1$
 	private static final String ACTION_UNINSTALL_BUNDLE = "uninstallBundle"; //$NON-NLS-1$
+	private static final String ACTION_UNINSTALL_FEATURE = "uninstallFeature"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	private static final String PARM_BUNDLE = "bundle"; //$NON-NLS-1$
+	private static final String PARM_FEATURE = "feature"; //$NON-NLS-1$
+	private static final String PARM_FEATURE_ID = "featureId"; //$NON-NLS-1$
+	private static final String PARM_FEATURE_VERSION = "featureVersion"; //$NON-NLS-1$
 	private static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
 	private static final String PARM_IU = "iu"; //$NON-NLS-1$
 	private static final String PARM_JVM_ARG = "jvmArg"; //$NON-NLS-1$
 	private static final String PARM_MANIPULATOR = "manipulator"; //$NON-NLS-1$
+	private static final String PARM_PLATFORM_CONFIGURATION = "platformConfiguration"; //$NON-NLS-1$
 	private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	private static final String PARM_PREVIOUS_START_LEVEL = "previousStartLevel"; //$NON-NLS-1$
 	private static final String PARM_PREVIOUS_STARTED = "previousStarted"; //$NON-NLS-1$
@@ -50,6 +60,14 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String PARM_SET_START_LEVEL = "setStartLevel"; //$NON-NLS-1$
 	private static final String PARM_START_LEVEL = "startLevel"; //$NON-NLS-1$
 	private static final String PARM_STARTED = "started"; //$NON-NLS-1$
+	private static final String PARM_DEFAULT_VALUE = "default"; //$NON-NLS-1$
+
+	// TODO: phase id constants should be defined elsewhere.
+	private static final String INSTALL_PHASE_ID = "install"; //$NON-NLS-1$
+	private static final String UNINSTALL_PHASE_ID = "uninstall"; //$NON-NLS-1$
+
+	// private static final String CONFIGURE_PHASE_ID = "configure"; //$NON-NLS-1$
+	// private static final String UNCONFIGURE_PHASE_ID = "unconfigure"; //$NON-NLS-1$
 
 	protected static IStatus createError(String message) {
 		return createError(message, null);
@@ -92,6 +110,16 @@ public class EclipseTouchpoint extends Touchpoint {
 		return descriptorProperties;
 	}
 
+	boolean isZipped(TouchpointData[] data) {
+		if (data == null || data.length == 0)
+			return false;
+		for (int i = 0; i < data.length; i++) {
+			if (data[i].getInstructions("zipped") != null) //$NON-NLS-1$
+				return true;
+		}
+		return false;
+	}
+
 	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
 		Manipulator manipulator = (Manipulator) touchpointParameters.get(PARM_MANIPULATOR);
 		try {
@@ -101,10 +129,54 @@ public class EclipseTouchpoint extends Touchpoint {
 		} catch (IOException e) {
 			return createError("Error saving manipulator", e);
 		}
+
+		if (INSTALL_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
+			PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) touchpointParameters.get(PARM_PLATFORM_CONFIGURATION);
+			try {
+				URL configURL = getConfigurationURL(profile);
+				configuration.save(configURL);
+			} catch (CoreException ce) {
+				return createError("Error constructing platform configuration url.", ce);
+			} catch (IOException ie) {
+				return createError("Error saving platform configuration.", ie);
+			}
+		}
 		return null;
 	}
 
+	private URL getConfigurationURL(Profile profile) throws CoreException {
+		File configDir = Util.getConfigurationFolder(profile);
+		URL configURL = null;
+		try {
+			configURL = configDir.toURI().toURL();
+		} catch (IllegalArgumentException iae) {
+			throw new CoreException(createError("Configuration directory is not absolute.", iae));
+		} catch (MalformedURLException mue) {
+			throw new CoreException(createError("No URL protocol handler.", mue));
+		}
+		return configURL;
+	}
+
 	public ProvisioningAction getAction(String actionId) {
+		if (actionId.equals(ACTION_COLLECT)) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					Operand operand = (Operand) parameters.get(PARM_OPERAND);
+					IArtifactRequest[] requests = collect(operand.second(), profile);
+
+					Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_REQUESTS);
+					artifactRequests.add(requests);
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					// nothing to do for now
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
 		if (actionId.equals(ACTION_INSTALL_BUNDLE)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
@@ -129,21 +201,26 @@ public class EclipseTouchpoint extends Touchpoint {
 			};
 		}
 
-		if (actionId.equals(ACTION_COLLECT)) {
+		if (actionId.equals(ACTION_INSTALL_FEATURE)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					Profile profile = (Profile) parameters.get(PARM_PROFILE);
-					Operand operand = (Operand) parameters.get(PARM_OPERAND);
-					IArtifactRequest[] requests = collect(operand.second(), profile);
-
-					Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_REQUESTS);
-					artifactRequests.add(requests);
-					return Status.OK_STATUS;
+					return installFeature(parameters);
 				}
 
 				public IStatus undo(Map parameters) {
-					// nothing to do for now
-					return Status.OK_STATUS;
+					return uninstallFeature(parameters);
+				}
+			};
+		}
+
+		if (actionId.equals(ACTION_UNINSTALL_FEATURE)) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					return uninstallFeature(parameters);
+				}
+
+				public IStatus undo(Map parameters) {
+					return installFeature(parameters);
 				}
 			};
 		}
@@ -220,7 +297,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						IArtifactKey artifactKey = artifacts[0];
 
-						File fileLocation = Util.getBundleFile(artifactKey, profile);
+						File fileLocation = Util.getBundleFile(artifactKey, profile);;
 						if (fileLocation == null || !fileLocation.exists())
 							return createError("The artifact for " + artifactKey + " is not available");
 						programArg = fileLocation.getAbsolutePath();
@@ -456,8 +533,16 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
-		touchpointParameters.put(PARM_MANIPULATOR, new LazyManipulator(profile));
 		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
+		touchpointParameters.put(PARM_MANIPULATOR, new LazyManipulator(profile));
+		try {
+			URL configURL = getConfigurationURL(profile);
+			URL poolURL = Util.getBundlePoolLocation(profile);
+			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configURL, poolURL));
+		} catch (CoreException ce) {
+			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(null, null));
+			return createError("Error constructing platform configuration url.", ce);
+		}
 		return null;
 	}
 
@@ -505,16 +590,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	boolean isZipped(TouchpointData[] data) {
-		if (data == null || data.length == 0)
-			return false;
-		for (int i = 0; i < data.length; i++) {
-			if (data[i].getInstructions("zipped") != null) //$NON-NLS-1$
-				return true;
-		}
-		return false;
-	}
-
 	protected IStatus uninstallBundle(Map parameters) {
 		Profile profile = (Profile) parameters.get(PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
@@ -553,5 +628,66 @@ public class EclipseTouchpoint extends Touchpoint {
 		manipulator.getConfigData().removeBundle(bundleInfo);
 
 		return Status.OK_STATUS;
+	}
+
+	IStatus installFeature(Map parameters) {
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters.get(PARM_PLATFORM_CONFIGURATION);
+		String feature = (String) parameters.get(PARM_FEATURE);
+		String featureId = (String) parameters.get(PARM_FEATURE_ID);
+		String featureVersion = (String) parameters.get(PARM_FEATURE_VERSION);
+
+		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			return createError("Installable unit for eclipse feature contains no artifacts");
+
+		IArtifactKey artifactKey = null;
+		for (int i = 0; i < artifacts.length; i++) {
+			if (artifacts[i].toString().equals(feature)) {
+				artifactKey = artifacts[i];
+				break;
+			}
+		}
+
+		if (featureId == null)
+			return createError("The \"featureId\" parameter is missing from the \"install feature\" action"); //$NON-NLS-1$
+		else if (PARM_DEFAULT_VALUE.equals(featureId)) {
+			featureId = artifactKey.getId();
+		}
+
+		if (featureVersion == null)
+			return createError("The \"featureVersion\" parameter is missing from the \"install feature\" action"); //$NON-NLS-1$
+		else if (PARM_DEFAULT_VALUE.equals(featureVersion)) {
+			featureVersion = artifactKey.getVersion().toString();
+		}
+
+		return configuration.addFeatureEntry(featureId, featureVersion, artifactKey.getId(), artifactKey.getVersion().toString(), /*primary*/false, /*application*/null, /*root*/null);
+	}
+
+	protected IStatus uninstallFeature(Map parameters) {
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters.get(PARM_PLATFORM_CONFIGURATION);
+		String feature = (String) parameters.get(PARM_FEATURE);
+		String featureId = (String) parameters.get(PARM_FEATURE_ID);
+
+		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			return createError("Installable unit for eclipse feature contains no artifacts");
+
+		IArtifactKey artifactKey = null;
+		for (int i = 0; i < artifacts.length; i++) {
+			if (artifacts[i].toString().equals(feature)) {
+				artifactKey = artifacts[i];
+				break;
+			}
+		}
+
+		if (featureId == null)
+			return createError("The \"featureId\" parameter is missing from the \"uninstall feature\" action"); //$NON-NLS-1$
+		else if (PARM_DEFAULT_VALUE.equals(featureId)) {
+			featureId = artifactKey.getId();
+		}
+
+		return configuration.removeFeatureEntry(featureId);
 	}
 }

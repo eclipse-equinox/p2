@@ -37,8 +37,11 @@ public class MetadataGeneratorHelper {
 
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.5"); //$NON-NLS-1$
 
-	private static final String ECLIPSE_ARTIFACT_CLASSIFIER = "plugin"; //$NON-NLS-1$
 	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
+	private static final String ECLIPSE_FEATURE_CLASSIFIER = "feature"; //$NON-NLS-1$
+	private static final String ECLIPSE_BUNDLE_CLASSIFIER = "plugin"; //$NON-NLS-1$
+
+	private static final String INSTALL_FEATURES_FILTER = "(eclipse.p2.install.features=true)"; //$NON-NLS-1$
 
 	private static final String ECLIPSE_EXTENSIBLE_API = "Eclipse-ExtensibleAPI"; //$NON-NLS-1$
 
@@ -54,9 +57,11 @@ public class MetadataGeneratorHelper {
 	public static final TouchpointType TOUCHPOINT_NATIVE = new TouchpointType("native", new Version(1, 0, 0)); //$NON-NLS-1$
 	public static final TouchpointType TOUCHPOINT_ECLIPSE = new TouchpointType("eclipse", new Version(1, 0, 0)); //$NON-NLS-1$
 
+	public static final ProvidedCapability BUNDLE_CAPABILITY = new ProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0));
+	public static final ProvidedCapability FEATURE_CAPABILITY = new ProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, new Version(1, 0, 0));
 	public static final ProvidedCapability FRAGMENT_CAPABILITY = IInstallableUnitFragment.FRAGMENT_CAPABILITY;
 
-	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recurse) {
+	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recur) {
 		//TODO this size calculation is bogus
 		ArtifactDescriptor result = new ArtifactDescriptor(key);
 		if (pathOnDisk != null) {
@@ -65,6 +70,123 @@ public class MetadataGeneratorHelper {
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 		}
 		return result;
+	}
+
+	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
+		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_BUNDLE_CLASSIFIER, bsn, new Version(version));
+	}
+
+	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
+		if (configInfo == null)
+			return null;
+
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String configUnitId = configurationFlavor + iuId;
+		cu.setId(configUnitId);
+		cu.setVersion(iuVersion);
+
+		//Indicate the IU to which this CU apply
+		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
+
+		//Adds capabilities for fragment, self, and describing the flavor supported
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, iuVersion), new ProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
+
+		Map touchpointData = new HashMap();
+		touchpointData.put("install", "installBundle(bundle:${artifact})");
+		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
+		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment));
+		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment));
+		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.setFilter(filter);
+		return MetadataFactory.createInstallableUnit(cu);
+	}
+
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setSingleton(bd.isSingleton());
+		iu.setId(bd.getSymbolicName());
+		iu.setVersion(bd.getVersion());
+		iu.setFilter(bd.getPlatformFilter());
+		iu.setProperty(IInstallableUnit.PROP_UPDATE_FROM, bd.getSymbolicName());
+		iu.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
+
+		boolean isFragment = bd.getHost() != null;
+		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
+
+		//Process the required bundles
+		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
+		ArrayList reqsDeps = new ArrayList();
+		if (requiresAFragment)
+			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
+		if (isFragment)
+			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getHost().getName(), bd.getHost().getVersionRange(), null, false, false));
+		for (int j = 0; j < requiredBundles.length; j++)
+			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), null, requiredBundles[j].isOptional(), false));
+
+		//Process the import package
+		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
+		for (int i = 0; i < osgiImports.length; i++) {
+			// TODO we need to sort out how we want to handle wild-carded dynamic imports - for now we ignore them
+			ImportPackageSpecification importSpec = osgiImports[i];
+			String importPackageName = importSpec.getName();
+			if (importPackageName.indexOf('*') != -1)
+				continue;
+
+			VersionRange versionRange = importSpec.getVersionRange() == VersionRange.emptyRange ? null : importSpec.getVersionRange();
+
+			//TODO this needs to be refined to take into account all the attribute handled by imports
+			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_PACKAGES, importPackageName, versionRange, null, isOptional(importSpec), false));
+		}
+		iu.setRequiredCapabilities((RequiredCapability[]) reqsDeps.toArray(new RequiredCapability[reqsDeps.size()]));
+
+		// Create Set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+
+		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
+		providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
+
+		//Process the export package
+		ExportPackageDescription exports[] = bd.getExportPackages();
+		for (int i = 0; i < exports.length; i++) {
+			//TODO make sure that we support all the refinement on the exports
+			providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
+		}
+		// Here we add a bundle capability to identify bundles
+		providedCapabilities.add(BUNDLE_CAPABILITY);
+		if (isFragment)
+			providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getHost().getName(), bd.getVersion()));
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+		iu.setApplicabilityFilter("");
+
+		iu.setArtifacts(new IArtifactKey[] {key});
+
+		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
+
+		// Set IU properties from the manifest header attributes
+		// TODO The values of the attributes may be localized. Metadata generation
+		//      should construct property files for the IU based on the bundle/plug-in
+		//		property files in whatever locales are provided.
+		if (manifest != null) {
+			int i = 0;
+			while (i < BUNDLE_IU_PROPERTY_MAP.length) {
+				if (manifest.containsKey(BUNDLE_IU_PROPERTY_MAP[i])) {
+					String value = (String) manifest.get(BUNDLE_IU_PROPERTY_MAP[i]);
+					if (value != null) {
+						iu.setProperty(BUNDLE_IU_PROPERTY_MAP[i + 1], value);
+					}
+				}
+				i += 2;
+			}
+		}
+
+		// Define the immutable metadata for this IU. In this case immutable means
+		// that this is something that will not impact the configuration.
+		Map touchpointData = new HashMap();
+		if (isFolderPlugin)
+			touchpointData.put("zipped", "true");
+		touchpointData.put("manifest", toManifestString(manifest));
+		iu.addTouchpointData(new TouchpointData(touchpointData));
+		return MetadataFactory.createInstallableUnit(iu);
 	}
 
 	/**
@@ -119,157 +241,67 @@ public class MetadataGeneratorHelper {
 		return configScript;
 	}
 
-	private static String createDefaultConfigScript(GeneratorBundleInfo configInfo) {
+	private static String createDefaultBundleConfigScript(GeneratorBundleInfo configInfo) {
 		return createConfigScript(configInfo, false);
 	}
 
-	private static String createDefaultUnconfigScript(GeneratorBundleInfo unconfigInfo) {
-		return createUnconfigScript(unconfigInfo, false);
-	}
-
-	public static IArtifactKey createEclipseArtifactKey(String bsn, String version) {
-		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_ARTIFACT_CLASSIFIER, bsn, new Version(version));
-	}
-
-	public static IInstallableUnit createEclipseConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
-		if (configInfo == null)
-			return null;
-
+	public static IInstallableUnit createDefaultBundleConfigurationUnit(GeneratorBundleInfo configInfo, GeneratorBundleInfo unconfigInfo, String configurationFlavor) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configUnitId = configurationFlavor + iuId;
-		cu.setId(configUnitId);
-		cu.setVersion(iuVersion);
-
-		//Indicate the IU to which this CU apply
-		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
-
-		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, iuVersion), new ProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
-
-		Map touchpointData = new HashMap();
-		touchpointData.put("install", "installBundle(bundle:${artifact})");
-		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
-		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment));
-		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment));
-		cu.addTouchpointData(new TouchpointData(touchpointData));
-		cu.setFilter(filter);
-		return MetadataFactory.createInstallableUnit(cu);
-	}
-
-	public static IInstallableUnit createEclipseDefaultConfigurationUnit(GeneratorBundleInfo configInfo, GeneratorBundleInfo unconfigInfo, String configurationFlavor) {
-		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configUnitId = configurationFlavor + "default"; //$NON-NLS-1$
+		String configUnitId = createDefaultConfigUnitId(ECLIPSE_BUNDLE_CLASSIFIER, configurationFlavor);
 		cu.setId(configUnitId);
 		Version configUnitVersion = new Version(1, 0, 0);
 		cu.setVersion(configUnitVersion);
 
-		//Adds capabilities for fragment, self, and describing the flavor supported
+		// Add capabilities for fragment, self, and describing the flavor supported
 		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), new ProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
-		//Create a capability on bundles
+		// Create a required capability on bundles
 		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
 		cu.setRequiredCapabilities(reqs);
 		Map touchpointData = new HashMap();
 
-		touchpointData.put("install", "installBundle(bundle:${artifact})");
-		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
-		touchpointData.put("configure", createDefaultConfigScript(configInfo));
-		touchpointData.put("unconfigure", createDefaultUnconfigScript(unconfigInfo));
+		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
+		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
+		touchpointData.put("configure", createDefaultBundleConfigScript(configInfo)); //$NON-NLS-1$
+		touchpointData.put("unconfigure", createDefaultBundleUnconfigScript(unconfigInfo)); //$NON-NLS-1$
 
 		cu.addTouchpointData(new TouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	public static IInstallableUnit createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
-		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		iu.setSingleton(bd.isSingleton());
-		iu.setId(bd.getSymbolicName());
-		iu.setVersion(bd.getVersion());
-		iu.setFilter(bd.getPlatformFilter());
-		iu.setProperty(IInstallableUnit.PROP_UPDATE_FROM, bd.getSymbolicName());
-		iu.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
+	private static String createDefaultBundleUnconfigScript(GeneratorBundleInfo unconfigInfo) {
+		return createUnconfigScript(unconfigInfo, false);
+	}
 
-		boolean isFragment = bd.getHost() != null;
-		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
+	private static String createDefaultConfigUnitId(String classifier, String configurationFlavor) {
+		return configurationFlavor + "." + classifier + ".default"; //$NON-NLS-1$ //$NON-NLS-2$
+	}
 
-		//Process the required bundles
-		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
-		ArrayList reqsDeps = new ArrayList();
-		if (requiresAFragment)
-			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
-		if (isFragment)
-			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getHost().getName(), bd.getHost().getVersionRange(), null, false, false));
-		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), null, requiredBundles[j].isOptional(), false));
+	public static IInstallableUnit createDefaultFeatureConfigurationUnit(String configurationFlavor) {
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String configUnitId = createDefaultConfigUnitId(ECLIPSE_FEATURE_CLASSIFIER, configurationFlavor);
+		cu.setId(configUnitId);
+		Version configUnitVersion = new Version(1, 0, 0);
+		cu.setVersion(configUnitVersion);
 
-		//Process the import package
-		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
-		for (int i = 0; i < osgiImports.length; i++) {
-			// TODO we need to sort out how we want to handle wild-carded dynamic imports - for now we ignore them
-			ImportPackageSpecification importSpec = osgiImports[i];
-			String importPackageName = importSpec.getName();
-			if (importPackageName.indexOf('*') != -1)
-				continue;
+		// Add capabilities for fragment, self, and describing the flavor supported
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), new ProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
-			VersionRange versionRange = importSpec.getVersionRange() == VersionRange.emptyRange ? null : importSpec.getVersionRange();
+		// Create a required capability on features
+		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, VersionRange.emptyRange, null, false, true)};
+		cu.setRequiredCapabilities(reqs);
 
-			//TODO this needs to be refined to take into account all the attribute handled by imports
-			reqsDeps.add(new RequiredCapability(CAPABILITY_TYPE_OSGI_PACKAGES, importPackageName, versionRange, null, isOptional(importSpec), false));
-		}
-		iu.setRequiredCapabilities((RequiredCapability[]) reqsDeps.toArray(new RequiredCapability[reqsDeps.size()]));
-
-		// Create Set of provided capabilities
-		ArrayList providedCapabilities = new ArrayList();
-
-		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
-		providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
-
-		//Process the export package
-		ExportPackageDescription exports[] = bd.getExportPackages();
-		for (int i = 0; i < exports.length; i++) {
-			//TODO make sure that we support all the refinement on the exports
-			providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
-		}
-		//Here we add a bundle capability to identify bundles
-		providedCapabilities.add(new ProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0)));
-		if (isFragment)
-			providedCapabilities.add(new ProvidedCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getHost().getName(), bd.getVersion()));
-		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
-		iu.setApplicabilityFilter("");
-
-		iu.setArtifacts(new IArtifactKey[] {key});
-
-		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
-
-		// Set IU properties from the manifest header attributes
-		// TODO The values of the attributes may be localized. Metadata generation
-		//      should construct property files for the IU based on the bundle/plug-in
-		//		property files in whatever locales are provided.
-		if (manifest != null) {
-			int i = 0;
-			while (i < BUNDLE_IU_PROPERTY_MAP.length) {
-				if (manifest.containsKey(BUNDLE_IU_PROPERTY_MAP[i])) {
-					String value = (String) manifest.get(BUNDLE_IU_PROPERTY_MAP[i]);
-					if (value != null) {
-						iu.setProperty(BUNDLE_IU_PROPERTY_MAP[i + 1], value);
-					}
-				}
-				i += 2;
-			}
-		}
-
-		//Define the immutable metadata for this IU. In this case immutable means that this is something that will not impact the configuration
 		Map touchpointData = new HashMap();
-		if (isFolderPlugin)
-			touchpointData.put("zipped", "true");
-		touchpointData.put("manifest", toManifestString(manifest));
-		iu.addTouchpointData(new TouchpointData(touchpointData));
-		return MetadataFactory.createInstallableUnit(iu);
+		touchpointData.put("install", "installFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
+		touchpointData.put("uninstall", "uninstallFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
+		cu.addTouchpointData(new TouchpointData(touchpointData));
+
+		return MetadataFactory.createInstallableUnit(cu);
 	}
 
 	// TODO: TEMPORARY - We should figure out if we want to expose something like InstallableUnitDescription
 	public static IInstallableUnit createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
-		InstallableUnit iu = (InstallableUnit) createEclipseIU(bd, manifest, isFolderPlugin, key);
+		InstallableUnit iu = (InstallableUnit) createBundleIU(bd, manifest, isFolderPlugin, key);
 
 		Enumeration e = extraProperties.propertyNames();
 		while (e.hasMoreElements()) {
@@ -279,9 +311,41 @@ public class MetadataGeneratorHelper {
 		return iu;
 	}
 
-	public static IInstallableUnit createGroupIU(Feature feature) {
+	public static IArtifactKey createFeatureArtifactKey(String fsn, String version) {
+		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_FEATURE_CLASSIFIER, fsn, new Version(version));
+	}
+
+	public static IInstallableUnit createFeatureIU(Feature feature, boolean isExploded) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		String id = getTransformedId(feature.getId(), false);
+		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
+		iu.setId(id);
+		Version version = new Version(feature.getVersion());
+		iu.setVersion(version);
+
+		// TODO: The required capabilities are specified
+		//		 by the feature group; is this right?
+		//		 Do they need to be duplicated here??
+
+		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
+		iu.setFilter(INSTALL_FEATURES_FILTER);
+		iu.setSingleton(true);
+
+		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), FEATURE_CAPABILITY});
+		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
+
+		if (isExploded) {
+			// Define the immutable metadata for this IU. In this case immutable means
+			// that this is something that will not impact the configuration.
+			Map touchpointData = new HashMap();
+			touchpointData.put("zipped", "true");
+			iu.addTouchpointData(new TouchpointData(touchpointData));
+		}
+		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
@@ -290,13 +354,17 @@ public class MetadataGeneratorHelper {
 		iu.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
 
 		FeatureEntry entries[] = feature.getEntries();
-		RequiredCapability[] required = new RequiredCapability[entries.length];
+		RequiredCapability[] required = new RequiredCapability[entries.length + 1];
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
-			required[i] = new RequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin()), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			required[i] = new RequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
 		}
+		required[entries.length] = new RequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(TouchpointType.NONE);
+		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
+		// 		 of the feature?
+		// iu.setFilter(filter);
 		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), groupCapability});
 		return MetadataFactory.createInstallableUnit(iu);
@@ -510,8 +578,8 @@ public class MetadataGeneratorHelper {
 		return result.toString();
 	}
 
-	private static String getTransformedId(String original, boolean isPlugin) {
-		return isPlugin ? original : original + ".featureIU";
+	private static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
+		return (isPlugin ? original : original + (isGroup ? ".featureGroup" : ".featureIU")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	public static VersionRange getVersionRange(FeatureEntry entry) {

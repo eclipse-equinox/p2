@@ -250,7 +250,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private IArtifactDescriptor generateArtifactDescriptor(File bundle) {
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundle);
-		IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor basicDescriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, bundle, true, false);
 
 		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
@@ -286,7 +286,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		props.setProperty("repository.id", repositoryId);
 		props.setProperty("file.name", bundle.getAbsolutePath());
 		props.setProperty("file.lastModified", Long.toString(bundle.lastModified()));
-		IArtifactKey key = MetadataGeneratorHelper.createEclipseArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
 		return iu;
 	}

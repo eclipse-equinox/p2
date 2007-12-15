@@ -40,7 +40,7 @@ public class Util {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	private static URL getBundlePoolLocation(Profile profile) {
+	static URL getBundlePoolLocation(Profile profile) {
 		String path = profile.getValue(CACHE_PATH);
 		if (path == null)
 			path = Activator.getContext().getProperty(CACHE_PATH);
