@@ -16,3 +16,5 @@ Import-Package: org.eclipse.equinox.configuratormanipulator,
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.equinox.internal.simpleconfigurator.utils;x-internal:=true,
  org.eclipse.equinox.simpleconfigurator.manipulator.internal;x-internal:=true
+Bundle-RequiredExecutionEnvironment: J2SE-1.4,
+ CDC-1.0/Foundation-1.0
