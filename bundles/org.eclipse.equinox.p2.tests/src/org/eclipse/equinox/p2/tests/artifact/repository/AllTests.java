@@ -22,6 +22,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ArtifactOutputStreamTest.class);
 		//TODO This test currently fails because our file formats are not stable
 		//		suite.addTestSuite(JarURLRepositoryTest.class);
+		suite.addTestSuite(FoldersRepositoryTest.class);
 		return suite;
 	}
 
