@@ -164,7 +164,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 		Profile child0 = profile.getSubProfiles()[0];
 		assertTrue(child0Id.equals(child0.getProfileId()));
-		assertTrue("First Child should have 2 local properties.", child0.getProperties().size() == 2);
+		assertTrue("First Child should have 1 local properties.", child0.getProperties().size() == 1);
 		assertTrue(child0Value.equals(child0.getValue(key)));
 		assertTrue(otherValue.equals(child0.getValue(otherKey)));
 		assertTrue("First Child should have 3 children.", child0.getSubProfiles().length == 3);
@@ -174,7 +174,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 		Profile child1 = profile.getSubProfiles()[1];
 		assertTrue(child1Id.equals(child1.getProfileId()));
-		assertTrue("Second Child should have 1 local property.", child1.getProperties().size() == 1);
+		assertTrue("Second Child should have 0 local properties.", child1.getProperties().size() == 0);
 		assertTrue(parentValue.equals(child1.getValue(key)));
 		assertTrue(otherValue.equals(child1.getValue(otherKey)));
 		assertTrue("Second Child should have 2 children.", child1.getSubProfiles().length == 2);
@@ -182,27 +182,27 @@ public class ProfileTest extends AbstractProvisioningTest {
 		Profile grandchild11 = child1.getSubProfiles()[1];
 
 		assertTrue(grandchild00Id.equals(grandchild00.getProfileId()));
-		assertTrue("First Grandchild of first Child should have 2 properties.", grandchild00.getProperties().size() == 2);
+		assertTrue("First Grandchild of first Child should have 1 property.", grandchild00.getProperties().size() == 1);
 		assertTrue(grandchild00Value.equals(grandchild00.getValue(key)));
 		assertTrue(otherValue.equals(grandchild00.getValue(otherKey)));
 
 		assertTrue(grandchild01Id.equals(grandchild01.getProfileId()));
-		assertTrue("Second Grandchild of first Child should have 1 property.", grandchild01.getProperties().size() == 1);
+		assertTrue("Second Grandchild of first Child should have 0 properties.", grandchild01.getProperties().size() == 0);
 		assertTrue(child0Value.equals(grandchild01.getValue(key)));
 		assertTrue(otherValue.equals(grandchild01.getValue(otherKey)));
 
 		assertTrue(grandchild02Id.equals(grandchild02.getProfileId()));
-		assertTrue("Third Grandchild of first Child should have 2 properties.", grandchild02.getProperties().size() == 2);
+		assertTrue("Third Grandchild of first Child should have 1 property.", grandchild02.getProperties().size() == 1);
 		assertTrue(child0Value.equals(grandchild02.getValue(key)));
 		assertTrue(grandchild02Value.equals(grandchild02.getValue(otherKey)));
 
 		assertTrue(grandchild10Id.equals(grandchild10.getProfileId()));
-		assertTrue("First Grandchild of second Child should have 2 properties.", grandchild10.getProperties().size() == 2);
+		assertTrue("First Grandchild of second Child should have 1 property.", grandchild10.getProperties().size() == 1);
 		assertTrue(grandchild10Value.equals(grandchild10.getValue(key)));
 		assertTrue(otherValue.equals(grandchild10.getValue(otherKey)));
 
 		assertTrue(grandchild11Id.equals(grandchild11.getProfileId()));
-		assertTrue("Second Grandchild of second Child should have 1 property.", grandchild11.getProperties().size() == 1);
+		assertTrue("Second Grandchild of second Child should have 0 properties.", grandchild11.getProperties().size() == 0);
 		assertTrue(parentValue.equals(grandchild11.getValue(key)));
 		assertTrue(otherValue.equals(grandchild11.getValue(otherKey)));
 	}
