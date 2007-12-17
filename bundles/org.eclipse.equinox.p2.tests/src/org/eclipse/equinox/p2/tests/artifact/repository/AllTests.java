@@ -20,8 +20,7 @@ public class AllTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(ArtifactOutputStreamTest.class);
-		//TODO This test currently fails because our file formats are not stable
-		//		suite.addTestSuite(JarURLRepositoryTest.class);
+		suite.addTestSuite(JarURLRepositoryTest.class);
 		suite.addTestSuite(FoldersRepositoryTest.class);
 		return suite;
 	}

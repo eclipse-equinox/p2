@@ -37,11 +37,11 @@ public class JarURLRepositoryTest extends TestCase {
 		URL engineJar = TestActivator.getContext().getBundle().getEntry("/testData/enginerepo.jar");
 		URL jarRepoURL = null;
 		try {
-			jarRepoURL = new URL("jar:" + engineJar.toString() + "!/");
+			jarRepoURL = new URL("jar:" + engineJar.toString() + "!/testData/enginerepo/artifacts.xml");
 		} catch (MalformedURLException e) {
 			fail(e.getMessage());
 		}
 		IArtifactRepository repo = manager.loadRepository(jarRepoURL, null);
-		assertTrue(repo.contains(new ArtifactKey("eclipse", "plugin", "org.eclipse.equinox.p2.engine", new Version("0.1.0.200709241631"))));
+		assertTrue(repo.contains(new ArtifactKey("eclipse", "plugin", "testdata", new Version("1.0.0.1"))));
 	}
 }
