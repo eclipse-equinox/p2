@@ -243,7 +243,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		if (site instanceof IViewSite) {
 			return ((IViewSite) site).getActionBars().getStatusLineManager();
 		} else if (site instanceof IEditorSite) {
-			return ((IViewSite) site).getActionBars().getStatusLineManager();
+			return ((IEditorSite) site).getActionBars().getStatusLineManager();
 		}
 		return null;
 	}
