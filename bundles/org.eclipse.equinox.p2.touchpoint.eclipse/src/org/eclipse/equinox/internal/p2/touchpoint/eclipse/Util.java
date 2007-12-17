@@ -30,7 +30,7 @@ public class Util {
 	private final static String CACHE_PATH = "eclipse.p2.cache"; //$NON-NLS-1$
 	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
 	private static final String REPOSITORY_TYPE = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
-	private static final Object PROFILE_EXTENSION = "profile.extension";
+	private static final Object PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 
 	static AgentLocation getAgentLocation() {
 		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
