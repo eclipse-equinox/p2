@@ -7,13 +7,11 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ *  IBM Corporation - bug fixes and enhancements
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.sar;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * The SarInputStream reads a streaming archive as an InputStream. Methods are
@@ -40,8 +38,7 @@ public class SarInputStream extends InputStream {
 		// SarFile marker
 		String marker = readString();
 		if (!marker.equals(SarConstants.SARFILE_MARKER)) {
-			throw new IOException(
-					"Does not contain org.eclipse.equinox.p2.sar marker.");
+			throw new IOException("Does not contain org.eclipse.equinox.p2.sar marker.");
 		}
 
 		// SarFile version
@@ -120,7 +117,7 @@ public class SarInputStream extends InputStream {
 	}
 
 	/**
-	 * @return
+	 * @return String
 	 * @throws IOException
 	 */
 	String readString() throws IOException {
@@ -132,7 +129,7 @@ public class SarInputStream extends InputStream {
 	}
 
 	/**
-	 * @return
+	 * @return byte[]
 	 * @throws IOException
 	 */
 	byte[] readBytes() throws IOException {
@@ -146,7 +143,7 @@ public class SarInputStream extends InputStream {
 	}
 
 	/**
-	 * @return
+	 * @return int
 	 * @throws IOException
 	 */
 	int readInt() throws IOException {
@@ -154,7 +151,7 @@ public class SarInputStream extends InputStream {
 	}
 
 	/**
-	 * @return
+	 * @return boolean
 	 * @throws IOException
 	 */
 	boolean readBoolean() throws IOException {
@@ -162,7 +159,7 @@ public class SarInputStream extends InputStream {
 	}
 
 	/**
-	 * @return
+	 * @return long
 	 * @throws IOException
 	 */
 	long readLong() throws IOException {
@@ -199,8 +196,7 @@ public class SarInputStream extends InputStream {
 	 * @throws IOException
 	 *             on error
 	 */
-	public int read(byte[] buffer, int offset, int numToRead)
-			throws IOException {
+	public int read(byte[] buffer, int offset, int numToRead) throws IOException {
 		return contentStream.read(buffer, offset, numToRead);
 	}
 

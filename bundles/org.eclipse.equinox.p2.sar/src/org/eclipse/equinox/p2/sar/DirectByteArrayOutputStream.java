@@ -7,6 +7,7 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ *  IBM Corporation - bug fixes and enhancements
  *******************************************************************************/
 package org.eclipse.equinox.p2.sar;
 
@@ -63,7 +64,7 @@ public class DirectByteArrayOutputStream extends ByteArrayOutputStream {
 	 * Return an input stream containing all the (shared) bytes this output
 	 * stream has already consumed.
 	 * 
-	 * @return
+	 * @return ByteArrayInputStream
 	 */
 	public ByteArrayInputStream getInputStream() {
 		return new ByteArrayInputStream(super.buf, 0, super.count);

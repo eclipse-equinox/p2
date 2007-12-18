@@ -7,6 +7,7 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ *  IBM Corporation - bug fixes and enhancements
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.sar;
 
@@ -16,7 +17,7 @@ package org.eclipse.equinox.internal.p2.sar;
 public interface SarConstants {
 
 	/** <code>SARFILE_MARKER</code> */
-	String SARFILE_MARKER = "SarFile";
+	String SARFILE_MARKER = "SarFile"; //$NON-NLS-1$
 
 	/** <code>SARFILE_VERSION</code> */
 	int SARFILE_VERSION = 2;
@@ -24,7 +25,7 @@ public interface SarConstants {
 	/**
 	 * Comment for <code>DEFAULT_ENCODING</code>
 	 */
-	String DEFAULT_ENCODING = "UTF-8";
+	String DEFAULT_ENCODING = "UTF-8"; //$NON-NLS-1$
 
 	/**
 	 * Debug

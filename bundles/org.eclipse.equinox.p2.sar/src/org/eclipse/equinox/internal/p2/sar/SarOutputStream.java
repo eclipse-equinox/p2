@@ -7,13 +7,11 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ *  IBM Corporation - bug fixes and enhancements
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.sar;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
+import java.io.*;
 import org.eclipse.equinox.p2.sar.DirectByteArrayOutputStream;
 
 /**
@@ -192,8 +190,7 @@ public class SarOutputStream extends OutputStream {
 	 * 
 	 * @see java.io.OutputStream#write(byte[], int, int)
 	 */
-	public void write(byte[] bytes, int offset, int numToWrite)
-			throws IOException {
+	public void write(byte[] bytes, int offset, int numToWrite) throws IOException {
 		entryContent.write(bytes, offset, numToWrite);
 	}
 

@@ -7,6 +7,7 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ *  IBM Corporation - bug fixes and enhancements
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.sar;
 
@@ -31,7 +32,7 @@ public class SarEntry extends ZipEntry {
 	/**
 	 * The name of the eof org.eclipse.equinox.p2.sar entry.
 	 */
-	private static final String EOF_ENTRY_NAME = "<eof-org.eclipse.equinox.p2.sar>";
+	private static final String EOF_ENTRY_NAME = "<eof-org.eclipse.equinox.p2.sar>"; //$NON-NLS-1$
 
 	private static final boolean DEBUG = SarConstants.DEBUG;
 
@@ -83,9 +84,7 @@ public class SarEntry extends ZipEntry {
 		boolean isZip = sarInputStream.readBoolean();
 
 		if (DEBUG) {
-			System.out.println(getName() + "," + comment + "," + compressedSize
-					+ "," + crc + "," + extra + "," + method + "," + size + ","
-					+ dosTime + "," + isEof + "," + isZip);
+			System.out.println(getName() + "," + comment + "," + compressedSize + "," + crc + "," + extra + "," + method + "," + size + "," + dosTime + "," + isEof + "," + isZip);
 		}
 
 		if (method == ZipEntry.STORED) {
@@ -119,9 +118,7 @@ public class SarEntry extends ZipEntry {
 		boolean isEof = this.isEof();
 
 		if (DEBUG) {
-			System.out.println(name + "," + comment + "," + compressedSize
-					+ "," + crc + "," + extra + "," + method + "," + size + ","
-					+ dosTime + "," + isEof + "," + isZip);
+			System.out.println(name + "," + comment + "," + compressedSize + "," + crc + "," + extra + "," + method + "," + size + "," + dosTime + "," + isEof + "," + isZip);
 		}
 
 		sarOutputStream.writeString(name);
@@ -150,7 +147,7 @@ public class SarEntry extends ZipEntry {
 	}
 
 	/**
-	 * @return
+	 * @return boolean
 	 */
 	public boolean isZip() {
 		return isZip;
@@ -167,10 +164,7 @@ public class SarEntry extends ZipEntry {
 	 * Converts DOS time to Java time (number of milliseconds since epoch).
 	 */
 	public final static long dosToJavaTime(long dtime) {
-		Date d = new Date((int) (((dtime >> 25) & 0x7f) + 80),
-				(int) (((dtime >> 21) & 0x0f) - 1),
-				(int) ((dtime >> 16) & 0x1f), (int) ((dtime >> 11) & 0x1f),
-				(int) ((dtime >> 5) & 0x3f), (int) ((dtime << 1) & 0x3e));
+		Date d = new Date((int) (((dtime >> 25) & 0x7f) + 80), (int) (((dtime >> 21) & 0x0f) - 1), (int) ((dtime >> 16) & 0x1f), (int) ((dtime >> 11) & 0x1f), (int) ((dtime >> 5) & 0x3f), (int) ((dtime << 1) & 0x3e));
 		return d.getTime();
 	}
 
@@ -183,9 +177,7 @@ public class SarEntry extends ZipEntry {
 		if (year < 1980) {
 			return (1 << 21) | (1 << 16);
 		}
-		return (year - 1980) << 25 | (d.getMonth() + 1) << 21
-				| d.getDate() << 16 | d.getHours() << 11 | d.getMinutes() << 5
-				| d.getSeconds() >> 1;
+		return (year - 1980) << 25 | (d.getMonth() + 1) << 21 | d.getDate() << 16 | d.getHours() << 11 | d.getMinutes() << 5 | d.getSeconds() >> 1;
 	}
 
 }

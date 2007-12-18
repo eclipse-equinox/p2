@@ -7,25 +7,13 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ *  IBM Corporation - bug fixes and enhancements
  *******************************************************************************/
 package org.eclipse.equinox.p2.sar;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
-import org.eclipse.equinox.internal.p2.sar.SarConstants;
-import org.eclipse.equinox.internal.p2.sar.SarEntry;
-import org.eclipse.equinox.internal.p2.sar.SarInputStream;
-import org.eclipse.equinox.internal.p2.sar.SarOutputStream;
+import java.io.*;
+import java.util.zip.*;
+import org.eclipse.equinox.internal.p2.sar.*;
 
 /**
  * Helper class for converting Zips/Jars to Sars and vice versa.
@@ -49,8 +37,7 @@ public class SarUtil {
 	 * @param zipTarget
 	 * @throws IOException
 	 */
-	public static void normalize(File zipSource, File zipTarget)
-			throws IOException {
+	public static void normalize(File zipSource, File zipTarget) throws IOException {
 		File tempSar = File.createTempFile("temp", ".sar");
 		try {
 			zipToSar(zipSource, tempSar);
@@ -67,8 +54,7 @@ public class SarUtil {
 	 * @param zipTarget
 	 * @throws IOException
 	 */
-	public static void normalize(InputStream zipSource, OutputStream zipTarget)
-			throws IOException {
+	public static void normalize(InputStream zipSource, OutputStream zipTarget) throws IOException {
 		DirectByteArrayOutputStream tempSar = new DirectByteArrayOutputStream();
 		zipToSar(zipSource, tempSar);
 		sarToZip(tempSar.getInputStream(), zipTarget);
@@ -76,14 +62,11 @@ public class SarUtil {
 
 	/**
 	 * @param zipFile
-	 * @return
 	 * @throws IOException
 	 */
 	public static void zipToSar(File zipFile, File sarFile) throws IOException {
-		InputStream zipInputStream = new BufferedInputStream(
-				new FileInputStream(zipFile));
-		OutputStream sarOutputStream = new BufferedOutputStream(
-				new FileOutputStream(sarFile));
+		InputStream zipInputStream = new BufferedInputStream(new FileInputStream(zipFile));
+		OutputStream sarOutputStream = new BufferedOutputStream(new FileOutputStream(sarFile));
 		SarUtil.zipToSar(zipInputStream, sarOutputStream);
 	}
 
@@ -92,8 +75,7 @@ public class SarUtil {
 	 * @param saredOutputStream
 	 * @throws IOException
 	 */
-	public static void zipToSar(InputStream zippedInputStream,
-			OutputStream saredOutputStream) throws IOException {
+	public static void zipToSar(InputStream zippedInputStream, OutputStream saredOutputStream) throws IOException {
 		zipToSar(zippedInputStream, true, saredOutputStream, true);
 	}
 
@@ -104,9 +86,7 @@ public class SarUtil {
 	 * @param closeOut
 	 * @throws IOException
 	 */
-	public static void zipToSar(InputStream zippedInputStream, boolean closeIn,
-			OutputStream saredOutputStream, boolean closeOut)
-			throws IOException {
+	public static void zipToSar(InputStream zippedInputStream, boolean closeIn, OutputStream saredOutputStream, boolean closeOut) throws IOException {
 		zipToSarNoClose(zippedInputStream, saredOutputStream);
 
 		if (closeIn)
@@ -121,10 +101,8 @@ public class SarUtil {
 	 * @throws IOException
 	 */
 	public static void sarToZip(File sarFile, File zipFile) throws IOException {
-		InputStream saredInputStream = new BufferedInputStream(
-				new FileInputStream(sarFile));
-		OutputStream zippedOutputStream = new BufferedOutputStream(
-				new FileOutputStream(zipFile));
+		InputStream saredInputStream = new BufferedInputStream(new FileInputStream(sarFile));
+		OutputStream zippedOutputStream = new BufferedOutputStream(new FileOutputStream(zipFile));
 
 		sarToZip(saredInputStream, zippedOutputStream);
 	}
@@ -135,8 +113,7 @@ public class SarUtil {
 	 * @param level
 	 * @throws IOException
 	 */
-	public static void sarToZip(InputStream saredInputStream,
-			OutputStream zippedOutputStream) throws IOException {
+	public static void sarToZip(InputStream saredInputStream, OutputStream zippedOutputStream) throws IOException {
 		sarToZip(saredInputStream, true, zippedOutputStream, true);
 	}
 
@@ -147,9 +124,7 @@ public class SarUtil {
 	 * @param closeOut
 	 * @throws IOException
 	 */
-	public static void sarToZip(InputStream saredInputStream, boolean closeIn,
-			OutputStream zippedOutputStream, boolean closeOut)
-			throws IOException {
+	public static void sarToZip(InputStream saredInputStream, boolean closeIn, OutputStream zippedOutputStream, boolean closeOut) throws IOException {
 		sarToZipNoClose(saredInputStream, zippedOutputStream);
 
 		if (closeIn)
@@ -163,8 +138,7 @@ public class SarUtil {
 	 * @param saredOutputStream
 	 * @throws IOException
 	 */
-	private static void zipToSarNoClose(InputStream zippedInputStream,
-			OutputStream saredOutputStream) throws IOException {
+	private static void zipToSarNoClose(InputStream zippedInputStream, OutputStream saredOutputStream) throws IOException {
 
 		ZipInputStream zipInputStream = new ZipInputStream(zippedInputStream);
 		SarOutputStream sarOutputStream = new SarOutputStream(saredOutputStream);
@@ -181,8 +155,7 @@ public class SarUtil {
 				int read;
 				while ((read = zipInputStream.read(buf)) != -1) {
 					if (DEBUG) {
-						System.out.println("Content: "
-								+ new String(buf, 0, read));
+						System.out.println("Content: " + new String(buf, 0, read));
 					}
 					sarOutputStream.write(buf, 0, read);
 				}
@@ -199,12 +172,10 @@ public class SarUtil {
 	 * @param level
 	 * @throws IOException
 	 */
-	private static void sarToZipNoClose(InputStream saredInputStream,
-			OutputStream zippedOutputStream) throws IOException {
+	private static void sarToZipNoClose(InputStream saredInputStream, OutputStream zippedOutputStream) throws IOException {
 
 		SarInputStream sarInputStream = new SarInputStream(saredInputStream);
-		ZipOutputStream zipOutputStream = new ZipOutputStream(
-				zippedOutputStream);
+		ZipOutputStream zipOutputStream = new ZipOutputStream(zippedOutputStream);
 
 		SarEntry sarEntry;
 		byte[] buf = new byte[BUFFER_SIZE];
@@ -217,8 +188,7 @@ public class SarUtil {
 				int read;
 				while ((read = sarInputStream.read(buf)) != -1) {
 					if (DEBUG) {
-						System.out.println("Content: "
-								+ new String(buf, 0, read));
+						System.out.println("Content: " + new String(buf, 0, read));
 					}
 					zipOutputStream.write(buf, 0, read);
 				}
