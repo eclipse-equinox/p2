@@ -12,6 +12,9 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
 import java.net.URL;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.artifact.repository.ECFTransport;
+import org.eclipse.equinox.internal.p2.artifact.repository.Transport;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
@@ -21,16 +24,22 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 	public IArtifactRepository load(URL location) {
 		if (location == null)
 			return null;
+		File temp = null;
 		try {
+			// TODO This temporary file stuff is not very elegant. 
+			temp = File.createTempFile("artifacts", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
+			OutputStream artifacts = new BufferedOutputStream(new FileOutputStream(temp));
+			IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location).toExternalForm(), artifacts, null);
+			if (!status.isOK())
+				return null;
 			InputStream descriptorStream = null;
 			try {
-				descriptorStream = new BufferedInputStream(SimpleArtifactRepository.getActualLocation(location).openStream());
+				descriptorStream = new BufferedInputStream(new FileInputStream(temp));
 				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO();
 				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(descriptorStream);
 				result.initializeAfterLoad(location);
 				return result;
 			} catch (RepositoryCreationException e) {
-				// TODO Auto-generated catch block
 				return null;
 			} finally {
 				if (descriptorStream != null)
@@ -39,11 +48,18 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 		} catch (IOException e) {
 			// TODO: should this distinguish between non-existent file
 			//		 and other IO exceptions.
+		} finally {
+			if (temp != null && !temp.delete())
+				temp.deleteOnExit();
 		}
 		return null;
 	}
 
 	public IArtifactRepository create(URL location, String name, String type) {
 		return new SimpleArtifactRepository(name, location);
+	}
+
+	private Transport getTransport() {
+		return ECFTransport.getInstance();
 	}
 }
