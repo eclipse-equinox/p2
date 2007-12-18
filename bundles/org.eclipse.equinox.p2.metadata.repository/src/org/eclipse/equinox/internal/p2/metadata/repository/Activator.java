@@ -15,21 +15,21 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-	public static final String ID = "org.eclipse.equinox.p2.metadata.repository";
-	public static final String REPO_PROVIDER_XPT = ID + '.' + "metadataRepositories";
+	public static final String ID = "org.eclipse.equinox.p2.metadata.repository"; //$NON-NLS-1$
+	public static final String REPO_PROVIDER_XPT = ID + '.' + "metadataRepositories"; //$NON-NLS-1$
 	public static final String PI_METADATA_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository"; //$NON-NLS-1$
-	private static BundleContext context;
+	private static BundleContext bundleContext;
 
 	public static BundleContext getContext() {
-		return context;
+		return bundleContext;
 	}
 
 	public void start(BundleContext context) throws Exception {
-		Activator.context = context;
+		Activator.bundleContext = context;
 	}
 
 	public void stop(BundleContext context) throws Exception {
-		Activator.context = null;
+		Activator.bundleContext = null;
 	}
 
 }
