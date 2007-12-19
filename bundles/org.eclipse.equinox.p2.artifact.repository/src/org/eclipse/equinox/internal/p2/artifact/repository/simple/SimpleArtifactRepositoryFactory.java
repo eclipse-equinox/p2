@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
 import java.net.URL;
+import java.util.zip.GZIPInputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.ECFTransport;
 import org.eclipse.equinox.internal.p2.artifact.repository.Transport;
@@ -27,12 +28,20 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 		File temp = null;
 		try {
 			// TODO This temporary file stuff is not very elegant. 
+			OutputStream artifacts = null;
 			temp = File.createTempFile("artifacts", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
-			OutputStream artifacts = new BufferedOutputStream(new FileOutputStream(temp));
+			// try with gzip
+			boolean gzip = true;
 			try {
-				IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location).toExternalForm(), artifacts, null);
-				if (!status.isOK())
-					return null;
+				artifacts = new BufferedOutputStream(new FileOutputStream(temp));
+				IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, gzip).toExternalForm(), artifacts, null);
+				if (!status.isOK()) {
+					// retry unzipped
+					gzip = false;
+					status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, gzip).toExternalForm(), artifacts, null);
+					if (!status.isOK())
+						return null;
+				}
 			} finally {
 				if (artifacts != null)
 					artifacts.close();
@@ -40,6 +49,8 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 			InputStream descriptorStream = null;
 			try {
 				descriptorStream = new BufferedInputStream(new FileInputStream(temp));
+				if (gzip)
+					descriptorStream = new GZIPInputStream(descriptorStream);
 				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO();
 				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(descriptorStream);
 				result.initializeAfterLoad(location);

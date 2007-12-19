@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.zip.GZIPOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -35,6 +36,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
+	private static final String GZIP_EXTENSION = ".gzip"; //$NON-NLS-1$
 
 	transient private Mapper mapper = new Mapper();
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
@@ -42,14 +44,19 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private boolean signatureVerification = false;
 	private transient BlobStore blobStore;
 
-	public static URL getActualLocation(URL base) {
+	public static URL getActualLocation(URL base, boolean gzip) {
+		return getActualLocation(base, gzip ? GZIP_EXTENSION : ""); //$NON-NLS-1$
+	}
+
+	private static URL getActualLocation(URL base, String extension) {
+		final String name = CONTENT_FILENAME + extension;
 		String spec = base.toExternalForm();
-		if (spec.endsWith(CONTENT_FILENAME))
+		if (spec.endsWith(name))
 			return base;
 		if (spec.endsWith("/")) //$NON-NLS-1$
-			spec += CONTENT_FILENAME;
+			spec += name;
 		else
-			spec += "/" + CONTENT_FILENAME; //$NON-NLS-1$
+			spec += "/" + name; //$NON-NLS-1$
 		try {
 			return new URL(spec);
 		} catch (MalformedURLException e) {
@@ -402,11 +409,27 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void save() {
+		save(true);
+	}
+
+	public void save(boolean gzip) {
+		OutputStream os = null;
 		try {
-			URL actualLocation = getActualLocation(location);
-			FileOutputStream os = new FileOutputStream(actualLocation.getFile());
-			new SimpleArtifactRepositoryIO().write(this, os);
+			try {
+				URL actualLocation = getActualLocation(location, gzip);
+				os = new FileOutputStream(actualLocation.getFile());
+				if (gzip)
+					os = new GZIPOutputStream(os);
+				new SimpleArtifactRepositoryIO().write(this, os);
+			} catch (IOException e) {
+				// TODO proper exception handling
+				e.printStackTrace();
+			} finally {
+				if (os != null)
+					os.close();
+			}
 		} catch (IOException e) {
+			// TODO proper exception handling
 			e.printStackTrace();
 		}
 	}
@@ -575,9 +598,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public Object getAdapter(Class adapter) {
-		// if we are adapting to file or writable repos then make sure we have a file location
+		// if we are adapting to file or writable repositories then make sure we have a file location
 		if (adapter == IFileArtifactRepository.class)
-			if (!"file".equalsIgnoreCase(location.getProtocol()))
+			if (!"file".equalsIgnoreCase(location.getProtocol())) //$NON-NLS-1$
 				return null;
 		return super.getAdapter(adapter);
 	}
