@@ -22,6 +22,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ArtifactOutputStreamTest.class);
 		suite.addTestSuite(JarURLRepositoryTest.class);
 		suite.addTestSuite(FoldersRepositoryTest.class);
+		suite.addTestSuite(SimpleArtifactRepositoryTest.class);
 		return suite;
 	}
 
