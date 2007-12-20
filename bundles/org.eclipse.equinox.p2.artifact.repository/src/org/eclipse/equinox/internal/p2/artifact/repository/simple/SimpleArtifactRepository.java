@@ -36,7 +36,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
-	private static final String GZIP_EXTENSION = ".gzip"; //$NON-NLS-1$
+	private static final String GZIP_EXTENSION = ".gz"; //$NON-NLS-1$
 
 	transient private Mapper mapper = new Mapper();
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
@@ -424,7 +424,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void save() {
-		save(false);
+		save(true);
 	}
 
 	public void save(boolean gzip) {
