@@ -88,8 +88,9 @@ public interface IArtifactRepositoryManager {
 	 * @param key the artifact to mirror
 	 * @param destination the destination where the artifact will be mirrored
 	 * @param destinationDescriptorProperties additional properties for use in creating the repositor's ArtifactDescriptor
+	 * @param destinationRepositoryProperties additional repository specific properties for use in creating the repositor's ArtifactDescriptor
 	 * @return the newly created request object
 	 */
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties);
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties);
 
 }

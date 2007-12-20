@@ -255,14 +255,14 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
 		try {
-			pathDescriptor.setProperty("artifact.reference", bundle.toURL().toExternalForm());
+			pathDescriptor.setRepositoryProperty("artifact.reference", bundle.toURL().toExternalForm());
 		} catch (MalformedURLException e) {
 			// unexpected
 			e.printStackTrace();
 			return null;
 		}
 		if (bundle.isDirectory())
-			pathDescriptor.setProperty("artifact.folder", "true");
+			pathDescriptor.setRepositoryProperty("artifact.folder", "true");
 
 		return pathDescriptor;
 	}

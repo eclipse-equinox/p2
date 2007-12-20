@@ -30,6 +30,7 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	protected ProcessingStepDescriptor[] processingSteps = EMPTY_STEPS;
 
 	protected Map properties = new OrderedProperties();
+	protected Map repositoryProperties = new OrderedProperties();
 
 	protected transient IArtifactRepository repository;
 
@@ -83,6 +84,29 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 	 */
 	public Map getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
+	}
+
+	public String getRepositoryProperty(String propertyKey) {
+		return (String) repositoryProperties.get(propertyKey);
+	}
+
+	public void setRepositoryProperty(String key, String value) {
+		if (value == null)
+			repositoryProperties.remove(key);
+		else
+			repositoryProperties.put(key, value);
+	}
+
+	public void addRepositoryProperties(Map additionalProperties) {
+		repositoryProperties.putAll(additionalProperties);
+	}
+
+	/**
+	 * Returns a read-only collection of the repository properties of the artifact descriptor.
+	 * @return the repository properties of this artifact descriptor.
+	 */
+	public Map getRepositoryProperties() {
+		return OrderedProperties.unmodifiableProperties(repositoryProperties);
 	}
 
 	public ProcessingStepDescriptor[] getProcessingSteps() {

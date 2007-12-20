@@ -89,8 +89,8 @@ public class EclipseTouchpoint extends Touchpoint {
 		for (int i = 0; i < toDownload.length; i++) {
 			IArtifactKey key = toDownload[i];
 			if (!aggregatedRepositoryView.contains(key)) {
-				Properties descriptorProperties = createArtifactDescriptorProperties(installableUnit);
-				requests.add(Util.getArtifactRepositoryManager().createMirrorRequest(key, bundlePool, descriptorProperties));
+				Properties repositoryProperties = createArtifactDescriptorProperties(installableUnit);
+				requests.add(Util.getArtifactRepositoryManager().createMirrorRequest(key, bundlePool, null, repositoryProperties));
 			}
 		}
 

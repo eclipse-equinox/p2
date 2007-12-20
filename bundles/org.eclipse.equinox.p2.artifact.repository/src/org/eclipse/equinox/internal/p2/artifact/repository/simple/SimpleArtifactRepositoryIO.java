@@ -112,6 +112,7 @@ class SimpleArtifactRepositoryIO {
 
 		// Constants for artifact repository elements
 		public static final String REPOSITORY_ELEMENT = "repository"; //$NON-NLS-1$
+		public static final String REPOSITORY_PROPERTIES_ELEMENT = "repositoryProperties"; //$NON-NLS-1$
 		public static final String MAPPING_RULES_ELEMENT = "mappings"; //$NON-NLS-1$
 		public static final String MAPPING_RULE_ELEMENT = "rule"; //$NON-NLS-1$
 		public static final String ARTIFACTS_ELEMENT = "artifacts"; //$NON-NLS-1$
@@ -186,6 +187,7 @@ class SimpleArtifactRepositoryIO {
 				attribute(VERSION_ATTRIBUTE, key.getVersion());
 				writeProcessingSteps(descriptor.getProcessingSteps());
 				writeProperties(descriptor.getProperties());
+				writeProperties(REPOSITORY_PROPERTIES_ELEMENT, descriptor.getRepositoryProperties());
 				end(ARTIFACT_ELEMENT);
 			}
 			end(ARTIFACTS_ELEMENT);
@@ -419,6 +421,7 @@ class SimpleArtifactRepositoryIO {
 			ArtifactDescriptor currentArtifact = null;
 
 			private PropertiesHandler propertiesHandler = null;
+			private PropertiesHandler repositoryPropertiesHandler = null;
 			private ProcessingStepsHandler processingStepsHandler = null;
 
 			public ArtifactHandler(AbstractHandler parentHandler, Attributes attributes, Set artifacts) {
@@ -444,6 +447,12 @@ class SimpleArtifactRepositoryIO {
 				} else if (PROPERTIES_ELEMENT.equals(name)) {
 					if (propertiesHandler == null) {
 						propertiesHandler = new PropertiesHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
+				} else if (REPOSITORY_PROPERTIES_ELEMENT.equals(name)) {
+					if (repositoryPropertiesHandler == null) {
+						repositoryPropertiesHandler = new PropertiesHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}

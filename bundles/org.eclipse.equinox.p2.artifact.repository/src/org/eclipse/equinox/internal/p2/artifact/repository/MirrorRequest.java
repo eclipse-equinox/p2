@@ -26,7 +26,9 @@ public class MirrorRequest extends ArtifactRequest {
 
 	private final Properties targetDescriptorProperties;
 
-	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Properties targetDescriptorProperties) {
+	private final Properties targetRepositoryProperties;
+
+	public MirrorRequest(IArtifactKey key, IArtifactRepository targetRepository, Properties targetDescriptorProperties, Properties targetRepositoryProperties) {
 		super(key);
 		target = targetRepository;
 		if (targetDescriptorProperties == null || targetDescriptorProperties.isEmpty()) {
@@ -34,6 +36,13 @@ public class MirrorRequest extends ArtifactRequest {
 		} else {
 			this.targetDescriptorProperties = new Properties();
 			this.targetDescriptorProperties.putAll(targetDescriptorProperties);
+		}
+
+		if (targetRepositoryProperties == null || targetRepositoryProperties.isEmpty()) {
+			this.targetRepositoryProperties = null;
+		} else {
+			this.targetRepositoryProperties = new Properties();
+			this.targetRepositoryProperties.putAll(targetRepositoryProperties);
 		}
 	}
 
@@ -78,7 +87,7 @@ public class MirrorRequest extends ArtifactRequest {
 		// Get the output stream to store the artifact
 		// Since we are mirroring, ensure we clear out data from the original descriptor that may
 		// not apply in the new repo location.
-		// TODO this is brittle.  perhaps the repo itself should do this?  there are cases wehre
+		// TODO this is brittle.  perhaps the repo itself should do this?  there are cases where
 		// we really do need to give the repo the actual descriptor to use however...
 		ArtifactDescriptor destinationDescriptor = new ArtifactDescriptor(getArtifactDescriptor());
 		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
@@ -87,6 +96,9 @@ public class MirrorRequest extends ArtifactRequest {
 
 		if (targetDescriptorProperties != null)
 			destinationDescriptor.addProperties(targetDescriptorProperties);
+
+		if (targetRepositoryProperties != null)
+			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
 
 		OutputStream destination = target.getOutputStream(destinationDescriptor);
 		if (destination == null) {

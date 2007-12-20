@@ -65,11 +65,11 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	}
 
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination) {
-		return createMirrorRequest(key, destination, null);
+		return createMirrorRequest(key, destination, null, null);
 	}
 
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties) {
-		return new MirrorRequest(key, destination, destinationDescriptorProperties);
+	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties) {
+		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
 	public IArtifactRepository createRepository(URL location, String name, String type) {

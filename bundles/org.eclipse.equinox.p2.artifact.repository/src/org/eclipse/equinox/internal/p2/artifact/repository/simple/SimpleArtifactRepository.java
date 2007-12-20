@@ -130,6 +130,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return blobStore.fileFor(bytesFromHexString(uuid));
 
 		// if the artifact is just a reference then return the reference location
+		if (descriptor instanceof ArtifactDescriptor) {
+			String artifactReference = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_REFERENCE);
+			if (artifactReference != null)
+				return artifactReference;
+		}
+
+		// TODO: remove this when we are consistently using repository properties
+		// if the artifact is just a reference then return the reference location
 		String artifactReference = descriptor.getProperty(ARTIFACT_REFERENCE);
 		if (artifactReference != null)
 			return artifactReference;
@@ -172,6 +180,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	private boolean isFolderBased(IArtifactDescriptor descriptor) {
+		// if the artifact is just a reference then return the reference location
+		if (descriptor instanceof ArtifactDescriptor) {
+			String useArtifactFolder = ((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_FOLDER);
+			if (useArtifactFolder != null)
+				return Boolean.valueOf(useArtifactFolder).booleanValue();
+		}
+		//TODO: refactor this when the artifact folder property is consistently set in repository properties
 		return Boolean.valueOf(descriptor.getProperty(ARTIFACT_FOLDER)).booleanValue();
 	}
 
@@ -409,7 +424,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void save() {
-		save(true);
+		save(false);
 	}
 
 	public void save(boolean gzip) {
@@ -429,7 +444,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					os.close();
 			}
 		} catch (IOException e) {
-			// TODO proper exception handling
 			e.printStackTrace();
 		}
 	}
@@ -443,6 +457,9 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		// create a copy of the original descriptor that we can manipulate
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
+		if (isFolderBased(descriptor))
+			newDescriptor.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
+
 		// Determine writing location
 		String newLocation = createLocation(newDescriptor);
 		if (newLocation == null)
@@ -467,7 +484,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		OutputStream target = null;
 		try {
-			if (isFolderBased(descriptor)) {
+			if (isFolderBased(newDescriptor)) {
 				outputFile.mkdirs();
 				if (!outputFile.exists())
 					// TODO: Log an error, or throw an exception?
