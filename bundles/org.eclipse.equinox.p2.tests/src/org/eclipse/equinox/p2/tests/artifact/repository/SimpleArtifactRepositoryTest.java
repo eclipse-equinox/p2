@@ -34,16 +34,16 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 
 	public void testGetActualLocationGzip1() throws MalformedURLException {
 		URL base = new URL("http://localhost/artifactRepository");
-		assertEquals(new URL(base + "/artifacts.xml.gzip"), SimpleArtifactRepository.getActualLocation(base, true));
+		assertEquals(new URL(base + "/artifacts.xml.gz"), SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
 	public void testGetActualLocationGzip2() throws MalformedURLException {
 		URL base = new URL("http://localhost/artifactRepository/");
-		assertEquals(new URL(base + "artifacts.xml.gzip"), SimpleArtifactRepository.getActualLocation(base, true));
+		assertEquals(new URL(base + "artifacts.xml.gz"), SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
 	public void testGetActualLocationGzip3() throws MalformedURLException {
-		URL base = new URL("http://localhost/artifactRepository/artifacts.xml.gzip");
+		URL base = new URL("http://localhost/artifactRepository/artifacts.xml.gz");
 		assertEquals(base, SimpleArtifactRepository.getActualLocation(base, true));
 	}
 
