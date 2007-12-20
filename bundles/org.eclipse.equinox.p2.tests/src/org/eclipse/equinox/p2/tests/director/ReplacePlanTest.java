@@ -58,7 +58,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 		planner = createPlanner();
-		director.install(new IInstallableUnit[] {fa, frag1}, profile, null);
+		director.install(new IInstallableUnit[] {fa, frag1}, profile, null, null);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4, frag1_1, frag1_4});
 	}
@@ -66,7 +66,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 	public void testSimpleReplace() {
 		IInstallableUnit[] oldUnits = new IInstallableUnit[] {fa};
 		IInstallableUnit[] newUnits = new IInstallableUnit[] {fap};
-		ProvisioningPlan plan = planner.getReplacePlan(oldUnits, newUnits, profile, null);
+		ProvisioningPlan plan = planner.getReplacePlan(oldUnits, newUnits, profile, null, null);
 		assertTrue("1.0", plan.getStatus().isOK());
 		assertProfileContainsAll("1.1", profile, oldUnits);
 		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), null);
@@ -78,7 +78,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		//TODO it is strange that this succeeds, since frag1_4 and fa cannot co-exist
 		IInstallableUnit[] oldUnits = new IInstallableUnit[] {frag1};
 		IInstallableUnit[] newUnits = new IInstallableUnit[] {frag1_4};
-		ProvisioningPlan plan = planner.getReplacePlan(oldUnits, newUnits, profile, null);
+		ProvisioningPlan plan = planner.getReplacePlan(oldUnits, newUnits, profile, null, null);
 		assertTrue("1.0", plan.getStatus().isOK());
 	}
 

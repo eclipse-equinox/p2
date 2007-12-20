@@ -48,19 +48,19 @@ public class UpdateTest extends AbstractProvisioningTest {
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 		planner = createPlanner();
-		assertOK(director.install(new IInstallableUnit[] {fa}, profile, null));
+		assertOK(director.install(new IInstallableUnit[] {fa}, profile, null, null));
 		assertProfileContains("Profile setup", profile, new IInstallableUnit[] {f1, fa});
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4});
 	}
 
 	public void testInstall() {
-		ProvisioningPlan plan = planner.getInstallPlan(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor());
+		ProvisioningPlan plan = planner.getInstallPlan(new IInstallableUnit[] {f1_1}, profile, null, new NullProgressMonitor());
 		assertOK(plan.getStatus());
-		assertOK(director.install(new IInstallableUnit[] {f1_1}, profile, new NullProgressMonitor()));
+		assertOK(director.install(new IInstallableUnit[] {f1_1}, profile, null, new NullProgressMonitor()));
 		for (Iterator iterator = profile.getInstallableUnits(); iterator.hasNext();) {
 			System.out.println(iterator.next());
 		}
-		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1_4}, profile, new NullProgressMonitor()).getSeverity());
+		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1_4}, profile, null, new NullProgressMonitor()).getSeverity());
 
 		//		director.replace(new IInstallableUnit[] {fap}, profile, new NullProgressMonitor());
 	}

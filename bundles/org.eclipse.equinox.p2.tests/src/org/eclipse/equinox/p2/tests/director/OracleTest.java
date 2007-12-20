@@ -50,10 +50,10 @@ public class OracleTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstallA1() {
-		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity());
+		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {a1}, profile, null, null).getSeverity());
 
 		createTestMetdataRepository(new IInstallableUnit[] {d2});
 		//		assertEquals(new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null), true);
-		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {b1}, profile, null).getSeverity());
+		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {b1}, profile, null, null).getSeverity());
 	}
 }

@@ -197,7 +197,7 @@ public class ProvisioningHelper {
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
 		IInstallableUnit[] toInstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);
-		ProvisioningPlan result = planner.getInstallPlan(toInstall, profile, progress);
+		ProvisioningPlan result = planner.getInstallPlan(toInstall, profile, null, progress);
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 

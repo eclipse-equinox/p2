@@ -92,9 +92,9 @@ public class DirectorTest extends TestCase {
 		if (!allJobs.isEmpty()) {
 			allRoots[0] = (IInstallableUnit) allJobs.iterator().next();
 			if (!doUninstall) {
-				operationStatus = director.install(allRoots, p, new NullProgressMonitor());
+				operationStatus = director.install(allRoots, p, null, new NullProgressMonitor());
 			} else {
-				operationStatus = director.uninstall(allRoots, p, new NullProgressMonitor());
+				operationStatus = director.uninstall(allRoots, p, null, new NullProgressMonitor());
 			}
 		} else {
 			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.p2.director.test", "The installable unit '" + System.getProperty("eclipse.p2.autoInstall") + "' has not been found");

@@ -10,6 +10,7 @@
 package org.eclipse.equinox.p2.reconciler.dropins;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.configurator.Configurator;
@@ -142,7 +143,7 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
 		IDirector director = (IDirector) context.getService(reference);
 		try {
-			director.install(toAdd, profile, null);
+			director.install(toAdd, profile, new URL[0], monitor);
 		} finally {
 			context.ungetService(reference);
 		}
@@ -156,7 +157,7 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
 		IDirector director = (IDirector) context.getService(reference);
 		try {
-			director.uninstall(toRemove, profile, null);
+			director.uninstall(toRemove, profile, new URL[0], monitor);
 		} finally {
 			context.ungetService(reference);
 		}

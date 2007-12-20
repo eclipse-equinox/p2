@@ -84,7 +84,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	public void testInstallSDK() {
 		Profile profile2 = createProfile("profile2");
 		//First we install the sdk
-		IStatus s = director.install(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, new NullProgressMonitor());
+		IStatus s = director.install(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, null, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("Installation failed");
 		IInstallableUnit firstSnapshot = getIU("profile2"); //This should represent the empty profile
@@ -92,7 +92,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotNull(firstSnapshot.getProperty("profileIU"));
 
 		//Uninstall the SDK
-		s = director.uninstall(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, new NullProgressMonitor());
+		s = director.uninstall(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, null, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("The uninstallation has failed and it was not expected");
 
@@ -102,20 +102,20 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertTrue(profile2.query(new InstallableUnitQuery("sdk", VersionRange.emptyRange), new Collector(), null).isEmpty());
 
 		// Now test the rollback to a previous state, in this case we reinstall the SDK
-		s = director.become(snapshots[0].equals(firstSnapshot) ? snapshots[1] : snapshots[0], profile2, new NullProgressMonitor());
+		s = director.become(snapshots[0].equals(firstSnapshot) ? snapshots[1] : snapshots[0], profile2, null, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("The become operation failed");
 
 		assertNotNull(getIU("sdk"));
 
 		//Test replace
-		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, planner.updatesFor(getIU("sdk", new Version("3.3.0"))), profile2, new NullProgressMonitor());
+		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, planner.updatesFor(getIU("sdk", new Version("3.3.0")), null), profile2, null, new NullProgressMonitor());
 		assertOK(s);
 		assertProfileContainsAll("", profile2, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
 		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2.getInstallableUnits());
 
 		//Remove everything from the profile by becoming an empty profile
-		s = director.become(firstSnapshot, profile2, new NullProgressMonitor());
+		s = director.become(firstSnapshot, profile2, null, new NullProgressMonitor());
 		assertOK(s);
 		//		assertEmptyProfile(profile2);
 	}

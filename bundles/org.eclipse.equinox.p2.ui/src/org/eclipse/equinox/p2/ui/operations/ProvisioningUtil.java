@@ -198,7 +198,7 @@ public class ProvisioningUtil {
 	public static ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(toInstall);
-		return getPlanner().getInstallPlan(toInstall, profile, monitor);
+		return getPlanner().getInstallPlan(toInstall, profile, null, monitor);
 	}
 
 	/*
@@ -208,7 +208,7 @@ public class ProvisioningUtil {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(toUninstall);
 		Assert.isNotNull(replacements);
-		return getPlanner().getReplacePlan(toUninstall, replacements, profile, monitor);
+		return getPlanner().getReplacePlan(toUninstall, replacements, profile, null, monitor);
 	}
 
 	/*
@@ -218,7 +218,7 @@ public class ProvisioningUtil {
 	 */
 	public static IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(toUpdate);
-		return getPlanner().updatesFor(toUpdate);
+		return getPlanner().updatesFor(toUpdate, null);
 	}
 
 	/*
@@ -231,7 +231,7 @@ public class ProvisioningUtil {
 		IPlanner planner = getPlanner();
 		ArrayList allUpdates = new ArrayList();
 		for (int i = 0; i < toUpdate.length; i++) {
-			IInstallableUnit[] updates = planner.updatesFor(toUpdate[i]);
+			IInstallableUnit[] updates = planner.updatesFor(toUpdate[i], null);
 			for (int j = 0; j < updates.length; j++)
 				allUpdates.add(updates[j]);
 		}
@@ -244,7 +244,7 @@ public class ProvisioningUtil {
 	public static ProvisioningPlan getRevertPlan(IInstallableUnit profileIU, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(profileIU);
-		return getPlanner().getRevertPlan(profileIU, profile, monitor);
+		return getPlanner().getRevertPlan(profileIU, profile, null, monitor);
 	}
 
 	/*
@@ -253,7 +253,7 @@ public class ProvisioningUtil {
 	public static ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, Profile profile, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profile);
 		Assert.isNotNull(toUninstall);
-		return getPlanner().getUninstallPlan(toUninstall, profile, monitor);
+		return getPlanner().getUninstallPlan(toUninstall, profile, null, monitor);
 	}
 
 	/*

@@ -130,7 +130,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				} catch (IOException e) {
 					throw new ProvisionException("Exception while processing configuration.", e);
 				}
-				File file = new File(url.getFile(), "plugins");
+				File file = new File(url.getPath(), "plugins");
 				DirectoryWatcher watcher = new DirectoryWatcher(file);
 				SiteListener listener = new SiteListener(site);
 				watcher.addListener(listener);

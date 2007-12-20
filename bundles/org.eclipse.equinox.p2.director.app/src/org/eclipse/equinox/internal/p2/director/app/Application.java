@@ -173,9 +173,9 @@ public class Application implements IApplication {
 		IStatus operationStatus = null;
 		if (roots.length > 0) {
 			if (install) {
-				result = planner.getInstallPlan(roots, profile, new NullProgressMonitor());
+				result = planner.getInstallPlan(roots, profile, null, new NullProgressMonitor());
 			} else {
-				result = planner.getUninstallPlan(roots, profile, new NullProgressMonitor());
+				result = planner.getUninstallPlan(roots, profile, null, new NullProgressMonitor());
 			}
 			if (!result.getStatus().isOK())
 				operationStatus = result.getStatus();
@@ -185,8 +185,8 @@ public class Application implements IApplication {
 				operationStatus = engine.perform(profile, set, result.getOperands(), new NullProgressMonitor());
 				System.out.println(Messages.Disk_size + sizeComputer.getDiskSize());
 				System.out.println(Messages.Download_size + sizeComputer.getDlSize());
-				operationStatus = (install ? director.install(roots, profile, new NullProgressMonitor()) //
-						: director.uninstall(roots, profile, new NullProgressMonitor()));
+				operationStatus = (install ? director.install(roots, profile, null, new NullProgressMonitor()) //
+						: director.uninstall(roots, profile, null, new NullProgressMonitor()));
 			}
 		} else {
 			operationStatus = new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.Missing_IU, root));

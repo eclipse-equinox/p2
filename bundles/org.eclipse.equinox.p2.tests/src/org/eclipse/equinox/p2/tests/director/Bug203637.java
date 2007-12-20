@@ -19,7 +19,7 @@ public class Bug203637 extends AbstractProvisioningTest {
 		IDirector d = createDirector();
 		Profile profile = createProfile("TestProfile." + getName());
 		IInstallableUnit a1 = createIU("A", new Version(1, 0, 0), true);
-		assertOK(d.replace(new IInstallableUnit[0], new IInstallableUnit[] {a1}, profile, null));
+		assertOK(d.replace(new IInstallableUnit[0], new IInstallableUnit[] {a1}, profile, null, null));
 
 	}
 }

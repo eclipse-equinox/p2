@@ -75,6 +75,6 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		director = createDirector();
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, c1, c2, b1});
 
-		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null).getSeverity(), IStatus.OK);
+		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null, null).getSeverity(), IStatus.OK);
 	}
 }

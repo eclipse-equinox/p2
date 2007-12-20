@@ -33,7 +33,7 @@ public interface IDirector {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public IStatus install(IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
+	public IStatus install(IInstallableUnit[] toInstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
 	/**
 	 * Uninstalls the given units from the given profile.
@@ -43,13 +43,13 @@ public interface IDirector {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public IStatus uninstall(IInstallableUnit[] toUninstall, Profile profile, IProgressMonitor monitor);
+	public IStatus uninstall(IInstallableUnit[] toUninstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public IStatus become(IInstallableUnit target, Profile profile, IProgressMonitor monitor);
+	public IStatus become(IInstallableUnit target, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
+	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public IStatus revert(IInstallableUnit previous, Profile profile, IProgressMonitor monitor);
+	public IStatus revert(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
 	//TODO And many more operations for uninstallation and the rest ! See bug 179819
 

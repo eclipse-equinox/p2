@@ -58,7 +58,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		//Install into a profile in which the filter is satisfied
 		Profile satisfied = createProfile("Satisfied." + getName());
 		satisfied.setValue(Profile.PROP_ENVIRONMENTS, "FilterKey=true");
-		IStatus result = director.install(toInstallArray, satisfied, null);
+		IStatus result = director.install(toInstallArray, satisfied, null, null);
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", satisfied, allUnits);
 	}
@@ -81,7 +81,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null);
+		IStatus result = director.install(toInstallArray, profile, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -102,7 +102,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
-		IStatus result = director.install(allUnits, profile, null);
+		IStatus result = director.install(allUnits, profile, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -127,12 +127,12 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null);
+		IStatus result = director.install(toInstallArray, profile, null, null);
 		assertTrue("1.0", !result.isOK());
 
 		//try again with the filter satisfied
 		profile.setValue(Profile.PROP_ENVIRONMENTS, "osgi.os=blort");
-		result = director.install(toInstallArray, profile, null);
+		result = director.install(toInstallArray, profile, null, null);
 		assertTrue("2.0", result.isOK());
 	}
 
@@ -154,7 +154,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null);
+		IStatus result = director.install(toInstallArray, profile, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -179,7 +179,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null);
+		IStatus result = director.install(toInstallArray, profile, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -205,7 +205,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null);
+		IStatus result = director.install(toInstallArray, profile, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());

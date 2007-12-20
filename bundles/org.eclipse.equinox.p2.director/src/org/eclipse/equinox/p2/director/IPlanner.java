@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.director;
 
+import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -28,7 +29,7 @@ public interface IPlanner {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
+	public ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
 	/**
 	 * Provides a plan for uninstalling the given units from the given profile.
@@ -38,14 +39,14 @@ public interface IPlanner {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, Profile profile, IProgressMonitor monitor);
+	public ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public ProvisioningPlan getBecomePlan(IInstallableUnit target, Profile profile, IProgressMonitor monitor);
+	public ProvisioningPlan getBecomePlan(IInstallableUnit target, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor);
+	public ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, IProgressMonitor monitor);
+	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate);
+	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, URL[] metadataRepositories);
 
 }

@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -18,6 +19,7 @@ import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
@@ -27,7 +29,7 @@ import org.eclipse.osgi.util.NLS;
 public class SimplePlanner implements IPlanner {
 	static final int ExpandWork = 10;
 
-	public ProvisioningPlan getInstallPlan(IInstallableUnit[] installRoots, Profile profile, IProgressMonitor monitor) {
+	public ProvisioningPlan getInstallPlan(IInstallableUnit[] installRoots, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
@@ -46,7 +48,7 @@ public class SimplePlanner implements IPlanner {
 				return new ProvisioningPlan(result);
 			}
 			//Compute the complete closure of things to install to successfully install the installRoots.
-			NewDependencyExpander expander = new NewDependencyExpander(installRoots, alreadyInstalled, gatherAvailableInstallableUnits(installRoots), profile, true);
+			NewDependencyExpander expander = new NewDependencyExpander(installRoots, alreadyInstalled, gatherAvailableInstallableUnits(installRoots, metadataRepositories), profile, true);
 			//			NewDependencyExpander expander = new NewDependencyExpander(installRoots, alreadyInstalled, gatherAvailableInstallableUnits(), profile, true);
 			IStatus expanderResult = expander.expand(sub.newChild(ExpandWork));
 			if (!expanderResult.isOK()) {
@@ -110,7 +112,7 @@ public class SimplePlanner implements IPlanner {
 		return toSort;
 	}
 
-	public ProvisioningPlan getBecomePlan(IInstallableUnit target, Profile profile, IProgressMonitor monitor) {
+	public ProvisioningPlan getBecomePlan(IInstallableUnit target, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
@@ -125,7 +127,7 @@ public class SimplePlanner implements IPlanner {
 			//Also if the profile changes (locations are being modified, etc), should not we do a full uninstall then an install?
 			//Maybe it depends on the kind of changes in a profile
 			//We need to get all the ius that were part of the profile and give that to be what to become
-			NewDependencyExpander toExpander = new NewDependencyExpander(new IInstallableUnit[] {target}, null, gatherAvailableInstallableUnits(new IInstallableUnit[] {target}), profile, true);
+			NewDependencyExpander toExpander = new NewDependencyExpander(new IInstallableUnit[] {target}, null, gatherAvailableInstallableUnits(new IInstallableUnit[] {target}, metadataRepositories), profile, true);
 			toExpander.expand(sub.newChild(ExpandWork));
 			ResolutionHelper newStateHelper = new ResolutionHelper(profile.getSelectionContext(), toExpander.getRecommendations());
 			Collection newState = newStateHelper.attachCUs(toExpander.getAllInstallableUnits());
@@ -160,7 +162,7 @@ public class SimplePlanner implements IPlanner {
 		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
 
-	public ProvisioningPlan getUninstallPlan(IInstallableUnit[] uninstallRoots, Profile profile, IProgressMonitor monitor) {
+	public ProvisioningPlan getUninstallPlan(IInstallableUnit[] uninstallRoots, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
@@ -183,7 +185,7 @@ public class SimplePlanner implements IPlanner {
 
 			Collection remainingIUs = new HashSet(oldState);
 			remainingIUs.removeAll(toUninstallClosure);
-			NewDependencyExpander finalExpander = new NewDependencyExpander(null, (IInstallableUnit[]) remainingIUs.toArray(new IInstallableUnit[remainingIUs.size()]), gatherAvailableInstallableUnits(uninstallRoots), profile, true);
+			NewDependencyExpander finalExpander = new NewDependencyExpander(null, (IInstallableUnit[]) remainingIUs.toArray(new IInstallableUnit[remainingIUs.size()]), gatherAvailableInstallableUnits(uninstallRoots, metadataRepositories), profile, true);
 			finalExpander.expand(sub.newChild(ExpandWork / 2));
 			ResolutionHelper newStateHelper = new ResolutionHelper(profile.getSelectionContext(), null);
 			Collection newState = newStateHelper.attachCUs(finalExpander.getAllInstallableUnits());
@@ -201,21 +203,28 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
-	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource) {
+	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] metadataRepositories) {
 		List results = new ArrayList();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
 				results.add(additionalSource[i]);
 			}
 		}
+
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		Iterator matches = repoMgr.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), null).iterator();
-		while (matches.hasNext())
-			results.add(matches.next());
+		if (metadataRepositories == null)
+			metadataRepositories = repoMgr.getKnownRepositories();
+
+		for (int i = 0; i < metadataRepositories.length; i++) {
+			IMetadataRepository repository = repoMgr.loadRepository(metadataRepositories[i], null);
+			Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), null);
+			for (Iterator it = matches.iterator(); it.hasNext();)
+				results.add(it.next());
+		}
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
 	}
 
-	public ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor) {
+	public ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
@@ -237,7 +246,7 @@ public class SimplePlanner implements IPlanner {
 			//		for (int i = 0; i < updateRoots.length; i++) {
 			//			remainingIUs.add(updateRoots[i]);
 			//		}
-			NewDependencyExpander finalExpander = new NewDependencyExpander(toInstall, (IInstallableUnit[]) remainingIUs.toArray(new IInstallableUnit[remainingIUs.size()]), gatherAvailableInstallableUnits(null), profile, true);
+			NewDependencyExpander finalExpander = new NewDependencyExpander(toInstall, (IInstallableUnit[]) remainingIUs.toArray(new IInstallableUnit[remainingIUs.size()]), gatherAvailableInstallableUnits(null, metadataRepositories), profile, true);
 			finalExpander.expand(sub.newChild(ExpandWork / 2));
 			ResolutionHelper newStateHelper = new ResolutionHelper(profile.getSelectionContext(), null);
 			Collection newState = newStateHelper.attachCUs(finalExpander.getAllInstallableUnits());
@@ -248,8 +257,8 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
-	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate) {
-		IInstallableUnit[] allius = gatherAvailableInstallableUnits(null);
+	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, URL[] metadataRepositories) {
+		IInstallableUnit[] allius = gatherAvailableInstallableUnits(null, metadataRepositories);
 		Set updates = new HashSet();
 		for (int i = 0; i < allius.length; i++) {
 			if (toUpdate.getId().equals(allius[i].getProperty(IInstallableUnit.PROP_UPDATE_FROM))) {
@@ -269,7 +278,7 @@ public class SimplePlanner implements IPlanner {
 		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
 
-	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, IProgressMonitor monitor) {
-		return getBecomePlan(previous, profile, monitor);
+	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
+		return getBecomePlan(previous, profile, metadataRepositories, monitor);
 	}
 }
