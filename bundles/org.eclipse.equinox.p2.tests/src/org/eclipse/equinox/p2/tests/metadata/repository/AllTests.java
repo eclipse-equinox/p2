@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,16 +13,15 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import junit.framework.*;
 
 /**
- * Performs all automated director tests.
+ * Performs all automated metadata repository tests.
  */
 public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
-		//TODO This test currently fails because our file formats are not stable
 		suite.addTestSuite(JarURLRepositoryTest.class);
+		suite.addTestSuite(LocalMetadataRepositoryTest.class);
 		suite.addTestSuite(MetadataRepositoryManagerTest.class);
-
 		return suite;
 	}
 
