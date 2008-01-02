@@ -9,6 +9,9 @@ import org.eclipse.equinox.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -24,6 +27,10 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 			for (int i = 0; i < files.length; i++)
 				delete(new File(target, files[i].getName()));
 		}
+	}
+
+	private IInstallableUnit[] getInstallableUnits(RepositoryListener listener) {
+		return (IInstallableUnit[]) listener.getMetadataRepository().query(new InstallableUnitQuery(null), new Collector(), null).toArray(IInstallableUnit.class);
 	}
 
 	public void testDirectoryWatcherListener() {
@@ -54,14 +61,14 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 
 		RepositoryListener listener = new RepositoryListener(TestActivator.getContext(), "test" + folder.getAbsolutePath().hashCode());
 
-		assertEquals("1.0", 0, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("1.0", 0, getInstallableUnits(listener).length);
 		assertEquals("1.1", 0, listener.getArtifactRepository().getArtifactKeys().length);
 
 		DirectoryWatcher watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
 		watcher.start();
 
-		assertEquals("2.0", 0, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("2.0", 0, getInstallableUnits(listener).length);
 		assertEquals("2.1", 0, listener.getArtifactRepository().getArtifactKeys().length);
 
 		try {
@@ -78,14 +85,14 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 			assertTrue("2.3", repo.getArtifactFile(keys[i]).toString().startsWith(folder.getAbsolutePath().toString()));
 		}
 
-		assertEquals("3.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("3.0", 2, getInstallableUnits(listener).length);
 		assertEquals("3.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
 		watcher.start();
 
-		assertEquals("4.0", 2, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("4.0", 2, getInstallableUnits(listener).length);
 		assertEquals("4.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
 		try {
@@ -95,7 +102,7 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		}
 		watcher.poll();
 
-		assertEquals("5.0", 3, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("5.0", 3, getInstallableUnits(listener).length);
 		assertEquals("5.1", 3, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher.stop();
@@ -111,7 +118,7 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		}
 		watcher.poll();
 
-		assertEquals("6.0", 1, listener.getMetadataRepository().getInstallableUnits(null).length);
+		assertEquals("6.0", 1, getInstallableUnits(listener).length);
 		assertEquals("6.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher.stop();

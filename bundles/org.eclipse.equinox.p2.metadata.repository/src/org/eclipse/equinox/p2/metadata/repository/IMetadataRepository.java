@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,14 +32,6 @@ public interface IMetadataRepository extends IRepository, IQueryable {
 	 * @param installableUnits the installable unts to add
 	 */
 	public void addInstallableUnits(IInstallableUnit[] installableUnits);
-
-	/**
-	 * Returns all installable units known to this repository.
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
-	 * @return the installable units known to this repository
-	 */
-	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor);
 
 	/**
 	 * Removes all installable units that match the given query from this repository.

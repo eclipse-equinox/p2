@@ -9,8 +9,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.p2.metadata.generator.Generator;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
 
@@ -76,7 +78,7 @@ public class JarURLRepositoryTest extends TestCase {
 			fail(e.getMessage());
 		}
 		IMetadataRepository repo = manager.loadRepository(jarRepoURL, null);
-		assertTrue(repo.getInstallableUnits(null).length > 0);
+		assertTrue(!repo.query(new InstallableUnitQuery(null), new Collector(), null).isEmpty());
 		manager.removeRepository(jarRepoURL);
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
-import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -22,7 +21,9 @@ import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository.RepositoryState;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -131,24 +132,11 @@ public class MetadataRepositoryIO {
 			attributeOptional(DESCRIPTION_ATTRIBUTE, repository.getDescription()); // TODO: could be cdata?
 
 			writeProperties(repository.getProperties());
-			writeInstallableUnits(getInstallableUnits(repository));
+			Collector units = repository.query(new InstallableUnitQuery(null), new Collector(), null);
+			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);
 			flush();
-		}
-
-		private IInstallableUnit[] getInstallableUnits(IMetadataRepository repository) {
-			// TODO: there must be a better solution to the problem.
-			Set units = null;
-			if (repository instanceof LocalMetadataRepository) {
-				units = ((LocalMetadataRepository) repository).getInstallableUnits();
-			} else if (repository instanceof URLMetadataRepository) {
-				units = ((URLMetadataRepository) repository).getInstallableUnits();
-			} else {
-				return repository.getInstallableUnits(new NullProgressMonitor());
-			}
-			return (units == null ? new IInstallableUnit[0] //
-					: (IInstallableUnit[]) units.toArray(new IInstallableUnit[units.size()]));
 		}
 	}
 

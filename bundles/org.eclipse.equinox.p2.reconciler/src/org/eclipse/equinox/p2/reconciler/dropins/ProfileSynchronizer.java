@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -18,7 +18,10 @@ import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.Query;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -47,7 +50,7 @@ public class ProfileSynchronizer {
 	 */
 	private void initialize() {
 		// snapshot is a table of all the IUs from this repository which are installed in the profile 
-		Map snapshot = new HashMap();
+		final Map snapshot = new HashMap();
 		for (Iterator iter = repositories.iterator(); iter.hasNext();) {
 			IMetadataRepository metadataRepository = (IMetadataRepository) iter.next();
 			String repositoryId = metadataRepository.getLocation().toExternalForm();
@@ -61,35 +64,44 @@ public class ProfileSynchronizer {
 			}
 		}
 
-		List toAdd = new ArrayList();
-		IInstallableUnit[] ius = getInstallableUnits(null);
-		for (int i = 0; i < ius.length; i++) {
-			IInstallableUnit iu = ius[i];
-			String iuFileName = iu.getProperty(FILE_NAME);
-			if (iuFileName == null) {
+		final List toAdd = new ArrayList();
+		//create the collector that will visit all the IUs in the repositories being synchronized
+		Collector syncCollector = new Collector() {
+			public boolean accept(Object object) {
+				IInstallableUnit iu = (IInstallableUnit) object;
+				String iuFileName = iu.getProperty(FILE_NAME);
 				// TODO is this right?
-				continue;
-			}
+				if (iuFileName == null)
+					return true;
 
-			// if the repository contains an IU that the profile doesn't, then add it to the list to install
-			IInstallableUnit profileIU = (IInstallableUnit) snapshot.get(iuFileName);
-			if (profileIU == null) {
-				toAdd.add(iu);
-				continue;
-			}
+				// if the repository contains an IU that the profile doesn't, then add it to the list to install
+				IInstallableUnit profileIU = (IInstallableUnit) snapshot.get(iuFileName);
+				if (profileIU == null) {
+					toAdd.add(iu);
+					return true;
+				}
 
-			Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
-			Long profileIULastModified = new Long(profileIU.getProperty(FILE_LAST_MODIFIED));
-			if (iuLastModified == null || profileIULastModified == null) {
+				Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
+				Long profileIULastModified = new Long(profileIU.getProperty(FILE_LAST_MODIFIED));
 				// TODO is this right?
-				continue;
+				if (iuLastModified == null || profileIULastModified == null)
+					return true;
+
+				// if the timestamp hasn't changed, then there is nothing to do so remove
+				// the IU from the snapshot so we don't accidentally remove it later
+				if (iuLastModified.equals(profileIULastModified))
+					snapshot.remove(iuFileName);
+				else
+					toAdd.add(iu);
+				return true;
 			}
-			// if the timestamp hasn't changed, then there is nothing to do so remove
-			// the IU from the snapshot so we don't accidentally remove it later
-			if (iuLastModified.equals(profileIULastModified))
-				snapshot.remove(iuFileName);
-			else
-				toAdd.add(iu);
+		};
+
+		Query query = new InstallableUnitQuery(null);
+		for (Iterator it = repositories.iterator(); it.hasNext();) {
+			IMetadataRepository repo = (IMetadataRepository) it.next();
+			// TODO report progress
+			repo.query(query, syncCollector, null);
 		}
 
 		// the IUs to remove is everything left that hasn't been removed from the snapshot
@@ -101,21 +113,6 @@ public class ProfileSynchronizer {
 		if (!toAdd.isEmpty()) {
 			iusToAdd = (IInstallableUnit[]) toAdd.toArray(new IInstallableUnit[toAdd.size()]);
 		}
-	}
-
-	/*
-	 * Helper method to collect the list of IUs from all the repositories.
-	 */
-	private IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
-		List result = new ArrayList();
-		for (Iterator iter = repositories.iterator(); iter.hasNext();) {
-			IMetadataRepository repo = (IMetadataRepository) iter.next();
-			// TODO report progress
-			IInstallableUnit[] units = repo.getInstallableUnits(null);
-			for (int i = 0; units != null && i < units.length; i++)
-				result.add(units[i]);
-		}
-		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
 
 	/*

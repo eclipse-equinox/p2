@@ -15,12 +15,10 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * A metadata repository that resides in the local file system.  If the repository
@@ -68,21 +66,6 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
 		units.addAll(Arrays.asList(installableUnits));
 		save();
-	}
-
-	// Get a non-modifiable collection of the installable units
-	// from the repository.
-	public Set getInstallableUnits() {
-		return Collections.unmodifiableSet(units);
-	}
-
-	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
-		monitor.beginTask(NLS.bind(Messages.REPO_LOADING, location.toExternalForm()), 5);
-		IInstallableUnit[] result = (IInstallableUnit[]) units.toArray(new IInstallableUnit[0]);
-		monitor.done();
-		return result;
 	}
 
 	public void initialize(RepositoryState state) {

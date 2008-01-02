@@ -19,8 +19,10 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.generator.BundleDescriptionFactory;
 import org.eclipse.equinox.p2.metadata.generator.MetadataGeneratorHelper;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
@@ -218,33 +220,35 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private void synchronizeArtifactRepository() {
-		boolean modified = false;
-		List snapshot = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
-
-		IInstallableUnit[] ius = metadataRepository.getInstallableUnits(null);
-		for (int i = 0; i < ius.length; i++) {
-			IInstallableUnit iu = ius[i];
-			IArtifactKey[] artifacts = iu.getArtifacts();
-			if (artifacts == null || artifacts.length == 0)
-				continue;
-			IArtifactKey artifact = artifacts[0];
-			if (!snapshot.remove(artifact)) {
-				File iuFile = new File(iu.getProperty("file.name"));
-				IArtifactDescriptor descriptor = generateArtifactDescriptor(iuFile);
-				if (descriptor != null) {
-					artifactRepository.addDescriptor(descriptor);
-					modified = true;
+		final boolean[] modified = {false};
+		final List snapshot = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
+		Collector collector = new Collector() {
+			public boolean accept(Object object) {
+				IInstallableUnit iu = (IInstallableUnit) object;
+				IArtifactKey[] artifacts = iu.getArtifacts();
+				if (artifacts == null || artifacts.length == 0)
+					return true;
+				IArtifactKey artifact = artifacts[0];
+				if (!snapshot.remove(artifact)) {
+					File iuFile = new File(iu.getProperty("file.name"));
+					IArtifactDescriptor descriptor = generateArtifactDescriptor(iuFile);
+					if (descriptor != null) {
+						artifactRepository.addDescriptor(descriptor);
+						modified[0] = true;
+					}
 				}
+				return true;
 			}
-		}
+		};
+		metadataRepository.query(new InstallableUnitQuery(null), collector, null);
 
 		for (Iterator it = snapshot.iterator(); it.hasNext();) {
 			IArtifactKey key = (IArtifactKey) it.next();
 			artifactRepository.removeDescriptor(key);
-			modified = true;
+			modified[0] = true;
 		}
 
-		if (modified)
+		if (modified[0])
 			lastModifed = System.currentTimeMillis();
 	}
 

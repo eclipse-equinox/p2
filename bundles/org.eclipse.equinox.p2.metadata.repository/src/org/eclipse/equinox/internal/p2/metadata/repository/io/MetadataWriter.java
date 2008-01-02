@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,15 +24,19 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		// TODO: add a processing instruction for the metadata version
 	}
 
-	protected void writeInstallableUnits(IInstallableUnit[] installableUnits) {
-		if (installableUnits.length > 0) {
-			start(INSTALLABLE_UNITS_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, installableUnits.length);
-			for (int i = 0; i < installableUnits.length; i++) {
-				writeInstallableUnit(installableUnits[i]);
-			}
-			end(INSTALLABLE_UNITS_ELEMENT);
-		}
+	/**
+	 * Writes a list of {@link IInstallableUnit}.
+	 * @param units An Iterator of {@link IInstallableUnit}.
+	 * @param size The number of units to write
+	 */
+	protected void writeInstallableUnits(Iterator units, int size) {
+		if (size == 0)
+			return;
+		start(INSTALLABLE_UNITS_ELEMENT);
+		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
+		while (units.hasNext())
+			writeInstallableUnit((IInstallableUnit) units.next());
+		end(INSTALLABLE_UNITS_ELEMENT);
 	}
 
 	protected void writeInstallableUnit(IInstallableUnit resolvedIU) {

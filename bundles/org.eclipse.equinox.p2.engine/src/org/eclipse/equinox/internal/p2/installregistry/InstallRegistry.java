@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -442,7 +442,7 @@ public class InstallRegistry implements IInstallRegistry {
 			start(PROFILE_INSTALL_REGISTRY_ELEMENT);
 			attribute(PROFILE_ID_ATTRIBUTE, profileId);
 			Set ius = profileRegistry.installableUnits;
-			writeInstallableUnits((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
+			writeInstallableUnits(ius.iterator(), ius.size());
 			writeIUPropertyMap(profileRegistry.getIUIdentityToPropertiesMap());
 			end(PROFILE_INSTALL_REGISTRY_ELEMENT);
 		}

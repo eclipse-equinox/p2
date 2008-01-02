@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -17,7 +17,8 @@ import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.osgi.framework.Version;
 
@@ -63,10 +64,6 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 			return this;
 		}
 		return null;
-	}
-
-	public IInstallableUnit[] getInstallableUnits(IProgressMonitor monitor) {
-		return (IInstallableUnit[]) units.toArray(new IInstallableUnit[0]);
 	}
 
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
