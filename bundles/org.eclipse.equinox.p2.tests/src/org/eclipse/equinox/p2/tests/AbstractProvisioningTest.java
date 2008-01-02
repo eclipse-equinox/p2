@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -38,7 +38,7 @@ public class AbstractProvisioningTest extends TestCase {
 	private static final RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
 	protected static final Version DEFAULT_VERSION = new Version(1, 0, 0);
-	protected static final TouchpointType ECLIPSE_TOUCHPOINT = new TouchpointType("eclipse", new Version(1, 0, 0));
+	protected static final TouchpointType ECLIPSE_TOUCHPOINT = MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0));
 
 	protected static final Map NO_PROPERTIES = Collections.EMPTY_MAP;
 	protected static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];

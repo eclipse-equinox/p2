@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -154,7 +154,7 @@ public class FragmentMethodTest extends TestCase {
 		InstallableUnitFragmentDescription iu = new InstallableUnitFragmentDescription();
 		iu.setId(name);
 		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
+		iu.setTouchpointType(MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0)));
 		iu.setProperty(PROP_FRAG, "value");
 		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), new RequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setRequiredCapabilities(reqs);
@@ -167,7 +167,7 @@ public class FragmentMethodTest extends TestCase {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(new TouchpointType("eclipse", new Version(1, 0, 0)));
+		iu.setTouchpointType(MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0)));
 		iu.setProperty(PROP_IU, "valueIU");
 		ProvidedCapability[] cap = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), new ProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);

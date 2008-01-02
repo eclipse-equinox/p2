@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -23,7 +23,7 @@ import org.osgi.framework.Version;
 
 public class EclipseTouchpoint extends Touchpoint {
 
-	private static final TouchpointType TOUCHPOINT_TYPE = new TouchpointType("eclipse", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final TouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("eclipse", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ACTION_ADD_JVM_ARG = "addJvmArg"; //$NON-NLS-1$

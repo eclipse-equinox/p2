@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,11 +21,11 @@ public class TouchpointType {
 	 * A touchpoint type indicating that the "null" touchpoint should be used.
 	 * The null touchpoint does not participate in any install phase.
 	 */
-	public static final TouchpointType NONE = new TouchpointType("null", new Version("0")); //$NON-NLS-1$//$NON-NLS-2$
+	public static final TouchpointType NONE = MetadataFactory.createTouchpointType("null", Version.emptyVersion); //$NON-NLS-1$
 	private String id;
 	private Version versionObject;
 
-	public TouchpointType(String id, Version aVersion) {
+	TouchpointType(String id, Version aVersion) {
 		this.id = id;
 		this.versionObject = aVersion;
 	}

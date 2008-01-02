@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -382,7 +382,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			super(parentHandler, TOUCHPOINT_TYPE_ELEMENT);
 			String[] values = parseRequiredAttributes(attributes, required);
 			Version version = checkVersion(TOUCHPOINT_TYPE_ELEMENT, VERSION_ATTRIBUTE, values[1]);
-			touchpointType = new TouchpointType(values[0], version);
+			touchpointType = MetadataFactory.createTouchpointType(values[0], version);
 		}
 
 		public TouchpointType getTouchpointType() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,7 +63,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		}
 
 		public TouchpointType getTouchpointType() {
-			return new TouchpointType("test", new Version("1.0.0"));
+			return MetadataFactory.createTouchpointType("test", new Version("1.0.0"));
 		}
 	}
 
@@ -148,7 +148,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 		InstallableUnitDescription description = new MetadataFactory.InstallableUnitDescription();
 		description.setId("org.eclipse.test");
 		description.setVersion(new Version("1.0.0"));
-		description.setTouchpointType(new TouchpointType(touchpointName, new Version("1.0.0")));
+		description.setTouchpointType(MetadataFactory.createTouchpointType(touchpointName, new Version("1.0.0")));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(description);
 		return createResolvedIU(unit);
 	}

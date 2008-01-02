@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -102,6 +102,10 @@ public class MetadataFactory {
 	 */
 	private static final TouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(Collections.EMPTY_MAP);
 
+	private static TouchpointType[] typeCache = new TouchpointType[5];
+
+	private static int typeCacheOffset;
+
 	/**
 	 * Creates and returns an {@link IInstallableUnit} based on the given 
 	 * description.  Once the installable unit has been created, the information is 
@@ -148,6 +152,7 @@ public class MetadataFactory {
 
 	/**
 	 * Creates an instance of {@link TouchpointData} with the given instructions.
+	 * 
 	 * @param instructions The instructions for the touchpoint data.
 	 * @return The created touchpoint data
 	 */
@@ -155,5 +160,37 @@ public class MetadataFactory {
 		Assert.isNotNull(instructions);
 		//copy the map to protect against subsequent change by caller
 		return instructions.isEmpty() ? EMPTY_TOUCHPOINT_DATA : new TouchpointData(new LinkedHashMap(instructions));
+	}
+
+	/**
+	 * Creates a touchpoint type with the given id and version.
+	 * 
+	 * @param id The touchpoint id
+	 * @param version The touchpoint version
+	 * @return A touchpoint type instance with the given id and version
+	 */
+	public static TouchpointType createTouchpointType(String id, Version version) {
+		TouchpointType result = getCachedTouchpointType(id, version);
+		if (result != null)
+			return result;
+		result = new TouchpointType(id, version);
+		putCachedTouchpointType(result);
+		return result;
+	}
+
+	private static TouchpointType getCachedTouchpointType(String id, Version version) {
+		synchronized (typeCache) {
+			for (int i = 0; i < typeCache.length; i++) {
+				if (typeCache[i] != null && typeCache[i].getId().equals(id) && typeCache[i].getVersion().equals(version))
+					return typeCache[i];
+			}
+		}
+		return null;
+	}
+
+	private static void putCachedTouchpointType(TouchpointType result) {
+		//simple rotating buffer
+		typeCache[typeCacheOffset] = result;
+		typeCacheOffset = (typeCacheOffset + 1) % typeCache.length;
 	}
 }
