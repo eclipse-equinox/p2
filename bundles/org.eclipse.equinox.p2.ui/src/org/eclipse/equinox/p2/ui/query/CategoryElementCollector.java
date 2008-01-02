@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		IInstallableUnit iu = (IInstallableUnit) match;
 		RequiredCapability[] requirements = iu.getRequiredCapabilities();
 		for (int i = 0; i < requirements.length; i++) {
-			if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU)) {
+			if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
 				referredIUs.add(requirements[i].getName());
 			}
 		}

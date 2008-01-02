@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -30,12 +30,12 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	Profile profile;
 
 	protected void setUp() throws Exception {
-		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, "C", new VersionRange("[1.0.0, 2.0.0)"), null);
+		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null);
 		a1 = createIU("A", requires, true);
 
 		c1 = createIU("C", DEFAULT_VERSION, true);
 
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, "C", new VersionRange("[2.0.0, 3.0.0)"), null);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 3.0.0)"), null);
 		Map properties = new HashMap();
 		properties.put(IInstallableUnit.PROP_UPDATE_FROM, "A");
 		properties.put(IInstallableUnit.PROP_UPDATE_RANGE, "[1.0.0, 2.3.0)");

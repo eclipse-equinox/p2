@@ -473,7 +473,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 * 	Get the 'self' capability for an installable unit with the give id and version.
 	 */
 	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
-		return MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU, installableUnitId, installableUnitVersion);
+		return MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, installableUnitId, installableUnitVersion);
 	}
 
 	private static void indent(OutputStream output, int indent) {

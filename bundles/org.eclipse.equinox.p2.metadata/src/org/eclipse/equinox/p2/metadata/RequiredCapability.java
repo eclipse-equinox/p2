@@ -23,7 +23,7 @@ import org.eclipse.osgi.service.resolver.VersionRange;
  * by the provisioning framework.
  * 
  * @see IInstallableUnit#NAMESPACE_IU_KIND
- * @see IInstallableUnit#NAMESPACE_IU
+ * @see IInstallableUnit#NAMESPACE_IU_ID
  */
 public class RequiredCapability {
 	private static final String[] NO_SELECTORS = new String[0];

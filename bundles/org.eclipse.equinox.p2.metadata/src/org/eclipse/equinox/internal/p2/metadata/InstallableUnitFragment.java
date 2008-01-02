@@ -29,7 +29,7 @@ public class InstallableUnitFragment extends InstallableUnit implements IInstall
 		hostId = iuId;
 		hostRange = versionRange;
 		if (hostId != null)
-			addRequiredCapability(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU, iuId, versionRange, null, false, false));
+			addRequiredCapability(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iuId, versionRange, null, false, false));
 	}
 
 	public String getHostId() {

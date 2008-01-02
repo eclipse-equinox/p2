@@ -146,7 +146,7 @@ public class IUImplementationGroup extends IUGroup {
 		id.setText(iu.getId());
 		version.setText(iu.getVersion().toString());
 
-		String value = iu.getProperty(IInstallableUnit.NAMESPACE_IU);
+		String value = iu.getProperty(IInstallableUnit.NAMESPACE_IU_ID);
 		if (value != null) {
 			namespace.setText(value);
 		}
@@ -181,7 +181,7 @@ public class IUImplementationGroup extends IUGroup {
 			InstallableUnitDescription unit = new InstallableUnitDescription();
 			unit.setId(id.getText().trim());
 			unit.setVersion(new Version(version.getText().trim()));
-			unit.setProperty(IInstallableUnit.NAMESPACE_IU, namespace.getText().trim());
+			unit.setProperty(IInstallableUnit.NAMESPACE_IU_ID, namespace.getText().trim());
 			// TODO this is bogus because we don't let user provide a touchpoint type version
 			unit.setTouchpointType(MetadataFactory.createTouchpointType(touchpointType.getText().trim(), new Version("1.0.0"))); //$NON-NLS-1$
 			iuElement = MetadataFactory.createInstallableUnit(unit);

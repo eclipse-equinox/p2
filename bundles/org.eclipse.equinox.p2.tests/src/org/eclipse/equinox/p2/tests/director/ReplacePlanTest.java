@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,9 +49,9 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		frag1_4 = createIUFragment(f1, "frag1", f1_4.getVersion());
 
 		//IUs that require base IU
-		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
+		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.3.0)"), null);
 		fa = createIU("fa", requires, false);
-		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU, "f1", new VersionRange("[1.0.0, 1.4.0)"), null);
+		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "f1", new VersionRange("[1.0.0, 1.4.0)"), null);
 		fap = createIU("fa", new Version(1, 1, 0), requires, NO_PROPERTIES, false);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa, frag1});

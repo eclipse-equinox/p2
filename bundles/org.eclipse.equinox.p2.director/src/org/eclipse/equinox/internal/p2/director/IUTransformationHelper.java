@@ -18,7 +18,7 @@ public class IUTransformationHelper {
 		ArrayList result = new ArrayList();
 		while (ius.hasNext()) {
 			IInstallableUnit current = (IInstallableUnit) ius.next();
-			result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU, current.getId(), new VersionRange(current.getVersion(), true, current.getVersion(), true), null, optional, false));
+			result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), new VersionRange(current.getVersion(), true, current.getVersion(), true), null, optional, false));
 		}
 		return (RequiredCapability[]) result.toArray(new RequiredCapability[result.size()]);
 	}
@@ -27,7 +27,7 @@ public class IUTransformationHelper {
 		RequiredCapability[] result = new RequiredCapability[ius.length];
 		for (int i = 0; i < result.length; i++) {
 			IInstallableUnit current = ius[i];
-			result[i] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU, current.getId(), new VersionRange(current.getVersion(), true, current.getVersion(), true), null, optional, false);
+			result[i] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), new VersionRange(current.getVersion(), true, current.getVersion(), true), null, optional, false);
 		}
 		return result;
 	}

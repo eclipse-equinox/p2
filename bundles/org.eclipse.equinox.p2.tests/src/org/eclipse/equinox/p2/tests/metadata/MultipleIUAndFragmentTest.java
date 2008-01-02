@@ -61,7 +61,7 @@ public class MultipleIUAndFragmentTest extends AbstractProvisioningTest {
 	}
 
 	private static IInstallableUnit createIUWithDependencyOn(String iuName, String dependencyOn) {
-		RequiredCapability[] requires = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU, dependencyOn, VersionRange.emptyRange, null, false, true)};
+		RequiredCapability[] requires = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, dependencyOn, VersionRange.emptyRange, null, false, true)};
 		return createEclipseIU(iuName, DEFAULT_VERSION, requires, NO_TP_DATA);
 	}
 }

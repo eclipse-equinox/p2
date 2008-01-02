@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,8 +86,8 @@ public class FragmentTest extends AbstractProvisioningTest {
 		IInstallableUnit iu = createEclipseIU("ui.test1");
 		ProvidedCapability[] cap = iu.getProvidedCapabilities();
 		for (int i = 0; i < cap.length; i++) {
-			if (cap[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU)) {
-				assertEquals(cap[i].getNamespace(), IInstallableUnit.NAMESPACE_IU);
+			if (cap[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
+				assertEquals(cap[i].getNamespace(), IInstallableUnit.NAMESPACE_IU_ID);
 				assertEquals(cap[i].getName(), iu.getId());
 				return;
 			}

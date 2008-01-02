@@ -343,7 +343,7 @@ public class NewDependencyExpander {
 					continue;
 				}
 				//verify that each IU requires the current iu
-				ProvidedCapability capForCurrent = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU, current.getId(), current.getVersion());
+				ProvidedCapability capForCurrent = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), current.getVersion());
 				Map toAdd = new HashMap();
 				for (int i = 0; i < matches.length; i++) {
 					RequiredCapability[] reqs = matches[i].getRequiredCapabilities();

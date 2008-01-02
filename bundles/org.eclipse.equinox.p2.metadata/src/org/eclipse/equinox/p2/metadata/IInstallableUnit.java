@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -23,12 +23,14 @@ public interface IInstallableUnit extends Comparable {
 	public static final String NAMESPACE_FLAVOR = "flavor"; //$NON-NLS-1$
 
 	/**
-	 * A capability namespace representing a particular InstallableUnit by name.
-	 * Each InstallableUnit automatically provides an instance of this namespace representing
+	 * A capability namespace representing a particular InstallableUnit by id.
+	 * Each InstallableUnit automatically provides a capability in this namespace representing
 	 * itself, and other InstallableUnits can require such a capability to state that they
 	 * require a particular InstallableUnit to be present.
+	 * 
+	 * @see IInstallableUnit#getId()
 	 */
-	public static final String NAMESPACE_IU = "org.eclipse.equinox.p2.iunamespace"; //$NON-NLS-1$
+	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iunamespace"; //$NON-NLS-1$
 	/**
 	 * A capability namespace representing a particular kind of installable unit.
 	 * For example, an InstallableUnit may specify that it provides the "group" kind
