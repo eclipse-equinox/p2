@@ -106,11 +106,11 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		IStatus s;
 		if (isInstall) {
 			monitor.setTaskName(NLS.bind("Installing {0}", installDescription.getProductName()));
-			s = director.install(toInstall, p, monitor.newChild(90));
+			s = director.install(toInstall, p, null, monitor.newChild(90));
 		} else {
 			monitor.setTaskName(NLS.bind("Updating {0}", installDescription.getProductName()));
 			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
-			s = director.replace(toUninstall, toInstall, p, monitor.newChild(90));
+			s = director.replace(toUninstall, toInstall, p, null, monitor.newChild(90));
 		}
 		if (!s.isOK())
 			throw new CoreException(s);
