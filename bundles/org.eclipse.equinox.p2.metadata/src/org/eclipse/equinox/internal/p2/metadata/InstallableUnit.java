@@ -19,6 +19,7 @@ public class InstallableUnit implements IInstallableUnit {
 	private static final OrderedProperties NO_PROPERTIES = new OrderedProperties();
 	private static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
 	private static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
+	private static final TouchpointData[] NO_TOUCHPOINT_DATA = new TouchpointData[0];
 
 	String applicabilityFilter;
 	private IArtifactKey[] artifacts;
@@ -147,7 +148,7 @@ public class InstallableUnit implements IInstallableUnit {
 	}
 
 	public TouchpointData[] getTouchpointData() {
-		return (touchpointData == null ? TouchpointData.NO_TOUCHPOINT_DATA //
+		return (touchpointData == null ? NO_TOUCHPOINT_DATA //
 				: (TouchpointData[]) touchpointData.toArray(new TouchpointData[touchpointData.size()]));
 	}
 

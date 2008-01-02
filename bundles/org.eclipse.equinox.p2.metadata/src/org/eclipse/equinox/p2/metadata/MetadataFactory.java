@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.metadata;
 
+import java.util.*;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -97,6 +98,11 @@ public class MetadataFactory {
 	}
 
 	/**
+	 * Singleton touchpoint data for a touchpoint with no instructions.
+	 */
+	private static final TouchpointData EMPTY_TOUCHPOINT_DATA = new TouchpointData(Collections.EMPTY_MAP);
+
+	/**
 	 * Creates and returns an {@link IInstallableUnit} based on the given 
 	 * description.  Once the installable unit has been created, the information is 
 	 * discarded from the description object.
@@ -138,5 +144,16 @@ public class MetadataFactory {
 		Assert.isNotNull(fragments);
 		return new ResolvedInstallableUnit(unit, fragments);
 
+	}
+
+	/**
+	 * Creates an instance of {@link TouchpointData} with the given instructions.
+	 * @param instructions The instructions for the touchpoint data.
+	 * @return The created touchpoint data
+	 */
+	public static TouchpointData createTouchpointData(Map instructions) {
+		Assert.isNotNull(instructions);
+		//copy the map to protect against subsequent change by caller
+		return instructions.isEmpty() ? EMPTY_TOUCHPOINT_DATA : new TouchpointData(new LinkedHashMap(instructions));
 	}
 }

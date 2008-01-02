@@ -107,7 +107,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			String[] nextInstruction = instructionData[i];
 			map.put(nextInstruction[0], nextInstruction[1]);
 		}
-		return new TouchpointData(map);
+		return MetadataFactory.createTouchpointData(map);
 	}
 
 	private static String IU_TEST_TARGET = "installableUnitTest";

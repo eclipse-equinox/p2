@@ -96,7 +96,7 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
 		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment));
 		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment));
-		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cu.setFilter(filter);
 		return MetadataFactory.createInstallableUnit(cu);
 	}
@@ -185,7 +185,7 @@ public class MetadataGeneratorHelper {
 		if (isFolderPlugin)
 			touchpointData.put("zipped", "true");
 		touchpointData.put("manifest", toManifestString(manifest));
-		iu.addTouchpointData(new TouchpointData(touchpointData));
+		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -265,7 +265,7 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("configure", createDefaultBundleConfigScript(configInfo)); //$NON-NLS-1$
 		touchpointData.put("unconfigure", createDefaultBundleUnconfigScript(unconfigInfo)); //$NON-NLS-1$
 
-		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
@@ -294,7 +294,7 @@ public class MetadataGeneratorHelper {
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
-		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
 		return MetadataFactory.createInstallableUnit(cu);
 	}
@@ -338,7 +338,7 @@ public class MetadataGeneratorHelper {
 			// that this is something that will not impact the configuration.
 			Map touchpointData = new HashMap();
 			touchpointData.put("zipped", "true");
-			iu.addTouchpointData(new TouchpointData(touchpointData));
+			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
 		return MetadataFactory.createInstallableUnit(iu);
 	}
@@ -400,7 +400,7 @@ public class MetadataGeneratorHelper {
 			resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 			touchpointData.put("install", "");
-			cu.addTouchpointData(new TouchpointData(touchpointData));
+			cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 			resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 			return null;
 		}
@@ -416,7 +416,7 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("install", configurationData);
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
-		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 
 		//Create the artifact descriptor
@@ -465,7 +465,7 @@ public class MetadataGeneratorHelper {
 		touchpointData.put("install", configurationData);
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
-		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		resultantIUs.add(MetadataFactory.createInstallableUnitFragment(cu));
 
 		//Create the artifact descriptor

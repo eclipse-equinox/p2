@@ -216,7 +216,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IInstallableUnitFragment[] cus = new IInstallableUnitFragment[1];
 		InstallableUnitFragmentDescription desc = new InstallableUnitFragmentDescription();
-		desc.addTouchpointData(new TouchpointData(touchpointData));
+		desc.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnitFragment fragment = MetadataFactory.createInstallableUnitFragment(desc);
 		cus[0] = fragment;
 
@@ -243,7 +243,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		IInstallableUnitFragment[] cus = new IInstallableUnitFragment[1];
 		InstallableUnitFragmentDescription desc = new InstallableUnitFragmentDescription();
-		desc.addTouchpointData(new TouchpointData(touchpointData));
+		desc.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cus[0] = MetadataFactory.createInstallableUnitFragment(desc);
 
 		//IArtifactKey key = new ArtifactKey("eclipse", "plugin", "org.eclipse.osgi", new Version("3.3.1.R33x_v20070828"));

@@ -407,12 +407,15 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public TouchpointData[] getTouchpointData() {
-			return (TouchpointData[]) data.toArray(new TouchpointData[data.size()]);
+			TouchpointData[] result = new TouchpointData[data.size()];
+			for (int i = 0; i < result.length; i++)
+				result[i] = ((TouchpointInstructionsHandler) data.get(i)).getTouchpointData();
+			return result;
 		}
 
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT)) {
-				new TouchpointInstructionsHandler(this, attributes, data);
+				data.add(new TouchpointInstructionsHandler(this, attributes, data));
 			} else {
 				invalidElement(name, attributes);
 			}
@@ -427,7 +430,10 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			super(parentHandler, TOUCHPOINT_DATA_INSTRUCTIONS_ELEMENT);
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
 			instructions = (size != null ? new LinkedHashMap(new Integer(size).intValue()) : new LinkedHashMap(4));
-			data.add(new TouchpointData(instructions));
+		}
+
+		public TouchpointData getTouchpointData() {
+			return MetadataFactory.createTouchpointData(instructions);
 		}
 
 		public void startElement(String name, Attributes attributes) {

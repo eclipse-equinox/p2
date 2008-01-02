@@ -14,12 +14,11 @@ import java.util.Collections;
 import java.util.Map;
 
 public class TouchpointData {
-	public static TouchpointData[] NO_TOUCHPOINT_DATA = new TouchpointData[0];
 
 	/**
 	 * Map of (String->String). The values represent the instructions. The set 
 	 * of keys supported is up to the touchpoint that will process these 
-	 * instructions
+	 * instructions. This map is never null.
 	 */
 	private Map instructions;
 
@@ -46,7 +45,7 @@ public class TouchpointData {
 		return true;
 	}
 
-	public TouchpointData(Map instructions) {
+	TouchpointData(Map instructions) {
 		this.instructions = instructions;
 	}
 

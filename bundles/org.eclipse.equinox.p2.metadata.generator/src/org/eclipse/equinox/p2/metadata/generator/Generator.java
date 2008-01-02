@@ -144,7 +144,7 @@ public class Generator {
 		}
 		touchpointData.put("configure", configurationData);
 		touchpointData.put("unconfigure", unconfigurationData);
-		root.addTouchpointData(new TouchpointData(touchpointData));
+		root.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
@@ -376,7 +376,7 @@ public class Generator {
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
-		cu.addTouchpointData(new TouchpointData(touchpointData));
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 
 		//Create the artifact descriptor

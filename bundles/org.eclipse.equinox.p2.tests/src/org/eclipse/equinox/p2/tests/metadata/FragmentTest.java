@@ -112,12 +112,12 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit createIUWithTouchpointData() {
-		TouchpointData data = new TouchpointData(new HashMap());
+		TouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
 		return createEclipseIU("ui.test1", DEFAULT_VERSION, NO_REQUIRES, data);
 	}
 
 	private IInstallableUnit createIUFragmentWithTouchpointData() {
-		TouchpointData data = new TouchpointData(new HashMap());
+		TouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
 		IInstallableUnitFragment unit = createBundleFragment("iuFragment.test1", DEFAULT_VERSION, data);
 		return unit;
 	}
