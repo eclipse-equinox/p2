@@ -170,6 +170,8 @@ public class MetadataFactory {
 	 * @return A touchpoint type instance with the given id and version
 	 */
 	public static TouchpointType createTouchpointType(String id, Version version) {
+		Assert.isNotNull(id);
+		Assert.isNotNull(version);
 		TouchpointType result = getCachedTouchpointType(id, version);
 		if (result != null)
 			return result;
