@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,18 +82,23 @@ public interface IRepository extends IAdaptable {
 	public void setName(String name);
 
 	/**
-	 * Returns a brief description of the repository.
+	 * Sets the description of the repository.
 	 */
 	public void setDescription(String description);
 
 	/**
-	 * Set the name of the provider of the repository.
+	 * Sets the value of the property with the given key. Returns the old property
+	 * associated with that key, if any.  Setting a value of <code>null</code> will
+	 * remove the corresponding key from the properties of this repository.
+	 * 
+	 * @param key The property key
+	 * @param value The new property value, or <code>null</code> to remove the key
+	 * @return The old property value, or <code>null</code> if there was no old value
 	 */
-	public void setProvider(String provider);
+	public String setProperty(String key, String value);
 
 	/**
-	 * Returns the modifiable collection of the properties of the repository.
-	 * @return the properties of this repository.
+	 * Sets the name of the provider of the repository.
 	 */
-	public Map getModifiableProperties();
+	public void setProvider(String provider);
 }

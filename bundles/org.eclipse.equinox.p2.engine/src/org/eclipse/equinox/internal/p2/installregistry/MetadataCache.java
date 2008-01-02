@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ public class MetadataCache {
 			return repository;
 		//instruct the repository manager to construct a new metadata cache 
 		repository = (AbstractMetadataRepository) manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		repository.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 		return repository;
 	}
 

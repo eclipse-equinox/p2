@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved.
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
@@ -85,7 +85,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			repository = manager.getRepository(stateDirURL);
 			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
-				repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+				repository.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
 			}
 		} finally {
 			context.ungetService(reference);
@@ -111,7 +111,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			repository = manager.loadRepository(stateDirURL, null);
 			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, "metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-				repository.getModifiableProperties().put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+				repository.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
 			}
 		} finally {
 			context.ungetService(reference);

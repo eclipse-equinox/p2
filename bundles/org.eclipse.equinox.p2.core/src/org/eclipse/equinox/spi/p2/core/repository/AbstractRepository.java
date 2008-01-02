@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,9 +22,7 @@ import org.eclipse.equinox.p2.core.repository.IRepository;
 * <p>
 * Clients may extend this class.
 * </p>
-* TODO: Do we want additional properties - time zone, copyrights, security etc.. 
 */
-
 public abstract class AbstractRepository extends PlatformObject implements IRepository {
 	protected String name;
 	protected String type;
@@ -113,11 +111,13 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 		this.provider = provider;
 	}
 
-	public Map getModifiableProperties() {
-		return properties;
-	}
-
 	public boolean isModifiable() {
 		return false;
+	}
+
+	public String setProperty(String key, String value) {
+		if (!isModifiable())
+			throw new UnsupportedOperationException("Repository not modifiable"); //$NON-NLS-1$
+		return (String) (value == null ? properties.remove(key) : properties.put(key, value));
 	}
 }
