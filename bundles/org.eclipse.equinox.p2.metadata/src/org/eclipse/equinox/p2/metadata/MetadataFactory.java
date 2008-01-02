@@ -107,7 +107,7 @@ public class MetadataFactory {
 	private static int typeCacheOffset;
 
 	/**
-	 * Creates and returns an {@link IInstallableUnit} based on the given 
+	 * Returns an {@link IInstallableUnit} based on the given 
 	 * description.  Once the installable unit has been created, the information is 
 	 * discarded from the description object.
 	 * 
@@ -120,7 +120,7 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Creates and returns an {@link IInstallableUnitFragment} based on the given 
+	 * Returns an {@link IInstallableUnitFragment} based on the given 
 	 * description.  Once the fragment has been created, the information is 
 	 * discarded from the description object.
 	 * 
@@ -133,7 +133,35 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Creates and returns an {@link IInstallableUnit} that represents the given
+	 * Returns a {@link ProvidedCapability} with the given values.
+	 * 
+	 * @param namespace The capability namespace
+	 * @param name The capability name
+	 * @param version The capability version
+	 */
+	public static ProvidedCapability createProvidedCapability(String namespace, String name, Version version) {
+		return new ProvidedCapability(namespace, name, version);
+	}
+
+	/**
+	 * Returns a {@link RequiredCapability} with the given values.
+	 * 
+	 * @param namespace The capability namespace
+	 * @param name The required capability name
+	 * @param range The range of versions that are required, or <code>null</code>
+	 * to indicate that any version will do.
+	 * @param filter The filter used to evaluate whether this capability is applicable in the
+	 * current environment, or <code>null</code> to indicate this capability is always applicable
+	 * @param optional <code>true</code> if this required capability is optional,
+	 * and <code>false</code> otherwise.
+	 * @param multiple <code>true</code> if this capability can be satisfied by multiple provided capabilities, or it requires exactly one match
+	 */
+	public static RequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
+		return new RequiredCapability(namespace, name, range, filter, optional, multiple);
+	}
+
+	/**
+	 * Returns an {@link IInstallableUnit} that represents the given
 	 * unit bound to the given fragments.
 	 * 
 	 * @see IInstallableUnit#isResolved()
@@ -151,7 +179,7 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Creates an instance of {@link TouchpointData} with the given instructions.
+	 * Returns an instance of {@link TouchpointData} with the given instructions.
 	 * 
 	 * @param instructions The instructions for the touchpoint data.
 	 * @return The created touchpoint data
@@ -163,7 +191,7 @@ public class MetadataFactory {
 	}
 
 	/**
-	 * Creates a touchpoint type with the given id and version.
+	 * Returns a {@link TouchpointType} with the given id and version.
 	 * 
 	 * @param id The touchpoint id
 	 * @param version The touchpoint version

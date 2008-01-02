@@ -235,7 +235,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			super(parentHandler, PROVIDED_CAPABILITY_ELEMENT);
 			String[] values = parseRequiredAttributes(attributes, required);
 			Version version = checkVersion(PROVIDED_CAPABILITY_ELEMENT, VERSION_ATTRIBUTE, values[2]);
-			capabilities.add(new ProvidedCapability(values[0], values[1], version));
+			capabilities.add(MetadataFactory.createProvidedCapability(values[0], values[1], version));
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -282,7 +282,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			VersionRange range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
 			boolean isOptional = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
 			boolean isMultiple = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();
-			currentCapability = new RequiredCapability(values[0], values[1], range, null, isOptional, isMultiple);
+			currentCapability = MetadataFactory.createRequiredCapability(values[0], values[1], range, null, isOptional, isMultiple);
 			capabilities.add(currentCapability);
 		}
 

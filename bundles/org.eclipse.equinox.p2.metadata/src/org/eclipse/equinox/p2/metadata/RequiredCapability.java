@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -26,6 +26,7 @@ import org.eclipse.osgi.service.resolver.VersionRange;
  * @see IInstallableUnit#NAMESPACE_IU
  */
 public class RequiredCapability {
+	private static final String[] NO_SELECTORS = new String[0];
 
 	private String filter;
 	private final boolean multiple;
@@ -33,37 +34,14 @@ public class RequiredCapability {
 	private final String namespace;//never null
 	private boolean optional;
 	private final VersionRange range;//never null
-	private String[] selectors;
+	private String[] selectors = NO_SELECTORS;//never null
 
-	/**
-	 * Returns a {@link RequiredCapability} on the installable unit with the given name
-	 * and version range.
-	 * 
-	 * @param name The name of the {@link IInstallableUnit} that is required.
-	 * @param versionRange The range of versions that are required, or <code>null</code>
-	 * to indicate that any version will do.
-	 * @param optional <code>true</code> if this required capability is optional,
-	 * and <code>false</code> otherwise.
-	 */
-	public static RequiredCapability createRequiredCapabilityForName(String name, VersionRange versionRange, boolean optional) {
-		return new RequiredCapability(IInstallableUnit.NAMESPACE_IU, name, versionRange, null, optional, false);
-	}
-
-	public RequiredCapability(String namespace, String name, VersionRange range) {
-		this(namespace, name, range, null, false, false);
-	}
-
-	public RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
-		this(namespace, name, range, null, filter, optional, multiple);
-	}
-
-	public RequiredCapability(String namespace, String name, VersionRange range, String[] selectors, String filter, boolean optional, boolean multiple) {
+	RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple) {
 		Assert.isNotNull(namespace);
 		Assert.isNotNull(name);
 		this.namespace = namespace;
 		this.name = name;
 		this.range = range == null ? VersionRange.emptyRange : range;
-		this.selectors = selectors == null ? new String[0] : selectors;
 		this.optional = optional;
 		this.filter = filter;
 		this.multiple = multiple;

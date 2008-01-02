@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -146,7 +146,7 @@ public class NewDependencyExpander {
 			ArrayList result = new ArrayList();
 			ProvidedCapability[] caps = wrapped.getProvidedCapabilities();
 			for (int i = 0; i < caps.length; i++) {
-				result.add(new RequiredCapability(caps[i].getNamespace(), caps[i].getName(), new VersionRange(caps[i].getVersion(), true, caps[i].getVersion(), true), wrapped.getFilter(), optionalReqs, false));
+				result.add(MetadataFactory.createRequiredCapability(caps[i].getNamespace(), caps[i].getName(), new VersionRange(caps[i].getVersion(), true, caps[i].getVersion(), true), wrapped.getFilter(), optionalReqs, false));
 			}
 			result.addAll(Arrays.asList(wrapped.getRequiredCapabilities()));
 			return (RequiredCapability[]) result.toArray(new RequiredCapability[result.size()]);
@@ -316,7 +316,7 @@ public class NewDependencyExpander {
 		String flavor = profile.getValue(Profile.PROP_FLAVOR);
 		if (flavor == null)
 			return new HashSet();
-		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
+		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
 		IInstallableUnit[] ius;
 		if (picked[0].length > 0)
 			ius = picked[0];
@@ -335,7 +335,7 @@ public class NewDependencyExpander {
 		Set picked = new HashSet();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit current = (IInstallableUnit) iterator.next();
-			IInstallableUnit[][] candidates = picker.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability("fragment", current.getId(), VersionRange.emptyRange, null, true, false)}, false /* not fragmentsOnly */); //$NON-NLS-1$
+			IInstallableUnit[][] candidates = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability("fragment", current.getId(), VersionRange.emptyRange, null, true, false)}, false /* not fragmentsOnly */); //$NON-NLS-1$
 			IInstallableUnit[] matches = candidates[0].length > 0 ? candidates[0] : candidates[1];
 			if (matches.length > 0) { //TODO Here we need to check the filter of the found iu
 				if (matches.length == 1) {
@@ -343,7 +343,7 @@ public class NewDependencyExpander {
 					continue;
 				}
 				//verify that each IU requires the current iu
-				ProvidedCapability capForCurrent = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, current.getId(), current.getVersion());
+				ProvidedCapability capForCurrent = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU, current.getId(), current.getVersion());
 				Map toAdd = new HashMap();
 				for (int i = 0; i < matches.length; i++) {
 					RequiredCapability[] reqs = matches[i].getRequiredCapabilities();
@@ -481,7 +481,7 @@ public class NewDependencyExpander {
 							VersionRange newRange = intersect(currentMatch.req.getRange(), current.getRange());
 							if (newRange != null) {
 								//merge version range and environment with existing match
-								currentMatch.req = new RequiredCapability(current.getNamespace(), current.getName(), newRange, current.getFilter(), currentMatch.req.isOptional() && current.isOptional(), false);
+								currentMatch.req = MetadataFactory.createRequiredCapability(current.getNamespace(), current.getName(), newRange, current.getFilter(), currentMatch.req.isOptional() && current.isOptional(), false);
 								currentMatch.env = mergeEnvironments(currentMatch.env, current);
 								continue outer;
 							}

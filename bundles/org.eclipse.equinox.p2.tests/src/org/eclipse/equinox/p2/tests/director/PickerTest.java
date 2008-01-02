@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,7 @@ public class PickerTest extends AbstractProvisioningTest {
 		Version version = new Version(5, 0, 0);
 
 		//create some sample IUs to be available for the picker
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		unitVersion5 = createIU("required", version, provides);
 
 		IInstallableUnit[] units = new IInstallableUnit[] {unitVersion5};

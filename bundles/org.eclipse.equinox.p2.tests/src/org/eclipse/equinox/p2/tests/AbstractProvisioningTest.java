@@ -33,9 +33,9 @@ import org.osgi.framework.Version;
 public class AbstractProvisioningTest extends TestCase {
 
 	protected static final VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
-	private static final ProvidedCapability[] BUNDLE_CAPABILITY = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
+	private static final ProvidedCapability[] BUNDLE_CAPABILITY = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
 
-	private static final RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
+	private static final RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
 	protected static final Version DEFAULT_VERSION = new Version(1, 0, 0);
 	protected static final TouchpointType ECLIPSE_TOUCHPOINT = MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0));
@@ -411,7 +411,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 * Creates and returns a required capability with the provided attributes.
 	 */
 	protected static RequiredCapability[] createRequiredCapabilities(String namespace, String name, VersionRange range, String filter) {
-		return new RequiredCapability[] {new RequiredCapability(namespace, name, range, filter, false, false)};
+		return new RequiredCapability[] {MetadataFactory.createRequiredCapability(namespace, name, range, filter, false, false)};
 	}
 
 	public static boolean delete(File file) {
@@ -472,7 +472,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 * 	Get the 'self' capability for an installable unit with the give id and version.
 	 */
 	private static ProvidedCapability getSelfCapability(String installableUnitId, Version installableUnitVersion) {
-		return new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, installableUnitId, installableUnitVersion);
+		return MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU, installableUnitId, installableUnitVersion);
 	}
 
 	private static void indent(OutputStream output, int indent) {

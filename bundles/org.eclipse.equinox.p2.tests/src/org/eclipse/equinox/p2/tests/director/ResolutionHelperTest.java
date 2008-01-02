@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -44,7 +44,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(5, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose required capability falls outside available range
@@ -73,7 +73,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(2, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose required capability falls outside available range
@@ -98,7 +98,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, createFilter(FILTER_KEY, "win32"), provides);
 
 		RequiredCapability[] requires = createRequiredCapabilities("test.capability", "test", ANY_VERSION, null);
@@ -144,7 +144,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will match the environment
@@ -172,7 +172,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will not match the environment
@@ -192,10 +192,10 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 	}
 
 	public void testSimpleDependency() {
-		RequiredCapability[] requires = new RequiredCapability[] {new RequiredCapability("java.runtime", "JRE", null, null, false, false)};
+		RequiredCapability[] requires = new RequiredCapability[] {MetadataFactory.createRequiredCapability("java.runtime", "JRE", null, null, false, false)};
 		IInstallableUnit osgi = createIU("org.eclipse.osgi", new Version(3, 2, 0, null), requires, NO_PROPERTIES, false);
 
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("java.runtime", "JRE", new Version(1, 4, 2, "sr2"))};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("java.runtime", "JRE", new Version(1, 4, 2, "sr2"))};
 		IInstallableUnit jre = createIU("com.ibm.jre", new Version(1, 4, 2, "sr2"), provides);
 
 		ResolutionHelper rh = new ResolutionHelper(null, null);
@@ -215,7 +215,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will match the environment
@@ -248,7 +248,7 @@ public class ResolutionHelperTest extends AbstractProvisioningTest {
 		Version version = new Version(1, 0, 0);
 
 		//The IU that exports the capability
-		ProvidedCapability[] provides = new ProvidedCapability[] {new ProvidedCapability("test.capability", "test", version)};
+		ProvidedCapability[] provides = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("test.capability", "test", version)};
 		IInstallableUnit required = createIU("required", version, provides);
 
 		//an IU whose filter will not match the environment

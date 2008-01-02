@@ -156,9 +156,9 @@ public class FragmentMethodTest extends TestCase {
 		iu.setVersion(new Version(1, 0, 0));
 		iu.setTouchpointType(MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0)));
 		iu.setProperty(PROP_FRAG, "value");
-		RequiredCapability[] reqs = new RequiredCapability[] {new RequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), new RequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setRequiredCapabilities(reqs);
-		ProvidedCapability[] cap = new ProvidedCapability[] {new ProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
+		ProvidedCapability[] cap = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnitFragment(iu);
 	}
@@ -169,7 +169,7 @@ public class FragmentMethodTest extends TestCase {
 		iu.setVersion(new Version(1, 0, 0));
 		iu.setTouchpointType(MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0)));
 		iu.setProperty(PROP_IU, "valueIU");
-		ProvidedCapability[] cap = new ProvidedCapability[] {new ProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), new ProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
+		ProvidedCapability[] cap = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnit(iu);
 	}

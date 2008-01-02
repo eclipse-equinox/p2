@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -10,6 +10,7 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
@@ -86,7 +87,7 @@ public class RecommendationDescriptor {
 			String name = oneRec.nextToken().trim();
 			String oldRange = oneRec.nextToken().trim();
 			String newRange = oneRec.nextToken().trim();
-			recommendations.add(new Recommendation(new RequiredCapability(ns, name, new VersionRange(oldRange)), new RequiredCapability(ns, name, new VersionRange(newRange))));
+			recommendations.add(new Recommendation(MetadataFactory.createRequiredCapability(ns, name, new VersionRange(oldRange), null, false, false), MetadataFactory.createRequiredCapability(ns, name, new VersionRange(newRange), null, false, false)));
 		}
 		return new RecommendationDescriptor(recommendations);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
@@ -49,7 +50,7 @@ public class Recommendation {
 		VersionRange result = intersect(newValue().getRange(), r2.newValue().getRange());
 		if (result == null)
 			return null;
-		return new Recommendation(applyOn, new RequiredCapability(applyOn.getNamespace(), applyOn.getName(), result));
+		return new Recommendation(applyOn, MetadataFactory.createRequiredCapability(applyOn.getNamespace(), applyOn.getName(), result, null, false, false));
 	}
 
 	private VersionRange intersect(VersionRange r1, VersionRange r2) {

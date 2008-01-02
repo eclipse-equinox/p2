@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -32,6 +32,16 @@ public class Generator {
 
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
+	private final IGeneratorInfo info;
+
+	/**
+	 * Short term fix to ensure IUs that have no corresponding category are not lost.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 */
+	protected final Set rootCategory = new HashSet();
+
+	private StateObjectFactory stateObjectFactory;
+
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
 	 * specified.
@@ -47,16 +57,6 @@ public class Generator {
 		}
 		return (String[]) result.toArray(new String[result.size()]);
 	}
-
-	private final IGeneratorInfo info;
-
-	/**
-	 * Short term fix to ensure IUs that have no corresponding category are not lost.
-	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
-	 */
-	protected final Set rootCategory = new HashSet();
-
-	private StateObjectFactory stateObjectFactory;
 
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
@@ -88,7 +88,7 @@ public class Generator {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			boolean isOptional = checkOptionalRootDependency(iu);
-			reqsConfigurationUnits.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), range, iu.getFilter(), isOptional, false));
+			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), range, iu.getFilter(), isOptional, false));
 		}
 		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
 		root.setApplicabilityFilter(""); //$NON-NLS-1$
@@ -97,7 +97,7 @@ public class Generator {
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setProperty(IInstallableUnit.PROP_UPDATE_FROM, configurationIdentification);
 		root.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
-		ProvidedCapability groupCapability = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
+		ProvidedCapability groupCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
 		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion)), groupCapability});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
@@ -262,10 +262,10 @@ public class Generator {
 		ArrayList required = new ArrayList(rootCategory.size());
 		for (Iterator iterator = rootCategory.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			required.add(new RequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
+			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
 		}
 		cat.setRequiredCapabilities((RequiredCapability[]) required.toArray(new RequiredCapability[required.size()]));
-		cat.setCapabilities(new ProvidedCapability[] {new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, categoryId, Version.emptyVersion)});
+		cat.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU, categoryId, Version.emptyVersion)});
 		cat.setApplicabilityFilter(""); //$NON-NLS-1$
 		cat.setArtifacts(new IArtifactKey[0]);
 		cat.setProperty(IInstallableUnit.PROP_CATEGORY_IU, "true"); //$NON-NLS-1$

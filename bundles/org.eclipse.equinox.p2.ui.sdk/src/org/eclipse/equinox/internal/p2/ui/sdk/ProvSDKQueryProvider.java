@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.*;
@@ -43,7 +43,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_PROFILE_IU_KEY, Boolean.toString(true));
 					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), new RollbackIUCollector(this, element.getQueryable()));
 				}
-				CapabilityQuery groupQuery = new CapabilityQuery(new RequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)); //$NON-NLS-1$
+				CapabilityQuery groupQuery = new CapabilityQuery(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)); //$NON-NLS-1$
 				Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
 				if (element instanceof MetadataRepositoryElement) {
 					return new ElementQueryDescriptor(element.getQueryable(), categoryQuery, new CategoryElementCollector(this, element.getQueryable(), false));

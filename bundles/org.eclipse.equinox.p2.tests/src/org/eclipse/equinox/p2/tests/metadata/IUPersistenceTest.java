@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		ProvidedCapability[] provided = new ProvidedCapability[provideTuples.length];
 		for (int i = 0; i < provideTuples.length; i++) {
 			String[] nextTuple = provideTuples[i];
-			provided[i] = new ProvidedCapability(nextTuple[0], nextTuple[1], new Version(nextTuple[2]));
+			provided[i] = MetadataFactory.createProvidedCapability(nextTuple[0], nextTuple[1], new Version(nextTuple[2]));
 		}
 		// provided[provideTuples.length] = BUNDLE_CAPABILITY;
 		return provided;
@@ -96,7 +96,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		RequiredCapability[] required = new RequiredCapability[requireTuples.length];
 		for (int i = 0; i < requireTuples.length; i++) {
 			String[] nextTuple = requireTuples[i];
-			required[i] = new RequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
+			required[i] = MetadataFactory.createRequiredCapability(nextTuple[0], nextTuple[1], new VersionRange(nextTuple[2]), null, Boolean.valueOf(nextTuple[3]).booleanValue(), false);
 		}
 		return required;
 	}
