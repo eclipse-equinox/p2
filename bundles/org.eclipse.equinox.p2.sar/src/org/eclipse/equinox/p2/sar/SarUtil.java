@@ -110,7 +110,6 @@ public class SarUtil {
 	/**
 	 * @param saredInputStream
 	 * @param zippedOutputStream
-	 * @param level
 	 * @throws IOException
 	 */
 	public static void sarToZip(InputStream saredInputStream, OutputStream zippedOutputStream) throws IOException {
@@ -169,7 +168,6 @@ public class SarUtil {
 	/**
 	 * @param saredInputStream
 	 * @param zippedOutputStream
-	 * @param level
 	 * @throws IOException
 	 */
 	private static void sarToZipNoClose(InputStream saredInputStream, OutputStream zippedOutputStream) throws IOException {
