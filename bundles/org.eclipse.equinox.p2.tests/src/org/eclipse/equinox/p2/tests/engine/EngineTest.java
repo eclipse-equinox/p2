@@ -143,7 +143,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 		Profile profile = createProfile("testPerformInstallOSGiFramework");
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
+		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
 			Operand[] operands = new Operand[] {new Operand(createResolvedIU(doomed), null)};
@@ -154,7 +154,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		Operand[] operands = new Operand[] {new Operand(null, createOSGiIU())};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = profile.getInstallableUnits();
+		Iterator ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 	}
 
@@ -166,7 +166,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		Operand[] operands = new Operand[] {new Operand(createOSGiIU(), createOSGiIU())};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = profile.getInstallableUnits();
+		Iterator ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
 	}
 
@@ -178,8 +178,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		Operand[] operands = new Operand[] {new Operand(createOSGiIU(), null)};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		assertTrue(result.isOK());
-		Iterator ius = profile.getInstallableUnits();
-		assertFalse(ius.hasNext());
+		assertEmptyProfile(profile);
 	}
 
 	public void testPerformRollback() {
@@ -188,13 +187,13 @@ public class EngineTest extends AbstractProvisioningTest {
 		profile.setValue(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
-		Iterator ius = profile.getInstallableUnits();
+		Iterator ius = getInstallableUnits(profile);
 		assertFalse(ius.hasNext());
 
 		Operand[] operands = new Operand[] {new Operand(null, createOSGiIU()), new Operand(null, createBadIU())};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
 		assertFalse(result.isOK());
-		ius = profile.getInstallableUnits();
+		ius = getInstallableUnits(profile);
 		//TODO Currently this test is failing. See bug 212058
 		//		assertFalse(ius.hasNext());
 	}

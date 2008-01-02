@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,8 @@ import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
 
 /**
  * An UpdateChecker periodically polls for updates to specified profiles and
@@ -109,7 +111,7 @@ public class UpdateChecker {
 		// TODO this is naive.  We get all the ius every time whereas we
 		// could monitor changes in the profile. 
 		ArrayList iusWithUpdates = new ArrayList();
-		Iterator iter = profile.getInstallableUnits();
+		Iterator iter = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, null);

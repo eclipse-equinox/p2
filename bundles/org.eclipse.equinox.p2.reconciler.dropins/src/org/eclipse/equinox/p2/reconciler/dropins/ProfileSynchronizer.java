@@ -54,7 +54,8 @@ public class ProfileSynchronizer {
 		for (Iterator iter = repositories.iterator(); iter.hasNext();) {
 			IMetadataRepository metadataRepository = (IMetadataRepository) iter.next();
 			String repositoryId = metadataRepository.getLocation().toExternalForm();
-			for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
+			Iterator it = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+			while (it.hasNext()) {
 				IInstallableUnit iu = (IInstallableUnit) it.next();
 				if (repositoryId.equals(iu.getProperty(REPOSITORY_ID))) {
 					String fileName = iu.getProperty(FILE_NAME);

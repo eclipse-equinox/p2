@@ -22,8 +22,10 @@ import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -59,12 +61,7 @@ public class AbstractProvisioningTest extends TestCase {
 
 	public static void assertEmptyProfile(Profile p) {
 		assertNotNull("The profile should not be null", p);
-		boolean containsIU = false;
-		for (Iterator iterator = p.getInstallableUnits(); iterator.hasNext();) {
-			containsIU = true;
-			break;
-		}
-		if (containsIU)
+		if (getInstallableUnits(p).hasNext())
 			fail("The profile should be empty,profileId=" + p);
 	}
 
@@ -108,7 +105,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	protected static void assertProfileContains(String message, Profile profile, IInstallableUnit[] expectedUnits) {
 		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
-		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
+		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			IInstallableUnit actual = (IInstallableUnit) it.next();
 			if (!expected.remove(actual))
 				fail(message + " profile " + profile.getProfileId() + " contained an unexpected unit: " + actual);
@@ -122,7 +119,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	protected static void assertProfileContainsAll(String message, Profile profile, IInstallableUnit[] expectedUnits) {
 		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
-		for (Iterator it = profile.getInstallableUnits(); it.hasNext();) {
+		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			IInstallableUnit actual = (IInstallableUnit) it.next();
 			expected.remove(actual);
 		}
@@ -461,6 +458,10 @@ public class AbstractProvisioningTest extends TestCase {
 		fail(message + ": " + e);
 	}
 
+	public static Iterator getInstallableUnits(Profile p) {
+		return p.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+	}
+
 	/**
 	 * 	Get the 'self' capability for the given installable unit.
 	 */
@@ -486,7 +487,7 @@ public class AbstractProvisioningTest extends TestCase {
 
 	public static void printProfile(Profile toPrint) {
 		boolean containsIU = false;
-		for (Iterator iterator = toPrint.getInstallableUnits(); iterator.hasNext();) {
+		for (Iterator iterator = getInstallableUnits(toPrint); iterator.hasNext();) {
 			System.out.println(iterator.next());
 			containsIU = true;
 		}

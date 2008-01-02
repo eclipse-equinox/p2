@@ -132,7 +132,7 @@ public class MetadataRepositoryIO {
 			attributeOptional(DESCRIPTION_ATTRIBUTE, repository.getDescription()); // TODO: could be cdata?
 
 			writeProperties(repository.getProperties());
-			Collector units = repository.query(new InstallableUnitQuery(null), new Collector(), null);
+			Collector units = repository.query(InstallableUnitQuery.ANY, new Collector(), null);
 			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);

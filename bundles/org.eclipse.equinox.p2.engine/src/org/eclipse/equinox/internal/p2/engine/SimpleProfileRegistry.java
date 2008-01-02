@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -23,6 +23,8 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -101,34 +103,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		String id = toUpdate.getProfileId();
 		if (SELF.equals(id))
 			id = self;
-		if (profiles.get(id) == null) {
+		if (profiles.get(id) == null)
 			throw new IllegalArgumentException("Profile to be updated does not exist:" + id);
-		}
-
-		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
-		if (installRegistry == null)
-			return;
-
-		installRegistry.removeProfileInstallRegistry(toUpdate);
-		//TODO: Should be using profile id not Profile object
-		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toUpdate);
-		for (Iterator it = toUpdate.getInstallableUnits(); it.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) it.next();
-			profileInstallRegistry.addInstallableUnits(iu);
-			OrderedProperties iuProperties = toUpdate.getInstallableUnitProfileProperties(iu);
-			for (Iterator propIt = iuProperties.entrySet().iterator(); propIt.hasNext();) {
-				Entry propertyEntry = (Entry) propIt.next();
-				String key = (String) propertyEntry.getKey();
-				String value = (String) propertyEntry.getValue();
-				profileInstallRegistry.setInstallableUnitProfileProperty(iu, key, value);
-			}
-		}
-
-		profiles.put(id, copyProfile(toUpdate));
-
-		// TODO: persists should be grouped some way to ensure they are consistent
-		installRegistry.persist();
-		persist();
+		doUpdateProfile(toUpdate);
 		broadcastChangeEvent(toUpdate, ProfileEvent.CHANGED);
 	}
 
@@ -140,19 +117,24 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			id = self;
 		if (profiles.get(id) != null)
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
+		doUpdateProfile(toAdd);
+		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
+	}
 
+	private void doUpdateProfile(Profile toUpdate) {
 		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
 		if (installRegistry == null)
 			return;
 
-		installRegistry.removeProfileInstallRegistry(toAdd);
+		installRegistry.removeProfileInstallRegistry(toUpdate);
 		//TODO: Should be using profile id not Profile object
-		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toAdd);
-		for (Iterator it = toAdd.getInstallableUnits(); it.hasNext();) {
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toUpdate);
+		Iterator it = toUpdate.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		while (it.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) it.next();
 			profileInstallRegistry.addInstallableUnits(iu);
-			OrderedProperties properties = toAdd.getInstallableUnitProfileProperties(iu);
-			for (Iterator propIt = properties.entrySet().iterator(); propIt.hasNext();) {
+			OrderedProperties iuProperties = toUpdate.getInstallableUnitProfileProperties(iu);
+			for (Iterator propIt = iuProperties.entrySet().iterator(); propIt.hasNext();) {
 				Entry propertyEntry = (Entry) propIt.next();
 				String key = (String) propertyEntry.getKey();
 				String value = (String) propertyEntry.getValue();
@@ -160,11 +142,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 		}
 
-		profiles.put(id, copyProfile(toAdd));
+		profiles.put(toUpdate.getProfileId(), copyProfile(toUpdate));
 		// TODO: persists should be grouped some way to ensure they are consistent
 		installRegistry.persist();
 		persist();
-		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
 	}
 
 	public synchronized void removeProfile(Profile toRemove) {

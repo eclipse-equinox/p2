@@ -78,7 +78,7 @@ public class JarURLRepositoryTest extends TestCase {
 			fail(e.getMessage());
 		}
 		IMetadataRepository repo = manager.loadRepository(jarRepoURL, null);
-		assertTrue(!repo.query(new InstallableUnitQuery(null), new Collector(), null).isEmpty());
+		assertTrue(!repo.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
 		manager.removeRepository(jarRepoURL);
 	}
 }

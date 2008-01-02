@@ -42,7 +42,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		IMetadataRepository repo = null;
 		repo = repoMan.loadRepository(getRollbackRepository(), null);
-		IInstallableUnit[] ius = (IInstallableUnit[]) repo.query(new InstallableUnitQuery(null), new Collector(), null).toArray(IInstallableUnit.class);
+		IInstallableUnit[] ius = (IInstallableUnit[]) repo.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
 		for (int i = 0; i < ius.length; i++)
 			System.out.println(ius[i]);
 		director.become(ius[0], profile, null, new NullProgressMonitor());

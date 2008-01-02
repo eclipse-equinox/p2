@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -57,7 +57,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getInstallPlan(new IInstallableUnit[] {f1_1}, profile, null, new NullProgressMonitor());
 		assertOK(plan.getStatus());
 		assertOK(director.install(new IInstallableUnit[] {f1_1}, profile, null, new NullProgressMonitor()));
-		for (Iterator iterator = profile.getInstallableUnits(); iterator.hasNext();) {
+		for (Iterator iterator = getInstallableUnits(profile); iterator.hasNext();) {
 			System.out.println(iterator.next());
 		}
 		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1_4}, profile, null, new NullProgressMonitor()).getSeverity());

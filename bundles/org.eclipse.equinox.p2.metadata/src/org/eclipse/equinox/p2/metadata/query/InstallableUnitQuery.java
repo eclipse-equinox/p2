@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,12 @@ import org.osgi.framework.Version;
  * A query that matches on the id and version of an {@link IInstallableUnit}.
  */
 public class InstallableUnitQuery extends Query {
+	/**
+	 * A convenience query that will match any {@link IInstallableUnit}
+	 * it encounters.
+	 */
+	public static final InstallableUnitQuery ANY = new InstallableUnitQuery(null);
+
 	private String id;
 	private final VersionRange range;
 

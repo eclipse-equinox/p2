@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,10 +69,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * This profile is being updated; return the units to uninstall from the profile.
 	 */
 	private IInstallableUnit[] computeUnitsToUninstall(Profile profile) {
-		ArrayList units = new ArrayList();
-		for (Iterator it = profile.getInstallableUnits(); it.hasNext();)
-			units.add(it.next());
-		return (IInstallableUnit[]) units.toArray(new IInstallableUnit[units.size()]);
+		return (IInstallableUnit[]) profile.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
 	}
 
 	/**

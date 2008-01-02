@@ -30,7 +30,7 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 	}
 
 	private IInstallableUnit[] getInstallableUnits(RepositoryListener listener) {
-		return (IInstallableUnit[]) listener.getMetadataRepository().query(new InstallableUnitQuery(null), new Collector(), null).toArray(IInstallableUnit.class);
+		return (IInstallableUnit[]) listener.getMetadataRepository().query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
 	}
 
 	public void testDirectoryWatcherListener() {

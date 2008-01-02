@@ -7,6 +7,8 @@ import org.eclipse.equinox.p2.garbagecollector.IMarkSetProvider;
 import org.eclipse.equinox.p2.garbagecollector.MarkSet;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
 
 /**
  * IMarkSetProvider implementation for the EclipseTouchPoint.
@@ -23,7 +25,7 @@ public class MarkSetProvider implements IMarkSetProvider {
 	}
 
 	private void addArtifactKeys(Profile aProfile) {
-		Iterator installableUnits = aProfile.getInstallableUnits();
+		Iterator installableUnits = aProfile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (installableUnits.hasNext()) {
 			IArtifactKey[] keys = ((IInstallableUnit) installableUnits.next()).getArtifacts();
 			if (keys == null)

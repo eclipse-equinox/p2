@@ -240,7 +240,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				return true;
 			}
 		};
-		metadataRepository.query(new InstallableUnitQuery(null), collector, null);
+		metadataRepository.query(InstallableUnitQuery.ANY, collector, null);
 
 		for (Iterator it = snapshot.iterator(); it.hasNext();) {
 			IArtifactKey key = (IArtifactKey) it.next();

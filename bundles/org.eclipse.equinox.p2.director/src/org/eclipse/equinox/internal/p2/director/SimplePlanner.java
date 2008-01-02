@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -35,7 +35,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Install_Problems, null);
 			// Get the list of ius installed in the profile we are installing into
-			IInstallableUnit[] alreadyInstalled = toArray(profile.getInstallableUnits());
+			IInstallableUnit[] alreadyInstalled = getInstallableUnits(profile);
 
 			// If any of these are already installed, return a warning status
 			// specifying that they are already installed.
@@ -67,6 +67,10 @@ public class SimplePlanner implements IPlanner {
 		} finally {
 			sub.done();
 		}
+	}
+
+	private IInstallableUnit[] getInstallableUnits(Profile profile) {
+		return (IInstallableUnit[]) profile.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
 	}
 
 	private Operand[] generateOperations(Collection fromState, Collection toState, List fromStateOrder, List newStateOrder) {
@@ -133,7 +137,7 @@ public class SimplePlanner implements IPlanner {
 			Collection newState = newStateHelper.attachCUs(toExpander.getAllInstallableUnits());
 			newState.remove(target);
 
-			Iterator it = profile.getInstallableUnits();
+			Iterator it = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 			Collection oldIUs = new HashSet();
 			for (; it.hasNext();) {
 				oldIUs.add(it.next());
@@ -175,7 +179,7 @@ public class SimplePlanner implements IPlanner {
 
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Uninstall_Problems, null);
 
-			IInstallableUnit[] alreadyInstalled = toArray(profile.getInstallableUnits());
+			IInstallableUnit[] alreadyInstalled = getInstallableUnits(profile);
 			ResolutionHelper oldStateHelper = new ResolutionHelper(profile.getSelectionContext(), null);
 			Collection oldState = oldStateHelper.attachCUs(Arrays.asList(alreadyInstalled));
 
@@ -229,7 +233,7 @@ public class SimplePlanner implements IPlanner {
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
 			//find the things being updated in the profile
-			IInstallableUnit[] alreadyInstalled = toArray(profile.getInstallableUnits());
+			IInstallableUnit[] alreadyInstalled = getInstallableUnits(profile);
 			IInstallableUnit[] uninstallRoots = toUninstall;
 
 			//compute the transitive closure and remove them.
@@ -267,15 +271,6 @@ public class SimplePlanner implements IPlanner {
 			}
 		}
 		return (IInstallableUnit[]) updates.toArray(new IInstallableUnit[updates.size()]);
-	}
-
-	//TODO This is really gross!!!!! We need to make things uniform
-	private IInstallableUnit[] toArray(Iterator it) {
-		ArrayList result = new ArrayList();
-		while (it.hasNext()) {
-			result.add(it.next());
-		}
-		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
 
 	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {

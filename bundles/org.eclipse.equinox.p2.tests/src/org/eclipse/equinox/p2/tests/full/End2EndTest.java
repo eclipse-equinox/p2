@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -96,7 +96,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		if (!s.isOK())
 			fail("The uninstallation has failed and it was not expected");
 
-		assertEquals(false, profile2.getInstallableUnits().hasNext()); //the profile should be empty since we uninstalled everything
+		assertEquals(false, getInstallableUnits(profile2).hasNext()); //the profile should be empty since we uninstalled everything
 		IInstallableUnit[] snapshots = getIUs("profile2");
 		assertTrue("snap" + snapshots.length, snapshots.length >= 2);//TODO Normally here it should be 2!!!
 		assertTrue(profile2.query(new InstallableUnitQuery("sdk", VersionRange.emptyRange), new Collector(), null).isEmpty());
@@ -112,7 +112,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, planner.updatesFor(getIU("sdk", new Version("3.3.0")), null), profile2, null, new NullProgressMonitor());
 		assertOK(s);
 		assertProfileContainsAll("", profile2, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
-		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2.getInstallableUnits());
+		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, getInstallableUnits(profile2));
 
 		//Remove everything from the profile by becoming an empty profile
 		s = director.become(firstSnapshot, profile2, null, new NullProgressMonitor());
