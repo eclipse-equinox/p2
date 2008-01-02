@@ -22,12 +22,13 @@ public class TouchpointType {
 	 * The null touchpoint does not participate in any install phase.
 	 */
 	public static final TouchpointType NONE = MetadataFactory.createTouchpointType("null", Version.emptyVersion); //$NON-NLS-1$
-	private String id;
-	private Version versionObject;
+
+	private String id;//never null
+	private Version version;//never null
 
 	TouchpointType(String id, Version aVersion) {
 		this.id = id;
-		this.versionObject = aVersion;
+		this.version = aVersion;
 	}
 
 	public boolean equals(Object obj) {
@@ -37,18 +38,8 @@ public class TouchpointType {
 			return true;
 		if (getClass() != obj.getClass())
 			return false;
-		final TouchpointType other = (TouchpointType) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (getVersion() == null) {
-			if (other.getVersion() != null)
-				return false;
-		} else if (!getVersion().equals(other.getVersion()))
-			return false;
-		return true;
+		TouchpointType other = (TouchpointType) obj;
+		return id.equals(other.id) && version.equals(other.version);
 	}
 
 	public String getId() {
@@ -56,19 +47,14 @@ public class TouchpointType {
 	}
 
 	public Version getVersion() {
-		return versionObject;
+		return version;
 	}
 
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
-		return result;
+		return 31 * id.hashCode() + version.hashCode();
 	}
 
 	public String toString() {
-		return "Touchpoint: " + id + ' ' + getVersion();
+		return "Touchpoint: " + id + ' ' + getVersion(); //$NON-NLS-1$
 	}
-
 }
