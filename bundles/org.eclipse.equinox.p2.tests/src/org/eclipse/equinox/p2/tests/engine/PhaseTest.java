@@ -46,11 +46,11 @@ public class PhaseTest extends AbstractProvisioningTest {
 		boolean initializePhase;
 
 		protected TestPhase() {
-			super("test", 1, "testPhase");
+			super("test", 1);
 		}
 
-		protected TestPhase(String phaseId, int weight, String phaseName) {
-			super(phaseId, weight, phaseName);
+		protected TestPhase(String phaseId, int weight) {
+			super(phaseId, weight);
 		}
 
 		protected ProvisioningAction[] getActions(Operand currentOperand) {
@@ -111,7 +111,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testNullPhaseId() {
 		try {
-			new TestPhase(null, 1, "xyz");
+			new TestPhase(null, 1);
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -120,7 +120,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testEmptyPhaseId() {
 		try {
-			new TestPhase("", 1, "xyz");
+			new TestPhase("", 1);
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -129,7 +129,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testNegativeWeight() {
 		try {
-			new TestPhase("xyz", -1, "xyz");
+			new TestPhase("xyz", -1);
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -138,7 +138,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testZeroWeight() {
 		try {
-			new TestPhase("xyz", 0, "xyz");
+			new TestPhase("xyz", 0);
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -147,7 +147,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testNullPhaseName() {
 		try {
-			new TestPhase("xyz", 1, null);
+			new TestPhase("xyz", 1);
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -156,7 +156,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testEmptyPhaseName() {
 		try {
-			new TestPhase("xyz", 1, "");
+			new TestPhase("xyz", 1);
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
