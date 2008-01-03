@@ -44,7 +44,7 @@ public class Collect extends Phase {
 	}
 
 	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
+		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
 
 		DownloadManager dm = new DownloadManager();
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
@@ -55,7 +55,7 @@ public class Collect extends Phase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		parameters.put("artifactRequests", new ArrayList()); //$NON-NLS-1$
+		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}
 }

@@ -41,11 +41,11 @@ public class Unconfigure extends Phase {
 
 	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
-		parameters.put("iu", iu); //$NON-NLS-1$
+		parameters.put(PARM_IU, iu); 
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put("artifact", artifacts[0]); //$NON-NLS-1$
+			parameters.put(PARM_ARTIFACT, artifacts[0]); 
 
 		return Status.OK_STATUS;
 	}

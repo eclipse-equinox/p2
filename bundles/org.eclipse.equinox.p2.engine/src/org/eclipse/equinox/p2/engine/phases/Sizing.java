@@ -18,13 +18,13 @@ import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.engine.*;
 
 public class Sizing extends Phase {
-	private static final String TP_DATA = "collect"; //$NON-NLS-1$
+	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
 
 	private long sizeOnDisk;
 	private long dlSize;
 
 	public Sizing(int weight, String phaseName) {
-		super(TP_DATA, weight);
+		super(PHASE_ID, weight);
 	}
 
 	protected boolean isApplicable(Operand op) {
@@ -83,7 +83,7 @@ public class Sizing extends Phase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		parameters.put("artifactRequests", new ArrayList()); //$NON-NLS-1$
+		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList()); 
 		return null;
 	}
 }

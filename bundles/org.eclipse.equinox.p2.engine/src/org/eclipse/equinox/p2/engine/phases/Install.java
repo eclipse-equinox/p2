@@ -24,21 +24,22 @@ import org.eclipse.osgi.util.NLS;
 public class Install extends Phase {
 
 	final static class BeforeInstallEventAction extends ProvisioningAction {
+
 		public IStatus execute(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
-			String phaseId = (String) parameters.get("phaseId"); //$NON-NLS-1$
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint"); //$NON-NLS-1$
-			Operand operand = (Operand) parameters.get("operand"); //$NON-NLS-1$
+			Profile profile = (Profile) parameters.get(PARM_PROFILE); 
+			String phaseId = (String) parameters.get(PARM_PHASE_ID); 
+			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT); 
+			Operand operand = (Operand) parameters.get(PARM_OPERAND); 
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
 
 		public IStatus undo(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
-			String phaseId = (String) parameters.get("phaseId"); //$NON-NLS-1$
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint"); //$NON-NLS-1$
-			Operand operand = (Operand) parameters.get("operand"); //$NON-NLS-1$
-			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu"); //$NON-NLS-1$
+			Profile profile = (Profile) parameters.get(PARM_PROFILE);
+			String phaseId = (String) parameters.get(PARM_PHASE_ID);
+			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
+			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.removeInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
@@ -46,22 +47,23 @@ public class Install extends Phase {
 	}
 
 	final static class AfterInstallEventAction extends ProvisioningAction {
+
 		public IStatus execute(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
-			String phaseId = (String) parameters.get("phaseId"); //$NON-NLS-1$
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint"); //$NON-NLS-1$
-			Operand operand = (Operand) parameters.get("operand"); //$NON-NLS-1$
-			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu"); //$NON-NLS-1$
+			Profile profile = (Profile) parameters.get(PARM_PROFILE);
+			String phaseId = (String) parameters.get(PARM_PHASE_ID);
+			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
+			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU); 
 			profile.addInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
 
 		public IStatus undo(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
-			String phaseId = (String) parameters.get("phaseId"); //$NON-NLS-1$
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint"); //$NON-NLS-1$
-			Operand operand = (Operand) parameters.get("operand"); //$NON-NLS-1$
+			Profile profile = (Profile) parameters.get(PARM_PROFILE); 
+			String phaseId = (String) parameters.get(PARM_PHASE_ID); 
+			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT); 
+			Operand operand = (Operand) parameters.get(PARM_OPERAND); 
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
@@ -105,11 +107,11 @@ public class Install extends Phase {
 	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind(Messages.Phase_Install_Task, iu.getId()));
-		parameters.put("iu", iu); //$NON-NLS-1$
+		parameters.put(PARM_IU, iu); 
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put("artifact", artifacts[0]); //$NON-NLS-1$
+			parameters.put(PARM_ARTIFACT, artifacts[0]); 
 
 		return Status.OK_STATUS;
 	}
