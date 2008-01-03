@@ -15,7 +15,6 @@ import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
 /**
@@ -50,7 +49,7 @@ public class AvailableIUCollector extends QueriedElementCollector {
 	}
 
 	protected ProvElement makeDefaultElement(IInstallableUnit iu) {
-		return new AvailableIUElement(iu, IUElement.SIZE_UNKNOWN);
+		return new AvailableIUElement(iu, null);
 	}
 
 	protected boolean isCategory(IInstallableUnit iu) {

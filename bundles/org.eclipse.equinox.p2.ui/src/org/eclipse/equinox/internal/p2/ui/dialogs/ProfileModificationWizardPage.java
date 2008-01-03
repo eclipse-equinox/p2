@@ -14,7 +14,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -31,7 +30,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.PlatformUI;
 
 public abstract class ProfileModificationWizardPage extends WizardPage {
 	private static final int DEFAULT_HEIGHT = 20;
@@ -78,19 +76,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 				tc.setWidth(convertWidthInCharsToPixels(DEFAULT_COLUMN_WIDTH));
 		}
 		final List list = new ArrayList(ius.length);
-		IRunnableWithProgress runnable = new IRunnableWithProgress() {
-			public void run(IProgressMonitor monitor) {
-				makeElements(getIUs(), list, monitor);
-			}
-		};
-		try {
-			// We are not open yet so we can't use the local progress control
-			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(runnable);
-		} catch (InterruptedException e) {
-			// don't report thread interruption
-		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), null);
-		}
+		makeElements(getIUs(), list);
 
 		listViewer.addCheckStateListener(new ICheckStateListener() {
 			public void checkStateChanged(CheckStateChangedEvent event) {
@@ -100,20 +86,17 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		contentProvider = new StaticContentProvider(list.toArray());
 		listViewer.setContentProvider(contentProvider);
 		listViewer.setInput(new Object());
-		listViewer.setLabelProvider(new IUDetailsLabelProvider(getColumnConfig()));
+		listViewer.setLabelProvider(new IUDetailsLabelProvider(getColumnConfig(), getShell()));
 		setInitialSelections();
 		selectedIUsChanged();
 		setControl(composite);
 		Dialog.applyDialogFont(composite);
 	}
 
-	protected void makeElements(IInstallableUnit[] iusToShow, List list, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor);
-		sub.setWorkRemaining(iusToShow.length);
+	protected void makeElements(IInstallableUnit[] iusToShow, List list) {
 		for (int i = 0; i < iusToShow.length; i++) {
-			list.add(new AvailableIUElement(iusToShow[i], getSize(iusToShow[i], sub.newChild(1))));
+			list.add(new AvailableIUElement(iusToShow[i], profile.getProfileId()));
 		}
-		monitor.done();
 	}
 
 	public boolean performFinish() {

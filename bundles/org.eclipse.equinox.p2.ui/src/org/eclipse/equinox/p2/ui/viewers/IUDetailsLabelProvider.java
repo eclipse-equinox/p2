@@ -12,17 +12,18 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import java.text.NumberFormat;
-import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.IUElement;
-import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Label provider for showing IU's in a table.  Clients can configure
@@ -36,14 +37,16 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	private String toolTipProperty = null;
 
 	private IUColumnConfig[] columnConfig = ProvUI.getIUColumnConfig();
+	Shell shell;
 
 	public IUDetailsLabelProvider() {
 		// use default column config
 	}
 
-	public IUDetailsLabelProvider(IUColumnConfig[] columnConfig) {
+	public IUDetailsLabelProvider(IUColumnConfig[] columnConfig, Shell shell) {
 		Assert.isLegal(columnConfig.length > 0);
 		this.columnConfig = columnConfig;
+		this.shell = shell;
 	}
 
 	public String getText(Object obj) {
@@ -95,15 +98,35 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		return null;
 	}
 
-	private String getIUSize(IUElement element) {
+	private String getIUSize(final IUElement element) {
 		long size = element.getSize();
-		if (size != IUElement.SIZE_UNKNOWN) {
+		if (size != IUElement.SIZE_UNKNOWN)
 			return getFormattedSize(size);
-		}
-		return ProvUIMessages.IUDetailsLabelProvider_Unknown;
+		Job resolveJob = new Job(element.getIU().getId()) {
+
+			protected IStatus run(IProgressMonitor monitor) {
+				element.computeSize();
+
+				if (shell == null || shell.isDisposed())
+					return Status.OK_STATUS;
+				shell.getDisplay().asyncExec(new Runnable() {
+
+					public void run() {
+						fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
+					}
+				});
+
+				return Status.OK_STATUS;
+			}
+		};
+		resolveJob.setSystem(true);
+		resolveJob.schedule();
+		return ProvUIMessages.IUDetailsLabelProvider_ComputingSize;
 	}
 
 	private String getFormattedSize(long size) {
+		if (size == IUElement.SIZE_UNKNOWN)
+			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;
 			return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_KB, NumberFormat.getInstance().format(new Long(kb)));

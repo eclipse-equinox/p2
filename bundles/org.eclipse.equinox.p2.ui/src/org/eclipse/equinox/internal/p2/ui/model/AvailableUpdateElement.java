@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -23,12 +26,16 @@ public class AvailableUpdateElement extends AvailableIUElement {
 
 	IInstallableUnit iuToBeUpdated;
 
-	public AvailableUpdateElement(IInstallableUnit iu, long size, IInstallableUnit iuToBeUpdated) {
-		super(iu, size);
+	public AvailableUpdateElement(IInstallableUnit iu, IInstallableUnit iuToBeUpdated, String profileID) {
+		super(iu, profileID);
 		this.iuToBeUpdated = iuToBeUpdated;
 	}
 
 	public IInstallableUnit getIUToBeUpdated() {
 		return iuToBeUpdated;
+	}
+
+	protected ProvisioningPlan getSizingPlan() throws ProvisionException {
+		return ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToBeUpdated}, new IInstallableUnit[] {getIU()}, getProfile(), null);
 	}
 }

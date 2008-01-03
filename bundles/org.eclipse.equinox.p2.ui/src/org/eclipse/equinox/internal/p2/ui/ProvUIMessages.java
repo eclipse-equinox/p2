@@ -43,6 +43,7 @@ public class ProvUIMessages extends NLS {
 	public static String IUPropertiesGroup_LicenseProperty;
 	public static String IUDetailsLabelProvider_KB;
 	public static String IUDetailsLabelProvider_Bytes;
+	public static String IUDetailsLabelProvider_ComputingSize;
 	public static String IUDetailsLabelProvider_Unknown;
 	public static String IUPropertiesGroup_NameProperty;
 	public static String IUPropertiesGroup_ProviderProperty;
@@ -112,6 +113,7 @@ public class ProvUIMessages extends NLS {
 	// Dialogs
 	public static String AddRepositoryDialog_DuplicateURL;
 	public static String AddRepositoryDialog_Title;
+	public static String AvailableIUElement_ProfileNotFound;
 	public static String UpdateAction_UpdateInformationTitle;
 	public static String UpdateAction_UpdatesAvailableMessage;
 	public static String UpdateDialog_AssemblingUpdatesProgress;

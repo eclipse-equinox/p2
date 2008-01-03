@@ -66,4 +66,8 @@ public class IUVersionsElement extends CachedQueryElement implements IUElement {
 	public boolean shouldShowVersion() {
 		return true;
 	}
+
+	public void computeSize() {
+		// Should never be called, since shouldShowSize() returns false
+	}
 }

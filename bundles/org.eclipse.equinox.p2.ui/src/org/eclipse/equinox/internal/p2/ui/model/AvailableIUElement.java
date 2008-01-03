@@ -10,9 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.IUElement;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -23,12 +30,13 @@ import org.eclipse.equinox.p2.ui.model.IUElement;
  */
 public class AvailableIUElement extends ProvElement implements IUElement {
 
-	long size;
 	IInstallableUnit iu;
+	long size = IUElement.SIZE_UNKNOWN;
+	String profileID;
 
-	public AvailableIUElement(IInstallableUnit iu, long size) {
-		this.size = size;
+	public AvailableIUElement(IInstallableUnit iu, String profileID) {
 		this.iu = iu;
+		this.profileID = profileID;
 	}
 
 	/*
@@ -64,6 +72,26 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 
 	public long getSize() {
 		return size;
+	}
+
+	public void computeSize() {
+		if (profileID == null)
+			return;
+		try {
+			ProvisioningPlan plan = getSizingPlan();
+			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfile(), null);
+			size = info.getDiskSize();
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
+		}
+	}
+
+	protected Profile getProfile() throws ProvisionException {
+		return ProvisioningUtil.getProfile(profileID);
+	}
+
+	protected ProvisioningPlan getSizingPlan() throws ProvisionException {
+		return ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {getIU()}, getProfile(), null);
 	}
 
 	public IInstallableUnit getIU() {

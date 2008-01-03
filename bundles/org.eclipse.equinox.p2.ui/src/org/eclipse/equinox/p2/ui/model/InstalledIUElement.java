@@ -81,6 +81,10 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 		return false;
 	}
 
+	public void computeSize() {
+		// Should never be called, as long as shouldShowSize() returns false
+	}
+
 	public boolean shouldShowVersion() {
 		return true;
 	}

@@ -28,4 +28,6 @@ public interface IUElement {
 	public boolean shouldShowVersion();
 
 	public long getSize();
+
+	public void computeSize();
 }

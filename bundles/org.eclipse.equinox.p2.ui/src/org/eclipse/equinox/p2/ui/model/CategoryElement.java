@@ -64,6 +64,10 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 		return false;
 	}
 
+	public void computeSize() {
+		// Should never be called, since shouldShowSize() returns false
+	}
+
 	public boolean shouldShowVersion() {
 		return false;
 	}

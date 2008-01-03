@@ -81,4 +81,8 @@ public class RollbackProfileElement extends ProvElement implements IUElement {
 		return null;
 	}
 
+	public void computeSize() {
+		// Should never be called, since shouldShowSize() returns false
+	}
+
 }

@@ -11,16 +11,15 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
@@ -32,20 +31,12 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 	}
 
-	protected void makeElements(IInstallableUnit[] ius, List elements, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor);
-		sub.setWorkRemaining(ius.length * 2);
+	protected void makeElements(IInstallableUnit[] ius, List elements) {
 		for (int i = 0; i < ius.length; i++) {
-			if (monitor.isCanceled())
-				getWizard().performCancel();
 			try {
-				IInstallableUnit[] replacementIUs = ProvisioningUtil.updatesFor(new IInstallableUnit[] {ius[i]}, sub.newChild(1));
-				SubMonitor loopMonitor = sub.newChild(1);
-				loopMonitor.setWorkRemaining(replacementIUs.length);
+				IInstallableUnit[] replacementIUs = ProvisioningUtil.updatesFor(new IInstallableUnit[] {ius[i]}, null);
 				for (int j = 0; j < replacementIUs.length; j++) {
-					elements.add(new AvailableUpdateElement(replacementIUs[j], getSize(ius[i], replacementIUs[j], loopMonitor.newChild(1)), ius[i]));
-					if (monitor.isCanceled())
-						getWizard().performCancel();
+					elements.add(new AvailableUpdateElement(replacementIUs[j], ius[i], getProfile().getProfileId()));
 				}
 			} catch (ProvisionException e) {
 				break;
@@ -61,20 +52,6 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 			}
 		}
 		return (IInstallableUnit[]) iusToReplace.toArray(new IInstallableUnit[iusToReplace.size()]);
-	}
-
-	protected long getSize(IInstallableUnit iuToRemove, IInstallableUnit iuToAdd, IProgressMonitor monitor) {
-		long size;
-		SubMonitor sub = SubMonitor.convert(monitor);
-		sub.setWorkRemaining(100);
-		try {
-			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToRemove}, new IInstallableUnit[] {iuToAdd}, getProfile(), sub.newChild(50));
-			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfile(), sub.newChild(50));
-			size = info.getDiskSize();
-		} catch (ProvisionException e) {
-			size = IUElement.SIZE_UNKNOWN;
-		}
-		return size;
 	}
 
 	protected String getOperationLabel() {
