@@ -131,15 +131,16 @@ public class ProvUIActivator extends AbstractUIPlugin {
 				}
 			};
 		}
-		getProvisioningEventBus().addListener(profileChangeListener);
+		ProvisioningEventBus bus = getProvisioningEventBus();
+		if (bus != null)
+			bus.addListener(profileChangeListener);
 	}
 
 	private void removeProfileChangeListener() {
 		if (profileChangeListener != null) {
 			ProvisioningEventBus bus = getProvisioningEventBus();
-			if (bus != null) {
-				getProvisioningEventBus().removeListener(profileChangeListener);
-			}
+			if (bus != null)
+				bus.removeListener(profileChangeListener);
 		}
 	}
 
