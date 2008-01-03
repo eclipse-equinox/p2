@@ -110,7 +110,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 				else
 					query = allQuery;
 				if (showGroupsOnly)
-					new ElementQueryDescriptor(profile, new CompoundQuery(new Query[] {query, groupQuery}, true), new InstalledIUCollector(this, profile));
+					return new ElementQueryDescriptor(profile, new CompoundQuery(new Query[] {groupQuery, query}, true), new InstalledIUCollector(this, profile));
 				return new ElementQueryDescriptor(profile, query, new InstalledIUCollector(this, profile));
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();

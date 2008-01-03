@@ -31,6 +31,13 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 
+	private Query allQuery = new Query() {
+		public boolean isMatch(Object candidate) {
+			return true;
+		}
+
+	};
+
 	public ElementQueryDescriptor getQueryDescriptor(QueriedElement element, int queryType) {
 		IQueryable queryable;
 		switch (queryType) {
@@ -51,11 +58,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 				if (element instanceof CategoryElement) {
 					Query membersOfCategoryQuery;
 					if (element instanceof UncategorizedCategoryElement)
-						membersOfCategoryQuery = new Query() {
-							public boolean isMatch(Object candidate) {
-								return true;
-							}
-						};
+						membersOfCategoryQuery = allQuery;
 					else
 						membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getIU());
 					IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
@@ -64,7 +67,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 						collector = new LatestIUVersionCollector(this, element.getQueryable(), true);
 					else
 						collector = new AvailableIUCollector(this, element.getQueryable(), true);
-					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {membersOfCategoryQuery, new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false)}, true), collector);
+					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), collector);
 				}
 				// If we are showing only the latest version, we never represent other versions as children.
 				if (element instanceof IUVersionsElement) {
