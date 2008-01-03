@@ -26,7 +26,7 @@ public interface IArtifactRepositoryManager {
 	public IArtifactRepository[] getKnownRepositories();
 
 	/**
-	 * Add a repository at the given location.  The location is expected to contain 
+	 * Loads the repository at the given location.  The location is expected to contain 
 	 * data that describes a valid artifact repository of a known type.  If this manager
 	 * already knows a repository at the given location then that repository is returned.
 	 * @param location the location in which to look for a repository description

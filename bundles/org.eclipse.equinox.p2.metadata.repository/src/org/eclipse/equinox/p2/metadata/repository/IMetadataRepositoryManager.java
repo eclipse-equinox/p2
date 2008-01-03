@@ -46,9 +46,9 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	public URL[] getKnownRepositories();
 
 	/**
-	 * Adds a repository corresponding to the given URL.
+	 * Loads a repository corresponding to the given URL.
 	 * 
-	 * @param location The location of the repository to add
+	 * @param location The location of the repository to load
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
