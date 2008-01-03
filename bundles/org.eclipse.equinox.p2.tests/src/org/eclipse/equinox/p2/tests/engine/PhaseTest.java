@@ -145,24 +145,6 @@ public class PhaseTest extends AbstractProvisioningTest {
 		fail();
 	}
 
-	public void testNullPhaseName() {
-		try {
-			new TestPhase("xyz", 1);
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
-	}
-
-	public void testEmptyPhaseName() {
-		try {
-			new TestPhase("xyz", 1);
-		} catch (IllegalArgumentException expected) {
-			return;
-		}
-		fail();
-	}
-
 	public void testPerform() {
 		PhaseSet phaseSet = new TestPhaseSet();
 		Profile profile = createProfile("PhaseTest");
