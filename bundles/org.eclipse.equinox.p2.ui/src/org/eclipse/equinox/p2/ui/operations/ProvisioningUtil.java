@@ -50,19 +50,6 @@ public class ProvisioningUtil {
 		return repo;
 	}
 
-	public static IMetadataRepository createMetadataRepository(String name, String type, URL location, IProgressMonitor monitor) throws ProvisionException {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		if (manager == null)
-			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		IMetadataRepository repo = manager.createRepository(location, name, type);
-		if (repo == null) {
-			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_CreateRepositoryFailure, location.toExternalForm()));
-		}
-		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
-		ProvUIActivator.getDefault().notifyListeners(event);
-		return repo;
-	}
-
 	public static IMetadataRepository getRollbackRepository(IProgressMonitor monitor) throws ProvisionException {
 		IDirector director = getDirector();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
@@ -94,21 +81,6 @@ public class ProvisioningUtil {
 		IArtifactRepository repo = manager.loadRepository(location, monitor);
 		if (repo == null) {
 			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_AddRepositoryFailure, location));
-		}
-		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
-		ProvUIActivator.getDefault().notifyListeners(event);
-
-		return repo;
-	}
-
-	public static IArtifactRepository createArtifactRepository(String name, String type, URL location, IProgressMonitor monitor) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
-		if (manager == null) {
-			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		}
-		IArtifactRepository repo = manager.createRepository(location, name, type);
-		if (repo == null) {
-			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_CreateRepositoryFailure, location));
 		}
 		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
 		ProvUIActivator.getDefault().notifyListeners(event);
