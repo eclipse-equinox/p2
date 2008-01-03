@@ -24,33 +24,23 @@ public abstract class Phase {
 	private static final String PROFILE = "profile"; //$NON-NLS-1$
 	protected final String phaseId;
 	protected final int weight;
-	protected final String phaseName;
 	protected int prePerformWork = 1000;
 	protected int mainPerformWork = 10000;
 	protected int postPerformWork = 1000;
 	private Map phaseParameters;
 	private Map touchpointToTouchpointParameters;
 
-	protected Phase(String phaseId, int weight, String phaseName) {
-		if (phaseId == null || phaseId.length() == 0) {
+	protected Phase(String phaseId, int weight) {
+		if (phaseId == null || phaseId.length() == 0)
 			throw new IllegalArgumentException("Phase id must be set."); //$NON-NLS-1$
-		}
-
-		if (weight <= 0) {
+		if (weight <= 0)
 			throw new IllegalArgumentException("Phase weight must be positive."); //$NON-NLS-1$
-		}
-
-		if (phaseName == null || phaseName.length() == 0) {
-			throw new IllegalArgumentException("Phase name must be set."); //$NON-NLS-1$
-		}
-
 		this.weight = weight;
-		this.phaseName = phaseName;
 		this.phaseId = phaseId;
 	}
 
 	public String toString() {
-		return "Phase: " + this.phaseName + " - " + this.weight; //$NON-NLS-1$ //$NON-NLS-2$
+		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
 
 	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
@@ -61,7 +51,7 @@ public abstract class Phase {
 			result.merge(status);
 			return result;
 		} else if (status.matches(IStatus.ERROR)) {
-			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, NLS.bind(Messages.Engine_Error_During_Phase, this.phaseName), null);
+			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, getProblemMessage(), null);
 			result.merge(status);
 			return result;
 		}
@@ -235,6 +225,14 @@ public abstract class Phase {
 	}
 
 	protected abstract ProvisioningAction[] getActions(Operand currentOperand);
+
+	/**
+	 * Returns a human-readable message to be displayed in case of an error performing
+	 * this phase. Subclasses should override.
+	 */
+	protected String getProblemMessage() {
+		return Messages.Phase_Error;
+	}
 
 	/**
 	 * Returns the touchpoint corresponding to the operand, or null if no corresponding

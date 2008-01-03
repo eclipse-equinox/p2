@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.engine.phases;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -18,7 +19,7 @@ import org.eclipse.osgi.util.NLS;
 public class Configure extends Phase {
 
 	public Configure(int weight) {
-		super("configure", weight, Messages.Engine_Configure_Phase);
+		super("configure", weight); //$NON-NLS-1$
 	}
 
 	protected boolean isApplicable(Operand op) {
@@ -32,14 +33,18 @@ public class Configure extends Phase {
 		return getActions(unit, phaseId);
 	}
 
+	protected String getProblemMessage() {
+		return Messages.Phase_Configure_Error;
+	}
+
 	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
-		monitor.subTask(NLS.bind("Configuring {0}", iu.getId()));
-		parameters.put("iu", iu);
+		monitor.subTask(NLS.bind(Messages.Phase_Configure_Task, iu.getId()));
+		parameters.put("iu", iu); //$NON-NLS-1$
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put("artifact", artifacts[0]);
+			parameters.put("artifact", artifacts[0]); //$NON-NLS-1$
 
 		return Status.OK_STATUS;
 	}

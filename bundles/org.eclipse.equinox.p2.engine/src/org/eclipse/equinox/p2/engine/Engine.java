@@ -26,7 +26,7 @@ public class Engine {
 		this.eventBus = eventBus;
 	}
 
-	public MultiStatus perform(Profile profile, PhaseSet phaseSet, Operand[] operands, IProgressMonitor monitor) {
+	public IStatus perform(Profile profile, PhaseSet phaseSet, Operand[] operands, IProgressMonitor monitor) {
 
 		// TODO -- Messages
 		if (profile == null)
@@ -42,7 +42,7 @@ public class Engine {
 			monitor = new NullProgressMonitor();
 
 		if (operands.length == 0)
-			return new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
+			return Status.OK_STATUS;
 
 		lockProfile(profile);
 		try {
@@ -67,14 +67,16 @@ public class Engine {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 				session.rollback();
 			}
-			return result;
+			//if there is only one child status, return that status instead because it will have more context
+			IStatus[] children = result.getChildren();
+			return children.length == 1 ? children[0] : result;
 		} finally {
 			unlockProfile(profile);
 		}
 	}
 
-   //Support to move the IU properties as part of the engine. This is not really clean. We will have to review this.
-   //This has to be done in two calls because when we return from the phaseSet.perform the iu properties are already lost
+	//Support to move the IU properties as part of the engine. This is not really clean. We will have to review this.
+	//This has to be done in two calls because when we return from the phaseSet.perform the iu properties are already lost
 	Map snapshot = new HashMap();
 
 	private void snapshotIUProperties(Profile profile, Operand[] operands) {

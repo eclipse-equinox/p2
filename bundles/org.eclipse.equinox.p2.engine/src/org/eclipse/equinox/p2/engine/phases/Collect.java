@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.engine.phases;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.equinox.p2.download.DownloadManager;
 import org.eclipse.equinox.p2.engine.*;
@@ -22,7 +23,7 @@ public class Collect extends Phase {
 	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
 
 	public Collect(int weight) {
-		super(PHASE_ID, weight, Messages.Engine_Collect_Phase);
+		super(PHASE_ID, weight);
 		//re-balance work since postPerform will do almost all the time-consuming work
 		prePerformWork = 0;
 		mainPerformWork = 100;
@@ -38,8 +39,12 @@ public class Collect extends Phase {
 		return new ProvisioningAction[] {action};
 	}
 
+	protected String getProblemMessage() {
+		return Messages.Phase_Collect_Error;
+	}
+
 	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		List artifactRequests = (List) parameters.get("artifactRequests");
+		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
 
 		DownloadManager dm = new DownloadManager();
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
@@ -50,7 +55,7 @@ public class Collect extends Phase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		parameters.put("artifactRequests", new ArrayList());
+		parameters.put("artifactRequests", new ArrayList()); //$NON-NLS-1$
 		return null;
 	}
 }

@@ -10,13 +10,15 @@ package org.eclipse.equinox.p2.engine.phases;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class Unconfigure extends Phase {
 
 	public Unconfigure(int weight) {
-		super("unconfigure", weight, Messages.Engine_Unconfigure_Phase);
+		super("unconfigure", weight); //$NON-NLS-1$
 	}
 
 	protected boolean isApplicable(Operand op) {
@@ -33,13 +35,17 @@ public class Unconfigure extends Phase {
 		return getActions(unit, phaseId);
 	}
 
+	protected String getProblemMessage() {
+		return Messages.Phase_Unconfigure_Error;
+	}
+
 	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
-		parameters.put("iu", iu);
+		parameters.put("iu", iu); //$NON-NLS-1$
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put("artifact", artifacts[0]);
+			parameters.put("artifact", artifacts[0]); //$NON-NLS-1$
 
 		return Status.OK_STATUS;
 	}

@@ -104,7 +104,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (SELF.equals(id))
 			id = self;
 		if (profiles.get(id) == null)
-			throw new IllegalArgumentException("Profile to be updated does not exist:" + id);
+			throw new IllegalArgumentException("Profile to be updated does not exist:" + id); //$NON-NLS-1$
 		doUpdateProfile(toUpdate);
 		broadcastChangeEvent(toUpdate, ProfileEvent.CHANGED);
 	}

@@ -13,6 +13,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.engine.*;
 
@@ -23,7 +24,7 @@ public class Sizing extends Phase {
 	private long dlSize;
 
 	public Sizing(int weight, String phaseName) {
-		super(TP_DATA, weight, phaseName);
+		super(TP_DATA, weight);
 	}
 
 	protected boolean isApplicable(Operand op) {
@@ -39,12 +40,16 @@ public class Sizing extends Phase {
 	}
 
 	protected ProvisioningAction[] getActions(Operand currentOperand) {
-		ProvisioningAction action = getTouchpoint(currentOperand).getAction("collect");
+		ProvisioningAction action = getTouchpoint(currentOperand).getAction("collect"); //$NON-NLS-1$
 		return new ProvisioningAction[] {action};
 	}
 
+	protected String getProblemMessage() {
+		return Messages.Phase_Sizing_Error;
+	}
+
 	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		List artifactRequests = (List) parameters.get("artifactRequests");
+		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
 		Set artifactsToObtain = new HashSet(artifactRequests.size());
 
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
@@ -78,7 +83,7 @@ public class Sizing extends Phase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		parameters.put("artifactRequests", new ArrayList());
+		parameters.put("artifactRequests", new ArrayList()); //$NON-NLS-1$
 		return null;
 	}
 }

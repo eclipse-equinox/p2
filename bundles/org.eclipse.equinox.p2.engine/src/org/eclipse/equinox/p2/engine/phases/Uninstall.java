@@ -14,6 +14,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -23,20 +24,20 @@ public class Uninstall extends Phase {
 
 	final static class BeforeUninstallEventAction extends ProvisioningAction {
 		public IStatus execute(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile");
-			String phaseId = (String) parameters.get("phaseId");
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
-			Operand operand = (Operand) parameters.get("operand");
+			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
+			String phaseId = (String) parameters.get("phaseId"); //$NON-NLS-1$
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint"); //$NON-NLS-1$
+			Operand operand = (Operand) parameters.get("operand"); //$NON-NLS-1$
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
 
 		public IStatus undo(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile");
-			String phaseId = (String) parameters.get("phaseId");
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
-			Operand operand = (Operand) parameters.get("operand");
-			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
+			String phaseId = (String) parameters.get("phaseId"); //$NON-NLS-1$
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint"); //$NON-NLS-1$
+			Operand operand = (Operand) parameters.get("operand"); //$NON-NLS-1$
+			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu"); //$NON-NLS-1$
 			profile.addInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
@@ -45,21 +46,21 @@ public class Uninstall extends Phase {
 
 	final static class AfterUninstallEventAction extends ProvisioningAction {
 		public IStatus execute(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile");
-			String phaseId = (String) parameters.get("phaseId");
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
-			Operand operand = (Operand) parameters.get("operand");
-			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
+			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
+			String phaseId = (String) parameters.get("phaseId"); //$NON-NLS-1$
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint"); //$NON-NLS-1$
+			Operand operand = (Operand) parameters.get("operand"); //$NON-NLS-1$
+			IInstallableUnit iu = (IInstallableUnit) parameters.get("iu"); //$NON-NLS-1$
 			profile.removeInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
 
 		public IStatus undo(Map parameters) {
-			Profile profile = (Profile) parameters.get("profile");
-			String phaseId = (String) parameters.get("phaseId");
-			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");
-			Operand operand = (Operand) parameters.get("operand");
+			Profile profile = (Profile) parameters.get("profile"); //$NON-NLS-1$
+			String phaseId = (String) parameters.get("phaseId");//$NON-NLS-1$
+			Touchpoint touchpoint = (Touchpoint) parameters.get("touchpoint");//$NON-NLS-1$
+			Operand operand = (Operand) parameters.get("operand");//$NON-NLS-1$
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
@@ -68,7 +69,7 @@ public class Uninstall extends Phase {
 	private static final String PHASE_ID = "uninstall"; //$NON-NLS-1$
 
 	public Uninstall(int weight) {
-		super(PHASE_ID, weight, Messages.Engine_Uninstall_Phase);
+		super(PHASE_ID, weight);
 	}
 
 	protected boolean isApplicable(Operand op) {
@@ -95,13 +96,17 @@ public class Uninstall extends Phase {
 		return actions;
 	}
 
+	protected String getProblemMessage() {
+		return Messages.Phase_Uninstall_Error;
+	}
+
 	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
-		parameters.put("iu", iu);
+		parameters.put("iu", iu); //$NON-NLS-1$
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put("artifact", artifacts[0]);
+			parameters.put("artifact", artifacts[0]); //$NON-NLS-1$
 
 		return Status.OK_STATUS;
 	}

@@ -12,7 +12,7 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 	public ParameterizedProvisioningAction(ProvisioningAction action, Map actionParameters) {
 		if (action == null || actionParameters == null)
-			throw new IllegalArgumentException("Both action and action pararameters must not be null.");
+			throw new IllegalArgumentException("Both action and action pararameters must not be null."); //$NON-NLS-1$
 		this.action = action;
 		this.actionParameters = actionParameters;
 	}
@@ -40,11 +40,11 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 	private String processVariables(String parameterValue, Map parameters) {
 
-		int variableBeginIndex = parameterValue.indexOf("${");
+		int variableBeginIndex = parameterValue.indexOf("${"); //$NON-NLS-1$
 		if (variableBeginIndex == -1)
 			return parameterValue;
 
-		int variableEndIndex = parameterValue.indexOf("}", variableBeginIndex + 2);
+		int variableEndIndex = parameterValue.indexOf('}', variableBeginIndex + 2);
 		if (variableEndIndex == -1)
 			return parameterValue;
 

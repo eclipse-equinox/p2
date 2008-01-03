@@ -63,12 +63,12 @@ public class TouchpointManager implements IRegistryChangeListener {
 			if (!createdExtension) {
 				String id = element.getAttribute(ATTRIBUTE_TYPE);
 				try {
-					Touchpoint touchpoint = (Touchpoint) element.createExecutableExtension(ATTRIBUTE_CLASS);
-					if (touchpoint != null) {
-						if (!id.equals(touchpoint.getTouchpointType().getId())) {
-							reportError(NLS.bind(Messages.TouchpointManager_Touchpoint_Type_Mismatch, id, touchpoint.getTouchpointType().getId()), null);
+					Touchpoint touchpointInstance = (Touchpoint) element.createExecutableExtension(ATTRIBUTE_CLASS);
+					if (touchpointInstance != null) {
+						if (!id.equals(touchpointInstance.getTouchpointType().getId())) {
+							reportError(NLS.bind(Messages.TouchpointManager_Touchpoint_Type_Mismatch, id, touchpointInstance.getTouchpointType().getId()), null);
 						}
-						this.touchpoint = touchpoint;
+						this.touchpoint = touchpointInstance;
 					} else {
 						String errorMsg = NLS.bind(Messages.TouchpointManager_Null_Creating_Touchpoint_Extension, id);
 						throw new CoreException(new Status(IStatus.ERROR, EngineActivator.ID, 1, errorMsg, null));
@@ -204,7 +204,7 @@ public class TouchpointManager implements IRegistryChangeListener {
 		return status;
 	}
 
-	private static void reportError(String errorMsg, MultiStatus status) {
+	static void reportError(String errorMsg, MultiStatus status) {
 		Status errorStatus = new Status(IStatus.ERROR, EngineActivator.ID, 1, errorMsg, null);
 		if (status != null && !status.isOK())
 			status.add(errorStatus);
