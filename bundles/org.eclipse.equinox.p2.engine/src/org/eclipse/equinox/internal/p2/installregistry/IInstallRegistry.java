@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.installregistry;
 
 import java.util.Collection;
-import org.eclipse.equinox.p2.engine.Profile;
 
 /**
  * The install registry records information about a profile, including profile
@@ -20,15 +19,17 @@ import org.eclipse.equinox.p2.engine.Profile;
 public interface IInstallRegistry {
 
 	/**
-	 * Returns the install registry for the given profile. Creates a new install
-	 * registry for the profile if none exists.
-	 * @param profile The profile to obtain the registry for
-	 * @return The install registry for the given profile.
+	 * Returns the install registry for the given profile, or <code>null</code> if
+	 * no such profile is known to the install registry.
+	 * 
+	 * @param profileId The id of the profile to obtain the registry for
+	 * @return The install registry for the given profile, or <code>null</code>
 	 */
-	public abstract IProfileInstallRegistry getProfileInstallRegistry(Profile profile);
+	public abstract IProfileInstallRegistry getProfileInstallRegistry(String profileId);
 
 	/**
 	 * Returns the profile install registries of all profiles known to the install registry.
+	 * 
 	 * @return A Collection of IProfileInstallRegistry
 	 */
 	public abstract Collection getProfileInstallRegistries();

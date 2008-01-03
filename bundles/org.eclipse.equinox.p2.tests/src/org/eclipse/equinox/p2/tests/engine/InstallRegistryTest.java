@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
+import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -55,28 +56,35 @@ public class InstallRegistryTest extends AbstractProvisioningTest {
 	public void testAddRemoveIU() {
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		Profile profile = createProfile("testProfile");
-		assertEquals(0, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		String profileId = profile.getProfileId();
+		assertEquals(0, getRegistrySize(profileId));
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU())}, new NullProgressMonitor());
-		assertEquals(1, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		assertEquals(1, getRegistrySize(profileId));
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(createTestIU(), null)}, new NullProgressMonitor());
-		assertEquals(0, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		assertEquals(0, getRegistrySize(profileId));
 		registry.getProfileInstallRegistries().remove(profile);
+	}
+
+	protected int getRegistrySize(String profileId) {
+		IProfileInstallRegistry profileInstallRegistry = registry.getProfileInstallRegistry(profileId);
+		return profileInstallRegistry == null ? 0 : profileInstallRegistry.getInstallableUnits().length;
 	}
 
 	public void testPeristence() {
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		Profile profile = createProfile("testProfile");
-		assertEquals(0, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		String profileId = profile.getProfileId();
+		assertEquals(0, getRegistrySize(profileId));
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU())}, new NullProgressMonitor());
-		assertEquals(1, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		assertEquals(1, getRegistrySize(profileId));
 
 		restart();
 
-		assertEquals(1, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		assertEquals(1, getRegistrySize(profileId));
 		engine.perform(profile, phaseSet, new Operand[] {new Operand(createTestIU(), null)}, new NullProgressMonitor());
-		assertEquals(0, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		assertEquals(0, getRegistrySize(profileId));
 		restart();
-		assertEquals(0, registry.getProfileInstallRegistry(profile).getInstallableUnits().length);
+		assertEquals(0, getRegistrySize(profileId));
 	}
 
 	private void restart() {

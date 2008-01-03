@@ -126,9 +126,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (installRegistry == null)
 			return;
 
-		installRegistry.removeProfileInstallRegistry(toUpdate);
-		//TODO: Should be using profile id not Profile object
-		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toUpdate);
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.createProfileInstallRegistry(toUpdate.getProfileId());
 		Iterator it = toUpdate.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (it.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) it.next();
@@ -144,7 +142,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		profiles.put(toUpdate.getProfileId(), copyProfile(toUpdate));
 		// TODO: persists should be grouped some way to ensure they are consistent
-		installRegistry.persist();
+		installRegistry.addProfileInstallRegistry(profileInstallRegistry);
 		persist();
 	}
 
@@ -158,9 +156,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		if (profiles.remove(toRemove.getProfileId()) == null)
 			return;
-		installRegistry.removeProfileInstallRegistry(toRemove);
-
-		installRegistry.persist();
+		installRegistry.removeProfileInstallRegistry(toRemove.getProfileId());
 		persist();
 		broadcastChangeEvent(toRemove, ProfileEvent.REMOVED);
 	}

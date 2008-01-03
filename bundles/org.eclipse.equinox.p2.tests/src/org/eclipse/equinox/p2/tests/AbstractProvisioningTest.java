@@ -13,8 +13,6 @@ import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
-import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.IPlanner;
@@ -621,19 +619,12 @@ public class AbstractProvisioningTest extends TestCase {
 		}
 		//remove all profiles created by this test
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-		IInstallRegistry installRegistry = (IInstallRegistry) ServiceHelper.getService(TestActivator.getContext(), IInstallRegistry.class.getName());
 		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
 			Profile toRemove = (Profile) it.next();
 			profileRegistry.removeProfile(toRemove);
-			IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(toRemove);
-			IInstallableUnit[] units = profileInstallRegistry.getInstallableUnits();
-			for (int i = 0; i < units.length; i++) {
-				profileInstallRegistry.removeInstallableUnits(units[i]);
-			}
 		}
 		profilesToRemove.clear();
 		//See bug 209069 - currently no way to persist install registry changes or clear the metadata cache
-		//		((InstallRegistry) installRegistry).persist();
 		//		IMetadataRepository cache = MetadataCache.getCacheInstance((MetadataRepositoryManager) repoMan);
 		//		cache.removeAll();
 	}

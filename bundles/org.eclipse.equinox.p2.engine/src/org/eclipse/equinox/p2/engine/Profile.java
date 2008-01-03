@@ -125,8 +125,7 @@ public class Profile implements IQueryable {
 		IInstallRegistry installRegistry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
 		if (installRegistry == null)
 			return;
-		//TODO: Should be using profile id not "this"
-		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(this);
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(getProfileId());
 		if (profileInstallRegistry == null)
 			return;
 

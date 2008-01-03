@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.installregistry;
 
 import java.io.*;
+import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -24,7 +25,6 @@ import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -479,7 +479,7 @@ public class InstallRegistry implements IInstallRegistry {
 	 * What is installed in each profile. A map of String(Profile id) -> ProfileInstallRegistry.
 	 * Most callers should use getRegistryMap() accessor method that does lazy initialization.
 	 */
-	Map profileRegistries = null;
+	SoftReference profileRegistries = null;
 
 	public InstallRegistry() {
 		/*	
@@ -534,25 +534,39 @@ public class InstallRegistry implements IInstallRegistry {
 				*/
 	}
 
+	/**
+	 * Adds the given profile install registry to the install registry. The registry
+	 * is persisted automatically.
+	 */
+	public void addProfileInstallRegistry(IProfileInstallRegistry registry) {
+		Map map = getRegistryMap();
+		map.put(registry.getProfileId(), registry);
+		persist();
+	}
+
+	/**
+	 * Returns a new profile install registry for the given profile id.
+	 */
+	public IProfileInstallRegistry createProfileInstallRegistry(String profileId) {
+		return new ProfileInstallRegistry(profileId);
+	}
+
 	public synchronized Collection getProfileInstallRegistries() {
 		return getRegistryMap().values();
 	}
 
-	public synchronized IProfileInstallRegistry getProfileInstallRegistry(Profile profile) {
-		String profileId = profile.getProfileId();
-		Map registry = getRegistryMap();
-		IProfileInstallRegistry result = (IProfileInstallRegistry) registry.get(profileId);
-		if (result == null) {
-			result = new ProfileInstallRegistry(profileId);
-			registry.put(profileId, result);
-		}
-		return result;
+	public synchronized IProfileInstallRegistry getProfileInstallRegistry(String profileId) {
+		return (IProfileInstallRegistry) getRegistryMap().get(profileId);
 	}
 
-	public synchronized void removeProfileInstallRegistry(Profile profile) {
-		String profileId = profile.getProfileId();
+	/**
+	 * Removes the install registry for the given profile id, and saves the install registry.
+	 * @param profileId
+	 */
+	public synchronized void removeProfileInstallRegistry(String profileId) {
 		Map registry = getRegistryMap();
 		registry.remove(profileId);
+		persist();
 	}
 
 	private URL getRegistryLocation() {
@@ -581,7 +595,10 @@ public class InstallRegistry implements IInstallRegistry {
 	 * Returns the registry map without lazy initialization. May return null.
 	 */
 	Map internalGetRegistryMap() {
-		return profileRegistries;
+		SoftReference mapRef = profileRegistries;
+		if (mapRef == null)
+			return null;
+		return (Map) mapRef.get();
 	}
 
 	public synchronized void persist() {
@@ -656,7 +673,7 @@ public class InstallRegistry implements IInstallRegistry {
 	}
 
 	private void setRegistryMap(Map profileInstallRegistries) {
-		profileRegistries = profileInstallRegistries;
+		profileRegistries = new SoftReference(profileInstallRegistries);
 	}
 
 }
