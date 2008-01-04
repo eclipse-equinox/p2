@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -23,8 +22,8 @@ import org.eclipse.equinox.p2.ui.operations.*;
 
 public class InstallWizardPage extends UpdateOrInstallWizardPage {
 
-	public InstallWizardPage(IInstallableUnit[] ius, Profile profile, UpdateOrInstallWizard wizard) {
-		super("InstallWizardPage", ius, profile, wizard); //$NON-NLS-1$
+	public InstallWizardPage(IInstallableUnit[] ius, String profileId, UpdateOrInstallWizard wizard) {
+		super("InstallWizardPage", ius, profileId, wizard); //$NON-NLS-1$
 		setTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDescription(ProvUIMessages.InstallDialog_InstallSelectionMessage);
 	}
@@ -34,8 +33,8 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		sub.setWorkRemaining(100);
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, getProfile(), sub.newChild(50));
-			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfile(), sub.newChild(50));
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, getProfileId(), sub.newChild(50));
+			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfileId(), sub.newChild(50));
 			if (info == null)
 				size = IUElement.SIZE_UNKNOWN;
 			else
@@ -53,7 +52,7 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
 			IInstallableUnit[] selected = elementsToIUs(selectedElements);
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, getProfile(), monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, getProfileId(), monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new InstallOperation(getOperationLabel(), getProfile().getProfileId(), plan, selected);

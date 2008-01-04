@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
@@ -55,15 +54,15 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	IPropertyChangeListener listener;
 	WorkbenchJob remindJob;
 	IInstallableUnit[] toUpdate;
-	Profile profile;
+	String profileId;
 	boolean downloaded;
 	boolean hidden = false;
 	StatusLineCLabelContribution item;
 
-	public AutomaticUpdatesPopup(IInstallableUnit[] toUpdate, Profile profile, boolean alreadyDownloaded, Preferences prefs) {
+	public AutomaticUpdatesPopup(IInstallableUnit[] toUpdate, String profileId, boolean alreadyDownloaded, Preferences prefs) {
 		super((Shell) null, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
 		downloaded = alreadyDownloaded;
-		this.profile = profile;
+		this.profileId = profileId;
 		this.toUpdate = toUpdate;
 		this.prefs = prefs;
 		remindDelay = computeRemindDelay();
@@ -94,7 +93,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			infoLink.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewNotDownloaded);
 		infoLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				UpdateWizard wizard = new UpdateWizard(profile, toUpdate, ProvSDKUIActivator.getDefault().getLicenseManager());
+				UpdateWizard wizard = new UpdateWizard(profileId, toUpdate, ProvSDKUIActivator.getDefault().getLicenseManager());
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.open();
 			}

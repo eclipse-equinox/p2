@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.commands.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -36,16 +35,16 @@ public class UpdateHandler extends AbstractHandler {
 	 */
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		Shell shell = HandlerUtil.getActiveWorkbenchWindowChecked(event).getShell();
-		Profile profile;
+		String profileId;
 		String message = null;
 		try {
-			profile = ProvSDKUIActivator.getAnyProfile();
+			profileId = ProvSDKUIActivator.getProfileId();
 		} catch (ProvisionException e) {
-			profile = null;
+			profileId = null;
 			message = ProvSDKMessages.UpdateHandler_NoProfilesDefined;
 		}
-		if (profile != null) {
-			openDialog(shell, profile);
+		if (profileId != null) {
+			openDialog(shell, profileId);
 		} else {
 			if (message == null)
 				message = ProvSDKMessages.UpdateHandler_NoProfileInstanceDefined;
@@ -54,8 +53,8 @@ public class UpdateHandler extends AbstractHandler {
 		return null;
 	}
 
-	protected void openDialog(Shell shell, Profile profile) {
-		UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(shell, profile);
+	protected void openDialog(Shell shell, String profileId) {
+		UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(shell, profileId);
 		dialog.open();
 	}
 }

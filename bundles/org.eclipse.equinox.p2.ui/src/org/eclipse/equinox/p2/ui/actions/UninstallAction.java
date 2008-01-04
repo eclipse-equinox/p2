@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -31,8 +30,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class UninstallAction extends ProfileModificationAction {
 
-	public UninstallAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, null, shell);
+	public UninstallAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Shell shell) {
+		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profileId, chooser, null, shell);
 		setToolTipText(ProvUI.UNINSTALL_COMMAND_TOOLTIP);
 	}
 
@@ -70,15 +69,15 @@ public class UninstallAction extends ProfileModificationAction {
 		return ProvUIMessages.UninstallIUProgress;
 	}
 
-	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
-		UninstallWizard wizard = new UninstallWizard(targetProfile, ius);
+	protected void performOperation(IInstallableUnit[] ius, String targetProfileId) {
+		UninstallWizard wizard = new UninstallWizard(targetProfileId, ius);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.open();
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
+	protected IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(ius, targetProfile, monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(ius, targetProfileId, monitor);
 			return plan.getStatus();
 		} catch (ProvisionException e) {
 			return ProvUI.handleException(e, null);

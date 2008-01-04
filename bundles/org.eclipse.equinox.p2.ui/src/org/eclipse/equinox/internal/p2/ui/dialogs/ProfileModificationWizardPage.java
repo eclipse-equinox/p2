@@ -14,13 +14,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -37,14 +40,14 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	private static final int DEFAULT_COLUMN_WIDTH = 50;
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private IInstallableUnit[] ius;
-	private Profile profile;
+	private String profileId;
 	CheckboxTableViewer listViewer;
 	StaticContentProvider contentProvider;
 
-	protected ProfileModificationWizardPage(String id, IInstallableUnit[] ius, Profile profile) {
+	protected ProfileModificationWizardPage(String id, IInstallableUnit[] ius, String profileID) {
 		super(id);
 		this.ius = ius;
-		this.profile = profile;
+		this.profileId = profileID;
 	}
 
 	public void createControl(Composite parent) {
@@ -95,7 +98,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 	protected void makeElements(IInstallableUnit[] iusToShow, List list) {
 		for (int i = 0; i < iusToShow.length; i++) {
-			list.add(new AvailableIUElement(iusToShow[i], profile.getProfileId()));
+			list.add(new AvailableIUElement(iusToShow[i], getProfileId()));
 		}
 	}
 
@@ -135,7 +138,16 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	}
 
 	protected Profile getProfile() {
-		return profile;
+		try {
+			return ProvisioningUtil.getProfile(profileId);
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, ProvUIMessages.ProfileModificationWizardPage_ProfileNotFound);
+		}
+		return null;
+	}
+
+	protected String getProfileId() {
+		return profileId;
 	}
 
 	protected IInstallableUnit[] getIUs() {

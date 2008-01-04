@@ -49,15 +49,15 @@ public class AutomaticUpdater implements IUpdateListener {
 			if (download) {
 				IInstallableUnit[] replacements = ProvisioningUtil.updatesFor(toUpdate, null);
 				if (replacements.length > 0) {
-					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getReplacePlan(toUpdate, replacements, event.getProfile(), null, null);
-					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfile().getProfileId(), plan, new DownloadPhaseSet(), false), null);
+					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getReplacePlan(toUpdate, replacements, ProvisioningUtil.getProfile(event.getProfileId()), null, null);
+					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), plan, new DownloadPhaseSet(), false), null);
 					job.addJobChangeListener(new JobChangeAdapter() {
 						public void done(IJobChangeEvent jobEvent) {
 							IStatus status = jobEvent.getResult();
 							if (status.isOK()) {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 									public void run() {
-										new AutomaticUpdatesPopup(toUpdate, event.getProfile(), true, prefs).open();
+										new AutomaticUpdatesPopup(toUpdate, event.getProfileId(), true, prefs).open();
 									}
 								});
 							} else if (status.getSeverity() != IStatus.CANCEL) {
@@ -69,7 +69,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			} else {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					public void run() {
-						new AutomaticUpdatesPopup(toUpdate, event.getProfile(), false, prefs).open();
+						new AutomaticUpdatesPopup(toUpdate, event.getProfileId(), false, prefs).open();
 					}
 				});
 			}
@@ -93,7 +93,7 @@ public class AutomaticUpdater implements IUpdateListener {
 				return result;
 			}
 		};
-		ProfileElement element = new ProfileElement(event.getProfile());
+		ProfileElement element = new ProfileElement(event.getProfileId());
 		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(element, IProvElementQueryProvider.AVAILABLE_UPDATES);
 		Object[] elements = rootQueryable.query(descriptor.query, descriptor.result, null).toArray(Object.class);
 		IInstallableUnit[] result = new IInstallableUnit[elements.length];

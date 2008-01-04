@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
@@ -25,8 +24,8 @@ import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
 public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 
-	public UpdateWizardPage(IInstallableUnit[] ius, Profile profile, UpdateOrInstallWizard wizard) {
-		super("UpdateWizardPage", ius, profile, wizard); //$NON-NLS-1$
+	public UpdateWizardPage(IInstallableUnit[] ius, String profileId, UpdateOrInstallWizard wizard) {
+		super("UpdateWizardPage", ius, profileId, wizard); //$NON-NLS-1$
 		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 	}
@@ -60,7 +59,7 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), getProfile(), monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getReplacePlan(getIUsToReplace(selectedElements), elementsToIUs(selectedElements), getProfileId(), monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new ProfileModificationOperation(getOperationLabel(), getProfile().getProfileId(), plan);

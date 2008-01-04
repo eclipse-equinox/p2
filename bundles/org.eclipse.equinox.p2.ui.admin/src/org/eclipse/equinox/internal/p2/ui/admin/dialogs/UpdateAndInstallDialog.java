@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.jface.dialogs.Dialog;
@@ -28,15 +27,15 @@ import org.eclipse.swt.widgets.*;
  */
 public class UpdateAndInstallDialog extends TrayDialog {
 
-	private Profile profile;
+	private String profileId;
 
 	/**
 	 * Create an instance of this Dialog.
 	 * 
 	 */
-	public UpdateAndInstallDialog(Shell shell, Profile profile) {
+	public UpdateAndInstallDialog(Shell shell, String profileId) {
 		super(shell);
-		this.profile = profile;
+		this.profileId = profileId;
 	}
 
 	protected void configureShell(Shell shell) {
@@ -50,7 +49,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profile, ProvAdminUIMessages.UpdateAndInstallDialog_InstalledIUsPageLabel, ProvAdminUIMessages.UpdateAndInstallDialog_AvailableIUsPageLabel, null, null, ProvAdminUIActivator.getDefault().getQueryProvider(), null, fontMetrics);
+		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profileId, ProvAdminUIMessages.UpdateAndInstallDialog_InstalledIUsPageLabel, ProvAdminUIMessages.UpdateAndInstallDialog_AvailableIUsPageLabel, null, null, ProvAdminUIActivator.getDefault().getQueryProvider(), null, fontMetrics);
 		Dialog.applyDialogFont(group.getTabFolder());
 		return group.getTabFolder();
 	}

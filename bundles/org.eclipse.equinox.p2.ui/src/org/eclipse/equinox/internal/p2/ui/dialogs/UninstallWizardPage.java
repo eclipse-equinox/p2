@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
@@ -23,18 +22,18 @@ import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
 public class UninstallWizardPage extends ProfileModificationWizardPage {
 
-	public UninstallWizardPage(IInstallableUnit[] ius, Profile profile) {
-		super("UninstallWizard", ius, profile); //$NON-NLS-1$
+	public UninstallWizardPage(IInstallableUnit[] ius, String profileId) {
+		super("UninstallWizard", ius, profileId); //$NON-NLS-1$
 		setTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
 	}
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(elementsToIUs(selectedElements), getProfile(), monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(elementsToIUs(selectedElements), getProfileId(), monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
-				return new ProfileModificationOperation(ProvUIMessages.UninstallIUOperationLabel, getProfile().getProfileId(), plan);
+				return new ProfileModificationOperation(ProvUIMessages.UninstallIUOperationLabel, getProfileId(), plan);
 			ProvUI.reportStatus(status);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);

@@ -23,8 +23,8 @@ public class ProvElementComparer implements IElementComparer {
 		IInstallableUnit iu2 = getIU(b);
 		if (iu1 != null && iu2 != null)
 			return iu1.equals(iu2);
-		Profile p1 = getProfile(a);
-		Profile p2 = getProfile(b);
+		String p1 = getProfileId(a);
+		String p2 = getProfileId(b);
 		if (p1 != null && p2 != null)
 			return p1.equals(p2);
 		IRepository r1 = getRepository(a);
@@ -38,9 +38,9 @@ public class ProvElementComparer implements IElementComparer {
 		IInstallableUnit iu = getIU(element);
 		if (iu != null)
 			return iu.hashCode();
-		Profile profile = getProfile(element);
-		if (profile != null)
-			return profile.hashCode();
+		String profileId = getProfileId(element);
+		if (profileId != null)
+			return profileId.hashCode();
 		IRepository repo = getRepository(element);
 		if (repo != null)
 			return repo.hashCode();
@@ -51,8 +51,11 @@ public class ProvElementComparer implements IElementComparer {
 		return (IInstallableUnit) ProvUI.getAdapter(obj, IInstallableUnit.class);
 	}
 
-	private Profile getProfile(Object obj) {
-		return (Profile) ProvUI.getAdapter(obj, Profile.class);
+	private String getProfileId(Object obj) {
+		Profile profile = (Profile) ProvUI.getAdapter(obj, Profile.class);
+		if (profile == null)
+			return null;
+		return profile.getProfileId();
 	}
 
 	private IRepository getRepository(Object obj) {

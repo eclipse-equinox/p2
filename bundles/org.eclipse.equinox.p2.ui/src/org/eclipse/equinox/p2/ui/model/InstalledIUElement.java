@@ -11,7 +11,6 @@
 package org.eclipse.equinox.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 
@@ -23,11 +22,11 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
  */
 public class InstalledIUElement extends ProvElement implements IUElement {
 
-	Profile parent;
+	String profileId;
 	IInstallableUnit iu;
 
-	public InstalledIUElement(Profile parent, IInstallableUnit iu) {
-		this.parent = parent;
+	public InstalledIUElement(String profileId, IInstallableUnit iu) {
+		this.profileId = profileId;
 		this.iu = iu;
 	}
 
@@ -38,15 +37,6 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 	 */
 	protected String getImageID(Object obj) {
 		return ProvUIImages.IMG_IU;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getParent(java.lang.Object)
-	 */
-	public Object getParent(Object o) {
-		return parent;
 	}
 
 	public String getLabel(Object o) {
@@ -63,8 +53,8 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 		return super.getAdapter(adapter);
 	}
 
-	public Profile getProfile() {
-		return parent;
+	public String getProfileId() {
+		return profileId;
 	}
 
 	public IInstallableUnit getIU() {
@@ -87,5 +77,10 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 
 	public boolean shouldShowVersion() {
 		return true;
+	}
+
+	public Object getParent(Object o) {
+		// we do not know the element
+		return null;
 	}
 }

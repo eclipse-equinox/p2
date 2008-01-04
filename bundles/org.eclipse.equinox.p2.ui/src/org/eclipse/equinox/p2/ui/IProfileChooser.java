@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -23,10 +22,10 @@ import org.eclipse.swt.widgets.Shell;
 
 public interface IProfileChooser {
 	/**
-	 * Return a chosen profile, or <code>null</code> if there is no profile
+	 * Return a chosen profile id, or <code>null</code> if there is no profile
 	 * chosen.
 	 */
-	public Profile getProfile(Shell shell);
+	public String getProfileId(Shell shell);
 
 	/**
 	 * Return a String that could be used to label this chooser.

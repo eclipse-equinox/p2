@@ -44,12 +44,12 @@ public class UpdateChecker {
 		boolean done = false;
 		long poll, delay;
 		IUpdateListener listener;
-		Profile profile;
+		String profileId;
 
 		UpdateCheckThread(String profileId, long delay, long poll, IUpdateListener listener) {
 			this.poll = poll;
 			this.delay = delay;
-			this.profile = getProfileRegistry().getProfile(profileId);
+			this.profileId = profileId;
 			this.listener = listener;
 		}
 
@@ -60,11 +60,11 @@ public class UpdateChecker {
 				}
 				while (!done) {
 
-					log("Checking for updates for " + profile.getProfileId() + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
-					IInstallableUnit[] iusWithUpdates = checkForUpdates(profile);
+					log("Checking for updates for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
+					IInstallableUnit[] iusWithUpdates = checkForUpdates(profileId);
 					if (iusWithUpdates.length > 0) {
 						log("Notifying listener of available updates"); //$NON-NLS-1$
-						UpdateEvent event = new UpdateEvent(profile, iusWithUpdates);
+						UpdateEvent event = new UpdateEvent(profileId, iusWithUpdates);
 						if (!done)
 							listener.updatesAvailable(event);
 					} else {
@@ -107,10 +107,13 @@ public class UpdateChecker {
 	 * Return the array of ius in the profile that have updates
 	 * available.
 	 */
-	IInstallableUnit[] checkForUpdates(Profile profile) {
+	IInstallableUnit[] checkForUpdates(String profileId) {
 		// TODO this is naive.  We get all the ius every time whereas we
-		// could monitor changes in the profile. 
+		// could monitor changes in the profile.
+		Profile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList iusWithUpdates = new ArrayList();
+		if (profile == null)
+			return new IInstallableUnit[0];
 		Iterator iter = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();

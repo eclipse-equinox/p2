@@ -37,7 +37,7 @@ public class InstalledIUCollector extends QueriedElementCollector {
 		if (!(match instanceof IInstallableUnit))
 			return true;
 		if (queryable instanceof Profile)
-			return super.accept(new InstalledIUElement((Profile) queryable, (IInstallableUnit) match));
+			return super.accept(new InstalledIUElement(((Profile) queryable).getProfileId(), (IInstallableUnit) match));
 		// shouldn't happen, but is possible if a client reset the queryable to a non-profile.
 		return super.accept(match);
 	}

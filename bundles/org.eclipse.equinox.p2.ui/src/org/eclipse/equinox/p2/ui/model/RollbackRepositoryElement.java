@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 
 /**
@@ -20,14 +19,14 @@ import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
  */
 public class RollbackRepositoryElement extends MetadataRepositoryElement {
 
-	Profile profile;
+	String profileId;
 
-	public RollbackRepositoryElement(IMetadataRepository repo, Profile profile) {
+	public RollbackRepositoryElement(IMetadataRepository repo, String profileId) {
 		super(repo);
-		this.profile = profile;
+		this.profileId = profileId;
 	}
 
-	public Profile getProfile() {
-		return profile;
+	public String getProfileId() {
+		return profileId;
 	}
 }

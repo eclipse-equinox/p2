@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.UpdateAndInstallDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.UninstallAction;
@@ -22,8 +23,7 @@ import org.eclipse.equinox.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.ui.model.Profiles;
-import org.eclipse.equinox.p2.ui.operations.ProfileOperation;
-import org.eclipse.equinox.p2.ui.operations.RemoveProfilesOperation;
+import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
@@ -76,7 +76,7 @@ public class ProfilesView extends ProvView {
 		}
 
 		public void run() {
-			new AddProfileDialog(viewer.getControl().getShell(), ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput())).open();
+			new AddProfileDialog(viewer.getControl().getShell(), getKnownProfileIds()).open();
 		}
 	}
 
@@ -87,9 +87,9 @@ public class ProfilesView extends ProvView {
 		}
 
 		public void run() {
-			Profile profile = getProfileChooser().getProfile(getShell());
-			if (profile != null) {
-				UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(getShell(), profile);
+			String profileId = getProfileChooser().getProfileId(getShell());
+			if (profileId != null) {
+				UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(getShell(), profileId);
 				dialog.open();
 			}
 		}
@@ -212,12 +212,15 @@ public class ProfilesView extends ProvView {
 
 	IProfileChooser getProfileChooser() {
 		return new IProfileChooser() {
-			public Profile getProfile(Shell shell) {
+			public String getProfileId(Shell shell) {
 				Object firstElement = getSelection().getFirstElement();
 				if (firstElement instanceof InstalledIUElement) {
-					return ((InstalledIUElement) firstElement).getProfile();
+					return ((InstalledIUElement) firstElement).getProfileId();
 				}
-				return (Profile) ProvUI.getAdapter(firstElement, Profile.class);
+				Profile profile = (Profile) ProvUI.getAdapter(firstElement, Profile.class);
+				if (profile != null)
+					return profile.getProfileId();
+				return null;
 			}
 
 			public String getLabel() {
@@ -230,5 +233,19 @@ public class ProfilesView extends ProvView {
 		List list = super.getVisualProperties();
 		list.add(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
 		return list;
+	}
+
+	private String[] getKnownProfileIds() {
+		try {
+			Profile[] allProfiles = ProvisioningUtil.getProfiles();
+			String[] ids = new String[allProfiles.length];
+			for (int i = 0; i < allProfiles.length; i++)
+				ids[i] = allProfiles[i].getProfileId();
+			return ids;
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, ProvAdminUIMessages.ProfilesView_0);
+			return new String[0];
+		}
+
 	}
 }

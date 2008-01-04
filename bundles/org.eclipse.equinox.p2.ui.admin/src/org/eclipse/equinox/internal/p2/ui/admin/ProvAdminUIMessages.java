@@ -37,6 +37,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ArtifactRepositoriesView_AddRepositoryLabel;
 	public static String ArtifactRepositoriesView_RemoveRepositoryTooltip;
 	public static String ArtifactRepositoriesView_RemoveRepositoryOperationLabel;
+	public static String ProfilesView_0;
 	public static String ProfilesView_AddProfileTooltip;
 	public static String ProfilesView_AddProfileLabel;
 	public static String ProfilesView_RemoveProfileLabel;
@@ -75,6 +76,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String IUGroup_TouchpointData;
 	public static String IUGroup_TouchpointType;
 	public static String IUGroup_Version;
+	public static String IUProfilePropertiesGroup_InvalidProfileID;
 
 	public static String No_Property_Item_Selected;
 

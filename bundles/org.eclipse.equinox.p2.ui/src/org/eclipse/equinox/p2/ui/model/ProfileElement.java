@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * Element wrapper class for a profile that uses the query
@@ -22,9 +28,10 @@ import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
  * @since 3.4
  */
 public class ProfileElement extends RemoteQueriedElement {
+	String profileId;
 
-	public ProfileElement(Profile profile) {
-		setQueryable(profile);
+	public ProfileElement(String profileId) {
+		this.profileId = profileId;
 	}
 
 	public Object getAdapter(Class adapter) {
@@ -38,11 +45,20 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	public String getLabel(Object o) {
-		return ((Profile) getQueryable()).getProfileId();
+		return profileId;
 	}
 
 	protected int getQueryType() {
 		return IProvElementQueryProvider.INSTALLED_IUS;
+	}
+
+	public IQueryable getQueryable() {
+		try {
+			return ProvisioningUtil.getProfile(profileId);
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProfileElement_InvalidProfile, profileId));
+			return null;
+		}
 	}
 
 	/*

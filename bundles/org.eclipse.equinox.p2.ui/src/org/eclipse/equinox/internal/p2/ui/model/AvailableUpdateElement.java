@@ -36,6 +36,6 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	}
 
 	protected ProvisioningPlan getSizingPlan() throws ProvisionException {
-		return ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToBeUpdated}, new IInstallableUnit[] {getIU()}, getProfile(), null);
+		return ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToBeUpdated}, new IInstallableUnit[] {getIU()}, profileID, null);
 	}
 }

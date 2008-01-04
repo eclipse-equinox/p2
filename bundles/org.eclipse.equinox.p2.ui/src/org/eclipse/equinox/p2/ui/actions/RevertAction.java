@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.*;
@@ -26,15 +25,15 @@ import org.eclipse.swt.widgets.Shell;
 
 public class RevertAction extends ProfileModificationAction {
 
-	public RevertAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profile, chooser, null, shell);
+	public RevertAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Shell shell) {
+		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profileId, chooser, null, shell);
 		setToolTipText(ProvUI.REVERT_COMMAND_TOOLTIP);
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] toRevert, Profile targetProfile, IProgressMonitor monitor) {
+	protected IStatus validateOperation(IInstallableUnit[] toRevert, String targetProfileId, IProgressMonitor monitor) {
 		if (toRevert.length == 1) {
 			try {
-				ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toRevert[0], targetProfile, monitor);
+				ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toRevert[0], targetProfileId, monitor);
 				return plan.getStatus();
 			} catch (ProvisionException e) {
 				return ProvUI.handleException(e, null);
@@ -44,11 +43,11 @@ public class RevertAction extends ProfileModificationAction {
 		return Status.OK_STATUS;
 	}
 
-	protected void performOperation(IInstallableUnit[] toBecome, Profile targetProfile) {
+	protected void performOperation(IInstallableUnit[] toBecome, String targetProfileId) {
 		// TODO bogus because we do this twice...
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toBecome[0], targetProfile, null);
-			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertIUOperationLabel, targetProfile.getProfileId(), plan);
+			ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toBecome[0], targetProfileId, null);
+			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertIUOperationLabel, targetProfileId, plan);
 			ProvisioningOperationRunner.schedule(op, getShell());
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.updatechecker;
 
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -20,11 +19,11 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public class UpdateEvent {
 
-	Profile profile;
+	String profileId;
 	IInstallableUnit[] iusWithUpdates;
 
-	public UpdateEvent(Profile profile, IInstallableUnit[] iusWithUpdates) {
-		this.profile = profile;
+	public UpdateEvent(String profileId, IInstallableUnit[] iusWithUpdates) {
+		this.profileId = profileId;
 		this.iusWithUpdates = iusWithUpdates;
 	}
 
@@ -32,8 +31,8 @@ public class UpdateEvent {
 		return iusWithUpdates;
 	}
 
-	public Profile getProfile() {
-		return profile;
+	public String getProfileId() {
+		return profileId;
 	}
 
 }

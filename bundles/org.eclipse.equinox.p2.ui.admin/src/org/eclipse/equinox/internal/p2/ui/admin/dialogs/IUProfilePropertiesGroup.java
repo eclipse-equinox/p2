@@ -11,9 +11,14 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
+import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.dialogs.IUGroup;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
@@ -67,9 +72,19 @@ public class IUProfilePropertiesGroup extends IUGroup {
 		String[] userPropNames = new String[] {ProvAdminUIMessages.ProfileRootPropertyName};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
-			String value = ((InstalledIUElement) iuElement).getProfile().getInstallableUnitProfileProperty(getIU(), propNames[i]);
+			Profile profile = getProfile((InstalledIUElement) iuElement);
+			String value = profile == null ? null : profile.getInstallableUnitProfileProperty(getIU(), propNames[i]);
 			if (value != null)
 				item.setText(new String[] {userPropNames[i], value});
+		}
+	}
+
+	private Profile getProfile(InstalledIUElement element) {
+		try {
+			return ProvisioningUtil.getProfile(element.getProfileId());
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, NLS.bind(ProvAdminUIMessages.IUProfilePropertiesGroup_InvalidProfileID, element.getProfileId()));
+			return null;
 		}
 	}
 }

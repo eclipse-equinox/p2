@@ -46,7 +46,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 				return new ElementQueryDescriptor(queryable, new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false), new QueriedElementCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				if (element instanceof RollbackRepositoryElement) {
-					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfile().getProfileId());
+					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
 					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_PROFILE_IU_KEY, Boolean.toString(true));
 					return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), new RollbackIUCollector(this, element.getQueryable()));
 				}
@@ -86,7 +86,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 					public boolean isMatch(Object candidate) {
 						return ProvUI.getAdapter(candidate, Profile.class) != null;
 					}
-				}, new QueriedElementCollector(this, queryable));
+				}, new ProfileElementCollector(this, null));
 			default :
 				return null;
 		}

@@ -90,14 +90,14 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	private IProfileChooser getProfileChooser() {
 		return new IProfileChooser() {
 
-			public Profile getProfile(Shell shell) {
+			public String getProfileId(Shell shell) {
 				// TODO would be nice if the profile chooser dialog let you
 				// create a new profile
 				DeferredQueryContentProvider provider = new DeferredQueryContentProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
 				if (provider.getElements(new Profiles()).length == 0) {
-					AddProfileDialog dialog = new AddProfileDialog(shell, new Profile[0]);
+					AddProfileDialog dialog = new AddProfileDialog(shell, new String[0]);
 					if (dialog.open() == Window.OK) {
-						return dialog.getAddedProfile();
+						return dialog.getAddedProfileId();
 					}
 					return null;
 				}
@@ -109,8 +109,11 @@ public class MetadataRepositoriesView extends RepositoriesView {
 				dialog.setContentProvider(provider);
 				dialog.open();
 				Object[] result = dialog.getResult();
-				if (result != null && result.length > 0)
-					return (Profile) ProvUI.getAdapter(result[0], Profile.class);
+				if (result != null && result.length > 0) {
+					Profile profile = (Profile) ProvUI.getAdapter(result[0], Profile.class);
+					if (profile != null)
+						return profile.getProfileId();
+				}
 				return null;
 			}
 

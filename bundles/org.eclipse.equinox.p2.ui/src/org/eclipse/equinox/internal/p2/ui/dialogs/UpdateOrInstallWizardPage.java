@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 
@@ -19,8 +18,8 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 
 	protected UpdateOrInstallWizard wizard;
 
-	protected UpdateOrInstallWizardPage(String id, IInstallableUnit[] ius, Profile profile, UpdateOrInstallWizard wizard) {
-		super(id, ius, profile);
+	protected UpdateOrInstallWizardPage(String id, IInstallableUnit[] ius, String profileId, UpdateOrInstallWizard wizard) {
+		super(id, ius, profileId);
 		this.wizard = wizard;
 	}
 

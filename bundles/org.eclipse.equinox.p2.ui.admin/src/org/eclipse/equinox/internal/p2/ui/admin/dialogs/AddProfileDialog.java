@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.operations.AddProfileOperation;
@@ -35,13 +33,13 @@ public class AddProfileDialog extends StatusDialog {
 
 	private ProfileGroup profileGroup;
 	private Button okButton;
-	private Profile[] knownProfiles;
-	private Profile addedProfile;
+	private String[] knownProfileIds;
+	private String addedProfileId;
 
-	public AddProfileDialog(Shell parentShell, Object[] knownProfileElements) {
+	public AddProfileDialog(Shell parentShell, String[] knownProfiles) {
 
 		super(parentShell);
-		recordProfiles(knownProfileElements);
+		this.knownProfileIds = knownProfiles;
 		setTitle(ProvAdminUIMessages.AddProfileDialog_Title);
 	}
 
@@ -70,11 +68,12 @@ public class AddProfileDialog extends StatusDialog {
 	 */
 	private void addProfile() {
 		profileGroup.updateProfile();
-		addedProfile = profileGroup.getProfile();
-		if (addedProfile == null) {
+		Profile profile = profileGroup.getProfile();
+		if (profile == null) {
 			return;
 		}
-		ProvisioningOperationRunner.schedule(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfile), getShell());
+		addedProfileId = profile.getProfileId();
+		ProvisioningOperationRunner.schedule(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, profile), getShell());
 	}
 
 	void verifyComplete() {
@@ -96,28 +95,18 @@ public class AddProfileDialog extends StatusDialog {
 	}
 
 	private boolean isDuplicate() {
-		if (knownProfiles == null) {
+		if (knownProfileIds == null) {
 			return false;
 		}
 
-		for (int i = 0; i < knownProfiles.length; i++) {
-			if (knownProfiles[i].getProfileId().equals(profileGroup.getProfileId())) {
+		for (int i = 0; i < knownProfileIds.length; i++) {
+			if (knownProfileIds[i].equals(profileGroup.getProfileId())) {
 				setOkEnablement(false);
 				this.updateStatus(new Status(IStatus.ERROR, ProvAdminUIActivator.PLUGIN_ID, IStatus.OK, ProvAdminUIMessages.AddProfileDialog_DuplicateProfileID, null));
 				return true;
 			}
 		}
 		return false;
-	}
-
-	private void recordProfiles(Object[] profileElements) {
-		java.util.ArrayList profiles = new ArrayList();
-		for (int i = 0; i < profileElements.length; i++) {
-			Profile profile = (Profile) ProvUI.getAdapter(profileElements[i], Profile.class);
-			if (profile != null)
-				profiles.add(profile);
-		}
-		knownProfiles = (Profile[]) profiles.toArray(new Profile[profiles.size()]);
 	}
 
 	protected void updateButtonsEnableState(IStatus status) {
@@ -130,13 +119,13 @@ public class AddProfileDialog extends StatusDialog {
 	}
 
 	/**
-	 * Return the profile that was added with this dialog, or null
+	 * Return the profile id that was added with this dialog, or null
 	 * if no profile has been added.  This method will not return
 	 * a valid profile until the user has pressed OK and the profile
 	 * has been added to the profile registry.
-	 * @return the added profile
+	 * @return the added profile's id
 	 */
-	public Profile getAddedProfile() {
-		return addedProfile;
+	public String getAddedProfileId() {
+		return addedProfileId;
 	}
 }

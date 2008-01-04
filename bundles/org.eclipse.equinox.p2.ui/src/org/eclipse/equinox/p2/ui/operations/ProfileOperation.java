@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 public abstract class ProfileOperation extends UndoableProvisioningOperation {
 
 	String[] profileIds;
+	// We cache profiles along with ids in case we have to recreate a deleted profile
 	Profile[] cachedProfiles;
 
 	ProfileOperation(String label, String[] ids) {

@@ -46,7 +46,7 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 		return profileId;
 	}
 
-	public Profile getProfile() {
+	protected Profile getProfile() {
 		try {
 			return ProvisioningUtil.getProfile(profileId);
 		} catch (ProvisionException e) {

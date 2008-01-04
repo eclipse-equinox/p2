@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.dialogs.InstallWizard;
@@ -29,8 +28,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class InstallAction extends ProfileModificationAction {
 
-	public InstallAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, LicenseManager licenseManager, Shell shell) {
-		super(ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, profile, chooser, licenseManager, shell);
+	public InstallAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, LicenseManager licenseManager, Shell shell) {
+		super(ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, profileId, chooser, licenseManager, shell);
 		setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
 	}
 
@@ -61,15 +60,15 @@ public class InstallAction extends ProfileModificationAction {
 		return ProvUIMessages.InstallIUProgress;
 	}
 
-	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
-		InstallWizard wizard = new InstallWizard(targetProfile, ius, getLicenseManager());
+	protected void performOperation(IInstallableUnit[] ius, String targetProfileId) {
+		InstallWizard wizard = new InstallWizard(targetProfileId, ius, getLicenseManager());
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.open();
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
+	protected IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, targetProfile, monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(ius, targetProfileId, monitor);
 			return plan.getStatus();
 		} catch (ProvisionException e) {
 			return ProvUI.handleException(e, null);

@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
@@ -29,12 +28,12 @@ import org.eclipse.swt.widgets.Shell;
 
 public class UpdateAction extends ProfileModificationAction {
 
-	public UpdateAction(ISelectionProvider selectionProvider, Profile profile, IProfileChooser chooser, LicenseManager licenseManager, Shell shell) {
-		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profile, chooser, licenseManager, shell);
+	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, LicenseManager licenseManager, Shell shell) {
+		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, licenseManager, shell);
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
-	protected void performOperation(IInstallableUnit[] ius, Profile targetProfile) {
+	protected void performOperation(IInstallableUnit[] ius, String targetProfileId) {
 		// Collect the replacements for each IU individually so that 
 		// the user can decide what to update
 		try {
@@ -46,7 +45,7 @@ public class UpdateAction extends ProfileModificationAction {
 			}
 			if (iusWithUpdates.size() > 0) {
 
-				UpdateWizard wizard = new UpdateWizard(targetProfile, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), getLicenseManager());
+				UpdateWizard wizard = new UpdateWizard(targetProfileId, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), getLicenseManager());
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.open();
 			}
@@ -55,7 +54,7 @@ public class UpdateAction extends ProfileModificationAction {
 		}
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] ius, Profile targetProfile, IProgressMonitor monitor) {
+	protected IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
 		try {
 			IInstallableUnit[] updates = ProvisioningUtil.updatesFor(ius, monitor);
 			if (updates.length <= 0) {

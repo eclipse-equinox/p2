@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
@@ -45,15 +44,15 @@ public class RevertProfileWizardPage extends WizardPage {
 
 	private TableViewer configsViewer;
 	private TableViewer configContentsViewer;
-	Profile profile;
+	String profileId;
 	IProvElementQueryProvider queryProvider;
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 
-	public RevertProfileWizardPage(Profile profile, IProvElementQueryProvider queryProvider) {
+	public RevertProfileWizardPage(String profileId, IProvElementQueryProvider queryProvider) {
 		super("RevertConfiguration"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.RevertDialog_PageTitle);
 		setDescription(ProvUIMessages.RevertDialog_Description);
-		this.profile = profile;
+		this.profileId = profileId;
 		this.queryProvider = queryProvider;
 
 	}
@@ -129,7 +128,7 @@ public class RevertProfileWizardPage extends WizardPage {
 
 	private Object getInput() {
 		try {
-			RollbackRepositoryElement element = new RollbackRepositoryElement(ProvisioningUtil.getRollbackRepository(null), profile);
+			RollbackRepositoryElement element = new RollbackRepositoryElement(ProvisioningUtil.getRollbackRepository(null), profileId);
 			element.setQueryProvider(queryProvider);
 			return element;
 		} catch (ProvisionException e) {
@@ -185,7 +184,7 @@ public class RevertProfileWizardPage extends WizardPage {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
-					plan[0] = ProvisioningUtil.getRevertPlan(iu, profile, monitor);
+					plan[0] = ProvisioningUtil.getRevertPlan(iu, profileId, monitor);
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, ProvUIMessages.RevertDialog_RevertError);
 				}
@@ -193,7 +192,7 @@ public class RevertProfileWizardPage extends WizardPage {
 		};
 		try {
 			getContainer().run(true, true, runnable);
-			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profile.getProfileId(), plan[0]);
+			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
 			Job job = ProvisioningOperationRunner.schedule(op, getShell());
 			job.join();
 		} catch (InterruptedException e) {

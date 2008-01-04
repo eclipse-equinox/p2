@@ -59,7 +59,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				// Is it a rollback repository?
 				if (element instanceof RollbackRepositoryElement) {
-					Query profileQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfile().getProfileId());
+					Query profileQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
 					return new ElementQueryDescriptor(element.getQueryable(), profileQuery, new AvailableIUCollector(this, element.getQueryable(), false));
 				}
 				// It is a regular repository.

@@ -127,24 +127,24 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Get a profile for the running system.  If not available, get
+	 * Get the id of the profile for the running system.  If not available, get
 	 * any available profile.  Getting any profile allows testing of the
 	 * UI even when the system is not self hosting.  Error reporting is
 	 * left to the client, who must check for a null return.
 	 */
-	public static Profile getAnyProfile() throws ProvisionException {
-		Profile profile = null;
+	public static String getProfileId() throws ProvisionException {
+		String profileId = null;
 		// Get the profile of the running system.
-		profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
+		Profile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 		if (profile == null) {
 			StatusManager.getManager().handle(getNoSelfProfileStatus(), StatusManager.LOG);
 			Profile[] profiles = ProvisioningUtil.getProfiles();
 			if (profiles.length > 0)
-				return profiles[0];
-			return ProfileFactory.makeProfile(DEFAULT_PROFILE_ID);
+				return profiles[0].getProfileId();
+			return ProfileFactory.makeProfile(DEFAULT_PROFILE_ID).getProfileId();
 
 		}
-		return profile;
+		return profile.getProfileId();
 	}
 
 	void setScheduler(AutomaticUpdateScheduler scheduler) {

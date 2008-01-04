@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.p2.updatechecker.UpdateChecker;
 import org.eclipse.ui.IStartup;
@@ -39,7 +38,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 
 	private IUpdateListener listener = null;
 	private UpdateChecker checker = null;
-	private Profile profile;
+	private String profileId;
 
 	/**
 	 * The constructor.
@@ -54,9 +53,9 @@ public class AutomaticUpdateScheduler implements IStartup {
 			return;
 		}
 		try {
-			profile = ProvSDKUIActivator.getAnyProfile();
+			profileId = ProvSDKUIActivator.getProfileId();
 		} catch (ProvisionException e) {
-			profile = null;
+			profileId = null;
 			IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, ProvSDKMessages.UpdateHandler_NoProfilesDefined, e);
 			StatusManager.getManager().handle(status, StatusManager.LOG);
 			return;
@@ -98,7 +97,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 			poll = computePoll(pref);
 		}
 		listener = new AutomaticUpdater();
-		checker.addUpdateCheck(profile.getProfileId(), delay, poll, listener);
+		checker.addUpdateCheck(profileId, delay, poll, listener);
 
 	}
 

@@ -79,7 +79,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 			return;
 		try {
 			ProvisioningPlan plan = getSizingPlan();
-			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfile(), null);
+			Sizing info = ProvisioningUtil.getSizeInfo(plan, profileID, null);
 			size = info.getDiskSize();
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
@@ -91,7 +91,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 	}
 
 	protected ProvisioningPlan getSizingPlan() throws ProvisionException {
-		return ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {getIU()}, getProfile(), null);
+		return ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {getIU()}, profileID, null);
 	}
 
 	public IInstallableUnit getIU() {

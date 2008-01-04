@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.eclipse.jface.wizard.Wizard;
@@ -22,21 +21,21 @@ public abstract class UpdateOrInstallWizard extends Wizard {
 
 	UpdateOrInstallWizardPage mainPage;
 	AcceptLicensesWizardPage licensePage;
-	Profile profile;
+	String profileId;
 	IInstallableUnit[] ius;
 	LicenseManager licenseManager;
 
-	public UpdateOrInstallWizard(Profile profile, IInstallableUnit[] ius, LicenseManager licenseManager) {
+	public UpdateOrInstallWizard(String profileId, IInstallableUnit[] ius, LicenseManager licenseManager) {
 		super();
 		setForcePreviousAndNextButtons(true);
 		setNeedsProgressMonitor(true);
-		this.profile = profile;
+		this.profileId = profileId;
 		this.ius = ius;
 		this.licenseManager = licenseManager;
 	}
 
 	public void addPages() {
-		mainPage = createMainPage(profile, ius);
+		mainPage = createMainPage(profileId, ius);
 		addPage(mainPage);
 		addPage(licensePage = new AcceptLicensesWizardPage(ius, licenseManager));
 	}
@@ -50,6 +49,6 @@ public abstract class UpdateOrInstallWizard extends Wizard {
 		licensePage.update(ius);
 	}
 
-	protected abstract UpdateOrInstallWizardPage createMainPage(Profile theProfile, IInstallableUnit[] theIUs);
+	protected abstract UpdateOrInstallWizardPage createMainPage(String theProfileId, IInstallableUnit[] theIUs);
 
 }

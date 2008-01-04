@@ -148,20 +148,20 @@ public class ProvisioningUtil {
 	/*
 	 * Get the plan for the specified install operation
 	 */
-	public static ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, Profile profile, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profile);
+	public static ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, String profileId, IProgressMonitor monitor) throws ProvisionException {
+		Assert.isNotNull(profileId);
 		Assert.isNotNull(toInstall);
-		return getPlanner().getInstallPlan(toInstall, profile, null, monitor);
+		return getPlanner().getInstallPlan(toInstall, getProfile(profileId), null, monitor);
 	}
 
 	/*
 	 * Get the plan for the specified update operation
 	 */
-	public static ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] replacements, Profile profile, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profile);
+	public static ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] replacements, String profileId, IProgressMonitor monitor) throws ProvisionException {
+		Assert.isNotNull(profileId);
 		Assert.isNotNull(toUninstall);
 		Assert.isNotNull(replacements);
-		return getPlanner().getReplacePlan(toUninstall, replacements, profile, null, monitor);
+		return getPlanner().getReplacePlan(toUninstall, replacements, getProfile(profileId), null, monitor);
 	}
 
 	/*
@@ -194,27 +194,27 @@ public class ProvisioningUtil {
 	/*
 	 * Get a plan for becoming
 	 */
-	public static ProvisioningPlan getRevertPlan(IInstallableUnit profileIU, Profile profile, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profile);
+	public static ProvisioningPlan getRevertPlan(IInstallableUnit profileIU, String profileId, IProgressMonitor monitor) throws ProvisionException {
+		Assert.isNotNull(profileId);
 		Assert.isNotNull(profileIU);
-		return getPlanner().getRevertPlan(profileIU, profile, null, monitor);
+		return getPlanner().getRevertPlan(profileIU, getProfile(profileId), null, monitor);
 	}
 
 	/*
 	 * Get the plan to uninstall the specified IU's
 	 */
-	public static ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, Profile profile, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profile);
+	public static ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, String profileId, IProgressMonitor monitor) throws ProvisionException {
+		Assert.isNotNull(profileId);
 		Assert.isNotNull(toUninstall);
-		return getPlanner().getUninstallPlan(toUninstall, profile, null, monitor);
+		return getPlanner().getUninstallPlan(toUninstall, getProfile(profileId), null, monitor);
 	}
 
 	/*
 	 * Get sizing info for the specified IU's
 	 */
-	public static Sizing getSizeInfo(ProvisioningPlan plan, Profile profile, IProgressMonitor monitor) throws ProvisionException {
+	public static Sizing getSizeInfo(ProvisioningPlan plan, String profileId, IProgressMonitor monitor) throws ProvisionException {
 		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = getEngine().perform(profile, set, plan.getOperands(), monitor);
+		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), monitor);
 		if (status.isOK())
 			return set.getSizing();
 		return null;

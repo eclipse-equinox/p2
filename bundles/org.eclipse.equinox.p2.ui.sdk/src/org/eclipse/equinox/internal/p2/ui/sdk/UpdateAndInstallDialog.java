@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.IRepositoryManipulator;
 import org.eclipse.equinox.p2.ui.dialogs.RevertWizard;
@@ -43,16 +42,16 @@ public class UpdateAndInstallDialog extends TrayDialog {
 
 	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
 	private static final String SELECTED_TAB_SETTING = "SelectedTab"; //$NON-NLS-1$
-	Profile profile;
+	String profileId;
 	UpdateAndInstallGroup group;
 
 	/**
 	 * Create an instance of this Dialog.
 	 * 
 	 */
-	public UpdateAndInstallDialog(Shell shell, Profile profile) {
+	public UpdateAndInstallDialog(Shell shell, String profileId) {
 		super(shell);
-		this.profile = profile;
+		this.profileId = profileId;
 		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.MAX | SWT.RESIZE | getDefaultOrientation());
 		setBlockOnOpen(false);
 	}
@@ -76,7 +75,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		group = new UpdateAndInstallGroup(comp, profile, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), getProfileChooser(), ProvSDKUIActivator.getDefault().getQueryProvider(), ProvSDKUIActivator.getDefault().getLicenseManager(), fontMetrics);
+		group = new UpdateAndInstallGroup(comp, profileId, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), getProfileChooser(), ProvSDKUIActivator.getDefault().getQueryProvider(), ProvSDKUIActivator.getDefault().getLicenseManager(), fontMetrics);
 		final Button checkBox = new Button(comp, SWT.CHECK);
 		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
 		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);
@@ -150,13 +149,13 @@ public class UpdateAndInstallDialog extends TrayDialog {
 
 			}
 
-			public Profile getProfile(Shell shell) {
-				RevertWizard wizard = new RevertWizard(profile, ProvSDKUIActivator.getDefault().getQueryProvider());
+			public String getProfileId(Shell shell) {
+				RevertWizard wizard = new RevertWizard(profileId, ProvSDKUIActivator.getDefault().getQueryProvider());
 				WizardDialog dialog = new WizardDialog(shell, wizard);
 				dialog.create();
 				dialog.getShell().setSize(600, 500);
 				if (dialog.open() == Window.OK)
-					return profile;
+					return profileId;
 				return null;
 			}
 		};

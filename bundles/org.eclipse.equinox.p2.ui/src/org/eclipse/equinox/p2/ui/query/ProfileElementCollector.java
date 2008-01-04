@@ -35,7 +35,7 @@ public class ProfileElementCollector extends QueriedElementCollector {
 	public boolean accept(Object match) {
 		if (!(match instanceof Profile))
 			return true;
-		return super.accept(new ProfileElement((Profile) match));
+		return super.accept(new ProfileElement(((Profile) match).getProfileId()));
 	}
 
 }

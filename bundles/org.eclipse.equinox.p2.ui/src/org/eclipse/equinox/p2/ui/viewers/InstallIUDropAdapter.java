@@ -62,17 +62,17 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	}
 
 	/**
-	 * Returns the target profile for the drop. If the drop is positioned on an
-	 * IU, return its parent profile.
+	 * Returns the target profile id for the drop. If the drop is positioned on an
+	 * IU, return its parent profile id.
 	 */
-	private Profile getProfileTarget(Object mouseTarget) {
+	private String getProfileTarget(Object mouseTarget) {
 		Profile profile = (Profile) ProvUI.getAdapter(mouseTarget, Profile.class);
 		if (profile != null) {
-			return profile;
+			return profile.getProfileId();
 		}
 
 		if (mouseTarget instanceof InstalledIUElement) {
-			return ((InstalledIUElement) mouseTarget).getProfile();
+			return ((InstalledIUElement) mouseTarget).getProfileId();
 		}
 		return null;
 	}
@@ -107,8 +107,8 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 		if (!(selection instanceof IStructuredSelection) || selection.isEmpty())
 			return false;
 
-		Profile profile = getProfileTarget(getCurrentTarget());
-		if (getCurrentOperation() == DND.DROP_COPY && profile != null) {
+		String profileId = getProfileTarget(getCurrentTarget());
+		if (getCurrentOperation() == DND.DROP_COPY && profileId != null) {
 			final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 			ISelectionProvider selectionProvider = new ISelectionProvider() {
 
@@ -144,7 +144,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(selectionProvider, profile, null, licenseManager, getShell());
+			InstallAction action = new InstallAction(selectionProvider, profileId, null, licenseManager, getShell());
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();
