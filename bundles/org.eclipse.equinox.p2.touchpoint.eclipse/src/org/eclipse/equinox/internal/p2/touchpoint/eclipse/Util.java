@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.Headers;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.TouchpointData;
@@ -65,11 +66,11 @@ public class Util {
 			// 	the given repo location is not an existing repo so we have to create something
 			String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
 			bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
+			if (bundlePool == null)
+				throw new IllegalArgumentException("Bundle pool repository not writeable: " + location); //$NON-NLS-1$
+			((IRepository) bundlePool).setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
 		}
 
-		if (bundlePool == null) {
-			throw new IllegalArgumentException("BundlePool repository not writeable: " + location); //$NON-NLS-1$
-		}
 		return (IFileArtifactRepository) bundlePool;
 	}
 
@@ -78,13 +79,14 @@ public class Util {
 		bundleRepositories.add(Util.getBundlePoolRepository(profile));
 
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		IArtifactRepository[] knownRepositories = manager.getKnownRepositories();
+		URL[] knownRepositories = manager.getKnownRepositories();
 		for (int i = 0; i < knownRepositories.length; i++) {
-			IArtifactRepository repository = knownRepositories[i];
+			IArtifactRepository repository = manager.loadRepository(knownRepositories[i], null);
+			if (repository == null)
+				continue;
 			String profileExtension = (String) repository.getProperties().get(PROFILE_EXTENSION);
 			if (profileExtension != null && profileExtension.equals(profile.getProfileId()))
 				bundleRepositories.add(repository);
-
 		}
 
 		return new AggregatedBundleRepository(bundleRepositories);

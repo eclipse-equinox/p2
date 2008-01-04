@@ -135,9 +135,10 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		}
 	}
 
-	public String setProperty(String key, String value) {
-		String oldValue = super.setProperty(key, value);
-		save();
+	public String setProperty(String key, String newValue) {
+		String oldValue = super.setProperty(key, newValue);
+		if (oldValue != newValue && (oldValue == null || !oldValue.equals(newValue)))
+			save();
 		return oldValue;
 	}
 }

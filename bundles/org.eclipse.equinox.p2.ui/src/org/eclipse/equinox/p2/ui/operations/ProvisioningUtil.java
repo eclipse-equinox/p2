@@ -55,7 +55,7 @@ public class ProvisioningUtil {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		URL location = director.getRollbackLocation();
+		URL location = director.getRollbackRepositoryLocation();
 		IMetadataRepository repo = manager.loadRepository(location, monitor);
 		if (repo == null) {
 			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location.toExternalForm()));
@@ -93,27 +93,8 @@ public class ProvisioningUtil {
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		IArtifactRepository[] repos = manager.getKnownRepositories();
-		for (int i = 0; i < repos.length; i++) {
-			IArtifactRepository repo = repos[i];
-			if (repo.getLocation().equals(location)) {
-				manager.removeRepository(repo);
-				EventObject event = new EventObject(IProvisioningListener.REPO_REMOVED);
-				ProvUIActivator.getDefault().notifyListeners(event);
-				return;
-			}
-		}
-	}
-
-	public static IArtifactRepository[] getArtifactRepositories() throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
-		if (manager == null)
-			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		IArtifactRepository[] repos = manager.getKnownRepositories();
-		if (repos != null) {
-			return repos;
-		}
-		return new IArtifactRepository[0];
+		if (manager.removeRepository(location))
+			ProvUIActivator.getDefault().notifyListeners(new EventObject(IProvisioningListener.REPO_REMOVED));
 	}
 
 	public static void addProfile(Profile profile, IProgressMonitor monitor) throws ProvisionException {

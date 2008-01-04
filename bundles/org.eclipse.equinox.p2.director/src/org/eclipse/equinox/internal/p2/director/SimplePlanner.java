@@ -221,6 +221,8 @@ public class SimplePlanner implements IPlanner {
 
 		for (int i = 0; i < metadataRepositories.length; i++) {
 			IMetadataRepository repository = repoMgr.loadRepository(metadataRepositories[i], null);
+			if (repository == null)
+				continue;
 			Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), null);
 			for (Iterator it = matches.iterator(); it.hasNext();)
 				results.add(it.next());

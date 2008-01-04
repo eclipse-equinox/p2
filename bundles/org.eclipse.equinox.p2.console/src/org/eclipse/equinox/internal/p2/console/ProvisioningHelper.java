@@ -81,14 +81,7 @@ public class ProvisioningHelper {
 		if (manager == null)
 			// TODO log here
 			return;
-		IArtifactRepository[] repos = manager.getKnownRepositories();
-		for (int i = 0; i < repos.length; i++) {
-			IArtifactRepository repo = repos[i];
-			if (repo.getLocation().equals(location)) {
-				manager.removeRepository(repo);
-				return;
-			}
-		}
+		manager.removeRepository(location);
 	}
 
 	public static Profile addProfile(String profileId, Properties properties) {
@@ -234,24 +227,21 @@ public class ProvisioningHelper {
 		}
 	}
 
-	public static IArtifactRepository[] getArtifactRepositories() {
+	public static URL[] getArtifactRepositories() {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
 			return null;
-		IArtifactRepository[] repos = manager.getKnownRepositories();
+		URL[] repos = manager.getKnownRepositories();
 		if (repos.length > 0)
 			return repos;
 		return null;
 	}
 
 	public static IArtifactRepository getArtifactRepository(URL repoURL) {
-		IArtifactRepository[] repositories = getArtifactRepositories();
-		if (repositories == null)
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null)
 			return null;
-		for (int i = 0; i < repositories.length; i++)
-			if (repoURL.equals(repositories[i].getLocation()))
-				return repositories[i];
-		return null;
+		return manager.loadRepository(repoURL, null);
 	}
 }

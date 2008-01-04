@@ -43,8 +43,12 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
+	/**
+	 * Map of String->RepositoryInfo, where String is the repository key
+	 * obtained vai getKey(URL).
+	 */
 	private Map repositories = null;
-	//lock object to be held when referring repositories field
+	//lock object to be held when referring to the repositories field
 	private final Object repositoryLock = new Object();
 
 	public MetadataRepositoryManager() {

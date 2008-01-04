@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors;
 
+import java.net.URL;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractDeltaStep;
@@ -45,11 +46,14 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 			return;
 		}
 
-		IArtifactRepository[] repositories = repoMgr.getKnownRepositories();
+		URL[] repositories = repoMgr.getKnownRepositories();
 		for (int i = 0; i < repositories.length; i++) {
-			if ("file".equals(repositories[i].getLocation().getProtocol()) && repositories[i].contains(key)) {
-				repository = repositories[i];
-				return;
+			if ("file".equals(repositories[i].getProtocol())) {//$NON-NLS-1$
+				IArtifactRepository currentRepo = repoMgr.loadRepository(repositories[i], null);
+				if (currentRepo != null && currentRepo.contains(key)) {
+					repository = currentRepo;
+					return;
+				}
 			}
 		}
 		status = new Status(IStatus.ERROR, Activator.ID, "No repository available containing key " + key);

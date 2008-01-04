@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.engine.phases;
 
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -62,12 +63,15 @@ public class Sizing extends Phase {
 		}
 
 		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
-		IArtifactRepository[] repositories = repoMgr.getKnownRepositories();
+		URL[] repositories = repoMgr.getKnownRepositories();
 
 		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext();) {
 			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();
 			for (int i = 0; i < repositories.length; i++) {
-				IArtifactDescriptor[] descriptors = repositories[i].getArtifactDescriptors(artifactRequest.getArtifactKey());
+				IArtifactRepository repo = repoMgr.loadRepository(repositories[i], null);
+				if (repo == null)
+					continue;
+				IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(artifactRequest.getArtifactKey());
 				if (descriptors.length > 0) {
 					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
 						sizeOnDisk += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
@@ -83,7 +87,7 @@ public class Sizing extends Phase {
 	}
 
 	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
-		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList()); 
+		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}
 }

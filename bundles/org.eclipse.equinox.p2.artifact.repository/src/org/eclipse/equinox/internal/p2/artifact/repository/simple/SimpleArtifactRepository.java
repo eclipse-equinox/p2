@@ -530,9 +530,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return mappingRules;
 	}
 
-	public String setProperty(String key, String value) {
-		String oldValue = super.setProperty(key, value);
-		save();
+	public String setProperty(String key, String newValue) {
+		String oldValue = super.setProperty(key, newValue);
+		if (oldValue != newValue && (oldValue == null || !oldValue.equals(newValue)))
+			save();
 		return oldValue;
 	}
 
@@ -541,7 +542,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void tagAsImplementation() {
-		properties.put(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+		setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
 	}
 
 	/**

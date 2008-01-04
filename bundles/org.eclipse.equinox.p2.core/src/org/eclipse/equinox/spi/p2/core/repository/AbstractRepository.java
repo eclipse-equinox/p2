@@ -24,13 +24,13 @@ import org.eclipse.equinox.p2.core.repository.IRepository;
 * </p>
 */
 public abstract class AbstractRepository extends PlatformObject implements IRepository {
+	protected String description;
+	protected transient URL location;
 	protected String name;
+	protected Map properties = new OrderedProperties();
+	protected String provider;
 	protected String type;
 	protected String version;
-	protected String description;
-	protected String provider;
-	protected transient URL location;
-	protected Map properties = new OrderedProperties();
 
 	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider) {
 		this.name = name;
@@ -42,11 +42,45 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	}
 
 	/**
+	 * Returns a brief description of the repository.
+	 * @return the description of the repository.
+	 */
+	public synchronized String getDescription() {
+		return description;
+	}
+
+	/**
+	 * Returns the location of this repository.
+	 * TODO: Should we use URL or URI? URL requires a protocol handler
+	 * to be installed in Java.  Can the URL have any protocol?
+	 * @return the URL of the repository.
+	 */
+	public URL getLocation() {
+		return location;
+	}
+
+	/**
 	 * Returns the name of the repository.
 	 * @return the name of the repository.
 	 */
 	public synchronized String getName() {
 		return name;
+	}
+
+	/**
+	 * Returns a read-only collection of the properties of the repository.
+	 * @return the properties of this repository.
+	 */
+	public Map getProperties() {
+		return OrderedProperties.unmodifiableProperties(properties);
+	}
+
+	/**
+	 * Returns the name of the provider of the repository.
+	 * @return the provider of this repository.
+	 */
+	public synchronized String getProvider() {
+		return provider;
 	}
 
 	/**
@@ -65,59 +99,25 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 		return version;
 	}
 
-	/**
-	 * Returns the location of this repository.
-	 * TODO: Should we use URL or URI? URL requires a protocol handler
-	 * to be installed in Java.  Can the URL have any protocol?
-	 * @return the URL of the repository.
-	 */
-	public URL getLocation() {
-		return location;
-	}
-
-	/**
-	 * Returns a brief description of the repository.
-	 * @return the description of the repository.
-	 */
-	public synchronized String getDescription() {
-		return description;
-	}
-
-	/**
-	 * Returns the name of the provider of the repository.
-	 * @return the provider of this repository.
-	 */
-	public synchronized String getProvider() {
-		return provider;
-	}
-
-	/**
-	 * Returns a read-only collection of the properties of the repository.
-	 * @return the properties of this repository.
-	 */
-	public Map getProperties() {
-		return OrderedProperties.unmodifiableProperties(properties);
-	}
-
-	public synchronized void setName(String value) {
-		this.name = value;
+	public boolean isModifiable() {
+		return false;
 	}
 
 	public synchronized void setDescription(String description) {
 		this.description = description;
 	}
 
-	public synchronized void setProvider(String provider) {
-		this.provider = provider;
-	}
-
-	public boolean isModifiable() {
-		return false;
+	public synchronized void setName(String value) {
+		this.name = value;
 	}
 
 	public String setProperty(String key, String value) {
 		if (!isModifiable())
 			throw new UnsupportedOperationException("Repository not modifiable"); //$NON-NLS-1$
 		return (String) (value == null ? properties.remove(key) : properties.put(key, value));
+	}
+
+	public synchronized void setProvider(String provider) {
+		this.provider = provider;
 	}
 }

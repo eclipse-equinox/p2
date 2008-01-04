@@ -46,10 +46,10 @@ public class SimpleDirector implements IDirector {
 	}
 
 	private void initializeRollbackRepository() {
-		new FormerState(getRollbackLocation());
+		new FormerState(getRollbackRepositoryLocation());
 	}
 
-	public URL getRollbackLocation() {
+	public URL getRollbackRepositoryLocation() {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(DirectorActivator.context, AgentLocation.class.getName());
 		try {
 			return new URL(agentLocation.getDataArea(DirectorActivator.PI_DIRECTOR), ROLLBACK_LOCATION);

@@ -52,10 +52,8 @@ public class FoldersRepositoryTest extends TestCase {
 		AbstractProvisioningTest.delete(testRepo);
 		testRepo.mkdir();
 
-		IArtifactRepository repo = manager.loadRepository(testRepo.toURL(), null);
-		if (repo != null)
-			manager.removeRepository(repo);
-		repo = manager.createRepository(testRepo.toURL(), "testRepo", "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+		manager.removeRepository(testRepo.toURL());
+		IArtifactRepository repo = manager.createRepository(testRepo.toURL(), "testRepo", "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
 		File pluginsFolder = new File(testRepo, "plugins");
 		pluginsFolder.mkdir();
 
@@ -94,7 +92,7 @@ public class FoldersRepositoryTest extends TestCase {
 		assertEquals(0, repo.getArtifactKeys().length);
 		assertEquals(0, pluginsFolder.listFiles(filter).length);
 
-		manager.removeRepository(repo);
+		manager.removeRepository(repo.getLocation());
 		AbstractProvisioningTest.delete(testRepo);
 	}
 }

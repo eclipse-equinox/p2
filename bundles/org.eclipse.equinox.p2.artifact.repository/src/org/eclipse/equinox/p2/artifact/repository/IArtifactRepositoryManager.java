@@ -20,52 +20,12 @@ public interface IArtifactRepositoryManager {
 	public static final IArtifactRequest[] NO_ARTIFACT_REQUEST = new IArtifactRequest[0];
 
 	/**
-	 * Return the list of artifact repositories known by this manager.
-	 * @return the list of known repositories
+	 * Adds a repository to the list of artifact repositories tracked by the repository
+	 * manager.
+	 * 
+	 * @param location The location of the artifact repository to add
 	 */
-	public IArtifactRepository[] getKnownRepositories();
-
-	/**
-	 * Loads the repository at the given location.  The location is expected to contain 
-	 * data that describes a valid artifact repository of a known type.  If this manager
-	 * already knows a repository at the given location then that repository is returned.
-	 * @param location the location in which to look for a repository description
-	 * @monitor 
-	 * @return a repository object for the given location or <code>null</code> if a repository
-	 * could not be found or loaded.
-	 */
-	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor);
-
-	/**
-	 * Add the given repository to the set of repositories managed by this manager.
-	 * @param repository the repository to add
-	 */
-	public void addRepository(IArtifactRepository repository);
-
-	/**
-	 * Return the artifact repository at the given location if known by this manager.  
-	 * Otherwise return <code>null</code>
-	 * @param location the location of the repository to return
-	 * @return the found repository
-	 */
-	public IArtifactRepository getRepository(URL location);
-
-	/**
-	 * Remove the given repository from this manager.  Do nothing if the repository
-	 * is not currently managed.
-	 * @param toRemove the repository to remove
-	 */
-	public void removeRepository(IArtifactRepository toRemove);
-
-	/**
-	 * Creates and returns an artifact repository of the given type at the given location.
-	 * If a repository already exists at that location <code>null</code> is returned.
-	 * @param location the location for the new repository
-	 * @param name the name of the new repo
-	 * @param type the kind of repository to create
-	 * @return the discovered or created repository
-	 */
-	public IArtifactRepository createRepository(URL location, String name, String type);
+	public void addRepository(URL location);
 
 	/**
 	 * Return a new request to download the given artifact and store it at the given destination.
@@ -93,4 +53,48 @@ public interface IArtifactRepositoryManager {
 	 */
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties);
 
+	/**
+	 * Creates and returns an artifact repository of the given type at the given location.
+	 * If a repository already exists at that location <code>null</code> is returned.
+	 * @param location the location for the new repository
+	 * @param name the name of the new repository
+	 * @param type the kind of repository to create
+	 * @return the discovered or created repository
+	 */
+	public IArtifactRepository createRepository(URL location, String name, String type);
+
+	/**
+	 * Returns the artifact repository locations known to the repository manager.
+	 * <p>
+	 * Note that the repository manager does not guarantee that a valid repository
+	 * exists at any of the returned locations at any particular moment in time.
+	 * A subsequent attempt to load a repository at any of the given locations may
+	 * or may not succeed.
+	 * 
+	 * @return the locations of the repositories managed by this repository manager.
+	 */
+	public URL[] getKnownRepositories();
+
+	/**
+	 * Loads the repository at the given location.  The location is expected to contain 
+	 * data that describes a valid artifact repository of a known type.  If this manager
+	 * already knows a repository at the given location then that repository is returned.
+	 * 
+	 * @param location the location in which to look for a repository description
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return a repository object for the given location or <code>null</code> if a repository
+	 * could not be found or loaded.
+	 */
+	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor);
+
+	/**
+	 * Remove the given repository from this manager.  Do nothing if the repository
+	 * is not currently managed.
+	 * 
+	 * @param location the location of the repository to remove
+	 * @return <code>true</code> if a repository was removed, and 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean removeRepository(URL location);
 }

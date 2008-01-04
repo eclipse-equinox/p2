@@ -210,11 +210,11 @@ public class ProvCommandProvider implements CommandProvider {
 	public void _provlar(CommandInterpreter interpreter) {
 		String urlString = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
-			IArtifactRepository[] repositories = ProvisioningHelper.getArtifactRepositories();
+			URL[] repositories = ProvisioningHelper.getArtifactRepositories();
 			if (repositories == null)
 				return;
 			for (int i = 0; i < repositories.length; i++)
-				interpreter.println(repositories[i].getLocation());
+				interpreter.println(repositories[i]);
 			return;
 		}
 		URL repoURL = toURL(interpreter, urlString);

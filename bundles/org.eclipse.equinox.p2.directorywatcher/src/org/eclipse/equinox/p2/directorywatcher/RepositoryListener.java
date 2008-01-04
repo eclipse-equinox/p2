@@ -84,7 +84,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		IArtifactRepository repository = null;
 		try {
-			repository = manager.getRepository(stateDirURL);
+			repository = manager.loadRepository(stateDirURL, null);
 			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
 				repository.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());

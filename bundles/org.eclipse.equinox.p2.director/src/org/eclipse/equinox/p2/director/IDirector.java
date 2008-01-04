@@ -51,9 +51,9 @@ public interface IDirector {
 
 	public IStatus revert(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	//TODO And many more operations for uninstallation and the rest ! See bug 179819
-
-	//TODO we might want to register a service for this instead?
-	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211810
-	public URL getRollbackLocation();
+	/**
+	 * Returns the location of the director's rollback repository, where information about
+	 * previous profile states is stored.
+	 */
+	public URL getRollbackRepositoryLocation();
 }

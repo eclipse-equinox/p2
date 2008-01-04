@@ -9,6 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
+import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -25,8 +26,15 @@ import org.osgi.service.prefs.Preferences;
 
 // TODO Need to react to repository going away 
 // TODO the current assumption that the "location" is the dir/root limits us to 
-// having just one repo in a given URL..  
+// having just one repository in a given URL..  
 public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
+	static class RepositoryInfo {
+		String description;
+		URL location;
+		String name;
+		SoftReference repository;
+	}
+
 	private static final String ATTR_FILTER = "filter"; //$NON-NLS-1$
 	private static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
 	private static final String EL_FACTORY = "factory"; //$NON-NLS-1$
@@ -39,16 +47,44 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
-	private List repositories = Collections.synchronizedList(new ArrayList());
+	/**
+	 * Map of String->RepositoryInfo, where String is the repository key
+	 * obtained vai getKey(URL).
+	 */
+	private Map repositories = null;
+	//lock object to be held when referring to the repositories field
+	private final Object repositoryLock = new Object();
 
 	public ArtifactRepositoryManager() {
-		restoreRepositories();
+		//initialize repositories lazily
 	}
 
 	public void addRepository(IArtifactRepository repository) {
-		repositories.add(repository);
+		RepositoryInfo info = new RepositoryInfo();
+		info.repository = new SoftReference(repository);
+		info.name = repository.getName();
+		info.description = repository.getDescription();
+		info.location = repository.getLocation();
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			repositories.put(getKey(repository), info);
+		}
 		// save the given repository in the preferences.
 		remember(repository);
+	}
+
+	public void addRepository(URL location) {
+		Assert.isNotNull(location);
+		RepositoryInfo info = new RepositoryInfo();
+		info.location = location;
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			repositories.put(getKey(location), info);
+		}
+		// save the given repository in the preferences.
+		remember(info);
 	}
 
 	public IArtifactRequest createDownloadRequest(IArtifactKey key, IPath destination) {
@@ -115,10 +151,6 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return results;
 	}
 
-	private void forget(IArtifactRepository toRemove) throws BackingStoreException {
-		getPreferences().node(getKey(toRemove)).removeNode();
-	}
-
 	private String[] getAllSuffixes() {
 		IConfigurationElement[] elements = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
 		ArrayList result = new ArrayList(elements.length);
@@ -133,13 +165,29 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	 * as the name of a preference node.
 	 */
 	private String getKey(IArtifactRepository repository) {
-		return repository.getLocation().toExternalForm().replace('/', '_');
+		return getKey(repository.getLocation());
 	}
 
-	public IArtifactRepository[] getKnownRepositories() {
-		if (repositories == null)
-			restoreRepositories();
-		return (IArtifactRepository[]) repositories.toArray(new IArtifactRepository[repositories.size()]);
+	/*
+	 * Return a string key based on the given repository location which
+	 * is suitable for use as a preference node name.
+	 */
+	private String getKey(URL location) {
+		return location.toExternalForm().replace('/', '_');
+	}
+
+	public URL[] getKnownRepositories() {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			URL[] result = new URL[repositories.size()];
+			int i = 0;
+			for (Iterator it = repositories.values().iterator(); it.hasNext(); i++) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				result[i] = info.location;
+			}
+			return result;
+		}
 	}
 
 	/*
@@ -150,14 +198,19 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	}
 
 	public IArtifactRepository getRepository(URL location) {
-		if (repositories == null)
-			restoreRepositories();
-		for (Iterator iterator = repositories.iterator(); iterator.hasNext();) {
-			IArtifactRepository match = (IArtifactRepository) iterator.next();
-			if (URLUtil.sameURL(match.getLocation(), location))
-				return match;
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.location, location)) {
+					if (info.repository == null)
+						return null;
+					return (IArtifactRepository) info.repository.get();
+				}
+			}
+			return null;
 		}
-		return null;
 	}
 
 	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) {
@@ -216,21 +269,49 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			node.put(KEY_VERSION, value);
 		value = repository.getLocation().toExternalForm();
 		node.put(KEY_URL, value);
-		saveRepositoryList();
+		saveToPreferences();
 	}
 
-	public void removeRepository(IArtifactRepository toRemove) {
-		if (toRemove == null)
-			return;
+	/*
+	 * Save the list of repositories in the preference store.
+	 */
+	private void remember(RepositoryInfo info) {
+		Preferences node = getPreferences().node(getKey(info.location));
+		node.put(KEY_URL, info.location.toExternalForm());
+		if (info.description != null)
+			node.put(KEY_DESCRIPTION, info.description);
+		if (info.name != null)
+			node.put(KEY_NAME, info.name);
+		saveToPreferences();
+	}
 
-		repositories.remove(toRemove);
-		// remove the repository from the preferences
+	public boolean removeRepository(URL toRemove) {
+		Assert.isNotNull(toRemove);
+		final String repoKey = getKey(toRemove);
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			if (repositories.remove(repoKey) == null)
+				return false;
+		}
+		// remove the repository from the preference store
 		try {
-			forget(toRemove);
-			saveRepositoryList();
+			getPreferences().node(repoKey).removeNode();
+			saveToPreferences();
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
+		return true;
+	}
+
+	private void restoreDownloadCache() {
+		// TODO while recreating, we may want to have proxies on repo instead of the real repo object to limit what is activated.
+		AgentLocation location = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
+		if (location == null)
+			// TODO should do something here since we are failing to restore.
+			return;
+		SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$ //$NON-NLS-2$
+		cache.tagAsImplementation();
 	}
 
 	/*
@@ -248,37 +329,25 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		}
 		for (int i = 0; i < children.length; i++) {
 			Preferences child = node.node(children[i]);
-			String url = child.get(KEY_URL, null);
-			if (url == null)
+			String locationString = child.get(KEY_URL, null);
+			if (locationString == null)
 				continue;
 			String type = child.get(KEY_TYPE, null);
 			try {
-				IArtifactRepository repository = restoreRepository(new URL(url), type);
-				// If we could not restore the repo then remove it from the preferences.
-				if (repository == null)
-					child.removeNode();
-				else
-					repositories.add(repository);
+				RepositoryInfo info = new RepositoryInfo();
+				info.location = new URL(locationString);
+				info.name = child.get(KEY_NAME, null);
+				info.description = child.get(KEY_DESCRIPTION, null);
+				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
-				log("Error while restoring repository: " + url, e); //$NON-NLS-1$
-			} catch (BackingStoreException e) {
-				log("Error restoring repositories from preferences", e); //$NON-NLS-1$
+				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
 			}
 		}
 		// now that we have loaded everything, remember them
-		saveRepositoryList();
+		saveToPreferences();
 	}
 
-	private void restoreRepositories() {
-		repositories = new ArrayList();
-		// TODO while recreating, we may want to have proxies on repo instead of the real repo object to limit what is activated.
-		AgentLocation location = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
-		if (location == null)
-			// TODO should do something here since we are failing to restore.
-			return;
-		SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$ //$NON-NLS-2$
-		cache.tagAsImplementation();
-
+	private void restoreFromSystemProperty() {
 		String locationString = Activator.getContext().getProperty("eclipse.p2.artifactRepository"); //$NON-NLS-1$
 		if (locationString != null) {
 			StringTokenizer tokenizer = new StringTokenizer(locationString, ","); //$NON-NLS-1$
@@ -290,38 +359,24 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 				}
 			}
 		}
-		// restore the persisted list of repositories
-		restoreFromPreferences();
 	}
 
-	private IArtifactRepository restoreRepository(URL location, String type) {
-		if (getRepository(location) != null) {
-			//already restored
-			return null;
+	/**
+	 * Restores the repository list.
+	 */
+	protected void restoreRepositories() {
+		synchronized (repositoryLock) {
+			repositories = new HashMap();
+			restoreDownloadCache();
+			restoreFromSystemProperty();
+			restoreFromPreferences();
 		}
-
-		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
-		if (extension == null) {
-			// TODO: remove next milestone or otherwise the next time we need a metadata format change 
-			// this is to allow us to get away with missing or bad types in older artifact repos
-			return loadRepository(location, "artifacts.xml"); //$NON-NLS-1$
-		}
-
-		IArtifactRepositoryFactory factory = null;
-		try {
-			factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
-		} catch (CoreException e) {
-			log("Failed to restore artifact repository extension: " + location, e); //$NON-NLS-1$
-		}
-		if (factory == null)
-			return null;
-		return factory.load(location);
 	}
 
 	/*
 	 * Save the list of repositories to the file-system.
 	 */
-	private void saveRepositoryList() {
+	private void saveToPreferences() {
 		try {
 			getPreferences().flush();
 		} catch (BackingStoreException e) {

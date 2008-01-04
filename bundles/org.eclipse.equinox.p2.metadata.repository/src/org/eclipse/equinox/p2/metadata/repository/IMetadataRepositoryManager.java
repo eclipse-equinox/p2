@@ -39,7 +39,12 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	public IMetadataRepository createRepository(URL location, String name, String type);
 
 	/**
-	 * Returns the locations of the repositories managed by this repository manager.
+	 * Returns the metadata repository locations known to the repository manager.
+	 * <p>
+	 * Note that the repository manager does not guarantee that a valid repository
+	 * exists at any of the returned locations at any particular moment in time.
+	 * A subsequent attempt to load a repository at any of the given locations may
+	 * or may not succeed.
 	 * 
 	 * @return the locations of the repositories managed by this repository manager.
 	 */
