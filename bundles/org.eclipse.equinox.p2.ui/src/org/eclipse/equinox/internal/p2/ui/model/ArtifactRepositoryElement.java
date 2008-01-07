@@ -10,11 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
+import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
+import org.eclipse.equinox.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
+import org.eclipse.ui.progress.IElementCollector;
 
 /**
  * Element wrapper class for a artifact repository that gets its
@@ -22,19 +32,20 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
  * 
  * @since 3.4
  */
-public class ArtifactRepositoryElement extends RemoteQueriedElement {
+public class ArtifactRepositoryElement extends ProvElement implements IDeferredWorkbenchAdapter, RepositoryElement {
 
+	URL url;
 	IArtifactRepository repo;
 
-	public ArtifactRepositoryElement(IArtifactRepository repo) {
-		this.repo = repo;
+	public ArtifactRepositoryElement(URL url) {
+		this.url = url;
 	}
 
 	public Object getAdapter(Class adapter) {
 		if (adapter == IArtifactRepository.class)
-			return repo;
+			return getRepository(null);
 		if (adapter == IRepository.class)
-			return repo;
+			return getRepository(null);
 		return super.getAdapter(adapter);
 	}
 
@@ -43,7 +54,7 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement {
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		IArtifactKey[] keys = repo.getArtifactKeys();
+		IArtifactKey[] keys = getRepository(monitor).getArtifactKeys();
 		ArtifactElement[] elements = new ArtifactElement[keys.length];
 		for (int i = 0; i < keys.length; i++) {
 			elements[i] = new ArtifactElement(keys[i], repo);
@@ -52,17 +63,58 @@ public class ArtifactRepositoryElement extends RemoteQueriedElement {
 	}
 
 	public String getLabel(Object o) {
-		String name = repo.getName();
+		String name = getName();
 		if (name != null && name.length() > 0) {
 			return name;
 		}
-		return repo.getLocation().toExternalForm();
-
+		return getURL().toExternalForm();
 	}
 
-	// Not used because we override fetchChildren
-	protected int getQueryType() {
-		return 0;
+	private IArtifactRepository getRepository(IProgressMonitor monitor) {
+		if (repo == null)
+			try {
+				repo = ProvisioningUtil.loadArtifactRepository(url, monitor);
+			} catch (ProvisionException e) {
+				ProvUI.handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
+			}
+		return repo;
 	}
 
+	public ISchedulingRule getRule(Object object) {
+		return null;
+	}
+
+	public boolean isContainer() {
+		return true;
+	}
+
+	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
+		collector.add(fetchChildren(o, monitor), monitor);
+	}
+
+	public Object[] getChildren(Object o) {
+		return fetchChildren(o, null);
+	}
+
+	public Object getParent(Object o) {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getURL()
+	 */
+	public URL getURL() {
+		return url;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getName()
+	 */
+	public String getName() {
+		try {
+			return ProvisioningUtil.getArtifactRepositoryName(url);
+		} catch (ProvisionException e) {
+			return ""; //$NON-NLS-1$
+		}
+	}
 }

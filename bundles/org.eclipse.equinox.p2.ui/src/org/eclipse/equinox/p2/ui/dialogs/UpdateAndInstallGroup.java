@@ -111,22 +111,6 @@ public class UpdateAndInstallGroup {
 		final IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
 		labelProvider.setToolTipProperty(IInstallableUnit.PROP_DESCRIPTION);
 
-		// TODO Kind of a hack, but there was no need to go with column label providers
-		availableIUViewer.getTree().addListener(SWT.MouseHover, new Listener() {
-			public void handleEvent(Event event) {
-				switch (event.type) {
-					case SWT.MouseHover :
-						Tree tree = availableIUViewer.getTree();
-						TreeItem item = tree.getItem(new Point(event.x, event.y));
-						if (item != null) {
-							tree.setToolTipText(labelProvider.getToolTipText(item.getData()));
-						}
-						break;
-				}
-			}
-
-		});
-
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
 		availableIUViewer.setComparator(new IUComparator(IUComparator.IU_ID));
 		availableIUViewer.setComparer(new ProvElementComparer());

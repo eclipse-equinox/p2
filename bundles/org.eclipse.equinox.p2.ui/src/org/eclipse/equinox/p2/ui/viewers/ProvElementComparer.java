@@ -10,10 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.viewers;
 
-import org.eclipse.equinox.p2.core.repository.IRepository;
+import java.net.URL;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.model.ProfileElement;
+import org.eclipse.equinox.p2.ui.model.RepositoryElement;
 import org.eclipse.jface.viewers.IElementComparer;
 
 public class ProvElementComparer implements IElementComparer {
@@ -27,8 +29,8 @@ public class ProvElementComparer implements IElementComparer {
 		String p2 = getProfileId(b);
 		if (p1 != null && p2 != null)
 			return p1.equals(p2);
-		IRepository r1 = getRepository(a);
-		IRepository r2 = getRepository(b);
+		URL r1 = getRepositoryLocation(a);
+		URL r2 = getRepositoryLocation(b);
 		if (r1 != null && r2 != null)
 			return r1.equals(r2);
 		return a.equals(b);
@@ -41,9 +43,9 @@ public class ProvElementComparer implements IElementComparer {
 		String profileId = getProfileId(element);
 		if (profileId != null)
 			return profileId.hashCode();
-		IRepository repo = getRepository(element);
-		if (repo != null)
-			return repo.hashCode();
+		URL url = getRepositoryLocation(element);
+		if (url != null)
+			return url.hashCode();
 		return element.hashCode();
 	}
 
@@ -52,14 +54,18 @@ public class ProvElementComparer implements IElementComparer {
 	}
 
 	private String getProfileId(Object obj) {
+		if (obj instanceof ProfileElement)
+			return ((ProfileElement) obj).getLabel(obj);
 		Profile profile = (Profile) ProvUI.getAdapter(obj, Profile.class);
 		if (profile == null)
 			return null;
 		return profile.getProfileId();
 	}
 
-	private IRepository getRepository(Object obj) {
-		return (IRepository) ProvUI.getAdapter(obj, IRepository.class);
+	private URL getRepositoryLocation(Object obj) {
+		if (obj instanceof RepositoryElement)
+			return ((RepositoryElement) obj).getURL();
+		return null;
 	}
 
 }

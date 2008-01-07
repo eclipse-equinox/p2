@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.ui.operations;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 
 /**
  * Operation that adds a metadata repository given its URL.
@@ -30,10 +29,7 @@ public class AddMetadataRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			IMetadataRepository repo = ProvisioningUtil.addMetadataRepository(urls[i], monitor);
-			if (repo == null) {
-				return failureStatus();
-			}
+			ProvisioningUtil.addMetadataRepository(urls[i]);
 		}
 		added = true;
 		return okStatus();

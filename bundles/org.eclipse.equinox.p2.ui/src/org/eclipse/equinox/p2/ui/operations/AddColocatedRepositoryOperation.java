@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.ui.operations;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.repository.IRepository;
 
 /**
  * Operation that adds colocated artifact and metadata repositories
@@ -31,16 +30,8 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			IRepository repo = ProvisioningUtil.addMetadataRepository(urls[i], monitor);
-			if (repo == null) {
-				return failureStatus();
-			}
-			repo = ProvisioningUtil.addArtifactRepository(urls[i], monitor);
-			if (repo == null) {
-				// remove the metadata repo we just added
-				ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
-				return failureStatus();
-			}
+			ProvisioningUtil.addMetadataRepository(urls[i]);
+			ProvisioningUtil.addArtifactRepository(urls[i]);
 		}
 		added = true;
 		return okStatus();

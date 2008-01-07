@@ -105,9 +105,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 
 		switch (columnIndex) {
 			case 0 :
-				IRepository repo = (IRepository) ProvUI.getAdapter(element, IRepository.class);
-				if (repo != null) {
-					return repo.getName();
+				if (element instanceof IRepository) {
+					return ((IRepository) element).getName();
 				}
 				return getText(element);
 			case 1 :
@@ -122,9 +121,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				if (iu != null) {
 					return iu.getVersion().toString();
 				}
-				repo = (IRepository) ProvUI.getAdapter(element, IRepository.class);
-				if (repo != null) {
-					return repo.getLocation().toExternalForm();
+				if (element instanceof IRepository) {
+					return ((IRepository) element).getLocation().toExternalForm();
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;

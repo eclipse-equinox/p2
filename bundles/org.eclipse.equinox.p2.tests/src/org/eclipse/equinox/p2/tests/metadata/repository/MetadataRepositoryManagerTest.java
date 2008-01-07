@@ -65,7 +65,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * to a repository at the given location.
 	 */
 	private boolean managerContains(URL location) {
-		URL[] locations = manager.getKnownRepositories();
+		URL[] locations = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < locations.length; i++) {
 			if (locations[i].equals(location))
 				return true;

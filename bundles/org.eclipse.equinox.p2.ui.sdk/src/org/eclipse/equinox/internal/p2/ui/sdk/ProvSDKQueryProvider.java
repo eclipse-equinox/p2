@@ -11,12 +11,13 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.*;
@@ -43,7 +44,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 		switch (queryType) {
 			case IProvElementQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
-				return new ElementQueryDescriptor(queryable, new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false), new QueriedElementCollector(this, queryable));
+				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY), new RepositoryCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
@@ -79,7 +80,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile));
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
-				return new ElementQueryDescriptor(queryable, new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false), new QueriedElementCollector(this, queryable));
+				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_PUBLIC_ONLY), new RepositoryCollector(this, queryable));
 			case IProvElementQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {

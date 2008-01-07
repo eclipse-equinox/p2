@@ -159,7 +159,7 @@ public class ProvisioningHelper {
 		if (manager == null)
 			// TODO log here
 			return null;
-		URL[] repos = manager.getKnownRepositories();
+		URL[] repos = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 		if (repos.length > 0)
 			return repos;
 		return null;
@@ -232,7 +232,7 @@ public class ProvisioningHelper {
 		if (manager == null)
 			// TODO log here
 			return null;
-		URL[] repos = manager.getKnownRepositories();
+		URL[] repos = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 		if (repos.length > 0)
 			return repos;
 		return null;

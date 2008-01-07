@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
+import org.eclipse.equinox.p2.ui.model.RepositoryElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.viewers.RepositoryContentProvider;
 import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
@@ -57,7 +60,12 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			openAddRepositoryDialog(getShell(), ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput()));
+			Object[] elements = ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput());
+			ArrayList urls = new ArrayList();
+			for (int i = 0; i < elements.length; i++)
+				if (elements[i] instanceof RepositoryElement)
+					urls.add(((RepositoryElement) elements[i]).getURL());
+			openAddRepositoryDialog(getShell(), (URL[]) urls.toArray(new URL[urls.size()]));
 		}
 	}
 
@@ -153,7 +161,7 @@ abstract class RepositoriesView extends ProvView {
 
 	}
 
-	protected abstract int openAddRepositoryDialog(Shell shell, Object[] elements);
+	protected abstract int openAddRepositoryDialog(Shell shell, URL[] knownRepos);
 
 	protected abstract ProvisioningOperation getRemoveOperation(Object[] elements);
 

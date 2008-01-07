@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.operations.RemoveColocatedRepositoryOperation;
 import org.eclipse.equinox.p2.ui.viewers.*;
@@ -183,7 +185,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		button.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
 				try {
-					new AddColocatedRepositoryDialog(getShell(), ProvisioningUtil.getMetadataRepositories()).open();
+					new AddColocatedRepositoryDialog(getShell(), ProvisioningUtil.getMetadataRepositories(IMetadataRepositoryManager.REPOSITORIES_PUBLIC_ONLY)).open();
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, null);
 				}
@@ -193,14 +195,13 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		button.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
 				Object[] selection = ((IStructuredSelection) repositoryViewer.getSelection()).toArray();
-				List repos = new ArrayList();
+				List urls = new ArrayList();
 				for (int i = 0; i < selection.length; i++) {
-					IMetadataRepository repo = (IMetadataRepository) ProvUI.getAdapter(selection[i], IMetadataRepository.class);
-					if (repo != null)
-						repos.add(repo);
+					if (selection[i] instanceof MetadataRepositoryElement)
+						urls.add(((MetadataRepositoryElement) selection[i]).getURL());
 				}
-				if (repos.size() > 0) {
-					RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, (IMetadataRepository[]) repos.toArray(new IMetadataRepository[repos.size()]));
+				if (urls.size() > 0) {
+					RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, (URL[]) urls.toArray(new URL[urls.size()]));
 					ProvisioningOperationRunner.schedule(op, getShell());
 				}
 			}

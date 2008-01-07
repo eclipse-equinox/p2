@@ -33,6 +33,8 @@ public class RepositoryPropertyPage extends PropertyPage {
 	private Text url;
 
 	protected Control createContents(Composite parent) {
+		// TODO if all we are ever going to show is the name, URL, and
+		// description, this could be done without loading the repo.
 		this.repository = getRepository();
 		if (repository == null) {
 			Label label = new Label(parent, SWT.DEFAULT);

@@ -89,7 +89,7 @@ public class Util {
 		bundleRepositories.add(Util.getBundlePoolRepository(profile));
 
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		URL[] knownRepositories = manager.getKnownRepositories();
+		URL[] knownRepositories = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < knownRepositories.length; i++) {
 			IArtifactRepository repository = manager.loadRepository(knownRepositories[i], null);
 			if (repository == null)

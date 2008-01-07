@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import java.net.URL;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositoryElement;
 import org.eclipse.equinox.p2.ui.model.ArtifactRepositories;
+import org.eclipse.equinox.p2.ui.model.RepositoryElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.p2.ui.operations.RemoveArtifactRepositoryOperation;
 import org.eclipse.swt.widgets.Shell;
@@ -49,22 +50,21 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		return ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryTooltip;
 	}
 
-	protected int openAddRepositoryDialog(Shell shell, Object[] elements) {
-		return new AddArtifactRepositoryDialog(shell, elements).open();
+	protected int openAddRepositoryDialog(Shell shell, URL[] knownRepos) {
+		return new AddArtifactRepositoryDialog(shell, knownRepos).open();
 	}
 
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
-		ArrayList repos = new ArrayList();
+		ArrayList urls = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
-			IArtifactRepository repo = (IArtifactRepository) ProvUI.getAdapter(elements[i], IArtifactRepository.class);
-			if (repo != null)
-				repos.add(repo);
+			if (elements[i] instanceof RepositoryElement)
+				urls.add(((RepositoryElement) elements[i]).getURL());
 		}
-		return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (IArtifactRepository[]) repos.toArray(new IArtifactRepository[repos.size()]));
+		return new RemoveArtifactRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (URL[]) urls.toArray(new URL[urls.size()]));
 	}
 
 	protected boolean isRepository(Object element) {
-		return ProvUI.getAdapter(element, IArtifactRepository.class) != null;
+		return element instanceof ArtifactRepositoryElement;
 	}
 
 }

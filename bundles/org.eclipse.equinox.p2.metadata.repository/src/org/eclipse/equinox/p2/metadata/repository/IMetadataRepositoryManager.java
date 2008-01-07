@@ -12,9 +12,37 @@ package org.eclipse.equinox.p2.metadata.repository;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.query.IQueryable;
 
 public interface IMetadataRepositoryManager extends IQueryable {
+
+	/**
+	 * Constant used to indicate that all repositories are of interest.
+	 */
+	public static final int REPOSITORIES_ALL = 0;
+	/**
+	 * Constant used to indicate that implementation-only repositories are of interest.
+	 */
+	public static final int REPOSITORIES_IMPLEMENTATION_ONLY = 1 << 1;
+	/**
+	 * Constant used to indicate that public (non-implementation-only) repositories are of interest.
+	 */
+	public static final int REPOSITORIES_PUBLIC_ONLY = 1 << 2;
+	/**
+	 * Constant used to indicate that local repositories are of interest.
+	 */
+	public static final int REPOSITORIES_LOCAL_ONLY = 1 << 3;
+
+	/**
+	 * Property key used to query a repository's name without loading the repository first.
+	 */
+	public static final String PROP_NAME = "name"; //$NON-NLS-1$
+	/**
+	 * Property key used to query a repository's description without loading the repository first.
+	 */
+	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$
+
 	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
@@ -46,9 +74,18 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * A subsequent attempt to load a repository at any of the given locations may
 	 * or may not succeed.
 	 * 
+	 * @param flags an integer bit-mask indicating which repositories should be
+	 * returned.  <code>REPOSITORIES_ALL</code> can be used as the mask when
+	 * all repositories should be returned.
+	 * 
 	 * @return the locations of the repositories managed by this repository manager.
+	 * 
+	 * @see #REPOSITORIES_ALL
+	 * @see #REPOSITORIES_IMPLEMENTATION_ONLY
+	 * @see #REPOSITORIES_LOCAL_ONLY
+	 * @see #REPOSITORIES_PUBLIC_ONLY
 	 */
-	public URL[] getKnownRepositories();
+	public URL[] getKnownRepositories(int flags);
 
 	/**
 	 * Loads a repository corresponding to the given URL.
@@ -69,4 +106,29 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * <code>false</code> otherwise.
 	 */
 	public boolean removeRepository(URL location);
+
+	/**
+	 * Returns the property associated with the repository at the given URL, 
+	 * without loading the repository.
+	 * <p>
+	 * Note that some properties for a repository can only be
+	 * determined when that repository is loaded.  This method will return <code>null</code>
+	 * for such properties.  Only values for the properties that are already
+	 * known by a repository manager will be returned. 
+	 * <p>
+	 * If a client wishes to retrieve a property value from a repository 
+	 * regardless of the cost of retrieving it, the client should load the 
+	 * repository and then retrieve the property from the repository itself.
+	 * 
+	 * @param location the URL of the repository in question
+	 * @param key the String key of the property desired
+	 * @return the value of the property, or <code>null</code> if the repository
+	 * does not exist, the value does not exist, or the property value 
+	 * could not be determined without loading the repository.
+	 * 
+	 * @see #loadRepository(URL, IProgressMonitor)
+	 * @see IRepository#getProperties()
+	 * 
+	 */
+	public String getRepositoryProperty(URL location, String key);
 }

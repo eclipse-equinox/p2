@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.ui.operations;
 
 import java.net.URL;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**
@@ -30,10 +29,7 @@ public class AddArtifactRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			IArtifactRepository repo = ProvisioningUtil.addArtifactRepository(urls[i], monitor);
-			if (repo == null) {
-				return failureStatus();
-			}
+			ProvisioningUtil.addArtifactRepository(urls[i]);
 		}
 		added = true;
 		return okStatus();

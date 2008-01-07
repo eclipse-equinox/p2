@@ -10,24 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement;
+import org.eclipse.equinox.p2.ui.model.RepositoryElement;
 
 /**
- * Collector that assigns a query provider and the queryable
- * who was doing the query to the elements
- * as they are accepted.
+ * Collector that accepts the matched Profiles and
+ * wraps them in a ProfileElement.
  * 
  * @since 3.4
  */
-public class QueriedElementCollector extends Collector {
+public class RepositoryCollector extends QueriedElementCollector {
 
-	IProvElementQueryProvider queryProvider;
-	IQueryable queryable;
-
-	public QueriedElementCollector(IProvElementQueryProvider queryProvider, IQueryable queryable) {
-		this.queryProvider = queryProvider;
-		this.queryable = queryable;
+	public RepositoryCollector(IProvElementQueryProvider queryProvider, IQueryable queryable) {
+		super(queryProvider, queryable);
 	}
 
 	/**
@@ -38,13 +35,15 @@ public class QueriedElementCollector extends Collector {
 	 * or <code>false</code> to indicate the query should stop.
 	 */
 	public boolean accept(Object match) {
-		if (match instanceof QueriedElement) {
-			QueriedElement element = (QueriedElement) match;
-			element.setQueryProvider(queryProvider);
-			if (element.getQueryable() == null) {
-				element.setQueryable(queryable);
-			}
+		// Circumvent the code that gets/sets the queryable of this element,
+		// as that will cause loading of the repository.
+		if (match instanceof RepositoryElement) {
+			if (match instanceof MetadataRepositoryElement)
+				((MetadataRepositoryElement) match).setQueryProvider(queryProvider);
+			getList().add(match);
+			return true;
 		}
 		return super.accept(match);
 	}
+
 }

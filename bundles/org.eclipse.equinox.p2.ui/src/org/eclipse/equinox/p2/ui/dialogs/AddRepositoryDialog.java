@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -39,15 +39,15 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	Button okButton;
 	Text url;
-	IRepository[] knownRepositories;
+	URL[] knownRepositories;
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
 
-	public AddRepositoryDialog(Shell parentShell, Object[] knownRepositories) {
+	public AddRepositoryDialog(Shell parentShell, URL[] knownRepositories) {
 
 		super(parentShell);
-		this.knownRepositories = makeRepositories(knownRepositories);
+		this.knownRepositories = knownRepositories;
 		setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 	}
 
@@ -124,22 +124,33 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	}
 
 	protected void okPressed() {
-		if (addRepository())
+		IStatus status = addRepository();
+		if (status.isOK())
 			super.okPressed();
+		setOkEnablement(false);
+		updateStatus(status);
+
 	}
 
-	protected boolean addRepository() {
-		URL newURL = makeRepositoryURL(url.getText().trim());
+	protected IStatus addRepository() {
+		URL userURL;
+		try {
+			userURL = new URL(url.getText().trim());
+		} catch (MalformedURLException e) {
+			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+		}
+
+		URL newURL = makeRepositoryURL(userURL);
 		if (newURL != null) {
 			ProvisioningOperationRunner.schedule(getOperation(newURL), getShell());
-			return true;
+			return Status.OK_STATUS;
 		}
-		return false;
+		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 	}
 
 	protected abstract ProvisioningOperation getOperation(URL repoURL);
 
-	protected abstract URL makeRepositoryURL(String urlString);
+	protected abstract URL makeRepositoryURL(URL userURL);
 
 	void verifyComplete() {
 		if (okButton == null) {
@@ -150,12 +161,17 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		if (urlText.length() == 0) {
 			status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.RepositoryGroup_URLRequired, null);
 		} else {
-			for (int i = 0; i < knownRepositories.length; i++) {
-				URL repURL = knownRepositories[i].getLocation();
-				if (repURL != null && repURL.equals(urlText)) {
-					status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
-					break;
+			URL userURL;
+			try {
+				userURL = new URL(urlText);
+				for (int i = 0; i < knownRepositories.length; i++) {
+					if (knownRepositories[i].equals(userURL)) {
+						status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
+						break;
+					}
 				}
+			} catch (MalformedURLException e) {
+				// we don't report this until the user is done typing.
 			}
 		}
 		setOkEnablement(status.isOK());
@@ -169,15 +185,5 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	private void setOkEnablement(boolean enable) {
 		if (okButton != null && !okButton.isDisposed())
 			okButton.setEnabled(enable);
-	}
-
-	private IRepository[] makeRepositories(Object[] elements) {
-		ArrayList list = new ArrayList();
-		for (int i = 0; i < elements.length; i++) {
-			IRepository repo = (IRepository) ProvUI.getAdapter(elements[i], IRepository.class);
-			if (repo != null)
-				list.add(repo);
-		}
-		return (IRepository[]) list.toArray(new IRepository[list.size()]);
 	}
 }

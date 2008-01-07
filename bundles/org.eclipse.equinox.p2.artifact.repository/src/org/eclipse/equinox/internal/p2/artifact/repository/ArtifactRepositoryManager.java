@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 import org.osgi.service.prefs.BackingStoreException;
@@ -32,6 +33,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		String description;
 		URL location;
 		String name;
+		boolean implementationOnly = false;
 		SoftReference repository;
 	}
 
@@ -45,6 +47,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
+	private static final String KEY_IMPLEMENTATION_ONLY = "implementationOnly"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
 	/**
@@ -65,6 +68,8 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		info.name = repository.getName();
 		info.description = repository.getDescription();
 		info.location = repository.getLocation();
+		String value = (String) repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
+		info.implementationOnly = value == null ? false : Boolean.valueOf(value).booleanValue();
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -176,18 +181,31 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return location.toExternalForm().replace('/', '_');
 	}
 
-	public URL[] getKnownRepositories() {
+	public URL[] getKnownRepositories(int flags) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			URL[] result = new URL[repositories.size()];
+			ArrayList result = new ArrayList();
 			int i = 0;
 			for (Iterator it = repositories.values().iterator(); it.hasNext(); i++) {
 				RepositoryInfo info = (RepositoryInfo) it.next();
-				result[i] = info.location;
+				if (matchesFlags(info, flags))
+					result.add(info.location);
 			}
-			return result;
+			return (URL[]) result.toArray(new URL[result.size()]);
 		}
+	}
+
+	private boolean matchesFlags(RepositoryInfo info, int flags) {
+		if ((flags & REPOSITORIES_IMPLEMENTATION_ONLY) == REPOSITORIES_IMPLEMENTATION_ONLY)
+			if (!info.implementationOnly)
+				return false;
+		if ((flags & REPOSITORIES_PUBLIC_ONLY) == REPOSITORIES_PUBLIC_ONLY)
+			if (info.implementationOnly)
+				return false;
+		if ((flags & REPOSITORIES_LOCAL_ONLY) == REPOSITORIES_LOCAL_ONLY)
+			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
+		return true;
 	}
 
 	/*
@@ -267,6 +285,9 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		value = repository.getVersion();
 		if (value != null)
 			node.put(KEY_VERSION, value);
+		value = (String) repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
+		if (value != null)
+			node.put(KEY_IMPLEMENTATION_ONLY, value);
 		value = repository.getLocation().toExternalForm();
 		node.put(KEY_URL, value);
 		saveToPreferences();
@@ -278,6 +299,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	private void remember(RepositoryInfo info) {
 		Preferences node = getPreferences().node(getKey(info.location));
 		node.put(KEY_URL, info.location.toExternalForm());
+		node.put(KEY_IMPLEMENTATION_ONLY, Boolean.toString(info.implementationOnly));
 		if (info.description != null)
 			node.put(KEY_DESCRIPTION, info.description);
 		if (info.name != null)
@@ -338,6 +360,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 				info.location = new URL(locationString);
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
+				info.implementationOnly = child.getBoolean(KEY_IMPLEMENTATION_ONLY, false);
 				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
@@ -381,6 +404,30 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			getPreferences().flush();
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
+	 */
+	public String getRepositoryProperty(URL location, String key) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.location, location)) {
+					if (PROP_DESCRIPTION.equals(key))
+						return info.description;
+					if (PROP_NAME.equals(key))
+						return info.name;
+					// Key not known, return null
+					return null;
+				}
+			}
+			// Repository not found, return null
+			return null;
 		}
 	}
 }

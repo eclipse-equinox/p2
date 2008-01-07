@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,20 +13,13 @@ package org.eclipse.equinox.p2.ui.model;
 import java.net.URL;
 
 /**
- * Element wrapper class for a rollback repository.
+ * Interface for elements that represent repositories.
  * 
  * @since 3.4
  */
-public class RollbackRepositoryElement extends MetadataRepositoryElement {
+public interface RepositoryElement {
 
-	String profileId;
+	public URL getURL();
 
-	public RollbackRepositoryElement(URL url, String profileId) {
-		super(url);
-		this.profileId = profileId;
-	}
-
-	public String getProfileId() {
-		return profileId;
-	}
+	public String getName();
 }

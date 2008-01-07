@@ -65,7 +65,7 @@ public class Sizing extends Phase {
 		}
 
 		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
-		URL[] repositories = repoMgr.getKnownRepositories();
+		URL[] repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 
 		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext();) {
 			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();

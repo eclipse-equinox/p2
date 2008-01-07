@@ -128,7 +128,7 @@ public class RevertProfileWizardPage extends WizardPage {
 
 	private Object getInput() {
 		try {
-			RollbackRepositoryElement element = new RollbackRepositoryElement(ProvisioningUtil.getRollbackRepository(null), profileId);
+			RollbackRepositoryElement element = new RollbackRepositoryElement(ProvisioningUtil.getRollbackRepositoryURL(), profileId);
 			element.setQueryProvider(queryProvider);
 			return element;
 		} catch (ProvisionException e) {

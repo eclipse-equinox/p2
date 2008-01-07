@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
+import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 

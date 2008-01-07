@@ -13,7 +13,6 @@ package org.eclipse.equinox.p2.ui.operations;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 
 /**
  * Operation that removes the metadata repository with the given URL. *
@@ -24,11 +23,8 @@ public class RemoveMetadataRepositoryOperation extends RepositoryOperation {
 
 	private boolean removed = false;
 
-	public RemoveMetadataRepositoryOperation(String label, IMetadataRepository[] repos) {
-		super(label, new URL[repos.length]);
-		for (int i = 0; i < repos.length; i++) {
-			urls[i] = repos[i].getLocation();
-		}
+	public RemoveMetadataRepositoryOperation(String label, URL[] repoURLs) {
+		super(label, repoURLs);
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
@@ -59,10 +55,7 @@ public class RemoveMetadataRepositoryOperation extends RepositoryOperation {
 
 	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
-			IMetadataRepository repo = ProvisioningUtil.addMetadataRepository(urls[i], monitor);
-			if (repo == null) {
-				return failureStatus();
-			}
+			ProvisioningUtil.addMetadataRepository(urls[i]);
 		}
 		removed = false;
 		return okStatus();

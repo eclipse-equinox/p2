@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
@@ -32,6 +33,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		String description;
 		URL location;
 		String name;
+		boolean implementationOnly = false;
 		SoftReference repository;
 	}
 
@@ -43,6 +45,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
+	private static final String KEY_IMPLEMENTATION_ONLY = "implementationOnly"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
 	/**
@@ -63,6 +66,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		info.name = repository.getName();
 		info.description = repository.getDescription();
 		info.location = repository.getLocation();
+		String value = (String) repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
+		info.implementationOnly = value == null ? false : Boolean.valueOf(value).booleanValue();
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -175,18 +180,31 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		return location.toExternalForm().replace('/', '_');
 	}
 
-	public URL[] getKnownRepositories() {
+	public URL[] getKnownRepositories(int flags) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			URL[] result = new URL[repositories.size()];
+			ArrayList result = new ArrayList();
 			int i = 0;
 			for (Iterator it = repositories.values().iterator(); it.hasNext(); i++) {
 				RepositoryInfo info = (RepositoryInfo) it.next();
-				result[i] = info.location;
+				if (matchesFlags(info, flags))
+					result.add(info.location);
 			}
-			return result;
+			return (URL[]) result.toArray(new URL[result.size()]);
 		}
+	}
+
+	private boolean matchesFlags(RepositoryInfo info, int flags) {
+		if ((flags & REPOSITORIES_IMPLEMENTATION_ONLY) == REPOSITORIES_IMPLEMENTATION_ONLY)
+			if (!info.implementationOnly)
+				return false;
+		if ((flags & REPOSITORIES_PUBLIC_ONLY) == REPOSITORIES_PUBLIC_ONLY)
+			if (info.implementationOnly)
+				return false;
+		if ((flags & REPOSITORIES_LOCAL_ONLY) == REPOSITORIES_LOCAL_ONLY)
+			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
+		return true;
 	}
 
 	/*
@@ -253,11 +271,28 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, t));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.query.IQueryable#query(org.eclipse.equinox.p2.query.Query, org.eclipse.equinox.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
+	/**
+	 * Performs a query against all of the installable units of each known 
+	 * repository, accumulating any objects that satisfy the query in the 
+	 * provided collector.
+	 * <p>
+	 * Note that using this method can be quite expensive, as every known
+	 * metadata repository will be loaded in order to query each one.  If a
+	 * client wishes to query only certain repositories, it is better to use
+	 * {@link #getKnownRepositories(int)} to filter the list of repositories
+	 * loaded and then query each of the returned repositories.
+	 * <p>
+	 * This method is long-running; progress and cancellation are provided
+	 * by the given progress monitor. 
+	 * 
+	 * @param query The query to perform against each installable unit in each known repository
+	 * @param collector Collects the results of the query
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The collector argument
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
-		URL[] locations = getKnownRepositories();
+		URL[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
 		for (int i = 0; i < locations.length; i++) {
 			IMetadataRepository repository = loadRepository(locations[i], sub.newChild(9));
@@ -290,6 +325,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		value = repository.getVersion();
 		if (value != null)
 			node.put(KEY_VERSION, value);
+		value = (String) repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
+		if (value != null)
+			node.put(KEY_IMPLEMENTATION_ONLY, value);
+
 		saveToPreferences();
 	}
 
@@ -299,6 +338,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private void remember(RepositoryInfo info) {
 		Preferences node = getPreferences().node(getKey(info.location));
 		node.put(KEY_URL, info.location.toExternalForm());
+		node.put(KEY_IMPLEMENTATION_ONLY, Boolean.toString(info.implementationOnly));
 		if (info.description != null)
 			node.put(KEY_DESCRIPTION, info.description);
 		if (info.name != null)
@@ -348,6 +388,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				info.location = new URL(locationString);
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
+				info.implementationOnly = child.getBoolean(KEY_IMPLEMENTATION_ONLY, false);
 				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
@@ -394,6 +435,30 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			getPreferences().flush();
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
+	 */
+	public String getRepositoryProperty(URL location, String key) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.location, location)) {
+					if (PROP_DESCRIPTION.equals(key))
+						return info.description;
+					if (PROP_NAME.equals(key))
+						return info.name;
+					// Key not known, return null
+					return null;
+				}
+			}
+			// Repository not found, return null
+			return null;
 		}
 	}
 }

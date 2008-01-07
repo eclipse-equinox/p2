@@ -11,12 +11,13 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
-import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
@@ -54,8 +55,8 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 		switch (queryType) {
 			case IProvElementQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
-				query = hideImpl ? new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false) : allQuery;
-				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
+				query = hideImpl ? new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
+				return new ElementQueryDescriptor(queryable, query, new RepositoryCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				// Is it a rollback repository?
 				if (element instanceof RollbackRepositoryElement) {
@@ -114,8 +115,8 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 				return new ElementQueryDescriptor(profile, query, new InstalledIUCollector(this, profile));
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
-				query = hideImpl ? new RepositoryPropertyQuery(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.toString(true), false) : allQuery;
-				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
+				query = hideImpl ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
+				return new ElementQueryDescriptor(queryable, query, new RepositoryCollector(this, queryable));
 			case IProvElementQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {

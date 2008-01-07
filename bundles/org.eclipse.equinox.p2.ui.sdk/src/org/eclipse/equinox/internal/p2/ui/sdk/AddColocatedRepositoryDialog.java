@@ -12,8 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.p2.ui.operations.AddColocatedRepositoryOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
@@ -28,7 +26,7 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 
-	public AddColocatedRepositoryDialog(Shell parentShell, IRepository[] knownRepositories) {
+	public AddColocatedRepositoryDialog(Shell parentShell, URL[] knownRepositories) {
 		super(parentShell, knownRepositories);
 
 	}
@@ -37,25 +35,16 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 		return new AddColocatedRepositoryOperation(getShell().getText(), url);
 	}
 
-	protected URL makeRepositoryURL(String urlString) {
+	protected URL makeRepositoryURL(URL userURL) {
 		// TODO need to do better validation of the URL
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
-		URL newURL;
-		try {
-			newURL = new URL(urlString);
-		} catch (MalformedURLException e) {
-			// TODO need friendlier user message rather than just reporting exception
-			ProvUI.handleException(e, ProvSDKMessages.AddColocatedRepositoryDialog_InvalidURL);
-			return null;
-		}
-		String urlSpec = newURL.toExternalForm();
+		String urlSpec = userURL.toExternalForm();
 		try {
 			if (!urlSpec.endsWith("/")) //$NON-NLS-1$
 				urlSpec += "/"; //$NON-NLS-1$
-			newURL = new URL(urlSpec);
+			return new URL(urlSpec);
 		} catch (MalformedURLException e) {
 			return null;
 		}
-		return newURL;
 	}
 }

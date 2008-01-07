@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.query.IQueryable;
 public abstract class QueriedElement extends ProvElement {
 
 	IProvElementQueryProvider queryProvider;
-	IQueryable queryable;
+	protected IQueryable queryable;
 
 	public Object[] getChildren(Object o) {
 		if (queryProvider == null)

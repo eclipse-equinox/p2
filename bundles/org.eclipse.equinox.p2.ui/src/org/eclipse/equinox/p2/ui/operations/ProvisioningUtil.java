@@ -37,30 +37,39 @@ import org.eclipse.osgi.util.NLS;
  */
 public class ProvisioningUtil {
 
-	public static IMetadataRepository addMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static void addMetadataRepository(URL location) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		IMetadataRepository repo = manager.loadRepository(location, monitor);
-		if (repo == null) {
-			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_AddRepositoryFailure, location.toExternalForm()));
-		}
+		manager.addRepository(location);
 		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
 		ProvUIActivator.getDefault().notifyListeners(event);
-		return repo;
 	}
 
-	public static IMetadataRepository getRollbackRepository(IProgressMonitor monitor) throws ProvisionException {
-		IDirector director = getDirector();
+	public static String getMetadataRepositoryName(URL location) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		URL location = director.getRollbackRepositoryLocation();
+		return manager.getRepositoryProperty(location, IMetadataRepositoryManager.PROP_NAME);
+	}
+
+	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		IMetadataRepository repo = manager.loadRepository(location, monitor);
 		if (repo == null) {
 			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location.toExternalForm()));
 		}
 		return repo;
+	}
+
+	public static URL getRollbackRepositoryURL() throws ProvisionException {
+		IDirector director = getDirector();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		return director.getRollbackRepositoryLocation();
 	}
 
 	public static void removeMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -73,18 +82,32 @@ public class ProvisioningUtil {
 
 	}
 
-	public static IArtifactRepository addArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static void addArtifactRepository(URL location) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		IArtifactRepository repo = manager.loadRepository(location, monitor);
-		if (repo == null) {
-			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_AddRepositoryFailure, location));
-		}
+		manager.addRepository(location);
 		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
 		ProvUIActivator.getDefault().notifyListeners(event);
+	}
 
+	public static String getArtifactRepositoryName(URL location) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		}
+		return manager.getRepositoryProperty(location, IArtifactRepositoryManager.PROP_NAME);
+	}
+
+	public static IArtifactRepository loadArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null)
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		IArtifactRepository repo = manager.loadRepository(location, monitor);
+		if (repo == null) {
+			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location.toExternalForm()));
+		}
 		return repo;
 	}
 
@@ -131,18 +154,12 @@ public class ProvisioningUtil {
 		return profileRegistry.getProfile(id);
 	}
 
-	public static IMetadataRepository[] getMetadataRepositories() throws ProvisionException {
+	public static URL[] getMetadataRepositories(int flags) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		URL[] locations = manager.getKnownRepositories();
-		//TODO Shouldn't be eagerly loading all repositories here
-		IMetadataRepository[] repositories = new IMetadataRepository[locations.length];
-		for (int i = 0; i < repositories.length; i++) {
-			repositories[i] = manager.loadRepository(locations[i], null);
-		}
-		return repositories;
+		return manager.getKnownRepositories(flags);
 	}
 
 	/*

@@ -217,7 +217,7 @@ public class SimplePlanner implements IPlanner {
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
 		if (metadataRepositories == null)
-			metadataRepositories = repoMgr.getKnownRepositories();
+			metadataRepositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 
 		for (int i = 0; i < metadataRepositories.length; i++) {
 			IMetadataRepository repository = repoMgr.loadRepository(metadataRepositories[i], null);

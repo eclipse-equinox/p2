@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositoryElement;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -23,7 +22,9 @@ import org.eclipse.equinox.p2.ui.ProvUIActivator;
 
 /**
  * An object that adds queryable support to an artifact repository 
- * manager.
+ * manager.  The object being queried is the repositry URL, not the 
+ * repository instance itself.  Callers should load the repository
+ * if necessary to complete the query.
  */
 public class QueryableArtifactRepositoryManager implements IQueryable {
 
@@ -33,14 +34,16 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager));
 			return result;
 		}
-		URL[] repos = manager.getKnownRepositories();
+		int flags = IArtifactRepositoryManager.REPOSITORIES_ALL;
+		if (query instanceof FilteredRepositoryQuery)
+			flags = ((FilteredRepositoryQuery) query).getFlags();
+		URL[] repoURLs = manager.getKnownRepositories(flags);
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repos.length * 2);
-		for (int i = 0; i < repos.length; i++) {
-			IArtifactRepository repo = manager.loadRepository(repos[i], new SubProgressMonitor(monitor, 1));
-			if (repo != null && query.isMatch(repo))
-				result.accept(new ArtifactRepositoryElement(repo));
+		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoURLs.length * 2);
+		for (int i = 0; i < repoURLs.length; i++) {
+			if (query.isMatch(repoURLs[i]))
+				result.accept(new ArtifactRepositoryElement(repoURLs[i]));
 			monitor.worked(1);
 		}
 		monitor.done();

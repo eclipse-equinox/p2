@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.p2.ui.operations.AddArtifactRepositoryOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
@@ -27,7 +25,7 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 
-	public AddArtifactRepositoryDialog(Shell parentShell, Object[] knownRepositories) {
+	public AddArtifactRepositoryDialog(Shell parentShell, URL[] knownRepositories) {
 		super(parentShell, knownRepositories);
 	}
 
@@ -35,16 +33,10 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, url);
 	}
 
-	protected URL makeRepositoryURL(String urlString) {
-		try {
-			return new URL(urlString);
-		} catch (MalformedURLException e) {
-			// TODO need friendlier user message rather than just reporting exception
-			ProvUI.handleException(e, ProvAdminUIMessages.AddRepositoryDialog_InvalidURL);
-			return null;
-		}
+	protected URL makeRepositoryURL(URL newURL) {
 		// TODO need to do better validation of the URL
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
-
+		// For now we don't further process the URL
+		return newURL;
 	}
 }
