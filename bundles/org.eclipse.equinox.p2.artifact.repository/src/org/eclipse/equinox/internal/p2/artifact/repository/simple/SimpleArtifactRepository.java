@@ -432,7 +432,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		try {
 			try {
 				URL actualLocation = getActualLocation(location, gzip);
-				os = new FileOutputStream(actualLocation.getFile());
+				File artifactsFile = new File(actualLocation.getPath());
+				if (!artifactsFile.exists()) {
+					// create parent folders
+					artifactsFile.getParentFile().mkdirs();
+				}
+				os = new FileOutputStream(artifactsFile);
 				if (gzip)
 					os = new GZIPOutputStream(os);
 				new SimpleArtifactRepositoryIO().write(this, os);
