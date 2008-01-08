@@ -21,12 +21,16 @@ import org.eclipse.equinox.p2.query.*;
 public class ElementQueryDescriptor {
 
 	public Query query;
-	public Collector result;
+	public Collector collector;
 	public IQueryable queryable;
 
-	public ElementQueryDescriptor(IQueryable queryable, Query query, Collector result) {
+	public ElementQueryDescriptor(IQueryable queryable, Query query, Collector collector) {
 		this.query = query;
-		this.result = result;
+		this.collector = collector;
 		this.queryable = queryable;
+	}
+
+	public boolean isComplete() {
+		return query != null && collector != null && queryable != null;
 	}
 }

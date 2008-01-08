@@ -31,8 +31,8 @@ public abstract class QueriedElement extends ProvElement {
 		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this, getQueryType());
 		if (queryDescriptor == null)
 			return new Object[0];
-		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.result, null);
-		return queryDescriptor.result.toArray(Object.class);
+		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
+		return queryDescriptor.collector.toArray(Object.class);
 	}
 
 	/*

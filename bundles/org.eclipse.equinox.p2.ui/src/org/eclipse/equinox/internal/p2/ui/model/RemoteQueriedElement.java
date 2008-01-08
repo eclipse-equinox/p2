@@ -42,10 +42,10 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 		if (getQueryProvider() == null)
 			return new Object[0];
 		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this, getQueryType());
-		if (queryDescriptor == null)
+		if (queryDescriptor == null || !queryDescriptor.isComplete())
 			return new Object[0];
-		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.result, monitor);
-		return queryDescriptor.result.toArray(Object.class);
+		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, monitor);
+		return queryDescriptor.collector.toArray(Object.class);
 	}
 
 	public ISchedulingRule getRule(Object object) {

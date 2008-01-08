@@ -95,7 +95,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		};
 		ProfileElement element = new ProfileElement(event.getProfileId());
 		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(element, IProvElementQueryProvider.AVAILABLE_UPDATES);
-		Object[] elements = rootQueryable.query(descriptor.query, descriptor.result, null).toArray(Object.class);
+		Object[] elements = rootQueryable.query(descriptor.query, descriptor.collector, null).toArray(Object.class);
 		IInstallableUnit[] result = new IInstallableUnit[elements.length];
 		for (int i = 0; i < result.length; i++)
 			result[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
