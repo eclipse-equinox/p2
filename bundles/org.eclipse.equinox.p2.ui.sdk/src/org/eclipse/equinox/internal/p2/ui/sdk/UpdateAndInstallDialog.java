@@ -161,11 +161,6 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		};
 	}
 
-	protected void okPressed() {
-		saveDialogSettings();
-		super.okPressed();
-	}
-
 	private void readDialogSettings() {
 		IDialogSettings settings = ProvSDKUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
@@ -206,6 +201,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 
 	protected void buttonPressed(int buttonId) {
 		if (IDialogConstants.CLOSE_ID == buttonId) {
+			saveDialogSettings();
 			close();
 		}
 		super.buttonPressed(buttonId);
