@@ -33,15 +33,26 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 	protected HashSet units = new LinkedHashSet();
 
 	public static URL getActualLocation(URL base) {
+		return getActualLocation(base, null);
+	}
+
+	public static URL getActualLocation(URL base, String extension) {
+		if (extension == null) {
+			extension = ""; //$NON-NLS-1$
+		}
 		String spec = base.toExternalForm();
-		if (spec.endsWith(CONTENT_FILENAME))
-			return base;
+		if (spec.endsWith(CONTENT_FILENAME + extension))
+			try {
+				return new URL(spec + extension);
+			} catch (MalformedURLException e1) {
+				return null;
+			}
 		if (spec.endsWith("/")) //$NON-NLS-1$
 			spec += CONTENT_FILENAME;
 		else
 			spec += "/" + CONTENT_FILENAME; //$NON-NLS-1$
 		try {
-			return new URL(spec);
+			return new URL(spec + extension);
 		} catch (MalformedURLException e) {
 			return null;
 		}

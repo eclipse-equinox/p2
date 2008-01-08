@@ -12,6 +12,8 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URL;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -23,6 +25,8 @@ import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory
 
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
+	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
+
 	public IMetadataRepository create(URL location, String name, String type) {
 		if (location.getProtocol().equals("file")) //$NON-NLS-1$
 			return new LocalMetadataRepository(location, name);
@@ -30,6 +34,16 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	}
 
 	public IMetadataRepository load(URL location) {
+		// load the jar
+		IMetadataRepository result = load(location, JAR_EXTENSION);
+		// compressed file is not available, load the xml
+		if (result == null) {
+			result = load(location, null);
+		}
+		return result;
+	}
+
+	private IMetadataRepository load(URL location, String type) {
 		if (location == null)
 			return null;
 		long time = 0;
@@ -39,7 +53,21 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 			time = -System.currentTimeMillis();
 		}
 		try {
-			InputStream descriptorStream = new BufferedInputStream(URLMetadataRepository.getActualLocation(location).openStream());
+			URL actualFile = URLMetadataRepository.getActualLocation(location);
+			InputStream inStream = URLMetadataRepository.getActualLocation(location, type).openStream();
+			if (JAR_EXTENSION.equalsIgnoreCase(type)) {
+				JarInputStream jInStream = new JarInputStream(inStream);
+				JarEntry jarEntry = jInStream.getNextJarEntry();
+				File f = new File(actualFile.getPath());
+				while (jarEntry != null && (f.compareTo(new File(jarEntry.getName()))) != 0) {
+					jarEntry = jInStream.getNextJarEntry();
+				}
+				if (jarEntry == null) {
+					throw new FileNotFoundException("Repository not found in " + actualFile.getPath() + type); //$NON-NLS-1$
+				}
+				inStream = jInStream;
+			}
+			InputStream descriptorStream = new BufferedInputStream(inStream);
 			try {
 				IMetadataRepository result = new MetadataRepositoryIO().read(descriptorStream);
 				if (result instanceof LocalMetadataRepository)

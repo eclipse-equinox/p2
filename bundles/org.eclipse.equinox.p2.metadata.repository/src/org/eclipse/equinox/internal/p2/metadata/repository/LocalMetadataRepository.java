@@ -14,6 +14,8 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.Collector;
@@ -29,18 +31,23 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	static final private String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = LocalMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
+	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 
 	protected HashSet units = new LinkedHashSet();
 
-	public static File getActualLocation(URL location) {
+	private static File getActualLocation(URL location, String extension) {
 		String spec = location.getFile();
-		if (spec.endsWith(CONTENT_FILENAME))
-			return new File(spec);
+		if (spec.endsWith(CONTENT_FILENAME + extension))
+			return new File(spec + extension);
 		if (spec.endsWith("/")) //$NON-NLS-1$
 			spec += CONTENT_FILENAME;
 		else
 			spec += "/" + CONTENT_FILENAME; //$NON-NLS-1$
-		return new File(spec);
+		return new File(spec + extension);
+	}
+
+	public static File getActualLocation(URL location) {
+		return getActualLocation(location, ""); //$NON-NLS-1$
 	}
 
 	/**
@@ -119,13 +126,33 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	private void save() {
 		File file = getActualLocation(location);
+		boolean jar = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
-			if (!file.exists()) {
-				if (!file.getParentFile().exists())
-					file.getParentFile().mkdirs();
-				file.createNewFile();
+			OutputStream output = null;
+			if (!jar) {
+				if (!file.exists()) {
+					if (!file.getParentFile().exists())
+						file.getParentFile().mkdirs();
+					file.createNewFile();
+				}
+				output = new FileOutputStream(file);
 			}
-			new MetadataRepositoryIO().write(this, new FileOutputStream(file));
+			if (jar) {
+				if (file.exists()) {
+					file.delete();
+				}
+				File jarFile = getActualLocation(location, JAR_EXTENSION);
+				if (!jarFile.exists()) {
+					if (!jarFile.getParentFile().exists())
+						jarFile.getParentFile().mkdirs();
+					jarFile.createNewFile();
+				}
+				JarEntry jarEntry = new JarEntry(file.getPath());
+				JarOutputStream jOutput = new JarOutputStream(new FileOutputStream(jarFile));
+				jOutput.putNextEntry(jarEntry);
+				output = jOutput;
+			}
+			new MetadataRepositoryIO().write(this, output);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

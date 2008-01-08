@@ -14,6 +14,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Map;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.repository.IRepository;
+import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
+import org.eclipse.equinox.p2.metadata.generator.Generator;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -23,8 +26,8 @@ import org.eclipse.equinox.p2.tests.TestActivator;
  * Test API of the local metadata repository implementation.
  */
 public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
-	private static final String TEST_VALUE = "TestValue";
 	private static final String TEST_KEY = "TestKey";
+	private static final String TEST_VALUE = "TestValue";
 	protected File repoLocation;
 
 	private IMetadataRepositoryManager getMetadataRepositoryManager() {
@@ -42,6 +45,38 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	protected void tearDown() throws Exception {
 		delete(repoLocation);
 		super.tearDown();
+	}
+
+	public void testCompressedRepository() throws MalformedURLException {
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		repo.setProperty(IRepository.PROP_COMPRESSED, "true");
+		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
+		provider.setMetadataRepository(repo);
+		provider.initialize(repoLocation);
+		provider.setRootVersion("3.3");
+		provider.setRootId("sdk");
+		provider.setFlavor("tooling");
+		// Generate the repository
+		new Generator(provider).generate();
+		File[] files = repoLocation.listFiles();
+		boolean jarFilePresent = false;
+		boolean xmlFilePresent = false;
+		// one of the files in the repository should be the content.xml.jar
+		for (int i = 0; i < files.length; i++) {
+			if ("content.xml.jar".equalsIgnoreCase(files[i].getName())) {
+				jarFilePresent = true;
+			}
+			if ("content.xml".equalsIgnoreCase(files[i].getName())) {
+				xmlFilePresent = true;
+			}
+		}
+		if (!jarFilePresent) {
+			fail("Repository did not create JAR for content.xml");
+		}
+		if (xmlFilePresent) {
+			fail("Repository should not create content.xml");
+		}
 	}
 
 	public void testGetProperties() throws MalformedURLException {
@@ -78,5 +113,31 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		repo.setProperty(TEST_KEY, null);
 		properties = repo.getProperties();
 		assertTrue("1.4", !properties.containsKey(TEST_KEY));
+	}
+
+	public void testUncompressedRepository() throws MalformedURLException {
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		repo.setProperty(IRepository.PROP_COMPRESSED, "false");
+		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
+		provider.setMetadataRepository(repo);
+		provider.initialize(repoLocation);
+		provider.setRootVersion("3.3");
+		provider.setRootId("sdk");
+		provider.setFlavor("tooling");
+		// Generate the repository
+		new Generator(provider).generate();
+		File[] files = repoLocation.listFiles();
+		boolean jarFilePresent = false;
+		// none of the files in the repository should be the content.xml.jar
+		for (int i = 0; i < files.length; i++) {
+			if ("content.xml.jar".equalsIgnoreCase(files[i].getName())) {
+				jarFilePresent = true;
+			}
+		}
+		if (jarFilePresent) {
+			fail("Repository should not create JAR for content.xml");
+		}
+
 	}
 }

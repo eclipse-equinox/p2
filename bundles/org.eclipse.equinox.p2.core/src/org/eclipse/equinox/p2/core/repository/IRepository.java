@@ -21,10 +21,20 @@ import org.eclipse.core.runtime.IAdaptable;
  * This interface is not intended to be implemented by clients.
  */
 public interface IRepository extends IAdaptable {
-	// The property key for a boolean property indicating that the repository
-	// is an implementation detail, not subject to general access, hidden
-	// from the typical user, etc.
+	/** 
+	 * The property key for a boolean property indicating that the repository
+	 * is an implementation detail, not subject to general access, hidden
+	 * from the typical user, etc.
+	 */
 	static public String IMPLEMENTATION_ONLY_KEY = "implementationOnly"; //$NON-NLS-1$
+
+	/**
+	 * The key for a boolean property indicating that repository metadata is
+	 * stored in compressed form.  A compressed repository will have lower
+	 * bandwidth cost to read when remote, but higher processing cost to
+	 * uncompress when reading.
+	 */
+	public static final String PROP_COMPRESSED = "p2.compressed"; //$NON-NLS-1$
 
 	/**
 	 * Returns the URL of the repository.

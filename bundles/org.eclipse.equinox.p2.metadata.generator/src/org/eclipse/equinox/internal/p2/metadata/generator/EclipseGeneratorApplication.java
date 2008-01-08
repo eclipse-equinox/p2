@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryMan
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.p2.metadata.generator.Generator;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -51,6 +52,8 @@ public class EclipseGeneratorApplication implements IApplication {
 	private String features;
 	private String bundles;
 	private String base;
+	//whether repository xml files should be compressed
+	private String compress = "false"; //$NON-NLS-1$
 
 	private File getExecutableName(String base, EclipseInstallGeneratorInfoProvider provider) {
 		File location = provider.getExecutableLocation();
@@ -131,6 +134,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		IMetadataRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
+			repository.setProperty(IRepository.PROP_COMPRESSED, compress);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
 			provider.setMetadataRepository(repository);
@@ -143,6 +147,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		// TODO for now create a random repo by default.
 		String repositoryName = metadataLocation + " - metadata"; //$NON-NLS-1$
 		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		result.setProperty(IRepository.PROP_COMPRESSED, compress);
 		if (result != null)
 			provider.setMetadataRepository(result);
 	}
@@ -169,6 +174,9 @@ public class EclipseGeneratorApplication implements IApplication {
 
 			if (args[i].equalsIgnoreCase("-noDefaultIUs"))
 				provider.setAddDefaultIUs(false);
+
+			if (args[i].equalsIgnoreCase("-compress"))
+				compress = "true"; //$NON-NLS-1$
 
 			// check for args with parameters. If we are at the last argument or if the next one
 			// has a '-' as the first character, then we can't have an arg with a parm so continue.
