@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement;
 
 /**
- * An object that adds queryable support to an artifact repository 
+ * An object that adds queryable support to a metadata repository 
  * manager.  The object being queried is the repository URL, not the 
  * repository instance itself.  Callers should load the repository
  * if necessary to complete the query.
