@@ -18,7 +18,6 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.RepositoryElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
@@ -49,7 +48,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		return super.getAdapter(adapter);
 	}
 
-	protected String getImageID(Object obj) {
+	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_ARTIFACT_REPOSITORY;
 	}
 
@@ -75,7 +74,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 			try {
 				repo = ProvisioningUtil.loadArtifactRepository(url, monitor);
 			} catch (ProvisionException e) {
-				ProvUI.handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
+				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
 			}
 		return repo;
 	}

@@ -33,7 +33,7 @@ public class ArtifactElement extends ProvElement {
 	 * 
 	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
-	protected String getImageID(Object obj) {
+	protected String getImageId(Object obj) {
 		return null;
 	}
 

@@ -15,7 +15,6 @@ import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
@@ -40,7 +39,7 @@ public class ProfileElement extends RemoteQueriedElement {
 		return super.getAdapter(adapter);
 	}
 
-	protected String getImageID(Object obj) {
+	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_PROFILE;
 	}
 
@@ -56,7 +55,7 @@ public class ProfileElement extends RemoteQueriedElement {
 		try {
 			return ProvisioningUtil.getProfile(profileId);
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProfileElement_InvalidProfile, profileId));
+			handleException(e, NLS.bind(ProvUIMessages.ProfileElement_InvalidProfile, profileId));
 			return null;
 		}
 	}

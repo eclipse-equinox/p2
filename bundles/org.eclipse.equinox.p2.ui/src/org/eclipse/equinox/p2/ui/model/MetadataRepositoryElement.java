@@ -17,7 +17,6 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
@@ -45,7 +44,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 		return super.getAdapter(adapter);
 	}
 
-	protected String getImageID(Object obj) {
+	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_METADATA_REPOSITORY;
 	}
 
@@ -71,7 +70,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 			try {
 				queryable = ProvisioningUtil.loadMetadataRepository(url, null);
 			} catch (ProvisionException e) {
-				ProvUI.handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
+				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
 			}
 		return queryable;
 	}

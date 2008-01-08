@@ -33,7 +33,7 @@ public class IUVersionsElement extends CachedQueryElement implements IUElement {
 		return iu.getId();
 	}
 
-	public String getImageID(Object o) {
+	public String getImageId(Object o) {
 		return ProvUIImages.IMG_UNINSTALLED_IU;
 	}
 

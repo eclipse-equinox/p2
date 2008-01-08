@@ -35,7 +35,7 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 	 * 
 	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
-	protected String getImageID(Object obj) {
+	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_IU;
 	}
 

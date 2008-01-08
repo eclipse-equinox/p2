@@ -16,7 +16,6 @@ import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
@@ -44,7 +43,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 	 * 
 	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
-	protected String getImageID(Object obj) {
+	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_UNINSTALLED_IU;
 	}
 
@@ -82,7 +81,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, profileID, null);
 			size = info.getDiskSize();
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
+			handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
 		}
 	}
 

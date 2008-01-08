@@ -45,7 +45,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	 * @return the string id of the image in the provisioning image registry, or
 	 *         <code>null</code> if no image should be shown.
 	 */
-	protected String getImageID(Object obj) {
+	protected String getImageId(Object obj) {
 		return null;
 	}
 
@@ -55,7 +55,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getImageDescriptor(java.lang.Object)
 	 */
 	public ImageDescriptor getImageDescriptor(Object object) {
-		String id = getImageID(object);
+		String id = getImageId(object);
 		if (id == null) {
 			return null;
 		}
@@ -72,7 +72,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 	 * 
 	 */
 	public Image getImage(Object object) {
-		String id = getImageID(object);
+		String id = getImageId(object);
 		if (id == null) {
 			return null;
 		}
