@@ -50,7 +50,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	public String getText(Object obj) {
-		return getColumnText(obj, columnConfig[0].columnField);
+		return getColumnText(obj, 0);
 	}
 
 	public Image getImage(Object obj) {
@@ -64,8 +64,14 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		}
 
 		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
-		if (iu == null)
+		if (iu == null) {
+			if (columnIndex == 0) {
+				if (element instanceof ProvElement)
+					return ((ProvElement) element).getLabel(element);
+				return element.toString();
+			}
 			return BLANK;
+		}
 
 		switch (columnContent) {
 			case IUColumnConfig.COLUMN_ID :

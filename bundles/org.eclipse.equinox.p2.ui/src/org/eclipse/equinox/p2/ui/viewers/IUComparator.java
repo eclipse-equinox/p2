@@ -28,7 +28,10 @@ public class IUComparator extends ViewerComparator {
 		IInstallableUnit iu1 = (IInstallableUnit) ProvUI.getAdapter(obj1, IInstallableUnit.class);
 		IInstallableUnit iu2 = (IInstallableUnit) ProvUI.getAdapter(obj2, IInstallableUnit.class);
 		if (iu1 == null || iu2 == null)
-			return super.compare(viewer, obj1, obj2);
+			// This only happens if there are placeholders.  The important thing
+			// is that placeholders shouldn't be equal, so get the hash to ensure
+			// identity is used.  The sorting won't matter.
+			return obj1.hashCode() > obj2.hashCode() ? 1 : -1;
 
 		String key1, key2;
 		if (key == IU_NAME) {
