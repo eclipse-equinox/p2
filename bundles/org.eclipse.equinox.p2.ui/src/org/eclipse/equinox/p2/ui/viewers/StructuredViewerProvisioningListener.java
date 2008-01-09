@@ -16,6 +16,7 @@ import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.ProfileEvent;
 import org.eclipse.equinox.p2.ui.IProvisioningListener;
+import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
@@ -52,20 +53,11 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 				final Profile profile = event.getProfile();
 				display.asyncExec(new Runnable() {
 					public void run() {
-						// TODO
-						/*
-						 * Below is an optimization that is not currently working.
-						 * For now we will refresh everything.
-						 
 						// We want to refresh the affected profile, so we
 						// construct a profile element on this profile.
-						// We can't match on the raw profile because the viewer
-						// will set its item backpointer to the refreshed element
-						ProfileElement element = new ProfileElement(profile);
+						ProfileElement element = new ProfileElement(profile.getProfileId());
 						element.setQueryProvider(queryProvider);
 						viewer.refresh(element);
-						*/
-						viewer.refresh();
 					}
 				});
 			} else {
