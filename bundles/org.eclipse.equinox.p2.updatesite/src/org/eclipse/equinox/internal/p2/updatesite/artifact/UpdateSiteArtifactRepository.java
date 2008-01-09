@@ -10,21 +10,24 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
-import java.io.File;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.p2.metadata.generator.*;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.xml.sax.SAXException;
 
 public class UpdateSiteArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
@@ -45,7 +48,66 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			e.printStackTrace();
 		}
 		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
+		try {
 
+			DefaultSiteParser siteParser = new DefaultSiteParser();
+			long start = System.currentTimeMillis();
+			InputStream is = new BufferedInputStream(location.openStream());
+			SiteModel siteModel = siteParser.parse(is);
+			System.out.println("Time Fetching Site " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
+
+			// For now we will always refresh the contents. We can do a checksum here.
+			artifactRepository.removeAll();
+
+			SiteFeature[] siteFeatures = siteModel.getFeatures();
+
+			FeatureParser featureParser = new FeatureParser();
+			System.out.println("Retrieving " + siteFeatures.length + " features");
+			for (int i = 0; i < siteFeatures.length; i++) {
+				SiteFeature siteFeature = siteFeatures[i];
+				System.out.println(siteFeature.getFeatureIdentifier());
+				URL featureURL = new URL(location, siteFeature.getURLString());
+
+				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
+				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
+				featureArtifactDescriptor.setRepositoryProperty("arifact.reference", featureURL.toExternalForm());
+				artifactRepository.addDescriptor(featureArtifactDescriptor);
+
+				Feature feature = parseFeature(featureParser, featureURL);
+				FeatureEntry[] featureEntries = feature.getEntries();
+				for (int j = 0; j < featureEntries.length; j++) {
+					FeatureEntry entry = featureEntries[j];
+					if (entry.isPlugin() && !entry.isRequires()) {
+						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
+						ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
+						URL pluginURL = new URL(location, "plugins/" + entry.getId() + "_" + entry.getVersion() + ".jar");
+						artifactDescriptor.setRepositoryProperty("arifact.reference", pluginURL.toExternalForm());
+						artifactRepository.addDescriptor(artifactDescriptor);
+					}
+				}
+			}
+
+			System.out.println("Time Fetching Site and Features for " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private Feature parseFeature(FeatureParser featureParser, URL featureURL) throws IOException, FileNotFoundException {
+
+		File featureFile = File.createTempFile("feature", ".jar");
+		try {
+			FileUtils.copyStream(featureURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(featureFile)), true);
+			Feature feature = featureParser.parse(featureFile);
+			return feature;
+		} finally {
+			featureFile.delete();
+		}
 	}
 
 	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL, String repositoryName) {

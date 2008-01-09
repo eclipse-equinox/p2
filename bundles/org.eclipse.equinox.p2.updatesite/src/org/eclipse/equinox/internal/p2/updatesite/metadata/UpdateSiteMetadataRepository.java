@@ -59,6 +59,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			InputStream is = new BufferedInputStream(location.openStream());
 			SiteModel siteModel = siteParser.parse(is);
 			System.out.println("Time Fetching Site " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
+
+			// For now we will always refresh the contents. We can do a checksum here.
+			metadataRepository.removeAll();
+
 			Map categoryNameToFeatureIUs = new HashMap();
 			SiteCategory[] siteCategories = siteModel.getCategories();
 			for (int i = 0; i < siteCategories.length; i++) {
