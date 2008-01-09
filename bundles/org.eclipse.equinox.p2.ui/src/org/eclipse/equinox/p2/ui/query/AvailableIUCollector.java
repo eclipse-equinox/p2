@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.p2.ui.model.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.model.CategoryElement;
+import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
 /**

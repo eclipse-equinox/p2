@@ -12,13 +12,11 @@ package org.eclipse.equinox.p2.ui.query;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.model.CategoryElement;
-import org.eclipse.equinox.p2.ui.model.UncategorizedCategoryElement;
+import org.eclipse.equinox.p2.ui.model.*;
 import org.osgi.framework.Version;
 
 /**

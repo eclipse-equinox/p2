@@ -56,7 +56,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 			case IProvElementQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
 				query = hideSystem ? new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
-				return new ElementQueryDescriptor(queryable, query, new RepositoryCollector(this, queryable));
+				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				// Is it a rollback repository?
 				if (element instanceof RollbackRepositoryElement) {
@@ -116,7 +116,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
 				query = hideSystem ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM) : allQuery;
-				return new ElementQueryDescriptor(queryable, query, new RepositoryCollector(this, queryable));
+				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
 			case IProvElementQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {

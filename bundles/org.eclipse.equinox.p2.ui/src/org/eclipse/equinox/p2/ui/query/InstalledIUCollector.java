@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
 
 /**
  * Collectors that accepts the matched IU's and

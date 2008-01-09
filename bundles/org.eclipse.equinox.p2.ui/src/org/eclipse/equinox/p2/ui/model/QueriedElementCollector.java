@@ -8,23 +8,28 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.query;
+package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
 /**
- * Collector that accepts the matched Profiles and
- * wraps them in a ProfileElement.
+ * Collector that assigns a query provider and the queryable
+ * who was performing the query to the elements
+ * as they are accepted.
  * 
  * @since 3.4
  */
-public class RepositoryCollector extends QueriedElementCollector {
+public class QueriedElementCollector extends Collector {
 
-	public RepositoryCollector(IProvElementQueryProvider queryProvider, IQueryable queryable) {
-		super(queryProvider, queryable);
+	protected IProvElementQueryProvider queryProvider;
+	protected IQueryable queryable;
+
+	public QueriedElementCollector(IProvElementQueryProvider queryProvider, IQueryable queryable) {
+		this.queryProvider = queryProvider;
+		this.queryable = queryable;
 	}
 
 	/**
@@ -35,15 +40,13 @@ public class RepositoryCollector extends QueriedElementCollector {
 	 * or <code>false</code> to indicate the query should stop.
 	 */
 	public boolean accept(Object match) {
-		// Circumvent the code that gets/sets the queryable of this element,
-		// as that will cause loading of the repository.
-		if (match instanceof RepositoryElement) {
-			if (match instanceof MetadataRepositoryElement)
-				((MetadataRepositoryElement) match).setQueryProvider(queryProvider);
-			getList().add(match);
-			return true;
+		if (match instanceof QueriedElement) {
+			QueriedElement element = (QueriedElement) match;
+			element.setQueryProvider(queryProvider);
+			if (!element.knowsQueryable()) {
+				element.setQueryable(queryable);
+			}
 		}
 		return super.accept(match);
 	}
-
 }

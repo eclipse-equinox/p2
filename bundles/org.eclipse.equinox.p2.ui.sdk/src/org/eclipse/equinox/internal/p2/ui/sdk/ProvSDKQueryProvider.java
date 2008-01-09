@@ -44,7 +44,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 		switch (queryType) {
 			case IProvElementQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
-				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY), new RepositoryCollector(this, queryable));
+				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY), new QueriedElementCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
@@ -80,7 +80,7 @@ public class ProvSDKQueryProvider implements IProvElementQueryProvider {
 				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile));
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
-				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM), new RepositoryCollector(this, queryable));
+				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM), new QueriedElementCollector(this, queryable));
 			case IProvElementQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {

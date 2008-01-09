@@ -69,4 +69,8 @@ public abstract class QueriedElement extends ProvElement {
 		return queryable;
 	}
 
+	public boolean knowsQueryable() {
+		return queryable != null;
+	}
+
 }

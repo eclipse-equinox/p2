@@ -75,6 +75,16 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 		return queryable;
 	}
 
+	/*
+	 * overridden to check whether url is specified rather
+	 * than loading the repo via getQueryable()
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.query.QueriedElement#knowsQueryable()
+	 */
+	public boolean knowsQueryable() {
+		return url != null;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getURL()
 	 */

@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import org.eclipse.equinox.internal.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
+import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
 
 /**
  * Collector that includes only those versions of an IU other than the

@@ -61,6 +61,16 @@ public class ProfileElement extends RemoteQueriedElement {
 	}
 
 	/*
+	 * Overridden to check whether we know the profile id rather
+	 * than fetch the profile from the registry using getQueryable()
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.query.QueriedElement#knowsQueryable()
+	 */
+	public boolean knowsQueryable() {
+		return profileId != null;
+	}
+
+	/*
 	 * Overridden to check the children so that profiles
 	 * showing in profile views accurately reflect if they
 	 * are empty.  We do not cache the children because often
