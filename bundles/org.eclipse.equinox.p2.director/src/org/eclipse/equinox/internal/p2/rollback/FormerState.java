@@ -76,7 +76,7 @@ public class FormerState {
 		repository = (AbstractMetadataRepository) manager.createRepository(location, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
 		if (repository == null)
 			throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
-		((IRepository) repository).setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		((IRepository) repository).setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
 		return repository;
 	}
 

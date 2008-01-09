@@ -14,11 +14,9 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleDirector implements IDirector {
@@ -27,13 +25,6 @@ public class SimpleDirector implements IDirector {
 	static final int EngineWork = 100;
 	private Engine engine;
 	private IPlanner planner;
-
-	public static void tagAsImplementation(IMetadataRepository repository) {
-		if (repository != null && repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY) == null) {
-			if (repository.isModifiable())
-				repository.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
-		}
-	}
 
 	public SimpleDirector() {
 		initializeRollbackRepository();

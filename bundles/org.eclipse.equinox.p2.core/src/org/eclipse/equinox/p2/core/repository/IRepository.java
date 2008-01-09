@@ -23,10 +23,10 @@ import org.eclipse.core.runtime.IAdaptable;
 public interface IRepository extends IAdaptable {
 	/** 
 	 * The property key for a boolean property indicating that the repository
-	 * is an implementation detail, not subject to general access, hidden
-	 * from the typical user, etc.
+	 * is a system repository.  System repositories are implementation details
+	 * that are not subject to general access, hidden from the typical user, etc.
 	 */
-	static public String IMPLEMENTATION_ONLY_KEY = "implementationOnly"; //$NON-NLS-1$
+	static public String PROP_SYSTEM = "p2.system"; //$NON-NLS-1$
 
 	/**
 	 * The key for a boolean property indicating that repository metadata is

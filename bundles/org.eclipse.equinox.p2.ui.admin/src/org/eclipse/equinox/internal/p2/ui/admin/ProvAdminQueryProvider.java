@@ -115,7 +115,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 				return new ElementQueryDescriptor(profile, query, new InstalledIUCollector(this, profile));
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
-				query = hideImpl ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
+				query = hideImpl ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new RepositoryCollector(this, queryable));
 			case IProvElementQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();

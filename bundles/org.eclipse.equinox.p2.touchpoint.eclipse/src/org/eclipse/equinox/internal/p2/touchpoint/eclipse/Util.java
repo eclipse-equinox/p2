@@ -78,7 +78,7 @@ public class Util {
 			bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
 			if (bundlePool == null)
 				throw new IllegalArgumentException("Bundle pool repository not writeable: " + location); //$NON-NLS-1$
-			((IRepository) bundlePool).setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+			((IRepository) bundlePool).setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
 		}
 
 		return (IFileArtifactRepository) bundlePool;

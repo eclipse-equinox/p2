@@ -47,7 +47,7 @@ public class MetadataCache {
 			return repository;
 		//instruct the repository manager to construct a new metadata cache 
 		repository = (AbstractMetadataRepository) manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		repository.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
+		repository.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
 		return repository;
 	}
 

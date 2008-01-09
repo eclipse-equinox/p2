@@ -33,7 +33,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		String description;
 		URL location;
 		String name;
-		boolean implementationOnly = false;
+		boolean isSystem = false;
 		SoftReference repository;
 	}
 
@@ -45,7 +45,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
-	private static final String KEY_IMPLEMENTATION_ONLY = "implementationOnly"; //$NON-NLS-1$
+	private static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
 	/**
@@ -66,8 +66,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		info.name = repository.getName();
 		info.description = repository.getDescription();
 		info.location = repository.getLocation();
-		String value = (String) repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
-		info.implementationOnly = value == null ? false : Boolean.valueOf(value).booleanValue();
+		String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
+		info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
@@ -196,11 +196,11 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	private boolean matchesFlags(RepositoryInfo info, int flags) {
-		if ((flags & REPOSITORIES_IMPLEMENTATION_ONLY) == REPOSITORIES_IMPLEMENTATION_ONLY)
-			if (!info.implementationOnly)
+		if ((flags & REPOSITORIES_SYSTEM) == REPOSITORIES_SYSTEM)
+			if (!info.isSystem)
 				return false;
-		if ((flags & REPOSITORIES_PUBLIC_ONLY) == REPOSITORIES_PUBLIC_ONLY)
-			if (info.implementationOnly)
+		if ((flags & REPOSITORIES_NON_SYSTEM) == REPOSITORIES_NON_SYSTEM)
+			if (info.isSystem)
 				return false;
 		if ((flags & REPOSITORIES_LOCAL_ONLY) == REPOSITORIES_LOCAL_ONLY)
 			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
@@ -325,9 +325,9 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		value = repository.getVersion();
 		if (value != null)
 			node.put(KEY_VERSION, value);
-		value = (String) repository.getProperties().get(IRepository.IMPLEMENTATION_ONLY_KEY);
+		value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
 		if (value != null)
-			node.put(KEY_IMPLEMENTATION_ONLY, value);
+			node.put(KEY_SYSTEM, value);
 
 		saveToPreferences();
 	}
@@ -338,7 +338,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private void remember(RepositoryInfo info) {
 		Preferences node = getPreferences().node(getKey(info.location));
 		node.put(KEY_URL, info.location.toExternalForm());
-		node.put(KEY_IMPLEMENTATION_ONLY, Boolean.toString(info.implementationOnly));
+		node.put(KEY_SYSTEM, Boolean.toString(info.isSystem));
 		if (info.description != null)
 			node.put(KEY_DESCRIPTION, info.description);
 		if (info.name != null)
@@ -388,7 +388,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				info.location = new URL(locationString);
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
-				info.implementationOnly = child.getBoolean(KEY_IMPLEMENTATION_ONLY, false);
+				info.isSystem = child.getBoolean(KEY_SYSTEM, false);
 				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$

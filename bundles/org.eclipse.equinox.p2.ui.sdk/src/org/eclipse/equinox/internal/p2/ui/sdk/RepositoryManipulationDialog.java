@@ -185,7 +185,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		button.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
 				try {
-					new AddColocatedRepositoryDialog(getShell(), ProvisioningUtil.getMetadataRepositories(IMetadataRepositoryManager.REPOSITORIES_PUBLIC_ONLY)).open();
+					new AddColocatedRepositoryDialog(getShell(), ProvisioningUtil.getMetadataRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM)).open();
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, null);
 				}

@@ -22,13 +22,15 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 */
 	public static final int REPOSITORIES_ALL = 0;
 	/**
-	 * Constant used to indicate that implementation-only repositories are of interest.
+	 * Constant used to indicate that system repositories are of interest.
+	 * @see IRepository#PROP_SYSTEM
 	 */
-	public static final int REPOSITORIES_IMPLEMENTATION_ONLY = 1 << 1;
+	public static final int REPOSITORIES_SYSTEM = 1 << 1;
 	/**
-	 * Constant used to indicate that public (non-implementation-only) repositories are of interest.
+	 * Constant used to indicate that non-system repositories are of interest
+	 * @see IRepository#PROP_SYSTEM
 	 */
-	public static final int REPOSITORIES_PUBLIC_ONLY = 1 << 2;
+	public static final int REPOSITORIES_NON_SYSTEM = 1 << 2;
 	/**
 	 * Constant used to indicate that local repositories are of interest.
 	 */
@@ -81,9 +83,9 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * @return the locations of the repositories managed by this repository manager.
 	 * 
 	 * @see #REPOSITORIES_ALL
-	 * @see #REPOSITORIES_IMPLEMENTATION_ONLY
+	 * @see #REPOSITORIES_SYSTEM
 	 * @see #REPOSITORIES_LOCAL_ONLY
-	 * @see #REPOSITORIES_PUBLIC_ONLY
+	 * @see #REPOSITORIES_NON_SYSTEM
 	 */
 	public URL[] getKnownRepositories(int flags);
 

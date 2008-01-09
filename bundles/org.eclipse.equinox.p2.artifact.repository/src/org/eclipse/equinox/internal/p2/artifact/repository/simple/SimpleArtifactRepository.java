@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
 
@@ -544,10 +543,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public synchronized void setRules(String[][] rules) {
 		mappingRules = rules;
-	}
-
-	public void tagAsImplementation() {
-		setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
 	}
 
 	/**
