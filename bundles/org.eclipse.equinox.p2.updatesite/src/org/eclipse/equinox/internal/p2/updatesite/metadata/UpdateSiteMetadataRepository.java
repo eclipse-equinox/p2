@@ -80,7 +80,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 				FeatureEntry[] featureEntries = feature.getEntries();
 				for (int j = 0; j < featureEntries.length; j++) {
 					FeatureEntry entry = featureEntries[j];
-					if (entry.isPlugin()) {
+					if (entry.isPlugin() && !entry.isRequires()) {
 						Dictionary mockManifest = new Properties();
 						mockManifest.put("Manifest-Version", "1.0");
 						mockManifest.put("Bundle-ManifestVersion", "2");
