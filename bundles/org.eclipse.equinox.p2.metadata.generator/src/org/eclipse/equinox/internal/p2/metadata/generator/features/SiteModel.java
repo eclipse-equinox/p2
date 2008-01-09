@@ -31,7 +31,7 @@ public class SiteModel {
 	/**
 	 * Map of String (feature id) -> SiteFeature
 	 */
-	private Map features;
+	private List features;
 	private URL locationURL;
 	private String locationURLString;
 	private List /* of URLEntry */mirrors;
@@ -81,8 +81,8 @@ public class SiteModel {
 	 */
 	public void addFeature(SiteFeature featureReference) {
 		if (this.features == null)
-			this.features = new HashMap();
-		this.features.put(featureReference.getFeatureIdentifier(), featureReference);
+			this.features = new ArrayList();
+		this.features.add(featureReference);
 	}
 
 	/**
@@ -150,13 +150,6 @@ public class SiteModel {
 	}
 
 	/**
-	 * Returns the feature with the given id, or <code>null</code>
-	 */
-	public SiteFeature getFeature(String id) {
-		return (SiteFeature) (features == null ? null : features.get(id));
-	}
-
-	/**
 	 * Returns an array of feature reference models on this site.
 	 * 
 	 * @return an array of feature reference models, or an empty array.
@@ -164,7 +157,7 @@ public class SiteModel {
 	public SiteFeature[] getFeatures() {
 		if (features == null || features.size() == 0)
 			return new SiteFeature[0];
-		return (SiteFeature[]) features.values().toArray(new SiteFeature[0]);
+		return (SiteFeature[]) features.toArray(new SiteFeature[0]);
 	}
 
 	/**

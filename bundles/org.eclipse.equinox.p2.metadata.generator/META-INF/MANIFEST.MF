@@ -20,7 +20,7 @@ Import-Package: javax.xml.parsers,
  org.xml.sax
 Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.generator.Activator
 Export-Package: org.eclipse.equinox.internal.p2.metadata.generator;x-internal:=true,
- org.eclipse.equinox.internal.p2.metadata.generator.features;x-internal:=true,
+ org.eclipse.equinox.internal.p2.metadata.generator.features;x-friends:="org.eclipse.equinox.p2.updatesite",
  org.eclipse.equinox.p2.metadata.generator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,

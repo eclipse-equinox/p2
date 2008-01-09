@@ -73,43 +73,43 @@ public class FeatureParser extends DefaultHandler {
 		characters = null;
 	}
 
-	private Properties loadProperties(File location) {
-		if (location.isDirectory()) {
-			//skip directories that don't contain a feature.properties file
-			File file = new File(location, "feature.properties"); //$NON-NLS-1$
-			if (!file.exists())
-				return null;
+	private Properties loadProperties(File directory) {
+		//skip directories that don't contain a feature.properties file
+		File file = new File(directory, "feature.properties"); //$NON-NLS-1$
+		if (!file.exists())
+			return null;
+		try {
+			InputStream input = new BufferedInputStream(new FileInputStream(file));
 			try {
-				InputStream input = new BufferedInputStream(new FileInputStream(file));
-				try {
-					Properties result = new Properties();
-					result.load(input);
-					return result;
-				} finally {
-					if (input != null)
-						input.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+				Properties result = new Properties();
+				result.load(input);
+				return result;
+			} finally {
+				if (input != null)
+					input.close();
 			}
-		} else if (location.getName().endsWith(".jar")) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private Properties loadProperties(JarFile jar) {
+		JarEntry entry = jar.getJarEntry("feature.properties");
+		if (entry == null)
+			return null;
+		try {
+			InputStream input = new BufferedInputStream(jar.getInputStream(entry));
 			try {
-				JarFile jar = new JarFile(location);
-				JarEntry entry = jar.getJarEntry("feature.properties");
-				if (entry == null)
-					return null;
-				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
-				try {
-					Properties result = new Properties();
-					result.load(input);
-					return result;
-				} finally {
-					if (input != null)
-						input.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
+				Properties result = new Properties();
+				result.load(input);
+				return result;
+			} finally {
+				if (input != null)
+					input.close();
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -147,10 +147,10 @@ public class FeatureParser extends DefaultHandler {
 		} else if (location.getName().endsWith(".jar")) {
 			try {
 				JarFile jar = new JarFile(location);
+				Properties properties = loadProperties(jar);
 				JarEntry entry = jar.getJarEntry("feature.xml");
 				if (entry == null)
 					return null;
-				Properties properties = loadProperties(location);
 				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
 				return parse(input, properties);
 			} catch (IOException e) {

@@ -344,7 +344,7 @@ public class EclipseTouchpoint extends Touchpoint {
 						return createError("The \"startLevel\" parameter was not set in the \"set start level\" action.");
 
 					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData()), bundleInfo);
+					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -365,7 +365,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 
 					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData()), bundleInfo);
+					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -390,7 +390,7 @@ public class EclipseTouchpoint extends Touchpoint {
 						return createError("The \"started\" parameter was not set in the \"mark started\" action.");
 
 					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData()), bundleInfo);
+					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -407,7 +407,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 
 					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData()), bundleInfo);
+					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -580,7 +580,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
 
 		// TODO: do we really need the manifest here or just the bsn and version?
-		String manifest = Util.getManifest(iu.getTouchpointData());
+		String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
 		if (manifest == null)
 			return createError("The manifest is missing for: " + iu.getTouchpointData());
 
@@ -620,7 +620,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		File bundleFile = Util.getBundleFile(artifactKey, profile);
 		// TODO: do we really need the manifest here or just the bsn and version?
-		String manifest = Util.getManifest(iu.getTouchpointData());
+		String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
 		if (manifest == null)
 			return createError("The manifest is missing for: " + iu.getTouchpointData());
 

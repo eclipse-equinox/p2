@@ -18,10 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.updatesite.Activator;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -62,7 +62,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			repository = manager.loadRepository(stateDirURL, null);
 			if (repository == null) {
 				repository = manager.createRepository(stateDirURL, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
-				repository.setProperty(IRepository.IMPLEMENTATION_ONLY_KEY, Boolean.TRUE.toString());
+				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			}
 		} finally {
 			context.ungetService(reference);
@@ -76,7 +76,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 	public Map getProperties() {
 		Map result = new HashMap(artifactRepository.getProperties());
-		result.remove(IRepository.IMPLEMENTATION_ONLY_KEY);
+		result.remove(IRepository.PROP_SYSTEM);
 
 		return result;
 	}

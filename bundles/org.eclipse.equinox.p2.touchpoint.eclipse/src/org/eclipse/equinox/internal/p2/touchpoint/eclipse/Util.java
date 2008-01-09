@@ -10,12 +10,14 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
@@ -155,13 +157,55 @@ public class Util {
 		return "eclipse"; //$NON-NLS-1$
 	}
 
-	static String getManifest(TouchpointData[] data) {
+	static String getManifest(TouchpointData[] data, File bundleFile) {
 		for (int i = 0; i < data.length; i++) {
 			String manifest = data[i].getInstructions("manifest"); //$NON-NLS-1$
 			if (manifest != null)
 				return manifest;
 		}
-		return null;
+		if (bundleFile == null)
+			return null;
+
+		if (bundleFile.isDirectory()) {
+			File manifestFile = new File(bundleFile, JarFile.MANIFEST_NAME);
+			byte[] buffer = new byte[(int) manifestFile.length()];
+			InputStream fis = null;
+			try {
+				fis = new FileInputStream(manifestFile);
+				fis.read(buffer);
+				return new String(buffer);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			} finally {
+				if (fis != null)
+					try {
+						fis.close();
+					} catch (IOException e) {
+						// ignore
+					}
+			}
+		}
+
+		ZipFile bundleJar = null;
+		try {
+			bundleJar = new ZipFile(bundleFile);
+			ZipEntry manifestEntry = bundleJar.getEntry(JarFile.MANIFEST_NAME);
+			byte[] buffer = new byte[(int) manifestEntry.getSize()];
+			bundleJar.getInputStream(manifestEntry).read(buffer);
+			return new String(buffer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} finally {
+			if (bundleJar != null)
+				try {
+					bundleJar.close();
+				} catch (IOException e) {
+					// ignore
+				}
+		}
 	}
 
 	public static void initFromManifest(String manifest, BundleInfo bInfo) {

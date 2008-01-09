@@ -8,13 +8,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.updatesite;
+package org.eclipse.equinox.internal.p2.updatesite;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
+	public static String ID = "org.eclipse.equinox.internal.p2.updatesite";
 	private static BundleContext bundleContext;
 
 	public void start(BundleContext context) throws Exception {
