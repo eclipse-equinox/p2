@@ -30,7 +30,7 @@ public class ProvUIPreferenceInitializer extends AbstractPreferenceInitializer {
 		IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
 		store.setDefault(PreferenceConstants.PREF_SHOW_GROUPS_ONLY, true);
 		store.setDefault(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY, true);
-		store.setDefault(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS, true);
+		store.setDefault(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS, true);
 		store.setDefault(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS, true);
 		store.setDefault(PreferenceConstants.PREF_USE_CATEGORIES, false);
 	}

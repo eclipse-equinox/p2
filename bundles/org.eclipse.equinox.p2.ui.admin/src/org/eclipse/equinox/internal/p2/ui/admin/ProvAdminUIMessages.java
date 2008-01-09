@@ -45,7 +45,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String RepositoriesView_RemoveCommandLabel;
 	// Preferences
 	public static String InstalledIUPropertyPage_NoInfoAvailable;
-	public static String ProvisioningPrefPage_HideInternalRepos;
+	public static String ProvisioningPrefPage_HideSystemRepos;
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
 	public static String ProvisioningPrefPage_ShowInstallRootsOnly;
 	public static String ProvisioningPrefPage_CollapseIUVersions;

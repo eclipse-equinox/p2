@@ -179,7 +179,7 @@ abstract class RepositoriesView extends ProvView {
 
 	protected List getVisualProperties() {
 		List list = super.getVisualProperties();
-		list.add(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS);
+		list.add(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
 		list.add(PreferenceConstants.PREF_USE_CATEGORIES);
 		list.add(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		return list;

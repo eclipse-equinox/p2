@@ -44,7 +44,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 		IQueryable queryable;
 		IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
 		boolean showGroupsOnly = store.getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY);
-		boolean hideImpl = store.getBoolean(PreferenceConstants.PREF_HIDE_IMPLEMENTATION_REPOS);
+		boolean hideSystem = store.getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS);
 		boolean showLatest = store.getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		boolean useCategories = store.getBoolean(PreferenceConstants.PREF_USE_CATEGORIES);
 		boolean showRootsOnly = store.getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
@@ -55,7 +55,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 		switch (queryType) {
 			case IProvElementQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
-				query = hideImpl ? new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
+				query = hideSystem ? new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new RepositoryCollector(this, queryable));
 			case IProvElementQueryProvider.AVAILABLE_IUS :
 				// Is it a rollback repository?
@@ -115,7 +115,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 				return new ElementQueryDescriptor(profile, query, new InstalledIUCollector(this, profile));
 			case IProvElementQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
-				query = hideImpl ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM) : allQuery;
+				query = hideSystem ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new RepositoryCollector(this, queryable));
 			case IProvElementQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
