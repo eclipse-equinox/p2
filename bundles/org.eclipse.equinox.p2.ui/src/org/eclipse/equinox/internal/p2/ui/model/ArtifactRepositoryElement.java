@@ -53,7 +53,10 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		IArtifactKey[] keys = getRepository(monitor).getArtifactKeys();
+		IArtifactRepository repository = getRepository(monitor);
+		if (repository == null)
+			return new ArtifactElement[0];
+		IArtifactKey[] keys = repository.getArtifactKeys();
 		ArtifactElement[] elements = new ArtifactElement[keys.length];
 		for (int i = 0; i < keys.length; i++) {
 			elements[i] = new ArtifactElement(keys[i], repo);
