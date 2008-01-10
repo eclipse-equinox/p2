@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.model;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 
 /**
  * Element wrapper class for IU's that represent categories of
@@ -49,7 +49,7 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 	}
 
 	protected int getQueryType() {
-		return IProvElementQueryProvider.AVAILABLE_IUS;
+		return IQueryProvider.AVAILABLE_IUS;
 	}
 
 	public IInstallableUnit getIU() {

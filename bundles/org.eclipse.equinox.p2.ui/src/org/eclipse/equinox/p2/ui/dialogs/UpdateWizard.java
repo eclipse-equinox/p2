@@ -15,19 +15,23 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 
 /**
  * @since 3.4
  */
 public class UpdateWizard extends UpdateOrInstallWizard {
 
-	public UpdateWizard(String profileId, IInstallableUnit[] ius, LicenseManager licenseManager) {
+	IQueryProvider queryProvider;
+
+	public UpdateWizard(String profileId, IInstallableUnit[] ius, LicenseManager licenseManager, IQueryProvider queryProvider) {
 		super(profileId, ius, licenseManager);
+		this.queryProvider = queryProvider;
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
 	}
 
 	protected UpdateOrInstallWizardPage createMainPage(String profileId, IInstallableUnit[] ius) {
-		return new UpdateWizardPage(ius, profileId, this);
+		return new UpdateWizardPage(ius, profileId, queryProvider, this);
 	}
 }

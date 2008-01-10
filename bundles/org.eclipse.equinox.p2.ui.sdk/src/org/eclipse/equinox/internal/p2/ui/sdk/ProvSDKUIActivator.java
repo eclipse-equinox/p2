@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -33,7 +33,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
 	private AutomaticUpdateScheduler scheduler;
-	private IProvElementQueryProvider queryProvider;
+	private IQueryProvider queryProvider;
 	private SimpleLicenseManager licenseManager;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
@@ -155,7 +155,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		return new Status(IStatus.WARNING, PLUGIN_ID, ProvSDKMessages.ProvSDKUIActivator_NoSelfProfile);
 	}
 
-	public IProvElementQueryProvider getQueryProvider() {
+	public IQueryProvider getQueryProvider() {
 		if (queryProvider == null)
 			queryProvider = new ProvSDKQueryProvider();
 		return queryProvider;

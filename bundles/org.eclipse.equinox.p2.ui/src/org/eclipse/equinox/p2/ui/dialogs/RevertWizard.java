@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.RevertProfileWizardPage;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.jface.wizard.Wizard;
 
 /**
@@ -23,9 +23,9 @@ public class RevertWizard extends Wizard {
 
 	RevertProfileWizardPage page;
 	String profileId;
-	IProvElementQueryProvider queryProvider;
+	IQueryProvider queryProvider;
 
-	public RevertWizard(String profileId, IProvElementQueryProvider queryProvider) {
+	public RevertWizard(String profileId, IQueryProvider queryProvider) {
 		super();
 		setWindowTitle(ProvUIMessages.RevertDialog_Title);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_REVERT));

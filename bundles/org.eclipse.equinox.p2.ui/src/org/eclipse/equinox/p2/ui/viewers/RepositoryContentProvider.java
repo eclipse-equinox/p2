@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 
 /**
  * Content provider for provisioning repositories. The repositories are the
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
  */
 public class RepositoryContentProvider extends DeferredQueryContentProvider {
 
-	public RepositoryContentProvider(IProvElementQueryProvider queryProvider) {
+	public RepositoryContentProvider(IQueryProvider queryProvider) {
 		super(queryProvider);
 	}
 

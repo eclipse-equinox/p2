@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.osgi.util.NLS;
@@ -89,7 +89,7 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 	HashSet allChildren = new HashSet();
 	ArrayList runningJobs = new ArrayList();
 
-	public AvailableIUContentProvider(IProvElementQueryProvider queryProvider) {
+	public AvailableIUContentProvider(IQueryProvider queryProvider) {
 		super(queryProvider);
 	}
 

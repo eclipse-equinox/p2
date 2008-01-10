@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.RollbackProfileElement;
 import org.eclipse.equinox.p2.ui.model.RollbackRepositoryElement;
 import org.eclipse.equinox.p2.ui.operations.*;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -45,10 +45,10 @@ public class RevertProfileWizardPage extends WizardPage {
 	private TableViewer configsViewer;
 	private TableViewer configContentsViewer;
 	String profileId;
-	IProvElementQueryProvider queryProvider;
+	IQueryProvider queryProvider;
 	private static final int DEFAULT_COLUMN_WIDTH = 150;
 
-	public RevertProfileWizardPage(String profileId, IProvElementQueryProvider queryProvider) {
+	public RevertProfileWizardPage(String profileId, IQueryProvider queryProvider) {
 		super("RevertConfiguration"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.RevertDialog_PageTitle);
 		setDescription(ProvUIMessages.RevertDialog_Description);

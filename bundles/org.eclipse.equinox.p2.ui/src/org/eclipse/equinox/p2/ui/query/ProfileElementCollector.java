@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
  */
 public class ProfileElementCollector extends QueriedElementCollector {
 
-	public ProfileElementCollector(IProvElementQueryProvider queryProvider, Profile profile) {
+	public ProfileElementCollector(IQueryProvider queryProvider, Profile profile) {
 		super(queryProvider, profile);
 	}
 

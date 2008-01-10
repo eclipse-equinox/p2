@@ -30,7 +30,7 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	private boolean allowEmpty;
 	private Set referredIUs = new HashSet();
 
-	public CategoryElementCollector(IProvElementQueryProvider queryProvider, IQueryable queryable, boolean allowEmpty) {
+	public CategoryElementCollector(IQueryProvider queryProvider, IQueryable queryable, boolean allowEmpty) {
 		super(queryProvider, queryable);
 		this.allowEmpty = allowEmpty;
 	}

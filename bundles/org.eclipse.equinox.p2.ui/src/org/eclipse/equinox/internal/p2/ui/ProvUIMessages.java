@@ -137,6 +137,7 @@ public class ProvUIMessages extends NLS {
 	public static String QueryableArtifactRepositoryManager_RepositoryQueryProgress;
 	public static String QueryableMetadataRepositoryManager_RepositoryQueryProgress;
 	public static String QueryableProfileRegistry_QueryProfileProgress;
+	public static String QueryableUpdates_UpdateListProgress;
 	public static String SizingPhaseSet_PhaseSetName;
 	public static String RevertDialog_ConfigContentsLabel;
 	public static String RevertDialog_ConfigsLabel;

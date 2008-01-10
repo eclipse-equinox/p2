@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
 /**
@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.ui.query.QueriedElement;
 public class ArtifactRepositories extends QueriedElement {
 
 	protected int getQueryType() {
-		return IProvElementQueryProvider.ARTIFACT_REPOS;
+		return IQueryProvider.ARTIFACT_REPOS;
 	}
 
 }

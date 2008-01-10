@@ -12,7 +12,7 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.query.QueriedElement;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.ui.progress.DeferredTreeContentManager;
@@ -28,9 +28,9 @@ import org.eclipse.ui.progress.DeferredTreeContentManager;
 public class DeferredQueryContentProvider implements ITreeContentProvider {
 
 	DeferredTreeContentManager manager;
-	IProvElementQueryProvider queryProvider;
+	IQueryProvider queryProvider;
 
-	public DeferredQueryContentProvider(IProvElementQueryProvider queryProvider) {
+	public DeferredQueryContentProvider(IQueryProvider queryProvider) {
 		this.queryProvider = queryProvider;
 	}
 

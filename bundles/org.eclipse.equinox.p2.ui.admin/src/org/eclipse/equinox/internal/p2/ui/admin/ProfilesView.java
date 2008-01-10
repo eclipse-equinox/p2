@@ -158,7 +158,7 @@ public class ProfilesView extends ProvView {
 		addProfileAction = new AddProfileAction();
 		removeProfileAction = new RemoveProfileAction();
 		uninstallAction = new UninstallAction(viewer, null, getProfileChooser(), getShell());
-		updateAction = new UpdateAction(viewer, null, getProfileChooser(), null, getShell());
+		updateAction = new UpdateAction(viewer, null, getProfileChooser(), null, ProvAdminUIActivator.getDefault().getQueryProvider(), getShell());
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
 		installAction = new InstallIntoProfileAction();
 

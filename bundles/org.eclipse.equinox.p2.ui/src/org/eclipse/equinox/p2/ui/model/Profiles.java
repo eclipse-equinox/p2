@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
 /**
@@ -42,6 +42,6 @@ public class Profiles extends QueriedElement {
 	}
 
 	protected int getQueryType() {
-		return IProvElementQueryProvider.PROFILES;
+		return IQueryProvider.PROFILES;
 	}
 }

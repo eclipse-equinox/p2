@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -61,7 +61,7 @@ public class UpdateAndInstallGroup {
 	 * Create an instance of this group.
 	 * 
 	 */
-	public UpdateAndInstallGroup(Composite parent, String profileId, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, IProvElementQueryProvider queryProvider, LicenseManager licenseManager, FontMetrics fm) {
+	public UpdateAndInstallGroup(Composite parent, String profileId, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, IQueryProvider queryProvider, LicenseManager licenseManager, FontMetrics fm) {
 
 		this.profileId = profileId;
 		this.repositoryManipulator = repositoryManipulator;
@@ -94,7 +94,7 @@ public class UpdateAndInstallGroup {
 		return tabFolder;
 	}
 
-	private Control createAvailableIUsPage(Composite parent, IProvElementQueryProvider queryProvider) {
+	private Control createAvailableIUsPage(Composite parent, IQueryProvider queryProvider) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
@@ -194,7 +194,7 @@ public class UpdateAndInstallGroup {
 		updateEnablement(installButton);
 	}
 
-	private Control createInstalledIUsPage(Composite parent, IProvElementQueryProvider queryProvider) {
+	private Control createInstalledIUsPage(Composite parent, IQueryProvider queryProvider) {
 
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -227,7 +227,7 @@ public class UpdateAndInstallGroup {
 		installedIUViewer.getControl().setLayoutData(data);
 
 		// Vertical buttons
-		Composite buttonBar = (Composite) createInstalledIUsVerticalButtonBar(composite);
+		Composite buttonBar = (Composite) createInstalledIUsVerticalButtonBar(composite, queryProvider);
 		data = new GridData(GridData.FILL_VERTICAL);
 		buttonBar.setLayoutData(data);
 
@@ -250,7 +250,7 @@ public class UpdateAndInstallGroup {
 		return composite;
 	}
 
-	private Control createInstalledIUsVerticalButtonBar(Composite parent) {
+	private Control createInstalledIUsVerticalButtonBar(Composite parent, IQueryProvider queryProvider) {
 		// Create composite.
 		Composite composite = new Composite(parent, SWT.NULL);
 
@@ -270,7 +270,7 @@ public class UpdateAndInstallGroup {
 		uninstallButton = createVerticalButton(composite, ProvUIMessages.UninstallIUCommandLabel, false);
 		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUViewer, profileId, null, parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateIUCommandLabel, false);
-		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUViewer, profileId, null, licenseManager, parent.getShell()));
+		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUViewer, profileId, null, licenseManager, queryProvider, parent.getShell()));
 		if (profileChooser != null) {
 			Button profileButton = createVerticalButton(composite, profileChooser.getLabel(), false);
 			profileButton.setData(BUTTONACTION, new Action() {

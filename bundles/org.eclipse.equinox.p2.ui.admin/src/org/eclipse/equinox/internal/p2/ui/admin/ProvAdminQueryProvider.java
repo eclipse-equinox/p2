@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
@@ -22,7 +23,9 @@ import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.model.*;
+import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.*;
+import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 /**
@@ -31,7 +34,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
  * @since 3.4
  */
 
-public class ProvAdminQueryProvider implements IProvElementQueryProvider {
+public class ProvAdminQueryProvider implements IQueryProvider {
 
 	private Query allQuery = new Query() {
 		public boolean isMatch(Object candidate) {
@@ -40,7 +43,7 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 
 	};
 
-	public ElementQueryDescriptor getQueryDescriptor(QueriedElement element, int queryType) {
+	public ElementQueryDescriptor getQueryDescriptor(Object element, int queryType) {
 		IQueryable queryable;
 		IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
 		boolean showGroupsOnly = store.getBoolean(PreferenceConstants.PREF_SHOW_GROUPS_ONLY);
@@ -53,30 +56,30 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 		Query query;
 		Profile profile;
 		switch (queryType) {
-			case IProvElementQueryProvider.ARTIFACT_REPOS :
+			case IQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
 				query = hideSystem ? new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
-			case IProvElementQueryProvider.AVAILABLE_IUS :
+			case IQueryProvider.AVAILABLE_IUS :
 				// Is it a rollback repository?
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
-					return new ElementQueryDescriptor(element.getQueryable(), profileQuery, new AvailableIUCollector(this, element.getQueryable(), false));
+					return new ElementQueryDescriptor(((RollbackRepositoryElement) element).getQueryable(), profileQuery, new AvailableIUCollector(this, ((RollbackRepositoryElement) element).getQueryable(), false));
 				}
 				// It is a regular repository.
 				// What should we show as a child of a repository?
 				if (element instanceof MetadataRepositoryElement) {
 					if (useCategories)
 						// We are using categories, group into categories first.
-						return new ElementQueryDescriptor(element.getQueryable(), categoryQuery, new CategoryElementCollector(this, element.getQueryable(), false));
+						return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false));
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), groupQuery, showLatest ? new LatestIUVersionCollector(this, element.getQueryable(), false) : new AvailableIUCollector(this, element.getQueryable(), false));
+						return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), groupQuery, showLatest ? new LatestIUVersionElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false) : new AvailableIUCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false));
 					if (showLatest)
 						// We are not querying groups, but we are showing the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), allQuery, new LatestIUVersionCollector(this, element.getQueryable(), false));
+						return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), allQuery, new LatestIUVersionElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false));
 					// Show 'em all!
-					return new ElementQueryDescriptor(element.getQueryable(), allQuery, new AvailableIUCollector(this, element.getQueryable(), false));
+					return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), allQuery, new AvailableIUCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false));
 				}
 				// Things have been grouped by category, now what?
 				if (element instanceof CategoryElement) {
@@ -88,23 +91,42 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionCollector(this, element.getQueryable(), true) : new AvailableIUCollector(this, element.getQueryable(), true));
+						return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), true) : new AvailableIUCollector(this, ((CategoryElement) element).getQueryable(), true));
 					if (showLatest)
 						// We are not querying groups, but we are showing the latest version only
-						return new ElementQueryDescriptor(element.getQueryable(), membersOfCategoryQuery, new LatestIUVersionCollector(this, element.getQueryable(), true));
+						return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), membersOfCategoryQuery, new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), true));
 					// Show 'em all!
-					return new ElementQueryDescriptor(element.getQueryable(), membersOfCategoryQuery, new AvailableIUCollector(this, element.getQueryable(), true));
+					return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), membersOfCategoryQuery, new AvailableIUCollector(this, ((CategoryElement) element).getQueryable(), true));
 				}
 				// We've already collapsed all versions, show the rest
 				if (element instanceof IUVersionsElement) {
 					IInstallableUnit iu = ((IUVersionsElement) element).getIU();
-					return new ElementQueryDescriptor(element.getQueryable(), new InstallableUnitQuery(iu.getId()), new OtherIUVersionsCollector(iu, this, element.getQueryable()));
+					return new ElementQueryDescriptor(((IUVersionsElement) element).getQueryable(), new InstallableUnitQuery(iu.getId()), new OtherIUVersionsCollector(iu, this, ((IUVersionsElement) element).getQueryable()));
 				}
-			case IProvElementQueryProvider.AVAILABLE_UPDATES :
+			case IQueryProvider.AVAILABLE_UPDATES :
 				profile = (Profile) ProvUI.getAdapter(element, Profile.class);
-				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile));
-
-			case IProvElementQueryProvider.INSTALLED_IUS :
+				IInstallableUnit[] toUpdate;
+				Collector collector;
+				if (profile != null) {
+					collector = profile.query(new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new Collector(), null);
+					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
+				} else if (element instanceof UpdateEvent) {
+					try {
+						profile = ProvisioningUtil.getProfile(((UpdateEvent) element).getProfileId());
+					} catch (ProvisionException e) {
+						ProvUI.handleException(e, null);
+						return null;
+					}
+					toUpdate = ((UpdateEvent) element).getIUs();
+				} else
+					return null;
+				QueryableUpdates updateQueryable = new QueryableUpdates(toUpdate);
+				if (showLatest)
+					collector = new LatestIUVersionCollector(this, updateQueryable, useCategories);
+				else
+					collector = new Collector();
+				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
+			case IQueryProvider.INSTALLED_IUS :
 				profile = (Profile) ProvUI.getAdapter(element, Profile.class);
 				if (showRootsOnly)
 					query = new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
@@ -113,11 +135,11 @@ public class ProvAdminQueryProvider implements IProvElementQueryProvider {
 				if (showGroupsOnly)
 					return new ElementQueryDescriptor(profile, new CompoundQuery(new Query[] {groupQuery, query}, true), new InstalledIUCollector(this, profile));
 				return new ElementQueryDescriptor(profile, query, new InstalledIUCollector(this, profile));
-			case IProvElementQueryProvider.METADATA_REPOS :
+			case IQueryProvider.METADATA_REPOS :
 				queryable = new QueryableMetadataRepositoryManager();
 				query = hideSystem ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
-			case IProvElementQueryProvider.PROFILES :
+			case IQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {
 					public boolean isMatch(Object candidate) {

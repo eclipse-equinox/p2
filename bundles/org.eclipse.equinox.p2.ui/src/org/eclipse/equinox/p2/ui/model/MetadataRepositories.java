@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
 /**
@@ -25,7 +25,7 @@ import org.eclipse.equinox.p2.ui.query.QueriedElement;
 public class MetadataRepositories extends QueriedElement {
 
 	protected int getQueryType() {
-		return IProvElementQueryProvider.METADATA_REPOS;
+		return IQueryProvider.METADATA_REPOS;
 	}
 
 }

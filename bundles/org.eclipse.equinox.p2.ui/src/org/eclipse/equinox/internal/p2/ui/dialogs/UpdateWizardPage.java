@@ -21,26 +21,45 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.query.ElementQueryDescriptor;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
 
 public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 
-	public UpdateWizardPage(IInstallableUnit[] ius, String profileId, UpdateOrInstallWizard wizard) {
+	IQueryProvider queryProvider;
+	Object[] initialSelections = new Object[0];
+
+	public UpdateWizardPage(IInstallableUnit[] ius, String profileId, IQueryProvider queryProvider, UpdateOrInstallWizard wizard) {
 		super("UpdateWizardPage", ius, profileId, wizard); //$NON-NLS-1$
+		this.queryProvider = queryProvider;
 		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 	}
 
 	protected void makeElements(IInstallableUnit[] ius, List elements) {
+		HashMap uniqueIds = new HashMap();
 		for (int i = 0; i < ius.length; i++) {
-			try {
-				IInstallableUnit[] replacementIUs = ProvisioningUtil.updatesFor(new IInstallableUnit[] {ius[i]}, null);
-				for (int j = 0; j < replacementIUs.length; j++) {
-					elements.add(new AvailableUpdateElement(replacementIUs[j], ius[i], getProfile().getProfileId()));
-				}
-			} catch (ProvisionException e) {
-				break;
+			UpdateEvent event = new UpdateEvent(getProfileId(), ius);
+			ElementQueryDescriptor descriptor = queryProvider.getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
+			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, null).iterator();
+			ArrayList queryIUs = new ArrayList();
+			while (iter.hasNext()) {
+				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
+				if (iu != null)
+					queryIUs.add(iu);
+			}
+			IInstallableUnit[] replacements = (IInstallableUnit[]) queryIUs.toArray(new IInstallableUnit[queryIUs.size()]);
+			for (int j = 0; j < replacements.length; j++) {
+				AvailableUpdateElement element = new AvailableUpdateElement(replacements[j], ius[i], getProfileId());
+				elements.add(element);
+				AvailableUpdateElement latestElement = (AvailableUpdateElement) uniqueIds.get(replacements[j].getId());
+				if (latestElement == null || replacements[j].getVersion().compareTo(latestElement.getIU().getVersion()) > 0)
+					uniqueIds.put(replacements[j].getId(), element);
+
 			}
 		}
+		initialSelections = uniqueIds.values().toArray();
 	}
 
 	private IInstallableUnit[] getIUsToReplace(Object[] replacementElements) {
@@ -71,9 +90,6 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 	}
 
 	protected void setInitialSelections() {
-		// Don't select anything to work around issues such as
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=208470
-		// TODO when not showing the latest version we eventually
-		// want to select only the latest version.
+		listViewer.setCheckedElements(initialSelections);
 	}
 }

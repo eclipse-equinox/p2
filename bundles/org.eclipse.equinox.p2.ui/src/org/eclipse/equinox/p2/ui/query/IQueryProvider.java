@@ -15,7 +15,7 @@ package org.eclipse.equinox.p2.ui.query;
  * 
  * @since 3.4
  */
-public interface IProvElementQueryProvider {
+public interface IQueryProvider {
 
 	public static final int METADATA_REPOS = 1;
 	public static final int ARTIFACT_REPOS = 2;
@@ -24,5 +24,5 @@ public interface IProvElementQueryProvider {
 	public static final int AVAILABLE_UPDATES = 5;
 	public static final int INSTALLED_IUS = 6;
 
-	public ElementQueryDescriptor getQueryDescriptor(QueriedElement element, int queryType);
+	public ElementQueryDescriptor getQueryDescriptor(Object element, int queryType);
 }

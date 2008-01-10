@@ -17,7 +17,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.ProfileEvent;
 import org.eclipse.equinox.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
 
@@ -37,9 +37,9 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 	int eventTypes = 0;
 	StructuredViewer viewer;
 	Display display;
-	IProvElementQueryProvider queryProvider;
+	IQueryProvider queryProvider;
 
-	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes, IProvElementQueryProvider queryProvider) {
+	public StructuredViewerProvisioningListener(StructuredViewer viewer, int eventTypes, IQueryProvider queryProvider) {
 		this.viewer = viewer;
 		this.eventTypes = eventTypes;
 		this.display = viewer.getControl().getDisplay();

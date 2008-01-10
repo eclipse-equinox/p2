@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,11 +13,10 @@ package org.eclipse.equinox.p2.ui.query;
 import java.util.HashMap;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.model.IUVersionsElement;
 
 /**
  * Collector that only accepts categories or the latest version of each
- * IU, and wraps that version in an IUVersionsElement.
+ * IU.
  * 
  * @since 3.4
  */
@@ -25,7 +24,7 @@ public class LatestIUVersionCollector extends AvailableIUCollector {
 
 	private HashMap uniqueIds = new HashMap();
 
-	public LatestIUVersionCollector(IProvElementQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
+	public LatestIUVersionCollector(IQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
 		super(queryProvider, queryable, makeCategories);
 	}
 
@@ -44,17 +43,24 @@ public class LatestIUVersionCollector extends AvailableIUCollector {
 		if (makeCategory() && isCategory(iu))
 			return super.accept(match);
 		// Look for the latest element
-		IUVersionsElement matchElement = (IUVersionsElement) uniqueIds.get(iu.getId());
-		if (matchElement == null) {
-			matchElement = new IUVersionsElement(iu);
+		Object matchElement = uniqueIds.get(iu.getId());
+		if (matchElement == null || iu.getVersion().compareTo(getIU(matchElement).getVersion()) > 0) {
+			if (matchElement != null)
+				getList().remove(matchElement);
+			matchElement = makeDefaultElement(iu);
 			uniqueIds.put(iu.getId(), matchElement);
 			return super.accept(matchElement);
-		}
-		// There is already an element
-		if (iu.getVersion().compareTo(matchElement.getIU().getVersion()) > 0) {
-			matchElement.setIU(iu);
 		}
 		return true;
 	}
 
+	protected Object makeDefaultElement(IInstallableUnit iu) {
+		return iu;
+	}
+
+	protected IInstallableUnit getIU(Object matchElement) {
+		if (matchElement instanceof IInstallableUnit)
+			return (IInstallableUnit) matchElement;
+		return null;
+	}
 }

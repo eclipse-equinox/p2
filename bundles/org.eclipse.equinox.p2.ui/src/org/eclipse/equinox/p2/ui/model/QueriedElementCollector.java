@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.ui.model;
 
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.IQueryable;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
 /**
@@ -24,10 +24,10 @@ import org.eclipse.equinox.p2.ui.query.QueriedElement;
  */
 public class QueriedElementCollector extends Collector {
 
-	protected IProvElementQueryProvider queryProvider;
+	protected IQueryProvider queryProvider;
 	protected IQueryable queryable;
 
-	public QueriedElementCollector(IProvElementQueryProvider queryProvider, IQueryable queryable) {
+	public QueriedElementCollector(IQueryProvider queryProvider, IQueryable queryable) {
 		this.queryProvider = queryProvider;
 		this.queryable = queryable;
 	}

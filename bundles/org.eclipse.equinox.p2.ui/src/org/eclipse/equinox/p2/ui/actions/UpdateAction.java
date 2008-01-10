@@ -21,6 +21,7 @@ import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -28,8 +29,11 @@ import org.eclipse.swt.widgets.Shell;
 
 public class UpdateAction extends ProfileModificationAction {
 
-	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, LicenseManager licenseManager, Shell shell) {
+	IQueryProvider queryProvider;
+
+	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
 		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, licenseManager, shell);
+		this.queryProvider = queryProvider;
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
@@ -45,7 +49,7 @@ public class UpdateAction extends ProfileModificationAction {
 			}
 			if (iusWithUpdates.size() > 0) {
 
-				UpdateWizard wizard = new UpdateWizard(targetProfileId, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), getLicenseManager());
+				UpdateWizard wizard = new UpdateWizard(targetProfileId, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), getLicenseManager(), queryProvider);
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.open();
 			}

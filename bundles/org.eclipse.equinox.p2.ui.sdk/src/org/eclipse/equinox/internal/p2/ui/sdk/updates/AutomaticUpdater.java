@@ -24,7 +24,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.p2.ui.query.IProvElementQueryProvider;
+import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
 import org.eclipse.ui.PlatformUI;
@@ -47,7 +47,9 @@ public class AutomaticUpdater implements IUpdateListener {
 			return;
 		try {
 			if (download) {
-				IInstallableUnit[] replacements = ProvisioningUtil.updatesFor(toUpdate, null);
+				UpdateEvent eventWithOnlyRoots = new UpdateEvent(event.getProfileId(), toUpdate);
+				ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(eventWithOnlyRoots, IQueryProvider.AVAILABLE_UPDATES);
+				IInstallableUnit[] replacements = (IInstallableUnit[]) descriptor.queryable.query(descriptor.query, descriptor.collector, null).toArray(IInstallableUnit.class);
 				if (replacements.length > 0) {
 					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getReplacePlan(toUpdate, replacements, ProvisioningUtil.getProfile(event.getProfileId()), null, null);
 					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), plan, new DownloadPhaseSet(), false), null);
@@ -82,7 +84,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	private IInstallableUnit[] getUpdatesToShow(final UpdateEvent event) {
 		// We could simply collect the install roots ourselves, but implementing
-		// this in terms of the normal query allows the policy to be defined only
+		// this in terms of a normal "what's installed" query allows the policy to be defined only
 		// in one place.
 		IQueryable rootQueryable = new IQueryable() {
 			public Collector query(Query query, Collector result, IProgressMonitor monitor) {
@@ -94,7 +96,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			}
 		};
 		ProfileElement element = new ProfileElement(event.getProfileId());
-		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(element, IProvElementQueryProvider.AVAILABLE_UPDATES);
+		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(element, IQueryProvider.INSTALLED_IUS);
 		Object[] elements = rootQueryable.query(descriptor.query, descriptor.collector, null).toArray(Object.class);
 		IInstallableUnit[] result = new IInstallableUnit[elements.length];
 		for (int i = 0; i < result.length; i++)

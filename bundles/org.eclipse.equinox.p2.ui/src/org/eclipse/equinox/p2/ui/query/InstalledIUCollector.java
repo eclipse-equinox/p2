@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
  */
 public class InstalledIUCollector extends QueriedElementCollector {
 
-	public InstalledIUCollector(IProvElementQueryProvider queryProvider, Profile profile) {
+	public InstalledIUCollector(IQueryProvider queryProvider, Profile profile) {
 		super(queryProvider, profile);
 	}
 

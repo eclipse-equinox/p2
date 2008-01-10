@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import org.eclipse.equinox.internal.p2.ui.model.*;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.model.CategoryElement;
@@ -27,7 +27,7 @@ public class AvailableIUCollector extends QueriedElementCollector {
 
 	private boolean makeCategories;
 
-	public AvailableIUCollector(IProvElementQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
+	public AvailableIUCollector(IQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
 		super(queryProvider, queryable);
 		this.makeCategories = makeCategories;
 	}
@@ -48,7 +48,7 @@ public class AvailableIUCollector extends QueriedElementCollector {
 		return super.accept(makeDefaultElement(iu));
 	}
 
-	protected ProvElement makeDefaultElement(IInstallableUnit iu) {
+	protected Object makeDefaultElement(IInstallableUnit iu) {
 		return new AvailableIUElement(iu, null);
 	}
 
