@@ -48,6 +48,11 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 			throw new UnsupportedOperationException("Repository not modifiable");
 	}
 
+	public void addDescriptors(IArtifactDescriptor[] descriptors) {
+		if (!isModifiable())
+			throw new UnsupportedOperationException("Repository not modifiable");
+	}
+
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
 		if (!isModifiable())
 			throw new UnsupportedOperationException("Repository not modifiable");

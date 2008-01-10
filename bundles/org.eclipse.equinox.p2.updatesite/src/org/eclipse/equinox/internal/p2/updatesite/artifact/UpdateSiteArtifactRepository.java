@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.updatesite.artifact;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -63,6 +62,9 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 			FeatureParser featureParser = new FeatureParser();
 			System.out.println("Retrieving " + siteFeatures.length + " features");
+
+			Set allSiteArtifacts = new HashSet();
+
 			for (int i = 0; i < siteFeatures.length; i++) {
 				SiteFeature siteFeature = siteFeatures[i];
 				System.out.println(siteFeature.getFeatureIdentifier());
@@ -71,7 +73,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
 				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
 				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", featureURL.toExternalForm());
-				artifactRepository.addDescriptor(featureArtifactDescriptor);
+				allSiteArtifacts.add(featureArtifactDescriptor);
 
 				Feature feature = parseFeature(featureParser, featureURL);
 				FeatureEntry[] featureEntries = feature.getEntries();
@@ -82,10 +84,12 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 						ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
 						URL pluginURL = new URL(location, "plugins/" + entry.getId() + "_" + entry.getVersion() + ".jar");
 						artifactDescriptor.setRepositoryProperty("artifact.reference", pluginURL.toExternalForm());
-						artifactRepository.addDescriptor(artifactDescriptor);
+						allSiteArtifacts.add(artifactDescriptor);
 					}
 				}
 			}
+			IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
+			artifactRepository.addDescriptors(descriptors);
 
 			System.out.println("Time Fetching Site and Features for " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
 
@@ -189,5 +193,9 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 	public void removeDescriptor(IArtifactKey key) {
 		artifactRepository.removeDescriptor(key);
+	}
+
+	public void addDescriptors(IArtifactDescriptor[] descriptors) {
+		artifactRepository.addDescriptors(descriptors);
 	}
 }

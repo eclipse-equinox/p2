@@ -422,6 +422,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		save();
 	}
 
+	public synchronized void addDescriptors(IArtifactDescriptor[] descriptors) {
+
+		for (int i = 0; i < descriptors.length; i++) {
+			((ArtifactDescriptor) descriptors[i]).setRepository(this);
+			artifactDescriptors.add(descriptors[i]);
+		}
+		save();
+	}
+
 	public void save() {
 		save(true);
 	}
