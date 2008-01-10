@@ -58,7 +58,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 				JarInputStream jInStream = new JarInputStream(inStream);
 				JarEntry jarEntry = jInStream.getNextJarEntry();
 				String entryName = new Path(actualFile.getPath()).lastSegment();
-				while (jarEntry != null && (entryName.equals(jarEntry.getName()))) {
+				while (jarEntry != null && (!entryName.equals(jarEntry.getName()))) {
 					jarEntry = jInStream.getNextJarEntry();
 				}
 				if (jarEntry == null) {
