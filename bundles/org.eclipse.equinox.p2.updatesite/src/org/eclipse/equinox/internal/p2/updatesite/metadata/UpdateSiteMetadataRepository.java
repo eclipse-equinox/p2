@@ -76,6 +76,8 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 				categoryNameToFeatureIUs.put(siteCategories[i].getName(), new HashSet());
 			}
 
+			Properties extraProperties = new Properties();
+			extraProperties.put("iu.mock", "true");
 			Set allSiteIUs = new HashSet();
 			SiteFeature[] siteFeatures = siteModel.getFeatures();
 
@@ -98,7 +100,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 						mockManifest.put("Bundle-Version", entry.getVersion());
 						BundleDescription bundleDescription = bundleDesciptionFactory.getBundleDescription(mockManifest, null);
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
-						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bundleDescription, null, entry.isUnpack(), key);
+						IInstallableUnit bundleIU = MetadataGeneratorHelper.createEclipseIU(bundleDescription, null, entry.isUnpack(), key, extraProperties);
 						allSiteIUs.add(bundleIU);
 					}
 				}
