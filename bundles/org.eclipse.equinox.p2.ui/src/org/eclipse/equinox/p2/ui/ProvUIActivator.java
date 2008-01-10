@@ -89,10 +89,10 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 		// TODO for now we need to manually start up the provisioning infrastructure
 		// because the Eclipse Application launch config won't let me specify bundles to start.
-		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_ACTIVATION_POLICY); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_ACTIVATION_POLICY); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_ACTIVATION_POLICY); //$NON-NLS-1$
-		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_ACTIVATION_POLICY); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.frameworkadmin.equinox").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.simpleconfigurator.manipulator").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		getBundle("org.eclipse.equinox.p2.updatechecker").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 
 		initializeImages();
 		addProfileChangeListener();
