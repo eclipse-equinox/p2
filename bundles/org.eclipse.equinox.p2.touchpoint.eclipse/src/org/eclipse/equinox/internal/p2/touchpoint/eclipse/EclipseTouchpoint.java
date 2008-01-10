@@ -297,7 +297,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						IArtifactKey artifactKey = artifacts[0];
 
-						File fileLocation = Util.getBundleFile(artifactKey, profile);;
+						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
 							return createError("The artifact for " + artifactKey + " is not available");
 						programArg = fileLocation.getAbsolutePath();
@@ -337,14 +337,28 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (actionId.equals(PARM_SET_START_LEVEL)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
+					Profile profile = (Profile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String startLevel = (String) parameters.get(PARM_START_LEVEL);
 					if (startLevel == null)
 						return createError("The \"startLevel\" parameter was not set in the \"set start level\" action.");
 
-					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
+					IArtifactKey[] artifacts = iu.getArtifacts();
+					if (artifacts == null || artifacts.length == 0)
+						return createError("Installable unit contains no artifacts");
+
+					IArtifactKey artifactKey = artifacts[0];
+					File bundleFile = Util.getBundleFile(artifactKey, profile);
+					if (bundleFile == null || !bundleFile.exists())
+						return createError("The artifact " + artifactKey.toString() + " was not found.");
+
+					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					if (manifest == null)
+						return createError("The manifest is missing for: " + iu);
+
+					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -361,11 +375,25 @@ public class EclipseTouchpoint extends Touchpoint {
 				}
 
 				public IStatus undo(Map parameters) {
+					Profile profile = (Profile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 
-					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
+					IArtifactKey[] artifacts = iu.getArtifacts();
+					if (artifacts == null || artifacts.length == 0)
+						return createError("Installable unit contains no artifacts");
+
+					IArtifactKey artifactKey = artifacts[0];
+					File bundleFile = Util.getBundleFile(artifactKey, profile);
+					if (bundleFile == null || !bundleFile.exists())
+						return createError("The artifact " + artifactKey.toString() + " was not found.");
+
+					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					if (manifest == null)
+						return createError("The manifest is missing for: " + iu);
+
+					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -383,14 +411,28 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (actionId.equals(ACTION_MARK_STARTED)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
+					Profile profile = (Profile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String started = (String) parameters.get(PARM_STARTED);
 					if (started == null)
 						return createError("The \"started\" parameter was not set in the \"mark started\" action.");
 
-					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
+					IArtifactKey[] artifacts = iu.getArtifacts();
+					if (artifacts == null || artifacts.length == 0)
+						return createError("Installable unit contains no artifacts");
+
+					IArtifactKey artifactKey = artifacts[0];
+					File bundleFile = Util.getBundleFile(artifactKey, profile);
+					if (bundleFile == null || !bundleFile.exists())
+						return createError("The artifact " + artifactKey.toString() + " was not found.");
+
+					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					if (manifest == null)
+						return createError("The manifest is missing for: " + iu);
+
+					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -403,11 +445,25 @@ public class EclipseTouchpoint extends Touchpoint {
 				}
 
 				public IStatus undo(Map parameters) {
+					Profile profile = (Profile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 
-					BundleInfo bundleInfo = new BundleInfo();
-					Util.initFromManifest(Util.getManifest(iu.getTouchpointData(), null), bundleInfo);
+					IArtifactKey[] artifacts = iu.getArtifacts();
+					if (artifacts == null || artifacts.length == 0)
+						return createError("Installable unit contains no artifacts");
+
+					IArtifactKey artifactKey = artifacts[0];
+					File bundleFile = Util.getBundleFile(artifactKey, profile);
+					if (bundleFile == null || !bundleFile.exists())
+						return createError("The artifact " + artifactKey.toString() + " was not found.");
+
+					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					if (manifest == null)
+						return createError("The manifest is missing for: " + iu);
+
+					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
 						if (bundles[i].equals(bundleInfo)) {
@@ -582,7 +638,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		// TODO: do we really need the manifest here or just the bsn and version?
 		String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
 		if (manifest == null)
-			return createError("The manifest is missing for: " + iu.getTouchpointData());
+			return createError("The manifest is missing for: " + iu);
 
 		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
 		manipulator.getConfigData().addBundle(bundleInfo);
