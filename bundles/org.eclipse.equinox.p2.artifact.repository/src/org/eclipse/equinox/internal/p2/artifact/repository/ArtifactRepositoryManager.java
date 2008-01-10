@@ -31,9 +31,9 @@ import org.osgi.service.prefs.Preferences;
 public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	static class RepositoryInfo {
 		String description;
+		boolean isSystem = false;
 		URL location;
 		String name;
-		boolean isSystem = false;
 		SoftReference repository;
 	}
 
@@ -44,10 +44,10 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String KEY_NAME = "name"; //$NON-NLS-1$
 	private static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
+	private static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
-	private static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
 	/**
@@ -196,18 +196,6 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		}
 	}
 
-	private boolean matchesFlags(RepositoryInfo info, int flags) {
-		if ((flags & REPOSITORIES_IMPLEMENTATION_ONLY) == REPOSITORIES_IMPLEMENTATION_ONLY)
-			if (!info.isSystem)
-				return false;
-		if ((flags & REPOSITORIES_PUBLIC_ONLY) == REPOSITORIES_PUBLIC_ONLY)
-			if (info.isSystem)
-				return false;
-		if ((flags & REPOSITORIES_LOCAL_ONLY) == REPOSITORIES_LOCAL_ONLY)
-			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
-		return true;
-	}
-
 	/*
 	 * Return the root preference node where we store the repository information.
 	 */
@@ -224,15 +212,43 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 				if (URLUtil.sameURL(info.location, location)) {
 					if (info.repository == null)
 						return null;
-					return (IArtifactRepository) info.repository.get();
+					IArtifactRepository repo = (IArtifactRepository) info.repository.get();
+					//update our repository info because the repository may have changed
+					if (repo != null)
+						addRepository(repo);
+					return repo;
 				}
 			}
 			return null;
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
+	 */
+	public String getRepositoryProperty(URL location, String key) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.location, location)) {
+					if (PROP_DESCRIPTION.equals(key))
+						return info.description;
+					if (PROP_NAME.equals(key))
+						return info.name;
+					// Key not known, return null
+					return null;
+				}
+			}
+			// Repository not found, return null
+			return null;
+		}
+	}
+
 	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) {
-		// TODO do some thing with the monitor
+		// TODO do something with the monitor
 		IArtifactRepository result = getRepository(location);
 		if (result != null)
 			return result;
@@ -265,46 +281,62 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, t));
 	}
 
+	private boolean matchesFlags(RepositoryInfo info, int flags) {
+		if ((flags & REPOSITORIES_IMPLEMENTATION_ONLY) == REPOSITORIES_IMPLEMENTATION_ONLY)
+			if (!info.isSystem)
+				return false;
+		if ((flags & REPOSITORIES_PUBLIC_ONLY) == REPOSITORIES_PUBLIC_ONLY)
+			if (info.isSystem)
+				return false;
+		if ((flags & REPOSITORIES_LOCAL_ONLY) == REPOSITORIES_LOCAL_ONLY)
+			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
+		return true;
+	}
+
+	/**
+	 * Sets a preference and returns <code>true</code> if the preference
+	 * was actually changed.
+	 */
+	private boolean putValue(Preferences node, String key, String newValue) {
+		String oldValue = node.get(key, null);
+		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
+			return false;
+		if (newValue == null)
+			node.remove(key);
+		else
+			node.put(key, newValue);
+		return true;
+	}
+
 	/*
 	 * Add the given repository object to the preferences and save.
 	 */
 	private void remember(IArtifactRepository repository) {
+		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(repository));
-		String value = repository.getDescription();
-		if (value != null)
-			node.put(KEY_DESCRIPTION, value);
-		value = repository.getName();
-		if (value != null)
-			node.put(KEY_NAME, value);
-		value = repository.getProvider();
-		if (value != null)
-			node.put(KEY_PROVIDER, value);
-		value = repository.getType();
-		if (value != null)
-			node.put(KEY_TYPE, value);
-		value = repository.getVersion();
-		if (value != null)
-			node.put(KEY_VERSION, value);
-		value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
-		if (value != null)
-			node.put(KEY_SYSTEM, value);
-		value = repository.getLocation().toExternalForm();
-		node.put(KEY_URL, value);
-		saveToPreferences();
+		changed |= putValue(node, KEY_URL, repository.getLocation().toExternalForm());
+		changed |= putValue(node, KEY_DESCRIPTION, repository.getDescription());
+		changed |= putValue(node, KEY_NAME, repository.getName());
+		changed |= putValue(node, KEY_PROVIDER, repository.getProvider());
+		changed |= putValue(node, KEY_TYPE, repository.getType());
+		changed |= putValue(node, KEY_VERSION, repository.getVersion());
+		changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
+		if (changed)
+			saveToPreferences();
 	}
 
 	/*
 	 * Save the list of repositories in the preference store.
 	 */
 	private void remember(RepositoryInfo info) {
+		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(info.location));
-		node.put(KEY_URL, info.location.toExternalForm());
-		node.put(KEY_SYSTEM, Boolean.toString(info.isSystem));
-		if (info.description != null)
-			node.put(KEY_DESCRIPTION, info.description);
-		if (info.name != null)
-			node.put(KEY_NAME, info.name);
-		saveToPreferences();
+		changed |= putValue(node, KEY_URL, info.location.toExternalForm());
+		changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
+		changed |= putValue(node, KEY_DESCRIPTION, info.description);
+		changed |= putValue(node, KEY_NAME, info.name);
+		if (changed)
+			saveToPreferences();
 	}
 
 	public boolean removeRepository(URL toRemove) {
@@ -404,30 +436,6 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			getPreferences().flush();
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
-	 */
-	public String getRepositoryProperty(URL location, String key) {
-		synchronized (repositoryLock) {
-			if (repositories == null)
-				restoreRepositories();
-			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
-				RepositoryInfo info = (RepositoryInfo) it.next();
-				if (URLUtil.sameURL(info.location, location)) {
-					if (PROP_DESCRIPTION.equals(key))
-						return info.description;
-					if (PROP_NAME.equals(key))
-						return info.name;
-					// Key not known, return null
-					return null;
-				}
-			}
-			// Repository not found, return null
-			return null;
 		}
 	}
 }

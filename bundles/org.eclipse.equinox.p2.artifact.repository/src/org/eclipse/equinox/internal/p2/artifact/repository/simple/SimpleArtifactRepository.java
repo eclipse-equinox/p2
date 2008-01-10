@@ -17,6 +17,7 @@ import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
@@ -563,8 +564,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public String setProperty(String key, String newValue) {
 		String oldValue = super.setProperty(key, newValue);
-		if (oldValue != newValue && (oldValue == null || !oldValue.equals(newValue)))
-			save();
+		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
+			return oldValue;
+		save();
+		//force repository manager to reload this repository because it caches properties
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		manager.loadRepository(location, null);
 		return oldValue;
 	}
 

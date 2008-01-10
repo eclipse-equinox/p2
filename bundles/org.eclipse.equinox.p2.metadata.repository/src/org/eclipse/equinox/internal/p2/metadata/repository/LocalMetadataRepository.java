@@ -18,7 +18,9 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
@@ -164,8 +166,12 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	public String setProperty(String key, String newValue) {
 		String oldValue = super.setProperty(key, newValue);
-		if (oldValue != newValue && (oldValue == null || !oldValue.equals(newValue)))
-			save();
+		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
+			return oldValue;
+		save();
+		//force repository manager to reload this repository because it caches properties
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		manager.loadRepository(location, null);
 		return oldValue;
 	}
 }
