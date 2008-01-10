@@ -147,7 +147,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 						jarFile.getParentFile().mkdirs();
 					jarFile.createNewFile();
 				}
-				JarEntry jarEntry = new JarEntry(file.getPath());
+				JarEntry jarEntry = new JarEntry(file.getName());
 				JarOutputStream jOutput = new JarOutputStream(new FileOutputStream(jarFile));
 				jOutput.putNextEntry(jarEntry);
 				output = jOutput;

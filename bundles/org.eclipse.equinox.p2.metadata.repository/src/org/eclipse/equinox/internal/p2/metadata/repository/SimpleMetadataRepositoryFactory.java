@@ -14,8 +14,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
@@ -58,8 +57,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 			if (JAR_EXTENSION.equalsIgnoreCase(type)) {
 				JarInputStream jInStream = new JarInputStream(inStream);
 				JarEntry jarEntry = jInStream.getNextJarEntry();
-				File f = new File(actualFile.getPath());
-				while (jarEntry != null && (f.compareTo(new File(jarEntry.getName()))) != 0) {
+				String entryName = new Path(actualFile.getPath()).lastSegment();
+				while (jarEntry != null && (entryName.equals(jarEntry.getName()))) {
 					jarEntry = jInStream.getNextJarEntry();
 				}
 				if (jarEntry == null) {
