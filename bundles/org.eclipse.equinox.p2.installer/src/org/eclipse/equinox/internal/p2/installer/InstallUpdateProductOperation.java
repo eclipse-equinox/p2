@@ -218,7 +218,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 
 		//start up p2
 		try {
-			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_ACTIVATION_POLICY);
+			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT);
 		} catch (BundleException e) {
 			throw fail("Unable to start p2", e);
 		}
