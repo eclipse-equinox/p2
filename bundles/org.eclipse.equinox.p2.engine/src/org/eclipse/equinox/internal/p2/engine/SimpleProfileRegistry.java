@@ -9,6 +9,7 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.*;
+import java.lang.ref.SoftReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -36,26 +37,29 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	private static String STORAGE = "profileRegistry.xml"; //$NON-NLS-1$
 
 	/**
-	 * Map of String(Profile id)->Profile. 
+	 * Reference to Map of String(Profile id)->Profile. 
 	 */
-	LinkedHashMap profiles = new LinkedHashMap(8);
+	SoftReference profiles;
 
 	OrderedProperties properties = new OrderedProperties();
 
 	private String self;
 
+	//Whether the registry has been loaded at all in this session
+	private boolean restored = false;
+
 	public SimpleProfileRegistry() {
 		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
-		restore();
-		updateRoamingProfile();
 	}
 
 	/**
 	 * If the current profile for self is marked as a roaming profile, we need
 	 * to update its install and bundle pool locations.
 	 */
-	private void updateRoamingProfile() {
-		Profile selfProfile = (Profile) profiles.get(self);
+	private void updateRoamingProfile(Map profileMap) {
+		if (profileMap == null)
+			return;
+		Profile selfProfile = (Profile) profileMap.get(self);
 		if (selfProfile == null)
 			return;
 		//only update if self is a roaming profile
@@ -83,19 +87,36 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public synchronized Profile getProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
-		Profile profile = (Profile) profiles.get(id);
+		Profile profile = (Profile) getProfileMap().get(id);
 		if (profile == null)
 			return null;
 		return copyProfile(profile);
 	}
 
 	public synchronized Profile[] getProfiles() {
-		Profile[] result = new Profile[profiles.size()];
+		Map profileMap = getProfileMap();
+		Profile[] result = new Profile[profileMap.size()];
 		int i = 0;
-		for (Iterator it = profiles.values().iterator(); it.hasNext(); i++) {
+		for (Iterator it = profileMap.values().iterator(); it.hasNext(); i++) {
 			Profile profile = (Profile) it.next();
 			result[i] = copyProfile(profile);
 		}
+		return result;
+	}
+
+	/**
+	 * Returns an initialized map of String(Profile id)->Profile. 
+	 */
+	protected Map getProfileMap() {
+		if (profiles != null) {
+			Map result = (Map) profiles.get();
+			if (result != null)
+				return result;
+		}
+		Map result = restore();
+		if (result == null)
+			result = new LinkedHashMap(8);
+		profiles = new SoftReference(result);
 		return result;
 	}
 
@@ -103,9 +124,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		String id = toUpdate.getProfileId();
 		if (SELF.equals(id))
 			id = self;
-		if (profiles.get(id) == null)
+		Map profileMap = getProfileMap();
+		if (profileMap.get(id) == null)
 			throw new IllegalArgumentException("Profile to be updated does not exist:" + id); //$NON-NLS-1$
-		doUpdateProfile(toUpdate);
+		doUpdateProfile(toUpdate, profileMap);
 		broadcastChangeEvent(toUpdate, ProfileEvent.CHANGED);
 	}
 
@@ -115,13 +137,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		String id = toAdd.getProfileId();
 		if (SELF.equals(id))
 			id = self;
-		if (profiles.get(id) != null)
+		Map profileMap = getProfileMap();
+		if (profileMap.get(id) != null)
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
-		doUpdateProfile(toAdd);
+		doUpdateProfile(toAdd, profileMap);
 		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
 	}
 
-	private void doUpdateProfile(Profile toUpdate) {
+	private void doUpdateProfile(Profile toUpdate, Map profileMap) {
 		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
 		if (installRegistry == null)
 			return;
@@ -140,7 +163,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 		}
 
-		profiles.put(toUpdate.getProfileId(), copyProfile(toUpdate));
+		profileMap.put(toUpdate.getProfileId(), copyProfile(toUpdate));
 		// TODO: persists should be grouped some way to ensure they are consistent
 		installRegistry.addProfileInstallRegistry(profileInstallRegistry);
 		persist();
@@ -154,7 +177,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (installRegistry == null)
 			return;
 
-		if (profiles.remove(toRemove.getProfileId()) == null)
+		//note we need to maintain a reference to the profile map until it is persisted to prevent gc
+		Map profileMap = getProfileMap();
+		if (profileMap.remove(toRemove.getProfileId()) == null)
 			return;
 		installRegistry.removeProfileInstallRegistry(toRemove.getProfileId());
 		persist();
@@ -184,13 +209,19 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return null;
 	}
 
-	private void restore() {
+	/**
+	 * Restores the profile registry from disk, and returns the loaded profile map.
+	 * Returns <code>null</code> if unable to read the registry.
+	 */
+	private Map restore() {
+		Map loadedMap = null;
 		try {
 			BufferedInputStream bif = null;
 			try {
 				bif = new BufferedInputStream(getRegistryLocation().openStream());
 				Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 				parser.parse(bif);
+				loadedMap = parser.getProfileMap();
 				IStatus result = parser.getStatus();
 				if (!result.isOK())
 					LogHelper.log(result);
@@ -198,11 +229,17 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				if (bif != null)
 					bif.close();
 			}
+			if (!restored) {
+				//update roaming profile on first load
+				restored = true;
+				updateRoamingProfile(loadedMap);
+			}
 		} catch (FileNotFoundException e) {
 			//This is ok.
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error restoring profile registry", e)); //$NON-NLS-1$
 		}
+		return loadedMap;
 	}
 
 	private void persist() {
@@ -296,6 +333,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * 	as written by the Writer class.
 	 */
 	private class Parser extends ProfileParser implements XMLConstants {
+		Map profileMap = new LinkedHashMap(8);
 
 		public Parser(BundleContext context, String bundleId) {
 			super(context, bundleId);
@@ -325,6 +363,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		protected Object getRootObject() {
 			return SimpleProfileRegistry.this;
+		}
+
+		/**
+		 * Returns the map of profiles that was parsed.
+		 */
+		protected Map getProfileMap() {
+			return profileMap;
 		}
 
 		private final class ProfileRegistryDocHandler extends DocHandler {
@@ -386,7 +431,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 							: profilesHandler.getProfiles());
 					for (int i = 0; i < profyles.length; i++) {
 						Profile nextProfile = profyles[i];
-						profiles.put(nextProfile.getProfileId(), nextProfile);
+						profileMap.put(nextProfile.getProfileId(), nextProfile);
 					}
 					properties = (propertiesHandler == null ? new OrderedProperties(0) //
 							: propertiesHandler.getProperties());

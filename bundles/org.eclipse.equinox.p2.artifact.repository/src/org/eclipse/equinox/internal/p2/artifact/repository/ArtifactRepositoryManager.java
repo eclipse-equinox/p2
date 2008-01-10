@@ -376,7 +376,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			StringTokenizer tokenizer = new StringTokenizer(locationString, ","); //$NON-NLS-1$
 			while (tokenizer.hasMoreTokens()) {
 				try {
-					loadRepository(new URL(tokenizer.nextToken()), (IProgressMonitor) null);
+					addRepository(new URL(tokenizer.nextToken()));
 				} catch (MalformedURLException e) {
 					log("Error while restoring repository " + locationString, e); //$NON-NLS-1$
 				}
