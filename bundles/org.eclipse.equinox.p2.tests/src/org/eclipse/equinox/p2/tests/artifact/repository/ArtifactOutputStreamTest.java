@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 compeople AG and others.
+ * Copyright (c) 2007, 2008 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ * IBM - ongoing maintenance
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
@@ -52,10 +53,8 @@ public class ArtifactOutputStreamTest extends TestCase {
 	}
 
 	public void testStatefullness() {
-		OutputStream os = sar.getOutputStream(ad);
-		assertTrue(os instanceof IStateful);
-		assertTrue(os instanceof ArtifactOutputStream);
 		assertTrue(aos instanceof IStateful);
+		assertTrue(aos instanceof ArtifactOutputStream);
 	}
 
 	public void testSingleCloseStreamOkDestinationOk() throws IOException {
