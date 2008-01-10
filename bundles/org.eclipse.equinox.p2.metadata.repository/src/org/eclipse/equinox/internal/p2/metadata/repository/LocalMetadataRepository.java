@@ -29,10 +29,11 @@ import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository
  * and combine any metadata repository files that are found.
  */
 public class LocalMetadataRepository extends AbstractMetadataRepository {
-	static final private String CONTENT_FILENAME = "content.xml"; //$NON-NLS-1$
+	static final private String CONTENT_FILENAME = "content"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = LocalMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final private String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
+	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	protected HashSet units = new LinkedHashSet();
 
@@ -48,7 +49,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public static File getActualLocation(URL location) {
-		return getActualLocation(location, ""); //$NON-NLS-1$
+		return getActualLocation(location, XML_EXTENSION); //$NON-NLS-1$
 	}
 
 	/**
@@ -127,22 +128,24 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 
 	private void save() {
 		File file = getActualLocation(location);
-		boolean jar = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		File jarFile = getActualLocation(location, JAR_EXTENSION);
+		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
 		try {
 			OutputStream output = null;
-			if (!jar) {
+			if (!compress) {
+				if (jarFile.exists()) {
+					jarFile.delete();
+				}
 				if (!file.exists()) {
 					if (!file.getParentFile().exists())
 						file.getParentFile().mkdirs();
 					file.createNewFile();
 				}
 				output = new FileOutputStream(file);
-			}
-			if (jar) {
+			} else {
 				if (file.exists()) {
 					file.delete();
 				}
-				File jarFile = getActualLocation(location, JAR_EXTENSION);
 				if (!jarFile.exists()) {
 					if (!jarFile.getParentFile().exists())
 						jarFile.getParentFile().mkdirs();

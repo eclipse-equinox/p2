@@ -12,7 +12,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.zip.GZIPOutputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -25,7 +26,7 @@ import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
 
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
-	static final private String CONTENT_FILENAME = "artifacts.xml"; //$NON-NLS-1$
+	static final private String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	static final public String[][] DEFAULT_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
@@ -35,7 +36,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
-	private static final String GZIP_EXTENSION = ".gz"; //$NON-NLS-1$
+	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	transient private Mapper mapper = new Mapper();
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
@@ -43,8 +44,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private boolean signatureVerification = false;
 	private transient BlobStore blobStore;
 
-	public static URL getActualLocation(URL base, boolean gzip) {
-		return getActualLocation(base, gzip ? GZIP_EXTENSION : ""); //$NON-NLS-1$
+	public static URL getActualLocation(URL base, boolean compress) {
+		return getActualLocation(base, compress ? JAR_EXTENSION : XML_EXTENSION);
 	}
 
 	private static URL getActualLocation(URL base, String extension) {
@@ -432,22 +433,39 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void save() {
-		save(true);
+		boolean compress = "true".equalsIgnoreCase((String) properties.get(PROP_COMPRESSED)); //$NON-NLS-1$
+		save(compress);
 	}
 
-	public void save(boolean gzip) {
+	public void save(boolean compress) {
 		OutputStream os = null;
 		try {
 			try {
-				URL actualLocation = getActualLocation(location, gzip);
+				URL actualLocation = getActualLocation(location, false);
 				File artifactsFile = new File(actualLocation.getPath());
-				if (!artifactsFile.exists()) {
-					// create parent folders
-					artifactsFile.getParentFile().mkdirs();
+				File jarFile = new File(getActualLocation(location, true).getPath());
+				if (!compress) {
+					if (jarFile.exists()) {
+						jarFile.delete();
+					}
+					if (!artifactsFile.exists()) {
+						// create parent folders
+						artifactsFile.getParentFile().mkdirs();
+					}
+					os = new FileOutputStream(artifactsFile);
+				} else {
+					if (artifactsFile.exists()) {
+						artifactsFile.delete();
+					}
+					if (!jarFile.exists()) {
+						if (!jarFile.getParentFile().exists())
+							jarFile.getParentFile().mkdirs();
+						jarFile.createNewFile();
+					}
+					JarOutputStream jOs = new JarOutputStream(new FileOutputStream(jarFile));
+					jOs.putNextEntry(new JarEntry(new Path(actualLocation.getFile()).lastSegment()));
+					os = jOs;
 				}
-				os = new FileOutputStream(artifactsFile);
-				if (gzip)
-					os = new GZIPOutputStream(os);
 				new SimpleArtifactRepositoryIO().write(this, os);
 			} catch (IOException e) {
 				// TODO proper exception handling

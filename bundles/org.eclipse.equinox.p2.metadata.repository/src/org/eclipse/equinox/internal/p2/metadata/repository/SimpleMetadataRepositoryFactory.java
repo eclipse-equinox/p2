@@ -25,6 +25,7 @@ import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
+	private static final String XML_EXTENSION = ".xml";
 
 	public IMetadataRepository create(URL location, String name, String type) {
 		if (location.getProtocol().equals("file")) //$NON-NLS-1$
@@ -37,7 +38,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		IMetadataRepository result = load(location, JAR_EXTENSION);
 		// compressed file is not available, load the xml
 		if (result == null) {
-			result = load(location, null);
+			result = load(location, XML_EXTENSION);
 		}
 		return result;
 	}

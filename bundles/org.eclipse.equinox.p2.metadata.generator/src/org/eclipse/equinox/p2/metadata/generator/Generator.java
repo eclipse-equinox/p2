@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.Version;
 
@@ -31,16 +32,6 @@ public class Generator {
 	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator";
 
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
-
-	private final IGeneratorInfo info;
-
-	/**
-	 * Short term fix to ensure IUs that have no corresponding category are not lost.
-	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
-	 */
-	protected final Set rootCategory = new HashSet();
-
-	private StateObjectFactory stateObjectFactory;
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
@@ -57,6 +48,16 @@ public class Generator {
 		}
 		return (String[]) result.toArray(new String[result.size()]);
 	}
+
+	private final IGeneratorInfo info;
+
+	/**
+	 * Short term fix to ensure IUs that have no corresponding category are not lost.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 */
+	protected final Set rootCategory = new HashSet();
+
+	private StateObjectFactory stateObjectFactory;
 
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
@@ -170,7 +171,9 @@ public class Generator {
 		//		if (info.publishArtifacts() || info.publishArtifactRepository()) {
 		//			persistence.saveArtifactRepository();
 		//		}
-		info.getMetadataRepository().addInstallableUnits((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
+		IMetadataRepository metadataRepository = info.getMetadataRepository();
+		if (metadataRepository != null)
+			metadataRepository.addInstallableUnits((IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]));
 
 		return Status.OK_STATUS;
 	}

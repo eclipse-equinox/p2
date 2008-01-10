@@ -105,8 +105,10 @@ public class EclipseGeneratorApplication implements IApplication {
 		// TODO for now create a Simple repo by default.
 		String repositoryName = artifactLocation + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
-		if (result != null)
+		if (result != null) {
 			provider.setArtifactRepository(result);
+			result.setProperty(IRepository.PROP_COMPRESSED, compress);
+		}
 	}
 
 	public void initializeForInplace(EclipseInstallGeneratorInfoProvider provider) {
@@ -147,9 +149,10 @@ public class EclipseGeneratorApplication implements IApplication {
 		// TODO for now create a random repo by default.
 		String repositoryName = metadataLocation + " - metadata"; //$NON-NLS-1$
 		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		result.setProperty(IRepository.PROP_COMPRESSED, compress);
-		if (result != null)
+		if (result != null) {
+			result.setProperty(IRepository.PROP_COMPRESSED, compress);
 			provider.setMetadataRepository(result);
+		}
 	}
 
 	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) {

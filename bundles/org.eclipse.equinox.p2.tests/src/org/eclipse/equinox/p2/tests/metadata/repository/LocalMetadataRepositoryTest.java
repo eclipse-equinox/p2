@@ -64,7 +64,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		boolean xmlFilePresent = false;
 		// one of the files in the repository should be the content.xml.jar
 		for (int i = 0; i < files.length; i++) {
-			if ("content.xml.jar".equalsIgnoreCase(files[i].getName())) {
+			if ("content.jar".equalsIgnoreCase(files[i].getName())) {
 				jarFilePresent = true;
 			}
 			if ("content.xml".equalsIgnoreCase(files[i].getName())) {
@@ -131,7 +131,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		boolean jarFilePresent = false;
 		// none of the files in the repository should be the content.xml.jar
 		for (int i = 0; i < files.length; i++) {
-			if ("content.xml.jar".equalsIgnoreCase(files[i].getName())) {
+			if ("content.jar".equalsIgnoreCase(files[i].getName())) {
 				jarFilePresent = true;
 			}
 		}
