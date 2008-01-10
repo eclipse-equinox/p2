@@ -463,9 +463,12 @@ class SimpleArtifactRepositoryIO {
 
 			protected void finished() {
 				if (isValidXML() && currentArtifact != null) {
-					Map properties = (propertiesHandler == null ? new OrderedProperties(0) //
-							: propertiesHandler.getProperties());
+					Map properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
 					currentArtifact.addProperties(properties);
+
+					properties = (repositoryPropertiesHandler == null ? new OrderedProperties(0) : repositoryPropertiesHandler.getProperties());
+					currentArtifact.addRepositoryProperties(properties);
+
 					ProcessingStepDescriptor[] processingSteps = (processingStepsHandler == null ? new ProcessingStepDescriptor[0] //
 							: processingStepsHandler.getProcessingSteps());
 					currentArtifact.setProcessingSteps(processingSteps);
