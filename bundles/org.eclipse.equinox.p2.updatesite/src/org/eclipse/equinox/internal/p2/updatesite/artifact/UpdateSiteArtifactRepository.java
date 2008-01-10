@@ -70,7 +70,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
 				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
-				featureArtifactDescriptor.setRepositoryProperty("arifact.reference", featureURL.toExternalForm());
+				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", featureURL.toExternalForm());
 				artifactRepository.addDescriptor(featureArtifactDescriptor);
 
 				Feature feature = parseFeature(featureParser, featureURL);
