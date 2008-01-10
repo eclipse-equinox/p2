@@ -16,7 +16,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
@@ -153,12 +154,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 				output = jOutput;
 			}
 			new MetadataRepositoryIO().write(this, output);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
 		}
 	}
 
