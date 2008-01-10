@@ -81,7 +81,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
 						ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
 						URL pluginURL = new URL(location, "plugins/" + entry.getId() + "_" + entry.getVersion() + ".jar");
-						artifactDescriptor.setRepositoryProperty("arifact.reference", pluginURL.toExternalForm());
+						artifactDescriptor.setRepositoryProperty("artifact.reference", pluginURL.toExternalForm());
 						artifactRepository.addDescriptor(artifactDescriptor);
 					}
 				}
