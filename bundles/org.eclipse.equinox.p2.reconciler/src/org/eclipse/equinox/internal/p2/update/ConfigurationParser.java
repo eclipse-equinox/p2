@@ -140,7 +140,7 @@ public class ConfigurationParser {
 		try {
 			return parse(new BufferedInputStream(new FileInputStream(file)));
 		} catch (IOException e) {
-			throw new ProvisionException(e);
+			throw new ProvisionException("An error occurred reading the platform configuration file: " + file, e);
 		}
 	}
 
@@ -153,11 +153,11 @@ public class ConfigurationParser {
 			Document document = load(input);
 			process(document);
 		} catch (IOException e) {
-			throw new ProvisionException(e);
+			throw new ProvisionException("An error occurred reading the platform configuration", e);
 		} catch (ParserConfigurationException e) {
-			throw new ProvisionException(e);
+			throw new ProvisionException("An error occurred reading the platform configuration", e);
 		} catch (SAXException e) {
-			throw new ProvisionException(e);
+			throw new ProvisionException("An error occurred reading the platform configuration", e);
 		}
 		return (Site[]) sites.toArray(new Site[sites.size()]);
 	}

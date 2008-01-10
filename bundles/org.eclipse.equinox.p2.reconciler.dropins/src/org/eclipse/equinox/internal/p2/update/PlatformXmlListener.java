@@ -137,7 +137,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				watcher.start();
 				sites.put(site.getUrl(), new SiteInfo(site, watcher, listener));
 			} catch (MalformedURLException e) {
-				throw new ProvisionException(e);
+				throw new ProvisionException("Exception while processing configuration.", e);
 			}
 		}
 	}
