@@ -42,6 +42,16 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	}
 
 	/**
+	 * Asserts that this repository is modifiable, throwing a runtime exception if
+	 * it is not. This is suitable for use by subclasses when an attempt is made
+	 * to write to a repository.
+	 */
+	protected void assertModifiable() {
+		if (!isModifiable())
+			throw new UnsupportedOperationException("Repository not modifiable"); //$NON-NLS-1$
+	}
+
+	/**
 	 * Returns a brief description of the repository.
 	 * @return the description of the repository.
 	 */
@@ -112,8 +122,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	}
 
 	public String setProperty(String key, String value) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable"); //$NON-NLS-1$
+		assertModifiable();
 		return (String) (value == null ? properties.remove(key) : properties.put(key, value));
 	}
 
