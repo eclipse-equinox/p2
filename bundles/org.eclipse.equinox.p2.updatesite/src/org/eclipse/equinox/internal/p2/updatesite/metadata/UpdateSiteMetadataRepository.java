@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.zip.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -192,7 +193,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		}
 	}
 
-	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) throws ProvisionException {
+	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) {
 		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
 		if (reference == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered.");
@@ -201,21 +202,22 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered.");
 
-		IMetadataRepository repository = null;
 		try {
-			repository = manager.loadRepository(stateDirURL, null);
-			if (repository == null) {
-				repository = manager.createRepository(stateDirURL, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			try {
+				return manager.loadRepository(stateDirURL, null);
+			} catch (ProvisionException e) {
+				//fall through and create a new repository
 			}
+
+			IMetadataRepository repository = manager.createRepository(stateDirURL, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			return repository;
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+			throw new IllegalStateException("Couldn't create artifact repository for: " + repositoryName);
 		} finally {
 			context.ungetService(reference);
 		}
-
-		if (repository == null)
-			throw new IllegalStateException("Couldn't create metadata repository for: " + repositoryName);
-
-		return repository;
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
