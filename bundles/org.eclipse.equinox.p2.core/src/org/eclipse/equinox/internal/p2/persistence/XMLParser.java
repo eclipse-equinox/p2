@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.*;
+import org.eclipse.equinox.internal.p2.core.Activator;
+import org.eclipse.equinox.internal.p2.core.StringPool;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -42,6 +43,7 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	protected Locator locator = null; // document locator, if supported by the parser
 
 	protected StringPool stringPool = new StringPool();//used to eliminate string duplication
+	private IProgressMonitor monitor;
 
 	private static ServiceTracker xmlTracker = null;
 
@@ -119,6 +121,13 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 	 */
 	public void setDocumentLocator(Locator docLocator) {
 		locator = docLocator;
+	}
+
+	/**
+	 * Sets the progress monitor for the parser
+	 */
+	protected void setProgressMonitor(IProgressMonitor monitor) {
+		this.monitor = monitor;
 	}
 
 	/**
@@ -616,6 +625,11 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 			}
 		}
 		return result;
+	}
+
+	public void checkCancel() {
+		if (monitor != null && monitor.isCanceled())
+			throw new OperationCanceledException();
 	}
 
 	/**
