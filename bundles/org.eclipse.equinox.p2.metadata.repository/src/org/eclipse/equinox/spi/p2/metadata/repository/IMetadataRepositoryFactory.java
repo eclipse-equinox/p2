@@ -11,11 +11,12 @@
 package org.eclipse.equinox.spi.p2.metadata.repository;
 
 import java.net.URL;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 
 public interface IMetadataRepositoryFactory {
 
-	public IMetadataRepository load(URL location);
+	public IMetadataRepository load(URL location) throws ProvisionException;
 
-	public IMetadataRepository create(URL location, String name, String type);
+	public IMetadataRepository create(URL location, String name, String type) throws ProvisionException;
 }

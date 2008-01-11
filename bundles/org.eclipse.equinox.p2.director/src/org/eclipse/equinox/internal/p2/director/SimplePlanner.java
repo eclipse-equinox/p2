@@ -13,6 +13,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.IPlanner;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Operand;
@@ -207,7 +208,7 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
-	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] metadataRepositories) {
+	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories) {
 		List results = new ArrayList();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
@@ -216,16 +217,18 @@ public class SimplePlanner implements IPlanner {
 		}
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		if (metadataRepositories == null)
-			metadataRepositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		if (repositories == null)
+			repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 
-		for (int i = 0; i < metadataRepositories.length; i++) {
-			IMetadataRepository repository = repoMgr.loadRepository(metadataRepositories[i], null);
-			if (repository == null)
-				continue;
-			Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), null);
-			for (Iterator it = matches.iterator(); it.hasNext();)
-				results.add(it.next());
+		for (int i = 0; i < repositories.length; i++) {
+			try {
+				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], null);
+				Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), null);
+				for (Iterator it = matches.iterator(); it.hasNext();)
+					results.add(it.next());
+			} catch (ProvisionException e) {
+				//skip unreadable repositories
+			}
 		}
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
 	}

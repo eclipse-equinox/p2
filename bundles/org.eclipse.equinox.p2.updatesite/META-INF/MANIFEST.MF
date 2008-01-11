@@ -8,6 +8,7 @@ Eclipse-LazyStart: true
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.metadata.generator.features,
  org.eclipse.equinox.p2.artifact.repository,
+ org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.core.repository,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.generator,

@@ -13,9 +13,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.metadata.generator.*;
@@ -163,23 +165,27 @@ public class ProvisioningListener extends DirectoryChangeListener {
 
 	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider, URL location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
-		IMetadataRepository repository = manager.loadRepository(location, null);
-		if (repository != null) {
-			if (repository.isModifiable()) {
-				provider.setMetadataRepository(repository);
-				if (!provider.append())
-					repository.removeAll();
-				return;
+		try {
+			IMetadataRepository repository = manager.loadRepository(location, null);
+			if (repository != null) {
+				if (repository.isModifiable()) {
+					provider.setMetadataRepository(repository);
+					if (!provider.append())
+						repository.removeAll();
+					return;
+				}
+				throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
 			}
-			throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
 		}
-
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a random repo by default.
-		String repositoryName = location + " - metadata"; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		if (result != null)
-			provider.setMetadataRepository(result);
+		try {
+			String repositoryName = location + " - metadata"; //$NON-NLS-1$
+			IMetadataRepository repository = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			provider.setMetadataRepository(repository);
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		}
 	}
 
 }

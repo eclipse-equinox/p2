@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -37,7 +38,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 	private final IMetadataRepository metadataRepository;
 
-	public UpdateSiteMetadataRepository(URL location) {
+	public UpdateSiteMetadataRepository(URL location) throws ProvisionException {
 		super("update site: " + location.toExternalForm(), null, null, location, null, null);
 		BundleContext context = Activator.getBundleContext();
 
@@ -183,7 +184,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		}
 	}
 
-	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) {
+	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) throws ProvisionException {
 		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
 		if (reference == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered.");

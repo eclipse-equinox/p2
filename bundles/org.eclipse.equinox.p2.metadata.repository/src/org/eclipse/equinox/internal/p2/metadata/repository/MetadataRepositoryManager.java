@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
@@ -111,26 +112,52 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		return null;
 	}
 
-	// TODO This method really should not be here.  There could be lots of different kinds of
-	// repositories and many different ways to create them.
-	// for now discriminate by the type of URL but this is bogus.
-	public IMetadataRepository createRepository(URL location, String name, String type) {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String)
+	 */
+	public IMetadataRepository createRepository(URL location, String name, String type) throws ProvisionException {
 		Assert.isNotNull(location);
 		Assert.isNotNull(name);
 		Assert.isNotNull(type);
-		IMetadataRepository result = loadRepository(location, (IProgressMonitor) null);
-		if (result != null)
-			return result;
+		try {
+			//repository should not already exist
+			loadRepository(location, (IProgressMonitor) null);
+			fail(location, ProvisionException.REPOSITORY_EXISTS);
+		} catch (ProvisionException e) {
+			//expected - fall through and create the new repository
+		}
 		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 		if (extension == null)
-			return null;
+			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
 		IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, FACTORY);
 		if (factory == null)
-			return null;
-		result = factory.create(location, name, type);
-		if (result != null)
-			addRepository(result);
+			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+		IMetadataRepository result = factory.create(location, name, type);
+		if (result == null)
+			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+		addRepository(result);
 		return result;
+	}
+
+	private void fail(URL location, int code) throws ProvisionException {
+		String msg = null;
+		switch (code) {
+			case ProvisionException.REPOSITORY_EXISTS :
+				msg = NLS.bind(Messages.repoMan_exists, location);
+				break;
+			case ProvisionException.REPOSITORY_UNKNOWN_TYPE :
+				msg = NLS.bind(Messages.repoMan_unknownType, location);
+				break;
+			case ProvisionException.REPOSITORY_FAILED_READ :
+				msg = NLS.bind(Messages.repoMan_failedRead, location);
+				break;
+			case ProvisionException.REPOSITORY_NOT_FOUND :
+				msg = NLS.bind(Messages.repoMan_notExists, location);
+				break;
+		}
+		if (msg == null)
+			msg = Messages.repoMan_internalError;
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, null));
 	}
 
 	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
@@ -246,7 +273,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 	}
 
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor progress) {
+	public IMetadataRepository loadRepository(URL location, IProgressMonitor progress) throws ProvisionException {
 		Assert.isNotNull(location);
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
@@ -264,15 +291,15 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			}
 		}
 		progress.done();
-		return null;
+		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		return null;//will never get here
 	}
 
 	/**
 	 * Try to load a pre-existing repo at the given location
+	 * @throws ProvisionException 
 	 */
-	// TODO this method should do some repo type discovery something like is done with
-	// the artifact repos.  For now just discriminate on the type of URL
-	private IMetadataRepository loadRepository(URL location, String suffix) {
+	private IMetadataRepository loadRepository(URL location, String suffix) throws ProvisionException {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
 		// Loop over the candidates and return the first one that successfully loads
 		for (int i = 0; i < providers.length; i++) {
@@ -338,9 +365,11 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		URL[] locations = getKnownRepositories(REPOSITORIES_ALL);
 		SubMonitor sub = SubMonitor.convert(monitor, locations.length * 10);
 		for (int i = 0; i < locations.length; i++) {
-			IMetadataRepository repository = loadRepository(locations[i], sub.newChild(9));
-			if (repository != null)
-				repository.query(query, collector, sub.newChild(1));
+			try {
+				loadRepository(locations[i], sub.newChild(9)).query(query, collector, sub.newChild(1));
+			} catch (ProvisionException e) {
+				//ignore this repository for this query
+			}
 		}
 		sub.done();
 		return collector;

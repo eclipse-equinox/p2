@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.metadata.repository;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.query.IQueryable;
 
@@ -64,15 +65,21 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	public void addRepository(URL location);
 
 	/**
-	 * Creates and returns a metadata repository of the given type at the given location.
-	 * If a repository already exists at that location <code>null</code> is returned.
+	 * Creates and returns a new empty metadata repository of the given type at 
+	 * the given location.
 	 * 
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
-	 * @return the discovered or created repository
+	 * @return the newly created repository
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>The repository type is unknown.</li>
+	 * <li>There was an error writing to the given repository location.</li>
+	 * <li>A repository already exists at that location.</li>
+	 * </ul>
 	 */
-	public IMetadataRepository createRepository(URL location, String name, String type);
+	public IMetadataRepository createRepository(URL location, String name, String type) throws ProvisionException;
 
 	/**
 	 * Returns the metadata repository locations known to the repository manager.
@@ -104,8 +111,14 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * @param location The location of the repository to load
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
+	 * @return The loaded metadata repository
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
 	 */
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor);
+	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Removes the metadata repository at the given location from the list of

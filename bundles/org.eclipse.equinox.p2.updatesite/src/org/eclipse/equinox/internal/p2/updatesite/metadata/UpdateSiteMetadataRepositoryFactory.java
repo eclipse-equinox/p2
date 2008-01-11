@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
 import java.net.URL;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 
@@ -20,7 +21,7 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 		return null;
 	}
 
-	public IMetadataRepository load(URL location) {
+	public IMetadataRepository load(URL location) throws ProvisionException {
 		if (!location.getPath().endsWith("site.xml"))
 			return null;
 		return new UpdateSiteMetadataRepository(location);

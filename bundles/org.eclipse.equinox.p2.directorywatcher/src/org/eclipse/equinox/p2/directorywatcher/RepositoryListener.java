@@ -13,7 +13,9 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -101,28 +103,27 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL) {
 		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		if (reference == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
-
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) context.getService(reference);
+		IMetadataRepositoryManager manager = null;
+		if (reference != null)
+			manager = (IMetadataRepositoryManager) context.getService(reference);
 		if (manager == null)
 			throw new IllegalStateException("MetadataRepositoryManager not registered.");
 
-		IMetadataRepository repository = null;
 		try {
-			repository = manager.loadRepository(stateDirURL, null);
-			if (repository == null) {
-				repository = manager.createRepository(stateDirURL, "metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			try {
+				return manager.loadRepository(stateDirURL, null);
+			} catch (ProvisionException e) {
+				//fall through and create new repository
 			}
+			IMetadataRepository repository = manager.createRepository(stateDirURL, "Metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			return repository;
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+			throw new IllegalStateException("Couldn't create listener metadata repository for: " + stateDirURL);
 		} finally {
 			context.ungetService(reference);
 		}
-
-		if (repository == null)
-			throw new IllegalStateException("Couldn't create listener metadata repository for: " + stateDirURL);
-
-		return repository;
 	}
 
 	/* (non-Javadoc)

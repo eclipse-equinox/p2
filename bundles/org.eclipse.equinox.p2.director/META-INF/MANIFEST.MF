@@ -6,6 +6,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.core.eventbus,
  org.eclipse.equinox.p2.core.location,
  org.eclipse.equinox.p2.core.repository,

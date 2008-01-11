@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -236,7 +237,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			artifactRepoMan.loadRepository(artifactRepo, null);
 	}
 
-	private void prepareMetadataRepository() {
+	private void prepareMetadataRepository() throws ProvisionException {
 		URL metadataRepo = installDescription.getMetadataRepository();
 		if (metadataRepo != null)
 			metadataRepoMan.loadRepository(metadataRepo, null);

@@ -11,9 +11,11 @@ package org.eclipse.equinox.internal.p2.rollback;
 import java.net.URL;
 import java.util.EventObject;
 import java.util.Hashtable;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.IUTransformationHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.core.repository.IRepository;
@@ -22,9 +24,9 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.osgi.framework.Version;
 
 public class FormerState {
@@ -68,16 +70,21 @@ public class FormerState {
 		});
 	}
 
-	AbstractMetadataRepository getRepository() {
+	IMetadataRepository getRepository() {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
-		AbstractMetadataRepository repository = (AbstractMetadataRepository) manager.loadRepository(location, null);
-		if (repository != null)
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
+		}
+		try {
+			IMetadataRepository repository = manager.createRepository(location, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
+			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
-		repository = (AbstractMetadataRepository) manager.createRepository(location, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
-		if (repository == null)
-			throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
-		((IRepository) repository).setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
-		return repository;
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		}
+		throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
 	}
 
 	IInstallableUnit profileToIU(Profile toConvert) {

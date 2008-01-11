@@ -13,16 +13,18 @@ package org.eclipse.equinox.internal.p2.installregistry;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.EventObject;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.osgi.framework.ServiceReference;
 
 public class MetadataCache {
@@ -40,15 +42,21 @@ public class MetadataCache {
 		hookListener();
 	}
 
-	AbstractMetadataRepository getRepository() {
+	IMetadataRepository getRepository() {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		AbstractMetadataRepository repository = (AbstractMetadataRepository) manager.loadRepository(location, null);
-		if (repository != null)
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
+		}
+		try {
+			IMetadataRepository repository = manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
-		//instruct the repository manager to construct a new metadata cache 
-		repository = (AbstractMetadataRepository) manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		repository.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
-		return repository;
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+			throw new IllegalStateException("Metadata cache could not be created"); //$NON-NLS-1$
+		}
 	}
 
 	private void hookListener() {

@@ -36,23 +36,31 @@ public class ProvisioningHelper {
 	public static IMetadataRepository addMetadataRepository(URL location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
-			throw new IllegalStateException("No metadata repository manager found");
-		IMetadataRepository repository = manager.loadRepository(location, null);
-		if (repository != null)
-			return repository;
+			throw new IllegalStateException("No metadata repository manager found"); //$NON-NLS-1$
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
+		}
 
-		// for convenience create and add a repo here
-		// TODO need to get rid o fthe factory method.
+		// for convenience create and add a repository here
 		String repositoryName = location + " - metadata"; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		return result;
+		try {
+			return manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		} catch (ProvisionException e) {
+			return null;
+		}
 	}
 
 	public static IMetadataRepository getMetadataRepository(URL location) {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("No metadata repository manager found");
-		return manager.loadRepository(location, null);
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			return null;
+		}
 	}
 
 	public static void removeMetadataRepository(URL location) {

@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
@@ -64,7 +65,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		return new File(base, location.getPath());
 	}
 
-	private void initialize(EclipseInstallGeneratorInfoProvider provider) {
+	private void initialize(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		if ("-source".equalsIgnoreCase(operation))
 			provider.initialize(new File(argument));
 		else if ("-inplace".equalsIgnoreCase(operation)) {
@@ -126,7 +127,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		provider.setMappingRules(INPLACE_MAPPING_RULES);
 	}
 
-	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) {
+	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		URL location;
 		try {
 			location = new URL(metadataLocation);
@@ -155,7 +156,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 	}
 
-	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) {
+	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		initializeArtifactRepository(provider);
 		initializeMetadataRepository(provider);
 	}
