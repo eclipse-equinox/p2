@@ -58,7 +58,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 		switch (queryType) {
 			case IQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
-				query = hideSystem ? new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY) : allQuery;
+				query = hideSystem ? new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_NON_SYSTEM) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
 			case IQueryProvider.AVAILABLE_IUS :
 				// Is it a rollback repository?

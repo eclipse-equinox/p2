@@ -47,7 +47,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 		switch (queryType) {
 			case IQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
-				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_PUBLIC_ONLY), new QueriedElementCollector(this, queryable));
+				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IArtifactRepositoryManager.REPOSITORIES_NON_SYSTEM), new QueriedElementCollector(this, queryable));
 			case IQueryProvider.AVAILABLE_IUS :
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
