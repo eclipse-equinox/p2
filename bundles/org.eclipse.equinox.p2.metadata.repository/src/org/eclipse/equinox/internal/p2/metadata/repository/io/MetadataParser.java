@@ -114,6 +114,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		public void startElement(String name, Attributes attributes) {
+			checkCancel();
 			if (PROPERTIES_ELEMENT.equals(name)) {
 				if (propertiesHandler == null) {
 					propertiesHandler = new PropertiesHandler(this, attributes);

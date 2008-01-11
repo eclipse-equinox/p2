@@ -33,6 +33,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	}
 
 	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
 		// load the jar
 		IMetadataRepository result = load(location, JAR_EXTENSION, monitor);
 		// compressed file is not available, load the xml
@@ -66,7 +68,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 			}
 			InputStream descriptorStream = new BufferedInputStream(inStream);
 			try {
-				IMetadataRepository result = new MetadataRepositoryIO().read(actualFile, descriptorStream);
+				IMetadataRepository result = new MetadataRepositoryIO().read(actualFile, descriptorStream, monitor);
 				if (result instanceof LocalMetadataRepository)
 					((LocalMetadataRepository) result).initializeAfterLoad(location);
 				if (result instanceof URLMetadataRepository)

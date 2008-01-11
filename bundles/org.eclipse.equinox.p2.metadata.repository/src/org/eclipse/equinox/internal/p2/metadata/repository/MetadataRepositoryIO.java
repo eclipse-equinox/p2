@@ -43,14 +43,14 @@ public class MetadataRepositoryIO {
 	 * of abstract metadata repositories.
 	 * This method performs buffering, and closes the stream when finished.
 	 */
-	public IMetadataRepository read(URL location, InputStream input) throws ProvisionException {
+	public IMetadataRepository read(URL location, InputStream input, IProgressMonitor monitor) throws ProvisionException {
 		BufferedInputStream bufferedInput = null;
 		try {
 			try {
 				bufferedInput = new BufferedInputStream(input);
 
 				Parser repositoryParser = new Parser(Activator.getContext(), Activator.ID);
-				repositoryParser.parse(input);
+				repositoryParser.parse(input, monitor);
 				IStatus result = repositoryParser.getStatus();
 				switch (result.getSeverity()) {
 					case IStatus.CANCEL :
@@ -150,12 +150,10 @@ public class MetadataRepositoryIO {
 			super(context, bundleId);
 		}
 
-		public void parse(File file) throws IOException {
-			parse(new FileInputStream(file));
-		}
-
-		public synchronized void parse(InputStream stream) throws IOException {
+		public synchronized void parse(InputStream stream, IProgressMonitor monitor) throws IOException {
 			this.status = null;
+			setProgressMonitor(monitor);
+			monitor.beginTask(Messages.REPO_LOADING, IProgressMonitor.UNKNOWN);
 			try {
 				// TODO: currently not caching the parser since we make no assumptions
 				//		 or restrictions on concurrent parsing
@@ -171,6 +169,7 @@ public class MetadataRepositoryIO {
 			} catch (ParserConfigurationException e) {
 				throw new IOException(e.getMessage());
 			} finally {
+				monitor.done();
 				stream.close();
 			}
 		}
@@ -236,6 +235,7 @@ public class MetadataRepositoryIO {
 			}
 
 			public void startElement(String name, Attributes attributes) {
+				checkCancel();
 				if (PROPERTIES_ELEMENT.equals(name)) {
 					if (propertiesHandler == null) {
 						propertiesHandler = new PropertiesHandler(this, attributes);
