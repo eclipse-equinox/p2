@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.*;
@@ -24,7 +25,7 @@ import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -71,7 +72,7 @@ class SimpleArtifactRepositoryIO {
 	 * 
 	 * This method performs buffering, and closes the stream when finished.
 	 */
-	public IArtifactRepository read(InputStream input) throws RepositoryCreationException {
+	public IArtifactRepository read(URL location, InputStream input, IProgressMonitor monitor) throws ProvisionException {
 		BufferedInputStream bufferedInput = null;
 		try {
 			try {
@@ -83,7 +84,7 @@ class SimpleArtifactRepositoryIO {
 					case IStatus.CANCEL :
 						throw new OperationCanceledException();
 					case IStatus.ERROR :
-						throw new RepositoryCreationException(new CoreException(result));
+						throw new ProvisionException(result);
 					case IStatus.WARNING :
 					case IStatus.INFO :
 						LogHelper.log(result);
@@ -94,7 +95,8 @@ class SimpleArtifactRepositoryIO {
 					bufferedInput.close();
 			}
 		} catch (IOException ioe) {
-			throw new RepositoryCreationException(ioe);
+			String msg = NLS.bind(Messages.io_failedRead, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, ioe));
 		}
 	}
 

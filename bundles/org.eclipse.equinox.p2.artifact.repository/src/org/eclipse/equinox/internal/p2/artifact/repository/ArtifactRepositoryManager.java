@@ -282,8 +282,9 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		if (result != null)
 			return result;
 		String[] suffixes = getAllSuffixes();
+		SubMonitor sub = SubMonitor.convert(monitor, suffixes.length * 100);
 		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i]);
+			result = loadRepository(location, suffixes[i], sub.newChild(100));
 			if (result != null) {
 				addRepository(result);
 				return result;
@@ -293,16 +294,18 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return null;
 	}
 
-	private IArtifactRepository loadRepository(URL location, String suffix) {
+	private IArtifactRepository loadRepository(URL location, String suffix, SubMonitor monitor) {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
 		// Loop over the candidates and return the first one that successfully loads
+		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 		for (int i = 0; i < providers.length; i++)
 			try {
 				IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(providers[i], EL_FACTORY);
 				if (factory != null)
-					return factory.load(location);
+					return factory.load(location, monitor.newChild(10));
 			} catch (CoreException e) {
-				log("Unable to load repository: " + location, e); //$NON-NLS-1$
+				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+					log("Unable to load repository: " + location, e); //$NON-NLS-1$
 			}
 		return null;
 	}

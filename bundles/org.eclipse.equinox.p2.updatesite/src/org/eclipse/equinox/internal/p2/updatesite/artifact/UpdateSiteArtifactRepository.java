@@ -35,7 +35,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 	private final IArtifactRepository artifactRepository;
 
-	public UpdateSiteArtifactRepository(URL location) {
+	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) {
 		super("update site: " + location.toExternalForm(), null, null, location, null, null);
 		BundleContext context = Activator.getBundleContext();
 

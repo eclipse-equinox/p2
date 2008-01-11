@@ -32,6 +32,7 @@ public class Messages extends NLS {
 	public static String repoMan_unknownType;
 
 	public static String FileDownloadError;
+	public static String io_failedRead;
 	public static String io_parseError;
 	public static String io_incompatibleVersion;
 
