@@ -77,28 +77,29 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL) {
 		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
-		if (reference == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
-
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) context.getService(reference);
+		IArtifactRepositoryManager manager = null;
+		if (reference != null)
+			manager = (IArtifactRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
+			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 
-		IArtifactRepository repository = null;
 		try {
-			repository = manager.loadRepository(stateDirURL, null);
-			if (repository == null) {
-				repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+			try {
+				return manager.loadRepository(stateDirURL, null);
+			} catch (ProvisionException e) {
+				//fall through and create a new repository
+			}
+			try {
+				IArtifactRepository repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
 				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				return repository;
+			} catch (ProvisionException e) {
+				LogHelper.log(e);
+				throw new IllegalStateException("Couldn't create listener artifact repository for: " + stateDirURL);
 			}
 		} finally {
 			context.ungetService(reference);
 		}
-
-		if (repository == null)
-			throw new IllegalStateException("Couldn't create listener artifact repository for: " + stateDirURL);
-
-		return repository;
 	}
 
 	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL) {

@@ -22,9 +22,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
-import org.eclipse.equinox.internal.p2.core.helpers.Headers;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -73,17 +73,20 @@ public class Util {
 	static IFileArtifactRepository getBundlePoolRepository(Profile profile) {
 		URL location = getBundlePoolLocation(profile);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		IArtifactRepository bundlePool = manager.loadRepository(location, null);
-		if (bundlePool == null) {
-			// 	the given repo location is not an existing repo so we have to create something
-			String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
-			bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
-			if (bundlePool == null)
-				throw new IllegalArgumentException("Bundle pool repository not writeable: " + location); //$NON-NLS-1$
-			((IRepository) bundlePool).setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
+		try {
+			return (IFileArtifactRepository) manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			//the repository doesn't exist, so fall through and create a new one
 		}
-
-		return (IFileArtifactRepository) bundlePool;
+		try {
+			String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
+			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
+			bundlePool.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
+			return (IFileArtifactRepository) bundlePool;
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+			throw new IllegalArgumentException("Bundle pool repository not writeable: " + location); //$NON-NLS-1$
+		}
 	}
 
 	static IFileArtifactRepository getAggregatedBundleRepository(Profile profile) {
@@ -93,14 +96,15 @@ public class Util {
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		URL[] knownRepositories = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < knownRepositories.length; i++) {
-			IArtifactRepository repository = manager.loadRepository(knownRepositories[i], null);
-			if (repository == null)
-				continue;
-			String profileExtension = (String) repository.getProperties().get(PROFILE_EXTENSION);
-			if (profileExtension != null && profileExtension.equals(profile.getProfileId()))
-				bundleRepositories.add(repository);
+			try {
+				IArtifactRepository repository = manager.loadRepository(knownRepositories[i], null);
+				String profileExtension = (String) repository.getProperties().get(PROFILE_EXTENSION);
+				if (profileExtension != null && profileExtension.equals(profile.getProfileId()))
+					bundleRepositories.add(repository);
+			} catch (ProvisionException e) {
+				//skip repositories that could not be read
+			}
 		}
-
 		return new AggregatedBundleRepository(bundleRepositories);
 	}
 

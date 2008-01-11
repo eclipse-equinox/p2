@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,7 +84,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		initializeRepositories(provider);
 	}
 
-	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider) {
+	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
 		URL location;
 		try {
@@ -92,24 +92,24 @@ public class EclipseGeneratorApplication implements IApplication {
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException("Artifact repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
 		}
-		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (repository != null) {
+		try {
+			IArtifactRepository repository = manager.loadRepository(location, null);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
 			provider.setArtifactRepository(repository);
 			if (!provider.append())
 				repository.removeAll();
 			return;
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
 		}
 
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = artifactLocation + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
-		if (result != null) {
-			provider.setArtifactRepository(result);
-			result.setProperty(IRepository.PROP_COMPRESSED, compress);
-		}
+		provider.setArtifactRepository(result);
+		result.setProperty(IRepository.PROP_COMPRESSED, compress);
 	}
 
 	public void initializeForInplace(EclipseInstallGeneratorInfoProvider provider) {

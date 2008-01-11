@@ -75,13 +75,18 @@ public class ProvisioningHelper {
 		if (manager == null)
 			// TODO log here
 			return null;
-		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (repository != null)
-			return repository;
-
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
+		}
 		// could not load a repo at that location so create one as a convenience
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
-		return manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		try {
+			return manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		} catch (ProvisionException e) {
+			return null;
+		}
 	}
 
 	public static void removeArtifactRepository(URL location) {
@@ -248,8 +253,12 @@ public class ProvisioningHelper {
 
 	public static IArtifactRepository getArtifactRepository(URL repoURL) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		if (manager == null)
-			return null;
-		return manager.loadRepository(repoURL, null);
+		try {
+			if (manager != null)
+				return manager.loadRepository(repoURL, null);
+		} catch (ProvisionException e) {
+			//for console, just ignore repositories that can't be read
+		}
+		return null;
 	}
 }

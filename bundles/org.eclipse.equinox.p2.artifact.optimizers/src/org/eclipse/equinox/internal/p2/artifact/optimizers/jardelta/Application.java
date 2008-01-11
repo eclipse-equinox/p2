@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.p2.artifact.optimizers.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**
  * The optimizer <code>Application</code> for JBDiff based optimizations. 
@@ -35,7 +36,7 @@ public class Application implements IApplication {
 		return null;
 	}
 
-	private IArtifactRepository setupRepository(URL location) {
+	private IArtifactRepository setupRepository(URL location) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here

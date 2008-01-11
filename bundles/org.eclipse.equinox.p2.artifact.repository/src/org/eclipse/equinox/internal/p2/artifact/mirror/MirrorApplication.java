@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 
 public class MirrorApplication implements IApplication {
 
@@ -34,7 +35,7 @@ public class MirrorApplication implements IApplication {
 		return null;
 	}
 
-	private void setupRepositories() {
+	private void setupRepositories() throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			// TODO log here
@@ -47,17 +48,18 @@ public class MirrorApplication implements IApplication {
 			destination = source;
 	}
 
-	private IArtifactRepository initializeDestination() {
+	private IArtifactRepository initializeDestination() throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		IArtifactRepository repository = manager.loadRepository(destinationLocation, null);
-		if (repository != null) {
+		try {
+			IArtifactRepository repository = manager.loadRepository(destinationLocation, null);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Artifact repository not modifiable: " + destinationLocation); //$NON-NLS-1$
 			if (!append)
 				repository.removeAll();
 			return repository;
+		} catch (ProvisionException e) {
+			//fall through and create a new repository below
 		}
-
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$

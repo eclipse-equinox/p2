@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 compeople AG and others.
+ * Copyright (c) 2007, 2008 compeople AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractDeltaStep;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**
  * The <code>AbstractDeltaPatchStep</code> is an abstract processing step that
@@ -48,10 +49,14 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 
 		URL[] repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_LOCAL);
 		for (int i = 0; i < repositories.length; i++) {
-			IArtifactRepository currentRepo = repoMgr.loadRepository(repositories[i], null);
-			if (currentRepo != null && currentRepo.contains(key)) {
-				repository = currentRepo;
-				return;
+			try {
+				IArtifactRepository currentRepo = repoMgr.loadRepository(repositories[i], null);
+				if (currentRepo.contains(key)) {
+					repository = currentRepo;
+					return;
+				}
+			} catch (ProvisionException e) {
+				//just skip unreadable repositories
 			}
 		}
 		status = new Status(IStatus.ERROR, Activator.ID, "No repository available containing key " + key);

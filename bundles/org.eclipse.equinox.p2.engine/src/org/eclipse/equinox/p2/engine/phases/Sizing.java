@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 
 public class Sizing extends Phase {
@@ -70,17 +71,18 @@ public class Sizing extends Phase {
 		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext();) {
 			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();
 			for (int i = 0; i < repositories.length; i++) {
-				IArtifactRepository repo = repoMgr.loadRepository(repositories[i], null);
-				if (repo == null)
-					continue;
+				IArtifactRepository repo;
+				try {
+					repo = repoMgr.loadRepository(repositories[i], null);
+				} catch (ProvisionException e) {
+					continue;//skip unresponsive repositories
+				}
 				IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(artifactRequest.getArtifactKey());
 				if (descriptors.length > 0) {
 					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
 						sizeOnDisk += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-
 					if (descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE) != null)
 						dlSize += Long.parseLong(descriptors[0].getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
-
 					break;
 				}
 			}

@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
@@ -52,6 +53,11 @@ public interface IArtifactRepositoryManager {
 	 */
 	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$
 
+	/**
+	 * Repository type for a simple repository based on a URL or local file system location.
+	 */
+	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
+
 	public static final IArtifactRequest[] NO_ARTIFACT_REQUEST = new IArtifactRequest[0];
 
 	/**
@@ -89,14 +95,21 @@ public interface IArtifactRepositoryManager {
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties);
 
 	/**
-	 * Creates and returns an artifact repository of the given type at the given location.
-	 * If a repository already exists at that location <code>null</code> is returned.
+	 * Creates and returns a new empty artifact repository of the given type at 
+	 * the given location.
+	 * 
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
-	 * @return the discovered or created repository
+	 * @return the newly created repository
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>The repository type is unknown.</li>
+	 * <li>There was an error writing to the given repository location.</li>
+	 * <li>A repository already exists at that location.</li>
+	 * </ul>
 	 */
-	public IArtifactRepository createRepository(URL location, String name, String type);
+	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException;
 
 	/**
 	 * Returns the artifact repository locations known to the repository manager.
@@ -152,10 +165,14 @@ public interface IArtifactRepositoryManager {
 	 * @param location the location in which to look for a repository description
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
-	 * @return a repository object for the given location or <code>null</code> if a repository
-	 * could not be found or loaded.
+	 * @return a repository object for the given location
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
 	 */
-	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor);
+	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Remove the given repository from this manager.  Do nothing if the repository

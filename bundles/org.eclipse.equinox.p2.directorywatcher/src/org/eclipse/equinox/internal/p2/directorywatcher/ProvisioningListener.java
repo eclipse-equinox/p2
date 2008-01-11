@@ -144,8 +144,8 @@ public class ProvisioningListener extends DirectoryChangeListener {
 
 	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider, URL location) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (repository != null) {
+		try {
+			IArtifactRepository repository = manager.loadRepository(location, null);
 			if (repository.isModifiable()) {
 				provider.setArtifactRepository(repository);
 				if (!provider.append())
@@ -153,14 +153,16 @@ public class ProvisioningListener extends DirectoryChangeListener {
 				return;
 			}
 			throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
 		}
-
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a Simple repo by default.
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
-		if (result != null)
+		try {
+			IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
 			provider.setArtifactRepository(result);
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		}
 	}
 
 	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider, URL location) {
@@ -174,7 +176,7 @@ public class ProvisioningListener extends DirectoryChangeListener {
 						repository.removeAll();
 					return;
 				}
-				throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
+				throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
 			}
 		} catch (ProvisionException e) {
 			//fall through and create a new repository

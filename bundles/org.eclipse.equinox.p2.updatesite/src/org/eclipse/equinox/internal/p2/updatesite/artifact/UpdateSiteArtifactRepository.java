@@ -18,9 +18,11 @@ import java.util.zip.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.generator.*;
@@ -163,19 +165,20 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 		IArtifactRepository repository = null;
 		try {
-			repository = manager.loadRepository(stateDirURL, null);
-			if (repository == null) {
-				repository = manager.createRepository(stateDirURL, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
-				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			try {
+				return manager.loadRepository(stateDirURL, null);
+			} catch (ProvisionException e) {
+				//fall through and create a new repository
 			}
+			repository = manager.createRepository(stateDirURL, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			return repository;
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+			throw new IllegalStateException("Couldn't create artifact repository for: " + repositoryName);
 		} finally {
 			context.ungetService(reference);
 		}
-
-		if (repository == null)
-			throw new IllegalStateException("Couldn't create artifact repository for: " + repositoryName);
-
-		return repository;
 	}
 
 	public Map getProperties() {

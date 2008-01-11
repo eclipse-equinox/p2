@@ -16,7 +16,9 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
@@ -34,9 +36,13 @@ public class NativeTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Profile profile = (Profile) parameters.get("profile");
 					Operand operand = (Operand) parameters.get("operand");
-					IArtifactRequest[] requests = collect(operand.second(), profile);
-					Collection artifactRequests = (Collection) parameters.get("artifactRequests");
-					artifactRequests.add(requests);
+					try {
+						IArtifactRequest[] requests = collect(operand.second(), profile);
+						Collection artifactRequests = (Collection) parameters.get("artifactRequests");
+						artifactRequests.add(requests);
+					} catch (ProvisionException e) {
+						return e.getStatus();
+					}
 					return Status.OK_STATUS;
 				}
 
@@ -101,13 +107,11 @@ public class NativeTouchpoint extends Touchpoint {
 		return MetadataFactory.createTouchpointType("native", new Version(1, 0, 0));
 	}
 
-	private IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) {
+	IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) throws ProvisionException {
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return new IArtifactRequest[0];
 		IArtifactRepository destination = getDownloadCacheRepo();
-		if (destination == null)
-			throw new IllegalStateException("The download cache is not available.");
 		IArtifactRequest[] requests = new IArtifactRequest[toDownload.length];
 		int count = 0;
 		for (int i = 0; i < toDownload.length; i++) {
@@ -134,36 +138,26 @@ public class NativeTouchpoint extends Touchpoint {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	static private void tagAsImplementation(IArtifactRepository repository) {
-		//		if (repository != null && repository.getProperties().getProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY) == null) {
-		//			IWritableRepositoryInfo writableInfo = (IWritableRepositoryInfo) repository.getAdapter(IWritableRepositoryInfo.class);
-		//			if (writableInfo != null) {
-		//				writableInfo.getModifiableProperties().setProperty(IRepositoryInfo.IMPLEMENTATION_ONLY_KEY, Boolean.valueOf(true).toString());
-		//			}
-		//		}
-	}
-
-	static private IFileArtifactRepository getDownloadCacheRepo() {
+	static private IFileArtifactRepository getDownloadCacheRepo() throws ProvisionException {
 		URL location = getDownloadCacheLocation();
 		if (location == null)
 			throw new IllegalStateException("Could not obtain the download cache location.");
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException("The artifact repository manager could not be found.");
-		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (repository == null) {
-			// 	the given repo location is not an existing repo so we have to create something
-			// TODO for now create a random repo by default.
+		IArtifactRepository repository;
+		try {
+			repository = manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			// the download cache doesn't exist or couldn't be read. Create new cache.
 			String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
 			repository = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
-			// TODO: do we still need to do this
-			tagAsImplementation(repository);
+			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		}
 
 		IFileArtifactRepository downloadCache = (IFileArtifactRepository) repository.getAdapter(IFileArtifactRepository.class);
-		if (downloadCache == null) {
-			throw new IllegalArgumentException("Agent download cache not writeable: " + location); //$NON-NLS-1$
-		}
+		if (downloadCache == null)
+			throw new ProvisionException("Agent download cache not writeable: " + location);
 		return downloadCache;
 	}
 
@@ -197,9 +191,12 @@ public class NativeTouchpoint extends Touchpoint {
 
 			IArtifactKey artifactKey = iu.getArtifacts()[0];
 
-			IFileArtifactRepository downloadCache = getDownloadCacheRepo();
-			if (downloadCache == null)
-				return createError("The download cache could not be found for the \"unzip\" action.");
+			IFileArtifactRepository downloadCache;
+			try {
+				downloadCache = getDownloadCacheRepo();
+			} catch (ProvisionException e) {
+				return e.getStatus();
+			}
 			File fileLocation = downloadCache.getArtifactFile(artifactKey);
 			if ((fileLocation == null) || !fileLocation.exists())
 				return createError("The artifact for " + artifactKey + " is not available");

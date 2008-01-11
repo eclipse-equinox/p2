@@ -231,7 +231,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.class.getName());
 	}
 
-	private void prepareArtifactRepository() {
+	private void prepareArtifactRepository() throws ProvisionException {
 		URL artifactRepo = installDescription.getArtifactRepository();
 		if (artifactRepo != null)
 			artifactRepoMan.loadRepository(artifactRepo, null);

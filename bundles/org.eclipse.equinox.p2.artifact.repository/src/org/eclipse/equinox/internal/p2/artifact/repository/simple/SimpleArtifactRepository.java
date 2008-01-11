@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
 
@@ -95,6 +96,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			count++;
 		}
 	}
+
 	// TODO: optimize
 	// we could stream right into the folder
 	public static class ZippedFolderOutputStream extends OutputStream {
@@ -135,6 +137,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			fos.write(b);
 		}
 	}
+
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
@@ -695,7 +698,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		save();
 		//force repository manager to reload this repository because it caches properties
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		manager.loadRepository(location, null);
+		try {
+			manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			//ignore
+		}
 		return oldValue;
 	}
 

@@ -18,10 +18,12 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -96,13 +98,20 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return new FileDownloadRequest(key, destination);
 	}
 
-	private Object createExecutableExtension(IExtension extension, String element) throws CoreException {
+	private Object createExecutableExtension(IExtension extension, String element) throws ProvisionException {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
 		for (int i = 0; i < elements.length; i++) {
-			if (elements[i].getName().equals(element))
-				return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
+			if (elements[i].getName().equals(element)) {
+				try {
+					return elements[i].createExecutableExtension("class"); //$NON-NLS-1$
+				} catch (CoreException e) {
+					log("Error loading repository extension: " + extension.getUniqueIdentifier(), e); //$NON-NLS-1$
+					return null;
+				}
+			}
 		}
-		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, "Malformed extension")); //$NON-NLS-1$
+		log("Malformed repository extension: " + extension.getUniqueIdentifier(), null); //$NON-NLS-1$
+		return null;
 	}
 
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination) {
@@ -113,25 +122,45 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
-	public IArtifactRepository createRepository(URL location, String name, String type) {
-		IArtifactRepository result = loadRepository(location, (IProgressMonitor) null);
-		if (result != null)
-			return result;
+	private void fail(URL location, int code) throws ProvisionException {
+		String msg = null;
+		switch (code) {
+			case ProvisionException.REPOSITORY_EXISTS :
+				msg = NLS.bind(Messages.repoMan_exists, location);
+				break;
+			case ProvisionException.REPOSITORY_UNKNOWN_TYPE :
+				msg = NLS.bind(Messages.repoMan_unknownType, location);
+				break;
+			case ProvisionException.REPOSITORY_FAILED_READ :
+				msg = NLS.bind(Messages.repoMan_failedRead, location);
+				break;
+			case ProvisionException.REPOSITORY_NOT_FOUND :
+				msg = NLS.bind(Messages.repoMan_notExists, location);
+				break;
+		}
+		if (msg == null)
+			msg = Messages.repoMan_internalError;
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, null));
+	}
+
+	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException {
+		try {
+			loadRepository(location, (IProgressMonitor) null);
+			fail(location, ProvisionException.REPOSITORY_EXISTS);
+		} catch (ProvisionException e) {
+			//expected - fall through and create a new repository
+		}
 		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 		if (extension == null)
-			return null;
-		try {
-			IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
-			if (factory == null)
-				return null;
-			result = factory.create(location, name, type);
-			if (result != null)
-				addRepository(result);
-			return result;
-		} catch (CoreException e) {
-			log("Failed to load artifact repository extension: " + location, e); //$NON-NLS-1$
-			return null;
-		}
+			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
+		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+		if (factory == null)
+			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+		IArtifactRepository result = factory.create(location, name, type);
+		if (result == null)
+			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+		addRepository(result);
+		return result;
 	}
 
 	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
@@ -247,7 +276,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		}
 	}
 
-	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) {
+	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		// TODO do something with the monitor
 		IArtifactRepository result = getRepository(location);
 		if (result != null)
@@ -260,6 +289,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 				return result;
 			}
 		}
+		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		return null;
 	}
 
@@ -364,8 +394,12 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		if (location == null)
 			// TODO should do something here since we are failing to restore.
 			return;
-		SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$ //$NON-NLS-2$
-		cache.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+		try {
+			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$ //$NON-NLS-2$
+			cache.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+		} catch (ProvisionException e) {
+			LogHelper.log(e);
+		}
 	}
 
 	/*
