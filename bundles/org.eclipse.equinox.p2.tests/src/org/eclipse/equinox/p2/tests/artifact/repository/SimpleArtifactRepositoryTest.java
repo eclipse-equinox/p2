@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.p2.metadata.generator.Generator;
@@ -59,7 +60,7 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	public void testCompressedRepository() throws MalformedURLException {
+	public void testCompressedRepository() throws MalformedURLException, ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
@@ -90,7 +91,7 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 		delete(repoLocation);
 	}
 
-	public void testUncompressedRepository() throws MalformedURLException {
+	public void testUncompressedRepository() throws MalformedURLException, ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
