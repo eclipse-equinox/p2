@@ -306,7 +306,9 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				if (factory != null)
 					return factory.load(location, monitor.newChild(10));
 			} catch (ProvisionException e) {
-				//this extension couldn't load at that location - keep trying with other factories
+				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+					log("Unable to load repository: " + location, e); //$NON-NLS-1$
+				//keep trying with other factories
 			}
 		}
 		return null;
