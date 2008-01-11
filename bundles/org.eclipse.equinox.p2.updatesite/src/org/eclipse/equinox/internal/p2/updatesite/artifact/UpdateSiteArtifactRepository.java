@@ -78,15 +78,15 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 				SiteFeature siteFeature = siteFeatures[i];
 				URL featureURL = new URL(location, siteFeature.getURLString());
 
-				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
+				Feature feature = (Feature) digestMap.remove(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
+				if (feature == null) {
+					feature = parseFeature(featureParser, featureURL);
+				}
+				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
 				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", featureURL.toExternalForm());
 				allSiteArtifacts.add(featureArtifactDescriptor);
 
-				Feature feature = (Feature) digestMap.get(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
-				if (feature == null) {
-					feature = parseFeature(featureParser, featureURL);
-				}
 				FeatureEntry[] featureEntries = feature.getEntries();
 				for (int j = 0; j < featureEntries.length; j++) {
 					FeatureEntry entry = featureEntries[j];
@@ -99,6 +99,15 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 					}
 				}
 			}
+
+			for (Iterator iterator = digestMap.values().iterator(); iterator.hasNext();) {
+				Feature feature = (Feature) iterator.next();
+				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
+				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
+				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", "features/" + feature.getId() + "_" + feature.getVersion() + ".jar");
+				allSiteArtifacts.add(featureArtifactDescriptor);
+			}
+
 			IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
 			artifactRepository.addDescriptors(descriptors);
 

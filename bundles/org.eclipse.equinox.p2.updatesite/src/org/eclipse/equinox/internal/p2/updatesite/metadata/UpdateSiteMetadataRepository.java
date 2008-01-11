@@ -89,7 +89,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			System.out.println("Retrieving " + siteFeatures.length + " features");
 			for (int i = 0; i < siteFeatures.length; i++) {
 				SiteFeature siteFeature = siteFeatures[i];
-				Feature feature = (Feature) digestMap.get(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
+				Feature feature = (Feature) digestMap.remove(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
 				if (feature == null) {
 					URL featureURL = new URL(location, siteFeature.getURLString());
 					feature = parseFeature(featureParser, featureURL);
@@ -119,6 +119,14 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 						featureIUList.add(groupIU);
 					}
 				}
+				allSiteIUs.add(featureIU);
+				allSiteIUs.add(groupIU);
+			}
+
+			for (Iterator iterator = digestMap.values().iterator(); iterator.hasNext();) {
+				Feature feature = (Feature) iterator.next();
+				IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureIU(feature, false);
+				IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
 				allSiteIUs.add(featureIU);
 				allSiteIUs.add(groupIU);
 			}
