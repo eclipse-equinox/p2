@@ -88,7 +88,6 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			System.out.println("Retrieving " + siteFeatures.length + " features");
 			for (int i = 0; i < siteFeatures.length; i++) {
 				SiteFeature siteFeature = siteFeatures[i];
-				System.out.println(siteFeature.getFeatureIdentifier());
 				Feature feature = (Feature) digestMap.get(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
 				if (feature == null) {
 					URL featureURL = new URL(location, siteFeature.getURLString());

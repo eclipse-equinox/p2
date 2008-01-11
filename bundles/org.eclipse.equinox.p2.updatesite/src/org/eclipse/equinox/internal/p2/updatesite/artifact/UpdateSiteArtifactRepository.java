@@ -74,7 +74,6 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 			for (int i = 0; i < siteFeatures.length; i++) {
 				SiteFeature siteFeature = siteFeatures[i];
-				System.out.println(siteFeature.getFeatureIdentifier());
 				URL featureURL = new URL(location, siteFeature.getURLString());
 
 				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
