@@ -22,18 +22,26 @@ public interface IArtifactRepositoryManager {
 	 * Constant used to indicate that all repositories are of interest.
 	 */
 	public static final int REPOSITORIES_ALL = 0;
+
 	/**
-	 * Constant used to indicate that implementation-only repositories are of interest.
+	 * Constant used to indicate that system repositories are of interest.
+	 * @see IRepository#PROP_SYSTEM
+	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_IMPLEMENTATION_ONLY = 1 << 1;
+	public static final int REPOSITORIES_SYSTEM = 1 << 0;
+
 	/**
-	 * Constant used to indicate that public (non-implementation-only) repositories are of interest.
+	 * Constant used to indicate that non-system repositories are of interest
+	 * @see IRepository#PROP_SYSTEM
+	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_PUBLIC_ONLY = 1 << 2;
+	public static final int REPOSITORIES_NON_SYSTEM = 1 << 1;
+
 	/**
 	 * Constant used to indicate that local repositories are of interest.
+	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_LOCAL_ONLY = 1 << 3;
+	public static final int REPOSITORIES_LOCAL = 1 << 2;
 
 	/**
 	 * Property key used to query a repository's name without loading the repository first.
@@ -105,9 +113,9 @@ public interface IArtifactRepositoryManager {
 	 * @return the locations of the repositories managed by this repository manager.
 	 * 
 	 * @see #REPOSITORIES_ALL
-	 * @see #REPOSITORIES_IMPLEMENTATION_ONLY
-	 * @see #REPOSITORIES_LOCAL_ONLY
-	 * @see #REPOSITORIES_PUBLIC_ONLY
+	 * @see #REPOSITORIES_SYSTEM
+	 * @see #REPOSITORIES_NON_SYSTEM
+	 * @see #REPOSITORIES_LOCAL
 	 */
 	public URL[] getKnownRepositories(int flags);
 

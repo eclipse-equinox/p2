@@ -46,7 +46,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 			return;
 		}
 
-		URL[] repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_LOCAL_ONLY);
+		URL[] repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_LOCAL);
 		for (int i = 0; i < repositories.length; i++) {
 			IArtifactRepository currentRepo = repoMgr.loadRepository(repositories[i], null);
 			if (currentRepo != null && currentRepo.contains(key)) {

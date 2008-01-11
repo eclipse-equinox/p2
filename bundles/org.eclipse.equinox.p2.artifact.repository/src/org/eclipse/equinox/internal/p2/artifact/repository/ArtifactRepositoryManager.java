@@ -282,13 +282,13 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	}
 
 	private boolean matchesFlags(RepositoryInfo info, int flags) {
-		if ((flags & REPOSITORIES_IMPLEMENTATION_ONLY) == REPOSITORIES_IMPLEMENTATION_ONLY)
+		if ((flags & REPOSITORIES_SYSTEM) == REPOSITORIES_SYSTEM)
 			if (!info.isSystem)
 				return false;
-		if ((flags & REPOSITORIES_PUBLIC_ONLY) == REPOSITORIES_PUBLIC_ONLY)
+		if ((flags & REPOSITORIES_NON_SYSTEM) == REPOSITORIES_NON_SYSTEM)
 			if (info.isSystem)
 				return false;
-		if ((flags & REPOSITORIES_LOCAL_ONLY) == REPOSITORIES_LOCAL_ONLY)
+		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
 			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
 		return true;
 	}
