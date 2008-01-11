@@ -69,7 +69,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 			FeatureParser featureParser = new FeatureParser();
 			System.out.println("Retrieving " + siteFeatures.length + " features");
-
+			Map digestMap = populateDigest(location, siteModel);
 			Set allSiteArtifacts = new HashSet();
 
 			for (int i = 0; i < siteFeatures.length; i++) {
@@ -82,7 +82,10 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", featureURL.toExternalForm());
 				allSiteArtifacts.add(featureArtifactDescriptor);
 
-				Feature feature = parseFeature(featureParser, featureURL);
+				Feature feature = (Feature) digestMap.get(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
+				if (feature == null) {
+					feature = parseFeature(featureParser, featureURL);
+				}
 				FeatureEntry[] featureEntries = feature.getEntries();
 				for (int j = 0; j < featureEntries.length; j++) {
 					FeatureEntry entry = featureEntries[j];
@@ -106,6 +109,35 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	private Map populateDigest(URL location, SiteModel siteModel) {
+		Map result = new HashMap();
+		try {
+			URL digestURL = new URL(location, "digest.zip");
+
+			Feature[] digestFeatures = parseDigest(digestURL);
+			for (int i = 0; i < digestFeatures.length; i++) {
+				Feature feature = digestFeatures[i];
+				result.put(feature.getId() + "_" + feature.getVersion(), feature);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace(); // unexpected
+		} catch (IOException e) {
+			// TODO log this
+		}
+		return result;
+	}
+
+	private Feature[] parseDigest(URL digestURL) throws IOException, FileNotFoundException {
+		File digestFile = File.createTempFile("digest", ".zip");
+		try {
+			FileUtils.copyStream(digestURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
+			Feature[] features = new DigestParser().parse(digestFile);
+			return features;
+		} finally {
+			digestFile.delete();
 		}
 	}
 

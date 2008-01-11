@@ -79,16 +79,21 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			Properties extraProperties = new Properties();
 			extraProperties.put("iu.mock", "true");
 			Set allSiteIUs = new HashSet();
-			SiteFeature[] siteFeatures = siteModel.getFeatures();
 
+			Map digestMap = populateDigest(location, siteModel);
+
+			SiteFeature[] siteFeatures = siteModel.getFeatures();
 			FeatureParser featureParser = new FeatureParser();
 			BundleDescriptionFactory bundleDesciptionFactory = initializeBundleDescriptionFactory(Activator.getBundleContext());
 			System.out.println("Retrieving " + siteFeatures.length + " features");
 			for (int i = 0; i < siteFeatures.length; i++) {
 				SiteFeature siteFeature = siteFeatures[i];
 				System.out.println(siteFeature.getFeatureIdentifier());
-				URL featureURL = new URL(location, siteFeature.getURLString());
-				Feature feature = parseFeature(featureParser, featureURL);
+				Feature feature = (Feature) digestMap.get(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
+				if (feature == null) {
+					URL featureURL = new URL(location, siteFeature.getURLString());
+					feature = parseFeature(featureParser, featureURL);
+				}
 				FeatureEntry[] featureEntries = feature.getEntries();
 				for (int j = 0; j < featureEntries.length; j++) {
 					FeatureEntry entry = featureEntries[j];
@@ -135,6 +140,35 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	private Map populateDigest(URL location, SiteModel siteModel) {
+		Map result = new HashMap();
+		try {
+			URL digestURL = new URL(location, "digest.zip");
+
+			Feature[] digestFeatures = parseDigest(digestURL);
+			for (int i = 0; i < digestFeatures.length; i++) {
+				Feature feature = digestFeatures[i];
+				result.put(feature.getId() + "_" + feature.getVersion(), feature);
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace(); // unexpected
+		} catch (IOException e) {
+			// TODO log this
+		}
+		return result;
+	}
+
+	private Feature[] parseDigest(URL digestURL) throws IOException, FileNotFoundException {
+		File digestFile = File.createTempFile("digest", ".zip");
+		try {
+			FileUtils.copyStream(digestURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
+			Feature[] features = new DigestParser().parse(digestFile);
+			return features;
+		} finally {
+			digestFile.delete();
 		}
 	}
 

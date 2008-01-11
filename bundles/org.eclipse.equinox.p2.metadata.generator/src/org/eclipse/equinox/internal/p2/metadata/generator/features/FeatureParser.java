@@ -39,7 +39,13 @@ public class FeatureParser extends DefaultHandler {
 	private Properties messages = null;
 
 	public FeatureParser() {
+		this(true);
+	}
+
+	protected FeatureParser(boolean createParser) {
 		super();
+		if (!createParser)
+			return;
 		try {
 			parserFactory.setNamespaceAware(true);
 			this.parser = parserFactory.newSAXParser();
@@ -71,6 +77,10 @@ public class FeatureParser extends DefaultHandler {
 			result.setCopyright(localize(characters.toString().trim()));
 		}
 		characters = null;
+	}
+
+	public Feature getResult() {
+		return result;
 	}
 
 	private Properties loadProperties(File directory) {
