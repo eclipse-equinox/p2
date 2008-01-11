@@ -21,20 +21,26 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * Constant used to indicate that all repositories are of interest.
 	 */
 	public static final int REPOSITORIES_ALL = 0;
+
 	/**
 	 * Constant used to indicate that system repositories are of interest.
 	 * @see IRepository#PROP_SYSTEM
+	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_SYSTEM = 1 << 1;
+	public static final int REPOSITORIES_SYSTEM = 1 << 0;
+
 	/**
 	 * Constant used to indicate that non-system repositories are of interest
 	 * @see IRepository#PROP_SYSTEM
+	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_NON_SYSTEM = 1 << 2;
+	public static final int REPOSITORIES_NON_SYSTEM = 1 << 1;
+
 	/**
 	 * Constant used to indicate that local repositories are of interest.
+	 * @see #getKnownRepositories(int)
 	 */
-	public static final int REPOSITORIES_LOCAL = 1 << 3;
+	public static final int REPOSITORIES_LOCAL = 1 << 2;
 
 	/**
 	 * Property key used to query a repository's name without loading the repository first.
@@ -80,7 +86,7 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * returned.  <code>REPOSITORIES_ALL</code> can be used as the mask when
 	 * all repositories should be returned.  Where multiple masks are combined, only
 	 * the repositories that satisfy all the given criteria are returned. For example,
-	 * a flag value of )REPOSITORIES_SYSTEM|REPOSITORIES_LOCAL) will only
+	 * a flag value of (REPOSITORIES_SYSTEM|REPOSITORIES_LOCAL) will only
 	 * return repositories that are both system and local repositories.
 	 * 
 	 * @return the locations of the repositories managed by this repository manager.
