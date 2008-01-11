@@ -107,7 +107,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = artifactLocation + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		provider.setArtifactRepository(result);
 		result.setProperty(IRepository.PROP_COMPRESSED, compress);
 	}

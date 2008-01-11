@@ -53,7 +53,7 @@ public class FoldersRepositoryTest extends TestCase {
 		testRepo.mkdir();
 
 		manager.removeRepository(testRepo.toURL());
-		IArtifactRepository repo = manager.createRepository(testRepo.toURL(), "testRepo", "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+		IArtifactRepository repo = manager.createRepository(testRepo.toURL(), "testRepo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		File pluginsFolder = new File(testRepo, "plugins");
 		pluginsFolder.mkdir();
 

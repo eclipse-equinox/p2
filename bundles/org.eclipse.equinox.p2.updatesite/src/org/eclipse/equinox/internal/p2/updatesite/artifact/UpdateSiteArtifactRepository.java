@@ -179,7 +179,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			} catch (ProvisionException e) {
 				//fall through and create a new repository
 			}
-			repository = manager.createRepository(stateDirURL, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+			repository = manager.createRepository(stateDirURL, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
 		} catch (ProvisionException e) {

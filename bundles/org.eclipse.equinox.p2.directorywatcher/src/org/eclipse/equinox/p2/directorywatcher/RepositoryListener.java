@@ -90,7 +90,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				//fall through and create a new repository
 			}
 			try {
-				IArtifactRepository repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository");
+				IArtifactRepository repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				return repository;
 			} catch (ProvisionException e) {

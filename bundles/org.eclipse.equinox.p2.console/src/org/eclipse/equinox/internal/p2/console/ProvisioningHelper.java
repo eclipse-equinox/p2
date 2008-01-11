@@ -83,7 +83,7 @@ public class ProvisioningHelper {
 		// could not load a repo at that location so create one as a convenience
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
 		try {
-			return manager.createRepository(location, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+			return manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY); 
 		} catch (ProvisionException e) {
 			return null;
 		}

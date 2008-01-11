@@ -398,7 +398,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			// TODO should do something here since we are failing to restore.
 			return;
 		try {
-			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$ //$NON-NLS-2$
+			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
 			cache.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		} catch (ProvisionException e) {
 			LogHelper.log(e);

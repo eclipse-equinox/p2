@@ -147,7 +147,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
-	static final private String REPOSITORY_TYPE = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
+	static final private String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY; 
 
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$

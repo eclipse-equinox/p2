@@ -52,7 +52,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public static File getActualLocation(URL location) {
-		return getActualLocation(location, XML_EXTENSION); //$NON-NLS-1$
+		return getActualLocation(location, XML_EXTENSION); 
 	}
 
 	/**

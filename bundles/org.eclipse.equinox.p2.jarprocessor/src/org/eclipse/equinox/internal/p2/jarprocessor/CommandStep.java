@@ -41,8 +41,8 @@ public abstract class CommandStep implements IProcessStep {
 		Process proc = null;
 		try {
 			proc = runtime.exec(cmd);
-			StreamProcessor errorStreamProcessor = new StreamProcessor(proc.getErrorStream(), StreamProcessor.STDERR, verbose); //$NON-NLS-1$
-			StreamProcessor outputStreamProcessor = new StreamProcessor(proc.getInputStream(), StreamProcessor.STDOUT, verbose); //$NON-NLS-1$
+			StreamProcessor errorStreamProcessor = new StreamProcessor(proc.getErrorStream(), StreamProcessor.STDERR, verbose); 
+			StreamProcessor outputStreamProcessor = new StreamProcessor(proc.getInputStream(), StreamProcessor.STDOUT, verbose); 
 			errorStreamProcessor.start();
 			outputStreamProcessor.start();
 		} catch (Exception e) {

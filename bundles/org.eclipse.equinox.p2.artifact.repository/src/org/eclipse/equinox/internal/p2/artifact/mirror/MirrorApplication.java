@@ -65,7 +65,7 @@ public class MirrorApplication implements IApplication {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$
-		return manager.createRepository(destinationLocation, repositoryName, "org.eclipse.equinox.p2.artifact.repository.simpleRepository"); //$NON-NLS-1$
+		return manager.createRepository(destinationLocation, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 	}
 
 	public void stop() {
