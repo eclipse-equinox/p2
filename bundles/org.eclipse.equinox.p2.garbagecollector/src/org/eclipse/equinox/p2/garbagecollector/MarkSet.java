@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.garbagecollector;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
@@ -17,26 +18,28 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
  * Wrapper class used to store an IArtifactRepository and its root set of IArtifactKeys.
  */
 public class MarkSet {
-	
+
 	/**
 	 * The root set for repo.  This is the set of keys that currently map to an artifact in repo.
 	 */
 	private IArtifactKey[] keys;
-	
+
 	/**
 	 * The ArtifactRepository for which a root set is being stored.
 	 */
 	private IArtifactRepository repo;
-	
+
 	public MarkSet(IArtifactKey[] inKeys, IArtifactRepository inRepo) {
+		Assert.isNotNull(inKeys);
+		Assert.isNotNull(inRepo);
 		keys = inKeys;
 		repo = inRepo;
 	}
-	
+
 	public IArtifactKey[] getKeys() {
 		return keys;
 	}
-	
+
 	public IArtifactRepository getRepo() {
 		return repo;
 	}
