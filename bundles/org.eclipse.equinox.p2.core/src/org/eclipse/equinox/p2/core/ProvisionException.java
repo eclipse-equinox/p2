@@ -23,6 +23,50 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 public class ProvisionException extends CoreException {
 	private static final long serialVersionUID = 1L;
 
+	//Core status codes [0-100]
+	/**
+	 * Status code constant (value 1) for an uncategorized error.
+	 */
+	public static final int INTERNAL_ERROR = 1;
+
+	//Repository status codes [1000-1999]
+
+	/** 
+	 * Status code constant (value 1000) indicating a repository
+	 * unexpectedly does not exist.
+	 */
+	public static final int REPOSITORY_NOT_FOUND = 1000;
+
+	/** 
+	 * Status code constant (value 1001) indicating a repository
+	 * unexpectedly exists.
+	 */
+	public static final int REPOSITORY_EXISTS = 1001;
+
+	/** 
+	 * Status code constant (value 1002) indicating a repository
+	 * could not be read
+	 */
+	public static final int REPOSITORY_FAILED_READ = 1002;
+
+	/** 
+	 * Status code constant (value 1003) indicating a repository
+	 * could not be written.
+	 */
+	public static final int REPOSITORY_FAILED_WRITE = 1003;
+
+	/** 
+	 * Status code constant (value 1004) indicating a repository
+	 * could not be written because it is a read-only repository.
+	 */
+	public static final int REPOSITORY_READ_ONLY = 1004;
+
+	/** 
+	 * Status code constant (value 1005) indicating an attempt was
+	 * made to create or access a repository of unknown type.
+	 */
+	public static final int REPOSITORY_UNKNOWN_TYPE = 1005;
+
 	/**
 	 * Creates a new exception with the given status object.  The message
 	 * of the given status is used as the exception message.
@@ -53,4 +97,5 @@ public class ProvisionException extends CoreException {
 	public ProvisionException(String message, Throwable cause) {
 		super(new Status(IStatus.ERROR, Activator.ID, message, cause));
 	}
+
 }
