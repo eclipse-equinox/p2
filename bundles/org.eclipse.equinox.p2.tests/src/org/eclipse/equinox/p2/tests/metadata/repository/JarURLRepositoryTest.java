@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.p2.metadata.generator.Generator;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -80,7 +81,7 @@ public class JarURLRepositoryTest extends TestCase {
 		TestActivator.getContext().ungetService(managerRef);
 	}
 
-	public void testJarURLRepository() {
+	public void testJarURLRepository() throws ProvisionException {
 		URL jarRepoURL = null;
 		try {
 			jarRepoURL = new URL("jar:" + testRepoJar.toURL().toString() + "!/testRepo/");

@@ -17,6 +17,7 @@ import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
@@ -59,7 +60,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(!managerContains(location));
 	}
 
-	public void testGetKnownRepositories() throws MalformedURLException {
+	public void testGetKnownRepositories() throws MalformedURLException, ProvisionException {
 		int nonSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
 		int systemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_SYSTEM).length;
 		int allCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;

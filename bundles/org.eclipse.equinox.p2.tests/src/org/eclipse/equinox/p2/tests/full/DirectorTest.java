@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -35,7 +36,7 @@ import org.osgi.framework.ServiceReference;
  */
 public class DirectorTest extends TestCase {
 
-	public void testInstallIU() {
+	public void testInstallIU() throws ProvisionException {
 		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
 		if (sr == null) {
 			throw new RuntimeException("Director service not available");
@@ -124,7 +125,7 @@ public class DirectorTest extends TestCase {
 		ensureFragmentAssociationIsNotPersisted(mgr);
 	}
 
-	private void ensureFragmentAssociationIsNotPersisted(IMetadataRepositoryManager mgr) {
+	private void ensureFragmentAssociationIsNotPersisted(IMetadataRepositoryManager mgr) throws ProvisionException {
 		//Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=177661
 		AgentLocation location = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
 		mgr.removeRepository(location.getMetadataRepositoryURL());

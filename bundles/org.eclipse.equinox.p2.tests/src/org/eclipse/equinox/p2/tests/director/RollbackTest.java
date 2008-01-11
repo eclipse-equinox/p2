@@ -13,6 +13,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
@@ -36,7 +37,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		director = createDirector();
 	}
 
-	public void test() {
+	public void test() throws ProvisionException {
 		System.out.println(director.install(new IInstallableUnit[] {a1}, profile, null, new NullProgressMonitor()));
 		printProfile(profile);
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
