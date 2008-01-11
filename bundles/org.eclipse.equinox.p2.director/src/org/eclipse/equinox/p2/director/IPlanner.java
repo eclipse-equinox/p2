@@ -47,6 +47,6 @@ public interface IPlanner {
 
 	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor);
 
-	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, URL[] metadataRepositories);
+	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, URL[] metadataRepositories, IProgressMonitor monitor);
 
 }

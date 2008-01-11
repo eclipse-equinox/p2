@@ -109,7 +109,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotNull(getIU("sdk"));
 
 		//Test replace
-		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, planner.updatesFor(getIU("sdk", new Version("3.3.0")), null), profile2, null, new NullProgressMonitor());
+		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, planner.updatesFor(getIU("sdk", new Version("3.3.0")), null, null), profile2, null, new NullProgressMonitor());
 		assertOK(s);
 		assertProfileContainsAll("", profile2, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
 		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, getInstallableUnits(profile2));

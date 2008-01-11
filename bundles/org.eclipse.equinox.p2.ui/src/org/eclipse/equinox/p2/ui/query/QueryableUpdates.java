@@ -32,6 +32,10 @@ public class QueryableUpdates implements IQueryable {
 	}
 
 	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
+		if (monitor == null)
+			monitor = new NullProgressMonitor();
+		int totalWork = 2000;
+		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, totalWork);
 		IPlanner planner = (IPlanner) ServiceHelper.getService(ProvUIActivator.getContext(), IPlanner.class.getName());
 		if (planner == null) {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoPlannerFound));
@@ -39,17 +43,14 @@ public class QueryableUpdates implements IQueryable {
 		}
 		ArrayList allUpdates = new ArrayList();
 		for (int i = 0; i < iusToUpdate.length; i++) {
-			IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], null);
+			IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], null, new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
 			for (int j = 0; j < updates.length; j++)
 				allUpdates.add(updates[j]);
 		}
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
-		monitor.beginTask(ProvUIMessages.QueryableUpdates_UpdateListProgress, allUpdates.size());
 		for (int i = 0; i < allUpdates.size(); i++) {
 			if (query.isMatch(allUpdates.get(i)))
 				result.accept(allUpdates.get(i));
-			monitor.worked(1);
+			monitor.worked(totalWork / 2 / allUpdates.size());
 		}
 		monitor.done();
 		return result;

@@ -117,7 +117,7 @@ public class UpdateChecker {
 		Iterator iter = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, null);
+			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, null, null);
 			if (replacements.length > 0)
 				iusWithUpdates.add(iu);
 		}
