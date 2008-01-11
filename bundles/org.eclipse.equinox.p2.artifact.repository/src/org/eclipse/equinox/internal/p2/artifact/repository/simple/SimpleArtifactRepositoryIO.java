@@ -274,7 +274,7 @@ class SimpleArtifactRepositoryIO {
 					// TODO: version tolerance by extension
 					Version repositoryVersion = extractPIVersion(target, data);
 					if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {
-						throw new SAXException(NLS.bind(Messages.SimpleArtifactRepositoryIO_Parser_Has_Incompatible_Version, repositoryVersion, XML_TOLERANCE));
+						throw new SAXException(NLS.bind(Messages.io_incompatibleVersion, repositoryVersion, XML_TOLERANCE));
 					}
 				}
 			}
@@ -516,7 +516,7 @@ class SimpleArtifactRepositoryIO {
 		}
 
 		protected String getErrorMessage() {
-			return Messages.SimpleArtifactRepositoryIO_Parser_Error_Parsing_Repository;
+			return Messages.io_parseError;
 		}
 
 		public String toString() {

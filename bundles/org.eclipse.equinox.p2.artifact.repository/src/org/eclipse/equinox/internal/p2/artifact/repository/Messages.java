@@ -32,7 +32,7 @@ public class Messages extends NLS {
 	public static String repoMan_unknownType;
 
 	public static String FileDownloadError;
-	public static String SimpleArtifactRepositoryIO_Parser_Error_Parsing_Repository;
-	public static String SimpleArtifactRepositoryIO_Parser_Has_Incompatible_Version;
+	public static String io_parseError;
+	public static String io_incompatibleVersion;
 
 }
