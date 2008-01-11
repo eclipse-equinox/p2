@@ -69,21 +69,17 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 			SiteFeature[] siteFeatures = siteModel.getFeatures();
 
-			FeatureParser featureParser = new FeatureParser();
-			System.out.println("Retrieving " + siteFeatures.length + " features");
-			Map digestMap = populateDigest(location, siteModel);
+			Feature[] features = loadFeaturesFromDigest(location, siteModel);
+			if (features == null) {
+				features = loadFeaturesFromSiteFeatures(location, siteFeatures);
+			}
+
 			Set allSiteArtifacts = new HashSet();
-
-			for (int i = 0; i < siteFeatures.length; i++) {
-				SiteFeature siteFeature = siteFeatures[i];
-				URL featureURL = new URL(location, siteFeature.getURLString());
-
-				Feature feature = (Feature) digestMap.remove(siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion());
-				if (feature == null) {
-					feature = parseFeature(featureParser, featureURL);
-				}
+			for (int i = 0; i < features.length; i++) {
+				Feature feature = features[i];
 				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
+				URL featureURL = new URL(location, "features/" + feature.getId() + "_" + feature.getVersion() + ".jar");
 				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", featureURL.toExternalForm());
 				allSiteArtifacts.add(featureArtifactDescriptor);
 
@@ -100,14 +96,6 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 				}
 			}
 
-			for (Iterator iterator = digestMap.values().iterator(); iterator.hasNext();) {
-				Feature feature = (Feature) iterator.next();
-				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
-				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", "features/" + feature.getId() + "_" + feature.getVersion() + ".jar");
-				allSiteArtifacts.add(featureArtifactDescriptor);
-			}
-
 			IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
 			artifactRepository.addDescriptors(descriptors);
 
@@ -122,32 +110,73 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		}
 	}
 
-	private Map populateDigest(URL location, SiteModel siteModel) {
-		Map result = new HashMap();
+	private Feature[] loadFeaturesFromDigest(URL location, SiteModel siteModel) {
 		try {
 			URL digestURL = new URL(location, "digest.zip");
-
-			Feature[] digestFeatures = parseDigest(digestURL);
-			for (int i = 0; i < digestFeatures.length; i++) {
-				Feature feature = digestFeatures[i];
-				result.put(feature.getId() + "_" + feature.getVersion(), feature);
+			File digestFile = File.createTempFile("digest", ".zip");
+			try {
+				FileUtils.copyStream(digestURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
+				Feature[] features = new DigestParser().parse(digestFile);
+				return features;
+			} finally {
+				digestFile.delete();
 			}
 		} catch (MalformedURLException e) {
 			e.printStackTrace(); // unexpected
 		} catch (IOException e) {
 			// TODO log this
 		}
-		return result;
+		return null;
 	}
 
-	private Feature[] parseDigest(URL digestURL) throws IOException, FileNotFoundException {
-		File digestFile = File.createTempFile("digest", ".zip");
-		try {
-			FileUtils.copyStream(digestURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
-			Feature[] features = new DigestParser().parse(digestFile);
-			return features;
-		} finally {
-			digestFile.delete();
+	private Feature[] loadFeaturesFromSiteFeatures(URL location, SiteFeature[] siteFeatures) {
+		FeatureParser featureParser = new FeatureParser();
+		Map featuresMap = new HashMap();
+		for (int i = 0; i < siteFeatures.length; i++) {
+			SiteFeature siteFeature = siteFeatures[i];
+			String key = siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion();
+			if (featuresMap.containsKey(key))
+				continue;
+
+			try {
+				URL featureURL = new URL(location, siteFeature.getURLString());
+				Feature feature = parseFeature(featureParser, featureURL);
+				featuresMap.put(key, feature);
+				loadIncludedFeatures(feature, featureParser, featuresMap);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return (Feature[]) featuresMap.values().toArray(new Feature[featuresMap.size()]);
+	}
+
+	private void loadIncludedFeatures(Feature feature, FeatureParser featureParser, Map featuresMap) {
+		FeatureEntry[] featureEntries = feature.getEntries();
+		for (int i = 0; i < featureEntries.length; i++) {
+			FeatureEntry entry = featureEntries[i];
+			if (entry.isRequires() || entry.isPlugin())
+				continue;
+
+			String key = entry.getId() + "_" + entry.getVersion();
+			if (featuresMap.containsKey(key))
+				continue;
+
+			try {
+				URL featureURL = new URL(location, "features/" + entry.getId() + "_" + entry.getVersion() + ".jar");
+				Feature includedFeature = parseFeature(featureParser, featureURL);
+				featuresMap.put(key, includedFeature);
+				loadIncludedFeatures(includedFeature, featureParser, featuresMap);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
