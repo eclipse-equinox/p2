@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.framework.log.FrameworkLogEntry;
 
@@ -28,6 +28,10 @@ public class LogHelper {
 			if (status.getException() != null)
 				status.getException().printStackTrace();
 		}
+	}
+
+	public static void log(ProvisionException exception) {
+		log(new Status(exception.getStatus().getSeverity(), Activator.ID, "Provisioning exception", exception)); //$NON-NLS-1$
 	}
 
 	/**
