@@ -11,18 +11,19 @@
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
 import java.net.URL;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 
 public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
-	public IMetadataRepository create(URL location, String name, String type) {
+	public IMetadataRepository create(URL location, String name, String type) throws ProvisionException {
 		return null;
 	}
 
-	public IMetadataRepository load(URL location) throws ProvisionException {
-		if (!location.getPath().endsWith("site.xml"))
+	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+		if (!location.getPath().endsWith("site.xml")) //$NON-NLS-1$
 			return null;
 		return new UpdateSiteMetadataRepository(location);
 	}

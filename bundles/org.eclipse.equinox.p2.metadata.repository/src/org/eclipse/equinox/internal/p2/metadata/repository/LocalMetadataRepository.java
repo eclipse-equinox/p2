@@ -161,7 +161,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			}
 			new MetadataRepositoryIO().write(this, output);
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
 		}
 	}
 

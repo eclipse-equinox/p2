@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,9 +17,8 @@ import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
-import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
@@ -33,19 +32,17 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		return new URLMetadataRepository(location, name);
 	}
 
-	public IMetadataRepository load(URL location) {
+	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
 		// load the jar
-		IMetadataRepository result = load(location, JAR_EXTENSION);
+		IMetadataRepository result = load(location, JAR_EXTENSION, monitor);
 		// compressed file is not available, load the xml
 		if (result == null) {
-			result = load(location, XML_EXTENSION);
+			result = load(location, XML_EXTENSION, monitor);
 		}
 		return result;
 	}
 
-	private IMetadataRepository load(URL location, String type) {
-		if (location == null)
-			return null;
+	private IMetadataRepository load(URL location, String extension, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
 		final String debugMsg = "Restoring metadata repository "; //$NON-NLS-1$
 		if (Tracing.DEBUG_METADATA_PARSING) {
@@ -54,8 +51,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		}
 		try {
 			URL actualFile = URLMetadataRepository.getActualLocation(location);
-			InputStream inStream = URLMetadataRepository.getActualLocation(location, type).openStream();
-			if (JAR_EXTENSION.equalsIgnoreCase(type)) {
+			InputStream inStream = URLMetadataRepository.getActualLocation(location, extension).openStream();
+			if (JAR_EXTENSION.equalsIgnoreCase(extension)) {
 				JarInputStream jInStream = new JarInputStream(inStream);
 				JarEntry jarEntry = jInStream.getNextJarEntry();
 				String entryName = new Path(actualFile.getPath()).lastSegment();
@@ -63,13 +60,13 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					jarEntry = jInStream.getNextJarEntry();
 				}
 				if (jarEntry == null) {
-					throw new FileNotFoundException("Repository not found in " + actualFile.getPath() + type); //$NON-NLS-1$
+					throw new FileNotFoundException("Repository not found in " + actualFile.getPath() + extension); //$NON-NLS-1$
 				}
 				inStream = jInStream;
 			}
 			InputStream descriptorStream = new BufferedInputStream(inStream);
 			try {
-				IMetadataRepository result = new MetadataRepositoryIO().read(descriptorStream);
+				IMetadataRepository result = new MetadataRepositoryIO().read(actualFile, descriptorStream);
 				if (result instanceof LocalMetadataRepository)
 					((LocalMetadataRepository) result).initializeAfterLoad(location);
 				if (result instanceof URLMetadataRepository)
@@ -79,8 +76,6 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
 				}
 				return result;
-			} catch (RepositoryCreationException e) {
-				log(debugMsg, e);
 			} finally {
 				if (descriptorStream != null)
 					descriptorStream.close();
@@ -95,17 +90,5 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 
 	private void log(String message, Exception e) {
 		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, e));
-	}
-
-	public void restore(AbstractRepository repository, URL location) {
-		AbstractRepository source = (AbstractRepository) load(location);
-		if (source == null)
-			return;
-		if (repository.getClass() != source.getClass())
-			throw new IllegalArgumentException("Repository type mismatch"); //$NON-NLS-1$
-		if (repository instanceof LocalMetadataRepository)
-			((LocalMetadataRepository) repository).revertToBackup((LocalMetadataRepository) source);
-		else if (repository instanceof URLMetadataRepository)
-			((URLMetadataRepository) repository).revertToBackup((URLMetadataRepository) source);
 	}
 }

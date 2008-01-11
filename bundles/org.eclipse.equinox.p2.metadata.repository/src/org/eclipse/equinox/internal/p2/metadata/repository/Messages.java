@@ -22,11 +22,14 @@ public class Messages extends NLS {
 		// Do not instantiate
 	}
 
+	public static String io_failedRead;
+	public static String io_failedWrite;
+	public static String io_IncompatibleVersion;
+	public static String io_parseError;
+
 	public static String REPO_LOADING;
 	public static String REPOMGR_ADDING_REPO;
 
-	public static String MetadataRepositoryIO_Parser_Has_Incompatible_Version;
-	public static String MetadataRepositoryIO_Parser_Error_Parsing_Repository;
 	public static String repoMan_exists;
 	public static String repoMan_failedRead;
 	public static String repoMan_internalError;

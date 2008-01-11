@@ -273,39 +273,41 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 	}
 
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor progress) throws ProvisionException {
+	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(location);
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
 			return result;
 		String[] suffixes = getAllSuffixes();
-		if (progress == null)
-			progress = new NullProgressMonitor();
-		progress.beginTask(NLS.bind(Messages.REPOMGR_ADDING_REPO, location.toExternalForm()), 1);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPOMGR_ADDING_REPO, suffixes.length * 100);
 		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i]);
+			result = loadRepository(location, suffixes[i], sub.newChild(100));
 			if (result != null) {
 				addRepository(result);
-				progress.done();
+				sub.done();
 				return result;
 			}
 		}
-		progress.done();
+		sub.done();
 		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		return null;//will never get here
 	}
 
 	/**
 	 * Try to load a pre-existing repo at the given location
-	 * @throws ProvisionException 
 	 */
-	private IMetadataRepository loadRepository(URL location, String suffix) throws ProvisionException {
+	private IMetadataRepository loadRepository(URL location, String suffix, SubMonitor monitor) {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
 		// Loop over the candidates and return the first one that successfully loads
+		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 		for (int i = 0; i < providers.length; i++) {
 			IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[i], FACTORY);
-			if (factory != null)
-				return factory.load(location);
+			try {
+				if (factory != null)
+					return factory.load(location, monitor.newChild(10));
+			} catch (ProvisionException e) {
+				//this extension couldn't load at that location - keep trying with other factories
+			}
 		}
 		return null;
 	}
