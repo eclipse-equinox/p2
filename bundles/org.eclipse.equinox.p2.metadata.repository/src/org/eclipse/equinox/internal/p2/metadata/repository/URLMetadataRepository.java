@@ -15,7 +15,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
@@ -93,22 +92,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return false;
 	}
 
-	protected boolean load() throws RepositoryCreationException {
-		return new SimpleMetadataRepositoryFactory().load(location) != null;
-	}
-
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(units.iterator(), collector);
-	}
-
-	public void revertToBackup(URLMetadataRepository backup) {
-		name = backup.name;
-		type = backup.type;
-		version = backup.version;
-		location = backup.location;
-		description = backup.description;
-		provider = backup.provider;
-		properties = backup.properties;
-		units = backup.units;
 	}
 }
