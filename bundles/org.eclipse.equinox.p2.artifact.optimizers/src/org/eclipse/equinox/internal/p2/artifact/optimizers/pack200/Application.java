@@ -57,7 +57,7 @@ public class Application implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar"))
+			if (args[i - 1].equalsIgnoreCase("-artifactRepository") || args[i - 1].equalsIgnoreCase("-ar"))
 				artifactRepositoryLocation = new URL(arg);
 		}
 	}
