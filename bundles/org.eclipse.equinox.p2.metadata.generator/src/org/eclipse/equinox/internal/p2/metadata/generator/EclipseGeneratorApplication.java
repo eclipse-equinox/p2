@@ -135,15 +135,19 @@ public class EclipseGeneratorApplication implements IApplication {
 			throw new IllegalArgumentException("Metadata repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
 		}
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
-		IMetadataRepository repository = manager.loadRepository(location, null);
-		if (repository != null) {
-			repository.setProperty(IRepository.PROP_COMPRESSED, compress);
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
-			provider.setMetadataRepository(repository);
-			if (!provider.append())
-				repository.removeAll();
-			return;
+		try {
+			IMetadataRepository repository = manager.loadRepository(location, null);
+			if (repository != null) {
+				repository.setProperty(IRepository.PROP_COMPRESSED, compress);
+				if (!repository.isModifiable())
+					throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
+				provider.setMetadataRepository(repository);
+				if (!provider.append())
+					repository.removeAll();
+				return;
+			}
+		} catch (ProvisionException e) {
+			//fall through and create a new repository
 		}
 
 		// 	the given repo location is not an existing repo so we have to create something
