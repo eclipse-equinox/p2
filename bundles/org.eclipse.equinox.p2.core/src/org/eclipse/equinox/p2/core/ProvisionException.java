@@ -50,8 +50,8 @@ public class ProvisionException extends CoreException {
 	public static final int REPOSITORY_FAILED_READ = 1002;
 
 	/** 
-	 * Status code constant (value 1003) indicating a repository
-	 * could not be written.
+	 * Status code constant (value 1003) indicating a failure occurred
+	 * while writing to a repository.
 	 */
 	public static final int REPOSITORY_FAILED_WRITE = 1003;
 
