@@ -746,4 +746,35 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		return configuration.removeFeatureEntry(featureId);
 	}
+
+	public IInstallableUnit prepareIU(IInstallableUnit iu, Profile profile) {
+
+		if (!new Boolean(iu.getProperty("iu.mock")).booleanValue()) //$NON-NLS-1$
+			return iu;
+
+		Class c = null;
+		try {
+			c = Class.forName("org.eclipse.equinox.p2.metadata.generator.MetadataGeneratorHelper"); //$NON-NLS-1$
+			if (c != null)
+				c = Class.forName("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
+		} catch (ClassNotFoundException e) {
+			throw new IllegalStateException("The mock IU could not be updated. Generator not available: " + e.getMessage()); //$NON-NLS-1$
+		}
+
+		if (c != null) {
+			IArtifactKey[] artifacts = iu.getArtifacts();
+			if (artifacts == null || artifacts.length == 0)
+				return iu;
+
+			IArtifactKey artifactKey = artifacts[0];
+			if (artifactKey == null)
+				return iu;
+
+			File bundleFile = Util.getBundleFile(artifactKey, profile);
+			return MetadataGeneratorUtils.createBundleIU(artifactKey, bundleFile);
+		}
+
+		// should not occur
+		throw new IllegalStateException("Unexpected");
+	}
 }

@@ -210,10 +210,11 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories, IProgressMonitor monitor) {
-		List results = new ArrayList();
+		Map resultsMap = new HashMap();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
-				results.add(additionalSource[i]);
+				String key = additionalSource[i].getId() + "_" + additionalSource[i].getVersion().toString(); //$NON-NLS-1$
+				resultsMap.put(key, additionalSource[i]);
 			}
 		}
 
@@ -226,14 +227,27 @@ public class SimplePlanner implements IPlanner {
 			try {
 				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
 				Collector matches = repository.query(new InstallableUnitQuery(null, VersionRange.emptyRange), new Collector(), sub.newChild(100));
-				for (Iterator it = matches.iterator(); it.hasNext();)
-					results.add(it.next());
+				for (Iterator it = matches.iterator(); it.hasNext();) {
+					IInstallableUnit iu = (IInstallableUnit) it.next();
+					String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
+					IInstallableUnit currentIU = (IInstallableUnit) resultsMap.get(key);
+					if (currentIU == null || hasHigherFidelity(iu, currentIU))
+						resultsMap.put(key, iu);
+				}
 			} catch (ProvisionException e) {
 				//skip unreadable repositories
 			}
 		}
 		sub.done();
+		Collection results = resultsMap.values();
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
+	}
+
+	private boolean hasHigherFidelity(IInstallableUnit iu, IInstallableUnit currentIU) {
+		if (new Boolean(currentIU.getProperty("iu.mock")).booleanValue() && !new Boolean(iu.getProperty("iu.mock")).booleanValue())
+			return true;
+
+		return false;
 	}
 
 	public ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {

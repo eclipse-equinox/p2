@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.engine;
 
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.TouchpointType;
 
 /**
@@ -38,5 +39,9 @@ public abstract class Touchpoint {
 
 	public IStatus completeOperand(Profile profile, String phaseId, Operand operand, Map parameters) {
 		return Status.OK_STATUS;
+	}
+
+	public IInstallableUnit prepareIU(IInstallableUnit iu, Profile profile) {
+		return iu;
 	}
 }
