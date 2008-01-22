@@ -68,8 +68,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	/*
 	 * Parse the platform.xml file and return the list of sites.
 	 */
-	private Site[] parseConfiguration() throws ProvisionException {
-		return new ConfigurationParser().parse(root);
+	private List parseConfiguration() throws ProvisionException {
+		Configuration cfg = ConfigurationParser.parse(root);
+		return cfg == null ? new ArrayList(0) : cfg.getSites();
 	}
 
 	/* (non-Javadoc)
@@ -79,13 +80,13 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		return file.getName().equals(PLATFORM_XML);
 	}
 
-	private Site[] getSites() {
+	private List getSites() {
 		List result = new ArrayList();
 		for (Iterator iter = sites.values().iterator(); iter.hasNext();) {
 			SiteInfo info = (SiteInfo) iter.next();
 			result.add(info.getSite());
 		}
-		return (Site[]) result.toArray(new Site[result.size()]);
+		return result;
 	}
 
 	/*

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,30 +11,26 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
-import java.util.*;
+import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 /**
- * Parser for platform.xml files. Returns Site objects.
+ * Parser for platform.xml files. 
+ * 
  * @since 1.0
  */
-public class ConfigurationParser {
+public class ConfigurationParser implements ConfigurationConstants {
 
-	private static final String ELEMENT_FEATURE = "feature"; //$NON-NLS-1$
-	private static final String ELEMENT_SITE = "site"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_POLICY = "policy"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_ENABLED = "enabled"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_UPDATEABLE = "updateable"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_URL = "url"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_LINKFILE = "linkfile"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_LIST = "list"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
-	private static final String ATTRIBUTE_VERSION = "version"; //$NON-NLS-1$
-
-	private List sites = new ArrayList();
+	/*
+	 * Parse the given file handle which points to a platform.xml file and a configuration object.
+	 * Returns null if the file doesn't exist.
+	 */
+	public static Configuration parse(File file) throws ProvisionException {
+		return new ConfigurationParser().internalParse(file);
+	}
 
 	/*
 	 * Create a feature object based on the given DOM node. 
@@ -131,43 +127,35 @@ public class ConfigurationParser {
 	}
 
 	/*
-	 * Parse the given file handle which points to a platform.xml file and return
-	 * a list of site objects. Returns an empty array if the file doesn't exist.
+	 * Parse the given file handle which points to a platform.xml file and a configuration object.
+	 * Returns null if the file doesn't exist.
 	 */
-	public Site[] parse(File file) throws ProvisionException {
+	private Configuration internalParse(File file) throws ProvisionException {
 		if (!file.exists())
-			return new Site[0];
+			return null;
 		try {
-			return parse(new BufferedInputStream(new FileInputStream(file)));
+			InputStream input = new BufferedInputStream(new FileInputStream(file));
+			Document document = load(input);
+			return process(document);
 		} catch (IOException e) {
 			throw new ProvisionException("An error occurred reading the platform configuration file: " + file, e);
-		}
-	}
-
-	/*
-	 * Parse the given input stream which points to a platform.xml file and
-	 * return a list of site objects.
-	 */
-	public Site[] parse(InputStream input) throws ProvisionException {
-		try {
-			Document document = load(input);
-			process(document);
-		} catch (IOException e) {
-			throw new ProvisionException("An error occurred reading the platform configuration", e);
 		} catch (ParserConfigurationException e) {
 			throw new ProvisionException("An error occurred reading the platform configuration", e);
 		} catch (SAXException e) {
 			throw new ProvisionException("An error occurred reading the platform configuration", e);
 		}
-		return (Site[]) sites.toArray(new Site[sites.size()]);
 	}
 
 	/*
 	 * Process the given DOM document and create the appropriate
 	 * site objects.
 	 */
-	private void process(Document document) {
-		NodeList children = document.getFirstChild().getChildNodes();
+	private Configuration process(Document document) {
+		Node node = getConfigElement(document);
+		if (node == null)
+			return null;
+		Configuration configuration = createConfiguration(node);
+		NodeList children = node.getChildNodes();
 		int size = children.getLength();
 		for (int i = 0; i < size; i++) {
 			Node child = children.item(i);
@@ -177,7 +165,38 @@ public class ConfigurationParser {
 				continue;
 			Site site = createSite(child);
 			if (site != null)
-				sites.add(site);
+				configuration.add(site);
 		}
+		return configuration;
+	}
+
+	private Configuration createConfiguration(Node node) {
+		Configuration result = new Configuration();
+		String value = getAttribute(node, ATTRIBUTE_DATE);
+		if (value != null)
+			result.setDate(value);
+		value = getAttribute(node, ATTRIBUTE_TRANSIENT);
+		if (value != null)
+			result.setTransient(Boolean.valueOf(value).booleanValue());
+		value = getAttribute(node, ATTRIBUTE_SHARED_UR);
+		if (value != null)
+			result.setSharedUR(value);
+		value = getAttribute(node, ATTRIBUTE_VERSION);
+		if (value != null)
+			result.setVersion(value);
+		return result;
+	}
+
+	private Node getConfigElement(Document doc) {
+		NodeList children = doc.getChildNodes();
+		int size = children.getLength();
+		for (int i = 0; i < size; i++) {
+			Node child = children.item(i);
+			if (child.getNodeType() != Node.ELEMENT_NODE)
+				continue;
+			if (ELEMENT_CONFIG.equalsIgnoreCase(child.getNodeName()))
+				return child;
+		}
+		return null;
 	}
 }

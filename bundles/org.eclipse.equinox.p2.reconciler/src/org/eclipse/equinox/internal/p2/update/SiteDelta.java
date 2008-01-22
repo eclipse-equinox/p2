@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class SiteDelta {
 
+	private static final String PLATFORM_BASE = "platform:/base/"; //$NON-NLS-1$
+
 	static class Change {
 		Site oldSite;
 		Site newSite;
@@ -36,7 +38,9 @@ public class SiteDelta {
 	 * Create and return a new delta object based on the two given lists of
 	 * site objects.
 	 */
-	public static SiteDelta create(Site[] one, Site[] two) {
+	public static SiteDelta create(List oneList, List twoList) {
+		Site[] one = (Site[]) oneList.toArray(new Site[oneList.size()]);
+		Site[] two = (Site[]) twoList.toArray(new Site[twoList.size()]);
 		SiteDelta result = new SiteDelta();
 		for (int i = 0; one == null || i < one.length; i++) {
 			boolean found = false;
@@ -44,19 +48,19 @@ public class SiteDelta {
 				if (two[j] != null && one[i].getUrl().equals(two[j].getUrl())) {
 					found = true;
 					// TODO
-					if (!one[i].getUrl().equals("platform:/base/") && !one[i].equals(two[j]))
+					if (!one[i].getUrl().equals(PLATFORM_BASE) && !one[i].equals(two[j]))
 						result.changed.add(new Change(one[i], two[j]));
 					one[i] = null;
 					two[j] = null;
 				}
 			}
 			// TODO
-			if (!found && !"platform:/base/".equals(one[i].getUrl()))
+			if (!found && !PLATFORM_BASE.equals(one[i].getUrl()))
 				result.removed.add(one[i]);
 		}
 		for (int j = 0; j < two.length; j++) {
 			// TODO
-			if (two[j] != null && !"platform:/base/".equals(two[j].getUrl()))
+			if (two[j] != null && !PLATFORM_BASE.equals(two[j].getUrl()))
 				result.added.add(two[j]);
 		}
 		return result;
