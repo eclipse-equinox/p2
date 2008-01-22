@@ -24,7 +24,8 @@ import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
-	private static final String XML_EXTENSION = ".xml";
+	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
+	private static final String CONTENT_FILENAME = "content"; //$NON-NLS-1$
 
 	public IMetadataRepository create(URL location, String name, String type) {
 		if (location.getProtocol().equals("file")) //$NON-NLS-1$
@@ -33,28 +34,36 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	}
 
 	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
-		if (monitor == null)
-			monitor = new NullProgressMonitor();
-		// load the jar
-		IMetadataRepository result = load(location, JAR_EXTENSION, monitor);
-		// compressed file is not available, load the xml
-		if (result == null) {
-			result = load(location, XML_EXTENSION, monitor);
-		}
-		return result;
-	}
-
-	private IMetadataRepository load(URL location, String extension, IProgressMonitor monitor) throws ProvisionException {
 		long time = 0;
+		boolean compress = true;
 		final String debugMsg = "Restoring metadata repository "; //$NON-NLS-1$
+		File temp = null;
 		if (Tracing.DEBUG_METADATA_PARSING) {
 			Tracing.debug(debugMsg + location);
 			time = -System.currentTimeMillis();
 		}
 		try {
+			temp = File.createTempFile(CONTENT_FILENAME, JAR_EXTENSION);
+			SubMonitor sub = SubMonitor.convert(monitor, 300);
+			OutputStream metadata = new BufferedOutputStream(new FileOutputStream(temp));
+			IStatus status = getTransport().download(URLMetadataRepository.getActualLocation(location, JAR_EXTENSION).toExternalForm(), metadata, sub);
 			URL actualFile = URLMetadataRepository.getActualLocation(location);
-			InputStream inStream = URLMetadataRepository.getActualLocation(location, extension).openStream();
-			if (JAR_EXTENSION.equalsIgnoreCase(extension)) {
+			if (!status.isOK()) {
+				// retry uncompressed
+				metadata.close();
+				if (!temp.delete()) {
+					temp.deleteOnExit();
+				}
+				temp = File.createTempFile(CONTENT_FILENAME, XML_EXTENSION);
+				metadata = new BufferedOutputStream(new FileOutputStream(temp));
+				compress = false;
+				status = getTransport().download(URLMetadataRepository.getActualLocation(location, XML_EXTENSION).toExternalForm(), metadata, sub);
+			}
+			if (metadata != null) {
+				metadata.close();
+			}
+			InputStream inStream = new BufferedInputStream(new FileInputStream(temp));
+			if (compress) {
 				JarInputStream jInStream = new JarInputStream(inStream);
 				JarEntry jarEntry = jInStream.getNextJarEntry();
 				String entryName = new Path(actualFile.getPath()).lastSegment();
@@ -62,13 +71,13 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					jarEntry = jInStream.getNextJarEntry();
 				}
 				if (jarEntry == null) {
-					throw new FileNotFoundException("Repository not found in " + actualFile.getPath() + extension); //$NON-NLS-1$
+					throw new FileNotFoundException("Repository not found in compressed file."); //$NON-NLS-1$
 				}
 				inStream = jInStream;
 			}
 			InputStream descriptorStream = new BufferedInputStream(inStream);
 			try {
-				IMetadataRepository result = new MetadataRepositoryIO().read(actualFile, descriptorStream, monitor);
+				IMetadataRepository result = new MetadataRepositoryIO().read(temp.toURL(), descriptorStream, sub.newChild(100));
 				if (result instanceof LocalMetadataRepository)
 					((LocalMetadataRepository) result).initializeAfterLoad(location);
 				if (result instanceof URLMetadataRepository)
@@ -86,8 +95,16 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 			//if the repository doesn't exist, then it's fine to return null
 		} catch (IOException e) {
 			log(debugMsg, e);
+		} finally {
+			if (temp != null && !temp.delete()) {
+				temp.deleteOnExit();
+			}
 		}
 		return null;
+	}
+
+	private ECFMetadataTransport getTransport() {
+		return ECFMetadataTransport.getInstance();
 	}
 
 	private void log(String message, Exception e) {
