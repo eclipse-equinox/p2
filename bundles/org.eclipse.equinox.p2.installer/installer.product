@@ -28,6 +28,7 @@
       </win>
    </launcher>
 
+
    <vm>
    </vm>
 
@@ -50,6 +51,7 @@
       <plugin id="org.eclipse.equinox.p2.download"/>
       <plugin id="org.eclipse.equinox.p2.engine"/>
       <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
+      <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
       <plugin id="org.eclipse.equinox.p2.installer"/>
       <plugin id="org.eclipse.equinox.p2.metadata"/>
       <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
