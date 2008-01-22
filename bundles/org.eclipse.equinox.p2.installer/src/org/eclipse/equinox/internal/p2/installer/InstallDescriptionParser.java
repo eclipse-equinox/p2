@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,18 +19,20 @@ import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.osgi.framework.Version;
 
 /**
- * This class is responsible for loading install descriptions from various file formats.
+ * This class is responsible for loading install descriptions from a stream.
  */
 public class InstallDescriptionParser {
-	private static final String PROP_ARTIFACT_REPOSITORY = "artifactRepository";
-	private static final String PROP_INSTALL_LOCATION = "installLocation";
-	private static final String PROP_IS_AUTO_START = "autoStart";
-	private static final String PROP_LAUNCHER_NAME = "launcherName";
-	private static final String PROP_METADATA_REPOSITORY = "metadataRepository";
-	private static final String PROP_PROFILE_FLAVOR = "flavor";
-	private static final String PROP_PROFILE_NAME = "profileName";
-	private static final String PROP_ROOT_ID = "rootId";
-	private static final String PROP_ROOT_VERSION = "rootVersion";
+	private static final String PROP_AGENT_LOCATION = "eclipse.p2.agentLocation"; //$NON-NLS-1$
+	private static final String PROP_ARTIFACT_REPOSITORY = "eclipse.p2.artifacts";//$NON-NLS-1$
+	private static final String PROP_BUNDLE_LOCATION = "eclipse.p2.bundleLocation";//$NON-NLS-1$
+	private static final String PROP_INSTALL_LOCATION = "eclipse.p2.installLocation";//$NON-NLS-1$
+	private static final String PROP_IS_AUTO_START = "eclipse.p2.autoStart";//$NON-NLS-1$
+	private static final String PROP_LAUNCHER_NAME = "eclipse.p2.launcherName";//$NON-NLS-1$
+	private static final String PROP_METADATA_REPOSITORY = "eclipse.p2.metadata";//$NON-NLS-1$
+	private static final String PROP_PROFILE_FLAVOR = "eclipse.p2.flavor";//$NON-NLS-1$
+	private static final String PROP_PROFILE_NAME = "eclipse.p2.profileName";//$NON-NLS-1$
+	private static final String PROP_ROOT_ID = "eclipse.p2.rootId";//$NON-NLS-1$
+	private static final String PROP_ROOT_VERSION = "eclipse.p2.rootVersion";//$NON-NLS-1$
 
 	/**
 	 * Loads and returns an install description that is stored in a properties file.
@@ -54,6 +56,12 @@ public class InstallDescriptionParser {
 			String locationString = properties.getProperty(PROP_INSTALL_LOCATION);
 			if (locationString != null)
 				description.setInstallLocation(new Path(locationString));
+			locationString = properties.getProperty(PROP_AGENT_LOCATION);
+			if (locationString != null)
+				description.setAgentLocation(new Path(locationString));
+			locationString = properties.getProperty(PROP_BUNDLE_LOCATION);
+			if (locationString != null)
+				description.setBundleLocation(new Path(locationString));
 			description.setRootId(properties.getProperty(PROP_ROOT_ID));
 			String versionString = properties.getProperty(PROP_ROOT_VERSION);
 			Version version = versionString == null ? null : new Version(versionString);

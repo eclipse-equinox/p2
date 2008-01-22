@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * This is a simple installer application built using P2.  The application must be given
@@ -106,12 +107,19 @@ public class InstallApplication implements IApplication {
 	}
 
 	private void launchProduct(InstallDescription description) throws CoreException {
+		advisor.setResult(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, NLS.bind("Launching {0}", description.getProductName())));
 		IPath installLocation = description.getInstallLocation();
 		IPath toRun = installLocation.append(description.getLauncherName());
 		try {
 			Runtime.getRuntime().exec(toRun.toString(), null, installLocation.toFile());
 		} catch (IOException e) {
 			throw fail("Failed to launch the product: " + toRun, e);
+		}
+		//wait a few seconds to give the user a chance to read the message
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			//ignore
 		}
 	}
 
@@ -129,9 +137,9 @@ public class InstallApplication implements IApplication {
 
 				//perform long running install operation
 				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(InstallerActivator.getDefault().getContext(), description);
-				advisor.performInstall(operation);
-				IStatus result = operation.getResult();
+				IStatus result = advisor.performInstall(operation);
 				if (!result.isOK()) {
+					LogHelper.log(result);
 					advisor.setResult(result);
 					return IApplication.EXIT_OK;
 				}

@@ -212,14 +212,21 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void preInstall() throws CoreException {
-		if (System.getProperty("eclipse.p2.data.area") == null) //$NON-NLS-1$
-			System.setProperty("eclipse.p2.data.area", installDescription.getInstallLocation().append("installer").toString()); //$NON-NLS-1$ //$NON-NLS-2$
-		if (System.getProperty("eclipse.p2.cache") == null) //$NON-NLS-1$
-			System.setProperty("eclipse.p2.cache", installDescription.getInstallLocation().toString()); //$NON-NLS-1$
+		IPath installLocation = installDescription.getInstallLocation();
+		if (installLocation == null)
+			throw fail("Install failed because the install location was not set");
+		//set agent location if specified
+		IPath agentLocation = installDescription.getAgentLocation();
+		if (agentLocation != null && System.getProperty("eclipse.p2.data.area") == null) //$NON-NLS-1$
+			System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
+		//set bundle pool location if specified
+		IPath bundleLocation = installDescription.getBundleLocation();
+		if (bundleLocation != null && System.getProperty(Profile.PROP_CACHE) == null)
+			System.setProperty(Profile.PROP_CACHE, bundleLocation.toString());
 
 		//start up p2
 		try {
-			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT);
+			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		} catch (BundleException e) {
 			throw fail("Unable to start p2", e);
 		}

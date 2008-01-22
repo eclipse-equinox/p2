@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.osgi.framework.Version;
  */
 public class InstallDescription {
 	private URL artifactRepo;
-	private IPath installLocation;
+	private IPath installLocation, agentLocation, bundleLocation;
 	private boolean isAutoStart;
 	private String launcherName;
 	private URL metadataRepo;
@@ -34,11 +34,27 @@ public class InstallDescription {
 	}
 
 	/**
+	 * Returns the p2 agent location, or <code>null</code> to indicate
+	 * the default agent location.
+	 */
+	public IPath getAgentLocation() {
+		return agentLocation;
+	}
+
+	/**
 	 * Returns the location of the artifact repository to install from
 	 * @return an artifact repository URL
 	 */
 	public URL getArtifactRepository() {
 		return artifactRepo;
+	}
+
+	/**
+	 * Returns the bundle pool location, or <code>null</code> to
+	 * indicate the default bundle pool location.
+	 */
+	public IPath getBundleLocation() {
+		return bundleLocation;
 	}
 
 	/**
@@ -107,12 +123,20 @@ public class InstallDescription {
 		return isAutoStart;
 	}
 
+	public void setAgentLocation(IPath agentLocation) {
+		this.agentLocation = agentLocation;
+	}
+
 	public void setArtifactRepository(URL repository) {
 		this.artifactRepo = repository;
 	}
 
 	public void setAutoStart(boolean value) {
 		this.isAutoStart = value;
+	}
+
+	public void setBundleLocation(IPath bundleLocation) {
+		this.bundleLocation = bundleLocation;
 	}
 
 	public void setFlavor(String flavor) {

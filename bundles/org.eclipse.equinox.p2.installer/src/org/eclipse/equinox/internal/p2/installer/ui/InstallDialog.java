@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.installer.ui;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
+import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -20,8 +22,9 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
 /**
- * A simple implementation of a progress monitor dialog, used for running
- * an install operation.
+ * The install wizard that drives the install. This dialog is used for user input
+ * prior to the install, progress feedback during the install, and displaying results
+ * at the end of the install.
  */
 public class InstallDialog {
 	/**
@@ -133,57 +136,51 @@ public class InstallDialog {
 		}
 	}
 
+	private static final String EXPLAIN_SHARED = "In a shared install, common components are stored together, allowing them to be shared across multiple products.";
+
+	private static final String EXPLAIN_STANDALONE = "In a stand-alone install, each product is installed in its own directory without any sharing between products";
+
 	private Button closeButton;
 	private Composite contents;
+	private Label installKindExplanation;
+
+	private Composite installSettingsGroup;
+	private Text locationField;
 	/**
 	 * Flag indicating whether the user has indicated if it is ok to close the dialog
 	 */
 	private boolean okToClose;
-	ProgressBar progress;
-	private Shell shell;
-	Label subTaskLabel;
 
+	ProgressBar progress;
+	private Button sharedButton;
+	private Shell shell;
+	private Button standaloneButton;
+	Label subTaskLabel;
 	Label taskLabel;
 
 	/**
 	 * Creates and opens a progress monitor dialog.
 	 */
 	public InstallDialog() {
-		shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-		shell.setBounds(300, 200, 600, 400);
-		shell.setText("Installer");
-		shell.setLayout(new FillLayout());
-		contents = new Composite(shell, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = 15;
-		layout.marginHeight = 15;
-		contents.setLayout(layout);
+		createShell();
 		taskLabel = new Label(contents, SWT.WRAP | SWT.LEFT);
 		taskLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		progress = new ProgressBar(contents, SWT.HORIZONTAL | SWT.SMOOTH);
-		progress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		progress.setVisible(false);
-		subTaskLabel = new Label(contents, SWT.WRAP | SWT.LEFT);
-		subTaskLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		createInstallSettingsControls();
+		createProgressControls();
+		createCloseButton();
 
-		//spacer
-		Label spacer = new Label(contents, SWT.NONE);
-		spacer.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		closeButton = new Button(contents, SWT.PUSH);
-		GridData data = new GridData(80, SWT.DEFAULT);
-		data.verticalAlignment = SWT.END;
-		data.horizontalAlignment = SWT.RIGHT;
-		closeButton.setLayoutData(data);
-		closeButton.setText("OK");
-		closeButton.setVisible(false);
-		closeButton.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				setOkToClose();
-			}
-		});
 		shell.layout();
 		shell.open();
+	}
+
+	protected void browsePressed() {
+		DirectoryDialog dirDialog = new DirectoryDialog(shell);
+		dirDialog.setMessage("Select the install location");
+		String location = dirDialog.open();
+		if (location == null)
+			location = ""; //$NON-NLS-1$
+		locationField.setText(location);
+		validateInstallSettings();
 	}
 
 	private synchronized boolean canClose() {
@@ -193,6 +190,104 @@ public class InstallDialog {
 	public void close() {
 		shell.dispose();
 		shell = null;
+	}
+
+	private void createCloseButton() {
+		closeButton = new Button(contents, SWT.PUSH);
+		GridData data = new GridData(80, SWT.DEFAULT);
+		data.verticalAlignment = SWT.END;
+		data.horizontalAlignment = SWT.RIGHT;
+		closeButton.setLayoutData(data);
+		closeButton.setVisible(false);
+		closeButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				setOkToClose();
+			}
+		});
+	}
+
+	/**
+	 * Creates the controls to prompt for the agent and install locations.
+	 */
+	private void createInstallSettingsControls() {
+		installSettingsGroup = new Composite(contents, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		installSettingsGroup.setLayout(layout);
+		installSettingsGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		Listener validateListener = new Listener() {
+			public void handleEvent(Event event) {
+				validateInstallSettings();
+			}
+		};
+
+		//The group asking for the product install directory
+		Group installLocationGroup = new Group(installSettingsGroup, SWT.NONE);
+		installLocationGroup.setLayout(new GridLayout());
+		installLocationGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+		installLocationGroup.setText("Location");
+		Label installLocationLabel = new Label(installLocationGroup, SWT.NONE);
+		installLocationLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		installLocationLabel.setText("Select the product install directory:");
+
+		//The sub-group with text entry field and browse button
+		Composite locationFieldGroup = new Composite(installLocationGroup, SWT.NONE);
+		locationFieldGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+		layout = new GridLayout();
+		layout.numColumns = 2;
+		layout.makeColumnsEqualWidth = false;
+		locationFieldGroup.setLayout(layout);
+		locationField = new Text(locationFieldGroup, SWT.SINGLE | SWT.BORDER);
+		locationField.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		locationField.addListener(SWT.Modify, validateListener);
+		Button browseButton = new Button(locationFieldGroup, SWT.PUSH);
+		browseButton.setText("Browse...");
+		browseButton.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				browsePressed();
+			}
+		});
+
+		//Create the radio button group asking for the kind of install (shared vs. standalone)
+		Group installKindGroup = new Group(installSettingsGroup, SWT.NONE);
+		installKindGroup.setText("Layout");
+		installKindGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+		installKindGroup.setLayout(new GridLayout());
+		standaloneButton = new Button(installKindGroup, SWT.RADIO);
+		standaloneButton.setText("Stand-alone install");
+		standaloneButton.addListener(SWT.Selection, validateListener);
+		standaloneButton.setSelection(true);
+		sharedButton = new Button(installKindGroup, SWT.RADIO);
+		sharedButton.setText("Shared install");
+		sharedButton.addListener(SWT.Selection, validateListener);
+		installKindExplanation = new Label(installKindGroup, SWT.WRAP);
+		GridData data = new GridData(SWT.DEFAULT, 40);
+		data.grabExcessHorizontalSpace = true;
+		installKindExplanation.setLayoutData(data);
+		installKindExplanation.setText(EXPLAIN_STANDALONE);
+
+		//make the entire group invisible until we actually need to prompt for locations
+		installSettingsGroup.setVisible(false);
+	}
+
+	private void createProgressControls() {
+		progress = new ProgressBar(contents, SWT.HORIZONTAL | SWT.SMOOTH);
+		progress.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		progress.setVisible(false);
+		subTaskLabel = new Label(contents, SWT.WRAP | SWT.LEFT);
+		subTaskLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	}
+
+	private void createShell() {
+		shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		shell.setBounds(300, 200, 600, 400);
+		shell.setText("Installer");
+		shell.setLayout(new FillLayout());
+		contents = new Composite(shell, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 15;
+		layout.marginHeight = 15;
+		contents.setLayout(layout);
 	}
 
 	public Display getDisplay() {
@@ -216,12 +311,42 @@ public class InstallDialog {
 		taskLabel.setText(message);
 		subTaskLabel.setText(""); //$NON-NLS-1$
 		progress.setVisible(false);
+		closeButton.setText("OK");
 		closeButton.setVisible(true);
 		while (!canClose()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
 
+	}
+
+	public void promptForLocations(InstallDescription description) {
+		taskLabel.setText(NLS.bind("Select where you want {0} to be installed", description.getProductName()));
+		closeButton.setText("Install");
+		closeButton.setVisible(true);
+		installSettingsGroup.setVisible(true);
+		validateInstallSettings();
+		Display display = getDisplay();
+		while (!okToClose && !shell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
+		if (shell.isDisposed())
+			throw new OperationCanceledException();
+		Path location = new Path(locationField.getText());
+		description.setInstallLocation(location);
+		if (standaloneButton.getSelection()) {
+			description.setAgentLocation(location.append("p2")); //$NON-NLS-1$
+			description.setBundleLocation(location.append("plugins")); //$NON-NLS-1$
+		} else {
+			String home = System.getProperty("user.home"); //$NON-NLS-1$
+			description.setAgentLocation(new Path(home).append(".p2/")); //$NON-NLS-1$
+			//setting bundle location to null will cause it to use default bundle location under agent location
+			description.setBundleLocation(null);
+		}
+		okToClose = false;
+		installSettingsGroup.setVisible(false);
+		closeButton.setVisible(false);
 	}
 
 	/**
@@ -283,4 +408,22 @@ public class InstallDialog {
 		okToClose = true;
 	}
 
+	/**
+	 * Validates that the user has correctly entered all required install settings.
+	 */
+	void validateInstallSettings() {
+		boolean enabled = standaloneButton.getSelection() || sharedButton.getSelection();
+		enabled &= Path.ROOT.isValidPath(locationField.getText());
+		if (enabled) {
+			//make sure the install location is an absolute path
+			IPath location = new Path(locationField.getText());
+			enabled &= location.isAbsolute();
+		}
+		closeButton.setEnabled(enabled);
+
+		if (standaloneButton.getSelection())
+			installKindExplanation.setText(EXPLAIN_STANDALONE);
+		else
+			installKindExplanation.setText(EXPLAIN_SHARED);
+	}
 }

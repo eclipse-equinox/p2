@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer.ui;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.installer.*;
-import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 
 /**
@@ -29,14 +27,8 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 	}
 
 	public InstallDescription prepareInstallDescription(InstallDescription description) {
-		if (description.getInstallLocation() == null) {
-			DirectoryDialog dirDialog = new DirectoryDialog(dialog.getShell());
-			dirDialog.setMessage(NLS.bind("Where do you want to install {0}?", description.getProductName()));
-			String location = dirDialog.open();
-			if (location == null)
-				throw new OperationCanceledException();
-			description.setInstallLocation(new Path(location));
-		}
+		if (description.getInstallLocation() == null)
+			dialog.promptForLocations(description);
 		return description;
 	}
 
