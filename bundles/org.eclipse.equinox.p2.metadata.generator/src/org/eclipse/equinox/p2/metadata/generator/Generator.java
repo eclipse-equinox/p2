@@ -24,12 +24,13 @@ import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescriptio
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 public class Generator {
 
-	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator";
-	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator";
+	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
+	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
@@ -73,7 +74,7 @@ public class Generator {
 		//		 for features be optional in the root. Since there is a global
 		//		 filter to prevent features from being installed, the fragment
 		//		 needs to be optional.
-		return (iu.getId().indexOf(".feature.default") > 0 ? true : false);
+		return (iu.getId().indexOf(".feature.default") > 0 ? true : false); //$NON-NLS-1$
 	}
 
 	protected IInstallableUnit createTopLevelIU(Set resultantIUs, String configurationIdentification, String configurationVersion) {
@@ -98,7 +99,7 @@ public class Generator {
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setProperty(IInstallableUnit.PROP_UPDATE_FROM, configurationIdentification);
 		root.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, VersionRange.emptyRange.toString());
-		ProvidedCapability groupCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
+		ProvidedCapability groupCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0")); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion)), groupCapability});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
@@ -111,18 +112,18 @@ public class Generator {
 			for (Iterator iterator = configData.getFwDependentProps().entrySet().iterator(); iterator.hasNext();) {
 				Entry aProperty = (Entry) iterator.next();
 				String key = ((String) aProperty.getKey());
-				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
+				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					continue;
-				configurationData += "setFwDependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
-				unconfigurationData += "setFwDependentProp(propName:" + key + ", propValue:);";
+				configurationData += "setFwDependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				unconfigurationData += "setFwDependentProp(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
 				Entry aProperty = (Entry) iterator.next();
 				String key = ((String) aProperty.getKey());
-				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof"))
+				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					continue;
-				configurationData += "setFwIndependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");";
-				unconfigurationData += "setFwIndependentProp(propName:" + key + ", propValue:);";
+				configurationData += "setFwIndependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				unconfigurationData += "setFwIndependentProp(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 
@@ -130,21 +131,21 @@ public class Generator {
 		if (launcherData != null) {
 			final String[] jvmArgs = launcherData.getJvmArgs();
 			for (int i = 0; i < jvmArgs.length; i++) {
-				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");";
-				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");";
+				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			final String[] programArgs = launcherData.getProgramArgs();
 			for (int i = 0; i < programArgs.length; i++) {
 				String programArg = programArgs[i];
-				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration"))
+				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					i++;
-				configurationData += "addProgramArg(programArg:" + programArg + ");";
-				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");";
+				configurationData += "addProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		touchpointData.put("configure", configurationData);
-		touchpointData.put("unconfigure", unconfigurationData);
+		touchpointData.put("configure", configurationData); //$NON-NLS-1$
+		touchpointData.put("unconfigure", unconfigurationData); //$NON-NLS-1$
 		root.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(root);
 	}
@@ -538,7 +539,7 @@ public class Generator {
 		} catch (FileNotFoundException e) {
 			//don't complain if the update site is not present
 		} catch (Exception e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing update site: " + siteLocation, e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.exception_errorParsingUpdateSite, siteLocation), e));
 		}
 		if (site == null)
 			return mappings;
@@ -607,7 +608,7 @@ public class Generator {
 				if (!destination.contains(descriptor)) {
 					OutputStream output = destination.getOutputStream(descriptor);
 					if (output == null)
-						throw new IOException("unable to open output stream for " + descriptor);
+						throw new IOException(NLS.bind(Messages.exception_outputStream, descriptor));
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, new BufferedOutputStream(output), true);
 				}
 			} catch (FileNotFoundException e) {
@@ -623,7 +624,7 @@ public class Generator {
 				if (!destination.contains(descriptor)) {
 					OutputStream output = destination.getOutputStream(descriptor);
 					if (output == null)
-						throw new IOException("unable to open output stream for " + descriptor);
+						throw new IOException(NLS.bind(Messages.exception_outputStream, descriptor));
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, new BufferedOutputStream(output), true);
 				}
 			} catch (IOException e) {

@@ -167,7 +167,7 @@ public class FeatureEntry {
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 
-		result.append(isPlugin ? "Plugin: " : "Feature: "); //$NON-NLS-1$
+		result.append(isPlugin ? "Plugin: " : "Feature: "); //$NON-NLS-1$ //$NON-NLS-2$
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
 		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return result.toString();

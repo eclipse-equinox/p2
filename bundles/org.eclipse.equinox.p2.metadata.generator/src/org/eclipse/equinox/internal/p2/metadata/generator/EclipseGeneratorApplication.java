@@ -24,10 +24,10 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.p2.metadata.generator.Generator;
+import org.eclipse.equinox.p2.metadata.generator.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceRegistration;
 
 public class EclipseGeneratorApplication implements IApplication {
@@ -66,16 +66,16 @@ public class EclipseGeneratorApplication implements IApplication {
 	}
 
 	private void initialize(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
-		if ("-source".equalsIgnoreCase(operation))
+		if ("-source".equalsIgnoreCase(operation)) //$NON-NLS-1$
 			provider.initialize(new File(argument));
-		else if ("-inplace".equalsIgnoreCase(operation)) {
+		else if ("-inplace".equalsIgnoreCase(operation)) { //$NON-NLS-1$
 			provider.initialize(new File(argument));
 			initializeForInplace(provider);
-		} else if ("-config".equalsIgnoreCase(operation)) {
-			provider.initialize(new File(argument), new File(argument, "configuration"), getExecutableName(argument, provider), null, null);
-		} else if ("-updateSite".equalsIgnoreCase(operation)) {
+		} else if ("-config".equalsIgnoreCase(operation)) { //$NON-NLS-1$
+			provider.initialize(new File(argument), new File(argument, "configuration"), getExecutableName(argument, provider), null, null); //$NON-NLS-1$
+		} else if ("-updateSite".equalsIgnoreCase(operation)) { //$NON-NLS-1$
 			provider.setAddDefaultIUs(false);
-			provider.initialize(new File(argument), null, null, new File[] {new File(argument, "plugins")}, new File(argument, "features"));
+			provider.initialize(new File(argument), null, null, new File[] {new File(argument, "plugins")}, new File(argument, "features")); //$NON-NLS-1$ //$NON-NLS-2$
 			initializeForInplace(provider);
 		} else {
 			if (base != null && bundles != null && features != null)
@@ -90,12 +90,12 @@ public class EclipseGeneratorApplication implements IApplication {
 		try {
 			location = new URL(artifactLocation);
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Artifact repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, artifactLocation));
 		}
 		try {
 			IArtifactRepository repository = manager.loadRepository(location, null);
 			if (!repository.isModifiable())
-				throw new IllegalArgumentException("Artifact repository not writeable: " + location); //$NON-NLS-1$
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
 			provider.setArtifactRepository(repository);
 			if (!provider.append())
 				repository.removeAll();
@@ -132,7 +132,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		try {
 			location = new URL(metadataLocation);
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException("Metadata repository location not a valid URL:" + artifactLocation); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, artifactLocation));
 		}
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		try {
@@ -140,7 +140,7 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (repository != null) {
 				repository.setProperty(IRepository.PROP_COMPRESSED, compress);
 				if (!repository.isModifiable())
-					throw new IllegalArgumentException("Metadata repository not writeable: " + location); //$NON-NLS-1$
+					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
 				provider.setMetadataRepository(repository);
 				if (!provider.append())
 					repository.removeAll();
@@ -171,19 +171,19 @@ public class EclipseGeneratorApplication implements IApplication {
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
 
-			if (args[i].equalsIgnoreCase("-publishArtifacts") || args[i].equalsIgnoreCase("-pa"))
+			if (args[i].equalsIgnoreCase("-publishArtifacts") || args[i].equalsIgnoreCase("-pa")) //$NON-NLS-1$ //$NON-NLS-2$
 				provider.setPublishArtifacts(true);
 
-			if (args[i].equalsIgnoreCase("-publishArtifactRepository") || args[i].equalsIgnoreCase("-par"))
+			if (args[i].equalsIgnoreCase("-publishArtifactRepository") || args[i].equalsIgnoreCase("-par")) //$NON-NLS-1$ //$NON-NLS-2$
 				provider.setPublishArtifactRepository(true);
 
-			if (args[i].equalsIgnoreCase("-append"))
+			if (args[i].equalsIgnoreCase("-append")) //$NON-NLS-1$
 				provider.setAppend(true);
 
-			if (args[i].equalsIgnoreCase("-noDefaultIUs"))
+			if (args[i].equalsIgnoreCase("-noDefaultIUs")) //$NON-NLS-1$
 				provider.setAddDefaultIUs(false);
 
-			if (args[i].equalsIgnoreCase("-compress"))
+			if (args[i].equalsIgnoreCase("-compress")) //$NON-NLS-1$
 				compress = "true"; //$NON-NLS-1$
 
 			// check for args with parameters. If we are at the last argument or if the next one
@@ -192,59 +192,59 @@ public class EclipseGeneratorApplication implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-source")) {
+			if (args[i - 1].equalsIgnoreCase("-source")) { //$NON-NLS-1$
 				operation = args[i - 1];
 				argument = arg;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-inplace")) {
+			if (args[i - 1].equalsIgnoreCase("-inplace")) { //$NON-NLS-1$
 				operation = args[i - 1];
 				argument = arg;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-config")) {
+			if (args[i - 1].equalsIgnoreCase("-config")) { //$NON-NLS-1$
 				operation = args[i - 1];
 				argument = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-updateSite")) {
+			if (args[i - 1].equalsIgnoreCase("-updateSite")) { //$NON-NLS-1$
 				operation = args[i - 1];
 				argument = arg;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-exe"))
+			if (args[i - 1].equalsIgnoreCase("-exe")) //$NON-NLS-1$
 				provider.setExecutableLocation(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-launcherConfig"))
+			if (args[i - 1].equalsIgnoreCase("-launcherConfig")) //$NON-NLS-1$
 				provider.setLauncherConfig(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr"))
+			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataLocation = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar"))
+			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactLocation = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-flavor"))
+			if (args[i - 1].equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 				provider.setFlavor(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-features"))
+			if (args[i - 1].equalsIgnoreCase("-features")) //$NON-NLS-1$
 				features = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-bundles"))
+			if (args[i - 1].equalsIgnoreCase("-bundles")) //$NON-NLS-1$
 				bundles = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-base"))
+			if (args[i - 1].equalsIgnoreCase("-base")) //$NON-NLS-1$
 				base = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-root"))
+			if (args[i - 1].equalsIgnoreCase("-root")) //$NON-NLS-1$
 				provider.setRootId(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-rootVersion"))
+			if (args[i - 1].equalsIgnoreCase("-rootVersion")) //$NON-NLS-1$
 				provider.setRootVersion(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-p2.os"))
+			if (args[i - 1].equalsIgnoreCase("-p2.os")) //$NON-NLS-1$
 				provider.setOS(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-site"))
+			if (args[i - 1].equalsIgnoreCase("-site")) //$NON-NLS-1$
 				provider.setSiteLocation(new URL(arg));
 		}
 	}
@@ -279,18 +279,18 @@ public class EclipseGeneratorApplication implements IApplication {
 		initialize(provider);
 
 		if (provider.getBaseLocation() == null) {
-			System.out.println("Eclipse base location not specified");
+			System.out.println(Messages.exception_baseLocationNotSpecified);
 			for (int i = 0; i < args.length; i++)
 				System.out.println(args[i]);
 			return IApplication.EXIT_OK;
 		}
-		System.out.println("Generating metadata for " + provider.getBaseLocation());
+		System.out.println(NLS.bind(Messages.message_generatingMetadata, provider.getBaseLocation()));
 
 		long before = System.currentTimeMillis();
 		IStatus result = new Generator(provider).generate();
 		long after = System.currentTimeMillis();
 		if (result.isOK()) {
-			System.out.println("Generation completed with success [" + (after - before) / 1000 + " seconds]");
+			System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
 			return IApplication.EXIT_OK;
 		}
 		System.out.println(result);
@@ -298,7 +298,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	}
 
 	public Object start(IApplicationContext context) throws Exception {
-		return run((String[]) context.getArguments().get("application.args"));
+		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
 	public void stop() {

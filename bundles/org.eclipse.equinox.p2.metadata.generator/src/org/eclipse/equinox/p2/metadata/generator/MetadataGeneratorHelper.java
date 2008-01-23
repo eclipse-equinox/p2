@@ -94,10 +94,10 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, iuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		Map touchpointData = new HashMap();
-		touchpointData.put("install", "installBundle(bundle:${artifact})");
-		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})");
-		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment));
-		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment));
+		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
+		touchpointData.put("uninstall", "uninstallBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
+		touchpointData.put("configure", createConfigScript(configInfo, isBundleFragment)); //$NON-NLS-1$
+		touchpointData.put("unconfigure", createUnconfigScript(configInfo, isBundleFragment)); //$NON-NLS-1$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		cu.setFilter(filter);
 		return MetadataFactory.createInstallableUnit(cu);
@@ -105,7 +105,7 @@ public class MetadataGeneratorHelper {
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
 		boolean isBinaryBundle = true;
-		if (manifest.containsKey("Eclipse-SourceBundle")) {
+		if (manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
 			isBinaryBundle = false;
 		}
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
@@ -168,7 +168,7 @@ public class MetadataGeneratorHelper {
 		if (isFragment)
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getHost().getName(), bd.getVersion()));
 		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
-		iu.setApplicabilityFilter("");
+		iu.setApplicabilityFilter(""); //$NON-NLS-1$
 
 		iu.setArtifacts(new IArtifactKey[] {key});
 
@@ -195,8 +195,8 @@ public class MetadataGeneratorHelper {
 		// that this is something that will not impact the configuration.
 		Map touchpointData = new HashMap();
 		if (isFolderPlugin)
-			touchpointData.put("zipped", "true");
-		touchpointData.put("manifest", toManifestString(manifest));
+			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		return MetadataFactory.createInstallableUnit(iu);
 	}
@@ -349,7 +349,7 @@ public class MetadataGeneratorHelper {
 			// Define the immutable metadata for this IU. In this case immutable means
 			// that this is something that will not impact the configuration.
 			Map touchpointData = new HashMap();
-			touchpointData.put("zipped", "true");
+			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
 		return MetadataFactory.createInstallableUnit(iu);
@@ -377,7 +377,7 @@ public class MetadataGeneratorHelper {
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
-		ProvidedCapability groupCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0"));
+		ProvidedCapability groupCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0")); //$NON-NLS-1$ //$NON-NLS-2$
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), groupCapability});
 		return MetadataFactory.createInstallableUnit(iu);
 	}
@@ -411,7 +411,7 @@ public class MetadataGeneratorHelper {
 			iu.setCapabilities(generateJRECapability(id, version, null));
 			resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
-			touchpointData.put("install", "");
+			touchpointData.put("install", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 			resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
 			return null;
@@ -424,8 +424,8 @@ public class MetadataGeneratorHelper {
 		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create config info for the CU
-		String configurationData = "unzip(source:@artifact, target:${installFolder});";
-		touchpointData.put("install", configurationData);
+		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -470,11 +470,11 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, LAUNCHER_VERSION)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
-		String configurationData = "unzip(source:@artifact, target:${installFolder});";
+		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
-			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);";
-		touchpointData.put("install", configurationData);
+			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
@@ -490,13 +490,13 @@ public class MetadataGeneratorHelper {
 
 	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
 		if (unconfigInfo == null)
-			return "";
+			return ""; //$NON-NLS-1$
 		String unconfigScript = "";//$NON-NLS-1$
 		if (!isBundleFragment && unconfigInfo.getStartLevel() != BundleInfo.NO_LEVEL) {
-			unconfigScript += "setStartLevel(startLevel:" + BundleInfo.NO_LEVEL + ");";
+			unconfigScript += "setStartLevel(startLevel:" + BundleInfo.NO_LEVEL + ");"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (!isBundleFragment && unconfigInfo.isMarkedAsStarted()) {
-			unconfigScript += "markStarted(started: false);";
+			unconfigScript += "markStarted(started: false);"; //$NON-NLS-1$
 		}
 
 		if (unconfigInfo.getSpecialUnconfigCommands() != null) {
@@ -510,7 +510,7 @@ public class MetadataGeneratorHelper {
 		if (profileStream == null) {
 			//use the 1.5 profile stored in the generator bundle
 			try {
-				profileStream = Activator.getContext().getBundle().getEntry("J2SE-1.5.profile").openStream();
+				profileStream = Activator.getContext().getBundle().getEntry("J2SE-1.5.profile").openStream(); //$NON-NLS-1$
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -518,11 +518,11 @@ public class MetadataGeneratorHelper {
 		Properties p = new Properties();
 		try {
 			p.load(profileStream);
-			ManifestElement[] jrePackages = ManifestElement.parseHeader("org.osgi.framework.system.packages", (String) p.get("org.osgi.framework.system.packages"));
+			ManifestElement[] jrePackages = ManifestElement.parseHeader("org.osgi.framework.system.packages", (String) p.get("org.osgi.framework.system.packages")); //$NON-NLS-1$ //$NON-NLS-2$
 			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length + 1];
 			exportedPackageAsCapabilities[0] = createSelfCapability(installableUnitId, installableUnitVersion);
 			for (int i = 1; i <= jrePackages.length; i++) {
-				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability("osgi.packages", jrePackages[i - 1].getValue(), null);
+				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability("osgi.packages", jrePackages[i - 1].getValue(), null); //$NON-NLS-1$
 			}
 			return exportedPackageAsCapabilities;
 		} catch (IOException e) {
@@ -606,17 +606,17 @@ public class MetadataGeneratorHelper {
 		if (match == null)
 			// TODO should really be returning VersionRange.emptyRange here...
 			return null;
-		if (match.equals("perfect"))
+		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
-		if (match.equals("equivalent")) {
+		if (match.equals("equivalent")) { //$NON-NLS-1$
 			Version upper = new Version(version.getMajor(), version.getMinor() + 1, 0);
 			return new VersionRange(version, true, upper, false);
 		}
-		if (match.equals("compatible")) {
+		if (match.equals("compatible")) { //$NON-NLS-1$
 			Version upper = new Version(version.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
 		}
-		if (match.equals("greaterOrEqual"))
+		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
 			return new VersionRange(version, true, new VersionRange(null).getMaximum(), true);
 		return null;
 	}
@@ -632,7 +632,7 @@ public class MetadataGeneratorHelper {
 			return false;
 		if (manifest.get(ECLIPSE_EXTENSIBLE_API) == null)
 			return false;
-		if (bd.getSymbolicName().equals("org.eclipse.osgi")) //Special case for OSGi
+		if (bd.getSymbolicName().equals("org.eclipse.osgi")) //Special case for OSGi //$NON-NLS-1$
 			return false;
 		String classpath = (String) ((Map) bd.getUserObject()).get(Constants.BUNDLE_CLASSPATH);
 		if (classpath == null)
@@ -640,7 +640,7 @@ public class MetadataGeneratorHelper {
 		ManifestElement[] classpathEntries;
 		try {
 			classpathEntries = ManifestElement.parseHeader(Constants.BUNDLE_CLASSPATH, classpath);
-			if (classpathEntries.length != 0 && classpathEntries[0].getValue().equals("."))
+			if (classpathEntries.length != 0 && classpathEntries[0].getValue().equals(".")) //$NON-NLS-1$
 				return true;
 		} catch (BundleException e) {
 			//If we are here, it is that we have already parsed the bundle manifest and it contains no error 
@@ -655,7 +655,7 @@ public class MetadataGeneratorHelper {
 		StringBuffer result = new StringBuffer();
 		for (Iterator iterator = properties.iterator(); iterator.hasNext();) {
 			Map.Entry aProperty = (Map.Entry) iterator.next();
-			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n');
+			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$
 		}
 		return result.toString();
 	}

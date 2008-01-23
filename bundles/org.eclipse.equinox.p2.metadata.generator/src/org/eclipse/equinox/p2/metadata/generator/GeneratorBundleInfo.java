@@ -149,7 +149,7 @@ public class GeneratorBundleInfo extends BundleInfo {
 		try {
 			super.setManifest(manifest);
 			Headers headers = Headers.parseManifest(new ByteArrayInputStream(manifest.getBytes()));
-			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME));
+			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
 			super.setSymbolicName(element[0].getValue());
 			super.setVersion((String) headers.get(Constants.BUNDLE_VERSION));
 		} catch (BundleException e) {

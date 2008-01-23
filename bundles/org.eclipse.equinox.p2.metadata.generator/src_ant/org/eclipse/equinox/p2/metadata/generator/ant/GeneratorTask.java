@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.tools.ant.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.EclipseGeneratorApplication;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * An Ant task to call the p2 Metadata Generator application.
@@ -39,50 +40,50 @@ public class GeneratorTask extends Task {
 			// collect the arguments and call the application
 			new EclipseGeneratorApplication().run(getArguments());
 		} catch (Exception e) {
-			throw new BuildException("Error occurred when calling generator.", e);
+			throw new BuildException(TaskMessages.exception_errorOccurredCallingGenerator, e);
 		}
 	}
 
 	private String[] getArguments() {
 		List result = new ArrayList();
 		if (metadataRepository != null) {
-			result.add("-metadataRepository");
+			result.add("-metadataRepository"); //$NON-NLS-1$
 			result.add(metadataRepository.toExternalForm());
 		}
 		if (artifactRepository != null) {
-			result.add("-artifactRepository");
+			result.add("-artifactRepository"); //$NON-NLS-1$
 			result.add(artifactRepository.toExternalForm());
 		}
 		if (source != null) {
-			result.add("-source");
+			result.add("-source"); //$NON-NLS-1$
 			result.add(source.getAbsolutePath());
 		}
 		if (config != null) {
-			result.add("-config");
+			result.add("-config"); //$NON-NLS-1$
 			result.add(config.getAbsolutePath());
 		}
 		if (updateSite != null) {
-			result.add("-updateSite");
+			result.add("-updateSite"); //$NON-NLS-1$
 			result.add(updateSite.getAbsolutePath());
 		}
 		if (inplace != null) {
-			result.add("-inplace");
+			result.add("-inplace"); //$NON-NLS-1$
 			result.add(inplace.getAbsolutePath());
 		}
 		if (rootVersion != null) {
-			result.add("-rootVersion");
+			result.add("-rootVersion"); //$NON-NLS-1$
 			result.add(rootVersion);
 		}
 		if (root != null) {
-			result.add("-root");
+			result.add("-root"); //$NON-NLS-1$
 			result.add(root);
 		}
 		if (flavor != null) {
-			result.add("-flavor");
+			result.add("-flavor"); //$NON-NLS-1$
 			result.add(flavor);
 		}
 		if (exe != null) {
-			result.add("-exe");
+			result.add("-exe"); //$NON-NLS-1$
 			result.add(exe.getAbsolutePath());
 		}
 		if (launcherConfig != null) {
@@ -90,29 +91,29 @@ public class GeneratorTask extends Task {
 			result.add(launcherConfig);
 		}
 		if (features != null) {
-			result.add("-features");
+			result.add("-features"); //$NON-NLS-1$
 			result.add(features.getAbsolutePath());
 		}
 		if (bundles != null) {
-			result.add("-bundles");
+			result.add("-bundles"); //$NON-NLS-1$
 			result.add(bundles.getAbsolutePath());
 		}
 		if (base != null) {
-			result.add("-base");
+			result.add("-base"); //$NON-NLS-1$
 			result.add(base.getAbsolutePath());
 		}
 		if (p2OS != null) {
-			result.add("-p2.os");
+			result.add("-p2.os"); //$NON-NLS-1$
 			result.add(p2OS);
 		}
 		if (publishArtifacts)
-			result.add("-publishArtifacts");
+			result.add("-publishArtifacts"); //$NON-NLS-1$
 		if (publishArtifactRepository)
-			result.add("-publishArtifactRepository");
+			result.add("-publishArtifactRepository"); //$NON-NLS-1$
 		if (append)
-			result.add("-append");
+			result.add("-append"); //$NON-NLS-1$
 		if (noDefaultIUs)
-			result.add("-noDefaultIUs");
+			result.add("-noDefaultIUs"); //$NON-NLS-1$
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
@@ -124,7 +125,7 @@ public class GeneratorTask extends Task {
 		try {
 			artifactRepository = new URL(location);
 		} catch (MalformedURLException e) {
-			log("Error setting artifact repository.", e, Project.MSG_WARN);
+			log(NLS.bind(TaskMessages.exception_errorArtifactRepo, location), e, Project.MSG_WARN);
 		}
 	}
 
@@ -164,7 +165,7 @@ public class GeneratorTask extends Task {
 		try {
 			metadataRepository = new URL(location);
 		} catch (MalformedURLException e) {
-			log("Error setting metadata repository.", e, Project.MSG_WARN);
+			log(NLS.bind(TaskMessages.exception_errorMetadataRepo, location), e, Project.MSG_WARN);
 		}
 	}
 

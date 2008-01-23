@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,45 +21,24 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
-	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
+	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-	private final static String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
+	private final static String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)"; //$NON-NLS-1$ //$NON-NLS-2$
 	//String filterFwVersion = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_VERSION + "=" + props.getProperty("equinox.fw.version") + ")";
-	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)";
+	private final static String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)"; //$NON-NLS-1$ //$NON-NLS-2$
 	//String filterLauncherVersion = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_VERSION + "=" + props.getProperty("equinox.launcher.version") + ")";
-	private final static String frameworkAdminFillter = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")";
+	private final static String frameworkAdminFillter = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 
 	private static String os;
-	private boolean addDefaultIUs = true;
-	private boolean append = false;
-
-	private IArtifactRepository artifactRepository;
-	private File baseLocation;
-	private File[] bundleLocations;
-	private File configLocation;
-	private ArrayList defaultIUs;
-	private File executableLocation;
-	private File featuresLocation;
-	private String flavor;
-	private ServiceTracker frameworkAdminTracker;
-	private Manipulator manipulator;
-	private String[][] mappingRules;
-	private IMetadataRepository metadataRepository;
-	private boolean publishArtifactRepo = false;
-	private boolean publishArtifacts = false;
-	private String rootId;
-	private String rootVersion;
-	private String launcherConfig;
-
-	private URL siteLocation;
 
 	/**
 	 * Returns a default name for the executable.
@@ -76,6 +55,30 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return "eclipse"; //$NON-NLS-1$
 	}
 
+	private boolean addDefaultIUs = true;
+
+	private boolean append = false;
+	private IArtifactRepository artifactRepository;
+	private File baseLocation;
+	private File[] bundleLocations;
+	private File configLocation;
+	private ArrayList defaultIUs;
+	private File executableLocation;
+	private File featuresLocation;
+	private String flavor;
+	private ServiceTracker frameworkAdminTracker;
+	private Manipulator manipulator;
+	private String[][] mappingRules;
+	private IMetadataRepository metadataRepository;
+	private boolean publishArtifactRepo = false;
+	private boolean publishArtifacts = false;
+	private String rootId;
+	private String rootVersion;
+
+	private String launcherConfig;
+
+	private URL siteLocation;
+
 	public EclipseInstallGeneratorInfoProvider() {
 		super();
 	}
@@ -90,8 +93,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	protected GeneratorBundleInfo createDefaultConfigurationBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
-		result.setSymbolicName("defaultConfigure");
-		result.setVersion("1.0.0");
+		result.setSymbolicName("defaultConfigure"); //$NON-NLS-1$
+		result.setVersion("1.0.0"); //$NON-NLS-1$
 		result.setStartLevel(4);
 		// These should just be in the install section now
 		//		result.setSpecialConfigCommands("installBundle(bundle:${artifact});");
@@ -100,8 +103,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	protected GeneratorBundleInfo createDefaultUnconfigurationBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
-		result.setSymbolicName("defaultUnconfigure");
-		result.setVersion("1.0.0");
+		result.setSymbolicName("defaultUnconfigure"); //$NON-NLS-1$
+		result.setVersion("1.0.0"); //$NON-NLS-1$
 		// These should just be in the uninstall section now
 		//		result.setSpecialConfigCommands("uninstallBundle(bundle:${artifact});");
 		return result;
@@ -122,26 +125,26 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	private GeneratorBundleInfo createLauncher() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
-		result.setSymbolicName("org.eclipse.equinox.launcher");
-		result.setVersion("0.0.0");
+		result.setSymbolicName("org.eclipse.equinox.launcher"); //$NON-NLS-1$
+		result.setVersion("0.0.0"); //$NON-NLS-1$
 		//result.setSpecialConfigCommands("manipulator.addProgramArgument('-startup'); manipulator.addProgramArgument(artifact);");
-		result.setSpecialConfigCommands("addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);");
-		result.setSpecialUnconfigCommands("removeProgramArg(programArg:-startup);removeProgramArg(programArg:@artifact);");
+		result.setSpecialConfigCommands("addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+		result.setSpecialUnconfigCommands("removeProgramArg(programArg:-startup);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 		return result;
 	}
 
 	private Collection createLauncherBundleInfo(Set ius) {
 		Collection result = new HashSet();
-		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher.");
+		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher."); //$NON-NLS-1$
 		for (Iterator iterator = launchers.iterator(); iterator.hasNext();) {
 			IInstallableUnit object = (IInstallableUnit) iterator.next();
-			if (object.getId().endsWith(".source"))
+			if (object.getId().endsWith(".source")) //$NON-NLS-1$
 				continue;
 			GeneratorBundleInfo temp = new GeneratorBundleInfo();
 			temp.setSymbolicName(object.getId());
 			temp.setVersion(object.getVersion().toString());
-			temp.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);");
-			temp.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);");
+			temp.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+			temp.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
 			result.add(temp);
 		}
 		return result;
@@ -150,11 +153,11 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private GeneratorBundleInfo createSimpleConfigurator() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
-		result.setVersion("0.0.0");
+		result.setVersion("0.0.0"); //$NON-NLS-1$
 		result.setStartLevel(1);
 		result.setMarkedAsStarted(true);
-		result.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
-		result.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);");
+		result.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
+		result.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
 		return result;
 	}
 
@@ -297,13 +300,13 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public void initialize(File base) {
-		initialize(base, new File(base, "configuration"), new File(base, getDefaultExecutableName()), new File[] {new File(base, "plugins")}, new File(base, "features"));
+		initialize(base, new File(base, "configuration"), new File(base, getDefaultExecutableName()), new File[] {new File(base, "plugins")}, new File(base, "features")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public void initialize(File base, File config, File executable, File[] bundleLocations, File features) {
 		// TODO
 		if (base == null || !base.exists())
-			throw new RuntimeException("Source directory is invalid: " + base.getAbsolutePath());
+			throw new RuntimeException(NLS.bind(Messages.exception_sourceDirectoryInvalid, base.getAbsolutePath()));
 		this.baseLocation = base;
 		if (config == null || config.exists())
 			this.configLocation = config;

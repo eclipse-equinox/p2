@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,13 +29,13 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
 public class BundleDescriptionFactory {
-	static final String DIR = "dir";
-	static final String JAR = "jar";
-	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml";
-	private static final String PLUGIN_FILENAME_DESCRIPTOR = "plugin.xml";
-	private static final String FRAGMENT_FILENAME_DESCRIPTOR = "fragment.xml";
+	static final String DIR = "dir"; //$NON-NLS-1$
+	static final String JAR = "jar"; //$NON-NLS-1$
+	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml"; //$NON-NLS-1$
+	private static final String PLUGIN_FILENAME_DESCRIPTOR = "plugin.xml"; //$NON-NLS-1$
+	private static final String FRAGMENT_FILENAME_DESCRIPTOR = "fragment.xml"; //$NON-NLS-1$
 
-	static String BUNDLE_FILE_KEY = "eclipse.p2.bundle.format";
+	static String BUNDLE_FILE_KEY = "eclipse.p2.bundle.format"; //$NON-NLS-1$
 
 	StateObjectFactory factory;
 	State state;
@@ -79,7 +79,7 @@ public class BundleDescriptionFactory {
 		} catch (BundleException e) {
 			//			IStatus status = new Status(IStatus.WARNING, IPDEBuildConstants.PI_PDEBUILD, EXCEPTION_STATE_PROBLEM, NLS.bind(Messages.exception_stateAddition, enhancedManifest.get(Constants.BUNDLE_NAME)), e);
 			//			BundleHelper.getDefault().getLog().log(status);
-			System.err.println("An error has occured while adding the bundle" + bundleLocation != null ? bundleLocation.getAbsoluteFile() : null);
+			System.err.println(NLS.bind(Messages.exception_stateAddition, bundleLocation != null ? bundleLocation.getAbsoluteFile() : null));
 			return null;
 		}
 	}
@@ -162,7 +162,7 @@ public class BundleDescriptionFactory {
 				if (bundleLocation.isDirectory())
 					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
 				else {
-					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection();
+					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection(); //$NON-NLS-1$ //$NON-NLS-2$
 					connection.setUseCaches(false);
 					propertyStream = connection.getInputStream();
 				}
@@ -184,15 +184,15 @@ public class BundleDescriptionFactory {
 	private void localizeManifest(Dictionary manifest, File bundleLocation) {
 		String localizationFile = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
 		if (localizationFile == null)
-			localizationFile = "plugin";
-		localizationFile += ".properties";
+			localizationFile = "plugin"; //$NON-NLS-1$
+		localizationFile += ".properties"; //$NON-NLS-1$
 		try {
 			Properties strings = loadProperties(bundleLocation, localizationFile);
 			// Walk over the manifest and try to replace all %xxx with the string value in the properties file
 			for (Enumeration e = manifest.keys(); e.hasMoreElements();) {
 				String key = (String) e.nextElement();
 				String value = (String) manifest.get(key);
-				if (value.startsWith("%")) {
+				if (value.startsWith("%")) { //$NON-NLS-1$
 					String newValue = strings.getProperty(value.substring(1));
 					if (newValue != null)
 						manifest.put(key, newValue);

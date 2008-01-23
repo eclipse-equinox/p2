@@ -67,7 +67,7 @@ public class DigestParser extends DefaultHandler {
 		InputStream is = null;
 		try {
 			JarFile jar = new JarFile(location);
-			JarEntry entry = jar.getJarEntry("digest.xml");
+			JarEntry entry = jar.getJarEntry("digest.xml"); //$NON-NLS-1$
 			if (entry == null)
 				return null;
 			is = new BufferedInputStream(jar.getInputStream(entry));

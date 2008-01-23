@@ -105,7 +105,7 @@ public class FeatureParser extends DefaultHandler {
 	}
 
 	private Properties loadProperties(JarFile jar) {
-		JarEntry entry = jar.getJarEntry("feature.properties");
+		JarEntry entry = jar.getJarEntry("feature.properties"); //$NON-NLS-1$
 		if (entry == null)
 			return null;
 		try {
@@ -127,7 +127,7 @@ public class FeatureParser extends DefaultHandler {
 	private String localize(String value) {
 		if (messages == null || value == null)
 			return value;
-		if (!value.startsWith("%"))
+		if (!value.startsWith("%")) //$NON-NLS-1$
 			return value;
 		return messages.getProperty(value.substring(1), value);
 	}
@@ -154,11 +154,11 @@ public class FeatureParser extends DefaultHandler {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-		} else if (location.getName().endsWith(".jar")) {
+		} else if (location.getName().endsWith(".jar")) { //$NON-NLS-1$
 			try {
 				JarFile jar = new JarFile(location);
 				Properties properties = loadProperties(jar);
-				JarEntry entry = jar.getJarEntry("feature.xml");
+				JarEntry entry = jar.getJarEntry("feature.xml"); //$NON-NLS-1$
 				if (entry == null)
 					return null;
 				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
