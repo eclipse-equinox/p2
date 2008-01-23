@@ -170,18 +170,15 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML() && currentUnit != null) {
-				OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) //
-						: propertiesHandler.getProperties());
+				OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
 				for (Enumeration e = properties.keys(); e.hasMoreElements();) {
 					String key = (String) e.nextElement();
 					String value = properties.getProperty(key);
 					currentUnit.setProperty(key, value);
 				}
-				ProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new ProvidedCapability[0] //
-						: providedCapabilitiesHandler.getProvidedCapabilities());
+				ProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new ProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
-				RequiredCapability[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new RequiredCapability[0] //
-						: requiredCapabilitiesHandler.getRequiredCapabilities());
+				RequiredCapability[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new RequiredCapability[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
 				currentUnit.setRequiredCapabilities(requiredCapabilities);
 				if (filterHandler != null) {
 					currentUnit.setFilter(filterHandler.getText());
@@ -189,16 +186,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				if (applicabilityHandler != null) {
 					currentUnit.setApplicabilityFilter(applicabilityHandler.getText());
 				}
-				IArtifactKey[] artifacts = (artifactsHandler == null ? new IArtifactKey[0] //
-						: artifactsHandler.getArtifactKeys());
+				IArtifactKey[] artifacts = (artifactsHandler == null ? new IArtifactKey[0] : artifactsHandler.getArtifactKeys());
 				currentUnit.setArtifacts(artifacts);
 				if (touchpointTypeHandler != null) {
 					currentUnit.setTouchpointType(touchpointTypeHandler.getTouchpointType());
 				} else {
 					// TODO: create an error
 				}
-				TouchpointData[] touchpointData = (touchpointDataHandler == null ? new TouchpointData[0] //
-						: touchpointDataHandler.getTouchpointData());
+				TouchpointData[] touchpointData = (touchpointDataHandler == null ? new TouchpointData[0] : touchpointDataHandler.getTouchpointData());
 				for (int i = 0; i < touchpointData.length; i++)
 					currentUnit.addTouchpointData(touchpointData[i]);
 			}
