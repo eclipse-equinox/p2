@@ -45,7 +45,7 @@ public class ECFMetadataTransport {
 	public IStatus download(String toDownload, OutputStream target, IProgressMonitor monitor) {
 		IRetrieveFileTransferFactory factory = (IRetrieveFileTransferFactory) retrievalFactoryTracker.getService();
 		if (factory == null)
-			return null;
+			return new Status(IStatus.ERROR, Activator.ID, "ECF Transfer manager not available");
 
 		return transfer(factory.newInstance(), toDownload, target, monitor);
 	}
