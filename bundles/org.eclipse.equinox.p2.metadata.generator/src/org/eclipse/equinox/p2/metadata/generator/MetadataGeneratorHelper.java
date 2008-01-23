@@ -33,6 +33,7 @@ public class MetadataGeneratorHelper {
 
 	private static final String CAPABILITY_TYPE_OSGI_PACKAGES = "osgi.packages"; //$NON-NLS-1$
 	private static final String CAPABILITY_TYPE_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
+	private static final String CAPABILITY_TYPE_OSGI_SOURCE_BUNDLES = "osgi.source.bundles"; //$NON-NLS-1$
 	private static final String CAPABILITY_TYPE_OSGI_FRAGMENTS = "osgi.fragments"; //$NON-NLS-1$
 
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.5"); //$NON-NLS-1$
@@ -60,6 +61,7 @@ public class MetadataGeneratorHelper {
 	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0));
 	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, new Version(1, 0, 0));
 	public static final ProvidedCapability FRAGMENT_CAPABILITY = IInstallableUnitFragment.FRAGMENT_CAPABILITY;
+	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recur) {
 		//TODO this size calculation is bogus
@@ -102,6 +104,10 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
+		boolean isBinaryBundle = true;
+		if (manifest.containsKey("Eclipse-SourceBundle")) {
+			isBinaryBundle = false;
+		}
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(bd.isSingleton());
 		iu.setId(bd.getSymbolicName());
@@ -141,9 +147,11 @@ public class MetadataGeneratorHelper {
 
 		// Create Set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
-
 		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
-		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
+		if (isBinaryBundle)
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
+		else
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_SOURCE_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
 
 		//Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
@@ -152,7 +160,11 @@ public class MetadataGeneratorHelper {
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
 		}
 		// Here we add a bundle capability to identify bundles
-		providedCapabilities.add(BUNDLE_CAPABILITY);
+		if (isBinaryBundle)
+			providedCapabilities.add(BUNDLE_CAPABILITY);
+		else
+			providedCapabilities.add(SOURCE_BUNDLE_CAPABILITY);
+
 		if (isFragment)
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getHost().getName(), bd.getVersion()));
 		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
