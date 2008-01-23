@@ -58,6 +58,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 				metadata = new BufferedOutputStream(new FileOutputStream(temp));
 				compress = false;
 				status = getTransport().download(URLMetadataRepository.getActualLocation(location, XML_EXTENSION).toExternalForm(), metadata, sub);
+				if (!status.isOK())
+					return null;
 			}
 			if (metadata != null) {
 				metadata.close();
