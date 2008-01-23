@@ -42,7 +42,7 @@ public class Util {
 	 */
 	private final static String CACHE_PATH = "eclipse.p2.cache"; //$NON-NLS-1$
 	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
-	private static final String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY; 
+	private static final String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 	private static final Object PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 
 	static AgentLocation getAgentLocation() {
@@ -164,7 +164,7 @@ public class Util {
 	static String getManifest(TouchpointData[] data, File bundleFile) {
 		for (int i = 0; i < data.length; i++) {
 			String manifest = data[i].getInstructions("manifest"); //$NON-NLS-1$
-			if (manifest != null)
+			if (manifest != null && manifest.length() > 0)
 				return manifest;
 		}
 		if (bundleFile == null)
