@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Display;
  */
 public class StructuredViewerProvisioningListener implements SynchronousProvisioningListener, IProvisioningListener {
 
-	// TODO the IProvisioningListener tag should also disappear once repo events are supported
 	public static final int PROV_EVENT_REPOSITORY = 0x0001;
 	public static final int PROV_EVENT_IU = 0x0002;
 	public static final int PROV_EVENT_PROFILE = 0x0004;

@@ -13,14 +13,11 @@ package org.eclipse.equinox.p2.ui;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 
 /**
- * Temporary class.  A tagging listener used to distinguish listeners
- * for events that aren't triggered in the core yet.
+ * A tagging listener used to distinguish listeners
+ * for events that aren't triggered in the core.
  * 
  * @since 3.4
  */
-// TODO this should all be defined in the core
-// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197052
-// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
 public interface IProvisioningListener extends ProvisioningListener {
 
 	public final static String REPO_ADDED = "org.eclipse.equinox.p2.ui.property.repoadded"; //$NON-NLS-1$

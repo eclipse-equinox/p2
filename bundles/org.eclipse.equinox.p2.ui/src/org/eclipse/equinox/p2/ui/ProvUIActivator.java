@@ -145,8 +145,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	public void addProvisioningListener(StructuredViewerProvisioningListener listener) {
-		// TODO hack for unsupported repository events.
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197052
+		// Check to see if these are core-level events or events that
+		// the UI manufactures.
 		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
 			eventManager.addListener(listener);
 		} else {
@@ -161,12 +161,12 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		return (ProvisioningEventBus) context.getService(busReference);
 	}
 
-	// TODO hack for triggering events from the UI.  
 	public void notifyListeners(EventObject event) {
 		eventManager.notifyListeners(event);
 	}
 
 	public void removeProvisioningListener(StructuredViewerProvisioningListener listener) {
+		// Check to see whether this is an event we trigger or one registered with core.
 		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
 			eventManager.removeListener(listener);
 		} else {
