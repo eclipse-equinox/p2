@@ -14,7 +14,6 @@ import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class OperationGenerator {
 	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
@@ -74,10 +73,10 @@ public class OperationGenerator {
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
 				continue;
 			}
-			if (iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM) == null)
+			if (iuTo.getUpdateDescriptor() == null)
 				continue;
-			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
-			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM), new VersionRange(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_RANGE)));
+						//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
+			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
 			Iterator updates = updateQuery.perform(from.iterator(), new Collector()).iterator();
 
 			IInstallableUnit iuFrom;

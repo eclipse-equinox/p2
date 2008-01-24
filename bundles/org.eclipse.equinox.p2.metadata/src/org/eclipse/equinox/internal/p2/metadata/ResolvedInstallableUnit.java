@@ -151,4 +151,8 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return original.unresolved();
 	}
 
+	public IUpdateDescriptor getUpdateDescriptor() {
+		return original.getUpdateDescriptor();
+	}
+
 }

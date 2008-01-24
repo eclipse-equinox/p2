@@ -73,6 +73,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private ArtifactsHandler artifactsHandler = null;
 		private TouchpointTypeHandler touchpointTypeHandler = null;
 		private TouchpointDataHandler touchpointDataHandler = null;
+		private UpdateDescriptorHandler updateDescriptorHandler = null;
 
 		public InstallableUnitHandler(AbstractHandler parentHandler, Attributes attributes, List units) {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
@@ -163,6 +164,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				} else {
 					duplicateElement(this, name, attributes);
 				}
+			} else if (UPDATE_DESCRIPTOR_ELEMENT.equals(name)) {
+				if (updateDescriptorHandler == null)
+					updateDescriptorHandler = new UpdateDescriptorHandler(this, attributes);
 			} else {
 				invalidElement(name, attributes);
 			}
@@ -171,11 +175,28 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		protected void finished() {
 			if (isValidXML() && currentUnit != null) {
 				OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
+				String updateFrom = null;
+				VersionRange updateRange = null;
 				for (Enumeration e = properties.keys(); e.hasMoreElements();) {
 					String key = (String) e.nextElement();
 					String value = properties.getProperty(key);
+					//Backward compatibility
+					if (key.equals("equinox.p2.update.from")) {
+						updateFrom = value;
+						continue;
+					}
+					if (key.equals("equinox.p2.update.range")) {
+						updateRange = new VersionRange(value);
+						continue;
+					}
+					//End of backward compatibility
 					currentUnit.setProperty(key, value);
 				}
+				//Backward compatibility
+				if (updateFrom != null && updateRange != null)
+					currentUnit.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateFrom, updateRange, IUpdateDescriptor.NORMAL, null));
+				//End of backward compatibility
+
 				ProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new ProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
 				RequiredCapability[] requiredCapabilities = (requiredCapabilitiesHandler == null ? new RequiredCapability[0] : requiredCapabilitiesHandler.getRequiredCapabilities());
@@ -196,6 +217,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				TouchpointData[] touchpointData = (touchpointDataHandler == null ? new TouchpointData[0] : touchpointDataHandler.getTouchpointData());
 				for (int i = 0; i < touchpointData.length; i++)
 					currentUnit.addTouchpointData(touchpointData[i]);
+				if (updateDescriptorHandler != null)
+					currentUnit.setUpdateDescriptor(updateDescriptorHandler.getUpdateDescriptor());
 			}
 		}
 	}
@@ -460,6 +483,25 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 					instructions.put(key, getText());
 				}
 			}
+		}
+	}
+
+	protected class UpdateDescriptorHandler extends TextHandler {
+		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
+		private final String[] optional = new String[] {UPDATE_DESCRIPTOR_SEVERITY, DESCRIPTION_ATTRIBUTE};
+
+		private IUpdateDescriptor descriptor;
+
+		public UpdateDescriptorHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
+			String[] values = parseAttributes(attributes, required, optional);
+			VersionRange range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[1]);
+			int severity = new Integer(values[2]).intValue();
+			descriptor = MetadataFactory.createUpdateDescriptor(values[0], range, severity, values[3]);
+		}
+
+		public IUpdateDescriptor getUpdateDescriptor() {
+			return descriptor;
 		}
 	}
 }

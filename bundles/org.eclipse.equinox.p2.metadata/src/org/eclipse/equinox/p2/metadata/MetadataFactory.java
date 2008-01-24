@@ -72,6 +72,10 @@ public class MetadataFactory {
 			unit().setVersion(newVersion);
 		}
 
+		public void setUpdateDescriptor(IUpdateDescriptor updateInfo) {
+			unit().setUpdateDescriptor(updateInfo);
+		}
+
 		InstallableUnit unit() {
 			if (unit == null)
 				unit = new InstallableUnit();
@@ -222,5 +226,9 @@ public class MetadataFactory {
 		//simple rotating buffer
 		typeCache[typeCacheOffset] = result;
 		typeCacheOffset = (typeCacheOffset + 1) % typeCache.length;
+	}
+
+	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
+		return new UpdateDescriptor(id, range, severity, description);
 	}
 }

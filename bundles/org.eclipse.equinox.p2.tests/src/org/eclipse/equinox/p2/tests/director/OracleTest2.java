@@ -8,13 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.engine.Profile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
@@ -36,17 +34,23 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		c1 = createIU("C", DEFAULT_VERSION, true);
 
 		requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 3.0.0)"), null);
-		Map properties = new HashMap();
-		properties.put(IInstallableUnit.PROP_UPDATE_FROM, "A");
-		properties.put(IInstallableUnit.PROP_UPDATE_RANGE, "[1.0.0, 2.3.0)");
-		a2 = createIU("A", new Version(2, 0, 0), requires, properties, true);
+		InstallableUnitDescription desc = new MetadataFactory.InstallableUnitDescription();
+		desc.setRequiredCapabilities(requires);
+		desc.setId("A");
+		desc.setVersion(new Version(2, 0, 0));
+		desc.setSingleton(true);
+		desc.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("A", new VersionRange("[1.0.0, 2.3.0)"), IUpdateDescriptor.NORMAL, null));
+
+		a2 = MetadataFactory.createInstallableUnit(desc);
 
 		b1 = createIU("B", DEFAULT_VERSION, requires, NO_PROPERTIES, true);
 
-		properties.clear();
-		properties.put(IInstallableUnit.PROP_UPDATE_FROM, "C");
-		properties.put(IInstallableUnit.PROP_UPDATE_RANGE, "[1.0.0, 2.3.0)");
-		c2 = createIU("C", new Version(2, 0, 0), NO_REQUIRES, properties, true);
+		InstallableUnitDescription desc2 = new MetadataFactory.InstallableUnitDescription();
+		desc2.setId("C");
+		desc2.setVersion(new Version(2, 0, 0));
+		desc2.setSingleton(true);
+		desc2.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("C", new VersionRange("[1.0.0, 2.3.0)"), IUpdateDescriptor.NORMAL, null));
+		c2 = MetadataFactory.createInstallableUnit(desc2);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, c1});
 

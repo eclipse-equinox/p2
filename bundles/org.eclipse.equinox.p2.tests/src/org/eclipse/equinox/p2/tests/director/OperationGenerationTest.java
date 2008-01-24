@@ -15,6 +15,7 @@ import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class OperationGenerationTest extends AbstractProvisioningTest {
@@ -87,14 +88,12 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
 		b.setId("b");
 		b.setVersion(new Version(1, 0, 0));
-		b.setProperty(IInstallableUnit.PROP_UPDATE_FROM, "a");
-		b.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, "[1.0.0, 2.0.0)");
+		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
 
 		InstallableUnitDescription c = new MetadataFactory.InstallableUnitDescription();
 		c.setId("c");
 		c.setVersion(new Version(1, 0, 0));
-		c.setProperty(IInstallableUnit.PROP_UPDATE_FROM, "a");
-		c.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, "[2.0.0, 2.3.0)");
+		c.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[2.0.0, 2.3.0)"), IUpdateDescriptor.NORMAL, null));
 
 		Collection from;
 		from = new ArrayList();
@@ -118,8 +117,7 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
 		b.setId("b");
 		b.setVersion(new Version(1, 0, 0));
-		b.setProperty(IInstallableUnit.PROP_UPDATE_FROM, "a");
-		b.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, "[1.0.0, 3.0.0)");
+		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 3.0.0)"), IUpdateDescriptor.NORMAL, null));
 
 		Collection from;
 		from = new ArrayList();
@@ -141,8 +139,7 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
 		b.setId("b");
 		b.setVersion(new Version(1, 0, 0));
-		b.setProperty(IInstallableUnit.PROP_UPDATE_FROM, "a");
-		b.setProperty(IInstallableUnit.PROP_UPDATE_RANGE, "[1.0.0, 2.0.0)");
+		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
 
 		Collection from;
 		from = new ArrayList();

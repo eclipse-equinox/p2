@@ -107,22 +107,6 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_PROVIDER = "equinox.p2.provider"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.update.from"</code>) representing a 
-	 * String property containing the id of an installable unit that this installable unit
-	 * is an update for.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_UPDATE_FROM = "equinox.p2.update.from"; //$NON-NLS-1$
-	/**
-	 * A property key (value <code>"equinox.p2.update.range"</code>) representing a 
-	 * String property containing the version range of an installable unit that this installable unit
-	 * is an update for.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_UPDATE_RANGE = "equinox.p2.update.range"; //$NON-NLS-1$
-	/**
 	 * A property key (value <code>"equinox.p2.update.site"</code>) representing a 
 	 * String property containing the URL of the Web site or repository where updates for this 
 	 * installable unit can be obtained.
@@ -202,4 +186,10 @@ public interface IInstallableUnit extends Comparable {
 	 * @return The unresolved equivalent of this unit
 	 */
 	public IInstallableUnit unresolved();
+
+	/**
+	 * Returns information about what this installable unit is an update of.
+	 * @return The lineage information about the installable unit
+	 */
+	public IUpdateDescriptor getUpdateDescriptor();
 }

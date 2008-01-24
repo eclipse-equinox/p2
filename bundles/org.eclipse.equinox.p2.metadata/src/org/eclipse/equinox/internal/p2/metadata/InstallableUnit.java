@@ -41,6 +41,8 @@ public class InstallableUnit implements IInstallableUnit {
 
 	private Version version;
 
+	private IUpdateDescriptor updateInfo;
+
 	public InstallableUnit() {
 		super();
 	}
@@ -248,5 +250,13 @@ public class InstallableUnit implements IInstallableUnit {
 
 	public IInstallableUnit unresolved() {
 		return this;
+	}
+
+	public IUpdateDescriptor getUpdateDescriptor() {
+		return updateInfo;
+	}
+
+	public void setUpdateDescriptor(IUpdateDescriptor updateInfo) {
+		this.updateInfo = updateInfo;
 	}
 }

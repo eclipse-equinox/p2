@@ -20,6 +20,7 @@ import org.eclipse.equinox.p2.engine.Operand;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
@@ -284,16 +285,32 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
-	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, URL[] metadataRepositories, IProgressMonitor monitor) {
-		IInstallableUnit[] allius = gatherAvailableInstallableUnits(null, metadataRepositories, monitor);
-		Set updates = new HashSet();
-		for (int i = 0; i < allius.length; i++) {
-			if (toUpdate.getId().equals(allius[i].getProperty(IInstallableUnit.PROP_UPDATE_FROM))) {
-				if (toUpdate.getVersion().compareTo(allius[i].getVersion()) < 0 && new VersionRange(allius[i].getProperty(IInstallableUnit.PROP_UPDATE_RANGE)).isIncluded(toUpdate.getVersion()))
-					updates.add(allius[i]);
+	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, URL[] repositories, IProgressMonitor monitor) {
+		Map resultsMap = new HashMap();
+
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
+		if (repositories == null)
+			repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+
+		SubMonitor sub = SubMonitor.convert(monitor, repositories.length * 200);
+		for (int i = 0; i < repositories.length; i++) {
+			try {
+				IMetadataRepository repository = repoMgr.loadRepository(repositories[i], sub.newChild(100));
+				Collector matches = repository.query(new UpdateQuery(toUpdate), new Collector(), sub.newChild(100));
+				for (Iterator it = matches.iterator(); it.hasNext();) {
+					IInstallableUnit iu = (IInstallableUnit) it.next();
+					String key = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
+					IInstallableUnit currentIU = (IInstallableUnit) resultsMap.get(key);
+					if (currentIU == null || hasHigherFidelity(iu, currentIU))
+						resultsMap.put(key, iu);
+				}
+			} catch (ProvisionException e) {
+				//skip unreadable repositories
 			}
 		}
-		return (IInstallableUnit[]) updates.toArray(new IInstallableUnit[updates.size()]);
+		sub.done();
+		Collection results = resultsMap.values();
+		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
 	}
 
 	public ProvisioningPlan getRevertPlan(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {

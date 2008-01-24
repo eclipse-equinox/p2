@@ -53,6 +53,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			attribute(FRAGMENT_HOST_RANGE_ATTRIBUTE, fragment.getHostVersionRange());
 		}
 
+		writeUpdateDescriptor(resolvedIU, resolvedIU.getUpdateDescriptor());
 		writeProperties(iu.getProperties());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		writeRequiredCapabilities(iu.getRequiredCapabilities());
@@ -90,6 +91,19 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			}
 			end(REQUIRED_CAPABILITIES_ELEMENT);
 		}
+	}
+
+	protected void writeUpdateDescriptor(IInstallableUnit iu, IUpdateDescriptor descriptor) {
+		if (descriptor == null)
+			return;
+
+		start(UPDATE_DESCRIPTOR_ELEMENT);
+		attribute(ID_ATTRIBUTE, descriptor.getId());
+		attribute(VERSION_RANGE_ATTRIBUTE, descriptor.getRange());
+		attribute(UPDATE_DESCRIPTOR_SEVERITY, descriptor.getSeverity());
+		attribute(DESCRIPTION_ATTRIBUTE, descriptor.getDescription());
+		end(UPDATE_DESCRIPTOR_ELEMENT);
+
 	}
 
 	protected void writeRequiredCapability(RequiredCapability capability) {

@@ -210,6 +210,10 @@ public class NewDependencyExpander {
 		public IInstallableUnit unresolved() {
 			return this;
 		}
+
+		public IUpdateDescriptor getUpdateDescriptor() {
+			return wrapped.getUpdateDescriptor();
+		}
 	}
 
 	static final int OperationWork = 100;
