@@ -24,7 +24,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
 
 /**
- * Activator class for the admin UI.
+ * Activator class for the p2 UI.
  */
 public class ProvSDKUIActivator extends AbstractUIPlugin {
 
