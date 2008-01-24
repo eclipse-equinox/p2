@@ -39,8 +39,8 @@ public interface IUpdateDescriptor {
 	public int getSeverity();
 
 	/**
-	 * Helper method indicating whether or not an installable unit is an update for the installable unit passed 
-	 * @param iu, the installable unit checked
+	 * Helper method indicating whether or not an installable unit is an update for the installable unit passed  
+	 * @param iu the installable unit checked
 	 * @return A boolean indicating whether or not an installable unit is an update.
 	 */
 	public boolean isUpdateOf(IInstallableUnit iu);
