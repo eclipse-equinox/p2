@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.*;
  */
 public class AvailableIUGroup extends StructuredIUGroup {
 
-	private URL[] metadataRepositories;
+	URL[] metadataRepositories;
 
 	/**
 	 * Create a group that represents the available IU's.
@@ -58,7 +58,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	protected StructuredViewer createViewer(Composite parent, IQueryProvider queryProvider) {
 		// Table of available IU's
-		TreeViewer availableIUViewer = new TreeViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		final TreeViewer availableIUViewer = new TreeViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
 		final IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
 		labelProvider.setToolTipProperty(IInstallableUnit.PROP_DESCRIPTION);
@@ -75,7 +75,13 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		setTreeColumns(availableIUViewer.getTree());
 		availableIUViewer.setLabelProvider(labelProvider);
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider) {
+			protected void refreshAll() {
+				// The content provider caches the children unless input changes,
+				// so a viewer.refresh() is not enough.
+				availableIUViewer.setInput(new MetadataRepositories(metadataRepositories));
+			}
+		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 
 		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {

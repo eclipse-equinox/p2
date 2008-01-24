@@ -62,7 +62,7 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 			} else {
 				display.asyncExec(new Runnable() {
 					public void run() {
-						viewer.refresh();
+						refreshAll();
 					}
 				});
 			}
@@ -71,7 +71,7 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 			if (name.equals(IProvisioningListener.REPO_ADDED) || (name.equals(IProvisioningListener.REPO_REMOVED))) {
 				display.asyncExec(new Runnable() {
 					public void run() {
-						viewer.refresh();
+						refreshAll();
 					}
 				});
 			}
@@ -79,7 +79,15 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 
 	}
 
-	// TODO temporary for use by ProvUIActivator
+	/**
+	 * Refresh the entire structure of the viewer.  Subclasses may
+	 * override to ensure that any caching of content providers or
+	 * model elements is refreshed before the viewer is refreshed.
+	 */
+	protected void refreshAll() {
+		viewer.refresh();
+	}
+
 	public int getEventTypes() {
 		return eventTypes;
 	}
