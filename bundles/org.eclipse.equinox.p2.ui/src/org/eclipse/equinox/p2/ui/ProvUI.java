@@ -18,9 +18,11 @@ import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.configurator.Configurator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ApplyProfileChangesDialog;
 import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -228,5 +230,13 @@ public class ProvUI {
 				return null;
 			}
 		};
+	}
+
+	public static void addProvisioningListener(StructuredViewerProvisioningListener listener) {
+		ProvUIActivator.getDefault().addProvisioningListener(listener);
+	}
+
+	public static void removeProvisioningListener(StructuredViewerProvisioningListener listener) {
+		ProvUIActivator.getDefault().removeProvisioningListener(listener);
 	}
 }

@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
@@ -94,10 +95,10 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		data = new GridData(GridData.FILL_VERTICAL);
 		verticalButtonBar.setLayoutData(data);
 		listener = new StructuredViewerProvisioningListener(repositoryViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, ProvSDKUIActivator.getDefault().getQueryProvider());
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
+		ProvUI.addProvisioningListener(listener);
 		composite.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent event) {
-				ProvUIActivator.getDefault().removeProvisioningListener(listener);
+				ProvUI.removeProvisioningListener(listener);
 			}
 		});
 		Dialog.applyDialogFont(composite);

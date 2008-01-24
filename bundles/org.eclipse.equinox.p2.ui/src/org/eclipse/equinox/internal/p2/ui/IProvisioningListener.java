@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui;
+package org.eclipse.equinox.internal.p2.ui;
 
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 

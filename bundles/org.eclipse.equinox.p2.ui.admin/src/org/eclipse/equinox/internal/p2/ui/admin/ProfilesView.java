@@ -102,12 +102,12 @@ public class ProfilesView extends ProvView {
 	protected void addListeners() {
 		super.addListeners();
 		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, ProvAdminUIActivator.getDefault().getQueryProvider());
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
+		ProvUI.addProvisioningListener(listener);
 	}
 
 	protected void removeListeners() {
 		super.removeListeners();
-		ProvUIActivator.getDefault().removeProvisioningListener(listener);
+		ProvUI.removeProvisioningListener(listener);
 	}
 
 	protected void configureViewer(TreeViewer treeViewer) {

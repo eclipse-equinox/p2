@@ -12,9 +12,9 @@ package org.eclipse.equinox.p2.ui.operations;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.ui.ProvUIActivator;
 import org.eclipse.osgi.util.NLS;
 
 /**

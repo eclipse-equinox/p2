@@ -12,10 +12,10 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import java.util.EventObject;
+import org.eclipse.equinox.internal.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.ProfileEvent;
-import org.eclipse.equinox.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;

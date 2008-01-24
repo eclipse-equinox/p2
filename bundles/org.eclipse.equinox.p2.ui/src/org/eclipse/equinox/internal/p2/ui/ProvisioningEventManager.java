@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui;
 
 import java.util.EventObject;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.equinox.p2.ui.IProvisioningListener;
 
 /**
  * ProvisioningEventManager can notify clients of changes to 

@@ -84,12 +84,12 @@ abstract class RepositoriesView extends ProvView {
 	protected void addListeners() {
 		super.addListeners();
 		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, ProvAdminUIActivator.getDefault().getQueryProvider());
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
+		ProvUI.addProvisioningListener(listener);
 	}
 
 	protected void removeListeners() {
 		super.removeListeners();
-		ProvUIActivator.getDefault().removeProvisioningListener(listener);
+		ProvUI.removeProvisioningListener(listener);
 	}
 
 	protected void fillLocalPullDown(IMenuManager manager) {
