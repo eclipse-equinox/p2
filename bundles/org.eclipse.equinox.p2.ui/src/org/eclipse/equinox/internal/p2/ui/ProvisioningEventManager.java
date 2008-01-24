@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,16 +16,13 @@ import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.equinox.p2.ui.IProvisioningListener;
 
 /**
- * ProvisioningEventManager can notify clients of changes to the properties
- * of provisioning objects.
+ * ProvisioningEventManager can notify clients of changes to 
+ * provisioning objects.  It is used for events that are not provided
+ * by the underlying event bus.
  * 
  * @since 3.4
  */
 
-// TODO This is a HACK class.
-// This class should go away and instead these kinds of events should be handled
-// by the provisioning event bus.  See bug #197052 and #197701
-// 
 public class ProvisioningEventManager {
 
 	private ListenerList listeners = new ListenerList();
