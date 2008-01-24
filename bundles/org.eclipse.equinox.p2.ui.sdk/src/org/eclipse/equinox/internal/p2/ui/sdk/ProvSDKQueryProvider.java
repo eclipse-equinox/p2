@@ -103,7 +103,10 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 				profile = (Profile) ProvUI.getAdapter(element, Profile.class);
 				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile));
 			case IQueryProvider.METADATA_REPOS :
-				queryable = new QueryableMetadataRepositoryManager();
+				if (element instanceof MetadataRepositories)
+					queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
+				else
+					queryable = new QueryableMetadataRepositoryManager();
 				return new ElementQueryDescriptor(queryable, new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM), new QueriedElementCollector(this, queryable));
 			case IQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();

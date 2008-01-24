@@ -9,17 +9,19 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.p2.ui.viewers;
+package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import java.text.NumberFormat;
+import java.util.HashMap;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.model.IUElement;
+import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.graphics.Image;
@@ -38,6 +40,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	private IUColumnConfig[] columnConfig = ProvUI.getIUColumnConfig();
 	Shell shell;
+	HashMap jobs = new HashMap();
 
 	public IUDetailsLabelProvider() {
 		// use default column config
@@ -106,27 +109,43 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	private String getIUSize(final IUElement element) {
 		long size = element.getSize();
+		// If size is already known, return it
 		if (size != IUElement.SIZE_UNKNOWN)
 			return getFormattedSize(size);
-		Job resolveJob = new Job(element.getIU().getId()) {
+		if (!jobs.containsKey(element)) {
+			Job resolveJob = new Job(element.getIU().getId()) {
 
-			protected IStatus run(IProgressMonitor monitor) {
-				element.computeSize();
+				protected IStatus run(IProgressMonitor monitor) {
+					if (shell == null || shell.isDisposed())
+						return Status.OK_STATUS;
 
-				if (shell == null || shell.isDisposed())
+					element.computeSize();
+
+					// If we still could not compute size, give up
+					if (element.getSize() == IUElement.SIZE_UNKNOWN)
+						return Status.OK_STATUS;
+
+					if (shell == null || shell.isDisposed())
+						return Status.OK_STATUS;
+					shell.getDisplay().asyncExec(new Runnable() {
+
+						public void run() {
+							fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
+						}
+					});
+
 					return Status.OK_STATUS;
-				shell.getDisplay().asyncExec(new Runnable() {
-
-					public void run() {
-						fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
-					}
-				});
-
-				return Status.OK_STATUS;
-			}
-		};
-		resolveJob.setSystem(true);
-		resolveJob.schedule();
+				}
+			};
+			jobs.put(element, resolveJob);
+			resolveJob.setSystem(true);
+			resolveJob.addJobChangeListener(new JobChangeAdapter() {
+				public void done(IJobChangeEvent event) {
+					jobs.remove(element);
+				}
+			});
+			resolveJob.schedule();
+		}
 		return ProvUIMessages.IUDetailsLabelProvider_ComputingSize;
 	}
 

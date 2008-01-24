@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.model;
 
+import java.net.URL;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.ui.query.QueriedElement;
 
@@ -24,8 +25,33 @@ import org.eclipse.equinox.p2.ui.query.QueriedElement;
  */
 public class MetadataRepositories extends QueriedElement {
 
+	private URL[] metadataRepositories = null;
+
+	public MetadataRepositories() {
+		super();
+	}
+
+	public MetadataRepositories(URL[] metadataRepositories) {
+		this.metadataRepositories = metadataRepositories;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.query.QueriedElement#getQueryType()
+	 */
 	protected int getQueryType() {
 		return IQueryProvider.METADATA_REPOS;
+	}
+
+	/**
+	 * Return the array of URLs for the metadata repositories that
+	 * this element represents.  A value of <code>null</code> means
+	 * all repositories are represented.  
+	 * 
+	 * @return the array of repositories, or <code>null</code>.
+	 */
+	public URL[] getMetadataRepositories() {
+		return metadataRepositories;
 	}
 
 }

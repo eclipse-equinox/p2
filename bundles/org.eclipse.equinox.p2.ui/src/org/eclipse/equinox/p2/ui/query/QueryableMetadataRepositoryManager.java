@@ -23,22 +23,38 @@ import org.eclipse.equinox.p2.ui.model.MetadataRepositoryElement;
 
 /**
  * An object that adds queryable support to a metadata repository 
- * manager.  The object being queried is the repository URL, not the 
+ * manager.  It can be constructed to iterate over a specific array
+ * or URL's.  Otherwise, it will iterate over all known repositories.
+ * The object being queried is the repository URL, not the 
  * repository instance itself.  Callers should load the repository
  * if necessary to complete the query.
  */
 public class QueryableMetadataRepositoryManager implements IQueryable {
+	private URL[] metadataRepositories;
+
+	public QueryableMetadataRepositoryManager() {
+		super();
+	}
+
+	public QueryableMetadataRepositoryManager(URL[] metadataRepositories) {
+		this.metadataRepositories = metadataRepositories;
+	}
 
 	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		if (manager == null) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager));
-			return result;
+		URL[] repoURLs;
+		if (metadataRepositories != null) {
+			repoURLs = metadataRepositories;
+		} else {
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+			if (manager == null) {
+				ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager));
+				return result;
+			}
+			int flags = IArtifactRepositoryManager.REPOSITORIES_ALL;
+			if (query instanceof FilteredRepositoryQuery)
+				flags = ((FilteredRepositoryQuery) query).getFlags();
+			repoURLs = manager.getKnownRepositories(flags);
 		}
-		int flags = IArtifactRepositoryManager.REPOSITORIES_ALL;
-		if (query instanceof FilteredRepositoryQuery)
-			flags = ((FilteredRepositoryQuery) query).getFlags();
-		URL[] repoURLs = manager.getKnownRepositories(flags);
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.length * 2);
 		for (int i = 0; i < repoURLs.length; i++) {
 			if (query.isMatch(repoURLs[i]))

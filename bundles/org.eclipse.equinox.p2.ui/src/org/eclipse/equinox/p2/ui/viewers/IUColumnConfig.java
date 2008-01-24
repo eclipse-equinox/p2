@@ -24,9 +24,11 @@ public class IUColumnConfig {
 
 	public String columnTitle;
 	public int columnField;
+	public int defaultColumnWidth;
 
-	public IUColumnConfig(String title, int columnField) {
+	public IUColumnConfig(String title, int columnField, int defaultColumnWidth) {
 		this.columnTitle = title;
 		this.columnField = columnField;
+		this.defaultColumnWidth = defaultColumnWidth;
 	}
 }

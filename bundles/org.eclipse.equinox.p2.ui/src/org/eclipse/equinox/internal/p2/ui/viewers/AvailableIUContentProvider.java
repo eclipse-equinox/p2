@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.p2.ui.viewers;
+package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.p2.ui.viewers.RepositoryContentProvider;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.osgi.util.NLS;

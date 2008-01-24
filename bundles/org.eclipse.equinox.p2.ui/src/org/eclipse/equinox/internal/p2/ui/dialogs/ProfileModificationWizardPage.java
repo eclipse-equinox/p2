@@ -16,6 +16,8 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;

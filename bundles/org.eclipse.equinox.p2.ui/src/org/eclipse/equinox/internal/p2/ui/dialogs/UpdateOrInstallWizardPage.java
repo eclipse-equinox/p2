@@ -17,6 +17,7 @@ import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizardPage {
 
 	protected UpdateOrInstallWizard wizard;
+	private static final int DEFAULT_COLUMN_WIDTH = 150;
 
 	protected UpdateOrInstallWizardPage(String id, IInstallableUnit[] ius, String profileId, UpdateOrInstallWizard wizard) {
 		super(id, ius, profileId);
@@ -26,7 +27,9 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 	protected abstract String getOperationLabel();
 
 	protected IUColumnConfig[] getColumnConfig() {
-		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION), new IUColumnConfig(ProvUIMessages.ProvUI_SizeColumnTitle, IUColumnConfig.COLUMN_SIZE)};
+		initializeDialogUnits(getShell());
+		int pixels = convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH);
+		return new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, pixels), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, pixels), new IUColumnConfig(ProvUIMessages.ProvUI_SizeColumnTitle, IUColumnConfig.COLUMN_SIZE, pixels / 2)};
 	}
 
 	protected void selectedIUsChanged() {

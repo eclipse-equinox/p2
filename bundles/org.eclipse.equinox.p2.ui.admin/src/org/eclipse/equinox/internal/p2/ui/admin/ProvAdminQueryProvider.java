@@ -136,7 +136,10 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 					return new ElementQueryDescriptor(profile, new CompoundQuery(new Query[] {groupQuery, query}, true), new InstalledIUCollector(this, profile));
 				return new ElementQueryDescriptor(profile, query, new InstalledIUCollector(this, profile));
 			case IQueryProvider.METADATA_REPOS :
-				queryable = new QueryableMetadataRepositoryManager();
+				if (element instanceof MetadataRepositories)
+					queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
+				else
+					queryable = new QueryableMetadataRepositoryManager();
 				query = hideSystem ? new FilteredRepositoryQuery(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM) : allQuery;
 				return new ElementQueryDescriptor(queryable, query, new QueriedElementCollector(this, queryable));
 			case IQueryProvider.PROFILES :

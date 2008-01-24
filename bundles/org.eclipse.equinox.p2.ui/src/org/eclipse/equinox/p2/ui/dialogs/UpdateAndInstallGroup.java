@@ -13,17 +13,16 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.PropertyDialogAction;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
-import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
-import org.eclipse.equinox.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
@@ -46,10 +45,9 @@ public class UpdateAndInstallGroup {
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
-	private static final int DEFAULT_COLUMN_WIDTH = 150;
 	TabFolder tabFolder;
-	TableViewer installedIUViewer;
-	TreeViewer availableIUViewer;
+	AvailableIUGroup availableIUGroup;
+	InstalledIUGroup installedIUGroup;
 	String profileId;
 	IRepositoryManipulator repositoryManipulator;
 	IProfileChooser profileChooser;
@@ -106,51 +104,31 @@ public class UpdateAndInstallGroup {
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
 
-		// Table of available IU's
-		availableIUViewer = new TreeViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		final IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
-		labelProvider.setToolTipProperty(IInstallableUnit.PROP_DESCRIPTION);
-
-		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		availableIUViewer.setComparator(new IUComparator(IUComparator.IU_ID));
-		availableIUViewer.setComparer(new ProvElementComparer());
-
-		// Now the content.
-		availableIUViewer.setContentProvider(new AvailableIUContentProvider(queryProvider));
-		availableIUViewer.setInput(new MetadataRepositories());
-
-		// Now the presentation, columns before label provider.
-		setTreeColumns(availableIUViewer.getTree());
-		availableIUViewer.setLabelProvider(labelProvider);
-
-		GridData data = new GridData(GridData.FILL_BOTH);
-		data.grabExcessHorizontalSpace = true;
-		data.grabExcessVerticalSpace = true;
-		availableIUViewer.getControl().setLayoutData(data);
+		availableIUGroup = new AvailableIUGroup(composite, queryProvider, JFaceResources.getDialogFont(), null);
 
 		// Vertical buttons
 		Composite buttonBar = (Composite) createAvailableIUsVerticalButtonBar(composite);
-		data = new GridData(GridData.FILL_VERTICAL);
+		GridData data = new GridData(GridData.FILL_VERTICAL);
 		buttonBar.setLayoutData(data);
 
 		// Must be done after buttons are created so that the buttons can
 		// register and receive their selection notifications before us.
-		availableIUViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		availableIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				validateAvailableIUButtons(event.getSelection());
 			}
 		});
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUGroup.getStructuredViewer(), StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider);
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 
-		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
+		availableIUGroup.getComposite().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				ProvUIActivator.getDefault().removeProvisioningListener(listener);
 			}
 		});
 
-		validateAvailableIUButtons(availableIUViewer.getSelection());
+		validateAvailableIUButtons(availableIUGroup.getStructuredViewer().getSelection());
 		return composite;
 	}
 
@@ -170,16 +148,14 @@ public class UpdateAndInstallGroup {
 
 		// Add the buttons to the button bar.
 		availablePropButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Properties, false);
-		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUViewer));
+		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer()));
 		installButton = createVerticalButton(composite, ProvUIMessages.InstallIUCommandLabel, false);
-		installButton.setData(BUTTONACTION, new InstallAction(availableIUViewer, profileId, null, licenseManager, parent.getShell()));
+		installButton.setData(BUTTONACTION, new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, licenseManager, parent.getShell()));
 		if (repositoryManipulator != null) {
 			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
 			repoButton.setData(BUTTONACTION, new Action() {
 				public void runWithEvent(Event event) {
-					if (repositoryManipulator.manipulateRepositories(getTabFolder().getShell())) {
-						availableIUViewer.refresh();
-					}
+					repositoryManipulator.manipulateRepositories(getTabFolder().getShell());
 				}
 			});
 
@@ -207,46 +183,29 @@ public class UpdateAndInstallGroup {
 		composite.setLayout(layout);
 
 		// Table of installed IU's
-		installedIUViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-
-		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		installedIUViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
-		installedIUViewer.setComparer(new ProvElementComparer());
-
-		// Now the content.
-		installedIUViewer.setContentProvider(new DeferredQueryContentProvider(queryProvider));
-		installedIUViewer.setInput(new ProfileElement(profileId));
-
-		// Now the visuals, columns before labels.
-		setTableColumns(installedIUViewer.getTable());
-		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
-
-		GridData data = new GridData(GridData.FILL_BOTH);
-		data.grabExcessHorizontalSpace = true;
-		data.grabExcessVerticalSpace = true;
-		installedIUViewer.getControl().setLayoutData(data);
+		installedIUGroup = new InstalledIUGroup(composite, queryProvider, JFaceResources.getDialogFont(), profileId);
 
 		// Vertical buttons
 		Composite buttonBar = (Composite) createInstalledIUsVerticalButtonBar(composite, queryProvider);
-		data = new GridData(GridData.FILL_VERTICAL);
+		GridData data = new GridData(GridData.FILL_VERTICAL);
 		buttonBar.setLayoutData(data);
 
 		// Must be done after buttons are created so that the buttons can
 		// register and receive their selection notifications before us.
-		installedIUViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+		installedIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				validateInstalledIUButtons(event.getSelection());
 			}
 		});
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, queryProvider);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUGroup.getStructuredViewer(), StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, queryProvider);
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
-		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
+		installedIUGroup.getComposite().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
 				ProvUIActivator.getDefault().removeProvisioningListener(listener);
 			}
 		});
-		validateInstalledIUButtons(installedIUViewer.getSelection());
+		validateInstalledIUButtons(installedIUGroup.getStructuredViewer().getSelection());
 		return composite;
 	}
 
@@ -266,11 +225,11 @@ public class UpdateAndInstallGroup {
 
 		// Add the buttons to the button bar.
 		installedPropButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Properties, false);
-		installedPropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUViewer));
+		installedPropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer()));
 		uninstallButton = createVerticalButton(composite, ProvUIMessages.UninstallIUCommandLabel, false);
-		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUViewer, profileId, null, parent.getShell()));
+		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateIUCommandLabel, false);
-		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUViewer, profileId, null, licenseManager, queryProvider, parent.getShell()));
+		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUGroup.getStructuredViewer(), profileId, null, licenseManager, queryProvider, parent.getShell()));
 		if (profileChooser != null) {
 			Button profileButton = createVerticalButton(composite, profileChooser.getLabel(), false);
 			profileButton.setData(BUTTONACTION, new Action() {
@@ -278,7 +237,7 @@ public class UpdateAndInstallGroup {
 					String chosenProfileId = profileChooser.getProfileId(tabFolder.getShell());
 					if (chosenProfileId != null) {
 						profileId = chosenProfileId;
-						installedIUViewer.setInput(new ProfileElement(profileId));
+						installedIUGroup.getStructuredViewer().setInput(new ProfileElement(profileId));
 					}
 				}
 			});
@@ -365,35 +324,11 @@ public class UpdateAndInstallGroup {
 		return Dialog.convertVerticalDLUsToPixels(fm, dlus);
 	}
 
-	private void setTableColumns(Table table) {
-		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
-		table.setHeaderVisible(true);
-
-		for (int i = 0; i < columns.length; i++) {
-			TableColumn tc = new TableColumn(table, SWT.NONE, i);
-			tc.setResizable(true);
-			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH));
-		}
-	}
-
-	private void setTreeColumns(Tree tree) {
-		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
-		tree.setHeaderVisible(true);
-
-		for (int i = 0; i < columns.length; i++) {
-			TreeColumn tc = new TreeColumn(tree, SWT.NONE, i);
-			tc.setResizable(true);
-			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH));
-		}
-	}
-
 	public StructuredViewer getAvailableIUViewer() {
-		return availableIUViewer;
+		return availableIUGroup.getStructuredViewer();
 	}
 
 	public StructuredViewer getInstalledIUViewer() {
-		return installedIUViewer;
+		return installedIUGroup.getStructuredViewer();
 	}
 }
