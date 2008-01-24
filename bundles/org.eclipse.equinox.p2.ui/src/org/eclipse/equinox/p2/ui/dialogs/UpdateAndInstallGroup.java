@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.p2.ui.PropertyDialogAction;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.actions.PropertyDialogAction;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
