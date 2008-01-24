@@ -504,11 +504,12 @@ class SimpleArtifactRepositoryIO {
 
 		protected class ProcessingStepHandler extends AbstractHandler {
 
-			private final String[] required = new String[] {ID_ATTRIBUTE, STEP_DATA_ATTRIBUTE, STEP_REQUIRED_ATTRIBUTE};
+			private final String[] required = new String[] {ID_ATTRIBUTE, STEP_REQUIRED_ATTRIBUTE};
+			private final String[] optional = new String[] {STEP_DATA_ATTRIBUTE};
 
 			public ProcessingStepHandler(AbstractHandler parentHandler, Attributes attributes, List processingSteps) {
 				super(parentHandler, PROCESSING_STEP_ELEMENT);
-				String[] attributeValues = parseRequiredAttributes(attributes, required);
+				String[] attributeValues = parseAttributes(attributes, required, optional);
 				processingSteps.add(new ProcessingStepDescriptor(attributeValues[0], attributeValues[1], checkBoolean(PROCESSING_STEP_ELEMENT, STEP_REQUIRED_ATTRIBUTE, attributeValues[2]).booleanValue()));
 			}
 
