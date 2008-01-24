@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import java.net.URL;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.AvailableIUContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -22,6 +23,8 @@ import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
 
@@ -71,6 +74,15 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// Now the presentation, columns before label provider.
 		setTreeColumns(availableIUViewer.getTree());
 		availableIUViewer.setLabelProvider(labelProvider);
+
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider);
+		ProvUIActivator.getDefault().addProvisioningListener(listener);
+
+		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				ProvUIActivator.getDefault().removeProvisioningListener(listener);
+			}
+		});
 		return availableIUViewer;
 	}
 

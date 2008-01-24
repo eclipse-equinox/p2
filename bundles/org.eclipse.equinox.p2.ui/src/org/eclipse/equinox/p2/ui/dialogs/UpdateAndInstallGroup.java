@@ -11,14 +11,12 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.PropertyDialogAction;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
-import org.eclipse.equinox.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
@@ -27,8 +25,6 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -120,15 +116,6 @@ public class UpdateAndInstallGroup {
 			}
 		});
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUGroup.getStructuredViewer(), StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider);
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
-
-		availableIUGroup.getComposite().addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				ProvUIActivator.getDefault().removeProvisioningListener(listener);
-			}
-		});
-
 		validateAvailableIUButtons(availableIUGroup.getStructuredViewer().getSelection());
 		return composite;
 	}
@@ -199,13 +186,6 @@ public class UpdateAndInstallGroup {
 			}
 		});
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUGroup.getStructuredViewer(), StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, queryProvider);
-		ProvUIActivator.getDefault().addProvisioningListener(listener);
-		installedIUGroup.getComposite().addDisposeListener(new DisposeListener() {
-			public void widgetDisposed(DisposeEvent e) {
-				ProvUIActivator.getDefault().removeProvisioningListener(listener);
-			}
-		});
 		validateInstalledIUButtons(installedIUGroup.getStructuredViewer().getSelection());
 		return composite;
 	}

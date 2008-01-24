@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -19,6 +20,8 @@ import org.eclipse.equinox.p2.ui.viewers.*;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
 
@@ -63,6 +66,14 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		// Now the visuals, columns before labels.
 		setTableColumns(installedIUViewer.getTable());
 		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
+
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, queryProvider);
+		ProvUIActivator.getDefault().addProvisioningListener(listener);
+		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				ProvUIActivator.getDefault().removeProvisioningListener(listener);
+			}
+		});
 		return installedIUViewer;
 	}
 
