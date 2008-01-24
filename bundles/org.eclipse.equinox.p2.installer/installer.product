@@ -13,8 +13,7 @@
    <configIni use="custom" path="/org.eclipse.equinox.p2.installer/config.ini"/>
 
    <launcherArgs>
-      <vmArgs>-Dorg.eclipse.equinox.p2.installDescription=file:/c:/tmp/equinox.p2/install.properties
--Declipse.p2.data.area=file:/c:/tmp/equinox.p2/p2</vmArgs>
+      <vmArgs></vmArgs>
    </launcherArgs>
 
    <windowImages/>
