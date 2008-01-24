@@ -34,6 +34,16 @@ public class Generator {
 
 	//	private static String[][] defaultMappingRules = new String[][] { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/feature/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugin/${id}_${version}"}, {"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}};
 
+	private final IGeneratorInfo info;
+
+	/**
+	 * Short term fix to ensure IUs that have no corresponding category are not lost.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 */
+	protected final Set rootCategory = new HashSet();
+
+	private StateObjectFactory stateObjectFactory;
+
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
 	 * specified.
@@ -49,16 +59,6 @@ public class Generator {
 		}
 		return (String[]) result.toArray(new String[result.size()]);
 	}
-
-	private final IGeneratorInfo info;
-
-	/**
-	 * Short term fix to ensure IUs that have no corresponding category are not lost.
-	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
-	 */
-	protected final Set rootCategory = new HashSet();
-
-	private StateObjectFactory stateObjectFactory;
 
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
@@ -218,10 +218,8 @@ public class Generator {
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);"); //$NON-NLS-1$
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
+				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
 			}
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
