@@ -323,6 +323,10 @@ public class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createIU(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton) {
+		return createIU(name, version, filter, required, additionalProvides, properties, tpType, tpData, singleton, null);
+	}
+
+	public static IInstallableUnit createIU(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton, IUpdateDescriptor update) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(version);
@@ -343,6 +347,7 @@ public class AbstractProvisioningTest extends TestCase {
 		if (tpData != null)
 			iu.addTouchpointData(tpData);
 		iu.setSingleton(singleton);
+		iu.setUpdateDescriptor(update);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
