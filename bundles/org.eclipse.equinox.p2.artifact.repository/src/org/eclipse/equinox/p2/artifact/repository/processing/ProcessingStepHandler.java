@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 compeople AG and others.
+* Copyright (c) 2007, 2008 compeople AG and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -21,6 +21,8 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
  */
 public class ProcessingStepHandler {
 
+	private static final String PROCESSING_STEPS_EXTENSION_ID = "org.eclipse.equinox.p2.artifact.repository.processingSteps"; //$NON-NLS-1$
+
 	public static IStatus checkStatus(OutputStream output) {
 		if (!(output instanceof ProcessingStep))
 			return Status.OK_STATUS;
@@ -34,7 +36,9 @@ public class ProcessingStepHandler {
 	 */
 	public static boolean canProcess(IArtifactDescriptor descriptor) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
-		IExtensionPoint point = registry.getExtensionPoint("org.eclipse.equinox.p2.artifact.repository.processingSteps");
+		IExtensionPoint point = registry.getExtensionPoint(PROCESSING_STEPS_EXTENSION_ID);
+		if (point == null)
+			return false;
 		ProcessingStepDescriptor[] steps = descriptor.getProcessingSteps();
 		for (int i = 0; i < steps.length; i++) {
 			if (point.getExtension(steps[i].getProcessorId()) == null)
@@ -52,21 +56,23 @@ public class ProcessingStepHandler {
 
 	public ProcessingStep create(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
-		IExtension extension = registry.getExtension("org.eclipse.equinox.p2.artifact.repository.processingSteps", descriptor.getProcessorId()); //$NON-NLS-1$
-		IConfigurationElement[] config = extension.getConfigurationElements();
-		Exception error = null;
-		try {
-			Object object = config[0].createExecutableExtension("class"); //$NON-NLS-1$
-			if (object instanceof ProcessingStep) {
+		IExtension extension = registry.getExtension(PROCESSING_STEPS_EXTENSION_ID, descriptor.getProcessorId());
+		Exception error;
+		if (extension != null) {
+			IConfigurationElement[] config = extension.getConfigurationElements();
+			try {
+				Object object = config[0].createExecutableExtension("class"); //$NON-NLS-1$
 				ProcessingStep step = (ProcessingStep) object;
 				step.initialize(descriptor, context);
 				return step;
+			} catch (Exception e) {
+				error = e;
 			}
-		} catch (CoreException e) {
-			error = e;
-		}
+		} else
+			error = new ProcessingStepHandlerException("Could not get extension " + PROCESSING_STEPS_EXTENSION_ID + " for desriptor id " + descriptor.getProcessorId());
+
 		int severity = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
-		ProcessingStep result = new ProcessingStep() {};
+		ProcessingStep result = new EmptyProcessingStep();
 		result.setStatus(new Status(severity, Activator.ID, "Could not instantiate step:" + descriptor.getProcessorId(), error));
 		return result;
 	}
@@ -86,5 +92,15 @@ public class ProcessingStepHandler {
 			previous = step;
 		}
 		return previous;
+	}
+
+	protected static final class EmptyProcessingStep extends ProcessingStep {
+		// Just to hold the status
+	}
+
+	protected static final class ProcessingStepHandlerException extends Exception {
+		public ProcessingStepHandlerException(String message) {
+			super(message);
+		}
 	}
 }
