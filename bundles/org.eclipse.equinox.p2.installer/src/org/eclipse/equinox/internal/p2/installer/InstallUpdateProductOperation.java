@@ -41,7 +41,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * This constant comes from value of FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME.
 	 * This profile property is being used as a short term solution for branding of the launcher.
 	 */
-	private static final String PROP_LAUNCHER_NAME = "org.eclipse.equinox.frameworkhandler.launcher.name";
+	private static final String PROP_LAUNCHER_NAME = "org.eclipse.equinox.frameworkhandler.launcher.name"; //$NON-NLS-1$
 
 	private IArtifactRepositoryManager artifactRepoMan;
 	private BundleContext bundleContext;
@@ -80,12 +80,12 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		Profile profile = getProfile();
 		if (profile == null) {
 			profile = new Profile(installDescription.getProductName());
-			profile.setValue(Profile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
-			profile.setValue(Profile.PROP_FLAVOR, installDescription.getFlavor());
-			profile.setValue(PROP_LAUNCHER_NAME, installDescription.getLauncherName());
+			profile.internalSetValue(Profile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
+			profile.internalSetValue(Profile.PROP_FLAVOR, installDescription.getFlavor());
+			profile.internalSetValue(PROP_LAUNCHER_NAME, installDescription.getLauncherName());
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
-			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch();
-			profile.setValue(Profile.PROP_ENVIRONMENTS, env);
+			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			profile.internalSetValue(Profile.PROP_ENVIRONMENTS, env);
 			profileRegistry.addProfile(profile);
 		}
 		return profile;
