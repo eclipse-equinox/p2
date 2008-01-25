@@ -65,6 +65,10 @@ public interface IGeneratorInfo {
 
 	public boolean publishArtifacts();
 
+	public boolean reuseExistingPack200Files();
+
+	public void reuseExistingPack200Files(boolean publishPack);
+
 	public void setArtifactRepository(IArtifactRepository value);
 
 	public void setFlavor(String value);

@@ -36,9 +36,12 @@ public class EclipseGeneratorApplication implements IApplication {
 	// of an eclipse installation; in the future the default artifact mapping declared in
 	// SimpleArtifactRepository may change, for example, to not have a 'bundles' directory
 	// instead of a 'plugins' directory, so a separate constant is defined and used here.
-	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin) (format=packed)", "${repoUrl}/features/${id}_${version}.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
+
+	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
 	private ArtifactRepositoryManager defaultArtifactManager;
 	private ServiceRegistration registrationDefaultArtifactManager;
@@ -97,6 +100,8 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
 			provider.setArtifactRepository(repository);
+			if (provider.reuseExistingPack200Files())
+				repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 			if (!provider.append())
 				repository.removeAll();
 			return;
@@ -110,6 +115,8 @@ public class EclipseGeneratorApplication implements IApplication {
 		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		provider.setArtifactRepository(result);
 		result.setProperty(IRepository.PROP_COMPRESSED, compress);
+		if (provider.reuseExistingPack200Files())
+			result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 	}
 
 	public void initializeForInplace(EclipseInstallGeneratorInfoProvider provider) {
@@ -185,6 +192,9 @@ public class EclipseGeneratorApplication implements IApplication {
 
 			if (args[i].equalsIgnoreCase("-compress")) //$NON-NLS-1$
 				compress = "true"; //$NON-NLS-1$
+
+			if (args[i].equalsIgnoreCase("-reusePack200Files")) //$NON-NLS-1$
+				provider.reuseExistingPack200Files(true);
 
 			// check for args with parameters. If we are at the last argument or if the next one
 			// has a '-' as the first character, then we can't have an arg with a parm so continue.

@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
 import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -71,6 +72,21 @@ public class MetadataGeneratorHelper {
 			// TODO - this is wrong but I'm testing a work-around for bug 205842
 			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
 		}
+		return result;
+	}
+
+	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
+		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
+		//TODO this size calculation is bogus
+		ArtifactDescriptor result = new ArtifactDescriptor(key);
+		if (pathOnDisk != null) {
+			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
+			// TODO - this is wrong but I'm testing a work-around for bug 205842
+			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+		}
+		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+		result.setProcessingSteps(steps);
+		result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
 		return result;
 	}
 

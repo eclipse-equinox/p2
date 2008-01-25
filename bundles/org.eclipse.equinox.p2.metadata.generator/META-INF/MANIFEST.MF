@@ -15,6 +15,7 @@ Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.p2.metadata.repository,
  org.eclipse.equinox.p2.artifact.repository,
+ org.eclipse.equinox.p2.artifact.repository.processing,
  org.eclipse.equinox.p2.metadata,
  org.eclipse.equinox.p2.metadata.repository,
  org.xml.sax

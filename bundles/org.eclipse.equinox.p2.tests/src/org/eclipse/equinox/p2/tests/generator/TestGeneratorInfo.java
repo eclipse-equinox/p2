@@ -153,4 +153,12 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		this.launcherConfig = launcherConfig;
 	}
 
+	public boolean reuseExistingPack200Files() {
+		return false;
+	}
+
+	public void reuseExistingPack200Files(boolean publishPack) {
+		//
+	}
+
 }

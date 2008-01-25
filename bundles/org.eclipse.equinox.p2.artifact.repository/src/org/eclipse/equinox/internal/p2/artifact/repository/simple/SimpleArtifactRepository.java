@@ -143,17 +143,25 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
 	static final private String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
-	static final public String[][] DEFAULT_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] PACKED_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin) (format=packed))", "${repoUrl}/plugins/${id}_${version}.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
+			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
+
+	static final private String[][] DEFAULT_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
-	static final private String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY; 
+	static final private String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	protected Set artifactDescriptors = new HashSet();
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
+
+	static final private String PACKED_FORMAT = "packed"; //$NON-NLS-1$
+	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 
@@ -300,11 +308,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized String createLocation(ArtifactDescriptor descriptor) {
+		if (flatButPackedEnabled(descriptor)) {
+			return getLocationForPackedButFlatArtifacts(descriptor);
+		}
 		// if the descriptor is canonical, clear out any UUID that might be set and use the Mapper
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
 			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString());
+			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
 					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
@@ -338,7 +349,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-
 		if (isFolderBased(descriptor)) {
 			File artifactFolder = getArtifactFile(descriptor);
 			// TODO: optimize and ensure manifest is written first
@@ -449,11 +459,24 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return artifactDescriptors;
 	}
 
+	private boolean flatButPackedEnabled(IArtifactDescriptor descriptor) {
+		return Boolean.TRUE.toString().equals(getProperties().get(PUBLISH_PACK_FILES_AS_SIBLINGS)) && PACKED_FORMAT.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
+	}
+
+	private String getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
+		IArtifactKey key = descriptor.getArtifactKey();
+		return mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+	}
+
 	public synchronized String getLocation(IArtifactDescriptor descriptor) {
 		// if the artifact has a uuid then use it
 		String uuid = descriptor.getProperty(ARTIFACT_UUID);
 		if (uuid != null)
 			return blobStore.fileFor(bytesFromHexString(uuid));
+
+		if (flatButPackedEnabled(descriptor)) {
+			return getLocationForPackedButFlatArtifacts(descriptor);
+		}
 
 		// if the artifact is just a reference then return the reference location
 		if (descriptor instanceof ArtifactDescriptor) {
@@ -471,7 +494,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// if the descriptor is complete then use the mapping rules...
 		if (descriptor.getProcessingSteps().length == 0) {
 			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString());
+			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
 					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
@@ -562,12 +585,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public synchronized void initializeAfterLoad(URL location) {
 		this.location = location;
 		blobStore = new BlobStore(getBlobStoreLocation(location), 128);
-		if (mapper == null)
-			mapper = new Mapper();
-		mapper.initialize(Activator.getContext(), mappingRules);
+		initializeMapper();
 		for (Iterator i = artifactDescriptors.iterator(); i.hasNext();) {
 			((ArtifactDescriptor) i.next()).setRepository(this);
 		}
+	}
+
+	private synchronized void initializeMapper() {
+		mapper = new Mapper();
+		mapper.initialize(Activator.getContext(), mappingRules);
 	}
 
 	private boolean isFolderBased(IArtifactDescriptor descriptor) {
@@ -695,6 +721,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		String oldValue = super.setProperty(key, newValue);
 		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
 			return oldValue;
+		if (PUBLISH_PACK_FILES_AS_SIBLINGS.equals(key)) {
+			if (Boolean.TRUE.toString().equals(newValue)) {
+				mappingRules = PACKED_MAPPING_RULES;
+			} else {
+				mappingRules = DEFAULT_MAPPING_RULES;
+			}
+			initializeMapper();
+		}
 		save();
 		//force repository manager to reload this repository because it caches properties
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());

@@ -79,6 +79,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	private URL siteLocation;
 
+	private boolean reuseExistingPack200Files = false;
+
 	public EclipseInstallGeneratorInfoProvider() {
 		super();
 	}
@@ -348,6 +350,14 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	public boolean publishArtifacts() {
 		return publishArtifacts;
+	}
+
+	public boolean reuseExistingPack200Files() {
+		return reuseExistingPack200Files;
+	}
+
+	public void reuseExistingPack200Files(boolean publishPack) {
+		reuseExistingPack200Files = publishPack;
 	}
 
 	public void setAddDefaultIUs(boolean value) {
