@@ -141,9 +141,16 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		Query query = new InstallableUnitQuery(id, range);
 		Collector collector = new Collector();
 		Iterator matches = metadataRepoMan.query(query, collector, null).iterator();
-		if (matches.hasNext())
-			return (IInstallableUnit) matches.next();
-		throw fail("Installable unit not found: " + id);
+		//pick the newest match
+		IInstallableUnit newest = null;
+		while (matches.hasNext()) {
+			IInstallableUnit candidate = (IInstallableUnit) matches.next();
+			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
+				newest = candidate;
+		}
+		if (newest == null)
+			throw fail("Installable unit not found: " + id);
+		return newest;
 	}
 
 	/**
