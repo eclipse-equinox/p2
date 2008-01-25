@@ -118,31 +118,31 @@ public class ProfileTest extends AbstractProvisioningTest {
 	// for associated properties.
 	private Profile createTestProfile() {
 		Profile parent = createProfile(parentId);
-		parent.setValue(key, parentValue);
+		parent.internalSetValue(key, parentValue);
 		assertTrue(parentValue.equals(parent.getValue(key)));
-		parent.setValue(otherKey, otherValue);
+		parent.internalSetValue(otherKey, otherValue);
 		assertTrue(otherValue.equals(parent.getValue(otherKey)));
 
 		Profile child0 = createProfile(child0Id, parent);
-		child0.setValue(key, child0Value);
+		child0.internalSetValue(key, child0Value);
 		assertTrue(child0Value.equals(child0.getValue(key)));
 
 		Profile child1 = createProfile(child1Id, parent);
 		// no value in child1
 
 		Profile grandchild00 = createProfile(grandchild00Id, child0);
-		grandchild00.setValue(key, grandchild00Value);
+		grandchild00.internalSetValue(key, grandchild00Value);
 		assertTrue(grandchild00Value.equals(grandchild00.getValue(key)));
 
 		Profile grandchild01 = createProfile(grandchild01Id, child0);
 		// no value in grandchild01
 
 		Profile grandchild02 = createProfile(grandchild02Id, child0);
-		grandchild02.setValue(otherKey, grandchild02Value);
+		grandchild02.internalSetValue(otherKey, grandchild02Value);
 		assertTrue(grandchild02Value.equals(grandchild02.getValue(otherKey)));
 
 		Profile grandchild10 = createProfile(grandchild10Id, child1);
-		grandchild10.setValue(key, grandchild10Value);
+		grandchild10.internalSetValue(key, grandchild10Value);
 		assertTrue(grandchild10Value.equals(grandchild10.getValue(key)));
 
 		Profile grandchild11 = createProfile(grandchild11Id, child1);

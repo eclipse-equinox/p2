@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
@@ -193,37 +195,39 @@ public class ProfileGroup {
 		// We forced the id field to have content so don't 
 		// check its length
 		if (profile == null) {
-			profile = new Profile(id.getText().trim());
-		}
-		String value = location.getText().trim();
-		if (value.length() > 0) {
-			profile.setValue(Profile.PROP_INSTALL_FOLDER, value);
-		}
+			Map profileProperties = new HashMap();
 
-		value = cache.getText().trim();
-		if (value.length() > 0) {
-			profile.setValue(Profile.PROP_CACHE, value);
-		}
+			String value = location.getText().trim();
+			if (value.length() > 0) {
+				profileProperties.put(Profile.PROP_INSTALL_FOLDER, value);
+			}
 
-		value = name.getText().trim();
-		if (value.length() > 0) {
-			profile.setValue(Profile.PROP_NAME, value);
-		}
-		value = description.getText().trim();
-		if (value.length() > 0) {
-			profile.setValue(Profile.PROP_DESCRIPTION, value);
-		}
-		value = flavor.getText().trim();
-		if (value.length() > 0) {
-			profile.setValue(Profile.PROP_FLAVOR, value);
-		}
-		value = environments.getText().trim();
-		if (value.length() > 0) {
-			profile.setValue(Profile.PROP_ENVIRONMENTS, value);
-		}
-		value = nl.getText().trim();
-		if (value.length() > 0) {
-			profile.setValue(Profile.PROP_NL, value);
+			value = cache.getText().trim();
+			if (value.length() > 0) {
+				profileProperties.put(Profile.PROP_CACHE, value);
+			}
+
+			value = name.getText().trim();
+			if (value.length() > 0) {
+				profileProperties.put(Profile.PROP_NAME, value);
+			}
+			value = description.getText().trim();
+			if (value.length() > 0) {
+				profileProperties.put(Profile.PROP_DESCRIPTION, value);
+			}
+			value = flavor.getText().trim();
+			if (value.length() > 0) {
+				profileProperties.put(Profile.PROP_FLAVOR, value);
+			}
+			value = environments.getText().trim();
+			if (value.length() > 0) {
+				profileProperties.put(Profile.PROP_ENVIRONMENTS, value);
+			}
+			value = nl.getText().trim();
+			if (value.length() > 0) {
+				profileProperties.put(Profile.PROP_NL, value);
+			}
+			profile = new Profile(id.getText().trim(), null, profileProperties);
 		}
 	}
 

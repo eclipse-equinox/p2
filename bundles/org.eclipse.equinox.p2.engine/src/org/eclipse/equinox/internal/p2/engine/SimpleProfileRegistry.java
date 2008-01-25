@@ -69,11 +69,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
 		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_INSTALL_FOLDER)))) {
-			selfProfile.setValue(Profile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
+			selfProfile.internalSetValue(Profile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
 			changed = true;
 		}
 		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_CACHE)))) {
-			selfProfile.setValue(Profile.PROP_CACHE, location.getAbsolutePath());
+			selfProfile.internalSetValue(Profile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
 		if (changed)

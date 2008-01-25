@@ -65,7 +65,6 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	public void testAddRemoveProfile() {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile test = createProfile(PROFILE_NAME);
-		registry.addProfile(test);
 		assertEquals(test.getProfileId(), registry.getProfile(PROFILE_NAME).getProfileId());
 		registry.removeProfile(test);
 		assertNull(registry.getProfile(PROFILE_NAME));
@@ -74,7 +73,6 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	public void testPeristence() {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile test = createProfile(PROFILE_NAME);
-		registry.addProfile(test);
 		assertEquals(test.getProfileId(), registry.getProfile(PROFILE_NAME).getProfileId());
 
 		restart();

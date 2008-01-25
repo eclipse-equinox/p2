@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.engine.phases.Sizing;
@@ -90,7 +91,9 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 	}
 
 	protected ProvisioningPlan getSizingPlan() throws ProvisionException {
-		return ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {getIU()}, profileID, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profileID);
+		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
+		return ProvisioningUtil.getProvisioningPlan(request, null);
 	}
 
 	public IInstallableUnit getIU() {

@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -51,7 +51,10 @@ public class AutomaticUpdater implements IUpdateListener {
 				ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(eventWithOnlyRoots, IQueryProvider.AVAILABLE_UPDATES);
 				IInstallableUnit[] replacements = (IInstallableUnit[]) descriptor.queryable.query(descriptor.query, descriptor.collector, null).toArray(IInstallableUnit.class);
 				if (replacements.length > 0) {
-					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getReplacePlan(toUpdate, replacements, ProvisioningUtil.getProfile(event.getProfileId()), null, null);
+					ProfileChangeRequest request = new ProfileChangeRequest(event.getProfileId());
+					request.removeInstallableUnits(toUpdate);
+					request.addInstallableUnits(replacements);
+					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getProvisioningPlan(request, new ProvisioningContext(), null);
 					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), plan, new DownloadPhaseSet(), false), null);
 					job.addJobChangeListener(new JobChangeAdapter() {
 						public void done(IJobChangeEvent jobEvent) {

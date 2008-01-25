@@ -163,20 +163,8 @@ public class ProvisioningUtil {
 	/*
 	 * Get the plan for the specified install operation
 	 */
-	public static ProvisioningPlan getInstallPlan(IInstallableUnit[] toInstall, String profileId, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profileId);
-		Assert.isNotNull(toInstall);
-		return getPlanner().getInstallPlan(toInstall, getProfile(profileId), null, monitor);
-	}
-
-	/*
-	 * Get the plan for the specified update operation
-	 */
-	public static ProvisioningPlan getReplacePlan(IInstallableUnit[] toUninstall, IInstallableUnit[] replacements, String profileId, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profileId);
-		Assert.isNotNull(toUninstall);
-		Assert.isNotNull(replacements);
-		return getPlanner().getReplacePlan(toUninstall, replacements, getProfile(profileId), null, monitor);
+	public static ProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, IProgressMonitor monitor) throws ProvisionException {
+		return getPlanner().getProvisioningPlan(request, new ProvisioningContext(), monitor);
 	}
 
 	/*
@@ -209,19 +197,9 @@ public class ProvisioningUtil {
 	/*
 	 * Get a plan for becoming
 	 */
-	public static ProvisioningPlan getRevertPlan(IInstallableUnit profileIU, String profileId, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profileId);
+	public static ProvisioningPlan getRevertPlan(IInstallableUnit profileIU, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(profileIU);
-		return getPlanner().getRevertPlan(profileIU, getProfile(profileId), null, monitor);
-	}
-
-	/*
-	 * Get the plan to uninstall the specified IU's
-	 */
-	public static ProvisioningPlan getUninstallPlan(IInstallableUnit[] toUninstall, String profileId, IProgressMonitor monitor) throws ProvisionException {
-		Assert.isNotNull(profileId);
-		Assert.isNotNull(toUninstall);
-		return getPlanner().getUninstallPlan(toUninstall, getProfile(profileId), null, monitor);
+		return getPlanner().getRevertPlan(profileIU, new ProvisioningContext(), monitor);
 	}
 
 	/*
@@ -229,29 +207,10 @@ public class ProvisioningUtil {
 	 */
 	public static Sizing getSizeInfo(ProvisioningPlan plan, String profileId, IProgressMonitor monitor) throws ProvisionException {
 		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), monitor);
+		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), plan.getPropertyOperands(), monitor);
 		if (status.isOK())
 			return set.getSizing();
 		return null;
-	}
-
-	public static IStatus performInstall(ProvisioningPlan plan, Profile profile, IInstallableUnit[] installRoots, IProgressMonitor monitor) throws ProvisionException {
-		String taskMessage;
-		if (installRoots.length == 1)
-			taskMessage = NLS.bind(ProvUIMessages.ProvisioningUtil_InstallOneTask, installRoots[0].getId(), profile.getProfileId());
-		else
-			taskMessage = NLS.bind(ProvUIMessages.ProvisioningUtil_InstallManyTask, Integer.toString(installRoots.length), profile.getProfileId());
-		try {
-			SubMonitor sub = SubMonitor.convert(monitor, 100);
-			sub.setTaskName(taskMessage);
-			for (int i = 0; i < installRoots.length; i++) {
-				profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-			}
-			IStatus engineResult = performProvisioningPlan(plan, new DefaultPhaseSet(), profile, sub.newChild(100));
-			return engineResult;
-		} finally {
-			monitor.done();
-		}
 	}
 
 	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, Profile profile, IProgressMonitor monitor) throws ProvisionException {
@@ -260,7 +219,7 @@ public class ProvisioningUtil {
 			set = new DefaultPhaseSet();
 		else
 			set = phaseSet;
-		return getEngine().perform(profile, set, plan.getOperands(), monitor);
+		return getEngine().perform(profile, set, plan.getOperands(), plan.getPropertyOperands(), monitor);
 	}
 
 	private static Engine getEngine() throws ProvisionException {

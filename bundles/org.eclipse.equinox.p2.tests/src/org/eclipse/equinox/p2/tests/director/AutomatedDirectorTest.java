@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
@@ -56,8 +58,10 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IDirector director = createDirector();
 
 		//Install into a profile in which the filter is satisfied
-		Profile satisfied = createProfile("Satisfied." + getName());
-		satisfied.setValue(Profile.PROP_ENVIRONMENTS, "FilterKey=true");
+		Map properties = new HashMap();
+		properties.put(Profile.PROP_ENVIRONMENTS, "FilterKey=true");
+		Profile satisfied = createProfile("Satisfied." + getName(), null, properties);
+
 		IStatus result = director.install(toInstallArray, satisfied, null, null);
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", satisfied, allUnits);
@@ -131,8 +135,10 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		assertTrue("1.0", !result.isOK());
 
 		//try again with the filter satisfied
-		profile.setValue(Profile.PROP_ENVIRONMENTS, "osgi.os=blort");
-		result = director.install(toInstallArray, profile, null, null);
+		Map properties = new HashMap();
+		properties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=blort");
+		Profile profile2 = createProfile("TestProfile2." + getName(), null, properties);
+		result = director.install(toInstallArray, profile2, null, null);
 		assertTrue("2.0", result.isOK());
 	}
 

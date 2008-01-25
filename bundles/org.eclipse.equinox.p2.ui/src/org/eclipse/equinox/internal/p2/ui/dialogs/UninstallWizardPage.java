@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -30,7 +31,9 @@ public class UninstallWizardPage extends ProfileModificationWizardPage {
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(elementsToIUs(selectedElements), getProfileId(), monitor);
+			ProfileChangeRequest request = new ProfileChangeRequest(getProfileId());
+			request.removeInstallableUnits(elementsToIUs(selectedElements));
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new ProfileModificationOperation(ProvUIMessages.UninstallIUOperationLabel, getProfileId(), plan);

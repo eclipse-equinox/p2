@@ -574,13 +574,18 @@ public class AbstractProvisioningTest extends TestCase {
 	 * in the tearDown method.
 	 */
 	protected Profile createProfile(String name, Profile parent) {
+		return createProfile(name, parent, null);
+	}
+
+	protected Profile createProfile(String name, Profile parent, Map properties) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		Profile profile = profileRegistry.getProfile(name);
 		if (profile != null)
 			profileRegistry.removeProfile(profile);
 		//create and return a new profile
-		profile = new Profile(name, parent);
+		profile = new Profile(name, parent, properties);
+		profileRegistry.addProfile(profile);
 		profilesToRemove.add(profile);
 		return profile;
 	}

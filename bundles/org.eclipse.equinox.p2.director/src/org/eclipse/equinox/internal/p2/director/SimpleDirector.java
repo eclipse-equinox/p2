@@ -50,62 +50,65 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
-	public IStatus install(IInstallableUnit[] installRoots, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
+	public IStatus install(IInstallableUnit[] installRoots, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		String taskName = NLS.bind(Messages.Director_Task_Installing, profile.getValue(Profile.PROP_INSTALL_FOLDER));
 		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
 		try {
-			ProvisioningPlan plan = planner.getInstallPlan(installRoots, profile, metadataRepositories, sub.newChild(PlanWork));
-			if (!plan.getStatus().isOK())
-				return plan.getStatus();
+			ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+			request.addInstallableUnits(installRoots);
 			// mark the roots as such
 			for (int i = 0; i < installRoots.length; i++) {
-				profile.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+				request.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
-			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
+			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
+			if (!plan.getStatus().isOK())
+				return plan.getStatus();
+
+			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
 			return engineResult;
 		} finally {
 			sub.done();
 		}
 	}
 
-	public IStatus become(IInstallableUnit target, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
+	public IStatus revert(IInstallableUnit target, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
-			ProvisioningPlan plan = planner.getBecomePlan(target, profile, metadataRepositories, sub.newChild(PlanWork));
+			ProvisioningPlan plan = planner.getRevertPlan(target, context, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
+			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
 		} finally {
 			sub.done();
 		}
 	}
 
-	public IStatus uninstall(IInstallableUnit[] uninstallRoots, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
+	public IStatus uninstall(IInstallableUnit[] uninstallRoots, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Uninstalling, PlanWork + EngineWork);
 		try {
-			ProvisioningPlan plan = planner.getUninstallPlan(uninstallRoots, profile, metadataRepositories, sub.newChild(PlanWork));
+			ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+			request.removeInstallableUnits(uninstallRoots);
+			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
+			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
 		} finally {
 			sub.done();
 		}
 	}
 
-	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
+	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+		request.addInstallableUnits(toInstall);
+		request.removeInstallableUnits(toUninstall);
 		try {
-			ProvisioningPlan plan = planner.getReplacePlan(toUninstall, toInstall, profile, metadataRepositories, sub.newChild(PlanWork));
+			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
+			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
 		} finally {
 			sub.done();
 		}
 	}
-
-	public IStatus revert(IInstallableUnit previous, Profile profile, URL[] metadataRepositories, IProgressMonitor monitor) {
-		return become(previous, profile, metadataRepositories, monitor);
-	}
-
 }

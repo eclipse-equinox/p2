@@ -67,7 +67,7 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 		protected void finished() {
 			if (isValidXML() && currentProfile != null) {
 				if (propertiesHandler != null) {
-					currentProfile.addProperties(propertiesHandler.getProperties());
+					currentProfile.internalAddProperties(propertiesHandler.getProperties());
 				}
 			}
 		}

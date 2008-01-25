@@ -171,18 +171,21 @@ public class Application implements IApplication {
 		IInstallableUnit[] roots = (IInstallableUnit[]) metadataRepository.query(new InstallableUnitQuery(root, range), new Collector(), null).toArray(IInstallableUnit.class);
 		ProvisioningPlan result = null;
 		IStatus operationStatus = null;
+		ProvisioningContext context = new ProvisioningContext();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
 		if (roots.length > 0) {
 			if (install) {
-				result = planner.getInstallPlan(roots, profile, null, new NullProgressMonitor());
+				request.addInstallableUnits(roots);
 			} else {
-				result = planner.getUninstallPlan(roots, profile, null, new NullProgressMonitor());
+				request.removeInstallableUnits(roots);
 			}
+			result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
 			if (!result.getStatus().isOK())
 				operationStatus = result.getStatus();
 			else {
 				Sizing sizeComputer = new Sizing(100, "Compute sizes"); //$NON-NLS-1$
 				PhaseSet set = new PhaseSet(new Phase[] {sizeComputer}) {/*empty */};
-				operationStatus = engine.perform(profile, set, result.getOperands(), new NullProgressMonitor());
+				operationStatus = engine.perform(profile, set, result.getOperands(), result.getPropertyOperands(), new NullProgressMonitor());
 				System.out.println(Messages.Disk_size + sizeComputer.getDiskSize());
 				System.out.println(Messages.Download_size + sizeComputer.getDlSize());
 				operationStatus = (install ? director.install(roots, profile, null, new NullProgressMonitor()) //

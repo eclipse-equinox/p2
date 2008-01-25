@@ -229,7 +229,7 @@ public class NewDependencyExpander {
 	private Map must = new HashMap();
 	private Picker picker;
 
-	private Profile profile;
+	private Dictionary selectionContext;
 
 	private RecommendationDescriptor recommendations;
 
@@ -239,12 +239,12 @@ public class NewDependencyExpander {
 
 	private Collection solution;
 
-	public NewDependencyExpander(IInstallableUnit[] r, IInstallableUnit[] alreadyInstalled, IInstallableUnit[] availableIUs, Profile profile, boolean includeOptional) {
-		this.profile = profile;
+	public NewDependencyExpander(IInstallableUnit[] r, IInstallableUnit[] alreadyInstalled, IInstallableUnit[] availableIUs, Dictionary selectionContext, boolean includeOptional) {
 		this.roots = (r == null) ? new IInstallableUnit[0] : r;
 		this.includeOptional = includeOptional;
 		alreadyInstalled = alreadyInstalled == null ? new IInstallableUnit[0] : alreadyInstalled;
 		this.alreadyInstalled.addAll(Arrays.asList(alreadyInstalled));
+		this.selectionContext = selectionContext;
 
 		IInstallableUnit[] result = new IInstallableUnit[roots.length + alreadyInstalled.length + availableIUs.length];
 		System.arraycopy(roots, 0, result, 0, roots.length);
@@ -317,7 +317,7 @@ public class NewDependencyExpander {
 	}
 
 	private Collection collectFlavorProviders(Collection toSearchFor) {
-		String flavor = profile.getValue(Profile.PROP_FLAVOR);
+		String flavor = (String) selectionContext.get(Profile.PROP_ENVIRONMENTS);
 		if (flavor == null)
 			return new HashSet();
 		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
@@ -477,7 +477,7 @@ public class NewDependencyExpander {
 					List match = (List) must.get(key);
 					if (match == null) {
 						//We've never seen a requirement like this. Make a new match
-						must.put(key, createList(new Match(current, profile.getSelectionContext())));
+						must.put(key, createList(new Match(current, selectionContext)));
 					} else {
 						//look for an existing match whose version range is overlapping the new one
 						for (Iterator matches = match.iterator(); matches.hasNext();) {
@@ -491,7 +491,7 @@ public class NewDependencyExpander {
 							}
 						}
 						//the new match is disjoint from existing ones, so add a new match to the list
-						match.add(new Match(current, profile.getSelectionContext()));
+						match.add(new Match(current, selectionContext));
 					}
 				}
 			}
@@ -559,7 +559,7 @@ public class NewDependencyExpander {
 	}
 
 	private void invokeResolver(MultiStatus problems) {
-		resolver = new ResolutionHelper(profile.getSelectionContext(), recommendations);
+		resolver = new ResolutionHelper(selectionContext, recommendations);
 		Set toInstall = new HashSet(must.size());
 		for (Iterator iterator = must.values().iterator(); iterator.hasNext();) {
 			List allMatches = (List) iterator.next();
@@ -581,7 +581,7 @@ public class NewDependencyExpander {
 		if (filter == null)
 			return true;
 		try {
-			return DirectorActivator.context.createFilter(filter).match(profile.getSelectionContext());
+			return DirectorActivator.context.createFilter(filter).match(selectionContext);
 		} catch (InvalidSyntaxException e) {
 			return false;
 		}

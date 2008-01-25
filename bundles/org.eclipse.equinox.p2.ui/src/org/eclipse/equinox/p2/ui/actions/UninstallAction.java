@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
@@ -77,7 +78,9 @@ public class UninstallAction extends ProfileModificationAction {
 
 	protected IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getUninstallPlan(ius, targetProfileId, monitor);
+			ProfileChangeRequest request = new ProfileChangeRequest(targetProfileId);
+			request.removeInstallableUnits(ius);
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, monitor);
 			return plan.getStatus();
 		} catch (ProvisionException e) {
 			return ProvUI.handleException(e, null);

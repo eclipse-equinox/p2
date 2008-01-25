@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import java.util.Iterator;
-import junit.framework.TestCase;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -25,6 +24,7 @@ import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -34,7 +34,7 @@ import org.osgi.framework.ServiceReference;
  * This test installs or uninstalls the IU defined by the property "eclipse.p2.autoInstall".
  * Metadata for the IUs to install must be generated separately before running this test.
  */
-public class DirectorTest extends TestCase {
+public class DirectorTest extends AbstractProvisioningTest {
 
 	public void testInstallIU() throws ProvisionException {
 		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
@@ -62,31 +62,24 @@ public class DirectorTest extends TestCase {
 			throw new RuntimeException("Profile registry service not available");
 		}
 
-		String profileId = installFolder;
 		String newFlavor = System.getProperty("eclipse.p2.configurationFlavor");
 		boolean doUninstall = (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("eclipse.p2.doUninstall"))));
 
-		Profile p = profileRegistry.getProfile(profileId);
-		if (p == null) {
-			if (doUninstall) {
+		Profile p = null;
+		if (doUninstall) {
+			p = profileRegistry.getProfile(installFolder);
+			if (p == null)
 				throw new RuntimeException("Uninstalling from a nonexistent profile");
-			}
-			p = new Profile(installFolder); //Typically a profile would receive a name.
-			p.setValue(Profile.PROP_INSTALL_FOLDER, installFolder);
-			p.setValue(Profile.PROP_FLAVOR, newFlavor);
-			// TODO: should we add the profile to the registry here? instead of after test?
 		} else {
-			String currentFlavor = p.getValue(Profile.PROP_FLAVOR);
-			if (currentFlavor != null && !currentFlavor.endsWith(newFlavor)) {
-				throw new RuntimeException("Install flavor not consistent with profile flavor");
-			} else if (currentFlavor == null) {
-				p.setValue(Profile.PROP_FLAVOR, newFlavor);
-			}
-		}
+			Map properties = new HashMap();
+			properties.put(Profile.PROP_INSTALL_FOLDER, installFolder);
+			properties.put(Profile.PROP_FLAVOR, newFlavor);
+			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
+			if (info != null)
+				properties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 
-		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
-		if (info != null)
-			p.setValue(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+			p = createProfile(installFolder, null, properties);
+		}
 
 		IInstallableUnit[] allRoots = new IInstallableUnit[1];
 		IStatus operationStatus = null;

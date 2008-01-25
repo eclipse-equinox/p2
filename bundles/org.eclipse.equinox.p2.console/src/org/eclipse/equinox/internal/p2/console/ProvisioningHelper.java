@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.p2.console;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Iterator;
-import java.util.Properties;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.configurator.Configurator;
@@ -83,7 +82,7 @@ public class ProvisioningHelper {
 		// could not load a repo at that location so create one as a convenience
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
 		try {
-			return manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY); 
+			return manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		} catch (ProvisionException e) {
 			return null;
 		}
@@ -105,21 +104,21 @@ public class ProvisioningHelper {
 		if (profile != null)
 			return profile;
 
-		profile = new Profile(profileId);
+		Map profileProperties = new HashMap();
 
 		for (Iterator it = properties.keySet().iterator(); it.hasNext();) {
 			String key = (String) it.next();
-			profile.setValue(key, properties.getProperty(key));
+			profileProperties.put(key, properties.getProperty(key));
 		}
 
 		if (profile.getValue(Profile.PROP_ENVIRONMENTS) == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
-				profile.setValue(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+				profileProperties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 			else
-				profile.setValue(Profile.PROP_ENVIRONMENTS, "");
+				profileProperties.put(Profile.PROP_ENVIRONMENTS, "");
 		}
-
+		profile = new Profile(profileId, null, profileProperties);
 		profileRegistry.addProfile(profile);
 		return profile;
 	}
@@ -203,11 +202,14 @@ public class ProvisioningHelper {
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
 		IInstallableUnit[] toInstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);
-		ProvisioningPlan result = planner.getInstallPlan(toInstall, profile, null, progress);
+		ProvisioningContext context = new ProvisioningContext();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+		request.addInstallableUnits(toInstall);
+		ProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 
-		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), progress);
+		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), result.getPropertyOperands(), progress);
 	}
 
 	/**

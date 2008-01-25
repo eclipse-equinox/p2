@@ -185,7 +185,7 @@ public class RevertProfileWizardPage extends WizardPage {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
-					plan[0] = ProvisioningUtil.getRevertPlan(iu, profileId, monitor);
+					plan[0] = ProvisioningUtil.getRevertPlan(iu, monitor);
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, ProvUIMessages.RevertDialog_RevertError);
 				}

@@ -26,7 +26,7 @@ public class Engine {
 		this.eventBus = eventBus;
 	}
 
-	public IStatus perform(Profile profile, PhaseSet phaseSet, Operand[] operands, IProgressMonitor monitor) {
+	public IStatus perform(Profile profile, PhaseSet phaseSet, Operand[] iuOperands, PropertyOperand[] propertyOperands, IProgressMonitor monitor) {
 
 		// TODO -- Messages
 		if (profile == null)
@@ -35,36 +35,36 @@ public class Engine {
 		if (phaseSet == null)
 			throw new IllegalArgumentException("PhaseSet must not be null."); //$NON-NLS-1$
 
-		if (operands == null)
+		if (iuOperands == null)
 			throw new IllegalArgumentException("Operands must not be null."); //$NON-NLS-1$
 
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 
-		if (operands.length == 0)
-			return Status.OK_STATUS;
-
 		lockProfile(profile);
 		try {
-			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, operands, this));
+			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, iuOperands, this));
 
 			EngineSession session = new EngineSession(profile);
-			snapshotIUProperties(profile, operands);
-			MultiStatus result = phaseSet.perform(session, profile, operands, monitor);
+
+			synchronizeProfileProperties(profile, propertyOperands);
+
+			snapshotIUProperties(profile, iuOperands);
+			MultiStatus result = phaseSet.perform(session, profile, iuOperands, monitor);
 			if (result.isOK()) {
 				if (profile.isChanged()) {
 					IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 					if (profileRegistry.getProfile(profile.getProfileId()) == null)
 						profileRegistry.addProfile(profile);
 					else {
-						moveIUProperties(profile, operands);
+						moveIUProperties(profile, iuOperands);
 						profileRegistry.updateProfile(profile);
 					}
 				}
-				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
+				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, iuOperands, this));
 				session.commit();
 			} else if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
-				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
+				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, iuOperands, this, result));
 				session.rollback();
 			}
 			//if there is only one child status, return that status instead because it will have more context
@@ -72,6 +72,42 @@ public class Engine {
 			return children.length == 1 ? children[0] : result;
 		} finally {
 			unlockProfile(profile);
+		}
+	}
+
+	private void synchronizeProfileProperties(Profile profile, PropertyOperand[] propertyOperands) {
+		if (propertyOperands == null)
+			return;
+
+		for (int i = 0; i < propertyOperands.length; i++) {
+			PropertyOperand propertyOperand = propertyOperands[i];
+			if (propertyOperand.first() != null) {
+				removeProfileProperty(profile, propertyOperand);
+			}
+
+			if (propertyOperand.second() != null) {
+				addProfileProperty(profile, propertyOperand);
+			}
+		}
+	}
+
+	private void addProfileProperty(Profile profile, PropertyOperand propertyOperand) {
+
+		if (propertyOperand instanceof InstallableUnitPropertyOperand) {
+			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
+			profile.internalSetInstallableUnitProfileProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), (String) iuPropertyOperand.second());
+		} else {
+			profile.internalSetValue(propertyOperand.getKey(), (String) propertyOperand.second());
+		}
+
+	}
+
+	private void removeProfileProperty(Profile profile, PropertyOperand propertyOperand) {
+		if (propertyOperand instanceof InstallableUnitPropertyOperand) {
+			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
+			profile.internalSetInstallableUnitProfileProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), null);
+		} else {
+			profile.internalSetValue(propertyOperand.getKey(), null);
 		}
 	}
 
@@ -96,7 +132,7 @@ public class Engine {
 				Enumeration enumProps = prop.keys();
 				while (enumProps.hasMoreElements()) {
 					String key = (String) enumProps.nextElement();
-					profile.setInstallableUnitProfileProperty(operands[i].second(), key, (String) prop.get(key));
+					profile.internalSetInstallableUnitProfileProperty(operands[i].second(), key, (String) prop.get(key));
 					prop.remove(key);
 				}
 			}

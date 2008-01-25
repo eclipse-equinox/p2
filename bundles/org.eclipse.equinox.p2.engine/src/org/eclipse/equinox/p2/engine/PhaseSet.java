@@ -57,8 +57,11 @@ public abstract class PhaseSet {
 	private int[] getProgressWeights(Operand[] operands) {
 		int[] weights = new int[phases.length];
 		for (int i = 0; i < phases.length; i += 1) {
-			//alter weights according to the number of operands applicable to that phase
-			weights[i] = phases[i].weight * (countApplicable(phases[i], operands) / operands.length);
+			if (operands.length > 0)
+				//alter weights according to the number of operands applicable to that phase
+				weights[i] = phases[i].weight * (countApplicable(phases[i], operands) / operands.length);
+			else
+				weights[i] = phases[i].weight;
 		}
 		return weights;
 	}

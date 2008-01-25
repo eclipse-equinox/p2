@@ -54,7 +54,9 @@ public class UpdateTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstall() {
-		ProvisioningPlan plan = planner.getInstallPlan(new IInstallableUnit[] {f1_1}, profile, null, new NullProgressMonitor());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+		request.addInstallableUnits(new IInstallableUnit[] {f1_1});
+		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
 		assertOK(plan.getStatus());
 		assertOK(director.install(new IInstallableUnit[] {f1_1}, profile, null, new NullProgressMonitor()));
 		for (Iterator iterator = getInstallableUnits(profile); iterator.hasNext();) {

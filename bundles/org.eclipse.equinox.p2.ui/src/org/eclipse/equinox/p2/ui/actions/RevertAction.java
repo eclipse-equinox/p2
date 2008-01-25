@@ -33,7 +33,7 @@ public class RevertAction extends ProfileModificationAction {
 	protected IStatus validateOperation(IInstallableUnit[] toRevert, String targetProfileId, IProgressMonitor monitor) {
 		if (toRevert.length == 1) {
 			try {
-				ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toRevert[0], targetProfileId, monitor);
+				ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toRevert[0], monitor);
 				return plan.getStatus();
 			} catch (ProvisionException e) {
 				return ProvUI.handleException(e, null);
@@ -46,7 +46,7 @@ public class RevertAction extends ProfileModificationAction {
 	protected void performOperation(IInstallableUnit[] toBecome, String targetProfileId) {
 		// TODO bogus because we do this twice...
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toBecome[0], targetProfileId, null);
+			ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toBecome[0], null);
 			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertIUOperationLabel, targetProfileId, plan);
 			ProvisioningOperationRunner.schedule(op, getShell());
 		} catch (ProvisionException e) {

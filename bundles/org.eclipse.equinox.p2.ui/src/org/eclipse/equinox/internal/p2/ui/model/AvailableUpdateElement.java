@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
@@ -36,6 +37,9 @@ public class AvailableUpdateElement extends AvailableIUElement {
 	}
 
 	protected ProvisioningPlan getSizingPlan() throws ProvisionException {
-		return ProvisioningUtil.getReplacePlan(new IInstallableUnit[] {iuToBeUpdated}, new IInstallableUnit[] {getIU()}, profileID, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profileID);
+		request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
+		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
+		return ProvisioningUtil.getProvisioningPlan(request, null);
 	}
 }

@@ -40,7 +40,7 @@ public class Install extends Phase {
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
 			Operand operand = (Operand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
-			profile.removeInstallableUnit(iu);
+			profile.internalRemoveInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
@@ -55,7 +55,7 @@ public class Install extends Phase {
 			Operand operand = (Operand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IInstallableUnit preparedIU = touchpoint.prepareIU(iu, profile);
-			profile.addInstallableUnit(preparedIU);
+			profile.internalAddInstallableUnit(preparedIU);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}

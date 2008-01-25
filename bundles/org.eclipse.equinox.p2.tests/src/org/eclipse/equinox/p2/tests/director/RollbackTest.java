@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -46,7 +47,7 @@ public class RollbackTest extends AbstractProvisioningTest {
 		IInstallableUnit[] ius = (IInstallableUnit[]) repo.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
 		for (int i = 0; i < ius.length; i++)
 			System.out.println(ius[i]);
-		director.become(ius[0], profile, null, new NullProgressMonitor());
+		director.revert(ius[0], profile, new ProvisioningContext(), new NullProgressMonitor());
 		printProfile(profile);
 	}
 

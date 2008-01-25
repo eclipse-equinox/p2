@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -33,7 +34,9 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		sub.setWorkRemaining(100);
 		try {
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(new IInstallableUnit[] {iu}, getProfileId(), sub.newChild(50));
+			ProfileChangeRequest changeRequest = new ProfileChangeRequest(getProfileId());
+			changeRequest.addInstallableUnits(new IInstallableUnit[] {iu});
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, sub.newChild(50));
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfileId(), sub.newChild(50));
 			if (info == null)
 				size = IUElement.SIZE_UNKNOWN;
@@ -52,7 +55,13 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
 			IInstallableUnit[] selected = elementsToIUs(selectedElements);
-			ProvisioningPlan plan = ProvisioningUtil.getInstallPlan(selected, getProfileId(), monitor);
+			ProfileChangeRequest changeRequest = new ProfileChangeRequest(getProfileId());
+			changeRequest.addInstallableUnits(selected);
+			for (int i = 0; i < selected.length; i++) {
+				changeRequest.setInstallableUnitProfileProperty(selected[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			}
+
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new InstallOperation(getOperationLabel(), getProfile().getProfileId(), plan, selected);

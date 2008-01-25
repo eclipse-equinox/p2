@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -32,11 +34,12 @@ public class ProfileFactory {
 	static private EnvironmentInfo info;
 
 	public static Profile makeProfile(String profileID) {
-		Profile profile = new Profile(profileID);
-		profile.setValue(Profile.PROP_INSTALL_FOLDER, getDefaultLocation());
-		profile.setValue(Profile.PROP_FLAVOR, getDefaultFlavor());
-		profile.setValue(Profile.PROP_ENVIRONMENTS, getDefaultEnvironments());
-		profile.setValue(Profile.PROP_NL, getDefaultNL());
+		Map profileProperties = new HashMap();
+		profileProperties.put(Profile.PROP_INSTALL_FOLDER, getDefaultLocation());
+		profileProperties.put(Profile.PROP_FLAVOR, getDefaultFlavor());
+		profileProperties.put(Profile.PROP_ENVIRONMENTS, getDefaultEnvironments());
+		profileProperties.put(Profile.PROP_NL, getDefaultNL());
+		Profile profile = new Profile(profileID, null, profileProperties);
 		try {
 			ProvisioningUtil.addProfile(profile, null);
 		} catch (ProvisionException e) {

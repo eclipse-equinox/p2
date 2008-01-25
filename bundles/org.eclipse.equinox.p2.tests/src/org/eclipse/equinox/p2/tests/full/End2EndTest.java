@@ -8,12 +8,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.full;
 
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.director.IPlanner;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -56,29 +55,22 @@ public class End2EndTest extends AbstractProvisioningTest {
 		String newFlavor = System.getProperty("eclipse.p2.configurationFlavor");
 		boolean doUninstall = (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("eclipse.p2.doUninstall"))));
 
-		Profile profile1 = profileRegistry.getProfile(profileId);
-		if (profile1 == null) {
-			if (doUninstall) {
+		Profile p = null;
+		if (doUninstall) {
+			p = profileRegistry.getProfile(profileId);
+			if (p == null)
 				throw new RuntimeException("Uninstalling from a nonexistent profile");
-			}
-			profile1 = new Profile(profileId); //Typically a profile would receive a name.
-			profile1.setValue(Profile.PROP_INSTALL_FOLDER, installFolder + '/' + profileId);
-			profile1.setValue(Profile.PROP_FLAVOR, newFlavor);
-			// TODO: should we add the profile to the registry here? instead of after test?
 		} else {
-			String currentFlavor = profile1.getValue(Profile.PROP_FLAVOR);
-			if (currentFlavor != null && !currentFlavor.endsWith(newFlavor)) {
-				throw new RuntimeException("Install flavor not consistent with profile flavor");
-			} else if (currentFlavor == null) {
-				profile1.setValue(Profile.PROP_FLAVOR, newFlavor);
-			}
+			Map properties = new HashMap();
+			properties.put(Profile.PROP_INSTALL_FOLDER, installFolder + '/' + profileId);
+			properties.put(Profile.PROP_FLAVOR, newFlavor);
+			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
+			if (info != null)
+				properties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+
+			p = createProfile(profileId, null, properties);
 		}
-
-		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
-		if (info != null)
-			profile1.setValue(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
-
-		return profile1;
+		return p;
 	}
 
 	public void testInstallSDK() {
@@ -102,7 +94,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertTrue(profile2.query(new InstallableUnitQuery("sdk", VersionRange.emptyRange), new Collector(), null).isEmpty());
 
 		// Now test the rollback to a previous state, in this case we reinstall the SDK
-		s = director.become(snapshots[0].equals(firstSnapshot) ? snapshots[1] : snapshots[0], profile2, null, new NullProgressMonitor());
+		s = director.revert(snapshots[0].equals(firstSnapshot) ? snapshots[1] : snapshots[0], profile2, new ProvisioningContext(), new NullProgressMonitor());
 		if (!s.isOK())
 			fail("The become operation failed");
 
@@ -115,7 +107,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, getInstallableUnits(profile2));
 
 		//Remove everything from the profile by becoming an empty profile
-		s = director.become(firstSnapshot, profile2, null, new NullProgressMonitor());
+		s = director.revert(firstSnapshot, profile2, new ProvisioningContext(), new NullProgressMonitor());
 		assertOK(s);
 		//		assertEmptyProfile(profile2);
 	}

@@ -9,8 +9,7 @@
 package org.eclipse.equinox.internal.p2.rollback;
 
 import java.net.URL;
-import java.util.EventObject;
-import java.util.Hashtable;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
@@ -30,6 +29,8 @@ import org.eclipse.equinox.p2.query.Collector;
 import org.osgi.framework.Version;
 
 public class FormerState {
+	public static final String IUPROP_PREFIX = "---IUPROPERTY---"; //$NON-NLS-1$
+	public static final String IUPROP_POSTFIX = "---IUPROPERTYKEY---"; //$NON-NLS-1$
 	URL location = null;
 
 	Hashtable generatedIUs = new Hashtable(); //key profile id, value the iu representing this profile
@@ -93,7 +94,26 @@ public class FormerState {
 		result.setId(toConvert.getProfileId());
 		result.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
 		result.setRequiredCapabilities(IUTransformationHelper.toRequirements(toConvert.query(InstallableUnitQuery.ANY, new Collector(), null).iterator(), false));
-		//TODO Need to do the properties in the profile
+		// Save the profile properties
+		// TODO we aren't marking these properties in any special way to indicate they came from profile properties.  Should we?
+		Map properties = toConvert.getProperties();
+		Iterator iter = properties.keySet().iterator();
+		while (iter.hasNext()) {
+			String key = (String) iter.next();
+			result.setProperty(key, (String) properties.get(key));
+		}
+		// Save the IU profile properties
+		Iterator allIUs = toConvert.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		while (allIUs.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) allIUs.next();
+			properties = toConvert.getInstallableUnitProfileProperties(iu);
+			iter = properties.keySet().iterator();
+			while (iter.hasNext()) {
+				String key = (String) iter.next();
+				result.setProperty(IUPROP_PREFIX + iu.getId() + IUPROP_POSTFIX + key, (String) properties.get(key));
+			}
+		}
+
 		//TODO Do we need to mark profile with a special marker
 		return MetadataFactory.createInstallableUnit(result);
 	}

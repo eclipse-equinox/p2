@@ -30,6 +30,6 @@ public class InstallOperation extends ProfileModificationOperation {
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		return ProvisioningUtil.performInstall(plan, getProfile(), installRoots, monitor);
+		return ProvisioningUtil.performProvisioningPlan(plan, null, getProfile(), monitor);
 	}
 }

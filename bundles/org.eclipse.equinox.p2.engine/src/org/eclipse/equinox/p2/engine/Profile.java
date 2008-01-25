@@ -150,7 +150,7 @@ public class Profile implements IQueryable {
 	private void checkUpdateCompatibility() {
 		if (getValue(PROP_INSTALL_FEATURES) == null) {
 			String updateCompatible = System.getProperty(UPDATE_COMPATIBILITY, "false"); //$NON-NLS-1$
-			this.setValue(PROP_INSTALL_FEATURES, updateCompatible);
+			internalSetValue(PROP_INSTALL_FEATURES, updateCompatible);
 		}
 	}
 
@@ -223,25 +223,25 @@ public class Profile implements IQueryable {
 	 * 	Associate the given value with the given key
 	 * 	in the local storage of this profile.
 	 */
-	public void setValue(String key, String value) {
+	public void internalSetValue(String key, String value) {
 		storage.setProperty(key, value);
 		changed = true;
 	}
 
-	public Dictionary getSelectionContext() {
-		Hashtable result = new Hashtable(storage);
-		String environments = getValue(PROP_ENVIRONMENTS);
-		if (environments == null)
-			return result;
-		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
-			String entry = tokenizer.nextToken();
-			int i = entry.indexOf('=');
-			String key = entry.substring(0, i).trim();
-			String value = entry.substring(i + 1).trim();
-			result.put(key, value);
-		}
-		return result;
-	}
+	//	public Dictionary getSelectionContext() {
+	//		Hashtable result = new Hashtable(storage);
+	//		String environments = getValue(PROP_ENVIRONMENTS);
+	//		if (environments == null)
+	//			return result;
+	//		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
+	//			String entry = tokenizer.nextToken();
+	//			int i = entry.indexOf('=');
+	//			String key = entry.substring(0, i).trim();
+	//			String value = entry.substring(i + 1).trim();
+	//			result.put(key, value);
+	//		}
+	//		return result;
+	//	}
 
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(iuProperties.keySet().iterator(), collector);
@@ -255,7 +255,7 @@ public class Profile implements IQueryable {
 		return properties.getProperty(key);
 	}
 
-	public String setInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
+	public String internalSetInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
 		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null) {
 			properties = new OrderedProperties();
@@ -286,12 +286,12 @@ public class Profile implements IQueryable {
 	 * 	Add all the properties in the map to the local properties
 	 * 	of the profile.
 	 */
-	public void addProperties(Map properties) {
+	public void internalAddProperties(Map properties) {
 		storage.putAll(properties);
 		changed = true;
 	}
 
-	public void addInstallableUnit(IInstallableUnit iu) {
+	public void internalAddInstallableUnit(IInstallableUnit iu) {
 		if (iuProperties.containsKey(iu))
 			return;
 
@@ -299,7 +299,7 @@ public class Profile implements IQueryable {
 		changed = true;
 	}
 
-	public void removeInstallableUnit(IInstallableUnit iu) {
+	public void internalRemoveInstallableUnit(IInstallableUnit iu) {
 		if (iuProperties.remove(iu) != null)
 			changed = true;
 	}

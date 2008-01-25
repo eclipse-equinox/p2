@@ -75,7 +75,7 @@ public class OperationGenerator {
 			}
 			if (iuTo.getUpdateDescriptor() == null)
 				continue;
-						//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
+			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
 			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
 			Iterator updates = updateQuery.perform(from.iterator(), new Collector()).iterator();
 
