@@ -10,10 +10,15 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 public class Optimizer {
@@ -67,21 +72,22 @@ public class Optimizer {
 
 			// Do the actual work by asking the repo to get the artifact and put it in the destination.
 			IStatus status = repository.getArtifact(descriptor, destination, new NullProgressMonitor());
-			if (!status.isOK())
+			if (!status.isOK()) {
+				System.out.println("Getting the artifact is not ok.");
 				System.out.println(status);
+			}
 		} finally {
 			if (repositoryStream != null)
 				try {
 					repositoryStream.close();
-					// TODO need to figure out how to get our processing steps linked into the repositoryStream
-					// so that the close() picks up any status issues.
 					IStatus status = ProcessingStepHandler.checkStatus(repositoryStream);
 					if (!status.isOK()) {
 						System.out.println("Skipping optimization of: " + descriptor.getArtifactKey());
 						System.out.println(status.toString());
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					System.out.println("Skipping optimization of: " + descriptor.getArtifactKey());
+					System.out.println(e.getMessage());
 					e.printStackTrace();
 				}
 		}

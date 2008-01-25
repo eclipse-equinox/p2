@@ -13,11 +13,23 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
 
@@ -179,13 +191,23 @@ public class Optimizer {
 				OutputStream destination = handler.link(new ProcessingStep[] {optimizerStep}, repositoryStream, null);
 
 				// Do the actual work by asking the repo to get the artifact and put it in the destination.
-				repository.getArtifact(canonical, destination, new NullProgressMonitor());
+				IStatus status = repository.getArtifact(canonical, destination, new NullProgressMonitor());
+				if (!status.isOK()) {
+					System.out.println("Getting the artifact is not ok.");
+					System.out.println(status);
+				}
 			} finally {
 				if (repositoryStream != null)
 					try {
 						repositoryStream.close();
+						IStatus status = ProcessingStepHandler.checkStatus(repositoryStream);
+						if (!status.isOK()) {
+							System.out.println("Skipping optimization of: " + descriptors[i].getArtifactKey());
+							System.out.println(status.toString());
+						}
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
+						System.out.println("Skipping optimization of: " + descriptors[i].getArtifactKey());
+						System.out.println(e.getMessage());
 						e.printStackTrace();
 					}
 			}
