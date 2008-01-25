@@ -10,16 +10,12 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.pack200;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.osgi.util.NLS;
 
 public class Optimizer {
 	private static final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
@@ -59,7 +55,7 @@ public class Optimizer {
 
 	private void optimize(IArtifactDescriptor descriptor) {
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
-		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
+		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
 		newDescriptor.setProcessingSteps(steps);
 		newDescriptor.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
 		OutputStream repositoryStream = null;
@@ -73,7 +69,7 @@ public class Optimizer {
 			// Do the actual work by asking the repo to get the artifact and put it in the destination.
 			IStatus status = repository.getArtifact(descriptor, destination, new NullProgressMonitor());
 			if (!status.isOK()) {
-				System.out.println("Getting the artifact is not ok.");
+				System.out.println(NLS.bind(Messages.failed_getting_artifact, descriptor.getArtifactKey()));
 				System.out.println(status);
 			}
 		} finally {
@@ -82,11 +78,11 @@ public class Optimizer {
 					repositoryStream.close();
 					IStatus status = ProcessingStepHandler.checkStatus(repositoryStream);
 					if (!status.isOK()) {
-						System.out.println("Skipping optimization of: " + descriptor.getArtifactKey());
+						System.out.println(NLS.bind(Messages.skip_optimization, descriptor.getArtifactKey()));
 						System.out.println(status.toString());
 					}
 				} catch (IOException e) {
-					System.out.println("Skipping optimization of: " + descriptor.getArtifactKey());
+					System.out.println(NLS.bind(Messages.skip_optimization, descriptor.getArtifactKey()));
 					System.out.println(e.getMessage());
 					e.printStackTrace();
 				}
