@@ -28,7 +28,7 @@ public class Optimizer {
 		IArtifactKey[] keys = repository.getArtifactKeys();
 		for (int i = 0; i < keys.length; i++) {
 			IArtifactKey key = keys[i];
-			if (!key.getClassifier().equals("plugin"))
+			if (!key.getClassifier().equals("plugin")) //$NON-NLS-1$
 				continue;
 			IArtifactDescriptor[] descriptors = repository.getArtifactDescriptors(key);
 			IArtifactDescriptor canonical = null;
@@ -45,8 +45,11 @@ public class Optimizer {
 	}
 
 	private boolean isCanonical(IArtifactDescriptor descriptor) {
-		// TODO length != 0 is not necessarily an indicator for not being complete!   
-		return descriptor.getProcessingSteps().length == 0;
+		// TODO length != 0 is not necessarily an indicator for not being complete!
+		String format = descriptor.getProperty(IArtifactDescriptor.FORMAT);
+		if (format == null)
+			return true;
+		return false;
 	}
 
 	private void optimize(IArtifactDescriptor descriptor) {
@@ -63,7 +66,9 @@ public class Optimizer {
 			OutputStream destination = handler.link(new ProcessingStep[] {new Pack200OptimizerStep()}, repositoryStream, null);
 
 			// Do the actual work by asking the repo to get the artifact and put it in the destination.
-			repository.getArtifact(descriptor, destination, new NullProgressMonitor());
+			IStatus status = repository.getArtifact(descriptor, destination, new NullProgressMonitor());
+			if (!status.isOK())
+				System.out.println(status);
 		} finally {
 			if (repositoryStream != null)
 				try {

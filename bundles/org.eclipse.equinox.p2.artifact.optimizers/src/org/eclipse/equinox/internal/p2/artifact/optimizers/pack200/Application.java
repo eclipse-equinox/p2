@@ -20,6 +20,12 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 public class Application implements IApplication {
+	//Application return code
+	private static final Integer NON_WRITTABLE_REPOSITORY = new Integer(-1);
+
+	//Application arguments
+	private static final String ARTIFACT_REPOSITORY_ARG = "-artifactRepository"; //$NON-NLS-1$
+	private static final String ARTIFACT_REPOSITORY_SHORT_ARG = "-ar"; //$NON-NLS-1$
 
 	private URL artifactRepositoryLocation;
 
@@ -27,6 +33,8 @@ public class Application implements IApplication {
 		Map args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args"));
 		IArtifactRepository repository = setupRepository(artifactRepositoryLocation);
+		if (!repository.isModifiable())
+			return NON_WRITTABLE_REPOSITORY;
 		new Optimizer(repository).run();
 		return null;
 	}
@@ -46,10 +54,6 @@ public class Application implements IApplication {
 		if (args == null)
 			return;
 		for (int i = 0; i < args.length; i++) {
-			// check for args without parameters (i.e., a flag arg)
-			//			if (args[i].equals("-pack"))
-			//				pack = true;
-
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
 			// an arg with a param so continue.
@@ -57,7 +61,7 @@ public class Application implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") || args[i - 1].equalsIgnoreCase("-ar"))
+			if (args[i - 1].equalsIgnoreCase(ARTIFACT_REPOSITORY_ARG) || args[i - 1].equalsIgnoreCase(ARTIFACT_REPOSITORY_SHORT_ARG))
 				artifactRepositoryLocation = new URL(arg);
 		}
 	}
