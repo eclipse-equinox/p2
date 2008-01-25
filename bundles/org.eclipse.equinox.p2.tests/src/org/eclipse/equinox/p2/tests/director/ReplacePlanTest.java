@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.net.URL;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
@@ -22,7 +21,8 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 /**
- * Tests {@link IPlanner#getReplacePlan(IInstallableUnit[], IInstallableUnit[], Profile, URL[], org.eclipse.core.runtime.IProgressMonitor)}.
+ * Tests {@link IPlanner#getProvisioningPlan(ProfileChangeRequest, ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)}
+ * involving replacing an IU with a different version.
  */
 public class ReplacePlanTest extends AbstractProvisioningTest {
 	IInstallableUnit f1;
