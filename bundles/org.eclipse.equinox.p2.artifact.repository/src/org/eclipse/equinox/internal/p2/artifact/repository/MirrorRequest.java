@@ -18,6 +18,7 @@ import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.osgi.util.NLS;
 
 public class MirrorRequest extends ArtifactRequest {
 	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
@@ -47,10 +48,10 @@ public class MirrorRequest extends ArtifactRequest {
 	}
 
 	public void perform(IProgressMonitor monitor) {
-		monitor.subTask("Downloading " + getArtifactKey().getId());
+		monitor.subTask(NLS.bind(Messages.downloading, getArtifactKey().getId()));
 		// Do we already have the artifact in the target?
 		if (target.contains(getArtifactKey())) {
-			setResult(new Status(IStatus.OK, Activator.ID, "The artifact is already available in the repo."));
+			setResult(new Status(IStatus.OK, Activator.ID, NLS.bind(Messages.available_already_in, getArtifactKey())));
 			return;
 		}
 
@@ -67,7 +68,7 @@ public class MirrorRequest extends ArtifactRequest {
 					else if (ProcessingStepHandler.canProcess(descriptors[i]))
 						optimized = descriptors[i];
 				}
-				boolean chooseCanonical = source.getLocation().getProtocol().equals("file");
+				boolean chooseCanonical = source.getLocation().getProtocol().equals("file"); //$NON-NLS-1$
 				// If the source repo is local then look for a canonical descriptor so we don't waste processing time.
 				descriptor = chooseCanonical ? canonical : optimized;
 				// if the descriptor is still null then we could not find our first choice of format so switch the logic.
@@ -80,7 +81,7 @@ public class MirrorRequest extends ArtifactRequest {
 		// TODO improve the reporting here.  It may be the case that the repo has the artifact
 		// but the client does not have a processor
 		if (descriptor == null) {
-			setResult(new Status(IStatus.ERROR, Activator.ID, "Artifact requested can't be found:" + getArtifactKey()));
+			setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, getArtifactKey())));
 			return;
 		}
 
@@ -102,7 +103,7 @@ public class MirrorRequest extends ArtifactRequest {
 
 		OutputStream destination = target.getOutputStream(destinationDescriptor);
 		if (destination == null) {
-			setResult(new Status(IStatus.ERROR, Activator.ID, "Can't get an output stream to " + target + " to store " + getArtifactKey()));
+			setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cant_get_outputstream, target, getArtifactKey())));
 			return;
 		}
 
@@ -114,12 +115,12 @@ public class MirrorRequest extends ArtifactRequest {
 			try {
 				destination.close();
 			} catch (IOException e) {
-				setResult(new Status(IStatus.ERROR, Activator.ID, "Error closing the output stream for " + getArtifactKey() + "on repo " + target.getLocation(), e));
+				setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e));
 			}
 		}
 	}
 
 	public String toString() {
-		return "Mirroring: " + getArtifactKey() + " into " + target;
+		return Messages.mirroring + getArtifactKey() + " into " + target; //$NON-NLS-2$
 	}
 }

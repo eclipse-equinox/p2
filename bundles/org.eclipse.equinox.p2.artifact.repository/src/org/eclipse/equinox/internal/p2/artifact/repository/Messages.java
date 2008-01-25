@@ -25,6 +25,11 @@ public class Messages extends NLS {
 		// Do not instantiate
 	}
 
+	public static String artifact_not_found;
+	public static String available_already_in;
+	public static String cant_get_outputstream;
+	public static String downloading;
+	public static String error_closing_stream;
 	public static String repoMan_exists;
 	public static String repoMan_failedRead;
 	public static String repoMan_internalError;
@@ -35,5 +40,6 @@ public class Messages extends NLS {
 	public static String io_failedRead;
 	public static String io_parseError;
 	public static String io_incompatibleVersion;
+	public static String mirroring;
 
 }
