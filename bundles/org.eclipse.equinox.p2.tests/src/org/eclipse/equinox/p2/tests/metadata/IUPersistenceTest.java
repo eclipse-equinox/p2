@@ -35,9 +35,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 	private static Version version = new Version("3.1.200.v20070605");
 	private static String filter = "(& (osgi.ws=win32) (osgi.os=win32) (osgi.arch=x86))"; // not really
 
-	private static String[][] properties = new String[][] {new String[] {"equinox.p2.update.from", "org.eclipse.osgi.services"}, //
-			new String[] {"equinox.p2.update.range", "0.0.0"}, //
-			new String[] {"equinox.p2.name", "OSGi Release 4.0.1 Services"}, //
+	private static String[][] properties = new String[][] {new String[] {"equinox.p2.name", "OSGi Release 4.0.1 Services"}, //
 			new String[] {"equinox.p2.description", "OSGi Service Platform Release 4.0.1 Service Interfaces and Classes"}, //
 			new String[] {"equinox.p2.provider", "Eclipse.org"}, //
 			new String[] {"equinox.p2.contact", "www.eclipse.org"}, //
@@ -68,9 +66,14 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		ProvidedCapability[] additionalProvides = createProvided(provides);
 		RequiredCapability[] requirements = createRequired(requires);
 		TouchpointData tpData = createTouchpointData(instructions);
+		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
-		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, ECLIPSE_TOUCHPOINT, tpData, singleton);
+		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, ECLIPSE_TOUCHPOINT, tpData, singleton, update);
 		return iu;
+	}
+
+	private static IUpdateDescriptor createUpdateDescriptor() {
+		return MetadataFactory.createUpdateDescriptor(id, new VersionRange(IU_TEST_VERSION, true, IU_TEST_VERSION, true), IUpdateDescriptor.HIGH, "desc");
 	}
 
 	private static Map createProperties(String[][] keyValuePairs) {
@@ -258,6 +261,10 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		assertTrue("Installable unit properties are not correct", equal(properties, extractProperties(iu)));
 		assertTrue("Installable unit provided capabilities are not correct", equal(addSelfCapability(iu, provides), extractProvides(iu)));
 		assertTrue("Installable unit required capabilities are not correct", equal(requires, extractRequires(iu)));
+		assertTrue("Installable unit update descriptor are not correct", id.equals(iu.getUpdateDescriptor().getId()));
+		assertTrue("Installable unit update descriptor are not correct", IUpdateDescriptor.HIGH == iu.getUpdateDescriptor().getSeverity());
+		assertTrue("Installable unit update descriptor are not correct", "desc".equals(iu.getUpdateDescriptor().getDescription()));
+		assertTrue("Installable unit update descriptor are not correct", new VersionRange(IU_TEST_VERSION, true, IU_TEST_VERSION, true).equals(iu.getUpdateDescriptor().getRange()));
 	}
 
 	private static String[][] extractProperties(IInstallableUnit iu) {
