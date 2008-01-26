@@ -43,6 +43,16 @@ public class Site {
 		return (Feature[]) features.toArray(new Feature[features.size()]);
 	}
 
+	public Feature removeFeature(String featureURL) {
+		for (int i = 0; i < features.size(); i++) {
+			String nextURL = ((Feature) features.get(i)).getUrl();
+			if (nextURL != null && nextURL.equals(featureURL)) {
+				return (Feature) features.remove(i);
+			}
+		}
+		return null;
+	}
+
 	public String getLinkFile() {
 		return linkFile;
 	}
