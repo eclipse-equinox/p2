@@ -63,6 +63,10 @@ public class HeadlessInstallAdvisor extends InstallAdvisor {
 		return description;
 	}
 
+	public boolean promptForLaunch(InstallDescription description) {
+		return false;
+	}
+
 	public void setResult(IStatus status) {
 		LogHelper.log(status);
 	}

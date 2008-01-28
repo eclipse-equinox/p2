@@ -54,11 +54,11 @@ public class InstallDialog {
 		}
 
 		public boolean isCanceled() {
-			return canceled;
+			return returnCode == CANCEL;
 		}
 
 		public void setCanceled(boolean value) {
-			this.canceled = value;
+			returnCode = CANCEL;
 		}
 
 		public void setTaskName(String name) {
@@ -139,16 +139,18 @@ public class InstallDialog {
 
 	private static final String EXPLAIN_STANDALONE = "In a stand-alone install, each product is installed in its own directory without any sharing between products";
 
-	private Button closeButton;
+	private static final int OK = 0;
+	private static final int CANCEL = 1;
+	int returnCode = -1;
+	private boolean waitingForClose = false;
+
+	private Button cancelButton;
 	private Composite contents;
 	private Label installKindExplanation;
-
 	private Composite installSettingsGroup;
+
 	private Text locationField;
-	/**
-	 * Flag indicating whether the user has indicated if it is ok to close the dialog
-	 */
-	private boolean okToClose;
+	private Button okButton;
 
 	ProgressBar progress;
 	private Button sharedButton;
@@ -166,7 +168,7 @@ public class InstallDialog {
 		taskLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		createInstallSettingsControls();
 		createProgressControls();
-		createCloseButton();
+		createButtonBar();
 
 		shell.layout();
 		shell.open();
@@ -182,27 +184,55 @@ public class InstallDialog {
 		validateInstallSettings();
 	}
 
-	private synchronized boolean canClose() {
-		return okToClose;
-	}
-
 	public void close() {
-		shell.dispose();
+		if (shell == null)
+			return;
+		if (!shell.isDisposed())
+			shell.dispose();
 		shell = null;
 	}
 
-	private void createCloseButton() {
-		closeButton = new Button(contents, SWT.PUSH);
-		GridData data = new GridData(80, SWT.DEFAULT);
-		data.verticalAlignment = SWT.END;
+	private void createButtonBar() {
+		Composite buttonBar = new Composite(contents, SWT.NONE);
+		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalAlignment = SWT.RIGHT;
-		closeButton.setLayoutData(data);
-		closeButton.setVisible(false);
-		closeButton.addSelectionListener(new SelectionAdapter() {
+		buttonBar.setLayoutData(data);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		layout.makeColumnsEqualWidth = true;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		buttonBar.setLayout(layout);
+
+		okButton = new Button(buttonBar, SWT.PUSH);
+		data = new GridData(80, SWT.DEFAULT);
+		okButton.setLayoutData(data);
+		okButton.setEnabled(false);
+		okButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				setOkToClose();
+				buttonPressed(OK);
 			}
 		});
+
+		cancelButton = new Button(buttonBar, SWT.PUSH);
+		data = new GridData(80, SWT.DEFAULT);
+		cancelButton.setLayoutData(data);
+		cancelButton.setText("Cancel");
+		cancelButton.setEnabled(false);
+		cancelButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				buttonPressed(CANCEL);
+			}
+		});
+	}
+
+	protected void buttonPressed(int code) {
+		returnCode = code;
+		if (waitingForClose)
+			close();
+		//grey out the cancel button to indicate the request was heard
+		if (code == CANCEL && !cancelButton.isDisposed())
+			cancelButton.setEnabled(false);
 	}
 
 	/**
@@ -310,28 +340,58 @@ public class InstallDialog {
 		taskLabel.setText(message);
 		subTaskLabel.setText(""); //$NON-NLS-1$
 		progress.setVisible(false);
-		closeButton.setText("OK");
-		closeButton.setVisible(true);
-		while (!canClose()) {
+		okButton.setVisible(false);
+		cancelButton.setText("Close");
+		cancelButton.setEnabled(true);
+		waitingForClose = true;
+		while (shell != null && !shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
-
 	}
 
+	public boolean promptForLaunch(InstallDescription description) {
+		Display display = getDisplay();
+		if (display == null)
+			return false;
+		taskLabel.setText(NLS.bind("Install complete. Do you want to start {0} immediately?", description.getProductName()));
+		subTaskLabel.setText(""); //$NON-NLS-1$
+		progress.setVisible(false);
+		okButton.setText("Launch");
+		okButton.setVisible(true);
+		cancelButton.setText("Close");
+		cancelButton.setVisible(true);
+		waitingForClose = true;
+		while (shell != null && !shell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
+		return returnCode == OK;
+	}
+
+	/**
+	 * Prompts the user for the install location, and whether the install should
+	 * be shared or standalone.
+	 */
 	public void promptForLocations(InstallDescription description) {
 		taskLabel.setText(NLS.bind("Select where you want {0} to be installed", description.getProductName()));
-		closeButton.setText("Install");
-		closeButton.setVisible(true);
+		okButton.setText("Install");
+		okButton.setVisible(true);
+		cancelButton.setText("Cancel");
+		cancelButton.setEnabled(true);
 		installSettingsGroup.setVisible(true);
 		validateInstallSettings();
 		Display display = getDisplay();
-		while (!okToClose && !shell.isDisposed()) {
+		returnCode = -1;
+		while (returnCode == -1 && shell != null && !shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
-		if (shell.isDisposed())
+		if (returnCode == CANCEL)
+			close();
+		if (shell == null || shell.isDisposed())
 			throw new OperationCanceledException();
+		installSettingsGroup.setVisible(false);
 		Path location = new Path(locationField.getText());
 		description.setInstallLocation(location);
 		if (standaloneButton.getSelection()) {
@@ -343,9 +403,7 @@ public class InstallDialog {
 			//setting bundle location to null will cause it to use default bundle location under agent location
 			description.setBundleLocation(null);
 		}
-		okToClose = false;
-		installSettingsGroup.setVisible(false);
-		closeButton.setVisible(false);
+		okButton.setVisible(false);
 	}
 
 	/**
@@ -389,7 +447,10 @@ public class InstallDialog {
 				}
 			}
 		};
+		waitingForClose = false;
 		taskLabel.setText("Installing...");
+		cancelButton.setText("Cancel");
+		cancelButton.setVisible(true);
 		thread.start();
 		Display display = getDisplay();
 		while (!result.isDone()) {
@@ -404,10 +465,6 @@ public class InstallDialog {
 			taskLabel.setText(message);
 	}
 
-	synchronized void setOkToClose() {
-		okToClose = true;
-	}
-
 	/**
 	 * Validates that the user has correctly entered all required install settings.
 	 */
@@ -419,7 +476,7 @@ public class InstallDialog {
 			IPath location = new Path(locationField.getText());
 			enabled &= location.isAbsolute();
 		}
-		closeButton.setEnabled(enabled);
+		okButton.setEnabled(enabled);
 
 		if (standaloneButton.getSelection())
 			installKindExplanation.setText(EXPLAIN_STANDALONE);
