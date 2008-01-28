@@ -39,6 +39,16 @@ public abstract class InstallAdvisor {
 	public abstract InstallDescription prepareInstallDescription(InstallDescription description);
 
 	/**
+	 * Prompts for whether the installed application should be launched immediately.
+	 * This method is only called after a successful install.
+	 * 
+	 * @param description The initial install description
+	 * @return <code>true</code> if the product should be launched, and 
+	 * <code>false</code> otherwise.
+	 */
+	public abstract boolean promptForLaunch(InstallDescription description);
+
+	/**
 	 * Reports some result information to the context.  The status may be
 	 * information, warning, or an error.
 	 */

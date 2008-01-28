@@ -32,6 +32,10 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 		return description;
 	}
 
+	public boolean promptForLaunch(InstallDescription description) {
+		return dialog.promptForLaunch(description);
+	}
+
 	public void setResult(IStatus status) {
 		String message;
 		if (status.getSeverity() == IStatus.CANCEL) {
