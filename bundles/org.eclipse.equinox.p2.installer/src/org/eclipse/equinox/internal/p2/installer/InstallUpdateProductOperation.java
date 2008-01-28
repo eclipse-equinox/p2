@@ -103,10 +103,10 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 
 		IStatus s;
 		if (isInstall) {
-			monitor.setTaskName(NLS.bind("Installing {0}", installDescription.getProductName()));
+			monitor.setTaskName(NLS.bind(Messages.Op_Installing, installDescription.getProductName()));
 			s = director.install(toInstall, p, null, monitor.newChild(90));
 		} else {
-			monitor.setTaskName(NLS.bind("Updating {0}", installDescription.getProductName()));
+			monitor.setTaskName(NLS.bind(Messages.Op_Updating, installDescription.getProductName()));
 			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
 			s = director.replace(toUninstall, toInstall, p, null, monitor.newChild(90));
 		}
@@ -134,7 +134,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 */
 	private IInstallableUnit findUnit(String id, Version version) throws CoreException {
 		if (id == null)
-			throw fail("Installable unit id not specified");
+			throw fail(Messages.Op_NoId);
 		VersionRange range = VersionRange.emptyRange;
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
@@ -149,7 +149,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 				newest = candidate;
 		}
 		if (newest == null)
-			throw fail("Installable unit not found: " + id);
+			throw fail(Messages.Op_IUNotFound + id);
 		return newest;
 	}
 
@@ -171,10 +171,10 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private Object getService(String name) throws CoreException {
 		ServiceReference ref = bundleContext.getServiceReference(name);
 		if (ref == null)
-			throw fail("Install requires a service that is not available: " + name);
+			throw fail(Messages.Op_NoService + name);
 		Object service = bundleContext.getService(ref);
 		if (service == null)
-			throw fail("Install requires a service implementation that is not available: " + name);
+			throw fail(Messages.Op_NoServiceImpl + name);
 		serviceReferences.add(ref);
 		return service;
 	}
@@ -183,14 +183,14 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * @see org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation#install(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IStatus install(IProgressMonitor pm) {
-		SubMonitor monitor = SubMonitor.convert(pm, "Preparing to install", 100);
+		SubMonitor monitor = SubMonitor.convert(pm, Messages.Op_Preparing, 100);
 		try {
 			try {
 				preInstall();
 				isInstall = getProfile() == null;
 				doInstall(monitor);
-				result = new Status(IStatus.OK, InstallerActivator.PI_INSTALLER, isInstall ? "Install complete" : "Update complete", null);
-				monitor.setTaskName("Some final housekeeping");
+				result = new Status(IStatus.OK, InstallerActivator.PI_INSTALLER, isInstall ? Messages.Op_InstallComplete : Messages.Op_UpdateComplete, null);
+				monitor.setTaskName(Messages.Op_Cleanup);
 			} finally {
 				postInstall();
 			}

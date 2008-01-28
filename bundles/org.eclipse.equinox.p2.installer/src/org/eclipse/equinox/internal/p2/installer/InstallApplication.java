@@ -85,14 +85,14 @@ public class InstallApplication implements IApplication {
 	private InstallDescription fetchInstallDescription(SubMonitor monitor) throws CoreException {
 		String site = System.getProperty(SYS_PROP_INSTALL_DESCRIPTION);
 		if (site == null)
-			throw fail("No install site provided");
+			throw fail(Messages.App_NoSite);
 		try {
 			URL siteURL = new URL(site);
-			return (InstallDescription) InstallDescriptionParser.loadFromProperties(siteURL.openStream(), monitor);
+			return InstallDescriptionParser.loadFromProperties(siteURL.openStream(), monitor);
 		} catch (MalformedURLException e) {
-			throw fail("Invalid install site: " + site, e);
+			throw fail(Messages.App_InvalidSite + site, e);
 		} catch (IOException e) {
-			throw fail("Invalid install site: " + site, e);
+			throw fail(Messages.App_InvalidSite + site, e);
 		}
 	}
 
@@ -106,17 +106,17 @@ public class InstallApplication implements IApplication {
 		}
 		if (cause instanceof CoreException)
 			return ((CoreException) cause).getStatus();
-		return new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "An error occurred during installation", cause);
+		return new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, Messages.App_Error, cause);
 	}
 
 	private void launchProduct(InstallDescription description) throws CoreException {
-		advisor.setResult(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, NLS.bind("Launching {0}", description.getProductName())));
+		advisor.setResult(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, NLS.bind(Messages.App_Launching, description.getProductName())));
 		IPath installLocation = description.getInstallLocation();
 		IPath toRun = installLocation.append(description.getLauncherName());
 		try {
 			Runtime.getRuntime().exec(toRun.toString(), null, installLocation.toFile());
 		} catch (IOException e) {
-			throw fail("Failed to launch the product: " + toRun, e);
+			throw fail(Messages.App_LaunchFailed + toRun, e);
 		}
 		//wait a few seconds to give the user a chance to read the message
 		try {
@@ -175,7 +175,7 @@ public class InstallApplication implements IApplication {
 	private void startRequiredBundles(InstallDescription description) throws CoreException {
 		IPath installLocation = description.getInstallLocation();
 		if (installLocation == null)
-			throw fail("Install failed because the install location was not set", null);
+			throw fail(Messages.App_NoInstallLocation, null);
 		//set agent location if specified
 		IPath agentLocation = description.getAgentLocation();
 		if (agentLocation != null) {
@@ -192,7 +192,7 @@ public class InstallApplication implements IApplication {
 		try {
 			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
 		} catch (BundleException e) {
-			throw fail("Unable to start provisioning infrastructure", e);
+			throw fail(Messages.App_FailedStart, e);
 		}
 	}
 

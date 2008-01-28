@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.installer.ui;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.installer.InstallerActivator;
+import org.eclipse.equinox.internal.p2.installer.Messages;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.osgi.util.NLS;
@@ -33,7 +34,7 @@ public class InstallDialog {
 	class Monitor implements IProgressMonitor {
 
 		boolean canceled = false, running = false;
-		String subTaskName = ""; //$NON-NLS-1$//$NON-NLS-2$
+		String subTaskName = ""; //$NON-NLS-1$
 		double totalWork, usedWork;
 
 		public void beginTask(final String name, final int work) {
@@ -95,7 +96,7 @@ public class InstallDialog {
 					if (text.length() <= 64)
 						return text;
 					int len = text.length();
-					return text.substring(0, 30) + "..." + text.substring(len - 30, len);
+					return text.substring(0, 30) + "..." + text.substring(len - 30, len); //$NON-NLS-1$
 				}
 			});
 		}
@@ -118,7 +119,7 @@ public class InstallDialog {
 		}
 
 		synchronized void failed(Throwable t) {
-			String msg = "An internal error has occurred";
+			String msg = Messages.Dialog_InternalError;
 			status = new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, msg, t);
 		}
 
@@ -135,9 +136,9 @@ public class InstallDialog {
 		}
 	}
 
-	private static final String EXPLAIN_SHARED = "In a shared install, common components are stored together, allowing them to be shared across multiple products.";
+	private static final String EXPLAIN_SHARED = Messages.Dialog_ExplainShared;
 
-	private static final String EXPLAIN_STANDALONE = "In a stand-alone install, each product is installed in its own directory without any sharing between products";
+	private static final String EXPLAIN_STANDALONE = Messages.Dialog_ExplainStandalone;
 
 	private static final int OK = 0;
 	private static final int CANCEL = 1;
@@ -176,7 +177,7 @@ public class InstallDialog {
 
 	protected void browsePressed() {
 		DirectoryDialog dirDialog = new DirectoryDialog(shell);
-		dirDialog.setMessage("Select the install location");
+		dirDialog.setMessage(Messages.Dialog_SelectLocation);
 		String location = dirDialog.open();
 		if (location == null)
 			location = ""; //$NON-NLS-1$
@@ -207,6 +208,7 @@ public class InstallDialog {
 		okButton = new Button(buttonBar, SWT.PUSH);
 		data = new GridData(80, SWT.DEFAULT);
 		okButton.setLayoutData(data);
+		okButton.setText(Messages.Dialog_InstallButton);
 		okButton.setEnabled(false);
 		okButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -217,7 +219,7 @@ public class InstallDialog {
 		cancelButton = new Button(buttonBar, SWT.PUSH);
 		data = new GridData(80, SWT.DEFAULT);
 		cancelButton.setLayoutData(data);
-		cancelButton.setText("Cancel");
+		cancelButton.setText(Messages.Dialog_CancelButton);
 		cancelButton.setEnabled(false);
 		cancelButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -254,10 +256,10 @@ public class InstallDialog {
 		Group installLocationGroup = new Group(installSettingsGroup, SWT.NONE);
 		installLocationGroup.setLayout(new GridLayout());
 		installLocationGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-		installLocationGroup.setText("Location");
+		installLocationGroup.setText(Messages.Dialog_LocationField);
 		Label installLocationLabel = new Label(installLocationGroup, SWT.NONE);
 		installLocationLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		installLocationLabel.setText("Select the product install directory:");
+		installLocationLabel.setText(Messages.Dialog_LocationLabel);
 
 		//The sub-group with text entry field and browse button
 		Composite locationFieldGroup = new Composite(installLocationGroup, SWT.NONE);
@@ -270,7 +272,7 @@ public class InstallDialog {
 		locationField.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		locationField.addListener(SWT.Modify, validateListener);
 		Button browseButton = new Button(locationFieldGroup, SWT.PUSH);
-		browseButton.setText("Browse...");
+		browseButton.setText(Messages.Dialog_BrowseButton);
 		browseButton.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event event) {
 				browsePressed();
@@ -279,15 +281,15 @@ public class InstallDialog {
 
 		//Create the radio button group asking for the kind of install (shared vs. standalone)
 		Group installKindGroup = new Group(installSettingsGroup, SWT.NONE);
-		installKindGroup.setText("Layout");
+		installKindGroup.setText(Messages.Dialog_LayoutGroup);
 		installKindGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 		installKindGroup.setLayout(new GridLayout());
 		standaloneButton = new Button(installKindGroup, SWT.RADIO);
-		standaloneButton.setText("Stand-alone install");
+		standaloneButton.setText(Messages.Dialog_StandaloneButton);
 		standaloneButton.addListener(SWT.Selection, validateListener);
 		standaloneButton.setSelection(true);
 		sharedButton = new Button(installKindGroup, SWT.RADIO);
-		sharedButton.setText("Shared install");
+		sharedButton.setText(Messages.Dialog_SharedButton);
 		sharedButton.addListener(SWT.Selection, validateListener);
 		installKindExplanation = new Label(installKindGroup, SWT.WRAP);
 		GridData data = new GridData(SWT.DEFAULT, 40);
@@ -310,7 +312,7 @@ public class InstallDialog {
 	private void createShell() {
 		shell = new Shell(SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		shell.setBounds(300, 200, 600, 400);
-		shell.setText("Installer");
+		shell.setText(Messages.Dialog_ShellTitle);
 		shell.setLayout(new FillLayout());
 		contents = new Composite(shell, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -341,7 +343,7 @@ public class InstallDialog {
 		subTaskLabel.setText(""); //$NON-NLS-1$
 		progress.setVisible(false);
 		okButton.setVisible(false);
-		cancelButton.setText("Close");
+		cancelButton.setText(Messages.Dialog_CloseButton);
 		cancelButton.setEnabled(true);
 		waitingForClose = true;
 		while (shell != null && !shell.isDisposed()) {
@@ -354,12 +356,12 @@ public class InstallDialog {
 		Display display = getDisplay();
 		if (display == null)
 			return false;
-		taskLabel.setText(NLS.bind("Install complete. Do you want to start {0} immediately?", description.getProductName()));
+		taskLabel.setText(NLS.bind(Messages.Dialog_PromptStart, description.getProductName()));
 		subTaskLabel.setText(""); //$NON-NLS-1$
 		progress.setVisible(false);
-		okButton.setText("Launch");
+		okButton.setText(Messages.Dialog_LaunchButton);
 		okButton.setVisible(true);
-		cancelButton.setText("Close");
+		cancelButton.setText(Messages.Dialog_CloseButton);
 		cancelButton.setVisible(true);
 		waitingForClose = true;
 		while (shell != null && !shell.isDisposed()) {
@@ -374,10 +376,10 @@ public class InstallDialog {
 	 * be shared or standalone.
 	 */
 	public void promptForLocations(InstallDescription description) {
-		taskLabel.setText(NLS.bind("Select where you want {0} to be installed", description.getProductName()));
-		okButton.setText("Install");
+		taskLabel.setText(NLS.bind(Messages.Dialog_LocationPrompt, description.getProductName()));
+		okButton.setText(Messages.Dialog_InstallButton);
 		okButton.setVisible(true);
-		cancelButton.setText("Cancel");
+		cancelButton.setText(Messages.Dialog_CancelButton);
 		cancelButton.setEnabled(true);
 		installSettingsGroup.setVisible(true);
 		validateInstallSettings();
@@ -448,8 +450,8 @@ public class InstallDialog {
 			}
 		};
 		waitingForClose = false;
-		taskLabel.setText("Installing...");
-		cancelButton.setText("Cancel");
+		taskLabel.setText(Messages.Dialog_InstalllingProgress);
+		cancelButton.setText(Messages.Dialog_CancelButton);
 		cancelButton.setVisible(true);
 		thread.start();
 		Display display = getDisplay();

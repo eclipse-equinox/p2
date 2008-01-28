@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.installer.ui;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.installer.Messages;
 import org.eclipse.equinox.internal.provisional.p2.installer.*;
 import org.eclipse.swt.widgets.Display;
 
@@ -39,7 +40,7 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 	public void setResult(IStatus status) {
 		String message;
 		if (status.getSeverity() == IStatus.CANCEL) {
-			message = "Install canceled";
+			message = Messages.Advisor_Canceled;
 		} else {
 			message = status.getMessage();
 		}
@@ -54,7 +55,7 @@ public class SWTInstallAdvisor extends InstallAdvisor {
 		if (display == null)
 			display = new Display();
 		dialog = new InstallDialog();
-		dialog.setMessage("Preparing to install");
+		dialog.setMessage(Messages.Advisor_Preparing);
 	}
 
 	public synchronized void stop() {

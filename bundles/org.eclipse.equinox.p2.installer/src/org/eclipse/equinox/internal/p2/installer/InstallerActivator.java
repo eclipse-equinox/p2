@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
@@ -21,7 +18,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
  */
 public class InstallerActivator implements BundleActivator {
 	// The plug-in ID
-	public static final String PI_INSTALLER = "org.eclipse.equinox.internal.provisional.p2.installer";
+	public static final String PI_INSTALLER = "org.eclipse.equinox.p2.installer"; //$NON-NLS-1$
 	// The shared instance
 	private static InstallerActivator plugin;
 
