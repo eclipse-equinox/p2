@@ -111,7 +111,7 @@ public class ProvisioningHelper {
 			profileProperties.put(key, properties.getProperty(key));
 		}
 
-		if (profile.getValue(Profile.PROP_ENVIRONMENTS) == null) {
+		if (profileProperties.get(Profile.PROP_ENVIRONMENTS) == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
 				profileProperties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
