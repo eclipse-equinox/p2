@@ -33,7 +33,7 @@ public class InstallDialog {
 	class Monitor implements IProgressMonitor {
 
 		boolean canceled = false, running = false;
-		String taskName = "", subTaskName = ""; //$NON-NLS-1$//$NON-NLS-2$
+		String subTaskName = ""; //$NON-NLS-1$//$NON-NLS-2$
 		double totalWork, usedWork;
 
 		public void beginTask(final String name, final int work) {
@@ -62,7 +62,7 @@ public class InstallDialog {
 		}
 
 		public void setTaskName(String name) {
-			taskName = name == null ? "" : name; //$NON-NLS-1$
+			subTaskName = name == null ? "" : name; //$NON-NLS-1$
 			update();
 		}
 
@@ -80,7 +80,6 @@ public class InstallDialog {
 					Shell theShell = getShell();
 					if (theShell == null || theShell.isDisposed())
 						return;
-					taskLabel.setText(taskName);
 					subTaskLabel.setText(shorten(subTaskName));
 					if (progress.isDisposed())
 						return;
@@ -337,7 +336,7 @@ public class InstallDialog {
 		description.setInstallLocation(location);
 		if (standaloneButton.getSelection()) {
 			description.setAgentLocation(location.append("p2")); //$NON-NLS-1$
-			description.setBundleLocation(location.append("plugins")); //$NON-NLS-1$
+			description.setBundleLocation(location);
 		} else {
 			String home = System.getProperty("user.home"); //$NON-NLS-1$
 			description.setAgentLocation(new Path(home).append(".p2/")); //$NON-NLS-1$
@@ -390,6 +389,7 @@ public class InstallDialog {
 				}
 			}
 		};
+		taskLabel.setText("Installing...");
 		thread.start();
 		Display display = getDisplay();
 		while (!result.isDone()) {
