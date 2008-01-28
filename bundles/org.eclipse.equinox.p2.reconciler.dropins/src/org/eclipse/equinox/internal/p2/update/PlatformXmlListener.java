@@ -31,6 +31,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private boolean changed = false;
 	private Map sites = new HashMap();
 	private File root;
+	private long lastModified = -1l;
 
 	public PlatformXmlListener(File file) throws ProvisionException {
 		super();
@@ -77,7 +78,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 * @see org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
 	 */
 	public boolean isInterested(File file) {
-		return file.getName().equals(PLATFORM_XML);
+		return file.getName().equals(PLATFORM_XML) && lastModified != file.lastModified();
 	}
 
 	private List getSites() {
@@ -93,6 +94,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 * This is where we reconcile the platform.xml and bundles.txt.
 	 */
 	private void process() throws ProvisionException {
+		lastModified = root.lastModified();
 		SiteDelta delta = SiteDelta.create(getSites(), parseConfiguration());
 		if (delta.isEmpty())
 			return;
@@ -135,7 +137,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				DirectoryWatcher watcher = new DirectoryWatcher(file);
 				SiteListener listener = new SiteListener(site);
 				watcher.addListener(listener);
-				watcher.start();
+				watcher.poll();
 				sites.put(site.getUrl(), new SiteInfo(site, watcher, listener));
 			} catch (MalformedURLException e) {
 				throw new ProvisionException("Exception while processing configuration.", e);

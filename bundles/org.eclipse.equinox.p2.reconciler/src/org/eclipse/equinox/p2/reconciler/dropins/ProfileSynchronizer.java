@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.reconciler.dropins;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.configurator.Configurator;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 import org.eclipse.equinox.p2.director.IDirector;
@@ -22,7 +22,6 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.Query;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -44,6 +43,13 @@ public class ProfileSynchronizer {
 		this.profile = profile;
 		this.repositories = repositories;
 		initialize();
+	}
+
+	public void add(List additions) {
+		this.repositories.addAll(repositories);
+		initialize();
+		// TODO progress monitoring
+		synchronize(null);
 	}
 
 	/*
@@ -99,11 +105,10 @@ public class ProfileSynchronizer {
 			}
 		};
 
-		Query query = new InstallableUnitQuery(null);
 		for (Iterator it = repositories.iterator(); it.hasNext();) {
 			IMetadataRepository repo = (IMetadataRepository) it.next();
 			// TODO report progress
-			repo.query(query, syncCollector, null);
+			repo.query(InstallableUnitQuery.ANY, syncCollector, null);
 		}
 
 		// the IUs to remove is everything left that hasn't been removed from the snapshot
@@ -121,14 +126,23 @@ public class ProfileSynchronizer {
 	 * Synchronize the profile with the list of metadata repositories.
 	 */
 	public void synchronize(IProgressMonitor monitor) {
+		IStatus status = Status.OK_STATUS;
 		if (iusToRemove != null)
-			removeIUs(iusToRemove, null); // TODO proper progress monitoring
+			status = removeIUs(iusToRemove, null); // TODO proper progress monitoring
+		if (!status.isOK()) {
+			// TODO
+			throw new RuntimeException(new CoreException(status));
+		}
 
 		// disable repo cleanup for now until we see how we want to handle support for links folders and eclipse extensions
 		//removeUnwatchedRepositories(context, profile, watchedFolder);
 
 		if (iusToAdd != null)
-			addIUs(iusToAdd, null); // TODO proper progress monitoring
+			status = addIUs(iusToAdd, null); // TODO proper progress monitoring
+		if (!status.isOK()) {
+			// TODO
+			throw new RuntimeException(new CoreException(status));
+		}
 		// if we did any work we have to apply the changes
 		if (iusToAdd != null || iusToRemove != null)
 			applyConfiguration();
@@ -137,12 +151,12 @@ public class ProfileSynchronizer {
 	/*
 	 * Call the director to install the given list of IUs.
 	 */
-	private void addIUs(IInstallableUnit[] toAdd, IProgressMonitor monitor) {
+	private IStatus addIUs(IInstallableUnit[] toAdd, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
 		IDirector director = (IDirector) context.getService(reference);
 		try {
-			director.install(toAdd, profile, new ProvisioningContext(new URL[0]), monitor);
+			return director.install(toAdd, profile, new ProvisioningContext(new URL[0]), monitor);
 		} finally {
 			context.ungetService(reference);
 		}
@@ -151,12 +165,12 @@ public class ProfileSynchronizer {
 	/*
 	 * Call the director to uninstall the given list of IUs.
 	 */
-	private void removeIUs(IInstallableUnit[] toRemove, IProgressMonitor monitor) {
+	private IStatus removeIUs(IInstallableUnit[] toRemove, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
 		IDirector director = (IDirector) context.getService(reference);
 		try {
-			director.uninstall(toRemove, profile, new ProvisioningContext(new URL[0]), monitor);
+			return director.uninstall(toRemove, profile, new ProvisioningContext(new URL[0]), monitor);
 		} finally {
 			context.ungetService(reference);
 		}

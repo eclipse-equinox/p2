@@ -51,6 +51,10 @@ public class Activator implements BundleActivator {
 			return;
 		if (!startEarly("org.eclipse.equinox.frameworkadmin.equinox")) //$NON-NLS-1$
 			return;
+		// TODO not sure if we really want to do this but had problems with the keyring
+		// trying to be set twice
+		if (!startEarly("org.eclipse.core.runtime")) //$NON-NLS-1$
+			return;
 		Profile profile = getCurrentProfile(context);
 		if (profile == null)
 			return;
