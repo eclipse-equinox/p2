@@ -40,6 +40,8 @@ public interface IGeneratorInfo {
 
 	public String getFlavor();
 
+	public boolean getIsUpdateCompatible();
+
 	public File getJRELocation();
 
 	public String getLauncherConfig();
@@ -73,9 +75,12 @@ public interface IGeneratorInfo {
 
 	public void setFlavor(String value);
 
+	public void setIsUpdateCompatible(boolean isCompatible);
+
 	public void setMetadataRepository(IMetadataRepository value);
 
 	public void setPublishArtifacts(boolean value);
 
 	public void setRootId(String value);
+
 }

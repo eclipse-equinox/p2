@@ -8,13 +8,14 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.update;
+package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Properties;
+import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**

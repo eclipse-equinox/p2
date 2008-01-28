@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
 import org.eclipse.equinox.p2.artifact.repository.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.*;
 import org.osgi.framework.Version;
@@ -133,12 +134,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (INSTALL_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
 			PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) touchpointParameters.get(PARM_PLATFORM_CONFIGURATION);
 			try {
-				URL configURL = getConfigurationURL(profile);
-				configuration.save(configURL);
-			} catch (CoreException ce) {
-				return createError("Error constructing platform configuration url.", ce);
-			} catch (IOException ie) {
-				return createError("Error saving platform configuration.", ie);
+				configuration.save();
+			} catch (ProvisionException pe) {
+				return createError("Error saving platform configuration.", pe);
 			}
 		}
 		return null;
@@ -725,6 +723,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) parameters.get(PARM_PLATFORM_CONFIGURATION);
 		String feature = (String) parameters.get(PARM_FEATURE);
 		String featureId = (String) parameters.get(PARM_FEATURE_ID);
+		String featureVersion = (String) parameters.get(PARM_FEATURE_VERSION);
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.length == 0)
@@ -744,7 +743,13 @@ public class EclipseTouchpoint extends Touchpoint {
 			featureId = artifactKey.getId();
 		}
 
-		return configuration.removeFeatureEntry(featureId);
+		if (featureVersion == null)
+			return createError("The \"featureVersion\" parameter is missing from the \"install feature\" action"); //$NON-NLS-1$
+		else if (PARM_DEFAULT_VALUE.equals(featureVersion)) {
+			featureVersion = artifactKey.getVersion().toString();
+		}
+
+		return configuration.removeFeatureEntry(featureId, featureVersion);
 	}
 
 	public IInstallableUnit prepareIU(IInstallableUnit iu, Profile profile) {

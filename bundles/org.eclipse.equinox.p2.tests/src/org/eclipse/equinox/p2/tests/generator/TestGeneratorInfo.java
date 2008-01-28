@@ -36,6 +36,7 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 	private String rootVersion;
 	private String launcherConfig;
 	private URL siteLocation;
+	private boolean updateCompatibilty = false;
 
 	public TestGeneratorInfo(File baseLocation) {
 		this.baseLocation = baseLocation;
@@ -153,6 +154,14 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		this.launcherConfig = launcherConfig;
 	}
 
+	public boolean getIsUpdateCompatible() {
+		return this.updateCompatibilty;
+	}
+
+	public void setIsUpdateCompatible(boolean isCompatible) {
+		this.updateCompatibilty = isCompatible;
+	}
+	
 	public boolean reuseExistingPack200Files() {
 		return false;
 	}

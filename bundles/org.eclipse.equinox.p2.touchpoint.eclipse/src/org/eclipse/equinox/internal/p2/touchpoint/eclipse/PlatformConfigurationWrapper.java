@@ -10,77 +10,68 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.File;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.update.configurator.IPlatformConfiguration;
-import org.eclipse.update.configurator.IPlatformConfigurationFactory;
-import org.eclipse.update.configurator.IPlatformConfiguration.IFeatureEntry;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.eclipse.equinox.internal.p2.update.*;
+import org.eclipse.equinox.p2.core.ProvisionException;
 
 /**	
- * 	This class provides a wrapper on IPlatformConfiguration to support
- * 	installing and uninstalling features in the configuration.
+ * 	This class provides a wrapper for reading and writing platform.xml.
  * 
  * 	Only a minimal set of operations is exposed.
  */
 public class PlatformConfigurationWrapper {
 
-	private IPlatformConfiguration configuration;
-	private URL configURL;
+	private Configuration configuration = null;
+	private Site poolSite = null;
+	private File configFile;
 	private URL poolURL;
-	private boolean serviceNotFound = false;
+
+	private static String FEATURES = "features/"; //$NON-NLS-1$
 
 	public PlatformConfigurationWrapper(URL configDir, URL featurePool) {
 		this.configuration = null;
-		try {
-			this.configURL = new URL(configDir, "org.eclipse.update/platform.xml");
-		} catch (MalformedURLException mue) {
-			this.configURL = configDir;
-		}
+		this.configFile = new File(configDir.getFile(), "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		this.poolURL = featurePool;
 	}
 
 	private void loadDelegate() {
-		if (configuration != null || serviceNotFound)
+		if (configuration != null)
 			return;
-		// Acquire the configuration factory service first
-		BundleContext context = Activator.getContext();
-		ServiceReference configFactorySR = null;
+
 		try {
-			configFactorySR = context.getServiceReference(IPlatformConfigurationFactory.class.getName());
-		} catch (Throwable /*ClassNotFoundException*/cnfe) {
-			serviceNotFound = true;
-		}
-		if (configFactorySR == null) {
-			serviceNotFound = true;
-			return;
-			// throw new IllegalStateException("Could not acquire the platform configuration factory service."); //$NON-NLS-1$
+			if (configFile.exists()) {
+				configuration = Configuration.load(configFile);
+			} else {
+				configuration = new Configuration();
+			}
+		} catch (ProvisionException pe) {
+			// TODO: Make this a real message
+			throw new IllegalStateException("Error parsing platform configuration."); //$NON-NLS-1$;
 		}
 
-		IPlatformConfigurationFactory configFactory = (IPlatformConfigurationFactory) context.getService(configFactorySR);
-		if (configFactory == null)
-			throw new IllegalStateException("Platform configuration service returned a null platform configuration factory."); //$NON-NLS-1$
-		// Get the configuration using the factory
-		try {
-			configuration = configFactory.getPlatformConfiguration(configURL);
-		} catch (IOException ioe) {
-			try {
-				configuration = configFactory.getPlatformConfiguration(null);
-				IPlatformConfiguration.ISiteEntry site = configuration.createSiteEntry(poolURL, configuration.createSitePolicy(IPlatformConfiguration.ISitePolicy.USER_INCLUDE, new String[0]));
-				configuration.configureSite(site);
-			} catch (IOException ioe2) {
-				configuration = configFactory.getCurrentPlatformConfiguration();
+		List sites = configuration.getSites();
+		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+			Site nextSite = (Site) iter.next();
+			String nextURL = nextSite.getUrl();
+			if (nextURL.equals(poolURL.toExternalForm())) {
+				poolSite = nextSite;
+				break;
 			}
 		}
-		context.ungetService(configFactorySR);
-	}
 
-	// Only expose the operations using IPlatformConfiguration that are needed
-	// to install and uninstall features in the configuration.
+		if (poolSite == null) {
+			poolSite = new Site();
+			poolSite.setUrl(poolURL.toExternalForm());
+			poolSite.setPolicy(Site.POLICY_MANAGED_ONLY);
+			poolSite.setEnabled(true);
+			configuration.add(poolSite);
+		}
+	}
 
 	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#createFeatureEntry(java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.net.URL[])
@@ -90,36 +81,40 @@ public class PlatformConfigurationWrapper {
 		if (configuration == null)
 			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
 
-		IFeatureEntry entry = configuration.createFeatureEntry(id, version, pluginIdentifier, pluginVersion, primary, application, root);
-		if (entry != null) {
-			configuration.configureFeatureEntry(entry);
-			return Status.OK_STATUS;
-		}
-		return new Status(IStatus.ERROR, Activator.ID, "Creating feature entry returned null.", null); //$NON-NLS-1$
+		Feature addedFeature = new Feature(poolSite);
+		addedFeature.setId(id);
+		addedFeature.setVersion(version);
+		addedFeature.setUrl(makeFeatureURL(id, version));
+		poolSite.addFeature(addedFeature);
+		return Status.OK_STATUS;
 	}
 
 	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#findConfiguredFeatureEntry(java.lang.String)
 	 */
-	public IStatus removeFeatureEntry(String id) {
+	public IStatus removeFeatureEntry(String id, String version) {
 		loadDelegate();
 		if (configuration == null)
 			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
 
-		IPlatformConfiguration.IFeatureEntry entry = configuration.findConfiguredFeatureEntry(id);
-		if (entry != null) {
-			configuration.unconfigureFeatureEntry(entry);
-			return Status.OK_STATUS;
-		}
-		return new Status(IStatus.ERROR, Activator.ID, "A feature with the specified id was not found.", null); //$NON-NLS-1$
+		Feature removedFeature = poolSite.removeFeature(makeFeatureURL(id, version));
+		return (removedFeature != null ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, "A feature with the specified id was not found.", null)); //$NON-NLS-1$
 	}
 
 	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#save()
 	 */
-	public void save(URL location) throws IOException {
+	public void save() throws ProvisionException {
 		if (configuration != null) {
-			configuration.save(location);
+			configFile.getParentFile().mkdirs();
+			configuration.save(configFile);
 		}
 	}
+
+	private static String makeFeatureURL(String id, String version) {
+		return FEATURES + id + "_" + version + "/"; //$NON-NLS-1$ //$NON-NLS-2$;
+	}
+
+	//	}
+
 }

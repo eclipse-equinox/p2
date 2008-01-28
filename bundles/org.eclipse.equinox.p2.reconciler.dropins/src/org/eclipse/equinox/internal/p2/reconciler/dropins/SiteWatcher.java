@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.update;
+package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
@@ -26,8 +26,8 @@ public class SiteWatcher extends DirectoryWatcher {
 	 */
 	public SiteWatcher(File directory) {
 		super(directory);
-		PLUGINS_DIR = new File(directory, "plugins");
-		FEATURES_DIR = new File(directory, "features");
+		PLUGINS_DIR = new File(directory, "plugins"); //$NON-NLS-1$
+		FEATURES_DIR = new File(directory, "features"); //$NON-NLS-1$
 	}
 
 }

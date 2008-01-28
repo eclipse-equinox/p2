@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.update;
+package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,8 +16,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
-import org.eclipse.equinox.internal.p2.update.SiteDelta.Change;
+import org.eclipse.equinox.internal.p2.reconciler.dropins.SiteDelta.Change;
+import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
@@ -124,7 +124,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		for (int i = 0; i < added.length; i++) {
 			Site site = added[i];
 			// TODO skip for now
-			if ("platform:/base/".equals(site.getUrl()))
+			if ("platform:/base/".equals(site.getUrl())) //$NON-NLS-1$
 				continue;
 			try {
 				URL url = new URL(site.getUrl());
@@ -133,7 +133,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				} catch (IOException e) {
 					throw new ProvisionException("Exception while processing configuration.", e);
 				}
-				File file = new File(url.getPath(), "plugins");
+				File file = new File(url.getPath(), "plugins"); //$NON-NLS-1$
 				DirectoryWatcher watcher = new DirectoryWatcher(file);
 				SiteListener listener = new SiteListener(site);
 				watcher.addListener(listener);
@@ -184,9 +184,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private boolean majorChange(Change change) {
 		Site one = change.oldSite;
 		Site two = change.newSite;
-		if (!Activator.equals(one.getPolicy(), two.getPolicy()))
+		if (!Utils.equals(one.getPolicy(), two.getPolicy()))
 			return true;
-		return !Activator.equals(one.getList(), two.getList());
+		return !Utils.equals(one.getList(), two.getList());
 	}
 
 	/* (non-Javadoc)

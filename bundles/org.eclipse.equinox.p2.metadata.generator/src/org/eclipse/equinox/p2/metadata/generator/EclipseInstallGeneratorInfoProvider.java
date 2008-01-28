@@ -38,6 +38,13 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 
+	/*
+	 * 	TODO: Temporary for determining whether eclipse installs
+	 * 		  in a profile should support backward compatibility
+	 * 		  with update manager.
+	 */
+	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
+
 	private static String os;
 
 	/**
@@ -72,6 +79,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private IMetadataRepository metadataRepository;
 	private boolean publishArtifactRepo = false;
 	private boolean publishArtifacts = false;
+	private boolean updateCompatibility = Boolean.valueOf(System.getProperty(UPDATE_COMPATIBILITY, "false")).booleanValue(); //$NON-NLS-1$
 	private String rootId;
 	private String rootVersion;
 
@@ -254,6 +262,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return admin;
 	}
 
+	public boolean getIsUpdateCompatible() {
+		return updateCompatibility;
+	}
+
 	private Collection getIUs(Set ius, String prefix) {
 		Set result = new HashSet();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
@@ -378,6 +390,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	public void setFlavor(String value) {
 		flavor = value;
+	}
+
+	public void setIsUpdateCompatible(boolean isCompatible) {
+		this.updateCompatibility = isCompatible;
 	}
 
 	public void setLauncherConfig(String value) {

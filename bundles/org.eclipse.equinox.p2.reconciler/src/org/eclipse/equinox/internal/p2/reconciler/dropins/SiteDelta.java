@@ -8,10 +8,11 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.update;
+package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.internal.p2.update.Site;
 
 /*
  * Represents the changes between 2 lists of sites.

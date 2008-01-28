@@ -8,8 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.update;
+package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
+import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 
 /*

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.update;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 
 /*
  * Represents a site in a platform.xml file.
@@ -117,13 +116,13 @@ public class Site {
 			return false;
 		if (!getUrl().equals(other.getUrl()))
 			return false;
-		if (!Activator.equals(getLinkFile(), other.getLinkFile()))
+		if (!Utils.equals(getLinkFile(), other.getLinkFile()))
 			return false;
-		if (!Activator.equals(getPolicy(), other.getPolicy()))
+		if (!Utils.equals(getPolicy(), other.getPolicy()))
 			return false;
-		if (!Activator.equals(getList(), other.getList()))
+		if (!Utils.equals(getList(), other.getList()))
 			return false;
-		if (!Activator.equals(getFeatures(), other.getFeatures()))
+		if (!Utils.equals(getFeatures(), other.getFeatures()))
 			return false;
 		return true;
 	}
