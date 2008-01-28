@@ -210,7 +210,30 @@ public class UpdateAndInstallGroup {
 		uninstallButton = createVerticalButton(composite, ProvUIMessages.UninstallIUCommandLabel, false);
 		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateIUCommandLabel, false);
-		updateButton.setData(BUTTONACTION, new UpdateAction(installedIUGroup.getStructuredViewer(), profileId, null, licenseManager, queryProvider, parent.getShell()));
+		// For update only, we want it to check for all updates if there is nothing selected
+		updateButton.setData(BUTTONACTION, new UpdateAction(new ISelectionProvider() {
+			public void addSelectionChangedListener(ISelectionChangedListener listener) {
+				installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
+			}
+
+			public ISelection getSelection() {
+				StructuredViewer viewer = installedIUGroup.getStructuredViewer();
+				ISelection selection = viewer.getSelection();
+				if (selection.isEmpty()) {
+					final Object[] all = ((IStructuredContentProvider) installedIUGroup.getStructuredViewer().getContentProvider()).getElements(viewer.getInput());
+					return new StructuredSelection(all);
+				}
+				return selection;
+			}
+
+			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+				installedIUGroup.getStructuredViewer().removeSelectionChangedListener(listener);
+			}
+
+			public void setSelection(ISelection selection) {
+				installedIUGroup.getStructuredViewer().setSelection(selection);
+			}
+		}, profileId, null, licenseManager, queryProvider, parent.getShell()));
 		if (profileChooser != null) {
 			Button profileButton = createVerticalButton(composite, profileChooser.getLabel(), false);
 			profileButton.setData(BUTTONACTION, new Action() {
