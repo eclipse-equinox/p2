@@ -37,7 +37,7 @@ public class MetadataGeneratorHelper {
 	private static final String CAPABILITY_TYPE_OSGI_SOURCE_BUNDLES = "osgi.source.bundles"; //$NON-NLS-1$
 	private static final String CAPABILITY_TYPE_OSGI_FRAGMENTS = "osgi.fragments"; //$NON-NLS-1$
 
-	private static final Version DEFAULT_JRE_VERSION = new Version("1.5"); //$NON-NLS-1$
+	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
 
 	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
 	private static final String ECLIPSE_FEATURE_CLASSIFIER = "feature"; //$NON-NLS-1$
@@ -524,9 +524,9 @@ public class MetadataGeneratorHelper {
 
 	private static ProvidedCapability[] generateJRECapability(String installableUnitId, Version installableUnitVersion, InputStream profileStream) {
 		if (profileStream == null) {
-			//use the 1.5 profile stored in the generator bundle
+			//use the 1.6 profile stored in the generator bundle
 			try {
-				profileStream = Activator.getContext().getBundle().getEntry("J2SE-1.5.profile").openStream(); //$NON-NLS-1$
+				profileStream = Activator.getContext().getBundle().getEntry("JavaSE-1.6.profile").openStream(); //$NON-NLS-1$
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -574,7 +574,9 @@ public class MetadataGeneratorHelper {
 		String profileName = profiles[0].getAbsolutePath().substring(profiles[0].getAbsolutePath().lastIndexOf('/'));
 		Version version = DEFAULT_JRE_VERSION;
 		//TODO Find a better way to determine JRE version
-		if (profileName.indexOf("1.5") > 0) { //$NON-NLS-1$
+		if (profileName.indexOf("1.6") > 0) { //$NON-NLS-1$
+			version = new Version("1.6"); //$NON-NLS-1$
+		} else if (profileName.indexOf("1.5") > 0) { //$NON-NLS-1$
 			version = new Version("1.5"); //$NON-NLS-1$
 		} else if (profileName.indexOf("1.4") > 0) { //$NON-NLS-1$
 			version = new Version("1.4"); //$NON-NLS-1$
