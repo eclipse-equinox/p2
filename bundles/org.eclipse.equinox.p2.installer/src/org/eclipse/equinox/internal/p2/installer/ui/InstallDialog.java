@@ -136,10 +136,6 @@ public class InstallDialog {
 		}
 	}
 
-	private static final String EXPLAIN_SHARED = Messages.Dialog_ExplainShared;
-
-	private static final String EXPLAIN_STANDALONE = Messages.Dialog_ExplainStandalone;
-
 	private static final int OK = 0;
 	private static final int CANCEL = 1;
 	int returnCode = -1;
@@ -295,7 +291,7 @@ public class InstallDialog {
 		GridData data = new GridData(SWT.DEFAULT, 40);
 		data.grabExcessHorizontalSpace = true;
 		installKindExplanation.setLayoutData(data);
-		installKindExplanation.setText(EXPLAIN_STANDALONE);
+		installKindExplanation.setText(Messages.Dialog_ExplainStandalone);
 
 		//make the entire group invisible until we actually need to prompt for locations
 		installSettingsGroup.setVisible(false);
@@ -481,8 +477,8 @@ public class InstallDialog {
 		okButton.setEnabled(enabled);
 
 		if (standaloneButton.getSelection())
-			installKindExplanation.setText(EXPLAIN_STANDALONE);
+			installKindExplanation.setText(Messages.Dialog_ExplainStandalone);
 		else
-			installKindExplanation.setText(EXPLAIN_SHARED);
+			installKindExplanation.setText(Messages.Dialog_ExplainShared);
 	}
 }
