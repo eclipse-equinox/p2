@@ -27,18 +27,15 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 /**
- * A ProfileGroup is a reusable UI component that displays and edits the
- * properties of a profile. It can be used in different dialogs that manipulate
+ * A ProfileGroup is a reusable UI component that displays the
+ * properties of a profile.  It can be used to create a new profile.
+ * . It can be used in different dialogs that manipulate
  * or define profiles.
  * 
  * @since 3.4
  * 
  */
 public class ProfileGroup {
-
-	// TODO should make flavor a dropdown, populated
-	//		 via a query for all flavors in known repositories
-	static private String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
 
 	Text id;
 	Text location;
@@ -69,17 +66,14 @@ public class ProfileGroup {
 		label.setText(ProvAdminUIMessages.ProfileGroup_ID);
 		id = new Text(composite, SWT.BORDER);
 		id.setLayoutData(gd);
-		if (profile == null && listener != null) {
-			id.addModifyListener(listener);
-		} else {
-			id.setEditable(false);
-		}
+		setEditable(id, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_InstallFolder);
 		location = new Text(composite, SWT.BORDER);
 		location.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		location.addModifyListener(listener);
+		setEditable(location, profile == null, listener);
+
 		Button locationButton = new Button(composite, SWT.PUSH);
 		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse);
 		locationButton.addSelectionListener(new SelectionAdapter() {
@@ -92,12 +86,14 @@ public class ProfileGroup {
 				}
 			}
 		});
+		setEditable(locationButton, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Cache);
 		cache = new Text(composite, SWT.BORDER);
 		cache.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		cache.addModifyListener(listener);
+		setEditable(cache, profile == null, listener);
+
 		locationButton = new Button(composite, SWT.PUSH);
 		locationButton.setText(ProvAdminUIMessages.ProfileGroup_Browse2);
 		locationButton.addSelectionListener(new SelectionAdapter() {
@@ -110,35 +106,37 @@ public class ProfileGroup {
 				}
 			}
 		});
+		setEditable(locationButton, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Name);
 		name = new Text(composite, SWT.BORDER);
 		name.setLayoutData(gd);
-		name.addModifyListener(listener);
+		setEditable(name, profile == null, listener);
+
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Description);
 		description = new Text(composite, SWT.BORDER);
 		description.setLayoutData(gd);
-		description.addModifyListener(listener);
+		setEditable(description, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Flavor);
 		flavor = new Text(composite, SWT.BORDER);
 		flavor.setLayoutData(gd);
-		flavor.addModifyListener(listener);
+		setEditable(flavor, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_Environments);
 		environments = new Text(composite, SWT.BORDER);
 		environments.setLayoutData(gd);
-		environments.addModifyListener(listener);
+		setEditable(environments, profile == null, listener);
 
 		label = new Label(composite, SWT.NONE);
 		label.setText(ProvAdminUIMessages.ProfileGroup_NL);
 		nl = new Text(composite, SWT.BORDER);
 		nl.setLayoutData(gd);
-		nl.addModifyListener(listener);
+		setEditable(nl, profile == null, listener);
 
 		initializeFields();
 	}
@@ -175,11 +173,8 @@ public class ProfileGroup {
 				description.setText(value);
 			}
 			value = profile.getValue(Profile.PROP_FLAVOR);
-			// TODO: temporary for M1; should make flavor a dropdown
-			flavor.setText(value != null ? value : FLAVOR_DEFAULT);
-			// if (value != null) {
-			//     flavor.setText(value);
-			// }
+			flavor.setText(value != null ? value : ProfileFactory.getDefaultFlavor());
+
 			value = profile.getValue(Profile.PROP_ENVIRONMENTS);
 			if (value != null) {
 				environments.setText(value);
@@ -206,7 +201,6 @@ public class ProfileGroup {
 			if (value.length() > 0) {
 				profileProperties.put(Profile.PROP_CACHE, value);
 			}
-
 			value = name.getText().trim();
 			if (value.length() > 0) {
 				profileProperties.put(Profile.PROP_NAME, value);
@@ -265,5 +259,16 @@ public class ProfileGroup {
 		// TODO what kind of validation do we perform for other properties?
 		return new Status(IStatus.OK, ProvAdminUIActivator.PLUGIN_ID, IStatus.OK, "", null); //$NON-NLS-1$
 
+	}
+
+	private void setEditable(Control control, boolean editable, ModifyListener listener) {
+		if (control instanceof Text) {
+			Text text = (Text) control;
+			text.setEditable(editable);
+			if (listener != null && editable)
+				text.addModifyListener(listener);
+		} else {
+			control.setEnabled(editable);
+		}
 	}
 }

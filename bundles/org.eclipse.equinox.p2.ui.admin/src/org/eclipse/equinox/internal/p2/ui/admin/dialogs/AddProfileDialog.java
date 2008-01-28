@@ -59,8 +59,11 @@ public class AddProfileDialog extends StatusDialog {
 	}
 
 	protected void okPressed() {
-		addProfile();
-		super.okPressed();
+		verifyComplete();
+		if (okButton.isEnabled()) {
+			addProfile();
+			super.okPressed();
+		}
 	}
 
 	/*
