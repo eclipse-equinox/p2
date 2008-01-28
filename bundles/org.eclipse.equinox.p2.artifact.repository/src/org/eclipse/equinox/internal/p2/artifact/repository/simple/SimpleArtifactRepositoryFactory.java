@@ -16,6 +16,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
@@ -24,6 +25,12 @@ import org.eclipse.osgi.util.NLS;
 public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 
 	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+		long time = 0;
+		final String debugMsg = "Restoring artifact repository "; //$NON-NLS-1$
+		if (Tracing.DEBUG_METADATA_PARSING) {
+			Tracing.debug(debugMsg + location);
+			time = -System.currentTimeMillis();
+		}
 		File temp = null;
 		try {
 			SubMonitor sub = SubMonitor.convert(monitor, 300);
@@ -65,14 +72,21 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO();
 				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(temp.toURL(), descriptorStream, sub.newChild(100));
 				result.initializeAfterLoad(location);
+				if (Tracing.DEBUG_METADATA_PARSING) {
+					time += System.currentTimeMillis();
+					Tracing.debug(debugMsg + "time (ms): " + time); //$NON-NLS-1$ 
+				}
 				return result;
 			} finally {
 				if (descriptorStream != null)
 					descriptorStream.close();
 			}
-		} catch (IOException e) {
+		} catch (FileNotFoundException e) {
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
+		} catch (IOException e) {
+			String msg = NLS.bind(Messages.io_failedRead, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
 			if (temp != null && !temp.delete())
 				temp.deleteOnExit();

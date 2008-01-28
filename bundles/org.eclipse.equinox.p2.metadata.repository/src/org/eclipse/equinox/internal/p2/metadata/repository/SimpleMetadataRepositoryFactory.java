@@ -15,11 +15,11 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.osgi.util.NLS;
 
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
@@ -73,7 +73,7 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					jarEntry = jInStream.getNextJarEntry();
 				}
 				if (jarEntry == null) {
-					throw new FileNotFoundException("Repository not found in compressed file."); //$NON-NLS-1$
+					throw new FileNotFoundException(actualFile.getPath().toString());
 				}
 				inStream = jInStream;
 			}
@@ -94,22 +94,19 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					descriptorStream.close();
 			}
 		} catch (FileNotFoundException e) {
-			//if the repository doesn't exist, then it's fine to return null
+			String msg = NLS.bind(Messages.io_failedRead, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
 		} catch (IOException e) {
-			log(debugMsg, e);
+			String msg = NLS.bind(Messages.io_failedRead, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
 			if (temp != null && !temp.delete()) {
 				temp.deleteOnExit();
 			}
 		}
-		return null;
 	}
 
 	private ECFMetadataTransport getTransport() {
 		return ECFMetadataTransport.getInstance();
-	}
-
-	private void log(String message, Exception e) {
-		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, e));
 	}
 }
