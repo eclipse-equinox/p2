@@ -115,14 +115,14 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	/**
-	 * Throws an exception of severity error with the given error message.
+	 * Returns an exception of severity error with the given error message.
 	 */
 	private CoreException fail(String message) {
 		return fail(message, null);
 	}
 
 	/**
-	 * Throws an exception of severity error with the given error message.
+	 * Returns an exception of severity error with the given error message.
 	 */
 	private CoreException fail(String message, Throwable throwable) {
 		return new CoreException(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, message, throwable));
@@ -219,24 +219,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	}
 
 	private void preInstall() throws CoreException {
-		IPath installLocation = installDescription.getInstallLocation();
-		if (installLocation == null)
-			throw fail("Install failed because the install location was not set");
-		//set agent location if specified
-		IPath agentLocation = installDescription.getAgentLocation();
-		if (agentLocation != null && System.getProperty("eclipse.p2.data.area") == null) //$NON-NLS-1$
-			System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
-		//set bundle pool location if specified
-		IPath bundleLocation = installDescription.getBundleLocation();
-		if (bundleLocation != null && System.getProperty(Profile.PROP_CACHE) == null)
-			System.setProperty(Profile.PROP_CACHE, bundleLocation.toString());
-
-		//start up p2
-		try {
-			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
-		} catch (BundleException e) {
-			throw fail("Unable to start p2", e);
-		}
 		//obtain required services
 		serviceReferences.clear();
 		director = (IDirector) getService(IDirector.class.getName());

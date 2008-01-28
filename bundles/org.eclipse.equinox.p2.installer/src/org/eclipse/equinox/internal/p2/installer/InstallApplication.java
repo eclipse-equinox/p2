@@ -21,7 +21,10 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
+import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 
 /**
  * This is a simple installer application built using P2.  The application must be given
@@ -134,7 +137,7 @@ public class InstallApplication implements IApplication {
 			InstallDescription description = null;
 			try {
 				description = computeInstallDescription();
-
+				startRequiredBundles(description);
 				//perform long running install operation
 				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(InstallerActivator.getDefault().getContext(), description);
 				IStatus result = advisor.performInstall(operation);
@@ -163,6 +166,33 @@ public class InstallApplication implements IApplication {
 			return IApplication.EXIT_OK;
 		} finally {
 			advisor.stop();
+		}
+	}
+
+	/**
+	 * Starts the p2 bundles needed to continue with the install.
+	 */
+	private void startRequiredBundles(InstallDescription description) throws CoreException {
+		IPath installLocation = description.getInstallLocation();
+		if (installLocation == null)
+			throw fail("Install failed because the install location was not set", null);
+		//set agent location if specified
+		IPath agentLocation = description.getAgentLocation();
+		if (agentLocation != null) {
+			String agentArea = System.getProperty("eclipse.p2.data.area"); //$NON-NLS-1$
+			if (agentArea == null || agentArea.length() == 0)
+				System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
+		}
+		//set bundle pool location if specified
+		IPath bundleLocation = description.getBundleLocation();
+		if (bundleLocation != null && System.getProperty(Profile.PROP_CACHE) == null)
+			System.setProperty(Profile.PROP_CACHE, bundleLocation.toString());
+
+		//start up p2
+		try {
+			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
+		} catch (BundleException e) {
+			throw fail("Unable to start provisioning infrastructure", e);
 		}
 	}
 
