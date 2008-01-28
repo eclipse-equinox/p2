@@ -20,7 +20,7 @@
 
    <splash
       location="org.eclipse.equinox.p2.installer" />
-   <launcher>
+   <launcher name="p2installer">
       <solaris/>
       <win useIco="false">
          <bmp/>
