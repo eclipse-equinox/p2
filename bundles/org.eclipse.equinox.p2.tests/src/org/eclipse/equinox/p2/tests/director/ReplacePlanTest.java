@@ -59,7 +59,10 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		profile = createProfile("TestProfile." + getName());
 		director = createDirector();
 		planner = createPlanner();
-		director.install(new IInstallableUnit[] {fa, frag1}, profile, null, null);
+
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {fa, frag1});
+		director.provision(request, null, null);
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4, frag1_1, frag1_4});
 	}
@@ -67,7 +70,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 	public void testSimpleReplace() {
 		IInstallableUnit[] oldUnits = new IInstallableUnit[] {fa};
 		IInstallableUnit[] newUnits = new IInstallableUnit[] {fap};
-		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(oldUnits);
 		request.addInstallableUnits(newUnits);
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
@@ -80,7 +83,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 
 	public void testReplaceFragment() {
 		//TODO it is strange that this succeeds, since frag1_4 and fa cannot co-exist
-		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(new IInstallableUnit[] {frag1});
 		request.addInstallableUnits(new IInstallableUnit[] {frag1_4});
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);

@@ -34,7 +34,7 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 		SubMonitor sub = SubMonitor.convert(monitor);
 		sub.setWorkRemaining(100);
 		try {
-			ProfileChangeRequest changeRequest = new ProfileChangeRequest(getProfileId());
+			ProfileChangeRequest changeRequest = ProfileChangeRequest.createByProfileId(getProfileId());
 			changeRequest.addInstallableUnits(new IInstallableUnit[] {iu});
 			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, sub.newChild(50));
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfileId(), sub.newChild(50));
@@ -55,7 +55,7 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
 			IInstallableUnit[] selected = elementsToIUs(selectedElements);
-			ProfileChangeRequest changeRequest = new ProfileChangeRequest(getProfileId());
+			ProfileChangeRequest changeRequest = ProfileChangeRequest.createByProfileId(getProfileId());
 			changeRequest.addInstallableUnits(selected);
 			for (int i = 0; i < selected.length; i++) {
 				changeRequest.setInstallableUnitProfileProperty(selected[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));

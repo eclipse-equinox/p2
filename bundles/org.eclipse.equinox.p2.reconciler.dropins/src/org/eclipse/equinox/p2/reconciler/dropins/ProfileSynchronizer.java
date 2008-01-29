@@ -15,8 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.configurator.Configurator;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
-import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.director.ProvisioningContext;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -156,7 +155,9 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
 		IDirector director = (IDirector) context.getService(reference);
 		try {
-			return director.install(toAdd, profile, new ProvisioningContext(new URL[0]), monitor);
+			ProfileChangeRequest request = new ProfileChangeRequest(profile);
+			request.addInstallableUnits(toAdd);
+			return director.provision(request, new ProvisioningContext(new URL[0]), monitor);
 		} finally {
 			context.ungetService(reference);
 		}
@@ -170,7 +171,9 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
 		IDirector director = (IDirector) context.getService(reference);
 		try {
-			return director.uninstall(toRemove, profile, new ProvisioningContext(new URL[0]), monitor);
+			ProfileChangeRequest request = new ProfileChangeRequest(profile);
+			request.removeInstallableUnits(toRemove);
+			return director.provision(request, new ProvisioningContext(new URL[0]), monitor);
 		} finally {
 			context.ungetService(reference);
 		}

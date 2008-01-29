@@ -69,7 +69,7 @@ public class InstallAction extends ProfileModificationAction {
 
 	protected IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
 		try {
-			ProfileChangeRequest request = new ProfileChangeRequest(targetProfileId);
+			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
 			request.addInstallableUnits(ius);
 			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, monitor);
 			return plan.getStatus();

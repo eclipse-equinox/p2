@@ -209,7 +209,7 @@ public class SimplePlanner implements IPlanner {
 
 	// TODO note that this only describes property changes, not the IU changes.
 	private ProfileChangeRequest generateChangeRequest(Profile currentProfile, IInstallableUnit iuDescribingNewState, Collection newIUs) {
-		ProfileChangeRequest request = new ProfileChangeRequest(currentProfile.getProfileId());
+		ProfileChangeRequest request = new ProfileChangeRequest(currentProfile);
 
 		for (Iterator iter = currentProfile.getProperties().keySet().iterator(); iter.hasNext();) {
 			String key = (String) iter.next();

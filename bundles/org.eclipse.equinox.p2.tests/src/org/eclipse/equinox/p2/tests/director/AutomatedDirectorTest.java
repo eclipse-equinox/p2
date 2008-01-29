@@ -15,6 +15,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -61,8 +62,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		Map properties = new HashMap();
 		properties.put(Profile.PROP_ENVIRONMENTS, "FilterKey=true");
 		Profile satisfied = createProfile("Satisfied." + getName(), null, properties);
-
-		IStatus result = director.install(toInstallArray, satisfied, null, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(satisfied);
+		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
 		assertTrue("1.0", result.isOK());
 		assertProfileContains("1.1", satisfied, allUnits);
 	}
@@ -85,7 +87,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -106,7 +110,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
-		IStatus result = director.install(allUnits, profile, null, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(allUnits);
+		IStatus result = director.provision(request, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -131,14 +137,18 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		Profile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
 		assertTrue("1.0", !result.isOK());
 
 		//try again with the filter satisfied
 		Map properties = new HashMap();
 		properties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=blort");
 		Profile profile2 = createProfile("TestProfile2." + getName(), null, properties);
-		result = director.install(toInstallArray, profile2, null, null);
+		request = new ProfileChangeRequest(profile2);
+		request.addInstallableUnits(toInstallArray);
+		result = director.provision(request, null, null);
 		assertTrue("2.0", result.isOK());
 	}
 
@@ -160,7 +170,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -185,7 +197,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
@@ -211,7 +225,9 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		Profile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
-		IStatus result = director.install(toInstallArray, profile, null, null);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());

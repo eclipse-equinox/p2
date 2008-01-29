@@ -51,7 +51,7 @@ public class AutomaticUpdater implements IUpdateListener {
 				ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(eventWithOnlyRoots, IQueryProvider.AVAILABLE_UPDATES);
 				IInstallableUnit[] replacements = (IInstallableUnit[]) descriptor.queryable.query(descriptor.query, descriptor.collector, null).toArray(IInstallableUnit.class);
 				if (replacements.length > 0) {
-					ProfileChangeRequest request = new ProfileChangeRequest(event.getProfileId());
+					ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(event.getProfileId());
 					request.removeInstallableUnits(toUpdate);
 					request.addInstallableUnits(replacements);
 					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getProvisioningPlan(request, new ProvisioningContext(), null);

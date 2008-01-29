@@ -25,13 +25,20 @@ public class ProfileChangeRequest {
 	private Map iuPropertiesToAdd = null; // map iu->map of key->value pairs for properties to be added for an iu
 	private Map iuPropertiesToRemove = null; // map of iu->list of property keys to be removed for an iu
 
-	public ProfileChangeRequest(String profileId) {
+	public static ProfileChangeRequest createByProfileId(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
 		if (profileRegistry == null)
 			throw new IllegalStateException("ProfileRegistry unavailable");
-		profile = profileRegistry.getProfile(profileId);
+		Profile profile = profileRegistry.getProfile(profileId);
 		if (profile == null)
 			throw new IllegalArgumentException("Profile id " + profileId + " is not registered.");
+		return new ProfileChangeRequest(profile);
+	}
+
+	public ProfileChangeRequest(Profile profile) {
+		if (profile == null)
+			throw new IllegalArgumentException("Profile cannot be null.");
+		this.profile = profile;
 	}
 
 	public Profile getProfile() {

@@ -79,7 +79,7 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProfileChangeRequest request = new ProfileChangeRequest(getProfileId());
+			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
 			request.removeInstallableUnits(getIUsToReplace(selectedElements));
 			request.addInstallableUnits(elementsToIUs(selectedElements));
 			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, monitor);

@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
@@ -50,10 +51,14 @@ public class OracleTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstallA1() {
-		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {a1}, profile, null, null).getSeverity());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 
 		createTestMetdataRepository(new IInstallableUnit[] {d2});
 		//		assertEquals(new Oracle().canInstall(new IInstallableUnit[] {b1}, profile, null), true);
-		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {b1}, profile, null, null).getSeverity());
+		request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {b1});
+		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 	}
 }

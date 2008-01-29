@@ -172,7 +172,7 @@ public class Application implements IApplication {
 		ProvisioningPlan result = null;
 		IStatus operationStatus = null;
 		ProvisioningContext context = new ProvisioningContext();
-		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		if (roots.length > 0) {
 			if (install) {
 				request.addInstallableUnits(roots);
@@ -188,8 +188,12 @@ public class Application implements IApplication {
 				operationStatus = engine.perform(profile, set, result.getOperands(), result.getPropertyOperands(), new NullProgressMonitor());
 				System.out.println(Messages.Disk_size + sizeComputer.getDiskSize());
 				System.out.println(Messages.Download_size + sizeComputer.getDlSize());
-				operationStatus = (install ? director.install(roots, profile, null, new NullProgressMonitor()) //
-						: director.uninstall(roots, profile, null, new NullProgressMonitor()));
+				request = new ProfileChangeRequest(profile);
+				if (install)
+					request.addInstallableUnits(roots);
+				else
+					request.removeInstallableUnits(roots);
+				operationStatus = director.provision(request, null, new NullProgressMonitor());
 			}
 		} else {
 			operationStatus = new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.Missing_IU, root));

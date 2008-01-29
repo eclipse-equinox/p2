@@ -76,7 +76,9 @@ public class End2EndTest extends AbstractProvisioningTest {
 	public void testInstallSDK() {
 		Profile profile2 = createProfile("profile2");
 		//First we install the sdk
-		IStatus s = director.install(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, null, new NullProgressMonitor());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
+		request.addInstallableUnits(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))});
+		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("Installation failed");
 		IInstallableUnit firstSnapshot = getIU("profile2"); //This should represent the empty profile
@@ -84,7 +86,9 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotNull(firstSnapshot.getProperty("profileIU"));
 
 		//Uninstall the SDK
-		s = director.uninstall(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, profile2, null, new NullProgressMonitor());
+		request = new ProfileChangeRequest(profile2);
+		request.removeInstallableUnits(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))});
+		s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("The uninstallation has failed and it was not expected");
 
@@ -101,8 +105,10 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertNotNull(getIU("sdk"));
 
 		//Test replace
-		s = director.replace(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, planner.updatesFor(getIU("sdk", new Version("3.3.0")), null, null), profile2, null, new NullProgressMonitor());
-		assertOK(s);
+		request = new ProfileChangeRequest(profile2);
+		request.addInstallableUnits(planner.updatesFor(getIU("sdk", new Version("3.3.0")), null, null));
+		request.removeInstallableUnits(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))});
+		assertOK(director.provision(request, null, null));
 		assertProfileContainsAll("", profile2, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
 		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, getInstallableUnits(profile2));
 

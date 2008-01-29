@@ -11,12 +11,14 @@
 package org.eclipse.equinox.p2.tests.full;
 
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -85,11 +87,12 @@ public class DirectorTest extends AbstractProvisioningTest {
 		IStatus operationStatus = null;
 		if (!allJobs.isEmpty()) {
 			allRoots[0] = (IInstallableUnit) allJobs.iterator().next();
-			if (!doUninstall) {
-				operationStatus = director.install(allRoots, p, null, new NullProgressMonitor());
-			} else {
-				operationStatus = director.uninstall(allRoots, p, null, new NullProgressMonitor());
-			}
+			ProfileChangeRequest request = new ProfileChangeRequest(p);
+			if (!doUninstall)
+				request.addInstallableUnits(allRoots);
+			else
+				request.removeInstallableUnits(allRoots);
+			operationStatus = director.provision(request, null, null);
 		} else {
 			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.p2.director.test", "The installable unit '" + System.getProperty("eclipse.p2.autoInstall") + "' has not been found");
 		}

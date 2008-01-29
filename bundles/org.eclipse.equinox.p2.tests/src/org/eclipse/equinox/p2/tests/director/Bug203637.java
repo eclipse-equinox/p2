@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -19,7 +20,9 @@ public class Bug203637 extends AbstractProvisioningTest {
 		IDirector d = createDirector();
 		Profile profile = createProfile("TestProfile." + getName());
 		IInstallableUnit a1 = createIU("A", new Version(1, 0, 0), true);
-		assertOK(d.replace(new IInstallableUnit[0], new IInstallableUnit[] {a1}, profile, null, null));
-
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		request.removeInstallableUnits(new IInstallableUnit[0]);
+		assertOK(d.provision(request, null, null));
 	}
 }

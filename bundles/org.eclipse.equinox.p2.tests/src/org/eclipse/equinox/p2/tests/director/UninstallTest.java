@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -27,12 +28,16 @@ public class UninstallTest extends AbstractProvisioningTest {
 
 	public void testUninstall() {
 		IInstallableUnit[] units = new IInstallableUnit[] {a1};
-		System.out.println(director.install(units, profile, null, null));
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(units);
+		System.out.println(director.provision(request, null, null));
 		assertProfileContains("1.0", profile, units);
-		director.uninstall(units, profile, null, null);
+		request = new ProfileChangeRequest(profile);
+		request.removeInstallableUnits(units);
+		director.provision(request, null, null);
 		assertEmptyProfile(profile);
 		//uninstalling on empty profile should be a no-op
-		director.uninstall(units, profile, null, null);
+		director.provision(request, null, null);
 		assertEmptyProfile(profile);
 	}
 }

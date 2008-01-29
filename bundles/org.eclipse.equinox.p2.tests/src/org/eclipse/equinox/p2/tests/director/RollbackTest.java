@@ -15,8 +15,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.director.ProvisioningContext;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -39,7 +38,9 @@ public class RollbackTest extends AbstractProvisioningTest {
 	}
 
 	public void test() throws ProvisionException {
-		System.out.println(director.install(new IInstallableUnit[] {a1}, profile, null, new NullProgressMonitor()));
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		System.out.println(director.provision(request, null, new NullProgressMonitor()));
 		printProfile(profile);
 		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		IMetadataRepository repo = null;

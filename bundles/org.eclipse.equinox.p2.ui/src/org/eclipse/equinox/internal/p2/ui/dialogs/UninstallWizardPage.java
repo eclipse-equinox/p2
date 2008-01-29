@@ -31,7 +31,7 @@ public class UninstallWizardPage extends ProfileModificationWizardPage {
 
 	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
-			ProfileChangeRequest request = new ProfileChangeRequest(getProfileId());
+			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
 			request.removeInstallableUnits(elementsToIUs(selectedElements));
 			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, monitor);
 			IStatus status = plan.getStatus();

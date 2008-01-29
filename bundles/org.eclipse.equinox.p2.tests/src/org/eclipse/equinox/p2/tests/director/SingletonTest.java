@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.tests.director;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -50,16 +51,22 @@ public class SingletonTest extends AbstractProvisioningTest {
 
 	public void testMultipleVersionNonSingleton() {
 		// The installation of junit38 and junit 40 together should succeed
-		assertEquals(IStatus.OK, director.install(new IInstallableUnit[] {junit38, junit40}, profile, null, new NullProgressMonitor()).getSeverity());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {junit38, junit40});
+		assertEquals(IStatus.OK, director.provision(request, null, new NullProgressMonitor()).getSeverity());
 	}
 
 	public void testMultipleVersionSingleton() {
 		// The installation of junit38 and junit 40 together should not succeed
-		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f1, f1_1}, profile, null, new NullProgressMonitor()).getSeverity());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {f1, f1_1});
+		assertEquals(IStatus.ERROR, director.provision(request, null, new NullProgressMonitor()).getSeverity());
 	}
 
 	public void testMultipleVersionSingleton2() {
 		// The installation of junit38 and junit 40 together should not succeed
-		assertEquals(IStatus.ERROR, director.install(new IInstallableUnit[] {f2, f2_1}, profile, null, new NullProgressMonitor()).getSeverity());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {f2, f2_1});
+		assertEquals(IStatus.ERROR, director.provision(request, null, new NullProgressMonitor()).getSeverity());
 	}
 }

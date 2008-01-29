@@ -203,7 +203,7 @@ public class ProvisioningHelper {
 			throw new ProvisionException("No director service found.");
 		IInstallableUnit[] toInstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);
 		ProvisioningContext context = new ProvisioningContext();
-		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(toInstall);
 		ProvisioningPlan result = planner.getProvisioningPlan(request, context, progress);
 		if (!result.getStatus().isOK())

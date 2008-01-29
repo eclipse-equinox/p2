@@ -10,6 +10,7 @@ package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -78,7 +79,8 @@ public class OracleTest2 extends AbstractProvisioningTest {
 		profile = createProfile("testInstallA1bis." + getName());
 		director = createDirector();
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, c1, c2, b1});
-
-		assertEquals(director.install(new IInstallableUnit[] {a1}, profile, null, null).getSeverity(), IStatus.OK);
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(new IInstallableUnit[] {a1});
+		assertEquals(IStatus.OK, director.provision(request, null, null).getSeverity());
 	}
 }

@@ -50,27 +50,6 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
-	public IStatus install(IInstallableUnit[] installRoots, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
-		String taskName = NLS.bind(Messages.Director_Task_Installing, profile.getValue(Profile.PROP_INSTALL_FOLDER));
-		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
-		try {
-			ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
-			request.addInstallableUnits(installRoots);
-			// mark the roots as such
-			for (int i = 0; i < installRoots.length; i++) {
-				request.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-			}
-			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
-			if (!plan.getStatus().isOK())
-				return plan.getStatus();
-
-			IStatus engineResult = engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
-			return engineResult;
-		} finally {
-			sub.done();
-		}
-	}
-
 	public IStatus revert(IInstallableUnit target, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
@@ -83,30 +62,21 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
-	public IStatus uninstall(IInstallableUnit[] uninstallRoots, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Uninstalling, PlanWork + EngineWork);
+	public IStatus provision(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
+		String taskName = NLS.bind(Messages.Director_Task_Installing, request.getProfile().getValue(Profile.PROP_INSTALL_FOLDER));
+		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
 		try {
-			ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
-			request.removeInstallableUnits(uninstallRoots);
+			IInstallableUnit[] installRoots = request.getAddedInstallableUnits();
+			// mark the roots as such
+			for (int i = 0; i < installRoots.length; i++) {
+				request.setInstallableUnitProfileProperty(installRoots[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			}
 			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
-		} finally {
-			sub.done();
-		}
-	}
 
-	public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
-		ProfileChangeRequest request = new ProfileChangeRequest(profile.getProfileId());
-		request.addInstallableUnits(toInstall);
-		request.removeInstallableUnits(toUninstall);
-		try {
-			ProvisioningPlan plan = planner.getProvisioningPlan(request, context, sub.newChild(PlanWork));
-			if (!plan.getStatus().isOK())
-				return plan.getStatus();
-			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
+			IStatus engineResult = engine.perform(request.getProfile(), new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), sub.newChild(EngineWork));
+			return engineResult;
 		} finally {
 			sub.done();
 		}

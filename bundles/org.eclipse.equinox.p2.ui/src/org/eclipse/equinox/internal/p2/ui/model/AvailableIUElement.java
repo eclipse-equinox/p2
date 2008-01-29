@@ -91,7 +91,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 	}
 
 	protected ProvisioningPlan getSizingPlan() throws ProvisionException {
-		ProfileChangeRequest request = new ProfileChangeRequest(profileID);
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
 		return ProvisioningUtil.getProvisioningPlan(request, null);
 	}
