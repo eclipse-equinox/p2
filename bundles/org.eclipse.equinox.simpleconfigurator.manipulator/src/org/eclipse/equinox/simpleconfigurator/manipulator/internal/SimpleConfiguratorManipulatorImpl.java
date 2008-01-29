@@ -433,7 +433,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		return orderingInitialConfig(setToInitialConfig);
 	}
 
-	private void saveConfiguration(List bundleInfoList, File outputFile, File launcherLocation, boolean backup) throws IOException {
+	public static void saveConfiguration(List bundleInfoList, File outputFile, File launcherLocation, boolean backup) throws IOException {
 		if (DEBUG) {
 			System.out.println("saveConfiguration(List bundleInfoList, File outputFile, boolean backup): outFile=" + outputFile.getAbsolutePath());
 		}

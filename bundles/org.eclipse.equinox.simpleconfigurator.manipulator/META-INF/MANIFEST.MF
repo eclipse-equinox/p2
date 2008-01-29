@@ -15,6 +15,6 @@ Import-Package: org.eclipse.equinox.configuratormanipulator,
  org.osgi.util.tracker
 Bundle-Vendor: %providerName
 Export-Package: org.eclipse.equinox.internal.simpleconfigurator.utils;x-internal:=true,
- org.eclipse.equinox.simpleconfigurator.manipulator.internal;x-internal:=true
+ org.eclipse.equinox.simpleconfigurator.manipulator.internal;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse"
 Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
  J2SE-1.4
