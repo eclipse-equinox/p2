@@ -24,10 +24,10 @@ import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository
  */
 public class URLMetadataRepository extends AbstractMetadataRepository {
 
-	static final protected String CONTENT_FILENAME = "content"; //$NON-NLS-1$
-	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
-	static final private String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
-	static final private Integer REPOSITORY_VERSION = new Integer(1);
+	protected static final String CONTENT_FILENAME = "content"; //$NON-NLS-1$
+	protected static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
+	private static final String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
+	private static final Integer REPOSITORY_VERSION = new Integer(1);
 
 	transient protected URL content;
 	protected HashSet units = new LinkedHashSet();
