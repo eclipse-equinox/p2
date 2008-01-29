@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.dialogs;
 
-import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.AvailableIUContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositories;
@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.*;
  */
 public class AvailableIUGroup extends StructuredIUGroup {
 
-	URL[] metadataRepositories;
+	ProvisioningContext context;
 
 	/**
 	 * Create a group that represents the available IU's.
@@ -46,14 +46,13 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * to retrieve elements in the viewer.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
-	 * @param metadataRepositories an array of URLs defining the metadata repositories that
-	 * should be used for showing content.  A value of <code>null</code> indicates that 
-	 * all metadata repositories should be queried.
+	 * @param context the ProvisioningContext describing the context for provisioning,
+	 * including information about which repositories should be used.
 	 */
-	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, URL[] metadataRepositories) {
+	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context) {
 		// This will evolve into a provisioning context
 		super(parent, queryProvider, font);
-		this.metadataRepositories = metadataRepositories;
+		this.context = context;
 	}
 
 	protected StructuredViewer createViewer(Composite parent, IQueryProvider queryProvider) {
@@ -69,7 +68,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 		// Now the content.
 		availableIUViewer.setContentProvider(new AvailableIUContentProvider(queryProvider));
-		availableIUViewer.setInput(new MetadataRepositories(metadataRepositories));
+		availableIUViewer.setInput(new MetadataRepositories(context.getMetadataRepositories()));
 
 		// Now the presentation, columns before label provider.
 		setTreeColumns(availableIUViewer.getTree());
@@ -79,7 +78,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			protected void refreshAll() {
 				// The content provider caches the children unless input changes,
 				// so a viewer.refresh() is not enough.
-				availableIUViewer.setInput(new MetadataRepositories(metadataRepositories));
+				availableIUViewer.setInput(new MetadataRepositories(context.getMetadataRepositories()));
 			}
 		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);

@@ -163,8 +163,8 @@ public class ProvisioningUtil {
 	/*
 	 * Get the plan for the specified install operation
 	 */
-	public static ProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, IProgressMonitor monitor) throws ProvisionException {
-		return getPlanner().getProvisioningPlan(request, new ProvisioningContext(), monitor);
+	public static ProvisioningPlan getProvisioningPlan(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
+		return getPlanner().getProvisioningPlan(request, context, monitor);
 	}
 
 	/*

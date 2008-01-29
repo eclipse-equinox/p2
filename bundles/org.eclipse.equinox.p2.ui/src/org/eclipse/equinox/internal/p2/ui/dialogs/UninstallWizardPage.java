@@ -33,7 +33,7 @@ public class UninstallWizardPage extends ProfileModificationWizardPage {
 		try {
 			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
 			request.removeInstallableUnits(elementsToIUs(selectedElements));
-			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new ProfileModificationOperation(ProvUIMessages.UninstallIUOperationLabel, getProfileId(), plan);

@@ -36,7 +36,7 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 		try {
 			ProfileChangeRequest changeRequest = ProfileChangeRequest.createByProfileId(getProfileId());
 			changeRequest.addInstallableUnits(new IInstallableUnit[] {iu});
-			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, sub.newChild(50));
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, getProvisioningContext(), sub.newChild(50));
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, getProfileId(), sub.newChild(50));
 			if (info == null)
 				size = IUElement.SIZE_UNKNOWN;
@@ -60,8 +60,7 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 			for (int i = 0; i < selected.length; i++) {
 				changeRequest.setInstallableUnitProfileProperty(selected[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 			}
-
-			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, monitor);
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, getProvisioningContext(), monitor);
 			IStatus status = plan.getStatus();
 			if (status.isOK())
 				return new InstallOperation(getOperationLabel(), getProfile().getProfileId(), plan, selected);

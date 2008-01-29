@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 
@@ -40,6 +39,6 @@ public class AvailableUpdateElement extends AvailableIUElement {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(profileID);
 		request.removeInstallableUnits(new IInstallableUnit[] {iuToBeUpdated});
 		request.addInstallableUnits(new IInstallableUnit[] {getIU()});
-		return ProvisioningUtil.getProvisioningPlan(request, null);
+		return ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), null);
 	}
 }

@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -26,7 +27,7 @@ import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.model.IUElement;
 import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.p2.ui.viewers.*;
+import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
@@ -175,5 +176,11 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		// in most cases, the user has selected exactly
 		// what they want before this page opens.
 		listViewer.setAllChecked(true);
+	}
+
+	// We currently create an empty provisioning context, but
+	// in the future we could consider letting clients supply this.
+	protected ProvisioningContext getProvisioningContext() {
+		return new ProvisioningContext();
 	}
 }
