@@ -327,6 +327,27 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
+	public static IInstallableUnit createDefaultConfigurationUnitForSourceBundles(String configurationFlavor) {
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String configUnitId = createDefaultConfigUnitId("source", configurationFlavor);
+		cu.setId(configUnitId);
+		Version configUnitVersion = new Version(1, 0, 0);
+		cu.setVersion(configUnitVersion);
+
+		// Add capabilities for fragment, self, and describing the flavor supported
+		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
+
+		// Create a required capability on source providers
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_SOURCE, VersionRange.emptyRange, null, false, true)};
+		cu.setRequiredCapabilities(reqs);
+		Map touchpointData = new HashMap();
+
+		touchpointData.put("install", "addSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
+		touchpointData.put("uninstall", "removeSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		return MetadataFactory.createInstallableUnit(cu);
+	}
+
 	// TODO: TEMPORARY - We should figure out if we want to expose something like InstallableUnitDescription
 	public static IInstallableUnit createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
 		InstallableUnit iu = (InstallableUnit) createBundleIU(bd, manifest, isFolderPlugin, key);

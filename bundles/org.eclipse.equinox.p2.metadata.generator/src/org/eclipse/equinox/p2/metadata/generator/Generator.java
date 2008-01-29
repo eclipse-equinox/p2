@@ -296,6 +296,7 @@ public class Generator {
 		EclipseInstallGeneratorInfoProvider provider = (EclipseInstallGeneratorInfoProvider) info;
 		ius.add(MetadataGeneratorHelper.createDefaultBundleConfigurationUnit(provider.createDefaultConfigurationBundleInfo(), provider.createDefaultUnconfigurationBundleInfo(), info.getFlavor()));
 		ius.add(MetadataGeneratorHelper.createDefaultFeatureConfigurationUnit(info.getFlavor()));
+		ius.add(MetadataGeneratorHelper.createDefaultConfigurationUnitForSourceBundles(info.getFlavor()));
 	}
 
 	/**

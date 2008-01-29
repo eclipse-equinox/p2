@@ -32,6 +32,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String ACTION_COLLECT = "collect"; //$NON-NLS-1$
 	private static final String ACTION_INSTALL_BUNDLE = "installBundle"; //$NON-NLS-1$
 	private static final String ACTION_INSTALL_FEATURE = "installFeature"; //$NON-NLS-1$
+	private static final String ACTION_ADD_SOURCEBUNDLE = "addSourceBundle"; //$NON-NLS-1$
 	private static final String ACTION_MARK_STARTED = "markStarted"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_JVM_ARG = "removeJvmArg"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_PROGRAM_ARG = "removeProgramArg"; //$NON-NLS-1$
@@ -39,6 +40,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String ACTION_SET_FW_INDEPENDENT_PROP = "setFwIndependentProp"; //$NON-NLS-1$
 	private static final String ACTION_UNINSTALL_BUNDLE = "uninstallBundle"; //$NON-NLS-1$
 	private static final String ACTION_UNINSTALL_FEATURE = "uninstallFeature"; //$NON-NLS-1$
+	private static final String ACTION_REMOVE_SOURCEBUNDLE = "removeSourceBundle"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	private static final String PARM_BUNDLE = "bundle"; //$NON-NLS-1$
@@ -50,6 +52,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String PARM_JVM_ARG = "jvmArg"; //$NON-NLS-1$
 	private static final String PARM_MANIPULATOR = "manipulator"; //$NON-NLS-1$
 	private static final String PARM_PLATFORM_CONFIGURATION = "platformConfiguration"; //$NON-NLS-1$
+	private static final String PARM_SOURCE_BUNDLES = "sourceBundles"; //$NON-NLS-1$
 	private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
 	private static final String PARM_PREVIOUS_START_LEVEL = "previousStartLevel"; //$NON-NLS-1$
 	private static final String PARM_PREVIOUS_STARTED = "previousStarted"; //$NON-NLS-1$
@@ -139,7 +142,15 @@ public class EclipseTouchpoint extends Touchpoint {
 				return createError("Error saving platform configuration.", pe);
 			}
 		}
-		return null;
+
+		SourceManipulator m = (SourceManipulator) touchpointParameters.get(PARM_SOURCE_BUNDLES);
+		try {
+			m.save();
+		} catch (IOException e) {
+			return createError("Error saving source bundles list", e);
+		}
+
+		return Status.OK_STATUS;
 	}
 
 	private URL getConfigurationURL(Profile profile) throws CoreException {
@@ -195,6 +206,30 @@ public class EclipseTouchpoint extends Touchpoint {
 
 				public IStatus undo(Map parameters) {
 					return installBundle(parameters);
+				}
+			};
+		}
+
+		if (actionId.equals(ACTION_ADD_SOURCEBUNDLE)) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					return addSourceBundle(parameters);
+				}
+
+				public IStatus undo(Map parameters) {
+					return removeSourceBundle(parameters);
+				}
+			};
+		}
+
+		if (actionId.equals(ACTION_REMOVE_SOURCEBUNDLE)) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					return removeSourceBundle(parameters);
+				}
+
+				public IStatus undo(Map parameters) {
+					return addSourceBundle(parameters);
 				}
 			};
 		}
@@ -589,6 +624,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
 		touchpointParameters.put(PARM_MANIPULATOR, new LazyManipulator(profile));
+		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
 		try {
 			URL configURL = getConfigurationURL(profile);
 			URL poolURL = Util.getBundlePoolLocation(profile);
@@ -601,7 +637,6 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	IStatus installBundle(Map parameters) {
-
 		Profile profile = (Profile) parameters.get(PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
@@ -781,5 +816,73 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		// should not occur
 		throw new IllegalStateException("Unexpected");
+	}
+
+	IStatus addSourceBundle(Map parameters) {
+		Profile profile = (Profile) parameters.get(PARM_PROFILE);
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		SourceManipulator manipulator = (SourceManipulator) parameters.get(PARM_SOURCE_BUNDLES);
+		String bundleId = (String) parameters.get(PARM_BUNDLE);
+		if (bundleId == null)
+			return createError("The \"bundleId\" parameter is missing from the \"add source bundle\" action");
+
+		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			return createError("Installable unit contains no artifacts");
+
+		IArtifactKey artifactKey = null;
+		for (int i = 0; i < artifacts.length; i++) {
+			if (artifacts[i].toString().equals(bundleId)) {
+				artifactKey = artifacts[i];
+				break;
+			}
+		}
+		if (artifactKey == null)
+			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
+
+		File bundleFile = Util.getBundleFile(artifactKey, profile);
+		if (bundleFile == null || !bundleFile.exists())
+			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
+
+		try {
+			manipulator.addBundle(bundleFile);
+		} catch (IOException e) {
+			createError("Can't configure " + artifactKey.toString() + " as a source bundle.", e);
+		}
+		return Status.OK_STATUS;
+	}
+
+	IStatus removeSourceBundle(Map parameters) {
+		Profile profile = (Profile) parameters.get(PARM_PROFILE);
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		SourceManipulator manipulator = (SourceManipulator) parameters.get(PARM_SOURCE_BUNDLES);
+		String bundleId = (String) parameters.get(PARM_BUNDLE);
+		if (bundleId == null)
+			return createError("The \"bundleId\" parameter is missing from the \"remove source bundle\" action");
+
+		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			return createError("Installable unit contains no artifacts");
+
+		IArtifactKey artifactKey = null;
+		for (int i = 0; i < artifacts.length; i++) {
+			if (artifacts[i].toString().equals(bundleId)) {
+				artifactKey = artifacts[i];
+				break;
+			}
+		}
+		if (artifactKey == null)
+			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
+
+		File bundleFile = Util.getBundleFile(artifactKey, profile);
+		if (bundleFile == null || !bundleFile.exists())
+			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
+
+		try {
+			manipulator.removeBundle(bundleFile);
+		} catch (IOException e) {
+			createError("Can't configure " + artifactKey.toString() + " as a source bundle.", e);
+		}
+		return Status.OK_STATUS;
 	}
 }
