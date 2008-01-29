@@ -23,11 +23,11 @@ public class Unconfigure extends Phase {
 		super("unconfigure", weight); //$NON-NLS-1$
 	}
 
-	protected boolean isApplicable(Operand op) {
+	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.first() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Operand currentOperand) {
+	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Unconfiguring_IU, unit.getId()));
 
 		IInstallableUnit unit = currentOperand.first();
@@ -41,7 +41,7 @@ public class Unconfigure extends Phase {
 		return Messages.Phase_Unconfigure_Error;
 	}
 
-	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
 		parameters.put(PARM_IU, iu); 
 

@@ -47,7 +47,7 @@ public abstract class Phase {
 		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
 
-	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
+	public final MultiStatus perform(EngineSession session, Profile profile, InstallableUnitOperand[] operands, IProgressMonitor monitor) {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		perform(status, session, profile, operands, monitor);
 		if (status.matches(IStatus.CANCEL)) {
@@ -62,7 +62,7 @@ public abstract class Phase {
 		return status;
 	}
 
-	void perform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, IProgressMonitor monitor) {
+	void perform(MultiStatus status, EngineSession session, Profile profile, InstallableUnitOperand[] operands, IProgressMonitor monitor) {
 		touchpointToTouchpointParameters = new HashMap();
 		for (int i = 0; i < operands.length; i++) {
 			TouchpointType type = getTouchpointType(operands[i]);
@@ -113,13 +113,13 @@ public abstract class Phase {
 		}
 	}
 
-	private void mainPerform(MultiStatus status, EngineSession session, Profile profile, Operand[] operands, SubMonitor subMonitor) {
+	private void mainPerform(MultiStatus status, EngineSession session, Profile profile, InstallableUnitOperand[] operands, SubMonitor subMonitor) {
 		subMonitor.beginTask("", operands.length); //$NON-NLS-1$
 		for (int i = 0; i < operands.length; i++) {
 			subMonitor.setWorkRemaining(operands.length - i);
 			if (subMonitor.isCanceled())
 				throw new OperationCanceledException();
-			Operand operand = operands[i];
+			InstallableUnitOperand operand = operands[i];
 			if (!isApplicable(operand))
 				continue;
 
@@ -175,7 +175,7 @@ public abstract class Phase {
 		phaseParameters = null;
 	}
 
-	void undo(MultiStatus status, EngineSession session, Profile profile, Operand operand, ProvisioningAction[] actions) {
+	void undo(MultiStatus status, EngineSession session, Profile profile, InstallableUnitOperand operand, ProvisioningAction[] actions) {
 		Touchpoint touchpoint = getTouchpoint(operand);
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
@@ -204,7 +204,7 @@ public abstract class Phase {
 		return parser.parseActions(instructions[0]);
 	}
 
-	protected boolean isApplicable(Operand op) {
+	protected boolean isApplicable(InstallableUnitOperand op) {
 		return true;
 	}
 
@@ -216,11 +216,11 @@ public abstract class Phase {
 		return Status.OK_STATUS;
 	}
 
-	protected IStatus completeOperand(Operand operand, Map parameters) {
+	protected IStatus completeOperand(InstallableUnitOperand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
 
-	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		return Status.OK_STATUS;
 	}
 
@@ -228,7 +228,7 @@ public abstract class Phase {
 		return null;
 	}
 
-	protected abstract ProvisioningAction[] getActions(Operand currentOperand);
+	protected abstract ProvisioningAction[] getActions(InstallableUnitOperand currentOperand);
 
 	/**
 	 * Returns a human-readable message to be displayed in case of an error performing
@@ -242,14 +242,14 @@ public abstract class Phase {
 	 * Returns the touchpoint corresponding to the operand, or null if no corresponding
 	 * touchpoint is available.
 	 */
-	protected static Touchpoint getTouchpoint(Operand operand) {
+	protected static Touchpoint getTouchpoint(InstallableUnitOperand operand) {
 		return TouchpointManager.getInstance().getTouchpoint(getTouchpointType(operand));
 	}
 
 	/**
 	 * Returns the touchpoint type corresponding to the operand. Never returns null.
 	 */
-	protected static TouchpointType getTouchpointType(Operand operand) {
+	protected static TouchpointType getTouchpointType(InstallableUnitOperand operand) {
 		IInstallableUnit unit = operand.second();
 		if (unit == null)
 			unit = operand.first();

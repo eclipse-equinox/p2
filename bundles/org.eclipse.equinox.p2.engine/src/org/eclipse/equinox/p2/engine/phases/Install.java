@@ -29,7 +29,7 @@ public class Install extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
@@ -38,7 +38,7 @@ public class Install extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.internalRemoveInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
@@ -52,7 +52,7 @@ public class Install extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IInstallableUnit preparedIU = touchpoint.prepareIU(iu, profile);
 			profile.internalAddInstallableUnit(preparedIU);
@@ -64,7 +64,7 @@ public class Install extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
@@ -76,11 +76,11 @@ public class Install extends Phase {
 		super(PHASE_ID, weight);
 	}
 
-	protected boolean isApplicable(Operand op) {
+	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Operand currentOperand) {
+	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Installing_IU, unit.getId()));
 
 		ProvisioningAction beforeAction = new BeforeInstallEventAction();
@@ -105,7 +105,7 @@ public class Install extends Phase {
 		return Messages.Phase_Install_Error;
 	}
 
-	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind(Messages.Phase_Install_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);

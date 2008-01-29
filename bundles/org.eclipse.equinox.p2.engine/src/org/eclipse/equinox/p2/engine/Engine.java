@@ -26,7 +26,27 @@ public class Engine {
 		this.eventBus = eventBus;
 	}
 
-	public IStatus perform(Profile profile, PhaseSet phaseSet, Operand[] iuOperands, PropertyOperand[] propertyOperands, IProgressMonitor monitor) {
+	public IStatus perform(Profile profile, PhaseSet phaseSet, Operand[] operands, IProgressMonitor monitor) {
+		if (operands == null)
+			throw new IllegalArgumentException("Operands must not be null."); //$NON-NLS-1$
+
+		List iuOperands = new ArrayList();
+		List propertyOperands = new ArrayList();
+		for (int i = 0; i < operands.length; i++) {
+			Operand operand = operands[i];
+			if (operand instanceof InstallableUnitOperand) {
+				iuOperands.add(operand);
+			} else if (operand instanceof PropertyOperand) {
+				propertyOperands.add(operand);
+			}
+		}
+
+		InstallableUnitOperand[] iuOperandArray = (InstallableUnitOperand[]) iuOperands.toArray(new InstallableUnitOperand[0]);
+		PropertyOperand[] propertyOperandArray = (PropertyOperand[]) propertyOperands.toArray(new PropertyOperand[0]);
+		return perform(profile, phaseSet, iuOperandArray, propertyOperandArray, monitor);
+	}
+
+	private IStatus perform(Profile profile, PhaseSet phaseSet, InstallableUnitOperand[] iuOperands, PropertyOperand[] propertyOperands, IProgressMonitor monitor) {
 
 		// TODO -- Messages
 		if (profile == null)
@@ -115,7 +135,7 @@ public class Engine {
 	//This has to be done in two calls because when we return from the phaseSet.perform the iu properties are already lost
 	Map snapshot = new HashMap();
 
-	private void snapshotIUProperties(Profile profile, Operand[] operands) {
+	private void snapshotIUProperties(Profile profile, InstallableUnitOperand[] operands) {
 		for (int i = 0; i < operands.length; i++) {
 			if (operands[i].first() != null && operands[i].second() != null) {
 				snapshot.put(operands[i].first(), profile.getInstallableUnitProfileProperties(operands[i].first()));
@@ -123,7 +143,7 @@ public class Engine {
 		}
 	}
 
-	private void moveIUProperties(Profile profile, Operand[] operands) {
+	private void moveIUProperties(Profile profile, InstallableUnitOperand[] operands) {
 		for (int i = 0; i < operands.length; i++) {
 			if (operands[i].first() != null && operands[i].second() != null) {
 				OrderedProperties prop = (OrderedProperties) snapshot.get(operands[i].first());

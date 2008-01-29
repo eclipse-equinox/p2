@@ -38,7 +38,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			testTouchpoint = this;
 		}
 
-		public IStatus completeOperand(Profile profile, String phaseId, Operand operand, Map parameters) {
+		public IStatus completeOperand(Profile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
 			completeOperand++;
 			return super.completeOperand(profile, phaseId, operand, parameters);
 		}
@@ -48,7 +48,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return super.completePhase(monitor, profile, phaseId, touchpointParameters);
 		}
 
-		public IStatus initializeOperand(Profile profile, String phaseId, Operand operand, Map parameters) {
+		public IStatus initializeOperand(Profile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
 			initializeOperand++;
 			return super.initializeOperand(profile, phaseId, operand, parameters);
 		}
@@ -68,7 +68,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	}
 
 	public static class OperandTestTouchpoint extends TestTouchpoint {
-		public IStatus completeOperand(Profile profile, String phaseId, Operand operand, Map parameters) {
+		public IStatus completeOperand(Profile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
 			assertEquals(1, initializeOperand);
 			assertEquals(0, completeOperand);
 			super.completeOperand(profile, phaseId, operand, parameters);
@@ -77,7 +77,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return null;
 		}
 
-		public IStatus initializeOperand(Profile profile, String phaseId, Operand operand, Map parameters) {
+		public IStatus initializeOperand(Profile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
 			assertEquals(0, initializeOperand);
 			assertEquals(0, completeOperand);
 			super.initializeOperand(profile, phaseId, operand, parameters);
@@ -97,7 +97,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return null;
 		}
 
-		public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Operand operand, Map parameters) {
+		public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
 			assertEquals(0, initializePhase);
 			assertEquals(0, completePhase);
 			super.initializePhase(monitor, profile, phaseId, parameters);
@@ -131,7 +131,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	public void testInitCompleteOperand() {
 		PhaseSet phaseSet = new TestPhaseSet();
 		Profile profile = createProfile("testProfile");
-		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU("operandTest"))}, null, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("operandTest"))}, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializeOperand);
 		assertEquals(1, testTouchpoint.completeOperand);
 	}
@@ -139,7 +139,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 	public void testInitCompletePhase() {
 		PhaseSet phaseSet = new TestPhaseSet();
 		Profile profile = createProfile("testProfile");
-		engine.perform(profile, phaseSet, new Operand[] {new Operand(null, createTestIU("phaseTest"))}, null, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU("phaseTest"))}, new NullProgressMonitor());
 		assertEquals(1, testTouchpoint.initializeOperand);
 		assertEquals(1, testTouchpoint.completeOperand);
 	}

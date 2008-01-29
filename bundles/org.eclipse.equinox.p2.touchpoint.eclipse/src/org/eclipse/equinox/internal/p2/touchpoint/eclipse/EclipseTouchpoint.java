@@ -160,7 +160,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					Profile profile = (Profile) parameters.get(PARM_PROFILE);
-					Operand operand = (Operand) parameters.get(PARM_OPERAND);
+					InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 					IArtifactRequest[] requests = collect(operand.second(), profile);
 
 					Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_REQUESTS);

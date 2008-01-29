@@ -31,7 +31,7 @@ public class Sizing extends Phase {
 		super(PHASE_ID, weight);
 	}
 
-	protected boolean isApplicable(Operand op) {
+	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.second() != null);
 	}
 
@@ -43,7 +43,7 @@ public class Sizing extends Phase {
 		return dlSize;
 	}
 
-	protected ProvisioningAction[] getActions(Operand currentOperand) {
+	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
 		ProvisioningAction action = getTouchpoint(currentOperand).getAction("collect"); //$NON-NLS-1$
 		return new ProvisioningAction[] {action};
 	}

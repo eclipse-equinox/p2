@@ -24,11 +24,11 @@ public class Configure extends Phase {
 		super("configure", weight); //$NON-NLS-1$
 	}
 
-	protected boolean isApplicable(Operand op) {
+	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Operand currentOperand) {
+	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
 		IInstallableUnit unit = currentOperand.second();
 		if (unit.isFragment())
 			return null;
@@ -39,7 +39,7 @@ public class Configure extends Phase {
 		return Messages.Phase_Configure_Error;
 	}
 
-	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind(Messages.Phase_Configure_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);

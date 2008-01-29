@@ -23,7 +23,7 @@ public abstract class PhaseSet {
 		this.phases = phases;
 	}
 
-	public final MultiStatus perform(EngineSession session, Profile profile, Operand[] deltas, IProgressMonitor monitor) {
+	public final MultiStatus perform(EngineSession session, Profile profile, InstallableUnitOperand[] deltas, IProgressMonitor monitor) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		int[] weights = getProgressWeights(deltas);
 		int totalWork = getTotalWork(weights);
@@ -54,7 +54,7 @@ public abstract class PhaseSet {
 		return sum;
 	}
 
-	private int[] getProgressWeights(Operand[] operands) {
+	private int[] getProgressWeights(InstallableUnitOperand[] operands) {
 		int[] weights = new int[phases.length];
 		for (int i = 0; i < phases.length; i += 1) {
 			if (operands.length > 0)
@@ -66,7 +66,7 @@ public abstract class PhaseSet {
 		return weights;
 	}
 
-	private int countApplicable(Phase phase, Operand[] operands) {
+	private int countApplicable(Phase phase, InstallableUnitOperand[] operands) {
 		int count = 0;
 		for (int i = 0; i < operands.length; i++) {
 			if (phase.isApplicable(operands[i]))

@@ -42,7 +42,14 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private ProvisioningPlan generateProvisioningPlan(Collection fromState, Collection toState, List fromStateOrder, List newStateOrder, ProfileChangeRequest changeRequest) {
-		return new ProvisioningPlan(Status.OK_STATUS, generateOperations(fromState, toState, fromStateOrder, newStateOrder), generatePropertyOperations(changeRequest));
+		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState, fromStateOrder, newStateOrder);
+		PropertyOperand[] propertyOperands = generatePropertyOperations(changeRequest);
+
+		Operand[] operands = new Operand[iuOperands.length + propertyOperands.length];
+		System.arraycopy(iuOperands, 0, operands, 0, iuOperands.length);
+		System.arraycopy(propertyOperands, 0, operands, iuOperands.length, propertyOperands.length);
+
+		return new ProvisioningPlan(Status.OK_STATUS, operands);
 	}
 
 	private PropertyOperand[] generatePropertyOperations(ProfileChangeRequest profileChangeRequest) {
@@ -93,14 +100,14 @@ public class SimplePlanner implements IPlanner {
 		return (PropertyOperand[]) operands.toArray(new PropertyOperand[operands.size()]);
 	}
 
-	private Operand[] generateOperations(Collection fromState, Collection toState, List fromStateOrder, List newStateOrder) {
+	private InstallableUnitOperand[] generateOperations(Collection fromState, Collection toState, List fromStateOrder, List newStateOrder) {
 		return sortOperations(new OperationGenerator().generateOperation(fromState, toState), newStateOrder, fromStateOrder);
 	}
 
-	private Operand[] sortOperations(Operand[] toSort, List installOrder, List uninstallOrder) {
+	private InstallableUnitOperand[] sortOperations(InstallableUnitOperand[] toSort, List installOrder, List uninstallOrder) {
 		List updateOp = new ArrayList();
 		for (int i = 0; i < toSort.length; i++) {
-			Operand op = toSort[i];
+			InstallableUnitOperand op = toSort[i];
 			if (op.first() == null && op.second() != null) {
 				installOrder.set(installOrder.indexOf(op.second()), op);
 				continue;
@@ -117,20 +124,20 @@ public class SimplePlanner implements IPlanner {
 		int i = 0;
 		for (Iterator iterator = installOrder.iterator(); iterator.hasNext();) {
 			Object elt = iterator.next();
-			if (elt instanceof Operand) {
-				toSort[i++] = (Operand) elt;
+			if (elt instanceof InstallableUnitOperand) {
+				toSort[i++] = (InstallableUnitOperand) elt;
 			}
 		}
 		for (Iterator iterator = uninstallOrder.iterator(); iterator.hasNext();) {
 			Object elt = iterator.next();
-			if (elt instanceof Operand) {
-				toSort[i++] = (Operand) elt;
+			if (elt instanceof InstallableUnitOperand) {
+				toSort[i++] = (InstallableUnitOperand) elt;
 			}
 		}
 		for (Iterator iterator = updateOp.iterator(); iterator.hasNext();) {
 			Object elt = iterator.next();
-			if (elt instanceof Operand) {
-				toSort[i++] = (Operand) elt;
+			if (elt instanceof InstallableUnitOperand) {
+				toSort[i++] = (InstallableUnitOperand) elt;
 			}
 		}
 		return toSort;

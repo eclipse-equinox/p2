@@ -35,7 +35,7 @@ public class NativeTouchpoint extends Touchpoint {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					Profile profile = (Profile) parameters.get("profile");
-					Operand operand = (Operand) parameters.get("operand");
+					InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get("operand");
 					try {
 						IArtifactRequest[] requests = collect(operand.second(), profile);
 						Collection artifactRequests = (Collection) parameters.get("artifactRequests");

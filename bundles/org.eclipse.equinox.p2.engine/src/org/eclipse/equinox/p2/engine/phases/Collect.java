@@ -32,11 +32,11 @@ public class Collect extends Phase {
 		postPerformWork = 1000;
 	}
 
-	protected boolean isApplicable(Operand op) {
+	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.second() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Operand currentOperand) {
+	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
 		ProvisioningAction action = getTouchpoint(currentOperand).getAction(phaseId);
 		return new ProvisioningAction[] {action};
 	}

@@ -10,25 +10,18 @@ package org.eclipse.equinox.p2.director;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.engine.Operand;
-import org.eclipse.equinox.p2.engine.PropertyOperand;
 
 public class ProvisioningPlan {
 	private IStatus status;
 	private Operand[] operands;
-	private PropertyOperand[] propertyOperands;
 
 	public ProvisioningPlan(IStatus status) {
-		this(status, new Operand[0], new PropertyOperand[0]);
+		this(status, new Operand[0]);
 	}
 
 	public ProvisioningPlan(IStatus status, Operand[] operands) {
-		this(status, operands, new PropertyOperand[0]);
-	}
-
-	public ProvisioningPlan(IStatus status, Operand[] operands, PropertyOperand[] propertyOperands) {
 		this.status = status;
 		this.operands = operands;
-		this.propertyOperands = propertyOperands;
 	}
 
 	public IStatus getStatus() {
@@ -44,12 +37,4 @@ public class ProvisioningPlan {
 		return operands;
 	}
 
-	/** 
-	 * The property operands to pass to the engine.
-	 * @return the property operands to be executed. This may be an empty array if the
-	 * plan has errors or if there is nothing to do.
-	 */
-	public PropertyOperand[] getPropertyOperands() {
-		return propertyOperands;
-	}
 }

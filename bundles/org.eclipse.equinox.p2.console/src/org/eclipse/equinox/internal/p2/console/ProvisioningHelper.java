@@ -209,7 +209,7 @@ public class ProvisioningHelper {
 		if (!result.getStatus().isOK())
 			return result.getStatus();
 
-		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), result.getPropertyOperands(), progress);
+		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), progress);
 	}
 
 	/**

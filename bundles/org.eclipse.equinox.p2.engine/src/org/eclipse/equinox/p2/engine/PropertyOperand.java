@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.engine;
 
 import org.eclipse.core.runtime.Assert;
 
-public class PropertyOperand {
+public class PropertyOperand extends Operand {
 	private final Object first;
 	private final Object second;
 	private final String key;

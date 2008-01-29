@@ -17,10 +17,10 @@ import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 public class EngineSession {
 
 	private static class ActionsRecord {
-		Operand operand;
+		InstallableUnitOperand operand;
 		List actions = new ArrayList();
 
-		ActionsRecord(Operand operand) {
+		ActionsRecord(InstallableUnitOperand operand) {
 			this.operand = operand;
 		}
 	}
@@ -99,9 +99,9 @@ public class EngineSession {
 		currentRecord = null;
 	}
 
-	void recordAction(ProvisioningAction action, Operand operand) {
+	void recordAction(ProvisioningAction action, InstallableUnitOperand operand) {
 		if (action == null || operand == null)
-			throw new IllegalArgumentException("Action and Operand must not be null."); //$NON-NLS-1$
+			throw new IllegalArgumentException("Action and InstallableUnitOperand must not be null."); //$NON-NLS-1$
 
 		if (currentRecord == null || operand != currentRecord.operand) {
 			currentRecord = new ActionsRecord(operand);

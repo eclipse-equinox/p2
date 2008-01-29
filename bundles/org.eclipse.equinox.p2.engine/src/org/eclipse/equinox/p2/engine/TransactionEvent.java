@@ -16,9 +16,9 @@ public abstract class TransactionEvent extends EventObject {
 	private static final long serialVersionUID = 6278706971855493984L;
 	protected Profile profile;
 	protected PhaseSet phaseSet;
-	protected Operand[] deltas;
+	protected InstallableUnitOperand[] deltas;
 
-	public TransactionEvent(Profile profile, PhaseSet phaseSet, Operand[] deltas, Engine engine) {
+	public TransactionEvent(Profile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, Engine engine) {
 		super(engine);
 		this.profile = profile;
 		this.phaseSet = phaseSet;

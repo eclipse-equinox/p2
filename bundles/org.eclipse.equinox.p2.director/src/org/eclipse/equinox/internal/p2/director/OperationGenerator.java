@@ -9,7 +9,7 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
-import org.eclipse.equinox.p2.engine.Operand;
+import org.eclipse.equinox.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -18,7 +18,7 @@ import org.eclipse.equinox.p2.query.Collector;
 public class OperationGenerator {
 	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
 
-	public Operand[] generateOperation(Collection from_, Collection to_) {
+	public InstallableUnitOperand[] generateOperation(Collection from_, Collection to_) {
 		List from = new ArrayList(from_);
 		Collections.sort(from);
 
@@ -28,7 +28,7 @@ public class OperationGenerator {
 		ArrayList operations = new ArrayList();
 		generateUpdates(from, to, operations);
 		generateInstallUninstall(from, to, operations);
-		Operand[] ops = (Operand[]) operations.toArray(new Operand[operations.size()]);
+		InstallableUnitOperand[] ops = (InstallableUnitOperand[]) operations.toArray(new InstallableUnitOperand[operations.size()]);
 		return ops;
 	}
 
@@ -101,16 +101,16 @@ public class OperationGenerator {
 		to.removeAll(removedFromTo);
 	}
 
-	private Operand createUninstallOperation(IInstallableUnit iu) {
-		return new Operand(iu, null);
+	private InstallableUnitOperand createUninstallOperation(IInstallableUnit iu) {
+		return new InstallableUnitOperand(iu, null);
 	}
 
-	private Operand createInstallOperation(IInstallableUnit iu) {
-		return new Operand(null, iu);
+	private InstallableUnitOperand createInstallOperation(IInstallableUnit iu) {
+		return new InstallableUnitOperand(null, iu);
 	}
 
-	private Operand createUpdateOperation(IInstallableUnit from, IInstallableUnit to) {
-		return new Operand(from, to);
+	private InstallableUnitOperand createUpdateOperation(IInstallableUnit from, IInstallableUnit to) {
+		return new InstallableUnitOperand(from, to);
 	}
 
 	private IInstallableUnit next(List l, int i) {

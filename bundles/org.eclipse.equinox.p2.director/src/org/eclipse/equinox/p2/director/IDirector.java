@@ -28,27 +28,25 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public interface IDirector {
 
+	/**
+	 * performs the change request with the given context.
+	 * 
+	 * @param profileChangeRequest The change request
+	 * @param context The provisioning context used for finding resources
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 */
 	public IStatus provision(ProfileChangeRequest profileChangeRequest, ProvisioningContext context, IProgressMonitor monitor);
 
 	/**
-	 * Installs the given units into the given profile.
+	 * Reverts the profile to a previous state described in the give InstallableUnit.
 	 * 
-	 * @param toInstall The units to install
-	 * @param profile The profile to install into
+	 * @param previous The installable unit that describes the previous state of the profile
+	 * @param profile The profile to revert
+	 * @param context The provisioning context used for finding resources
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	//	public IStatus install(IInstallableUnit[] toInstall, Profile profile, ProvisioningContext context, IProgressMonitor monitor);
-	/**
-	 * Uninstalls the given units from the given profile.
-	 * 
-	 * @param previous The units to uninstall
-	 * @param profile The profile from which to uninstall
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
-	 */
-	//	public IStatus uninstall(IInstallableUnit[] toUninstall, Profile profile, ProvisioningContext context, IProgressMonitor monitor);
-	//public IStatus replace(IInstallableUnit[] toUninstall, IInstallableUnit[] toInstall, Profile profile, ProvisioningContext context, IProgressMonitor monitor);
 	public IStatus revert(IInstallableUnit previous, Profile profile, ProvisioningContext context, IProgressMonitor monitor);
 
 	/**

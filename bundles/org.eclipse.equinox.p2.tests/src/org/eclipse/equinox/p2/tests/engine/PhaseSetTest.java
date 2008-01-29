@@ -43,8 +43,8 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
 			// empty PhaseSet
 		};
-		Operand op = new Operand(createResolvedIU(createIU("iu")), null);
-		Operand[] operands = new Operand[] {op};
+		InstallableUnitOperand op = new InstallableUnitOperand(createResolvedIU(createIU("iu")), null);
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
 
 		IStatus result = phaseSet.perform(new EngineSession(profile), profile, operands, new NullProgressMonitor());
 		assertTrue(result.isOK());

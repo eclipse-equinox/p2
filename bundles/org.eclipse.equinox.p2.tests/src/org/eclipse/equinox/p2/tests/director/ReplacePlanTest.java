@@ -76,7 +76,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
 		assertTrue("1.0", plan.getStatus().isOK());
 		assertProfileContainsAll("1.1", profile, oldUnits);
-		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), plan.getPropertyOperands(), null);
+		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), null);
 		assertTrue("1.2", result.isOK());
 		assertProfileContainsAll("1.3", profile, newUnits);
 	}

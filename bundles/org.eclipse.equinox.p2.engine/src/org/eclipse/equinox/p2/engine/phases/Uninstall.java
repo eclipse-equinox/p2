@@ -27,7 +27,7 @@ public class Uninstall extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
@@ -36,7 +36,7 @@ public class Uninstall extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.internalAddInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
@@ -49,7 +49,7 @@ public class Uninstall extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			profile.internalRemoveInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
@@ -60,7 +60,7 @@ public class Uninstall extends Phase {
 			Profile profile = (Profile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
-			Operand operand = (Operand) parameters.get(PARM_OPERAND);
+			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, true, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
@@ -72,11 +72,11 @@ public class Uninstall extends Phase {
 		super(PHASE_ID, weight);
 	}
 
-	protected boolean isApplicable(Operand op) {
+	protected boolean isApplicable(InstallableUnitOperand op) {
 		return (op.first() != null);
 	}
 
-	protected ProvisioningAction[] getActions(Operand currentOperand) {
+	protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
 		//TODO: monitor.subTask(NLS.bind(Messages.Engine_Uninstalling_IU, unit.getId()));
 
 		ProvisioningAction beforeAction = new BeforeUninstallEventAction();
@@ -100,7 +100,7 @@ public class Uninstall extends Phase {
 		return Messages.Phase_Uninstall_Error;
 	}
 
-	protected IStatus initializeOperand(Profile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
 		parameters.put("iu", iu); //$NON-NLS-1$
 

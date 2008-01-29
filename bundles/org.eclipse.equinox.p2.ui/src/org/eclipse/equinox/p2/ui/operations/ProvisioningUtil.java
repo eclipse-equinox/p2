@@ -207,7 +207,7 @@ public class ProvisioningUtil {
 	 */
 	public static Sizing getSizeInfo(ProvisioningPlan plan, String profileId, IProgressMonitor monitor) throws ProvisionException {
 		SizingPhaseSet set = new SizingPhaseSet();
-		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), plan.getPropertyOperands(), monitor);
+		IStatus status = getEngine().perform(getProfile(profileId), set, plan.getOperands(), monitor);
 		if (status.isOK())
 			return set.getSizing();
 		return null;
@@ -219,7 +219,7 @@ public class ProvisioningUtil {
 			set = new DefaultPhaseSet();
 		else
 			set = phaseSet;
-		return getEngine().perform(profile, set, plan.getOperands(), plan.getPropertyOperands(), monitor);
+		return getEngine().perform(profile, set, plan.getOperands(), monitor);
 	}
 
 	private static Engine getEngine() throws ProvisionException {
