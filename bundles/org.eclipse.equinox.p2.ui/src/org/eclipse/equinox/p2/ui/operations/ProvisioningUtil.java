@@ -44,11 +44,11 @@ public class ProvisioningUtil {
 		ProvUIActivator.getDefault().notifyListeners(event);
 	}
 
-	public static String getMetadataRepositoryName(URL location) throws ProvisionException {
+	public static String getMetadataRepositoryProperty(URL location, String key) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		return manager.getRepositoryProperty(location, IMetadataRepositoryManager.PROP_NAME);
+		return manager.getRepositoryProperty(location, key);
 	}
 
 	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -90,12 +90,12 @@ public class ProvisioningUtil {
 		ProvUIActivator.getDefault().notifyListeners(event);
 	}
 
-	public static String getArtifactRepositoryName(URL location) throws ProvisionException {
+	public static String getArtifactRepositoryProperty(URL location, String key) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		return manager.getRepositoryProperty(location, IArtifactRepositoryManager.PROP_NAME);
+		return manager.getRepositoryProperty(location, key);
 	}
 
 	public static IArtifactRepository loadArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {

@@ -199,7 +199,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 				List urls = new ArrayList();
 				for (int i = 0; i < selection.length; i++) {
 					if (selection[i] instanceof MetadataRepositoryElement)
-						urls.add(((MetadataRepositoryElement) selection[i]).getURL());
+						urls.add(((MetadataRepositoryElement) selection[i]).getLocation());
 				}
 				if (urls.size() > 0) {
 					RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, (URL[]) urls.toArray(new URL[urls.size()]));

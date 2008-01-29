@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -53,7 +54,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	}
 
 	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
-		IArtifactRepository repository = getRepository(monitor);
+		IArtifactRepository repository = (IArtifactRepository) getRepository(monitor);
 		if (repository == null)
 			return new ArtifactElement[0];
 		IArtifactKey[] keys = repository.getArtifactKeys();
@@ -69,10 +70,10 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		if (name != null && name.length() > 0) {
 			return name;
 		}
-		return getURL().toExternalForm();
+		return getLocation().toExternalForm();
 	}
 
-	private IArtifactRepository getRepository(IProgressMonitor monitor) {
+	public IRepository getRepository(IProgressMonitor monitor) {
 		if (repo == null)
 			try {
 				repo = ProvisioningUtil.loadArtifactRepository(url, monitor);
@@ -105,16 +106,35 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getURL()
 	 */
-	public URL getURL() {
+	public URL getLocation() {
 		return url;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
 		try {
-			return ProvisioningUtil.getArtifactRepositoryName(url);
+			String name = ProvisioningUtil.getArtifactRepositoryProperty(url, IArtifactRepositoryManager.PROP_NAME);
+			if (name == null)
+				return ""; //$NON-NLS-1$
+			return name;
+		} catch (ProvisionException e) {
+			return ""; //$NON-NLS-1$
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getDescription()
+	 */
+	public String getDescription() {
+		try {
+			String description = ProvisioningUtil.getArtifactRepositoryProperty(url, IArtifactRepositoryManager.PROP_DESCRIPTION);
+			if (description == null)
+				return ""; //$NON-NLS-1$
+			return description;
 		} catch (ProvisionException e) {
 			return ""; //$NON-NLS-1$
 		}

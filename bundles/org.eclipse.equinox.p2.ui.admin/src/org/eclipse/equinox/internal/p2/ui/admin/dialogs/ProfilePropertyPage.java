@@ -10,14 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PropertyPage;
 
@@ -36,26 +33,11 @@ public class ProfilePropertyPage extends PropertyPage {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvAdminUIMessages.No_Property_Item_Selected);
 		}
-		profileGroup = new ProfileGroup(parent, profile, new ModifyListener() {
-			public void modifyText(ModifyEvent event) {
-				verifyComplete();
-			}
-		});
+		// Assume that we do not edit profile properties for now
+		noDefaultAndApplyButton();
+
+		profileGroup = new ProfileGroup(parent, profile, null);
 		Dialog.applyDialogFont(profileGroup.getComposite());
-		verifyComplete();
 		return profileGroup.getComposite();
-	}
-
-	void verifyComplete() {
-		if (profileGroup == null) {
-			return;
-		}
-		IStatus status = profileGroup.verify();
-		setValid(status.isOK());
-	}
-
-	public boolean performOk() {
-		profileGroup.updateProfile();
-		return true;
 	}
 }

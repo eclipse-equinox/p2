@@ -74,7 +74,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		ArrayList urls = new ArrayList();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i] instanceof RepositoryElement)
-				urls.add(((RepositoryElement) elements[i]).getURL());
+				urls.add(((RepositoryElement) elements[i]).getLocation());
 		}
 		return new RemoveMetadataRepositoryOperation(ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryOperationLabel, (URL[]) urls.toArray(new URL[urls.size()]));
 	}

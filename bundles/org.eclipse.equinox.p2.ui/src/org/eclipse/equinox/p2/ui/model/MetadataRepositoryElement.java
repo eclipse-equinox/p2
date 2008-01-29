@@ -11,11 +11,13 @@
 package org.eclipse.equinox.p2.ui.model;
 
 import java.net.URL;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.IQueryable;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
@@ -57,7 +59,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 		if (name != null && name.length() > 0) {
 			return name;
 		}
-		return getURL().toExternalForm();
+		return getLocation().toExternalForm();
 	}
 
 	/*
@@ -67,12 +69,23 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 	 */
 	public IQueryable getQueryable() {
 		if (queryable == null)
+			return getMetadataRepository(null);
+		return queryable;
+	}
+
+	public IRepository getRepository(IProgressMonitor monitor) {
+		return getMetadataRepository(monitor);
+	}
+
+	private IMetadataRepository getMetadataRepository(IProgressMonitor monitor) {
+		if (queryable == null)
 			try {
-				queryable = ProvisioningUtil.loadMetadataRepository(url, null);
+				queryable = ProvisioningUtil.loadMetadataRepository(url, monitor);
 			} catch (ProvisionException e) {
 				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
 			}
-		return queryable;
+		return (IMetadataRepository) queryable;
+
 	}
 
 	/*
@@ -88,7 +101,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getURL()
 	 */
-	public URL getURL() {
+	public URL getLocation() {
 		return url;
 	}
 
@@ -98,7 +111,25 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 	 */
 	public String getName() {
 		try {
-			return ProvisioningUtil.getMetadataRepositoryName(url);
+			String name = ProvisioningUtil.getMetadataRepositoryProperty(url, IMetadataRepositoryManager.PROP_NAME);
+			if (name == null)
+				return ""; //$NON-NLS-1$
+			return name;
+		} catch (ProvisionException e) {
+			return ""; //$NON-NLS-1$
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getDescription()
+	 */
+	public String getDescription() {
+		try {
+			String description = ProvisioningUtil.getMetadataRepositoryProperty(url, IMetadataRepositoryManager.PROP_DESCRIPTION);
+			if (description == null)
+				return ""; //$NON-NLS-1$
+			return description;
 		} catch (ProvisionException e) {
 			return ""; //$NON-NLS-1$
 		}

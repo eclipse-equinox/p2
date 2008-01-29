@@ -187,8 +187,6 @@ public class ProfileGroup {
 	}
 
 	public void updateProfile() {
-		// We forced the id field to have content so don't 
-		// check its length
 		if (profile == null) {
 			Map profileProperties = new HashMap();
 

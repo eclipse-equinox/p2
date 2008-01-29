@@ -57,8 +57,8 @@ public class RepositoryImplementationPropertyPage extends RepositoryPropertyPage
 	}
 
 	private void initializeTable() {
-		if (getRepository() != null) {
-			Map repoProperties = getRepository().getProperties();
+		if (getRepositoryElement() != null) {
+			Map repoProperties = getRepositoryElement().getRepository(null).getProperties();
 			if (repoProperties != null) {
 				String[] propNames = (String[]) repoProperties.keySet().toArray(new String[repoProperties.size()]);
 				for (int i = 0; i < propNames.length; i++) {

@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
+import org.eclipse.equinox.p2.ui.model.RepositoryElement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -27,23 +27,20 @@ import org.eclipse.ui.dialogs.PropertyPage;
  */
 public class RepositoryPropertyPage extends PropertyPage {
 
-	private IRepository repository;
+	private RepositoryElement repositoryElement;
 	private Composite composite;
 	private Text name;
 	private Text url;
+	private Text description;
 
 	protected Control createContents(Composite parent) {
-		// TODO if all we are ever going to show is the name, URL, and
-		// description, this could be done without loading the repo.
-		this.repository = getRepository();
-		if (repository == null) {
+		this.repositoryElement = getRepositoryElement();
+		if (repositoryElement == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvUIMessages.RepositoryPropertyPage_NoRepoSelected);
 			return label;
 		}
-		if (!repository.isModifiable()) {
-			noDefaultAndApplyButton();
-		}
+		noDefaultAndApplyButton();
 
 		composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
@@ -53,55 +50,45 @@ public class RepositoryPropertyPage extends PropertyPage {
 		data.widthHint = 350;
 		composite.setLayoutData(data);
 
-		Label nameLabel = new Label(composite, SWT.NONE);
-		nameLabel.setText(ProvUIMessages.RepositoryGroup_RepositoryNameFieldLabel);
-
-		name = new Text(composite, SWT.BORDER);
-		data = new GridData(GridData.FILL_HORIZONTAL);
-		name.setLayoutData(data);
-		name.setEditable(repository.isModifiable());
-
 		Label urlLabel = new Label(composite, SWT.NONE);
-		urlLabel.setText(ProvUIMessages.RepositoryGroup_RepositoryURLFieldLabel);
-		url = new Text(composite, SWT.BORDER);
+		urlLabel.setText(ProvUIMessages.RepositoryPropertyPage_URLFieldLabel);
+		url = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
 		url.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		url.setEditable(false);
+
+		Label nameLabel = new Label(composite, SWT.NONE);
+		nameLabel.setText(ProvUIMessages.RepositoryPropertyPage_NameFieldLabel);
+		name = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+		name.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+		Label descriptionLabel = new Label(composite, SWT.NONE);
+		descriptionLabel.setText(ProvUIMessages.RepositoryPropertyPage_DescriptionFieldLabel);
+		data = new GridData();
+		data.verticalAlignment = SWT.TOP;
+		descriptionLabel.setLayoutData(data);
+		description = new Text(composite, SWT.WRAP | SWT.READ_ONLY);
+		data = new GridData(GridData.FILL_HORIZONTAL);
+		data.verticalAlignment = SWT.TOP;
+		data.grabExcessVerticalSpace = true;
+		description.setLayoutData(data);
 
 		initializeFields();
 		Dialog.applyDialogFont(composite);
-		verifyComplete();
 		return composite;
 	}
 
-	protected void verifyComplete() {
-		if (url.getText().trim().length() == 0) {
-			setValid(false);
-			setErrorMessage(ProvUIMessages.RepositoryGroup_URLRequired);
-		}
-		setValid(true);
-		setErrorMessage(null);
-	}
-
-	public boolean performOk() {
-		if (repository.isModifiable()) {
-			repository.setName(name.getText().trim());
-		}
-		return super.performOk();
-	}
-
 	private void initializeFields() {
-		if (repository == null) {
-			url.setText("http://"); //$NON-NLS-1$
-		} else {
-			url.setText(repository.getLocation().toExternalForm());
-			name.setText(repository.getName());
-		}
+		// Shouldn't happen since we checked this before creating any controls
+		if (repositoryElement == null)
+			return;
+		url.setText(repositoryElement.getLocation().toExternalForm());
+		name.setText(repositoryElement.getName());
+		description.setText(repositoryElement.getDescription());
 	}
 
-	protected IRepository getRepository() {
-		if (repository == null) {
-			repository = (IRepository) ProvUI.getAdapter(getElement(), IRepository.class);
+	protected RepositoryElement getRepositoryElement() {
+		if (repositoryElement == null) {
+			repositoryElement = (RepositoryElement) ProvUI.getAdapter(getElement(), RepositoryElement.class);
 		}
-		return repository;
+		return repositoryElement;
 	}
 }

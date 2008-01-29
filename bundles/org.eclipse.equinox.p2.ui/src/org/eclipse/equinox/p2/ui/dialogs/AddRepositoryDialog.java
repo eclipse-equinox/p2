@@ -66,7 +66,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		comp.setLayoutData(data);
 
 		Label urlLabel = new Label(comp, SWT.NONE);
-		urlLabel.setText(ProvUIMessages.RepositoryGroup_RepositoryURLFieldLabel);
+		urlLabel.setText(ProvUIMessages.RepositoryPropertyPage_URLFieldLabel);
 		url = new Text(comp, SWT.BORDER);
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);

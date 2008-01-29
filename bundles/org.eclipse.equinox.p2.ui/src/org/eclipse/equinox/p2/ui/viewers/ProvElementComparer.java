@@ -64,7 +64,7 @@ public class ProvElementComparer implements IElementComparer {
 
 	private URL getRepositoryLocation(Object obj) {
 		if (obj instanceof RepositoryElement)
-			return ((RepositoryElement) obj).getURL();
+			return ((RepositoryElement) obj).getLocation();
 		return null;
 	}
 

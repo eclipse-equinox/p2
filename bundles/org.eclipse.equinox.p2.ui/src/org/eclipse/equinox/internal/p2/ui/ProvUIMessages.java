@@ -101,6 +101,10 @@ public class ProvUIMessages extends NLS {
 
 	// Property pages
 	public static String IUPropertyPage_NoIUSelected;
+	public static String RepositoryPropertyPage_DescriptionFieldLabel;
+	public static String RepositoryPropertyPage_NameFieldLabel;
+	public static String RepositoryPropertyPage_URLFieldLabel;
+
 	public static String RepositoryPropertyPage_NoRepoSelected;
 
 	// Dialog groups
@@ -108,9 +112,7 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryGroup_ArchivedRepoBrowseButton;
 	public static String RepositoryGroup_RepositoryFile;
 	public static String RepositoryGroup_SelectRepositoryDirectory;
-	public static String RepositoryGroup_RepositoryNameFieldLabel;
 	public static String RepositoryGroup_URLRequired;
-	public static String RepositoryGroup_RepositoryURLFieldLabel;
 
 	// Dialogs
 	public static String AddRepositoryDialog_DuplicateURL;

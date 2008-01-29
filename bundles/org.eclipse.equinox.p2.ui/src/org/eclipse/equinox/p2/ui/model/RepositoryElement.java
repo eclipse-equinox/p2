@@ -11,6 +11,8 @@
 package org.eclipse.equinox.p2.ui.model;
 
 import java.net.URL;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.p2.core.repository.IRepository;
 
 /**
  * Interface for elements that represent repositories.
@@ -19,7 +21,11 @@ import java.net.URL;
  */
 public interface RepositoryElement {
 
-	public URL getURL();
+	public URL getLocation();
 
 	public String getName();
+
+	public String getDescription();
+
+	public IRepository getRepository(IProgressMonitor monitor);
 }
