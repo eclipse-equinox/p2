@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.IDirector;
+import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -102,13 +103,17 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		monitor.worked(5);
 
 		IStatus s;
+		ProfileChangeRequest request = new ProfileChangeRequest(p);
 		if (isInstall) {
 			monitor.setTaskName(NLS.bind(Messages.Op_Installing, installDescription.getProductName()));
-			s = director.install(toInstall, p, null, monitor.newChild(90));
+			request.addInstallableUnits(toInstall);
+			s = director.provision(request, null, monitor.newChild(90));
 		} else {
 			monitor.setTaskName(NLS.bind(Messages.Op_Updating, installDescription.getProductName()));
 			IInstallableUnit[] toUninstall = computeUnitsToUninstall(p);
-			s = director.replace(toUninstall, toInstall, p, null, monitor.newChild(90));
+			request.removeInstallableUnits(toUninstall);
+			request.addInstallableUnits(toInstall);
+			s = director.provision(request, null, monitor.newChild(90));
 		}
 		if (!s.isOK())
 			throw new CoreException(s);
