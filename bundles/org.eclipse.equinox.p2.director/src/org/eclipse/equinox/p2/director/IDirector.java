@@ -42,7 +42,7 @@ public interface IDirector {
 	/**
 	 * Uninstalls the given units from the given profile.
 	 * 
-	 * @param toUninstall The units to uninstall
+	 * @param previous The units to uninstall
 	 * @param profile The profile from which to uninstall
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
