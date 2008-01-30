@@ -46,15 +46,7 @@ public interface IProfileRegistry {
 	/**
 	 * Remove the given profile from this profile registry.
 	 * 
-	 * @param toRemove the profile to remove
+	 * @param id the profile to remove
 	 */
-	void removeProfile(Profile toRemove);
-
-	/**
-	 * Update the given profile stored in this profile registry.
-	 * 
-	 * @param toUpdate the profile to update
-	 */
-	void updateProfile(Profile toUpdate);
-
+	void removeProfile(String id);
 }

@@ -580,11 +580,9 @@ public class AbstractProvisioningTest extends TestCase {
 	protected Profile createProfile(String name, Profile parent, Map properties) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
-		Profile profile = profileRegistry.getProfile(name);
-		if (profile != null)
-			profileRegistry.removeProfile(profile);
+		profileRegistry.removeProfile(name);
 		//create and return a new profile
-		profile = new Profile(name, parent, properties);
+		Profile profile = new Profile(name, parent, properties);
 		profileRegistry.addProfile(profile);
 		profilesToRemove.add(profile);
 		return profile;
@@ -637,7 +635,7 @@ public class AbstractProvisioningTest extends TestCase {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
 			Profile toRemove = (Profile) it.next();
-			profileRegistry.removeProfile(toRemove);
+			profileRegistry.removeProfile(toRemove.getProfileId());
 		}
 		profilesToRemove.clear();
 		//See bug 209069 - currently no way to persist install registry changes or clear the metadata cache

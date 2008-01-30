@@ -179,21 +179,26 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		persist();
 	}
 
-	public synchronized void removeProfile(Profile toRemove) {
-		if (isNamedSelf(toRemove))
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toRemove.getProfileId()));
-
+	public synchronized void removeProfile(String profileId) {
 		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
 		if (installRegistry == null)
 			return;
 
 		//note we need to maintain a reference to the profile map until it is persisted to prevent gc
 		Map profileMap = getProfileMap();
-		if (profileMap.remove(toRemove.getProfileId()) == null)
+
+		// this is a copy we use for the event
+		Profile toRemove = getProfile(profileId);
+		if (toRemove == null)
 			return;
-		installRegistry.removeProfileInstallRegistry(toRemove.getProfileId());
+		installRegistry.removeProfileInstallRegistry(profileId);
+		profileMap.remove(profileId);
 		persist();
 		broadcastChangeEvent(toRemove, ProfileEvent.REMOVED);
+	}
+
+	public synchronized void removeProfile(Profile toRemove) {
+		removeProfile(toRemove.getProfileId());
 	}
 
 	private Profile copyProfile(Profile profile) {

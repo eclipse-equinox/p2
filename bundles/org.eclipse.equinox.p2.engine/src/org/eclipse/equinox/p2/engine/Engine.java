@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
+import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 
 public class Engine {
@@ -73,7 +74,7 @@ public class Engine {
 			MultiStatus result = phaseSet.perform(session, profile, iuOperands, monitor);
 			if (result.isOK()) {
 				if (profile.isChanged()) {
-					IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
+					SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 					if (profileRegistry.getProfile(profile.getProfileId()) == null)
 						profileRegistry.addProfile(profile);
 					else {

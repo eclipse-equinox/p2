@@ -52,9 +52,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		getServices();
 		//ensure we start in a clean state
-		Profile profile = registry.getProfile(PROFILE_NAME);
-		if (profile != null)
-			registry.removeProfile(profile);
+		registry.removeProfile(PROFILE_NAME);
 	}
 
 	protected void tearDown() throws Exception {
@@ -66,7 +64,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		Profile test = createProfile(PROFILE_NAME);
 		assertEquals(test.getProfileId(), registry.getProfile(PROFILE_NAME).getProfileId());
-		registry.removeProfile(test);
+		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
 
@@ -78,7 +76,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		restart();
 		test = registry.getProfile(PROFILE_NAME);
 		assertNotNull(test);
-		registry.removeProfile(test);
+		registry.removeProfile(PROFILE_NAME);
 
 		restart();
 		assertNull(registry.getProfile(PROFILE_NAME));

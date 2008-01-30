@@ -131,9 +131,7 @@ public class ProvisioningUtil {
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
 		}
-		Profile profile = profileRegistry.getProfile(profileId);
-		if (profile != null)
-			profileRegistry.removeProfile(profile);
+		profileRegistry.removeProfile(profileId);
 	}
 
 	public static Profile[] getProfiles() throws ProvisionException {

@@ -127,9 +127,7 @@ public class ProvisioningHelper {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null)
 			return;
-		Profile profile = profileRegistry.getProfile(profileId);
-		if (profile != null)
-			profileRegistry.removeProfile(profile);
+		profileRegistry.removeProfile(profileId);
 	}
 
 	public static Profile[] getProfiles() {
