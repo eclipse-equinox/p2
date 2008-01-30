@@ -36,8 +36,6 @@ import org.eclipse.swt.widgets.*;
  */
 public class AvailableIUGroup extends StructuredIUGroup {
 
-	ProvisioningContext context;
-
 	/**
 	 * Create a group that represents the available IU's.
 	 * 
@@ -50,9 +48,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * including information about which repositories should be used.
 	 */
 	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context) {
-		// This will evolve into a provisioning context
-		super(parent, queryProvider, font);
-		this.context = context;
+		super(parent, queryProvider, font, context);
+		this.createGroupComposite(parent);
 	}
 
 	protected StructuredViewer createViewer(Composite parent, IQueryProvider queryProvider) {
@@ -68,7 +65,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 		// Now the content.
 		availableIUViewer.setContentProvider(new AvailableIUContentProvider(queryProvider));
-		availableIUViewer.setInput(new MetadataRepositories(context.getMetadataRepositories()));
+		availableIUViewer.setInput(new MetadataRepositories(getProvisioningContext().getMetadataRepositories()));
 
 		// Now the presentation, columns before label provider.
 		setTreeColumns(availableIUViewer.getTree());
@@ -78,7 +75,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			protected void refreshAll() {
 				// The content provider caches the children unless input changes,
 				// so a viewer.refresh() is not enough.
-				availableIUViewer.setInput(new MetadataRepositories(context.getMetadataRepositories()));
+				availableIUViewer.setInput(new MetadataRepositories(getProvisioningContext().getMetadataRepositories()));
 			}
 		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);

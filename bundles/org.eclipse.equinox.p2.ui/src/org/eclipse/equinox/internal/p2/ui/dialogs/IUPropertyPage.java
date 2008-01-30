@@ -8,15 +8,15 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PropertyPage;
 
@@ -25,26 +25,29 @@ import org.eclipse.ui.dialogs.PropertyPage;
  * 
  * @since 3.4
  */
-public class IUPropertyPage extends PropertyPage {
-
-	private IUPropertiesGroup iuGroup;
+public abstract class IUPropertyPage extends PropertyPage {
 
 	protected Control createContents(Composite parent) {
+		noDefaultAndApplyButton();
 		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(getElement(), IInstallableUnit.class);
+		Control control;
 		if (iu == null) {
 			Label label = new Label(parent, SWT.DEFAULT);
 			label.setText(ProvUIMessages.IUPropertyPage_NoIUSelected);
+			control = label;
 		}
-		iuGroup = new IUPropertiesGroup(parent, iu, new ModifyListener() {
-			public void modifyText(ModifyEvent event) {
-				// not editable
-			}
-		});
-		Dialog.applyDialogFont(iuGroup.getComposite());
-		return iuGroup.getComposite();
+		control = createIUPage(parent, iu);
+		Dialog.applyDialogFont(parent);
+		return control;
 	}
 
-	public boolean performOk() {
-		return true;
+	protected int computeWidthLimit(Control control, int nchars) {
+		GC gc = new GC(control);
+		gc.setFont(control.getFont());
+		FontMetrics fontMetrics = gc.getFontMetrics();
+		gc.dispose();
+		return Dialog.convertWidthInCharsToPixels(fontMetrics, nchars);
 	}
+
+	protected abstract Control createIUPage(Composite parent, IInstallableUnit iu);
 }

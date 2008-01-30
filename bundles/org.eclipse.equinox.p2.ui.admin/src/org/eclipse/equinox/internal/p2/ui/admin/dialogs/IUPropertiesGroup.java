@@ -8,9 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.dialogs;
+package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
@@ -62,7 +62,7 @@ public class IUPropertiesGroup extends IUGroup {
 			return;
 		}
 		String[] propNames = new String[] {IInstallableUnit.PROP_NAME, IInstallableUnit.PROP_DESCRIPTION, IInstallableUnit.PROP_PROVIDER, IInstallableUnit.PROP_COPYRIGHT, IInstallableUnit.PROP_LICENSE};
-		String[] userPropNames = new String[] {ProvUIMessages.IUPropertiesGroup_NameProperty, ProvUIMessages.IUPropertiesGroup_DescriptionProperty, ProvUIMessages.IUPropertiesGroup_ProviderProperty, ProvUIMessages.IUPropertiesGroup_CopyrightProperty, ProvUIMessages.IUPropertiesGroup_LicenseProperty};
+		String[] userPropNames = new String[] {ProvAdminUIMessages.IUPropertiesGroup_NamePropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_DescriptionPropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_ProviderPropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_CopyrightProviderLabel, ProvAdminUIMessages.IUPropertiesGroup_LicenseProviderLabel};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
 			String value = getIU().getProperty(propNames[i]);

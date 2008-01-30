@@ -172,7 +172,7 @@ public class UpdateAndInstallGroup {
 		composite.setLayout(layout);
 
 		// Table of installed IU's
-		installedIUGroup = new InstalledIUGroup(composite, queryProvider, JFaceResources.getDialogFont(), profileId);
+		installedIUGroup = new InstalledIUGroup(composite, queryProvider, JFaceResources.getDialogFont(), new ProvisioningContext(), profileId);
 
 		// Vertical buttons
 		Composite buttonBar = (Composite) createInstalledIUsVerticalButtonBar(composite, queryProvider);

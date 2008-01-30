@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
@@ -33,6 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 public abstract class StructuredIUGroup {
 
 	private IQueryProvider queryProvider;
+	private ProvisioningContext context;
 	private FontMetrics fm;
 	private StructuredViewer viewer;
 	private Composite composite;
@@ -45,19 +47,20 @@ public abstract class StructuredIUGroup {
 	 * to retrieve elements in the viewer.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
+	 * @param context the ProvisioningContext describing the context for provisioning.
+
 	 */
-	public StructuredIUGroup(final Composite parent, IQueryProvider queryProvider, Font font) {
+	public StructuredIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context) {
 		this.queryProvider = queryProvider;
+		this.context = context;
 		// Set up a fontmetrics for calculations
 		GC gc = new GC(parent);
 		gc.setFont(font);
 		fm = gc.getFontMetrics();
 		gc.dispose();
-
-		createGroupComposite(parent);
 	}
 
-	private void createGroupComposite(Composite parent) {
+	protected void createGroupComposite(Composite parent) {
 		composite = new Composite(parent, SWT.NONE);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		composite.setLayoutData(gd);
@@ -99,7 +102,10 @@ public abstract class StructuredIUGroup {
 
 	protected IInstallableUnit getIU(Object element) {
 		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+	}
 
+	protected ProvisioningContext getProvisioningContext() {
+		return context;
 	}
 
 	protected int convertHorizontalDLUsToPixels(int dlus) {

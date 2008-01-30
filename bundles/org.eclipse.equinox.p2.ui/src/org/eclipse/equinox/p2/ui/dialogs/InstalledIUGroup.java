@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
@@ -44,11 +45,15 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	 * @param profileId the id of the profile whose content is being shown.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
+	 * @param context the ProvisioningContext describing the context for provisioning,
+	 * including information about which repositories should be used.
+
 	 */
-	public InstalledIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, String profileId) {
+	public InstalledIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, String profileId) {
 		// This will evolve into a provisioning context
-		super(parent, queryProvider, font);
+		super(parent, queryProvider, font, context);
 		this.profileId = profileId;
+		this.createGroupComposite(parent);
 	}
 
 	protected StructuredViewer createViewer(Composite parent, IQueryProvider queryProvider) {

@@ -38,15 +38,20 @@ public class ProvUIMessages extends NLS {
 	public static String CategoryElementCollector_Uncategorized;
 	public static String ChooseProfileDialog_DefaultDialogTitle;
 	public static String InstallDialog_InstallSelectionMessage;
-	public static String IUPropertiesGroup_CopyrightProperty;
-	public static String IUPropertiesGroup_DescriptionProperty;
-	public static String IUPropertiesGroup_LicenseProperty;
+	public static String IUCopyrightPropertyPage_NoCopyright;
 	public static String IUDetailsLabelProvider_KB;
 	public static String IUDetailsLabelProvider_Bytes;
 	public static String IUDetailsLabelProvider_ComputingSize;
 	public static String IUDetailsLabelProvider_Unknown;
-	public static String IUPropertiesGroup_NameProperty;
-	public static String IUPropertiesGroup_ProviderProperty;
+	public static String IUGeneralInfoPropertyPage_ContactLabel;
+	public static String IUGeneralInfoPropertyPage_CouldNotOpenBrowser;
+	public static String IUGeneralInfoPropertyPage_DescriptionLabel;
+	public static String IUGeneralInfoPropertyPage_DocumentationLink;
+	public static String IUGeneralInfoPropertyPage_IdentifierLabel;
+	public static String IUGeneralInfoPropertyPage_NameLabel;
+	public static String IUGeneralInfoPropertyPage_ProviderLabel;
+	public static String IUGeneralInfoPropertyPage_VersionLabel;
+	public static String IULicensePropertyPage_NoLicense;
 	public static String ProfileElement_InvalidProfile;
 	public static String ProfileModificationWizardPage_ProfileNotFound;
 	// utility error messages

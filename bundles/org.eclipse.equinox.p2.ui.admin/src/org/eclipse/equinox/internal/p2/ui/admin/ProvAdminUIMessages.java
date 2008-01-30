@@ -78,6 +78,11 @@ public class ProvAdminUIMessages extends NLS {
 	public static String IUGroup_Version;
 	public static String IUProfilePropertiesGroup_InvalidProfileID;
 
+	public static String IUPropertiesGroup_CopyrightProviderLabel;
+	public static String IUPropertiesGroup_DescriptionPropertyLabel;
+	public static String IUPropertiesGroup_LicenseProviderLabel;
+	public static String IUPropertiesGroup_NamePropertyLabel;
+	public static String IUPropertiesGroup_ProviderPropertyLabel;
 	public static String No_Property_Item_Selected;
 
 	public static String ProfileGroup_Browse;
