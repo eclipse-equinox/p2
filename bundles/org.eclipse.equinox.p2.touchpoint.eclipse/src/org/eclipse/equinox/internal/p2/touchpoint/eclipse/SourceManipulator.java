@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.simpleconfigurator.manipulator.internal.SimpleConfiguratorManipulatorImpl;
+import org.osgi.framework.Version;
 
 //This class deals with source bundles and how their addition to the source.bundles.txt
 public class SourceManipulator {
@@ -31,6 +32,15 @@ public class SourceManipulator {
 		if (sourceBundles == null)
 			load();
 		sourceBundles.add(new BundleInfo(bundleFile.toURL().toString()));
+	}
+
+	public void addBundle(File bundleFile, String bundleId, Version bundleVersion) throws IOException {
+		if (sourceBundles == null)
+			load();
+		BundleInfo sourceInfo = new BundleInfo(bundleFile.toURL().toString());
+		sourceInfo.setSymbolicName(bundleId);
+		sourceInfo.setVersion(bundleVersion.toString());
+		sourceBundles.add(sourceInfo);
 	}
 
 	public void removeBundle(File bundleFile) throws MalformedURLException, IOException {

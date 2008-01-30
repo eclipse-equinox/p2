@@ -845,7 +845,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
 
 		try {
-			manipulator.addBundle(bundleFile);
+			manipulator.addBundle(bundleFile, artifactKey.getId(), artifactKey.getVersion());
 		} catch (IOException e) {
 			createError("Can't configure " + artifactKey.toString() + " as a source bundle.", e);
 		}
