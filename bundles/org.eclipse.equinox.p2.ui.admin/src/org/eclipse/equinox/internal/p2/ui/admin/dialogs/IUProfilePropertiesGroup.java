@@ -72,7 +72,7 @@ public class IUProfilePropertiesGroup extends IUGroup {
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
 			Profile profile = getProfile((InstalledIUElement) iuElement);
-			String value = profile == null ? null : profile.getInstallableUnitProfileProperty(getIU(), propNames[i]);
+			String value = profile == null ? null : profile.getInstallableUnitProperty(getIU(), propNames[i]);
 			if (value != null)
 				item.setText(new String[] {userPropNames[i], value});
 		}

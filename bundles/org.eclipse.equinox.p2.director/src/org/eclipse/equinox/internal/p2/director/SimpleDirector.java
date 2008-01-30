@@ -63,7 +63,7 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public IStatus provision(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
-		String taskName = NLS.bind(Messages.Director_Task_Installing, request.getProfile().getValue(Profile.PROP_INSTALL_FOLDER));
+		String taskName = NLS.bind(Messages.Director_Task_Installing, request.getProfile().getProperty(Profile.PROP_INSTALL_FOLDER));
 		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
 		try {
 			IInstallableUnit[] installRoots = request.getAddedInstallableUnits();

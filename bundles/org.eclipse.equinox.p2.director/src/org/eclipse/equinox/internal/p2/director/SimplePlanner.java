@@ -79,7 +79,7 @@ public class SimplePlanner implements IPlanner {
 			Iterator iuPropIter = iuPropertyChanges.keySet().iterator();
 			while (iuPropIter.hasNext()) {
 				String key = (String) iuPropIter.next();
-				Object oldValue = profile.getInstallableUnitProfileProperty(iu, key);
+				Object oldValue = profile.getInstallableUnitProperty(iu, key);
 				operands.add(new InstallableUnitPropertyOperand(iu, key, oldValue, iuPropertyChanges.get(key)));
 			}
 		}
@@ -90,7 +90,7 @@ public class SimplePlanner implements IPlanner {
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			toRemove = (String[]) allIUPropertyDeletions.get(iu);
-			Map existingIUProperties = profile.getInstallableUnitProfileProperties(iu);
+			Map existingIUProperties = profile.getInstallableUnitProperties(iu);
 			for (int i = 0; i < toRemove.length; i++) {
 				if (existingIUProperties.containsKey(toRemove[i]))
 					operands.add(new InstallableUnitPropertyOperand(iu, toRemove[i], existingIUProperties.get(toRemove[i]), null));
@@ -224,7 +224,7 @@ public class SimplePlanner implements IPlanner {
 		}
 		IInstallableUnit[] ius = getInstallableUnits(currentProfile);
 		for (int i = 0; i < ius.length; i++) {
-			for (Iterator iter = currentProfile.getInstallableUnitProfileProperties(ius[i]).keySet().iterator(); iter.hasNext();) {
+			for (Iterator iter = currentProfile.getInstallableUnitProperties(ius[i]).keySet().iterator(); iter.hasNext();) {
 				String key = (String) iter.next();
 				request.removeInstallableUnitProfileProperty(ius[i], key);
 			}

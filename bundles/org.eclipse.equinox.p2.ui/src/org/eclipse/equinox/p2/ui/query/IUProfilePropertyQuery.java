@@ -29,6 +29,6 @@ public class IUProfilePropertyQuery extends IUPropertyQuery {
 	}
 
 	protected String getProperty(IInstallableUnit iu, String name) {
-		return profile.getInstallableUnitProfileProperty(iu, name);
+		return profile.getInstallableUnitProperty(iu, name);
 	}
 }

@@ -590,6 +590,12 @@ public class AbstractProvisioningTest extends TestCase {
 		return profile;
 	}
 
+	protected Profile getProfile(String profileId) {
+		//remove any existing profile with the same name
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		return profileRegistry.getProfile(profileId);
+	}
+
 	/**
 	 * Returns a resolved IU corresponding to the given IU, with no attached fragments.
 	 */

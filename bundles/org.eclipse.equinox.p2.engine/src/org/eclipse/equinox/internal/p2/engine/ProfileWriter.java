@@ -24,10 +24,10 @@ public class ProfileWriter extends XMLWriter implements ProfileXMLConstants {
 	public void writeProfile(Profile profile) {
 		start(PROFILE_ELEMENT);
 		attribute(ID_ATTRIBUTE, profile.getProfileId());
-		writeProperties(profile.getProperties());
-		if (profile.hasSubProfiles()) {
-			writeProfiles(profile.getSubProfiles());
-		}
+		Profile parentProfile = profile.getParentProfile();
+		if (parentProfile != null)
+			attribute(PARENT_ID_ATTRIBUTE, parentProfile.getProfileId());
+		writeProperties(profile.getLocalProperties());
 		end(PROFILE_ELEMENT);
 	}
 

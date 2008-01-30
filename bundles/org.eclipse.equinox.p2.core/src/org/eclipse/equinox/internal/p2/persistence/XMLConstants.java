@@ -31,6 +31,7 @@ public interface XMLConstants {
 
 	// Constants for the names of common general attributes
 	public static final String ID_ATTRIBUTE = "id"; //$NON-NLS-1$
+	public static final String PARENT_ID_ATTRIBUTE = "parentId"; //$NON-NLS-1$
 	public static final String TYPE_ATTRIBUTE = "type"; //$NON-NLS-1$
 	public static final String NAME_ATTRIBUTE = "name"; //$NON-NLS-1$
 	public static final String VERSION_ATTRIBUTE = "version"; //$NON-NLS-1$

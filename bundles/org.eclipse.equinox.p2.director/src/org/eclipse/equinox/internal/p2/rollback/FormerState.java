@@ -106,7 +106,7 @@ public class FormerState {
 		Iterator allIUs = toConvert.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (allIUs.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) allIUs.next();
-			properties = toConvert.getInstallableUnitProfileProperties(iu);
+			properties = toConvert.getInstallableUnitProperties(iu);
 			iter = properties.keySet().iterator();
 			while (iter.hasNext()) {
 				String key = (String) iter.next();

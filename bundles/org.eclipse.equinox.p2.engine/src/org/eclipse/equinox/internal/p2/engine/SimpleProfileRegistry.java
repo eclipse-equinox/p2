@@ -63,16 +63,16 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (selfProfile == null)
 			return;
 		//only update if self is a roaming profile
-		if (!Boolean.valueOf(selfProfile.getValue(Profile.PROP_ROAMING)).booleanValue())
+		if (!Boolean.valueOf(selfProfile.getProperty(Profile.PROP_ROAMING)).booleanValue())
 			return;
 		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
-		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_INSTALL_FOLDER)))) {
+		if (!location.equals(new File(selfProfile.getProperty(Profile.PROP_INSTALL_FOLDER)))) {
 			selfProfile.internalSetValue(Profile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
 			changed = true;
 		}
-		if (!location.equals(new File(selfProfile.getValue(Profile.PROP_CACHE)))) {
+		if (!location.equals(new File(selfProfile.getProperty(Profile.PROP_CACHE)))) {
 			selfProfile.internalSetValue(Profile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
@@ -154,7 +154,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		while (it.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) it.next();
 			profileInstallRegistry.addInstallableUnits(iu);
-			OrderedProperties iuProperties = toUpdate.getInstallableUnitProfileProperties(iu);
+			OrderedProperties iuProperties = toUpdate.getInstallableUnitProperties(iu);
 			for (Iterator propIt = iuProperties.entrySet().iterator(); propIt.hasNext();) {
 				Entry propertyEntry = (Entry) propIt.next();
 				String key = (String) propertyEntry.getKey();
@@ -162,10 +162,20 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				profileInstallRegistry.setInstallableUnitProfileProperty(iu, key, value);
 			}
 		}
-
-		profileMap.put(toUpdate.getProfileId(), copyProfile(toUpdate));
-		// TODO: persists should be grouped some way to ensure they are consistent
 		installRegistry.addProfileInstallRegistry(profileInstallRegistry);
+
+		Profile current = (Profile) profileMap.get(toUpdate.getProfileId());
+		if (current == null) {
+			Profile parent = toUpdate.getParentProfile();
+			if (parent != null)
+				parent = (Profile) profileMap.get(parent.getProfileId());
+			profileMap.put(toUpdate.getProfileId(), new Profile(toUpdate.getProfileId(), parent, toUpdate.getLocalProperties()));
+		} else {
+			current.internalGetLocalProperties().clear();
+			current.internalAddProperties(toUpdate.getLocalProperties());
+		}
+
+		// TODO: persists should be grouped some way to ensure they are consistent
 		persist();
 	}
 
@@ -191,7 +201,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (parent != null)
 			parent = copyProfile(parent);
 
-		Profile copy = new Profile(profile.getProfileId(), parent, profile.getProperties());
+		Profile copy = new Profile(profile.getProfileId(), parent, profile.getLocalProperties());
+		String[] subProfileIds = profile.getSubProfileIds();
+		for (int i = 0; i < subProfileIds.length; i++) {
+			copy.addSubProfile(subProfileIds[i]);
+		}
 		return copy;
 	}
 
@@ -416,7 +430,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 					}
 				} else if (PROFILES_ELEMENT.equals(name)) {
 					if (profilesHandler == null) {
-						profilesHandler = new ProfilesHandler(this, attributes, null /*no parent*/);
+						profilesHandler = new ProfilesHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}

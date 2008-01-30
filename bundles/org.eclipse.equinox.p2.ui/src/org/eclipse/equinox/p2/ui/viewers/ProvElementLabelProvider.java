@@ -111,7 +111,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				return getText(element);
 			case 1 :
 				if (element instanceof Profile) {
-					return ((Profile) element).getValue(Profile.PROP_NAME);
+					return ((Profile) element).getProperty(Profile.PROP_NAME);
 				}
 				if (element instanceof IUElement) {
 					if (((IUElement) element).shouldShowVersion())

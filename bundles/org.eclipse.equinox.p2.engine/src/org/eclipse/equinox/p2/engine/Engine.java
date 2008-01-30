@@ -115,7 +115,7 @@ public class Engine {
 
 		if (propertyOperand instanceof InstallableUnitPropertyOperand) {
 			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
-			profile.internalSetInstallableUnitProfileProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), (String) iuPropertyOperand.second());
+			profile.internalSetInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), (String) iuPropertyOperand.second());
 		} else {
 			profile.internalSetValue(propertyOperand.getKey(), (String) propertyOperand.second());
 		}
@@ -125,7 +125,7 @@ public class Engine {
 	private void removeProfileProperty(Profile profile, PropertyOperand propertyOperand) {
 		if (propertyOperand instanceof InstallableUnitPropertyOperand) {
 			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
-			profile.internalSetInstallableUnitProfileProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), null);
+			profile.internalSetInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), null);
 		} else {
 			profile.internalSetValue(propertyOperand.getKey(), null);
 		}
@@ -138,7 +138,7 @@ public class Engine {
 	private void snapshotIUProperties(Profile profile, InstallableUnitOperand[] operands) {
 		for (int i = 0; i < operands.length; i++) {
 			if (operands[i].first() != null && operands[i].second() != null) {
-				snapshot.put(operands[i].first(), profile.getInstallableUnitProfileProperties(operands[i].first()));
+				snapshot.put(operands[i].first(), profile.getInstallableUnitProperties(operands[i].first()));
 			}
 		}
 	}
@@ -152,7 +152,7 @@ public class Engine {
 				Enumeration enumProps = prop.keys();
 				while (enumProps.hasMoreElements()) {
 					String key = (String) enumProps.nextElement();
-					profile.internalSetInstallableUnitProfileProperty(operands[i].second(), key, (String) prop.get(key));
+					profile.internalSetInstallableUnitProperty(operands[i].second(), key, (String) prop.get(key));
 					prop.remove(key);
 				}
 			}

@@ -155,31 +155,31 @@ public class ProfileGroup {
 			id.setText(value);
 
 			// The remaining values may be null
-			value = profile.getValue(Profile.PROP_INSTALL_FOLDER);
+			value = profile.getProperty(Profile.PROP_INSTALL_FOLDER);
 			if (value != null) {
 				location.setText(value);
 			}
-			value = profile.getValue(Profile.PROP_CACHE);
+			value = profile.getProperty(Profile.PROP_CACHE);
 			if (value != null) {
 				cache.setText(value);
 			}
 
-			value = profile.getValue(Profile.PROP_NAME);
+			value = profile.getProperty(Profile.PROP_NAME);
 			if (value != null) {
 				name.setText(value);
 			}
-			value = profile.getValue(Profile.PROP_DESCRIPTION);
+			value = profile.getProperty(Profile.PROP_DESCRIPTION);
 			if (value != null) {
 				description.setText(value);
 			}
-			value = profile.getValue(Profile.PROP_FLAVOR);
+			value = profile.getProperty(Profile.PROP_FLAVOR);
 			flavor.setText(value != null ? value : ProfileFactory.getDefaultFlavor());
 
-			value = profile.getValue(Profile.PROP_ENVIRONMENTS);
+			value = profile.getProperty(Profile.PROP_ENVIRONMENTS);
 			if (value != null) {
 				environments.setText(value);
 			}
-			value = profile.getValue(Profile.PROP_NL);
+			value = profile.getProperty(Profile.PROP_NL);
 			if (value != null) {
 				nl.setText(value);
 			}

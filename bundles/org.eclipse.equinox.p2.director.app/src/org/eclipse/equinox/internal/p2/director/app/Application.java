@@ -149,7 +149,7 @@ public class Application implements IApplication {
 		if (env != null)
 			props.setProperty(Profile.PROP_ENVIRONMENTS, env);
 		Profile profile = ProvisioningHelper.addProfile(profileId, props);
-		String currentFlavor = profile.getValue(Profile.PROP_FLAVOR);
+		String currentFlavor = profile.getProperty(Profile.PROP_FLAVOR);
 		if (currentFlavor != null && !currentFlavor.endsWith(flavor))
 			throw new RuntimeException(Messages.Inconsistent_flavor);
 

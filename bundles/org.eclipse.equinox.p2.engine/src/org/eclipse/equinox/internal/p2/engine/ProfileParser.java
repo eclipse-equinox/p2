@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.p2.engine.Profile;
 import org.osgi.framework.BundleContext;
@@ -30,20 +29,16 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 
 		private final String[] required = new String[] {ID_ATTRIBUTE};
 
-		List profyles = null;
-		Profile currentProfile = null;
-
+		private final Map profileHandlers;
 		private String profileId = null;
-
+		private String parentId;
 		private PropertiesHandler propertiesHandler = null;
-		private ProfilesHandler profilesHandler = null;
 
-		public ProfileHandler(AbstractHandler parentHandler, Attributes attributes, Profile parent, List profiles) {
+		public ProfileHandler(AbstractHandler parentHandler, Attributes attributes, Map profileHandlers) {
 			super(parentHandler, PROFILE_ELEMENT);
 			profileId = parseRequiredAttributes(attributes, required)[0];
-			this.profyles = profiles;
-			currentProfile = new Profile((profileId != null ? profileId : "##invalid##"), parent); //$NON-NLS-1$
-			profiles.add(currentProfile);
+			parentId = parseOptionalAttribute(attributes, PARENT_ID_ATTRIBUTE);
+			this.profileHandlers = profileHandlers;
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -53,45 +48,74 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 				} else {
 					duplicateElement(this, name, attributes);
 				}
-			} else if (name.equals(PROFILES_ELEMENT)) {
-				if (profilesHandler == null) {
-					profilesHandler = new ProfilesHandler(this, attributes, currentProfile);
-				} else {
-					duplicateElement(this, name, attributes);
-				}
 			} else {
 				invalidElement(name, attributes);
 			}
 		}
 
 		protected void finished() {
-			if (isValidXML() && currentProfile != null) {
-				if (propertiesHandler != null) {
-					currentProfile.internalAddProperties(propertiesHandler.getProperties());
-				}
+			if (isValidXML()) {
+				profileHandlers.put(profileId, this);
 			}
+		}
+
+		public String getProfileId() {
+			return profileId;
+		}
+
+		public String getParentId() {
+			return parentId;
+		}
+
+		public Map getProperties() {
+			if (propertiesHandler == null)
+				return null;
+			return propertiesHandler.getProperties();
 		}
 	}
 
 	protected class ProfilesHandler extends AbstractHandler {
 
-		private Profile parentProfile = null;
-		private List profyles = null;
+		private Map profileHandlers = null;
+		private Map profiles;
 
-		public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes, Profile parent) {
+		public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes) {
 			super(parentHandler, PROFILES_ELEMENT);
-			this.parentProfile = parent;
 			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			profyles = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+			profileHandlers = (size != null ? new HashMap(new Integer(size).intValue()) : new HashMap(4));
 		}
 
 		public Profile[] getProfiles() {
-			return (Profile[]) profyles.toArray(new Profile[profyles.size()]);
+			if (profileHandlers.isEmpty())
+				return new Profile[0];
+
+			profiles = new HashMap();
+			for (Iterator it = profileHandlers.keySet().iterator(); it.hasNext();) {
+				String profileId = (String) it.next();
+				addProfile(profileId);
+			}
+
+			return (Profile[]) profiles.values().toArray(new Profile[profiles.size()]);
+		}
+
+		private void addProfile(String profileId) {
+			if (profiles.containsKey(profileId))
+				return;
+
+			ProfileHandler profileHandler = (ProfileHandler) profileHandlers.get(profileId);
+			Profile parentProfile = null;
+			String parentId = profileHandler.parentId;
+			if (parentId != null) {
+				addProfile(parentId);
+				parentProfile = (Profile) profiles.get(parentId);
+			}
+			Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
+			profiles.put(profileId, profile);
 		}
 
 		public void startElement(String name, Attributes attributes) {
 			if (name.equals(PROFILE_ELEMENT)) {
-				new ProfileHandler(this, attributes, parentProfile, profyles);
+				new ProfileHandler(this, attributes, profileHandlers);
 			} else {
 				invalidElement(name, attributes);
 			}

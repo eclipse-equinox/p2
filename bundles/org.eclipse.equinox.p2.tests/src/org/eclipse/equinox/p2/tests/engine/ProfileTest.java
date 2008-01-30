@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.engine.ProfileParser;
 import org.eclipse.equinox.internal.p2.engine.ProfileWriter;
@@ -56,25 +56,17 @@ public class ProfileTest extends AbstractProvisioningTest {
 	public void testNestedProfileStructure() {
 		Profile parent = createProfile("parent");
 		Profile child = createProfile("child", parent);
-		assertTrue("Parentless profile should be a root.", parent.isARootProfile());
-		assertFalse("Child profile should not be a root.", child.isARootProfile());
+		assertTrue("Parentless profile should be a root.", parent.isRootProfile());
+		assertFalse("Child profile should not be a root.", child.isRootProfile());
 		assertTrue("Parent should be parent of child", child.getParentProfile() == parent);
-		assertTrue("Parent should have one child.", parent.getSubProfiles().length == 1);
-		assertTrue("Child should have no children.", child.getSubProfiles().length == 0);
+		assertTrue("Parent should have one child.", parent.getSubProfileIds().length == 1);
+		assertTrue("Child should have no children.", child.getSubProfileIds().length == 0);
 
 		Profile grandchild = createProfile("grand", child);
-		assertFalse("Grandchild profile should not be a root.", grandchild.isARootProfile());
-		assertTrue("Parent should have one child.", parent.getSubProfiles().length == 1);
-		assertTrue("Child should have one child.", child.getSubProfiles().length == 1);
+		assertFalse("Grandchild profile should not be a root.", grandchild.isRootProfile());
+		assertTrue("Parent should have one child.", parent.getSubProfileIds().length == 1);
+		assertTrue("Child should have one child.", child.getSubProfileIds().length == 1);
 		assertTrue("Grandparent of grandchild should be parent of child.", grandchild.getParentProfile().getParentProfile() == parent);
-		try {
-			// Add a subprofile with id collision.
-			createProfile("grand", child);
-		} catch (IllegalArgumentException expected) {
-			assertTrue("Child should have one child.", child.getSubProfiles().length == 1);
-			return;
-		}
-		fail();
 	}
 
 	/*	The test profile has the following structure and properties where
@@ -116,95 +108,115 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 	// Create the profiles and test get after set
 	// for associated properties.
-	private Profile createTestProfile() {
-		Profile parent = createProfile(parentId);
-		parent.internalSetValue(key, parentValue);
-		assertTrue(parentValue.equals(parent.getValue(key)));
-		parent.internalSetValue(otherKey, otherValue);
-		assertTrue(otherValue.equals(parent.getValue(otherKey)));
+	private Profile[] createTestProfiles() {
 
-		Profile child0 = createProfile(child0Id, parent);
-		child0.internalSetValue(key, child0Value);
-		assertTrue(child0Value.equals(child0.getValue(key)));
+		Map properties = new HashMap();
 
-		Profile child1 = createProfile(child1Id, parent);
+		properties.put(key, parentValue);
+		properties.put(otherKey, otherValue);
+		Profile parent = createProfile(parentId, null, properties);
+		properties.clear();
+		assertTrue(parentValue.equals(parent.getProperty(key)));
+		assertTrue(otherValue.equals(parent.getProperty(otherKey)));
+
+		properties.put(key, child0Value);
+		Profile child0 = createProfile(child0Id, parent, properties);
+		properties.clear();
+		assertTrue(child0Value.equals(child0.getProperty(key)));
+
+		Profile child1 = createProfile(child1Id, parent, properties);
 		// no value in child1
 
-		Profile grandchild00 = createProfile(grandchild00Id, child0);
-		grandchild00.internalSetValue(key, grandchild00Value);
-		assertTrue(grandchild00Value.equals(grandchild00.getValue(key)));
+		properties.put(key, grandchild00Value);
+		Profile grandchild00 = createProfile(grandchild00Id, child0, properties);
+		properties.clear();
+		assertTrue(grandchild00Value.equals(grandchild00.getProperty(key)));
 
 		Profile grandchild01 = createProfile(grandchild01Id, child0);
 		// no value in grandchild01
 
-		Profile grandchild02 = createProfile(grandchild02Id, child0);
-		grandchild02.internalSetValue(otherKey, grandchild02Value);
-		assertTrue(grandchild02Value.equals(grandchild02.getValue(otherKey)));
+		properties.put(otherKey, grandchild02Value);
+		Profile grandchild02 = createProfile(grandchild02Id, child0, properties);
+		properties.clear();
+		assertTrue(grandchild02Value.equals(grandchild02.getProperty(otherKey)));
 
-		Profile grandchild10 = createProfile(grandchild10Id, child1);
-		grandchild10.internalSetValue(key, grandchild10Value);
-		assertTrue(grandchild10Value.equals(grandchild10.getValue(key)));
+		properties.put(key, grandchild10Value);
+		Profile grandchild10 = createProfile(grandchild10Id, child1, properties);
+		properties.clear();
+		assertTrue(grandchild10Value.equals(grandchild10.getProperty(key)));
 
 		Profile grandchild11 = createProfile(grandchild11Id, child1);
 		// no value in grandchild11
 
-		return parent;
+		parent = getProfile(parentId);
+		child0 = getProfile(child0Id);
+		child1 = getProfile(child1Id);
+		grandchild00 = getProfile(grandchild00Id);
+		grandchild01 = getProfile(grandchild01Id);
+		grandchild02 = getProfile(grandchild02Id);
+		grandchild10 = getProfile(grandchild10Id);
+		grandchild11 = getProfile(grandchild11Id);
+
+		Profile[] profiles = {parent, child0, child1, grandchild00, grandchild01, grandchild02, grandchild10, grandchild11};
+		return profiles;
 	}
 
 	public void testNestedProfileProperties() {
-		validateProfile(createTestProfile());
+		validateProfiles(createTestProfiles());
 	}
 
-	public void validateProfile(Profile profile) {
-		assertTrue(parentId.equals(profile.getProfileId()));
-		assertTrue("Profile should have 3 local properties", profile.getProperties().size() == 3);
-		assertTrue(parentValue.equals(profile.getValue(key)));
-		assertTrue(otherValue.equals(profile.getValue(otherKey)));
-		assertTrue("Parent should have 2 children.", profile.getSubProfiles().length == 2);
+	public void validateProfiles(Profile[] profiles) {
+		Profile parent = profiles[0];
+		Profile child0 = profiles[1];
+		Profile child1 = profiles[2];
+		Profile grandchild00 = profiles[3];
+		Profile grandchild01 = profiles[4];
+		Profile grandchild02 = profiles[5];
+		Profile grandchild10 = profiles[6];
+		Profile grandchild11 = profiles[7];
 
-		Profile child0 = profile.getSubProfiles()[0];
+		assertTrue(parentId.equals(parent.getProfileId()));
+		assertTrue("Profile should have 3 local properties", parent.getLocalProperties().size() == 3);
+		assertTrue(parentValue.equals(parent.getProperty(key)));
+		assertTrue(otherValue.equals(parent.getProperty(otherKey)));
+		assertTrue("Parent should have 2 children.", parent.getSubProfileIds().length == 2);
+
 		assertTrue(child0Id.equals(child0.getProfileId()));
-		assertTrue("First Child should have 1 local properties.", child0.getProperties().size() == 1);
-		assertTrue(child0Value.equals(child0.getValue(key)));
-		assertTrue(otherValue.equals(child0.getValue(otherKey)));
-		assertTrue("First Child should have 3 children.", child0.getSubProfiles().length == 3);
-		Profile grandchild00 = child0.getSubProfiles()[0];
-		Profile grandchild01 = child0.getSubProfiles()[1];
-		Profile grandchild02 = child0.getSubProfiles()[2];
+		assertTrue("First Child should have 1 local properties.", child0.getLocalProperties().size() == 1);
+		assertTrue(child0Value.equals(child0.getProperty(key)));
+		assertTrue(otherValue.equals(child0.getProperty(otherKey)));
+		assertTrue("First Child should have 3 children.", child0.getSubProfileIds().length == 3);
 
-		Profile child1 = profile.getSubProfiles()[1];
 		assertTrue(child1Id.equals(child1.getProfileId()));
-		assertTrue("Second Child should have 0 local properties.", child1.getProperties().size() == 0);
-		assertTrue(parentValue.equals(child1.getValue(key)));
-		assertTrue(otherValue.equals(child1.getValue(otherKey)));
-		assertTrue("Second Child should have 2 children.", child1.getSubProfiles().length == 2);
-		Profile grandchild10 = child1.getSubProfiles()[0];
-		Profile grandchild11 = child1.getSubProfiles()[1];
+		assertTrue("Second Child should have 0 local properties.", child1.getLocalProperties().size() == 0);
+		assertTrue(parentValue.equals(child1.getProperty(key)));
+		assertTrue(otherValue.equals(child1.getProperty(otherKey)));
+		assertTrue("Second Child should have 2 children.", child1.getSubProfileIds().length == 2);
 
 		assertTrue(grandchild00Id.equals(grandchild00.getProfileId()));
-		assertTrue("First Grandchild of first Child should have 1 property.", grandchild00.getProperties().size() == 1);
-		assertTrue(grandchild00Value.equals(grandchild00.getValue(key)));
-		assertTrue(otherValue.equals(grandchild00.getValue(otherKey)));
+		assertTrue("First Grandchild of first Child should have 1 property.", grandchild00.getLocalProperties().size() == 1);
+		assertTrue(grandchild00Value.equals(grandchild00.getProperty(key)));
+		assertTrue(otherValue.equals(grandchild00.getProperty(otherKey)));
 
 		assertTrue(grandchild01Id.equals(grandchild01.getProfileId()));
-		assertTrue("Second Grandchild of first Child should have 0 properties.", grandchild01.getProperties().size() == 0);
-		assertTrue(child0Value.equals(grandchild01.getValue(key)));
-		assertTrue(otherValue.equals(grandchild01.getValue(otherKey)));
+		assertTrue("Second Grandchild of first Child should have 0 properties.", grandchild01.getLocalProperties().size() == 0);
+		assertTrue(child0Value.equals(grandchild01.getProperty(key)));
+		assertTrue(otherValue.equals(grandchild01.getProperty(otherKey)));
 
 		assertTrue(grandchild02Id.equals(grandchild02.getProfileId()));
-		assertTrue("Third Grandchild of first Child should have 1 property.", grandchild02.getProperties().size() == 1);
-		assertTrue(child0Value.equals(grandchild02.getValue(key)));
-		assertTrue(grandchild02Value.equals(grandchild02.getValue(otherKey)));
+		assertTrue("Third Grandchild of first Child should have 1 property.", grandchild02.getLocalProperties().size() == 1);
+		assertTrue(child0Value.equals(grandchild02.getProperty(key)));
+		assertTrue(grandchild02Value.equals(grandchild02.getProperty(otherKey)));
 
 		assertTrue(grandchild10Id.equals(grandchild10.getProfileId()));
-		assertTrue("First Grandchild of second Child should have 1 property.", grandchild10.getProperties().size() == 1);
-		assertTrue(grandchild10Value.equals(grandchild10.getValue(key)));
-		assertTrue(otherValue.equals(grandchild10.getValue(otherKey)));
+		assertTrue("First Grandchild of second Child should have 1 property.", grandchild10.getLocalProperties().size() == 1);
+		assertTrue(grandchild10Value.equals(grandchild10.getProperty(key)));
+		assertTrue(otherValue.equals(grandchild10.getProperty(otherKey)));
 
 		assertTrue(grandchild11Id.equals(grandchild11.getProfileId()));
-		assertTrue("Second Grandchild of second Child should have 0 properties.", grandchild11.getProperties().size() == 0);
-		assertTrue(parentValue.equals(grandchild11.getValue(key)));
-		assertTrue(otherValue.equals(grandchild11.getValue(otherKey)));
+		assertTrue("Second Grandchild of second Child should have 0 properties.", grandchild11.getLocalProperties().size() == 0);
+		assertTrue(parentValue.equals(grandchild11.getProperty(key)));
+		assertTrue(otherValue.equals(grandchild11.getProperty(otherKey)));
 	}
 
 	private static String PROFILE_TEST_TARGET = "profileTest";
@@ -218,29 +230,30 @@ public class ProfileTest extends AbstractProvisioningTest {
 			super(stream, new ProcessingInstruction[] {ProcessingInstruction.makeClassVersionInstruction(PROFILE_TEST_TARGET, Profile.class, PROFILE_TEST_VERSION)});
 		}
 
-		public void writeTest(Profile profile) {
+		public void writeTest(Profile[] profiles) {
 			start(PROFILE_TEST_ELEMENT);
-			writeProfile(profile);
+			writeProfiles(profiles);
 			end(PROFILE_TEST_ELEMENT);
 		}
 	}
 
 	class ProfileStringParser extends ProfileParser {
 
+		private Profile[] profiles = null;
+
 		public ProfileStringParser(BundleContext context, String bundleId) {
 			super(context, bundleId);
-			// TODO Auto-generated constructor stub
 		}
 
 		public void parse(String profileString) throws IOException {
 			this.status = null;
 			try {
 				getParser();
-				TestHandler testHandler = new TestHandler();
+				TestHandler2 testHandler = new TestHandler2();
 				xmlReader.setContentHandler(new ProfileDocHandler(PROFILE_TEST_ELEMENT, testHandler));
 				xmlReader.parse(new InputSource(new StringReader(profileString)));
 				if (isValidXML()) {
-					theProfile = testHandler.getProfile();
+					profiles = testHandler.profiles;
 				}
 			} catch (SAXException e) {
 				throw new IOException(e.getMessage());
@@ -248,8 +261,6 @@ public class ProfileTest extends AbstractProvisioningTest {
 				fail();
 			}
 		}
-
-		private Profile theProfile = null;
 
 		private final class ProfileDocHandler extends DocHandler {
 
@@ -276,29 +287,18 @@ public class ProfileTest extends AbstractProvisioningTest {
 			}
 		}
 
-		private final class TestHandler extends RootHandler {
+		private final class TestHandler2 extends RootHandler {
 
-			private ProfileHandler profileHandler = null;
-
-			private Profile profile = null;
-			private List singleton = new ArrayList(1);
-
-			public TestHandler() {
-				super();
-			}
-
-			public Profile getProfile() {
-				return profile;
-			}
+			private ProfilesHandler profilesHandler;
+			Profile[] profiles;
 
 			protected void handleRootAttributes(Attributes attributes) {
-				String[] values = parseAttributes(attributes, noAttributes, noAttributes);
 			}
 
-			public void startElement(String name, Attributes attributes) {
-				if (PROFILE_ELEMENT.equals(name)) {
-					if (profileHandler == null) {
-						profileHandler = new ProfileHandler(this, attributes, null, singleton);
+			public void startElement(String name, Attributes attributes) throws SAXException {
+				if (PROFILES_ELEMENT.equals(name)) {
+					if (profilesHandler == null) {
+						profilesHandler = new ProfilesHandler(this, attributes);
 					} else {
 						duplicateElement(this, name, attributes);
 					}
@@ -309,38 +309,93 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 			protected void finished() {
 				if (isValidXML()) {
-					if (profileHandler != null && singleton.size() == 1) {
-						profile = (Profile) singleton.get(0);
+					if (profilesHandler != null) {
+						profiles = profilesHandler.getProfiles();
 					}
 				}
 			}
+
 		}
+
+		//		private final class TestHandler extends RootHandler {
+		//
+		//			private ProfileHandler profileHandler = null;
+		//
+		//			private Profile profile = null;
+		//			private Map singleton = new HashMap(1);
+		//
+		//			public TestHandler() {
+		//				super();
+		//			}
+		//
+		//			public Profile getProfile() {
+		//				return profile;
+		//			}
+		//
+		//			protected void handleRootAttributes(Attributes attributes) {
+		//				String[] values = parseAttributes(attributes, noAttributes, noAttributes);
+		//			}
+		//
+		//			public void startElement(String name, Attributes attributes) {
+		//				if (PROFILE_ELEMENT.equals(name)) {
+		//					if (profileHandler == null) {
+		//						profileHandler = new ProfileHandler(this, attributes, singleton);
+		//					} else {
+		//						duplicateElement(this, name, attributes);
+		//					}
+		//				} else {
+		//					invalidElement(name, attributes);
+		//				}
+		//			}
+		//
+		//			protected void finished() {
+		//				if (isValidXML()) {
+		//					if (profileHandler != null && singleton.size() == 1) {
+		//						profile = new Profile(profileHandler.getProfileId(), null, profileHandler.getProperties());
+		//					}
+		//				}
+		//			}
+		//		}
 
 		protected String getErrorMessage() {
 			return "Error parsing profile string";
 		}
 
 		protected Object getRootObject() {
-			return theProfile;
+			Map result = new HashMap();
+			for (int i = 0; i < profiles.length; i++) {
+				result.put(profiles[i].getProfileId(), profiles[i]);
+			}
+			return result;
 		}
 	}
 
 	public void testProfilePersistence() throws IOException {
-		Profile profile0 = createTestProfile();
+		Profile[] testProfiles = createTestProfiles();
 		ByteArrayOutputStream output0 = new ByteArrayOutputStream(1492);
 		ProfileStringWriter writer0 = new ProfileStringWriter(output0);
-		writer0.writeTest(profile0);
+		writer0.writeTest(testProfiles);
 		String profileText0 = output0.toString();
 		output0.close();
 
 		ProfileStringParser parser = new ProfileStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
 		parser.parse(profileText0);
 		assertTrue("Error parsing test profile: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
-		Profile profile1 = (Profile) parser.getRootObject();
-		validateProfile(profile1);
+		Map profileMap = (Map) parser.getRootObject();
+		Profile parent = (Profile) profileMap.get(parentId);
+		Profile child0 = (Profile) profileMap.get(child0Id);
+		Profile child1 = (Profile) profileMap.get(child1Id);
+		Profile grandchild00 = (Profile) profileMap.get(grandchild00Id);
+		Profile grandchild01 = (Profile) profileMap.get(grandchild01Id);
+		Profile grandchild02 = (Profile) profileMap.get(grandchild02Id);
+		Profile grandchild10 = (Profile) profileMap.get(grandchild10Id);
+		Profile grandchild11 = (Profile) profileMap.get(grandchild11Id);
+		Profile[] profiles = {parent, child0, child1, grandchild00, grandchild01, grandchild02, grandchild10, grandchild11};
+		validateProfiles(profiles);
 		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
 		ProfileStringWriter writer = new ProfileStringWriter(output1);
-		writer.writeTest(profile1);
+
+		writer.writeTest(profiles);
 		String profileText1 = output1.toString();
 		output1.close();
 		assertTrue("Profile write after read after write produced different XML", profileText1.equals(profileText0));

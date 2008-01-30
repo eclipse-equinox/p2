@@ -54,7 +54,7 @@ public class Util {
 	}
 
 	static URL getBundlePoolLocation(Profile profile) {
-		String path = profile.getValue(CACHE_PATH);
+		String path = profile.getProperty(CACHE_PATH);
 		if (path == null)
 			path = Activator.getContext().getProperty(CACHE_PATH);
 		if (path != null)
@@ -136,21 +136,21 @@ public class Util {
 	}
 
 	static File getConfigurationFolder(Profile profile) {
-		String config = profile.getValue(CONFIG_FOLDER);
+		String config = profile.getProperty(CONFIG_FOLDER);
 		if (config != null)
 			return new File(config);
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
 	}
 
 	static File getInstallFolder(Profile profile) {
-		return new File(profile.getValue(Profile.PROP_INSTALL_FOLDER));
+		return new File(profile.getProperty(Profile.PROP_INSTALL_FOLDER));
 	}
 
 	/**
 	 * Returns the name of the Eclipse application launcher.
 	 */
 	static String getLauncherName(Profile profile) {
-		String name = profile.getValue(FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME);
+		String name = profile.getProperty(FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME);
 		if (name != null)
 			return name;
 		//create a default name based on platform

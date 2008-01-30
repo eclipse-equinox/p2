@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
+import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
@@ -83,9 +84,9 @@ public class Profile implements IQueryable {
 	/**
 	 * 	A collection of child profiles.
 	 */
-	private Map subProfiles = null; // Map profile id -> child profiles
+	private List subProfileIds = null; // child profile ids
 
-	private static Profile[] noSubProfiles = new Profile[0];
+	private static String[] noSubProfiles = new String[0];
 	/**
 	 * This storage is to be used by the touchpoints to store data.
 	 */
@@ -112,7 +113,7 @@ public class Profile implements IQueryable {
 		this.profileId = profileId;
 		this.parentProfile = parent;
 		if (parent != null) {
-			parent.addSubprofile(this);
+			parent.addSubProfile(profileId);
 		}
 		if (properties != null)
 			storage.putAll(properties);
@@ -148,8 +149,10 @@ public class Profile implements IQueryable {
 	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
 
 	private void checkUpdateCompatibility() {
-		if (getValue(PROP_INSTALL_FEATURES) == null) {
-			String updateCompatible = System.getProperty(UPDATE_COMPATIBILITY, "false"); //$NON-NLS-1$
+		if (getProperty(PROP_INSTALL_FEATURES) == null) {
+			String updateCompatible = Activator.getContext().getProperty(UPDATE_COMPATIBILITY);
+			if (updateCompatible == null)
+				updateCompatible = Boolean.FALSE.toString();
 			internalSetValue(PROP_INSTALL_FEATURES, updateCompatible);
 		}
 	}
@@ -166,29 +169,35 @@ public class Profile implements IQueryable {
 	 * 	A profile is a root profile if it is not a sub-profile
 	 * 	of another profile.
 	 */
-	public boolean isARootProfile() {
-		return (parentProfile == null ? true : false);
+	public boolean isRootProfile() {
+		return parentProfile == null;
 	}
 
-	protected void addSubprofile(Profile subprofile) throws IllegalArgumentException {
-		if (subProfiles == null) {
-			subProfiles = new LinkedHashMap(2);
-		}
-		if (subProfiles.containsKey(subprofile.getProfileId())) {
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Child_Profile_Id, new String[] {subprofile.getProfileId(), this.getProfileId()}));
-		}
-		subProfiles.put(subprofile.getProfileId(), subprofile);
+	public void addSubProfile(String subProfileId) throws IllegalArgumentException {
+		if (subProfileIds == null)
+			subProfileIds = new ArrayList();
+
+		if (!subProfileIds.contains(subProfileId))
+			subProfileIds.add(subProfileId);
+
+		//		if (!subProfileIds.add(subProfileId))
+		//			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Child_Profile_Id, new String[] {subProfileId, this.getProfileId()}));
+	}
+
+	public void removeSubProfile(String subProfileId) throws IllegalArgumentException {
+		if (subProfileIds != null)
+			subProfileIds.remove(subProfileId);
 	}
 
 	public boolean hasSubProfiles() {
-		return (subProfiles != null ? !subProfiles.isEmpty() : false);
+		return subProfileIds == null || subProfileIds.isEmpty();
 	}
 
-	public Profile[] getSubProfiles() {
-		if (subProfiles == null)
+	public String[] getSubProfileIds() {
+		if (subProfileIds == null)
 			return noSubProfiles;
-		Collection values = subProfiles.values();
-		return (Profile[]) values.toArray(new Profile[values.size()]);
+
+		return (String[]) subProfileIds.toArray(new String[subProfileIds.size()]);
 	}
 
 	/**
@@ -201,10 +210,10 @@ public class Profile implements IQueryable {
 	 *  <code>null</code> is return if none of this profile
 	 *  or its ancestors associates a value with the key.
 	 */
-	public String getValue(String key) {
+	public String getProperty(String key) {
 		String value = storage.getProperty(key);
 		if (value == null && parentProfile != null) {
-			value = parentProfile.getValue(key);
+			value = parentProfile.getProperty(key);
 		}
 		return value;
 	}
@@ -215,7 +224,7 @@ public class Profile implements IQueryable {
 	 * 	No traversal of the ancestor hierarchy is done
 	 * 	for sub-profiles.
 	 */
-	public String getLocalValue(String key) {
+	public String getLocalProperty(String key) {
 		return storage.getProperty(key);
 	}
 
@@ -228,26 +237,15 @@ public class Profile implements IQueryable {
 		changed = true;
 	}
 
-	//	public Dictionary getSelectionContext() {
-	//		Hashtable result = new Hashtable(storage);
-	//		String environments = getValue(PROP_ENVIRONMENTS);
-	//		if (environments == null)
-	//			return result;
-	//		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
-	//			String entry = tokenizer.nextToken();
-	//			int i = entry.indexOf('=');
-	//			String key = entry.substring(0, i).trim();
-	//			String value = entry.substring(i + 1).trim();
-	//			result.put(key, value);
-	//		}
-	//		return result;
-	//	}
+	public Map internalGetLocalProperties() {
+		return storage;
+	}
 
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(iuProperties.keySet().iterator(), collector);
 	}
 
-	public String getInstallableUnitProfileProperty(IInstallableUnit iu, String key) {
+	public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null)
 			return null;
@@ -255,7 +253,7 @@ public class Profile implements IQueryable {
 		return properties.getProperty(key);
 	}
 
-	public String internalSetInstallableUnitProfileProperty(IInstallableUnit iu, String key, String value) {
+	public String internalSetInstallableUnitProperty(IInstallableUnit iu, String key, String value) {
 		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null) {
 			properties = new OrderedProperties();
@@ -278,8 +276,17 @@ public class Profile implements IQueryable {
 	 * 
 	 * @return an <i>unmodifiable copy</i> of the Profile properties.
 	 */
-	public Map getProperties() {
+	public Map getLocalProperties() {
 		return OrderedProperties.unmodifiableProperties(storage);
+	}
+
+	public Map getProperties() {
+		if (parentProfile == null)
+			return getLocalProperties();
+
+		Map properties = new HashMap(parentProfile.getProperties());
+		properties.putAll(storage);
+		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
 	/**
@@ -304,7 +311,7 @@ public class Profile implements IQueryable {
 			changed = true;
 	}
 
-	public OrderedProperties getInstallableUnitProfileProperties(IInstallableUnit iu) {
+	public OrderedProperties getInstallableUnitProperties(IInstallableUnit iu) {
 		return (OrderedProperties) iuProperties.get(iu);
 	}
 

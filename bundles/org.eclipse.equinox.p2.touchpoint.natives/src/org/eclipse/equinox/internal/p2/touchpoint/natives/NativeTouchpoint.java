@@ -127,7 +127,7 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	private String getInstallFolder(Profile profile) {
-		return profile.getValue(Profile.PROP_INSTALL_FOLDER);
+		return profile.getProperty(Profile.PROP_INSTALL_FOLDER);
 	}
 
 	private static AgentLocation getAgentLocation() {
@@ -208,7 +208,7 @@ public class NativeTouchpoint extends Touchpoint {
 		for (int i = 0; i < unzippedFiles.length; i++)
 			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append("|");
 
-		String unzipped = profile.internalSetInstallableUnitProfileProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
+		String unzipped = profile.internalSetInstallableUnitProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
 
 		return Status.OK_STATUS;
 	}
@@ -224,7 +224,7 @@ public class NativeTouchpoint extends Touchpoint {
 		IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
 		Profile profile = (Profile) parameters.get("profile");
 
-		String unzipped = profile.getInstallableUnitProfileProperty(iu, "unzipped" + "|" + source + "|" + target);
+		String unzipped = profile.getInstallableUnitProperty(iu, "unzipped" + "|" + source + "|" + target);
 
 		if (unzipped == null)
 			return Status.OK_STATUS;
