@@ -11,7 +11,8 @@ package org.eclipse.equinox.frameworkadmin.equinox.internal;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Properties;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -23,7 +24,6 @@ public class EquinoxFwConfigFileParser {
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String KEY_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
-	private static final String KEY_OSGI_BUNDLES_EXTRA_DATA = "osgi.bundles.extraData"; //$NON-NLS-1$
 	private static final String KEY_OSGI_FRAMEWORK = "osgi.framework"; //$NON-NLS-1$
 	private static final String KEY_OSGI_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
 	private static final String[] PATHS = new String[] {KEY_OSGI_LAUNCHER_PATH, KEY_ECLIPSE_PROV_CACHE};
@@ -107,7 +107,6 @@ public class EquinoxFwConfigFileParser {
 					sb.append(",");
 			}
 			props.setProperty(EquinoxConstants.PROP_BUNDLES, sb.toString());
-			setOSGiBundlesExtraData(props, bInfos);
 
 		}
 		//TODO The following merging operations are suspicious.
@@ -132,12 +131,6 @@ public class EquinoxFwConfigFileParser {
 			props.remove(EquinoxConstants.PROP_OSGI_FW);
 
 		return props;
-	}
-
-	private static String getExtraDataCommandLine(BundleInfo bundleInfo, final URL baseUrl) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(bundleInfo.getLocation()).append(',').append(bundleInfo.getSymbolicName()).append(',').append(bundleInfo.getVersion());
-		return sb.toString();
 	}
 
 	private static boolean getMarkedAsStartedFormat(String msg, String original) {
@@ -233,18 +226,6 @@ public class EquinoxFwConfigFileParser {
 				configData.addBundle(new BundleInfo(location, startLevel, markedAsStarted));
 			}
 		}
-	}
-
-	private static void setOSGiBundlesExtraData(Properties props, BundleInfo[] bInfos) {
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < bInfos.length; i++) {
-			normalizeLocation(bInfos[i]);
-			sb.append(getExtraDataCommandLine(bInfos[i], null));
-			if (i + 1 < bInfos.length)
-				sb.append(",");
-		}
-		props.setProperty(EquinoxConstants.PROP_BUNDLES_EXTRADATA, sb.toString());
-
 	}
 
 	/**
@@ -346,23 +327,6 @@ public class EquinoxFwConfigFileParser {
 			if (parent != null)
 				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeRelative(value, parent.toURL()));
 		}
-
-		String extra = props.getProperty(KEY_OSGI_BUNDLES_EXTRA_DATA);
-		if (extra != null) {
-			StringBuffer buffer = new StringBuffer();
-			for (StringTokenizer tokenizer = new StringTokenizer(extra, ","); tokenizer.hasMoreTokens();) {
-				String token = tokenizer.nextToken();
-				String absolute = EquinoxManipulatorImpl.makeRelative(token, rootURL);
-				buffer.append(absolute);
-				buffer.append(',');
-				buffer.append(tokenizer.nextToken());
-				buffer.append(',');
-				buffer.append(tokenizer.nextToken());
-				if (tokenizer.hasMoreTokens())
-					buffer.append(',');
-			}
-			props.setProperty(KEY_OSGI_BUNDLES_EXTRA_DATA, buffer.toString());
-		}
 		return props;
 	}
 
@@ -385,24 +349,6 @@ public class EquinoxFwConfigFileParser {
 			if (parent != null)
 				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayAbsolute(value, parent.toURL()));
 		}
-
-		String extra = props.getProperty(KEY_OSGI_BUNDLES_EXTRA_DATA);
-		if (extra != null) {
-			StringBuffer buffer = new StringBuffer();
-			for (StringTokenizer tokenizer = new StringTokenizer(extra, ","); tokenizer.hasMoreTokens();) {
-				String token = tokenizer.nextToken();
-				String absolute = EquinoxManipulatorImpl.makeAbsolute(token, rootURL);
-				buffer.append(absolute);
-				buffer.append(',');
-				buffer.append(tokenizer.nextToken());
-				buffer.append(',');
-				buffer.append(tokenizer.nextToken());
-				if (tokenizer.hasMoreTokens())
-					buffer.append(',');
-			}
-			props.setProperty(KEY_OSGI_BUNDLES_EXTRA_DATA, buffer.toString());
-		}
-
 		return props;
 	}
 

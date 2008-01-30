@@ -41,7 +41,6 @@ public class EquinoxConstants {
 	public static final String PROP_INSTALL = "osgi.install"; //$NON-NLS-1$
 	public static final String PROP_ECLIPSE_COMMANDS = "eclipse.commands"; //$NON-NLS-1$
 	public static final String PROP_OSGI_FW = "osgi.framework"; //$NON-NLS-1$
-	public static final String PROP_BUNDLES_EXTRADATA = "osgi.bundles.extraData"; //$NON-NLS-1$
 	public static final String PROP_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
 	public static final String PROP_LAUNCHER_NAME = "osgi.launcherIni"; //$NON-NLS-1$
 
