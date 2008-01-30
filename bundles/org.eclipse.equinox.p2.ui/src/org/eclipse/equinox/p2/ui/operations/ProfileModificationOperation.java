@@ -27,14 +27,14 @@ public class ProfileModificationOperation extends ProvisioningOperation {
 	PhaseSet phaseSet;
 	boolean isUser = true;
 
-	public ProfileModificationOperation(String label, String id, ProvisioningPlan plan) {
-		this(label, id, plan, null, true);
+	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan) {
+		this(label, profileId, plan, null, true);
 	}
 
-	public ProfileModificationOperation(String label, String id, ProvisioningPlan plan, PhaseSet set, boolean isUser) {
+	public ProfileModificationOperation(String label, String profileId, ProvisioningPlan plan, PhaseSet set, boolean isUser) {
 		super(label);
 		this.plan = plan;
-		this.profileId = id;
+		this.profileId = profileId;
 		this.isUser = isUser;
 		if (set == null)
 			phaseSet = new DefaultPhaseSet();

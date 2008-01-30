@@ -235,7 +235,7 @@ public class ProfilesView extends ProvView {
 		return list;
 	}
 
-	private String[] getKnownProfileIds() {
+	String[] getKnownProfileIds() {
 		try {
 			Profile[] allProfiles = ProvisioningUtil.getProfiles();
 			String[] ids = new String[allProfiles.length];

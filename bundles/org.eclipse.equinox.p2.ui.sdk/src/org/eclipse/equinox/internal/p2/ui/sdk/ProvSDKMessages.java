@@ -107,6 +107,7 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvisioningPreferencePage_enableGC;
 	public static String ProvisioningPreferencePage_gcImmediately;
 	public static String ProvisioningPreferencePage_gcRetentionTime;
+	public static String ProvSDKUIActivator_ErrorWritingLicenseRegistry;
 	public static String ProvSDKUIActivator_LicenseManagerReadError;
 	public static String ProvSDKUIActivator_NoSelfProfile;
 }

@@ -19,7 +19,16 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  */
 public interface IUElement {
 
+	/**
+	 * Indicates that the size is currently unknown
+	 */
 	public static final long SIZE_UNKNOWN = -1L;
+
+	/**
+	 * Indicates that the size is unavailable (it was
+	 * unknown but could not be computed.)
+	 */
+	public static final long SIZE_UNAVAILABLE = -2L;
 
 	public IInstallableUnit getIU();
 

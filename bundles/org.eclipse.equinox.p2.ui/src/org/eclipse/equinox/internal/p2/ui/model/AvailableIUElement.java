@@ -79,9 +79,13 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 		try {
 			ProvisioningPlan plan = getSizingPlan();
 			Sizing info = ProvisioningUtil.getSizeInfo(plan, profileID, null);
-			size = info.getDiskSize();
+			if (info == null)
+				size = IUElement.SIZE_UNAVAILABLE;
+			else
+				size = info.getDiskSize();
 		} catch (ProvisionException e) {
 			handleException(e, ProvUIMessages.AvailableIUElement_ProfileNotFound);
+			size = IUElement.SIZE_UNAVAILABLE;
 		}
 	}
 

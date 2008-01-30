@@ -12,19 +12,19 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
 import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
+import org.eclipse.swt.widgets.Text;
 
 public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 
@@ -32,7 +32,7 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 	Object[] initialSelections = new Object[0];
 
 	public UpdateWizardPage(IInstallableUnit[] ius, String profileId, IQueryProvider queryProvider, UpdateOrInstallWizard wizard) {
-		super("UpdateWizardPage", ius, profileId, wizard); //$NON-NLS-1$
+		super("UpdateWizardPage", ius, profileId, null, wizard); //$NON-NLS-1$
 		this.queryProvider = queryProvider;
 		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
@@ -77,23 +77,30 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 		return ProvUIMessages.UpdateIUOperationLabel;
 	}
 
-	protected ProfileModificationOperation createProfileModificationOperation(Object[] selectedElements, IProgressMonitor monitor) {
+	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) {
 		try {
 			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
 			request.removeInstallableUnits(getIUsToReplace(selectedElements));
 			request.addInstallableUnits(elementsToIUs(selectedElements));
-			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
-			IStatus status = plan.getStatus();
-			if (status.isOK())
-				return new ProfileModificationOperation(getOperationLabel(), getProfile().getProfileId(), plan);
-			ProvUI.reportStatus(status);
+			return ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
 		} catch (ProvisionException e) {
 			ProvUI.handleException(e, null);
 		}
 		return null;
 	}
 
-	protected void setInitialSelections() {
+	protected void setInitialCheckState() {
 		listViewer.setCheckedElements(initialSelections);
+	}
+
+	protected void updateDetailsArea(Text details, IInstallableUnit iu) {
+		if (iu != null) {
+			IUpdateDescriptor updateDescriptor = iu.getUpdateDescriptor();
+			if (updateDescriptor != null && updateDescriptor.getDescription() != null && updateDescriptor.getDescription().length() > 0) {
+				details.setText(updateDescriptor.getDescription());
+				return;
+			}
+		}
+		super.updateDetailsArea(details, iu);
 	}
 }

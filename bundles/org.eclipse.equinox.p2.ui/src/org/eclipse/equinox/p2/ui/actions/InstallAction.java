@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.ui.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -60,20 +59,21 @@ public class InstallAction extends ProfileModificationAction {
 		return ProvUIMessages.InstallIUProgress;
 	}
 
-	protected void performOperation(IInstallableUnit[] ius, String targetProfileId) {
-		InstallWizard wizard = new InstallWizard(targetProfileId, ius, getLicenseManager());
+	protected void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+		InstallWizard wizard = new InstallWizard(targetProfileId, ius, plan, getLicenseManager());
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
 		dialog.open();
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
+	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
 		try {
 			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
 			request.addInstallableUnits(ius);
 			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
-			return plan.getStatus();
+			return plan;
 		} catch (ProvisionException e) {
-			return ProvUI.handleException(e, null);
+			ProvUI.handleException(e, null);
+			return null;
 		}
 	}
 }

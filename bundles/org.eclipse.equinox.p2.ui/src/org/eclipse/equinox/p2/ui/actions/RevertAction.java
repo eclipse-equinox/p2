@@ -11,7 +11,7 @@
 
 package org.eclipse.equinox.p2.ui.actions;
 
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -30,28 +30,22 @@ public class RevertAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.REVERT_COMMAND_TOOLTIP);
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] toRevert, String targetProfileId, IProgressMonitor monitor) {
+	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] toRevert, String targetProfileId, IProgressMonitor monitor) {
 		if (toRevert.length == 1) {
 			try {
-				ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toRevert[0], monitor);
-				return plan.getStatus();
+				return ProvisioningUtil.getRevertPlan(toRevert[0], monitor);
 			} catch (ProvisionException e) {
-				return ProvUI.handleException(e, null);
+				ProvUI.handleException(e, null);
+				return null;
 			}
 		}
 		// should never happen
-		return Status.OK_STATUS;
+		return null;
 	}
 
-	protected void performOperation(IInstallableUnit[] toBecome, String targetProfileId) {
-		// TODO bogus because we do this twice...
-		try {
-			ProvisioningPlan plan = ProvisioningUtil.getRevertPlan(toBecome[0], null);
-			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertIUOperationLabel, targetProfileId, plan);
-			ProvisioningOperationRunner.schedule(op, getShell());
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-		}
+	protected void performOperation(IInstallableUnit[] toBecome, String targetProfileId, ProvisioningPlan plan) {
+		ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertIUOperationLabel, targetProfileId, plan);
+		ProvisioningOperationRunner.schedule(op, getShell());
 	}
 
 	/*

@@ -56,7 +56,7 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		this.createGroupComposite(parent);
 	}
 
-	protected StructuredViewer createViewer(Composite parent, IQueryProvider queryProvider) {
+	protected StructuredViewer createViewer(Composite parent) {
 		// Table of installed IU's
 		TableViewer installedIUViewer = new TableViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
@@ -65,14 +65,14 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		installedIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
-		installedIUViewer.setContentProvider(new DeferredQueryContentProvider(queryProvider));
+		installedIUViewer.setContentProvider(new DeferredQueryContentProvider(getQueryProvider()));
 		installedIUViewer.setInput(new ProfileElement(profileId));
 
 		// Now the visuals, columns before labels.
 		setTableColumns(installedIUViewer.getTable());
 		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, queryProvider);
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, getQueryProvider());
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {

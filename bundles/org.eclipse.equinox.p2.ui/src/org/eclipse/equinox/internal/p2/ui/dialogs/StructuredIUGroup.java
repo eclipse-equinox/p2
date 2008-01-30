@@ -69,7 +69,7 @@ public abstract class StructuredIUGroup {
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
 
-		viewer = createViewer(composite, queryProvider);
+		viewer = createViewer(composite);
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
@@ -78,7 +78,7 @@ public abstract class StructuredIUGroup {
 
 	}
 
-	protected abstract StructuredViewer createViewer(Composite parent, IQueryProvider queryProvider);
+	protected abstract StructuredViewer createViewer(Composite parent);
 
 	public Composite getComposite() {
 		return composite;
@@ -110,5 +110,9 @@ public abstract class StructuredIUGroup {
 
 	protected int convertHorizontalDLUsToPixels(int dlus) {
 		return Dialog.convertHorizontalDLUsToPixels(fm, dlus);
+	}
+
+	protected IQueryProvider getQueryProvider() {
+		return queryProvider;
 	}
 }

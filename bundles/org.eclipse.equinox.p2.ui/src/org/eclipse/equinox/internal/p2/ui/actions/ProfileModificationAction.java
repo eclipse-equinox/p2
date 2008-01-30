@@ -15,7 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -58,11 +58,11 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		}
 
 		final IInstallableUnit[] ius = (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
-		final IStatus[] status = new IStatus[1];
+		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
 		final String id = targetProfileId;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
-				status[0] = validateOperation(ius, id, monitor);
+				plan[0] = getProvisioningPlan(ius, id, monitor);
 			}
 		};
 		try {
@@ -73,22 +73,20 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 			ProvUI.handleException(e.getCause(), null);
 		}
 
-		if (status[0].isOK())
-			performOperation(ius, id);
-		else
-			ProvUI.reportStatus(status[0]);
+		if (plan[0] != null)
+			if (plan[0].getStatus().isOK())
+				performOperation(ius, id, plan[0]);
+			else
+				ProvUI.reportStatus(plan[0].getStatus());
 
 	}
 
 	/*
-	 * Validate whether the proposed profile modification operation can run.
+	 * Get a provisioning plan for this action.
 	 */
-	protected abstract IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor);
+	protected abstract ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor);
 
-	/*
-	 * Run the operation, opening any dialogs, etc. 
-	 */
-	protected abstract void performOperation(IInstallableUnit[] ius, String targetProfileId);
+	protected abstract void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan);
 
 	protected abstract String getTaskName();
 

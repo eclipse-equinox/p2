@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.LicenseManager;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
@@ -21,13 +22,16 @@ import org.eclipse.equinox.p2.ui.ProvUIImages;
  */
 public class InstallWizard extends UpdateOrInstallWizard {
 
-	public InstallWizard(String profileId, IInstallableUnit[] ius, LicenseManager licenseManager) {
+	ProvisioningPlan plan;
+
+	public InstallWizard(String profileId, IInstallableUnit[] ius, ProvisioningPlan initialProvisioningPlan, LicenseManager licenseManager) {
 		super(profileId, ius, licenseManager);
 		setWindowTitle(ProvUIMessages.InstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_INSTALL));
+		this.plan = initialProvisioningPlan;
 	}
 
 	protected UpdateOrInstallWizardPage createMainPage(String profileId, IInstallableUnit[] ius) {
-		return new InstallWizardPage(ius, profileId, this);
+		return new InstallWizardPage(ius, profileId, plan, this);
 	}
 }

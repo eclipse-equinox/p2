@@ -105,7 +105,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			getLicenseManager().write(stream);
 			stream.close();
 		} catch (IOException e) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, "Error writing license registry.  Accepted licenses will not be remembered.", e));
+			ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorWritingLicenseRegistry, e));
 		}
 	}
 
@@ -133,7 +133,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	 * left to the client, who must check for a null return.
 	 */
 	public static String getProfileId() throws ProvisionException {
-		String profileId = null;
 		// Get the profile of the running system.
 		Profile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 		if (profile == null) {
@@ -142,7 +141,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			if (profiles.length > 0)
 				return profiles[0].getProfileId();
 			return ProfileFactory.makeProfile(DEFAULT_PROFILE_ID).getProfileId();
-
 		}
 		return profile.getProfileId();
 	}

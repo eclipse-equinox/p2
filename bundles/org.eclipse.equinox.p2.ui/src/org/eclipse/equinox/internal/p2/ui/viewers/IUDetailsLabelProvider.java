@@ -109,7 +109,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 
 	private String getIUSize(final IUElement element) {
 		long size = element.getSize();
-		// If size is already known, return it
+		// If size is already known, or we already tried
+		// to get it, don't try again
 		if (size != IUElement.SIZE_UNKNOWN)
 			return getFormattedSize(size);
 		if (!jobs.containsKey(element)) {
@@ -150,7 +151,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	}
 
 	private String getFormattedSize(long size) {
-		if (size == IUElement.SIZE_UNKNOWN)
+		if (size == IUElement.SIZE_UNKNOWN || size == IUElement.SIZE_UNAVAILABLE)
 			return ProvUIMessages.IUDetailsLabelProvider_Unknown;
 		if (size > 1000L) {
 			long kb = size / 1000L;

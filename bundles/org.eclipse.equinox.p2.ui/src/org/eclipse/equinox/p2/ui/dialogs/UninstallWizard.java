@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.UninstallWizardPage;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
 import org.eclipse.jface.wizard.Wizard;
@@ -24,17 +25,19 @@ public class UninstallWizard extends Wizard {
 	UninstallWizardPage page;
 	String profileId;
 	IInstallableUnit[] ius;
+	ProvisioningPlan plan;
 
-	public UninstallWizard(String profileId, IInstallableUnit[] ius) {
+	public UninstallWizard(String profileId, IInstallableUnit[] ius, ProvisioningPlan initialProvisioningPlan) {
 		super();
 		setWindowTitle(ProvUIMessages.UninstallIUOperationLabel);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UNINSTALL));
 		this.profileId = profileId;
 		this.ius = ius;
+		this.plan = initialProvisioningPlan;
 	}
 
 	public void addPages() {
-		page = new UninstallWizardPage(ius, profileId);
+		page = new UninstallWizardPage(ius, profileId, plan);
 		addPage(page);
 	}
 

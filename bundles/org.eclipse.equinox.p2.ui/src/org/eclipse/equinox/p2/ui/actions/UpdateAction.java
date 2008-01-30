@@ -12,11 +12,11 @@
 package org.eclipse.equinox.p2.ui.actions;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
@@ -38,7 +38,7 @@ public class UpdateAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
-	protected void performOperation(IInstallableUnit[] ius, String targetProfileId) {
+	protected void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
 		// Collect the replacements for each IU individually so that 
 		// the user can decide what to update
 		try {
@@ -59,17 +59,8 @@ public class UpdateAction extends ProfileModificationAction {
 		}
 	}
 
-	protected IStatus validateOperation(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
-		try {
-			IInstallableUnit[] updates = ProvisioningUtil.updatesFor(ius, monitor);
-			if (updates.length <= 0) {
-				return new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.UpdateOperation_NothingToUpdate);
-			}
-			return Status.OK_STATUS;
-		} catch (ProvisionException e) {
-			return ProvUI.handleException(e, null);
-		}
-
+	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
+		return null;
 	}
 
 	/*

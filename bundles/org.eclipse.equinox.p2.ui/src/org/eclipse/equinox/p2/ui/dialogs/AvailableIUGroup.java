@@ -52,7 +52,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		this.createGroupComposite(parent);
 	}
 
-	protected StructuredViewer createViewer(Composite parent, IQueryProvider queryProvider) {
+	protected StructuredViewer createViewer(Composite parent) {
 		// Table of available IU's
 		final TreeViewer availableIUViewer = new TreeViewer(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 
@@ -64,14 +64,14 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		availableIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
-		availableIUViewer.setContentProvider(new AvailableIUContentProvider(queryProvider));
+		availableIUViewer.setContentProvider(new AvailableIUContentProvider(getQueryProvider()));
 		availableIUViewer.setInput(new MetadataRepositories(getProvisioningContext().getMetadataRepositories()));
 
 		// Now the presentation, columns before label provider.
 		setTreeColumns(availableIUViewer.getTree());
 		availableIUViewer.setLabelProvider(labelProvider);
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, queryProvider) {
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, getQueryProvider()) {
 			protected void refreshAll() {
 				// The content provider caches the children unless input changes,
 				// so a viewer.refresh() is not enough.

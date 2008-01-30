@@ -53,7 +53,10 @@ public class ProvUIMessages extends NLS {
 	public static String IUGeneralInfoPropertyPage_VersionLabel;
 	public static String IULicensePropertyPage_NoLicense;
 	public static String ProfileElement_InvalidProfile;
+	public static String ProfileModificationWizardPage_DetailsLabel;
+	public static String ProfileModificationWizardPage_NothingSelected;
 	public static String ProfileModificationWizardPage_ProfileNotFound;
+	public static String ProfileModificationWizardPage_UnexpectedError;
 	// utility error messages
 	public static String ProvisioningUtil_NoRepositoryManager;
 	public static String ProvisioningUtil_AddRepositoryFailure;
