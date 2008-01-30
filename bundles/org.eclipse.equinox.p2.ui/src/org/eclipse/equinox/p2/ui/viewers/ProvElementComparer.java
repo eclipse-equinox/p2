@@ -32,7 +32,7 @@ public class ProvElementComparer implements IElementComparer {
 		URL r1 = getRepositoryLocation(a);
 		URL r2 = getRepositoryLocation(b);
 		if (r1 != null && r2 != null)
-			return r1.equals(r2);
+			return r1.toExternalForm().equals(r2.toExternalForm());
 		return a.equals(b);
 	}
 
@@ -45,7 +45,7 @@ public class ProvElementComparer implements IElementComparer {
 			return profileId.hashCode();
 		URL url = getRepositoryLocation(element);
 		if (url != null)
-			return url.hashCode();
+			return url.toExternalForm().hashCode();
 		return element.hashCode();
 	}
 

@@ -165,7 +165,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 			try {
 				userURL = new URL(urlText);
 				for (int i = 0; i < knownRepositories.length; i++) {
-					if (knownRepositories[i].equals(userURL)) {
+					if (knownRepositories[i].toExternalForm().equals(userURL.toExternalForm())) {
 						status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
 						break;
 					}
