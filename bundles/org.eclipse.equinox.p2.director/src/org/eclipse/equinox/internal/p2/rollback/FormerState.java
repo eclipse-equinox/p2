@@ -51,7 +51,7 @@ public class FormerState {
 				} else if (o instanceof ProfileEvent) {
 					ProfileEvent event = (ProfileEvent) o;
 					if (event.getReason() == ProfileEvent.CHANGED)
-						getRepository().addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) generatedIUs.get(event.getProfile().getProfileId())});
+						getRepository().addInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) generatedIUs.get(event.getProfileId())});
 					return;
 				} else if (o instanceof RollbackOperationEvent) {
 					RollbackOperationEvent event = (RollbackOperationEvent) o;

@@ -64,6 +64,10 @@ public class Engine {
 		Profile profile = (Profile) iprofile;
 		lockProfile(profile);
 		try {
+			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
+			if (profileRegistry.getProfile(profile.getProfileId()) == null)
+				throw new IllegalArgumentException("Profile is not registered."); //$NON-NLS-1$
+
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, iuOperands, this));
 
 			EngineSession session = new EngineSession(profile);
@@ -74,13 +78,8 @@ public class Engine {
 			MultiStatus result = phaseSet.perform(session, profile, iuOperands, monitor);
 			if (result.isOK()) {
 				if (profile.isChanged()) {
-					SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
-					if (profileRegistry.getProfile(profile.getProfileId()) == null)
-						profileRegistry.addProfile(profile);
-					else {
-						moveIUProperties(profile, iuOperands);
-						profileRegistry.updateProfile(profile);
-					}
+					moveIUProperties(profile, iuOperands);
+					profileRegistry.updateProfile(profile);
 				}
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, iuOperands, this));
 				session.commit();

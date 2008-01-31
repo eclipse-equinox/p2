@@ -582,9 +582,7 @@ public class AbstractProvisioningTest extends TestCase {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		profileRegistry.removeProfile(name);
 		//create and return a new profile
-		profileRegistry.addProfile(name, properties, parentId);
-
-		return profileRegistry.getProfile(name);
+		return profileRegistry.addProfile(name, properties, parentId);
 	}
 
 	protected IProfile getProfile(String profileId) {

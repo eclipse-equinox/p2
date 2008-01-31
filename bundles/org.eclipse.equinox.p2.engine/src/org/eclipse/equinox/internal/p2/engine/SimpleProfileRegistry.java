@@ -128,31 +128,18 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (profileMap.get(id) == null)
 			throw new IllegalArgumentException("Profile to be updated does not exist:" + id); //$NON-NLS-1$
 		doUpdateProfile(toUpdate, profileMap);
-		broadcastChangeEvent(toUpdate, ProfileEvent.CHANGED);
+		broadcastChangeEvent(id, ProfileEvent.CHANGED);
 	}
 
-	public synchronized void addProfile(Profile toAdd) throws IllegalArgumentException {
-		if (isNamedSelf(toAdd))
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Not_Named_Self, toAdd.getProfileId()));
-		String id = toAdd.getProfileId();
-		if (SELF.equals(id))
-			id = self;
-		Map profileMap = getProfileMap();
-		if (profileMap.get(id) != null)
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
-		doUpdateProfile(toAdd, profileMap);
-		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
+	public IProfile addProfile(String id) {
+		return addProfile(id, null, null);
 	}
 
-	public void addProfile(String id) {
-		addProfile(id, null, null);
+	public IProfile addProfile(String id, Map properties) {
+		return addProfile(id, properties, null);
 	}
 
-	public void addProfile(String id, Map properties) {
-		addProfile(id, properties, null);
-	}
-
-	public synchronized void addProfile(String id, Map properties, String parentId) {
+	public synchronized IProfile addProfile(String id, Map properties, String parentId) {
 		if (SELF.equals(id))
 			id = self;
 		Map profileMap = getProfileMap();
@@ -178,7 +165,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		installRegistry.addProfileInstallRegistry(profileInstallRegistry);
 		profileMap.put(id, toAdd);
 		persist();
-		broadcastChangeEvent(copyProfile(toAdd), ProfileEvent.ADDED);
+		broadcastChangeEvent(id, ProfileEvent.ADDED);
+		return copyProfile(toAdd);
 	}
 
 	private void doUpdateProfile(Profile toUpdate, Map profileMap) {
@@ -224,14 +212,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		//note we need to maintain a reference to the profile map until it is persisted to prevent gc
 		Map profileMap = getProfileMap();
 
-		// this is a copy we use for the event
-		IProfile toRemove = getProfile(profileId);
-		if (toRemove == null)
+		if (profileMap.remove(profileId) == null)
 			return;
 		installRegistry.removeProfileInstallRegistry(profileId);
-		profileMap.remove(profileId);
 		persist();
-		broadcastChangeEvent(toRemove, ProfileEvent.REMOVED);
+		broadcastChangeEvent(profileId, ProfileEvent.REMOVED);
 	}
 
 	private Profile copyProfile(IProfile profile) {
@@ -247,8 +232,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return copy;
 	}
 
-	private void broadcastChangeEvent(IProfile profile, byte reason) {
-		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profile, reason));
+	private void broadcastChangeEvent(String profileId, byte reason) {
+		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profileId, reason));
 	}
 
 	private URL getRegistryLocation() {
@@ -320,12 +305,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error persisting profile registry", e)); //$NON-NLS-1$
 		}
 
-	}
-
-	private boolean isNamedSelf(IProfile p) {
-		if (SELF.equals(p.getParentProfile()))
-			return true;
-		return false;
 	}
 
 	public synchronized Map getProperties() {

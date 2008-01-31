@@ -36,13 +36,22 @@ public interface IProfileRegistry {
 	 */
 	IProfile[] getProfiles();
 
-	//	void addProfile(Profile toAdd) throws IllegalArgumentException;
+	/**
+	 * Add the given profile to this profile registry.
+	 * 
+	 * @param id the profile id
+	 * @param properties the profile properties
+	 * @param parentId the id of a parent profile
+	 * 
+	 * @throws IllegalArgumentException if a profile
+	 *         with the same id is already present in the registry.
+	 */
 
-	void addProfile(String id);
+	IProfile addProfile(String id);
 
-	void addProfile(String id, Map properties);
+	IProfile addProfile(String id, Map properties);
 
-	void addProfile(String id, Map properties, String parentId);
+	IProfile addProfile(String id, Map properties, String parentId);
 
 	/**
 	 * Remove the given profile from this profile registry.

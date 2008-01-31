@@ -122,8 +122,7 @@ public class ProvisioningUtil {
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
 		}
-		profileRegistry.addProfile(profileId, properties);
-		return profileRegistry.getProfile(profileId);
+		return profileRegistry.addProfile(profileId, properties);
 	}
 
 	public static void removeProfile(String profileId, IProgressMonitor monitor) throws ProvisionException {

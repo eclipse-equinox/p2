@@ -119,8 +119,7 @@ public class ProvisioningHelper {
 				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "");
 		}
 
-		profileRegistry.addProfile(profileId, profileProperties);
-		return profileRegistry.getProfile(profileId);
+		return profileRegistry.addProfile(profileId, profileProperties);
 	}
 
 	public static void removeProfile(String profileId) {
