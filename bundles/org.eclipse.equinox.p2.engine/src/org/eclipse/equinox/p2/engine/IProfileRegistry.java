@@ -40,17 +40,33 @@ public interface IProfileRegistry {
 	 * Add the given profile to this profile registry.
 	 * 
 	 * @param id the profile id
+	 * 
+	 * @throws IllegalArgumentException if a profile
+	 *         with the same id is already present in the registry.
+	 */
+	IProfile addProfile(String id);
+
+	/**
+	 * Add the given profile to this profile registry.
+	 * 
+	 * @param id the profile id
+	 * @param properties the profile properties
+	 * 
+	 * @throws IllegalArgumentException if a profile
+	 *         with the same id is already present in the registry.
+	 */
+	IProfile addProfile(String id, Map properties);
+
+	/**
+	 * Add the given profile to this profile registry.
+	 * 
+	 * @param id the profile id
 	 * @param properties the profile properties
 	 * @param parentId the id of a parent profile
 	 * 
 	 * @throws IllegalArgumentException if a profile
 	 *         with the same id is already present in the registry.
 	 */
-
-	IProfile addProfile(String id);
-
-	IProfile addProfile(String id, Map properties);
-
 	IProfile addProfile(String id, Map properties, String parentId);
 
 	/**
