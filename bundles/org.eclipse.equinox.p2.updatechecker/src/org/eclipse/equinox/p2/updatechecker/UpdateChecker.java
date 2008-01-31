@@ -88,7 +88,7 @@ public class UpdateChecker {
 		log("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
 		UpdateCheckThread thread = new UpdateCheckThread(profileId, delay, poll, listener);
 		checkers.add(thread);
-		thread.run();
+		thread.start();
 	}
 
 	public void removeUpdateCheck(IUpdateListener listener) {
