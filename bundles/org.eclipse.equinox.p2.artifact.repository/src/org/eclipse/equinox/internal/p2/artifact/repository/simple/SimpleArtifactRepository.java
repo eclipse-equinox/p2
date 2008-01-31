@@ -731,9 +731,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		save();
 		//force repository manager to reload this repository because it caches properties
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		ArtifactRepositoryManager manager = (ArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		try {
-			manager.loadRepository(location, null);
+			if (manager.getRepository(location) != null)
+				manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
 			//ignore
 		}

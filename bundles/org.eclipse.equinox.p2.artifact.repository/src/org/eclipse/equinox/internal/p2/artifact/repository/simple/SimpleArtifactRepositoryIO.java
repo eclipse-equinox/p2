@@ -42,7 +42,7 @@ import org.xml.sax.*;
 
 // TODO: Should a registration/factory mechanism be supported
 //		 for getting a repository reader/writer given a repository type
-class SimpleArtifactRepositoryIO {
+public class SimpleArtifactRepositoryIO {
 
 	/**
 	 * Writes the given artifact repository to the stream.

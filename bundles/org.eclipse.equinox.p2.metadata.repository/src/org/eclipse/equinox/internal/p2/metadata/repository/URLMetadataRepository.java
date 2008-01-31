@@ -24,8 +24,8 @@ import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository
  */
 public class URLMetadataRepository extends AbstractMetadataRepository {
 
-	protected static final String CONTENT_FILENAME = "content"; //$NON-NLS-1$
-	protected static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
+	public static final String CONTENT_FILENAME = "content"; //$NON-NLS-1$
+	public static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	private static final String REPOSITORY_TYPE = URLMetadataRepository.class.getName();
 	private static final Integer REPOSITORY_VERSION = new Integer(1);
 

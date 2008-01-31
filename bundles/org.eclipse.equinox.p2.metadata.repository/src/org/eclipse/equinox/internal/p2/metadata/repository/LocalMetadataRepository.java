@@ -52,7 +52,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public static File getActualLocation(URL location) {
-		return getActualLocation(location, XML_EXTENSION); 
+		return getActualLocation(location, XML_EXTENSION);
 	}
 
 	/**
@@ -171,9 +171,10 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			return oldValue;
 		save();
 		//force repository manager to reload this repository because it caches properties
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		MetadataRepositoryManager manager = (MetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		try {
-			manager.loadRepository(location, null);
+			if (manager.getRepository(location) != null)
+				manager.loadRepository(location, null);
 		} catch (ProvisionException e) {
 			//ignore
 		}

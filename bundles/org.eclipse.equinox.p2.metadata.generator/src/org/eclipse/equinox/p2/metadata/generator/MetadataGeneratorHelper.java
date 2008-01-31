@@ -121,7 +121,7 @@ public class MetadataGeneratorHelper {
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
 		boolean isBinaryBundle = true;
-		if (manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
+		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
 			isBinaryBundle = false;
 		}
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();

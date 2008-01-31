@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.zip.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -26,10 +25,10 @@ import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.generator.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.equinox.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -68,7 +67,6 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			if (savedChecksum != null && savedChecksum.equals(checksumString))
 				return;
 
-			metadataRepository.setProperty("site.checksum", checksumString);
 			metadataRepository.removeAll();
 
 			SiteCategory[] siteCategories = siteModel.getCategories();
@@ -139,6 +137,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 			IInstallableUnit[] ius = (IInstallableUnit[]) allSiteIUs.toArray(new IInstallableUnit[allSiteIUs.size()]);
 			metadataRepository.addInstallableUnits(ius);
+			metadataRepository.setProperty("site.checksum", checksumString);
 			System.out.println("Time Fetching Metadata Site and Features for " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
 
 		} catch (IOException e) {
@@ -233,30 +232,13 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 	}
 
 	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) {
-		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		if (reference == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
-
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) context.getService(reference);
-		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
-
+		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
-			try {
-				return manager.loadRepository(stateDirURL, null);
-			} catch (ProvisionException e) {
-				//fall through and create a new repository
-			}
-
-			IMetadataRepository repository = manager.createRepository(stateDirURL, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			return repository;
+			return factory.load(stateDirURL, null);
 		} catch (ProvisionException e) {
-			LogHelper.log(e);
-			throw new IllegalStateException("Couldn't create artifact repository for: " + repositoryName);
-		} finally {
-			context.ungetService(reference);
+			//fall through and create a new repository
 		}
+		return factory.create(stateDirURL, repositoryName, null);
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {

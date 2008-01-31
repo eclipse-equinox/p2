@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata.repository;
+package org.eclipse.equinox.spi.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URL;
@@ -16,10 +16,11 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.metadata.repository.*;
+import org.eclipse.equinox.internal.p2.metadata.repository.Messages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFactory {
@@ -146,7 +147,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
-			monitor.done();
+			if (monitor != null)
+				monitor.done();
 		}
 	}
 

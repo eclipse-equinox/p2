@@ -18,7 +18,6 @@ import java.util.zip.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.p2.artifact.repository.*;
@@ -26,9 +25,9 @@ import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.repository.IRepository;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.generator.*;
+import org.eclipse.equinox.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.xml.sax.SAXException;
 
 public class UpdateSiteArtifactRepository extends AbstractRepository implements IArtifactRepository {
@@ -193,30 +192,13 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	}
 
 	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL, String repositoryName) {
-		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
-		if (reference == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
-
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) context.getService(reference);
-		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
-
-		IArtifactRepository repository = null;
+		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
-			try {
-				return manager.loadRepository(stateDirURL, null);
-			} catch (ProvisionException e) {
-				//fall through and create a new repository
-			}
-			repository = manager.createRepository(stateDirURL, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			return repository;
+			return factory.load(stateDirURL, null);
 		} catch (ProvisionException e) {
-			LogHelper.log(e);
-			throw new IllegalStateException("Couldn't create artifact repository for: " + repositoryName);
-		} finally {
-			context.ungetService(reference);
+			//fall through and create a new repository
 		}
+		return factory.create(stateDirURL, repositoryName, null);
 	}
 
 	public Map getProperties() {
