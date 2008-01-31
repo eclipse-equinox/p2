@@ -13,8 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import org.eclipse.core.commands.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * UpdateHandler invokes the main update/install UI.
@@ -22,6 +23,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * @since 3.4
  */
 public class UpdateHandler extends AbstractHandler {
+
+	UpdateAndInstallDialog dialog;
 
 	/**
 	 * The constructor.
@@ -34,7 +37,6 @@ public class UpdateHandler extends AbstractHandler {
 	 * Execute the update command.
 	 */
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		Shell shell = HandlerUtil.getActiveWorkbenchWindowChecked(event).getShell();
 		String profileId;
 		String message = null;
 		try {
@@ -44,17 +46,27 @@ public class UpdateHandler extends AbstractHandler {
 			message = ProvSDKMessages.UpdateHandler_NoProfilesDefined;
 		}
 		if (profileId != null) {
-			openDialog(shell, profileId);
+			openDialog(null, profileId);
 		} else {
 			if (message == null)
 				message = ProvSDKMessages.UpdateHandler_NoProfileInstanceDefined;
-			MessageDialog.openInformation(shell, ProvSDKMessages.UpdateHandler_SDKUpdateUIMessageTitle, message);
+			MessageDialog.openInformation(null, ProvSDKMessages.UpdateHandler_SDKUpdateUIMessageTitle, message);
 		}
 		return null;
 	}
 
 	protected void openDialog(Shell shell, String profileId) {
-		UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(shell, profileId);
-		dialog.open();
+		if (dialog == null) {
+			dialog = new UpdateAndInstallDialog(shell, profileId);
+			dialog.open();
+			dialog.getShell().addDisposeListener(new DisposeListener() {
+				public void widgetDisposed(DisposeEvent e) {
+					dialog = null;
+				}
+
+			});
+		} else {
+			dialog.getShell().setFocus();
+		}
 	}
 }
