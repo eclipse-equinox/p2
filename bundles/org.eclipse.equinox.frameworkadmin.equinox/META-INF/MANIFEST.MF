@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FrameworkAdmin Service for Equinox (Incubation)
-Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin.equinox
+Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin.equinox;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.frameworkadmin.equinox.internal.Activator
 Bundle-Vendor: Eclipse.org

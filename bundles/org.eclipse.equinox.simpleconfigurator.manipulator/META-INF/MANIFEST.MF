@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
-Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator.manipulator
+Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator.manipulator;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.equinox.simpleconfigurator.manipulator.internal.Activator
