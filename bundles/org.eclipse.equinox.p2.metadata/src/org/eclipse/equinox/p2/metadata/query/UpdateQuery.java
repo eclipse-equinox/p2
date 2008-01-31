@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.metadata.query;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.p2.metadata.IUpdateDescriptor;
 import org.eclipse.equinox.p2.query.Query;
 
 public class UpdateQuery extends Query {
@@ -22,7 +23,8 @@ public class UpdateQuery extends Query {
 		if (!(obj instanceof IInstallableUnit))
 			return false;
 		IInstallableUnit candidate = (IInstallableUnit) obj;
-		if (candidate.getUpdateDescriptor().isUpdateOf(updateFrom) && updateFrom.getVersion().compareTo(candidate.getVersion()) < 0 )
+		IUpdateDescriptor descriptor = candidate.getUpdateDescriptor();
+		if (descriptor != null && descriptor.isUpdateOf(updateFrom) && updateFrom.getVersion().compareTo(candidate.getVersion()) < 0)
 			return true;
 		return false;
 	}
