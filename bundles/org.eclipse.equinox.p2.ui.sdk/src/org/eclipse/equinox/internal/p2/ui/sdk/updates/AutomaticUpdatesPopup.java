@@ -14,24 +14,22 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
 import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.internal.p2.ui.sdk.*;
+import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
+import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
-import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.preference.PreferenceDialog;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.*;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.progress.WorkbenchJob;
 
@@ -44,91 +42,70 @@ import org.eclipse.ui.progress.WorkbenchJob;
 public class AutomaticUpdatesPopup extends PopupDialog {
 	public static final String[] ELAPSED = {ProvSDKMessages.AutomaticUpdateScheduler_5Minutes, ProvSDKMessages.AutomaticUpdateScheduler_15Minutes, ProvSDKMessages.AutomaticUpdateScheduler_30Minutes, ProvSDKMessages.AutomaticUpdateScheduler_60Minutes};
 	private static final long MINUTE = 60 * 1000L;
-	private static final String REMIND_HREF = "RMD"; //$NON-NLS-1$
 	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
-	public static final String AUTO_UPDATE_STATUS_ITEM = "AutomaticUpdatesPopup"; //$NON-NLS-1$
 	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
 
 	Preferences prefs;
 	long remindDelay = -1L;
-	IPropertyChangeListener listener;
+	IPropertyChangeListener prefListener;
 	WorkbenchJob remindJob;
-	IInstallableUnit[] toUpdate;
-	String profileId;
 	boolean downloaded;
-	boolean hidden = false;
-	StatusLineCLabelContribution item;
+	Composite dialogArea;
+	Link remindLink;
+	MouseListener clickListener;
 
-	public AutomaticUpdatesPopup(IInstallableUnit[] toUpdate, String profileId, boolean alreadyDownloaded, Preferences prefs) {
-		super((Shell) null, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
+	public AutomaticUpdatesPopup(Shell parentShell, boolean alreadyDownloaded, Preferences prefs) {
+		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
 		downloaded = alreadyDownloaded;
-		this.profileId = profileId;
-		this.toUpdate = toUpdate;
 		this.prefs = prefs;
 		remindDelay = computeRemindDelay();
-		listener = new IPropertyChangeListener() {
-
+		prefListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
-				if (PreferenceConstants.PREF_REMIND_SCHEDULE.equals(event.getProperty()) || PreferenceConstants.PREF_REMIND_ELAPSED.equals(event.getProperty())) {
-					computeRemindDelay();
-					scheduleRemindJob();
-				}
+				handlePreferenceChange(event);
 			}
 		};
-		prefs.addPropertyChangeListener(listener);
-		createStatusLineItem();
-
+		prefs.addPropertyChangeListener(prefListener);
+		clickListener = new MouseAdapter() {
+			public void mouseDown(MouseEvent e) {
+				ProvSDKUIActivator.getDefault().getAutomaticUpdater().launchUpdate();
+			}
+		};
 	}
 
 	protected Control createDialogArea(Composite parent) {
-		Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayoutData(new GridData(GridData.FILL_BOTH));
+		dialogArea = new Composite(parent, SWT.NONE);
+		dialogArea.setLayoutData(new GridData(GridData.FILL_BOTH));
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
-		composite.setLayout(layout);
-		Link infoLink = new Link(parent, SWT.MULTI | SWT.WRAP);
+		dialogArea.setLayout(layout);
+		dialogArea.addMouseListener(clickListener);
+
+		// The "click to update" label
+		Label infoLabel = new Label(dialogArea, SWT.NONE);
 		if (downloaded)
-			infoLink.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewDownloaded);
+			infoLabel.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewDownloaded);
 		else
-			infoLink.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewNotDownloaded);
-		infoLink.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				UpdateWizard wizard = new UpdateWizard(profileId, toUpdate, ProvSDKUIActivator.getDefault().getLicenseManager(), ProvSDKUIActivator.getDefault().getQueryProvider());
-				WizardDialog dialog = new WizardDialog(getShell(), wizard);
-				dialog.open();
-			}
-		});
-		infoLink.setLayoutData(new GridData(GridData.FILL_BOTH));
+			infoLabel.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewNotDownloaded);
+		infoLabel.setLayoutData(new GridData(GridData.FILL_BOTH));
+		infoLabel.addMouseListener(clickListener);
 
-		// spacer
-		new Label(parent, SWT.NONE);
+		createRemindSection(dialogArea);
 
-		Link remindLink = new Link(parent, SWT.MULTI | SWT.WRAP | SWT.RIGHT);
-		remindLink.setText(NLS.bind(ProvSDKMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {REMIND_HREF, prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED), PREFS_HREF}));
+		return dialogArea;
+
+	}
+
+	private void createRemindSection(Composite parent) {
+		remindLink = new Link(parent, SWT.MULTI | SWT.WRAP | SWT.RIGHT);
+		remindLink.setText(NLS.bind(ProvSDKMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED), PREFS_HREF}));
 		remindLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (REMIND_HREF.equals(e.text)) {
-					if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
-						// We are already on a remind schedule, so just set up the reminder
-						hide();
-						scheduleRemindJob();
-					} else {
-						// We were not on a schedule.  Setting the pref value
-						// will activate our listener and start the remind job
-						hide();
-						prefs.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
-					}
-				}
-				if (PREFS_HREF.equals(e.text)) {
-					PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
-					dialog.open();
-				}
+				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
+				dialog.open();
+
 			}
 		});
-		infoLink.setLayoutData(new GridData(GridData.FILL_BOTH));
-
-		return composite;
-
+		remindLink.setLayoutData(new GridData(GridData.FILL_BOTH));
 	}
 
 	protected IDialogSettings getDialogBoundsSettings() {
@@ -141,19 +118,12 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	}
 
 	public boolean close() {
-		if (hidden)
-			return false;
-		prefs.removePropertyChangeListener(listener);
-		cancelRemindJob();
-		remindJob = null;
-		listener = null;
-		IStatusLineManager manager = getStatusLineManager();
-		if (manager != null) {
-			manager.remove(item);
+		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
+			scheduleRemindJob();
 		}
-		manager.update(true);
-		item.dispose();
-		item = null;
+		prefs.removePropertyChangeListener(prefListener);
+		remindJob = null;
+		prefListener = null;
 		return super.close();
 	}
 
@@ -162,16 +132,11 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		if (remindJob != null)
 			remindJob.cancel();
 		// If no updates have been found, there is nothing to remind
-		if (toUpdate == null)
-			return;
 		if (remindDelay < 0)
 			return;
 		remindJob = new WorkbenchJob(ProvSDKMessages.AutomaticUpdatesPopup_ReminderJobTitle) {
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				Shell shell = getShell();
-				if (shell != null && !shell.isDisposed()) {
-					show();
-				}
+				open();
 				return Status.OK_STATUS;
 			}
 		};
@@ -208,7 +173,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		return -1L;
 	}
 
-	private void cancelRemindJob() {
+	void cancelRemindJob() {
 		if (remindJob != null) {
 			remindJob.cancel();
 		}
@@ -219,62 +184,85 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		newShell.setText(ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle);
 	}
 
-	private void createStatusLineItem() {
-		item = new StatusLineCLabelContribution(AUTO_UPDATE_STATUS_ITEM, 5);
-		item.addListener(SWT.MouseDown, new Listener() {
-			public void handleEvent(Event event) {
-				show();
+	/**
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.jface.window.Window#getInitialLocation(org.eclipse.swt.graphics.Point)
+	 */
+	protected Point getInitialLocation(Point initialSize) {
+		Shell parent = getParentShell();
+		Point parentSize;
+		if (parent != null)
+			parentSize = parent.getSize();
+		else {
+			Rectangle bounds = getShell().getDisplay().getBounds();
+			parentSize = new Point(bounds.width, bounds.height);
+		}
+		return new Point(parentSize.x - initialSize.x, parentSize.y - initialSize.y);
+	}
+
+	void handlePreferenceChange(PropertyChangeEvent event) {
+		if (PreferenceConstants.PREF_REMIND_SCHEDULE.equals(event.getProperty())) {
+			// Reminders turned on
+			if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
+				if (remindLink == null)
+					createRemindSection(dialogArea);
+				else
+					remindLink.setVisible(true);
+				computeRemindDelay();
+				scheduleRemindJob();
+			} else { // reminders turned off
+				if (remindLink != null)
+					remindLink.setVisible(false);
+				cancelRemindJob();
+			}
+		} else if (PreferenceConstants.PREF_REMIND_ELAPSED.equals(event.getProperty())) {
+			// Reminding schedule changed
+			computeRemindDelay();
+			scheduleRemindJob();
+		}
+	}
+
+	/*
+	 * Overridden so that clicking in the title menu area closes the dialog.
+	 * Also creates a close box menu in the title area.
+	 */
+	protected Control createTitleMenuArea(Composite parent) {
+		Composite titleComposite = (Composite) super.createTitleMenuArea(parent);
+		titleComposite.addMouseListener(clickListener);
+
+		ToolBar toolBar = new ToolBar(titleComposite, SWT.FLAT);
+		ToolItem closeButton = new ToolItem(toolBar, SWT.PUSH, 0);
+
+		GridDataFactory.fillDefaults().align(SWT.END, SWT.CENTER).applyTo(toolBar);
+		closeButton.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_CLOSE));
+		closeButton.setHotImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_CLOSE_HOT));
+		closeButton.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				close();
 			}
 		});
-		item.setTooltip(ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle);
-		item.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE));
-		IStatusLineManager manager = getStatusLineManager();
-		if (manager != null) {
-			manager.add(item);
-		}
-		item.setVisible(false);
-
-	}
-
-	IStatusLineManager getStatusLineManager() {
-		// TODO  YUCK!  Am I missing an easier way to do this??
-		IWorkbenchPartSite site = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite();
-		if (site instanceof IViewSite) {
-			return ((IViewSite) site).getActionBars().getStatusLineManager();
-		} else if (site instanceof IEditorSite) {
-			return ((IEditorSite) site).getActionBars().getStatusLineManager();
-		}
-		return null;
-	}
-
-	public void hide() {
-		hidden = true;
-		Shell shell = getShell();
-		if (shell != null && !shell.isDisposed())
-			shell.setVisible(false);
-		if (item != null) {
-			item.setVisible(true);
-			updateStatusLine();
-		}
-	}
-
-	public void show() {
-		Shell shell = getShell();
-		if (shell != null && !shell.isDisposed()) {
-			shell.setVisible(true);
-			hidden = false;
-			if (item != null) {
-				item.setVisible(false);
-				updateStatusLine();
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=177183
+		toolBar.addMouseListener(new MouseAdapter() {
+			public void mouseDown(MouseEvent e) {
+				close();
 			}
+		});
+		return titleComposite;
+	}
 
+	/*
+	 * Overridden to adjust the span of the title label.
+	 * Reachy, reachy....
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.dialogs.PopupDialog#createTitleControl(org.eclipse.swt.widgets.Composite)
+	 */
+	protected Control createTitleControl(Composite parent) {
+		Control control = super.createTitleControl(parent);
+		Object data = control.getLayoutData();
+		if (data instanceof GridData) {
+			((GridData) data).horizontalSpan = 1;
 		}
+		return control;
 	}
-
-	void updateStatusLine() {
-		IStatusLineManager manager = getStatusLineManager();
-		if (manager != null)
-			manager.update(true);
-	}
-
 }

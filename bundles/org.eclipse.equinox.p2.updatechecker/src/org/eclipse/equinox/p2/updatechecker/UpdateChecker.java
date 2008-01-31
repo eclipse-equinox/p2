@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.updatechecker.Activator;
 import org.eclipse.equinox.p2.director.IPlanner;
+import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
@@ -117,7 +118,7 @@ public class UpdateChecker {
 		Iterator iter = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, null, null);
+			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, new ProvisioningContext(), null);
 			if (replacements.length > 0)
 				iusWithUpdates.add(iu);
 		}

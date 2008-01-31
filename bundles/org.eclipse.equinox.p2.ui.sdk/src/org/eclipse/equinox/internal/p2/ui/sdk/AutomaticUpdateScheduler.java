@@ -14,7 +14,6 @@ import java.util.Calendar;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.p2.updatechecker.UpdateChecker;
@@ -96,7 +95,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 			delay = computeDelay(pref);
 			poll = computePoll(pref);
 		}
-		listener = new AutomaticUpdater();
+		listener = ProvSDKUIActivator.getDefault().getAutomaticUpdater();
 		checker.addUpdateCheck(profileId, delay, poll, listener);
 
 	}

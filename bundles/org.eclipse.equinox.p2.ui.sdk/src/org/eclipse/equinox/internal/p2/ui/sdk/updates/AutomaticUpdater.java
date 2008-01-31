@@ -12,22 +12,26 @@ package org.eclipse.equinox.internal.p2.ui.sdk.updates;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
-import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.operations.*;
 import org.eclipse.equinox.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.window.Window;
+import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.*;
 
 /**
  * @since 3.4
@@ -35,16 +39,30 @@ import org.eclipse.ui.PlatformUI;
 public class AutomaticUpdater implements IUpdateListener {
 
 	Preferences prefs;
+	StatusLineCLabelContribution updateAffordance;
+	IInstallableUnit[] toUpdate;
+	String profileId;
+	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
 
 	public AutomaticUpdater() {
 		prefs = ProvSDKUIActivator.getDefault().getPluginPreferences();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.updatechecker.IUpdateListener#updatesAvailable(org.eclipse.equinox.p2.updatechecker.UpdateEvent)
+	 */
 	public void updatesAvailable(final UpdateEvent event) {
 		final boolean download = prefs.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
-		final IInstallableUnit[] toUpdate = getUpdatesToShow(event);
+		// Recompute the updates that we want to make available to the user.
+		toUpdate = getUpdatesToShow(event);
+
+		profileId = event.getProfileId();
 		if (toUpdate.length <= 0)
 			return;
+
+		// Download the items if the preference dictates before
+		// showing the user that updates are available.
 		try {
 			if (download) {
 				UpdateEvent eventWithOnlyRoots = new UpdateEvent(event.getProfileId(), toUpdate);
@@ -62,7 +80,7 @@ public class AutomaticUpdater implements IUpdateListener {
 							if (status.isOK()) {
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 									public void run() {
-										new AutomaticUpdatesPopup(toUpdate, event.getProfileId(), true, prefs).open();
+										showUpdatesAvailable(true);
 									}
 								});
 							} else if (status.getSeverity() != IStatus.CANCEL) {
@@ -74,7 +92,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			} else {
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					public void run() {
-						new AutomaticUpdatesPopup(toUpdate, event.getProfileId(), false, prefs).open();
+						showUpdatesAvailable(false);
 					}
 				});
 			}
@@ -85,6 +103,8 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	}
 
+	// Figure out which updates we want to expose to the user.
+	// Updates of IU's below the user's visiblity will not be shown.
 	private IInstallableUnit[] getUpdatesToShow(final UpdateEvent event) {
 		// We could simply collect the install roots ourselves, but implementing
 		// this in terms of a normal "what's installed" query allows the policy to be defined only
@@ -106,4 +126,74 @@ public class AutomaticUpdater implements IUpdateListener {
 			result[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
 		return result;
 	}
+
+	Shell getWorkbenchWindowShell() {
+		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		return activeWindow != null ? activeWindow.getShell() : null;
+
+	}
+
+	IStatusLineManager getStatusLineManager() {
+		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (activeWindow == null)
+			return null;
+		// YUCK!  
+		IWorkbenchPartSite site = activeWindow.getActivePage().getActivePart().getSite();
+		if (site instanceof IViewSite) {
+			return ((IViewSite) site).getActionBars().getStatusLineManager();
+		} else if (site instanceof IEditorSite) {
+			return ((IEditorSite) site).getActionBars().getStatusLineManager();
+		}
+		return null;
+	}
+
+	void updateStatusLine() {
+		IStatusLineManager manager = getStatusLineManager();
+		if (manager != null)
+			manager.update(true);
+	}
+
+	private void createUpdateAffordance() {
+		updateAffordance = new StatusLineCLabelContribution(AUTO_UPDATE_STATUS_ITEM, 5);
+		updateAffordance.addListener(SWT.MouseDown, new Listener() {
+			public void handleEvent(Event event) {
+				launchUpdate();
+			}
+		});
+		updateAffordance.setTooltip(ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle);
+		updateAffordance.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE));
+		IStatusLineManager manager = getStatusLineManager();
+		if (manager != null) {
+			manager.add(updateAffordance);
+		}
+		updateAffordance.setVisible(false);
+
+	}
+
+	void showUpdatesAvailable(boolean alreadyDownloaded) {
+		if (updateAffordance == null)
+			createUpdateAffordance();
+		updateAffordance.setVisible(true);
+
+		new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, prefs).open();
+	}
+
+	void clearUpdatesAvailable() {
+		IStatusLineManager manager = getStatusLineManager();
+		if (manager != null) {
+			manager.remove(updateAffordance);
+		}
+		manager.update(true);
+		updateAffordance.dispose();
+		updateAffordance = null;
+
+	}
+
+	public void launchUpdate() {
+		UpdateWizard wizard = new UpdateWizard(profileId, toUpdate, ProvSDKUIActivator.getDefault().getLicenseManager(), ProvSDKUIActivator.getDefault().getQueryProvider());
+		WizardDialog dialog = new WizardDialog(getWorkbenchWindowShell(), wizard);
+		if (dialog.open() == Window.OK)
+			clearUpdatesAvailable();
+	}
+
 }

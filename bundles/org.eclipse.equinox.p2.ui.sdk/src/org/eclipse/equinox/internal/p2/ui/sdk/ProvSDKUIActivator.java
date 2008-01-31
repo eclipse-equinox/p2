@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.io.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
@@ -33,6 +34,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private static ProvSDKUIActivator plugin;
 	private static BundleContext context;
 	private AutomaticUpdateScheduler scheduler;
+	private AutomaticUpdater updater;
 	private IQueryProvider queryProvider;
 	private SimpleLicenseManager licenseManager;
 
@@ -124,6 +126,12 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (scheduler == null)
 			scheduler = new AutomaticUpdateScheduler();
 		return scheduler;
+	}
+
+	public AutomaticUpdater getAutomaticUpdater() {
+		if (updater == null)
+			updater = new AutomaticUpdater();
+		return updater;
 	}
 
 	/**
