@@ -81,11 +81,11 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		if (profile == null) {
 			Map properties = new HashMap();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
-			properties.put(IProfile.PROP_FLAVOR, installDescription.getFlavor());
 			properties.put(PROP_LAUNCHER_NAME, installDescription.getLauncherName());
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
-			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch() + ",eclipse.p2.install.features=true"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
+			properties.putAll(installDescription.getProfileProperties());
 			profile = profileRegistry.addProfile(installDescription.getProductName(), properties);
 		}
 		return profile;

@@ -11,6 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.installer;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IPath;
 import org.osgi.framework.Version;
 
@@ -25,9 +27,10 @@ public class InstallDescription {
 	private boolean isAutoStart;
 	private String launcherName;
 	private URL metadataRepo;
-	private String productName, flavor;
+	private String productName;
 	private String rootId;
 	private Version rootVersion;
+	private final Map profileProperties = new HashMap();
 
 	public InstallDescription(String name) {
 		this.productName = name;
@@ -58,14 +61,6 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the flavor used to configure the product being installed.
-	 * @return the install flavor
-	 */
-	public String getFlavor() {
-		return flavor;
-	}
-
-	/**
 	 * Returns the local file system location to install into.
 	 * @return a local file system location
 	 */
@@ -87,6 +82,13 @@ public class InstallDescription {
 	 */
 	public URL getMetadataRepository() {
 		return metadataRepo;
+	}
+
+	/**
+	 * Returns the profile properties for this install.
+	 */
+	public Map getProfileProperties() {
+		return profileProperties;
 	}
 
 	/**
@@ -139,10 +141,6 @@ public class InstallDescription {
 		this.bundleLocation = bundleLocation;
 	}
 
-	public void setFlavor(String flavor) {
-		this.flavor = flavor;
-	}
-
 	public void setInstallLocation(IPath location) {
 		this.installLocation = location;
 	}
@@ -153,6 +151,14 @@ public class InstallDescription {
 
 	public void setMetadataRepository(URL repository) {
 		this.metadataRepo = repository;
+	}
+
+	/**
+	 * Supplies a set of profile properties to be added when the profile is created.
+	 * @param properties the profile properties to be added
+	 */
+	public void setProfileProperties(Map properties) {
+		profileProperties.putAll(properties);
 	}
 
 	public void setRootId(String root) {

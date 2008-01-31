@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.installer;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Properties;
+import java.util.*;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
@@ -29,7 +29,6 @@ public class InstallDescriptionParser {
 	private static final String PROP_IS_AUTO_START = "eclipse.p2.autoStart";//$NON-NLS-1$
 	private static final String PROP_LAUNCHER_NAME = "eclipse.p2.launcherName";//$NON-NLS-1$
 	private static final String PROP_METADATA_REPOSITORY = "eclipse.p2.metadata";//$NON-NLS-1$
-	private static final String PROP_PROFILE_FLAVOR = "eclipse.p2.flavor";//$NON-NLS-1$
 	private static final String PROP_PROFILE_NAME = "eclipse.p2.profileName";//$NON-NLS-1$
 	private static final String PROP_ROOT_ID = "eclipse.p2.rootId";//$NON-NLS-1$
 	private static final String PROP_ROOT_VERSION = "eclipse.p2.rootVersion";//$NON-NLS-1$
@@ -50,7 +49,6 @@ public class InstallDescriptionParser {
 			InstallDescription description = new InstallDescription(properties.getProperty(PROP_PROFILE_NAME));
 			description.setArtifactRepository(new URL(properties.getProperty(PROP_ARTIFACT_REPOSITORY)));
 			description.setMetadataRepository(new URL(properties.getProperty(PROP_METADATA_REPOSITORY)));
-			description.setFlavor(properties.getProperty(PROP_PROFILE_FLAVOR));
 			description.setAutoStart(Boolean.TRUE.toString().equalsIgnoreCase(properties.getProperty(PROP_IS_AUTO_START)));
 			description.setLauncherName(properties.getProperty(PROP_LAUNCHER_NAME));
 			String locationString = properties.getProperty(PROP_INSTALL_LOCATION);
@@ -66,6 +64,18 @@ public class InstallDescriptionParser {
 			String versionString = properties.getProperty(PROP_ROOT_VERSION);
 			Version version = versionString == null ? null : new Version(versionString);
 			description.setRootVersion(version);
+
+			//any remaining properties are profile properties
+			Map profileProperties = new HashMap(properties);
+			profileProperties.remove(PROP_PROFILE_NAME);
+			profileProperties.remove(PROP_ARTIFACT_REPOSITORY);
+			profileProperties.remove(PROP_METADATA_REPOSITORY);
+			profileProperties.remove(PROP_IS_AUTO_START);
+			profileProperties.remove(PROP_AGENT_LOCATION);
+			profileProperties.remove(PROP_BUNDLE_LOCATION);
+			profileProperties.remove(PROP_ROOT_ID);
+			profileProperties.remove(PROP_ROOT_VERSION);
+			description.setProfileProperties(profileProperties);
 			return description;
 		} finally {
 			safeClose(in);
