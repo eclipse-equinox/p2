@@ -44,6 +44,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	private static final long MINUTE = 60 * 1000L;
 	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
 	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
+	private static final int POPUP_OFFSET = 20;
 
 	Preferences prefs;
 	long remindDelay = -1L;
@@ -191,14 +192,19 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	 */
 	protected Point getInitialLocation(Point initialSize) {
 		Shell parent = getParentShell();
-		Point parentSize;
-		if (parent != null)
+		Point parentSize, parentLocation;
+
+		if (parent != null) {
 			parentSize = parent.getSize();
-		else {
+			parentLocation = parent.getLocation();
+		} else {
 			Rectangle bounds = getShell().getDisplay().getBounds();
 			parentSize = new Point(bounds.width, bounds.height);
+			parentLocation = new Point(0, 0);
 		}
-		return new Point(parentSize.x - initialSize.x, parentSize.y - initialSize.y);
+		// We have to take parent location into account because SWT considers all
+		// shell locations to be in display coordinates, even if the shell is parented.
+		return new Point(parentSize.x - initialSize.x + parentLocation.x - POPUP_OFFSET, parentSize.y - initialSize.y + parentLocation.y - POPUP_OFFSET);
 	}
 
 	void handlePreferenceChange(PropertyChangeEvent event) {
