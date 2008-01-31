@@ -171,7 +171,7 @@ public class ProvisioningUtil {
 	 */
 	public static IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, IProgressMonitor monitor) throws ProvisionException {
 		Assert.isNotNull(toUpdate);
-		return getPlanner().updatesFor(toUpdate, null, monitor);
+		return getPlanner().updatesFor(toUpdate, new ProvisioningContext(), monitor);
 	}
 
 	/*
@@ -184,7 +184,7 @@ public class ProvisioningUtil {
 		IPlanner planner = getPlanner();
 		ArrayList allUpdates = new ArrayList();
 		for (int i = 0; i < toUpdate.length; i++) {
-			IInstallableUnit[] updates = planner.updatesFor(toUpdate[i], null, monitor);
+			IInstallableUnit[] updates = planner.updatesFor(toUpdate[i], new ProvisioningContext(), monitor);
 			for (int j = 0; j < updates.length; j++)
 				allUpdates.add(updates[j]);
 		}

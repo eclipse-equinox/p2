@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.director.IPlanner;
+import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -43,7 +44,7 @@ public class QueryableUpdates implements IQueryable {
 		}
 		ArrayList allUpdates = new ArrayList();
 		for (int i = 0; i < iusToUpdate.length; i++) {
-			IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], null, new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
+			IInstallableUnit[] updates = planner.updatesFor(iusToUpdate[i], new ProvisioningContext(), new SubProgressMonitor(monitor, totalWork / 2 / iusToUpdate.length));
 			for (int j = 0; j < updates.length; j++)
 				allUpdates.add(updates[j]);
 		}

@@ -64,6 +64,17 @@ public class UpdateAction extends ProfileModificationAction {
 	}
 
 	/*
+	 * Overridden to always validate because we don't construct
+	 * a plan until the dialog is launched.  The dialog uses preferences
+	 * to determine which updates to show and which are selected by default.
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#validatePlan(org.eclipse.equinox.p2.director.ProvisioningPlan)
+	 */
+	protected boolean validatePlan(ProvisioningPlan plan) {
+		return true;
+	}
+
+	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.actions.SelectionProviderAction#selectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
 	 *

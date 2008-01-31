@@ -14,7 +14,9 @@ package org.eclipse.equinox.internal.p2.ui.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.*;
@@ -73,12 +75,28 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 			ProvUI.handleException(e.getCause(), null);
 		}
 
-		if (plan[0] != null)
-			if (plan[0].getStatus().isOK())
-				performOperation(ius, id, plan[0]);
-			else
-				ProvUI.reportStatus(plan[0].getStatus());
+		if (validatePlan(plan[0]))
+			performOperation(ius, id, plan[0]);
 
+	}
+
+	/**
+	 * Validate the plan and return true if the operation should
+	 * be performed with plan.  Report any errors to the user before returning false.
+	 * @param plan
+	 * @return a boolean indicating whether the plan should be used in a
+	 * provisioning operation.
+	 */
+	protected boolean validatePlan(ProvisioningPlan plan) {
+		if (plan != null) {
+			if (plan.getStatus().isOK())
+				return true;
+			ProvUI.reportStatus(plan.getStatus());
+			return false;
+		}
+		// plan was null, no exception thrown.  
+		ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationAction_NullPlan));
+		return false;
 	}
 
 	/*
