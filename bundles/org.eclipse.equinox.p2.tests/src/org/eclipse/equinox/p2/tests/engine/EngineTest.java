@@ -72,7 +72,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testNullProfile() {
 
-		Profile profile = null;
+		IProfile profile = null;
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		try {
@@ -85,7 +85,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testNullPhaseSet() {
 
-		Profile profile = createProfile("test");
+		IProfile profile = createProfile("test");
 		PhaseSet phaseSet = null;
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		try {
@@ -98,7 +98,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testNullOperands() {
 
-		Profile profile = createProfile("test");
+		IProfile profile = createProfile("test");
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = null;
 		try {
@@ -111,7 +111,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testEmptyOperands() {
 
-		Profile profile = createProfile("test");
+		IProfile profile = createProfile("test");
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
@@ -120,7 +120,7 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testEmptyPhaseSet() {
 
-		Profile profile = createProfile("testEmptyPhaseSet");
+		IProfile profile = createProfile("testEmptyPhaseSet");
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
 			// empty PhaseSet
 		};
@@ -141,9 +141,9 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public void testPerformInstallOSGiFramework() {
 		Map properties = new HashMap();
-		properties.put(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
-		Profile profile = createProfile("testPerformInstallOSGiFramework", null, properties);
+		IProfile profile = createProfile("testPerformInstallOSGiFramework", null, properties);
 		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
@@ -162,8 +162,8 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testPerformUpdateOSGiFramework() {
 
 		Map properties = new HashMap();
-		properties.put(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		Profile profile = createProfile("testPerformUpdateOSGiFramework", null, properties);
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		IProfile profile = createProfile("testPerformUpdateOSGiFramework", null, properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createOSGiIU(), createOSGiIU())};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
@@ -175,9 +175,9 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testPerformUninstallOSGiFramework() {
 
 		Map properties = new HashMap();
-		properties.put(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 
-		Profile profile = createProfile("testPerformUninstallOSGiFramework", null, properties);
+		IProfile profile = createProfile("testPerformUninstallOSGiFramework", null, properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createOSGiIU(), null)};
 		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
@@ -188,8 +188,8 @@ public class EngineTest extends AbstractProvisioningTest {
 	public void testPerformRollback() {
 
 		Map properties = new HashMap();
-		properties.put(Profile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
-		Profile profile = createProfile("testPerformRollback", null, properties);
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		IProfile profile = createProfile("testPerformRollback", null, properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		Iterator ius = getInstallableUnits(profile);

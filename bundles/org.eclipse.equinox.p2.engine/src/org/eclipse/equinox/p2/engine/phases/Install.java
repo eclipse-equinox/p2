@@ -13,8 +13,7 @@ package org.eclipse.equinox.p2.engine.phases;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.Messages;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -26,7 +25,7 @@ public class Install extends Phase {
 	final static class BeforeInstallEventAction extends ProvisioningAction {
 
 		public IStatus execute(Map parameters) {
-			Profile profile = (Profile) parameters.get(PARM_PROFILE);
+			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
@@ -40,7 +39,7 @@ public class Install extends Phase {
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
-			profile.internalRemoveInstallableUnit(iu);
+			profile.removeInstallableUnit(iu);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.UNINSTALL, touchpoint));
 			return null;
 		}
@@ -55,13 +54,13 @@ public class Install extends Phase {
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 			IInstallableUnit preparedIU = touchpoint.prepareIU(iu, profile);
-			profile.internalAddInstallableUnit(preparedIU);
+			profile.addInstallableUnit(preparedIU);
 			((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
 
 		public IStatus undo(Map parameters) {
-			Profile profile = (Profile) parameters.get(PARM_PROFILE);
+			IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 			String phaseId = (String) parameters.get(PARM_PHASE_ID);
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
@@ -105,7 +104,7 @@ public class Install extends Phase {
 		return Messages.Phase_Install_Error;
 	}
 
-	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind(Messages.Phase_Install_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);

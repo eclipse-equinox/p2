@@ -14,7 +14,7 @@ public class BeginOperationEvent extends TransactionEvent {
 
 	private static final long serialVersionUID = 6389318375739324865L;
 
-	public BeginOperationEvent(Profile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, Engine engine) {
+	public BeginOperationEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, Engine engine) {
 		super(profile, phaseSet, deltas, engine);
 	}
 }

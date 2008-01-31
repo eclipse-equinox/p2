@@ -135,8 +135,8 @@ public class Application implements IApplication {
 		initializeFromArguments(args);
 
 		Properties props = new Properties();
-		props.setProperty(Profile.PROP_INSTALL_FOLDER, destination);
-		props.setProperty(Profile.PROP_FLAVOR, flavor);
+		props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination);
+		props.setProperty(IProfile.PROP_FLAVOR, flavor);
 		if (bundlePool != null)
 			if (bundlePool.equals(Messages.destination_commandline))
 				props.setProperty("eclipse.p2.cache", destination); //$NON-NLS-1$
@@ -147,9 +147,9 @@ public class Application implements IApplication {
 
 		String env = getEnvironmentProperty();
 		if (env != null)
-			props.setProperty(Profile.PROP_ENVIRONMENTS, env);
-		Profile profile = ProvisioningHelper.addProfile(profileId, props);
-		String currentFlavor = profile.getProperty(Profile.PROP_FLAVOR);
+			props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
+		IProfile profile = ProvisioningHelper.addProfile(profileId, props);
+		String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
 		if (currentFlavor != null && !currentFlavor.endsWith(flavor))
 			throw new RuntimeException(Messages.Inconsistent_flavor);
 

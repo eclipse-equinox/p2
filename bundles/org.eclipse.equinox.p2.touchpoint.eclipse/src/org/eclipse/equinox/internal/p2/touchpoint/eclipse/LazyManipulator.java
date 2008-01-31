@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.equinox.frameworkadmin.*;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -25,9 +25,9 @@ public class LazyManipulator implements Manipulator {
 	private final static String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ')'; //$NON-NLS-1$;
 
 	private Manipulator manipulator;
-	private final Profile profile;
+	private final IProfile profile;
 
-	public LazyManipulator(Profile profile) {
+	public LazyManipulator(IProfile profile) {
 		this.profile = profile;
 	}
 

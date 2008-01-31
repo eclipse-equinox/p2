@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
@@ -60,8 +60,8 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		//Install into a profile in which the filter is satisfied
 		Map properties = new HashMap();
-		properties.put(Profile.PROP_ENVIRONMENTS, "FilterKey=true");
-		Profile satisfied = createProfile("Satisfied." + getName(), null, properties);
+		properties.put(IProfile.PROP_ENVIRONMENTS, "FilterKey=true");
+		IProfile satisfied = createProfile("Satisfied." + getName(), null, properties);
 		ProfileChangeRequest request = new ProfileChangeRequest(satisfied);
 		request.addInstallableUnits(toInstallArray);
 		IStatus result = director.provision(request, null, null);
@@ -85,7 +85,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = createProfile("TestProfile." + getName());
+		IProfile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(toInstallArray);
@@ -108,7 +108,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = createProfile("TestProfile." + getName());
+		IProfile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(allUnits);
@@ -135,7 +135,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = createProfile("TestProfile." + getName());
+		IProfile profile = createProfile("TestProfile." + getName());
 		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(toInstallArray);
@@ -144,8 +144,8 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 
 		//try again with the filter satisfied
 		Map properties = new HashMap();
-		properties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=blort");
-		Profile profile2 = createProfile("TestProfile2." + getName(), null, properties);
+		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
+		IProfile profile2 = createProfile("TestProfile2." + getName(), null, properties);
 		request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(toInstallArray);
 		result = director.provision(request, null, null);
@@ -167,7 +167,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = createProfile("TestProfile." + getName());
+		IProfile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -194,7 +194,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = createProfile("TestProfile." + getName());
+		IProfile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
@@ -222,7 +222,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
 		createTestMetdataRepository(allUnits);
 
-		Profile profile = createProfile("TestProfile." + getName());
+		IProfile profile = createProfile("TestProfile." + getName());
 
 		IDirector director = createDirector();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);

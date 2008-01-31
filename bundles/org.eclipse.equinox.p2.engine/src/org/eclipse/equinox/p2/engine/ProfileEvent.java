@@ -23,7 +23,7 @@ public class ProfileEvent extends EventObject {
 
 	private byte reason;
 
-	public ProfileEvent(Profile source, byte reason) {
+	public ProfileEvent(IProfile source, byte reason) {
 		super(source);
 		this.reason = reason;
 	}
@@ -32,8 +32,8 @@ public class ProfileEvent extends EventObject {
 		return reason;
 	}
 
-	public Profile getProfile() {
-		return (Profile) getSource();
+	public IProfile getProfile() {
+		return (IProfile) getSource();
 	}
 
 }

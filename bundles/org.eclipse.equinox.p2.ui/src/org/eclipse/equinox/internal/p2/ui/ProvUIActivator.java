@@ -116,7 +116,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 					if (o instanceof ProfileEvent) {
 						ProfileEvent event = (ProfileEvent) o;
 						try {
-							Profile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
+							IProfile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfile().getProfileId()))) {
 								if (event.getReason() == ProfileEvent.CHANGED)
 									PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {

@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.reconciler.dropins.ProfileSynchronizer;
 import org.osgi.framework.*;
@@ -54,7 +54,7 @@ public class Activator implements BundleActivator {
 		// trying to be set twice
 		if (!startEarly("org.eclipse.core.runtime")) //$NON-NLS-1$
 			return;
-		Profile profile = getCurrentProfile(context);
+		IProfile profile = getCurrentProfile(context);
 		if (profile == null)
 			return;
 
@@ -81,7 +81,7 @@ public class Activator implements BundleActivator {
 	 * Synchronize the profile.
 	 */
 	public static void synchronize(List extraRepositories, IProgressMonitor monitor) {
-		Profile profile = getCurrentProfile(bundleContext);
+		IProfile profile = getCurrentProfile(bundleContext);
 		if (profile == null)
 			return;
 		// create the profile synchronizer on all available repositories
@@ -112,7 +112,7 @@ public class Activator implements BundleActivator {
 	/*
 	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
 	 */
-	private void watchDropins(Profile profile) {
+	private void watchDropins(IProfile profile) {
 		File folder = getWatchedDirectory(bundleContext);
 		if (folder == null)
 			return;
@@ -207,7 +207,7 @@ public class Activator implements BundleActivator {
 	//		}
 	//	}
 
-	private static Profile getCurrentProfile(BundleContext context) {
+	private static IProfile getCurrentProfile(BundleContext context) {
 		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
 		if (reference == null)
 			return null;

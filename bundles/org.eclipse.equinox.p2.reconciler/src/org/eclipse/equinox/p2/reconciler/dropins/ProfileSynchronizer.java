@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.configurator.Configurator;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -31,13 +31,13 @@ public class ProfileSynchronizer {
 	private static final String REPOSITORY_ID = "repository.id"; //$NON-NLS-1$
 	private IInstallableUnit[] iusToRemove;
 	private IInstallableUnit[] iusToAdd;
-	private Profile profile;
+	private IProfile profile;
 	private List repositories;
 
 	/*
 	 * Constructor for the class.
 	 */
-	public ProfileSynchronizer(Profile profile, List repositories) {
+	public ProfileSynchronizer(IProfile profile, List repositories) {
 		super();
 		this.profile = profile;
 		this.repositories = repositories;

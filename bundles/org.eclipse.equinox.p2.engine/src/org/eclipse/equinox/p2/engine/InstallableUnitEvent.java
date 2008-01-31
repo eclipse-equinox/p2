@@ -22,17 +22,17 @@ public class InstallableUnitEvent extends EventObject {
 	private String phaseId;
 	private boolean prePhase;
 
-	private Profile profile;
+	private IProfile profile;
 	private InstallableUnitOperand operand;
 	private Touchpoint touchpoint;
 	private IStatus result;
 	private int type;
 
-	public InstallableUnitEvent(String phaseId, boolean prePhase, Profile profile, InstallableUnitOperand operand, int type, Touchpoint touchpoint) {
+	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, InstallableUnitOperand operand, int type, Touchpoint touchpoint) {
 		this(phaseId, prePhase, profile, operand, type, touchpoint, null);
 	}
 
-	public InstallableUnitEvent(String phaseId, boolean prePhase, Profile profile, InstallableUnitOperand operand, int type, Touchpoint touchpoint, IStatus result) {
+	public InstallableUnitEvent(String phaseId, boolean prePhase, IProfile profile, InstallableUnitOperand operand, int type, Touchpoint touchpoint, IStatus result) {
 		super(touchpoint); //TODO not sure if the touchpoint should be the source
 		this.phaseId = phaseId;
 		this.prePhase = prePhase;
@@ -49,7 +49,7 @@ public class InstallableUnitEvent extends EventObject {
 		return touchpoint;
 	}
 
-	public Profile getProfile() {
+	public IProfile getProfile() {
 		return profile;
 	}
 

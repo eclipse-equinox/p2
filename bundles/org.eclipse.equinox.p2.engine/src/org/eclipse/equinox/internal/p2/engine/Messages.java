@@ -36,6 +36,7 @@ public class Messages extends NLS {
 	public static String Profile_Duplicate_Root_Profile_Id;
 	public static String Profile_Not_Named_Self;
 	public static String Profile_Null_Profile_Id;
+	public static String Profile_Parent_Not_Found;
 
 	public static String SimpleProfileRegistry_Cannot_Create_File_Error;
 	public static String SimpleProfileRegistry_Parser_Error_Parsing_Registry;

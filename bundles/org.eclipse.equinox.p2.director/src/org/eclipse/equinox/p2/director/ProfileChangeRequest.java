@@ -11,13 +11,13 @@ package org.eclipse.equinox.p2.director;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 public class ProfileChangeRequest {
 
-	private final Profile profile;
+	private final IProfile profile;
 	private ArrayList iusToRemove = null; // list of ius to remove
 	private ArrayList iusToAdd = null; // list of ius to add
 	private ArrayList propertiesToRemove = null; // list of keys for properties to be removed
@@ -29,19 +29,19 @@ public class ProfileChangeRequest {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
 		if (profileRegistry == null)
 			throw new IllegalStateException("ProfileRegistry unavailable");
-		Profile profile = profileRegistry.getProfile(profileId);
+		IProfile profile = profileRegistry.getProfile(profileId);
 		if (profile == null)
 			throw new IllegalArgumentException("Profile id " + profileId + " is not registered.");
 		return new ProfileChangeRequest(profile);
 	}
 
-	public ProfileChangeRequest(Profile profile) {
+	public ProfileChangeRequest(IProfile profile) {
 		if (profile == null)
 			throw new IllegalArgumentException("Profile cannot be null.");
 		this.profile = profile;
 	}
 
-	public Profile getProfile() {
+	public IProfile getProfile() {
 		return profile;
 	}
 

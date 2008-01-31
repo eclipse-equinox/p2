@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.installer;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
@@ -21,8 +20,8 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
@@ -70,24 +69,25 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	/**
 	 * This profile is being updated; return the units to uninstall from the profile.
 	 */
-	private IInstallableUnit[] computeUnitsToUninstall(Profile profile) {
-		return (IInstallableUnit[]) profile.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
+	private IInstallableUnit[] computeUnitsToUninstall(IProfile p) {
+		return (IInstallableUnit[]) p.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
 	}
 
 	/**
 	 * Create and return the profile into which units will be installed.
 	 */
-	private Profile createProfile() {
-		Profile profile = getProfile();
+	private IProfile createProfile() {
+		IProfile profile = getProfile();
 		if (profile == null) {
-			profile = new Profile(installDescription.getProductName());
-			profile.internalSetValue(Profile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
-			profile.internalSetValue(Profile.PROP_FLAVOR, installDescription.getFlavor());
-			profile.internalSetValue(PROP_LAUNCHER_NAME, installDescription.getLauncherName());
+			Map properties = new HashMap();
+			properties.put(IProfile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
+			properties.put(IProfile.PROP_FLAVOR, installDescription.getFlavor());
+			properties.put(PROP_LAUNCHER_NAME, installDescription.getLauncherName());
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch() + ",eclipse.p2.install.features=true"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			profile.internalSetValue(Profile.PROP_ENVIRONMENTS, env);
-			profileRegistry.addProfile(profile);
+			properties.put(IProfile.PROP_ENVIRONMENTS, env);
+			profileRegistry.addProfile(installDescription.getProductName(), properties);
+			profile = profileRegistry.getProfile(installDescription.getProductName());
 		}
 		return profile;
 	}
@@ -98,7 +98,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	private void doInstall(SubMonitor monitor) throws CoreException {
 		prepareMetadataRepository();
 		prepareArtifactRepository();
-		Profile p = createProfile();
+		IProfile p = createProfile();
 		IInstallableUnit[] toInstall = computeUnitsToInstall();
 		monitor.worked(5);
 
@@ -161,7 +161,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	/**
 	 * Returns the profile being installed into.
 	 */
-	private Profile getProfile() {
+	private IProfile getProfile() {
 		return profileRegistry.getProfile(installDescription.getProductName());
 	}
 

@@ -12,8 +12,7 @@
 package org.eclipse.equinox.p2.ui.operations;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.EventObject;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.*;
@@ -118,12 +117,13 @@ public class ProvisioningUtil {
 			ProvUIActivator.getDefault().notifyListeners(new EventObject(IProvisioningListener.REPO_REMOVED));
 	}
 
-	public static void addProfile(Profile profile, IProgressMonitor monitor) throws ProvisionException {
+	public static IProfile addProfile(String profileId, Map properties, IProgressMonitor monitor) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
 		}
-		profileRegistry.addProfile(profile);
+		profileRegistry.addProfile(profileId, properties);
+		return profileRegistry.getProfile(profileId);
 	}
 
 	public static void removeProfile(String profileId, IProgressMonitor monitor) throws ProvisionException {
@@ -134,7 +134,7 @@ public class ProvisioningUtil {
 		profileRegistry.removeProfile(profileId);
 	}
 
-	public static Profile[] getProfiles() throws ProvisionException {
+	public static IProfile[] getProfiles() throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
@@ -142,7 +142,7 @@ public class ProvisioningUtil {
 		return profileRegistry.getProfiles();
 	}
 
-	public static Profile getProfile(String id) throws ProvisionException {
+	public static IProfile getProfile(String id) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound);
@@ -211,7 +211,7 @@ public class ProvisioningUtil {
 		return null;
 	}
 
-	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, Profile profile, IProgressMonitor monitor) throws ProvisionException {
+	public static IStatus performProvisioningPlan(ProvisioningPlan plan, PhaseSet phaseSet, IProfile profile, IProgressMonitor monitor) throws ProvisionException {
 		PhaseSet set;
 		if (phaseSet == null)
 			set = new DefaultPhaseSet();

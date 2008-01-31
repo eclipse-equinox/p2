@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
@@ -54,7 +54,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 		Query groupQuery = new CapabilityQuery(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)); //$NON-NLS-1$
 		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
 		Query query;
-		Profile profile;
+		IProfile profile;
 		switch (queryType) {
 			case IQueryProvider.ARTIFACT_REPOS :
 				queryable = new QueryableArtifactRepositoryManager();
@@ -104,7 +104,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 					return new ElementQueryDescriptor(((IUVersionsElement) element).getQueryable(), new InstallableUnitQuery(iu.getId()), new OtherIUVersionsCollector(iu, this, ((IUVersionsElement) element).getQueryable()));
 				}
 			case IQueryProvider.AVAILABLE_UPDATES :
-				profile = (Profile) ProvUI.getAdapter(element, Profile.class);
+				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				IInstallableUnit[] toUpdate;
 				Collector collector;
 				if (profile != null) {
@@ -127,7 +127,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 					collector = new Collector();
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case IQueryProvider.INSTALLED_IUS :
-				profile = (Profile) ProvUI.getAdapter(element, Profile.class);
+				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				if (showRootsOnly)
 					query = new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 				else
@@ -146,7 +146,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {
 					public boolean isMatch(Object candidate) {
-						return ProvUI.getAdapter(candidate, Profile.class) != null;
+						return ProvUI.getAdapter(candidate, IProfile.class) != null;
 					}
 				}, new ProfileElementCollector(this, null));
 			default :

@@ -6,75 +6,21 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.engine;
+package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.Messages;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 
-public class Profile implements IQueryable {
-
-	/**
-	 * Profile property constant indicating the flavor for the profile.
-	 */
-	public static String PROP_FLAVOR = "eclipse.p2.flavor"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant indicating the install folder for the profile.
-	 */
-	public static final String PROP_INSTALL_FOLDER = "eclipse.p2.installFolder"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant indicating the installed language(s) for the profile.
-	 */
-	public static final String PROP_NL = "eclipse.p2.nl"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant for a string property indicating a user visible short 
-	 * textual description of this profile. May be empty or <code>null</code>, and 
-	 * generally will be for non-top level install contexts.
-	 */
-	public static final String PROP_DESCRIPTION = "eclipse.p2.description"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant for a string property indicating a user visible name of this profile.
-	 * May be empty or <code>null</code>, and generally will be for non-top level
-	 * install contexts.
-	 */
-	public static final String PROP_NAME = "eclipse.p2.name"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant indicating the list of environments
-	 * (e.g., OS, WS, ...) in which a profile can operate. The value of the property
-	 * is a comma-delimited string of key/value pairs.
-	 */
-	public static final String PROP_ENVIRONMENTS = "eclipse.p2.environments"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant for a boolean property indicating if the profiling
-	 * is roaming.  A roaming profile is one whose physical install location varies
-	 * and is updated whenever it runs.
-	 */
-	public static final String PROP_ROAMING = "eclipse.p2.roaming"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant indicating the bundle pool cache location.
-	 */
-	public static final String PROP_CACHE = "eclipse.p2.cache"; //$NON-NLS-1$
-
-	/**
-	 * Profile property constant indicating the bundle pool cache location.
-	 */
-	public static final String PROP_INSTALL_FEATURES = "eclipse.p2.install.features"; //$NON-NLS-1$
+public class Profile implements IQueryable, IProfile {
 
 	//Internal id of the profile
 	private String profileId;
@@ -97,14 +43,6 @@ public class Profile implements IQueryable {
 	 */
 	private Map iuProperties = new HashMap();
 	private boolean changed = false;
-
-	public Profile(String profileId) {
-		this(profileId, null, null);
-	}
-
-	public Profile(String profileId, Profile parent) {
-		this(profileId, parent, null);
-	}
 
 	public Profile(String profileId, Profile parent, Map properties) {
 		if (profileId == null || profileId.length() == 0) {
@@ -149,25 +87,34 @@ public class Profile implements IQueryable {
 	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
 
 	private void checkUpdateCompatibility() {
-		if (getProperty(PROP_INSTALL_FEATURES) == null) {
+		if (getProperty(IProfile.PROP_INSTALL_FEATURES) == null) {
 			String updateCompatible = Activator.getContext().getProperty(UPDATE_COMPATIBILITY);
 			if (updateCompatible == null)
 				updateCompatible = Boolean.FALSE.toString();
-			internalSetValue(PROP_INSTALL_FEATURES, updateCompatible);
+			setProperty(IProfile.PROP_INSTALL_FEATURES, updateCompatible);
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getProfileId()
+	 */
 	public String getProfileId() {
 		return profileId;
 	}
 
-	public Profile getParentProfile() {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getParentProfile()
+	 */
+	public IProfile getParentProfile() {
 		return parentProfile;
 	}
 
 	/*
 	 * 	A profile is a root profile if it is not a sub-profile
 	 * 	of another profile.
+	 */
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#isRootProfile()
 	 */
 	public boolean isRootProfile() {
 		return parentProfile == null;
@@ -189,10 +136,16 @@ public class Profile implements IQueryable {
 			subProfileIds.remove(subProfileId);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#hasSubProfiles()
+	 */
 	public boolean hasSubProfiles() {
 		return subProfileIds == null || subProfileIds.isEmpty();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getSubProfileIds()
+	 */
 	public String[] getSubProfileIds() {
 		if (subProfileIds == null)
 			return noSubProfiles;
@@ -200,15 +153,8 @@ public class Profile implements IQueryable {
 		return (String[]) subProfileIds.toArray(new String[subProfileIds.size()]);
 	}
 
-	/**
-	 * 	Get the stored value associated with the given key.
-	 * 	If the profile is a sub-profile and there is no value
-	 * 	locally associated with the key, then the chain
-	 * 	of parent profiles will be traversed to get an associated
-	 *  value from the nearest ancestor.
-	 *  
-	 *  <code>null</code> is return if none of this profile
-	 *  or its ancestors associates a value with the key.
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getProperty(java.lang.String)
 	 */
 	public String getProperty(String key) {
 		String value = storage.getProperty(key);
@@ -218,11 +164,8 @@ public class Profile implements IQueryable {
 		return value;
 	}
 
-	/**
-	 * 	Get the stored value associated with the given key
-	 * 	in this profile.
-	 * 	No traversal of the ancestor hierarchy is done
-	 * 	for sub-profiles.
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getLocalProperty(java.lang.String)
 	 */
 	public String getLocalProperty(String key) {
 		return storage.getProperty(key);
@@ -232,19 +175,21 @@ public class Profile implements IQueryable {
 	 * 	Associate the given value with the given key
 	 * 	in the local storage of this profile.
 	 */
-	public void internalSetValue(String key, String value) {
+	public void setProperty(String key, String value) {
 		storage.setProperty(key, value);
 		changed = true;
 	}
 
-	public Map internalGetLocalProperties() {
-		return storage;
-	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#query(org.eclipse.equinox.p2.query.Query, org.eclipse.equinox.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(iuProperties.keySet().iterator(), collector);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getInstallableUnitProperty(org.eclipse.equinox.p2.metadata.IInstallableUnit, java.lang.String)
+	 */
 	public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null)
@@ -253,7 +198,7 @@ public class Profile implements IQueryable {
 		return properties.getProperty(key);
 	}
 
-	public String internalSetInstallableUnitProperty(IInstallableUnit iu, String key, String value) {
+	public String setInstallableUnitProperty(IInstallableUnit iu, String key, String value) {
 		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
 		if (properties == null) {
 			properties = new OrderedProperties();
@@ -270,16 +215,16 @@ public class Profile implements IQueryable {
 		//			bus.publishEvent(new ProfileEvent(this, ProfileEvent.CHANGED));
 	}
 
-	/**
-	 * Get an <i>unmodifiable copy</i> of the local properties
-	 * associated with the profile.
-	 * 
-	 * @return an <i>unmodifiable copy</i> of the Profile properties.
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getLocalProperties()
 	 */
 	public Map getLocalProperties() {
 		return OrderedProperties.unmodifiableProperties(storage);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getProperties()
+	 */
 	public Map getProperties() {
 		if (parentProfile == null)
 			return getLocalProperties();
@@ -293,12 +238,12 @@ public class Profile implements IQueryable {
 	 * 	Add all the properties in the map to the local properties
 	 * 	of the profile.
 	 */
-	public void internalAddProperties(Map properties) {
+	public void addProperties(Map properties) {
 		storage.putAll(properties);
 		changed = true;
 	}
 
-	public void internalAddInstallableUnit(IInstallableUnit iu) {
+	public void addInstallableUnit(IInstallableUnit iu) {
 		if (iuProperties.containsKey(iu))
 			return;
 
@@ -306,13 +251,20 @@ public class Profile implements IQueryable {
 		changed = true;
 	}
 
-	public void internalRemoveInstallableUnit(IInstallableUnit iu) {
+	public void removeInstallableUnit(IInstallableUnit iu) {
 		if (iuProperties.remove(iu) != null)
 			changed = true;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.p2.engine.IProfile#getInstallableUnitProperties(org.eclipse.equinox.p2.metadata.IInstallableUnit)
+	 */
 	public OrderedProperties getInstallableUnitProperties(IInstallableUnit iu) {
 		return (OrderedProperties) iuProperties.get(iu);
+	}
+
+	public void clearLocalProperties() {
+		storage.clear();
 	}
 
 	public boolean isChanged() {

@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
@@ -34,7 +35,7 @@ public class NativeTouchpoint extends Touchpoint {
 		if (actionId.equals("collect")) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					Profile profile = (Profile) parameters.get("profile");
+					IProfile profile = (IProfile) parameters.get("profile");
 					InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get("operand");
 					try {
 						IArtifactRequest[] requests = collect(operand.second(), profile);
@@ -107,7 +108,7 @@ public class NativeTouchpoint extends Touchpoint {
 		return MetadataFactory.createTouchpointType("native", new Version(1, 0, 0));
 	}
 
-	IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) throws ProvisionException {
+	IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null)
 			return new IArtifactRequest[0];
@@ -126,8 +127,8 @@ public class NativeTouchpoint extends Touchpoint {
 		return result;
 	}
 
-	private String getInstallFolder(Profile profile) {
-		return profile.getProperty(Profile.PROP_INSTALL_FOLDER);
+	private String getInstallFolder(IProfile profile) {
+		return profile.getProperty(IProfile.PROP_INSTALL_FOLDER);
 	}
 
 	private static AgentLocation getAgentLocation() {
@@ -166,7 +167,7 @@ public class NativeTouchpoint extends Touchpoint {
 		return (location != null ? location.getArtifactRepositoryURL() : null);
 	}
 
-	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put("installFolder", getInstallFolder(profile));
 		return null;
 	}
@@ -208,7 +209,7 @@ public class NativeTouchpoint extends Touchpoint {
 		for (int i = 0; i < unzippedFiles.length; i++)
 			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append("|");
 
-		String unzipped = profile.internalSetInstallableUnitProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
+		String unzipped = profile.setInstallableUnitProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
 
 		return Status.OK_STATUS;
 	}
@@ -222,7 +223,7 @@ public class NativeTouchpoint extends Touchpoint {
 			return createError("The \"target\" parameter was not set in the \"cleanupzip\" action.");
 
 		IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
-		Profile profile = (Profile) parameters.get("profile");
+		IProfile profile = (IProfile) parameters.get("profile");
 
 		String unzipped = profile.getInstallableUnitProperty(iu, "unzipped" + "|" + source + "|" + target);
 

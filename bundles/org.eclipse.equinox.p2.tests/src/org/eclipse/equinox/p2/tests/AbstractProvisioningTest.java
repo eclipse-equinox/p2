@@ -57,10 +57,10 @@ public class AbstractProvisioningTest extends TestCase {
 	 */
 	private List profilesToRemove = new ArrayList();
 
-	public static void assertEmptyProfile(Profile p) {
-		assertNotNull("The profile should not be null", p);
-		if (getInstallableUnits(p).hasNext())
-			fail("The profile should be empty,profileId=" + p);
+	public static void assertEmptyProfile(IProfile profile) {
+		assertNotNull("The profile should not be null", profile);
+		if (getInstallableUnits(profile).hasNext())
+			fail("The profile should be empty,profileId=" + profile);
 	}
 
 	protected static void assertNotIUs(IInstallableUnit[] ius, Iterator installableUnits) {
@@ -101,7 +101,7 @@ public class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Asserts that the given profile contains *only* the given IUs.
 	 */
-	protected static void assertProfileContains(String message, Profile profile, IInstallableUnit[] expectedUnits) {
+	protected static void assertProfileContains(String message, IProfile profile, IInstallableUnit[] expectedUnits) {
 		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
 		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
 			IInstallableUnit actual = (IInstallableUnit) it.next();
@@ -115,14 +115,14 @@ public class AbstractProvisioningTest extends TestCase {
 	/**
 	 * Asserts that the given profile contains all the given IUs.
 	 */
-	protected static void assertProfileContainsAll(String message, Profile profile, IInstallableUnit[] expectedUnits) {
+	protected static void assertProfileContainsAll(String message, IProfile profile2, IInstallableUnit[] expectedUnits) {
 		HashSet expected = new HashSet(Arrays.asList(expectedUnits));
-		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+		for (Iterator it = getInstallableUnits(profile2); it.hasNext();) {
 			IInstallableUnit actual = (IInstallableUnit) it.next();
 			expected.remove(actual);
 		}
 		if (!expected.isEmpty())
-			fail(message + " profile " + profile.getProfileId() + " did not contain expected units: " + expected);
+			fail(message + " profile " + profile2.getProfileId() + " did not contain expected units: " + expected);
 	}
 
 	/*
@@ -461,8 +461,8 @@ public class AbstractProvisioningTest extends TestCase {
 		fail(message + ": " + e);
 	}
 
-	public static Iterator getInstallableUnits(Profile p) {
-		return p.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+	public static Iterator getInstallableUnits(IProfile profile2) {
+		return profile2.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 	}
 
 	/**
@@ -488,9 +488,9 @@ public class AbstractProvisioningTest extends TestCase {
 			}
 	}
 
-	public static void printProfile(Profile toPrint) {
+	public static void printProfile(IProfile profile) {
 		boolean containsIU = false;
-		for (Iterator iterator = getInstallableUnits(toPrint); iterator.hasNext();) {
+		for (Iterator iterator = getInstallableUnits(profile); iterator.hasNext();) {
 			System.out.println(iterator.next());
 			containsIU = true;
 		}
@@ -564,8 +564,8 @@ public class AbstractProvisioningTest extends TestCase {
 	 * already exists.  The returned profile will be removed automatically
 	 * in the tearDown method.
 	 */
-	protected Profile createProfile(String name) {
-		return createProfile(name, null);
+	protected IProfile createProfile(String name) {
+		return createProfile(name, null, null);
 	}
 
 	/**
@@ -573,22 +573,21 @@ public class AbstractProvisioningTest extends TestCase {
 	 * already exists.  The returned profile will be removed automatically
 	 * in the tearDown method.
 	 */
-	protected Profile createProfile(String name, Profile parent) {
-		return createProfile(name, parent, null);
+	protected IProfile createProfile(String name, String parentId) {
+		return createProfile(name, parentId, null);
 	}
 
-	protected Profile createProfile(String name, Profile parent, Map properties) {
+	protected IProfile createProfile(String name, String parentId, Map properties) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		profileRegistry.removeProfile(name);
 		//create and return a new profile
-		Profile profile = new Profile(name, parent, properties);
-		profileRegistry.addProfile(profile);
-		profilesToRemove.add(profile);
-		return profile;
+		profileRegistry.addProfile(name, properties, parentId);
+
+		return profileRegistry.getProfile(name);
 	}
 
-	protected Profile getProfile(String profileId) {
+	protected IProfile getProfile(String profileId) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		return profileRegistry.getProfile(profileId);
@@ -634,7 +633,7 @@ public class AbstractProvisioningTest extends TestCase {
 		//remove all profiles created by this test
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
-			Profile toRemove = (Profile) it.next();
+			IProfile toRemove = (IProfile) it.next();
 			profileRegistry.removeProfile(toRemove.getProfileId());
 		}
 		profilesToRemove.clear();

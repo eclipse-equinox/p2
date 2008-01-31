@@ -96,11 +96,11 @@ public class ProvisioningHelper {
 		manager.removeRepository(location);
 	}
 
-	public static Profile addProfile(String profileId, Properties properties) {
+	public static IProfile addProfile(String profileId, Properties properties) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null)
 			return null;
-		Profile profile = profileRegistry.getProfile(profileId);
+		IProfile profile = profileRegistry.getProfile(profileId);
 		if (profile != null)
 			return profile;
 
@@ -111,16 +111,16 @@ public class ProvisioningHelper {
 			profileProperties.put(key, properties.getProperty(key));
 		}
 
-		if (profileProperties.get(Profile.PROP_ENVIRONMENTS) == null) {
+		if (profileProperties.get(IProfile.PROP_ENVIRONMENTS) == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
-				profileProperties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 			else
-				profileProperties.put(Profile.PROP_ENVIRONMENTS, "");
+				profileProperties.put(IProfile.PROP_ENVIRONMENTS, "");
 		}
-		profile = new Profile(profileId, null, profileProperties);
-		profileRegistry.addProfile(profile);
-		return profile;
+
+		profileRegistry.addProfile(profileId, profileProperties);
+		return profileRegistry.getProfile(profileId);
 	}
 
 	public static void removeProfile(String profileId) {
@@ -130,14 +130,14 @@ public class ProvisioningHelper {
 		profileRegistry.removeProfile(profileId);
 	}
 
-	public static Profile[] getProfiles() {
+	public static IProfile[] getProfiles() {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null)
-			return new Profile[0];
+			return new IProfile[0];
 		return profileRegistry.getProfiles();
 	}
 
-	public static Profile getProfile(String id) {
+	public static IProfile getProfile(String id) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null)
 			return null;
@@ -178,7 +178,7 @@ public class ProvisioningHelper {
 	/**
 	 * Install the described IU
 	 */
-	public static IStatus install(String unitId, String version, Profile profile, IProgressMonitor progress) throws ProvisionException {
+	public static IStatus install(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		if (profile == null)
 			return null;
 		Collector units = getInstallableUnits(null, new InstallableUnitQuery(unitId, new Version(version)), progress);
@@ -213,7 +213,7 @@ public class ProvisioningHelper {
 	/**
 	 * Uninstall the described IU
 	 */
-	public static IStatus uninstall(String unitId, String version, Profile profile, IProgressMonitor progress) throws ProvisionException {
+	public static IStatus uninstall(String unitId, String version, IProfile profile, IProgressMonitor progress) throws ProvisionException {
 		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
 		if (director == null)
 			throw new ProvisionException("No director service found.");

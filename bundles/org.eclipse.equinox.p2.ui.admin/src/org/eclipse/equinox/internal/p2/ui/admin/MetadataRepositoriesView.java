@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.IProfileChooser;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
@@ -108,7 +108,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 				dialog.open();
 				Object[] result = dialog.getResult();
 				if (result != null && result.length > 0) {
-					Profile profile = (Profile) ProvUI.getAdapter(result[0], Profile.class);
+					IProfile profile = (IProfile) ProvUI.getAdapter(result[0], IProfile.class);
 					if (profile != null)
 						return profile.getProfileId();
 				}

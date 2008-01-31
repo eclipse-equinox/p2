@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.garbagecollector;
 
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 
 /** 
  * Any class which declares itself as an extension to the org.eclipse.equinox.p2.garbagecollector.marksetproviders
@@ -20,21 +20,21 @@ import org.eclipse.equinox.p2.engine.Profile;
  * Profile.
  */
 public interface IMarkSetProvider {
-	
+
 	/**
 	 * Returns a MarkSet for each bundle pool used by a Profile p.  The MarkSet will contain
 	 * all of the IArtifactKeys found in p, as well as the IArtifactRepository over which the
 	 * root set of keys is being created.
-	 * @param p A profile whose ArtifactRepositories require a garbage collection
+	 * @param profile A profile whose ArtifactRepositories require a garbage collection
 	 * @return An array of MarkSet object(s) containing p's IArtifactRepository and its root set of IArtifactKeys
 	 */
-	public MarkSet[] getMarkSets(Profile p);
-	
+	public MarkSet[] getMarkSets(IProfile profile);
+
 	/**
 	 * Returns the IArtifactRepository for which this IMarkSetProvider provides a MarkSet.
 	 * @param p The Profile whose IArtifactRepository is required
 	 * @return The IArtifactRepository for which this IMarkSetProvider provides a MarkSet.
 	 */
-	public IArtifactRepository getRepository(Profile p);
+	public IArtifactRepository getRepository(IProfile p);
 
 }

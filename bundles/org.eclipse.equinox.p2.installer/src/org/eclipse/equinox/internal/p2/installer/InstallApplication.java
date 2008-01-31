@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
@@ -185,8 +185,8 @@ public class InstallApplication implements IApplication {
 		}
 		//set bundle pool location if specified
 		IPath bundleLocation = description.getBundleLocation();
-		if (bundleLocation != null && System.getProperty(Profile.PROP_CACHE) == null)
-			System.setProperty(Profile.PROP_CACHE, bundleLocation.toString());
+		if (bundleLocation != null && System.getProperty(IProfile.PROP_CACHE) == null)
+			System.setProperty(IProfile.PROP_CACHE, bundleLocation.toString());
 
 		//start up p2
 		try {

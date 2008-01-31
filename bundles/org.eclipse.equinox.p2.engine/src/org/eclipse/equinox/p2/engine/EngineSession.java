@@ -31,9 +31,9 @@ public class EngineSession {
 	private List currentActionRecords;
 	private ActionsRecord currentRecord;
 
-	private Profile profile;
+	private IProfile profile;
 
-	public EngineSession(Profile profile) {
+	public EngineSession(IProfile profile) {
 		this.profile = profile;
 	}
 

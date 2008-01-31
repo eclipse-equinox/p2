@@ -13,14 +13,12 @@ package org.eclipse.equinox.p2.tests.full;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -57,7 +55,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 		String autoInstall = System.getProperty("eclipse.p2.autoInstall");
 		Collector allJobs = mgr.query(new InstallableUnitQuery(autoInstall, VersionRange.emptyRange), new Collector(), null);
 
-		String installFolder = System.getProperty(Profile.PROP_INSTALL_FOLDER);
+		String installFolder = System.getProperty(IProfile.PROP_INSTALL_FOLDER);
 		ServiceReference profileRegSr = TestActivator.context.getServiceReference(IProfileRegistry.class.getName());
 		IProfileRegistry profileRegistry = (IProfileRegistry) TestActivator.context.getService(profileRegSr);
 		if (profileRegistry == null) {
@@ -67,18 +65,18 @@ public class DirectorTest extends AbstractProvisioningTest {
 		String newFlavor = System.getProperty("eclipse.p2.configurationFlavor");
 		boolean doUninstall = (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("eclipse.p2.doUninstall"))));
 
-		Profile p = null;
+		IProfile p = null;
 		if (doUninstall) {
 			p = profileRegistry.getProfile(installFolder);
 			if (p == null)
 				throw new RuntimeException("Uninstalling from a nonexistent profile");
 		} else {
 			Map properties = new HashMap();
-			properties.put(Profile.PROP_INSTALL_FOLDER, installFolder);
-			properties.put(Profile.PROP_FLAVOR, newFlavor);
+			properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder);
+			properties.put(IProfile.PROP_FLAVOR, newFlavor);
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
-				properties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+				properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 
 			p = createProfile(installFolder, null, properties);
 		}
@@ -97,20 +95,6 @@ public class DirectorTest extends AbstractProvisioningTest {
 			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.p2.director.test", "The installable unit '" + System.getProperty("eclipse.p2.autoInstall") + "' has not been found");
 		}
 
-		if (operationStatus.isOK()) {
-			System.out.println((!doUninstall ? "installation" : "uninstallation") + " complete");
-			if (profileRegistry.getProfile(p.getProfileId()) == null) {
-				profileRegistry.addProfile(p);
-			} else {
-				// TODO: should delete the profile if it is 'empty'
-				// if (p.isEmpty()) {
-				//     profileRegistry.removeProfile(p);
-				// }
-			}
-		} else {
-			System.out.println((!doUninstall ? "installation" : "uninstallation") + " failed. " + operationStatus);
-			LogHelper.log(operationStatus);
-		}
 		if (!operationStatus.isOK())
 			fail("The installation has failed");
 

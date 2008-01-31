@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.engine;
 
+import java.util.Map;
+
 /**
  * This encapsulates the access to the profile registry. 
  * It deals with persistence in a transparent way.
@@ -24,7 +26,7 @@ public interface IProfileRegistry {
 	 * @param id the profile identifier
 	 * @return the profile or <code>null</code>
 	 */
-	Profile getProfile(String id);
+	IProfile getProfile(String id);
 
 	/**
 	 * Return an array of profiles known to this registry. If there are none, then
@@ -32,7 +34,7 @@ public interface IProfileRegistry {
 	 * 
 	 * @return the array of profiles
 	 */
-	Profile[] getProfiles();
+	IProfile[] getProfiles();
 
 	/**
 	 * Add the given profile to this profile registry.
@@ -41,7 +43,13 @@ public interface IProfileRegistry {
 	 * @throws IllegalArgumentException if a profile
 	 *         with the same id is already present in the registry.
 	 */
-	void addProfile(Profile toAdd) throws IllegalArgumentException;
+//	void addProfile(Profile toAdd) throws IllegalArgumentException;
+
+	void addProfile(String id);
+
+	void addProfile(String id, Map properties);
+
+	void addProfile(String id, Map properties, String parentId);
 
 	/**
 	 * Remove the given profile from this profile registry.

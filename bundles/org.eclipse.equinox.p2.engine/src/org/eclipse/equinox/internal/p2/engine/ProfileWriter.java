@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 
 public class ProfileWriter extends XMLWriter implements ProfileXMLConstants {
 
@@ -21,17 +21,17 @@ public class ProfileWriter extends XMLWriter implements ProfileXMLConstants {
 		super(output, processingInstructions);
 	}
 
-	public void writeProfile(Profile profile) {
+	public void writeProfile(IProfile profile) {
 		start(PROFILE_ELEMENT);
 		attribute(ID_ATTRIBUTE, profile.getProfileId());
-		Profile parentProfile = profile.getParentProfile();
+		IProfile parentProfile = profile.getParentProfile();
 		if (parentProfile != null)
 			attribute(PARENT_ID_ATTRIBUTE, parentProfile.getProfileId());
 		writeProperties(profile.getLocalProperties());
 		end(PROFILE_ELEMENT);
 	}
 
-	public void writeProfiles(Profile[] profiles) {
+	public void writeProfiles(IProfile[] profiles) {
 		if (profiles.length > 0) {
 			start(PROFILES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, profiles.length);

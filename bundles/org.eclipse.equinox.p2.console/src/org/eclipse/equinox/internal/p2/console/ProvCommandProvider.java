@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
@@ -124,10 +124,10 @@ public class ProvCommandProvider implements CommandProvider {
 		}
 		String environments = interpreter.nextArgument();
 		Properties props = new Properties();
-		props.setProperty(Profile.PROP_INSTALL_FOLDER, location);
-		props.setProperty(Profile.PROP_FLAVOR, flavor);
+		props.setProperty(IProfile.PROP_INSTALL_FOLDER, location);
+		props.setProperty(IProfile.PROP_FLAVOR, flavor);
 		if (environments != null)
-			props.setProperty(Profile.PROP_ENVIRONMENTS, environments);
+			props.setProperty(IProfile.PROP_ENVIRONMENTS, environments);
 
 		ProvisioningHelper.addProfile(profileId, props);
 	}
@@ -276,13 +276,13 @@ public class ProvCommandProvider implements CommandProvider {
 		String id = processArgument(interpreter.nextArgument());
 		String range = processArgument(interpreter.nextArgument());
 		if (profileId == null) {
-			Profile[] profiles = ProvisioningHelper.getProfiles();
+			IProfile[] profiles = ProvisioningHelper.getProfiles();
 			for (int i = 0; i < profiles.length; i++)
 				interpreter.println(profiles[i].getProfileId());
 			return;
 		}
 		// determine which profile is to be listed
-		Profile target = null;
+		IProfile target = null;
 		if (profileId.equals("this"))
 			profileId = IProfileRegistry.SELF;
 		target = ProvisioningHelper.getProfile(profileId);

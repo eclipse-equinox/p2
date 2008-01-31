@@ -82,7 +82,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	// TODO: Here we may want to consult multiple caches
-	IArtifactRequest[] collect(IInstallableUnit installableUnit, Profile profile) {
+	IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) {
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null || toDownload.length == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
@@ -124,7 +124,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return false;
 	}
 
-	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		Manipulator manipulator = (Manipulator) touchpointParameters.get(PARM_MANIPULATOR);
 		try {
 			manipulator.save(false);
@@ -153,7 +153,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	private URL getConfigurationURL(Profile profile) throws CoreException {
+	private URL getConfigurationURL(IProfile profile) throws CoreException {
 		File configDir = Util.getConfigurationFolder(profile);
 		URL configURL = null;
 		try {
@@ -170,7 +170,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (actionId.equals(ACTION_COLLECT)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 					InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 					IArtifactRequest[] requests = collect(operand.second(), profile);
 
@@ -267,7 +267,7 @@ public class EclipseTouchpoint extends Touchpoint {
 						return createError("The \"programArg\" parameter was not set in the \"add program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
-						Profile profile = (Profile) parameters.get(PARM_PROFILE);
+						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 
 						IArtifactKey[] artifacts = iu.getArtifacts();
@@ -293,7 +293,7 @@ public class EclipseTouchpoint extends Touchpoint {
 						return createError("The \"programArg\" parameter was not set in the \"add program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
-						Profile profile = (Profile) parameters.get(PARM_PROFILE);
+						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 						IArtifactKey[] artifacts = iu.getArtifacts();
 						if (artifacts == null || artifacts.length == 0)
@@ -322,7 +322,7 @@ public class EclipseTouchpoint extends Touchpoint {
 						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
-						Profile profile = (Profile) parameters.get(PARM_PROFILE);
+						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 						IArtifactKey[] artifacts = iu.getArtifacts();
 						if (artifacts == null || artifacts.length == 0)
@@ -347,7 +347,7 @@ public class EclipseTouchpoint extends Touchpoint {
 						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action.");
 
 					if (programArg.equals(PARM_ARTIFACT)) {
-						Profile profile = (Profile) parameters.get(PARM_PROFILE);
+						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 						IArtifactKey[] artifacts = iu.getArtifacts();
 						if (artifacts == null || artifacts.length == 0)
@@ -370,7 +370,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (actionId.equals(PARM_SET_START_LEVEL)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String startLevel = (String) parameters.get(PARM_START_LEVEL);
@@ -408,7 +408,7 @@ public class EclipseTouchpoint extends Touchpoint {
 				}
 
 				public IStatus undo(Map parameters) {
-					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 
@@ -444,7 +444,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (actionId.equals(ACTION_MARK_STARTED)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String started = (String) parameters.get(PARM_STARTED);
@@ -478,7 +478,7 @@ public class EclipseTouchpoint extends Touchpoint {
 				}
 
 				public IStatus undo(Map parameters) {
-					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 
@@ -621,7 +621,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return TOUCHPOINT_TYPE;
 	}
 
-	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
 		touchpointParameters.put(PARM_MANIPULATOR, new LazyManipulator(profile));
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
@@ -637,7 +637,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	IStatus installBundle(Map parameters) {
-		Profile profile = (Profile) parameters.get(PARM_PROFILE);
+		IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
@@ -680,7 +680,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	protected IStatus uninstallBundle(Map parameters) {
-		Profile profile = (Profile) parameters.get(PARM_PROFILE);
+		IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
@@ -787,7 +787,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return configuration.removeFeatureEntry(featureId, featureVersion);
 	}
 
-	public IInstallableUnit prepareIU(IInstallableUnit iu, Profile profile) {
+	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
 
 		if (!new Boolean(iu.getProperty("iu.mock")).booleanValue()) //$NON-NLS-1$
 			return iu;
@@ -819,7 +819,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	IStatus addSourceBundle(Map parameters) {
-		Profile profile = (Profile) parameters.get(PARM_PROFILE);
+		IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		SourceManipulator manipulator = (SourceManipulator) parameters.get(PARM_SOURCE_BUNDLES);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
@@ -853,7 +853,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	}
 
 	IStatus removeSourceBundle(Map parameters) {
-		Profile profile = (Profile) parameters.get(PARM_PROFILE);
+		IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 		SourceManipulator manipulator = (SourceManipulator) parameters.get(PARM_SOURCE_BUNDLES);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);

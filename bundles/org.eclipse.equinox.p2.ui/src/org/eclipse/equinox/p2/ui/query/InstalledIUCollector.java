@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
@@ -23,7 +23,7 @@ import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
  */
 public class InstalledIUCollector extends QueriedElementCollector {
 
-	public InstalledIUCollector(IQueryProvider queryProvider, Profile profile) {
+	public InstalledIUCollector(IQueryProvider queryProvider, IProfile profile) {
 		super(queryProvider, profile);
 	}
 
@@ -37,8 +37,8 @@ public class InstalledIUCollector extends QueriedElementCollector {
 	public boolean accept(Object match) {
 		if (!(match instanceof IInstallableUnit))
 			return true;
-		if (queryable instanceof Profile)
-			return super.accept(new InstalledIUElement(((Profile) queryable).getProfileId(), (IInstallableUnit) match));
+		if (queryable instanceof IProfile)
+			return super.accept(new InstalledIUElement(((IProfile) queryable).getProfileId(), (IInstallableUnit) match));
 		// shouldn't happen, but is possible if a client reset the queryable to a non-profile.
 		return super.accept(match);
 	}

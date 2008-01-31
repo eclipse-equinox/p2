@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.director;
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -47,7 +47,7 @@ public interface IDirector {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 */
-	public IStatus revert(IInstallableUnit previous, Profile profile, ProvisioningContext context, IProgressMonitor monitor);
+	public IStatus revert(IInstallableUnit previous, IProfile profile, ProvisioningContext context, IProgressMonitor monitor);
 
 	/**
 	 * Returns the location of the director's rollback repository, where information about

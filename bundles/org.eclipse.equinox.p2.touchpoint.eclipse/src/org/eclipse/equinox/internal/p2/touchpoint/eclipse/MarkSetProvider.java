@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.util.*;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.garbagecollector.IMarkSetProvider;
 import org.eclipse.equinox.p2.garbagecollector.MarkSet;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
@@ -27,14 +27,14 @@ public class MarkSetProvider implements IMarkSetProvider {
 
 	private Collection artifactKeyList = null;
 
-	public MarkSet[] getMarkSets(Profile inProfile) {
+	public MarkSet[] getMarkSets(IProfile inProfile) {
 		artifactKeyList = new HashSet();
 		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(inProfile);
 		addArtifactKeys(inProfile);
 		return new MarkSet[] {new MarkSet((IArtifactKey[]) artifactKeyList.toArray(new IArtifactKey[0]), repositoryToGC)};
 	}
 
-	private void addArtifactKeys(Profile aProfile) {
+	private void addArtifactKeys(IProfile aProfile) {
 		Iterator installableUnits = aProfile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (installableUnits.hasNext()) {
 			IArtifactKey[] keys = ((IInstallableUnit) installableUnits.next()).getArtifacts();
@@ -46,7 +46,7 @@ public class MarkSetProvider implements IMarkSetProvider {
 		}
 	}
 
-	public IArtifactRepository getRepository(Profile aProfile) {
+	public IArtifactRepository getRepository(IProfile aProfile) {
 		return Util.getBundlePoolRepository(aProfile);
 	}
 }

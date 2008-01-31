@@ -10,13 +10,13 @@ package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class UninstallTest extends AbstractProvisioningTest {
 	private IInstallableUnit a1;
-	private Profile profile;
+	private IProfile profile;
 	private IDirector director;
 
 	protected void setUp() throws Exception {

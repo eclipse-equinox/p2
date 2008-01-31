@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.director;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -35,7 +35,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 	IInstallableUnit fap;
 	IDirector director;
 	IPlanner planner;
-	Profile profile;
+	IProfile profile;
 
 	protected void setUp() throws Exception {
 		//base IU that others require

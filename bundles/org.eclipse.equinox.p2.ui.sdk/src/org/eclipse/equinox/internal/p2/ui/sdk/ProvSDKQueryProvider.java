@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.MetadataFactory;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
@@ -77,7 +77,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					return null;
 				}
 			case IQueryProvider.AVAILABLE_UPDATES :
-				Profile profile = (Profile) ProvUI.getAdapter(element, Profile.class);
+				IProfile profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				IInstallableUnit[] toUpdate;
 				Collector collector;
 				if (profile != null) {
@@ -100,7 +100,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					collector = new Collector();
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case IQueryProvider.INSTALLED_IUS :
-				profile = (Profile) ProvUI.getAdapter(element, Profile.class);
+				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
 				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile));
 			case IQueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories)
@@ -112,7 +112,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {
 					public boolean isMatch(Object candidate) {
-						return ProvUI.getAdapter(candidate, Profile.class) != null;
+						return ProvUI.getAdapter(candidate, IProfile.class) != null;
 					}
 				}, new ProfileElementCollector(this, null));
 			default :

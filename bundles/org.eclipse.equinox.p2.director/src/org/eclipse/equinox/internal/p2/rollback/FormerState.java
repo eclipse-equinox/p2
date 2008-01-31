@@ -88,25 +88,25 @@ public class FormerState {
 		throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
 	}
 
-	IInstallableUnit profileToIU(Profile toConvert) {
+	IInstallableUnit profileToIU(IProfile profile) {
 		InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
 		result.setProperty(IInstallableUnit.PROP_PROFILE_IU_KEY, Boolean.TRUE.toString());
-		result.setId(toConvert.getProfileId());
+		result.setId(profile.getProfileId());
 		result.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
-		result.setRequiredCapabilities(IUTransformationHelper.toRequirements(toConvert.query(InstallableUnitQuery.ANY, new Collector(), null).iterator(), false));
+		result.setRequiredCapabilities(IUTransformationHelper.toRequirements(profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator(), false));
 		// Save the profile properties
 		// TODO we aren't marking these properties in any special way to indicate they came from profile properties.  Should we?
-		Map properties = toConvert.getProperties();
+		Map properties = profile.getProperties();
 		Iterator iter = properties.keySet().iterator();
 		while (iter.hasNext()) {
 			String key = (String) iter.next();
 			result.setProperty(key, (String) properties.get(key));
 		}
 		// Save the IU profile properties
-		Iterator allIUs = toConvert.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		Iterator allIUs = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (allIUs.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) allIUs.next();
-			properties = toConvert.getInstallableUnitProperties(iu);
+			properties = profile.getInstallableUnitProperties(iu);
 			iter = properties.keySet().iterator();
 			while (iter.hasNext()) {
 				String key = (String) iter.next();

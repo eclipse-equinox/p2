@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.p2.ui.operations.AddProfileOperation;
@@ -70,13 +71,13 @@ public class AddProfileDialog extends StatusDialog {
 	 * We only get here if already validated (ok was pressed)
 	 */
 	private void addProfile() {
-		profileGroup.updateProfile();
-		Profile profile = profileGroup.getProfile();
-		if (profile == null) {
+		IProfile profile = profileGroup.getProfile();
+		if (profile != null) {
 			return;
 		}
-		addedProfileId = profile.getProfileId();
-		ProvisioningOperationRunner.schedule(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, profile), getShell());
+		addedProfileId = profileGroup.getProfileId();
+		Map profileProperties = profileGroup.getProfileProperties();
+		ProvisioningOperationRunner.schedule(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfileId, profileProperties), getShell());
 	}
 
 	void verifyComplete() {

@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 
@@ -85,9 +85,9 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 			profileHandlers = (size != null ? new HashMap(new Integer(size).intValue()) : new HashMap(4));
 		}
 
-		public Profile[] getProfiles() {
+		public IProfile[] getProfiles() {
 			if (profileHandlers.isEmpty())
-				return new Profile[0];
+				return new IProfile[0];
 
 			profiles = new HashMap();
 			for (Iterator it = profileHandlers.keySet().iterator(); it.hasNext();) {
@@ -95,7 +95,7 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 				addProfile(profileId);
 			}
 
-			return (Profile[]) profiles.values().toArray(new Profile[profiles.size()]);
+			return (IProfile[]) profiles.values().toArray(new IProfile[profiles.size()]);
 		}
 
 		private void addProfile(String profileId) {
@@ -109,7 +109,7 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 				addProfile(parentId);
 				parentProfile = (Profile) profiles.get(parentId);
 			}
-			Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
+			IProfile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
 			profiles.put(profileId, profile);
 		}
 

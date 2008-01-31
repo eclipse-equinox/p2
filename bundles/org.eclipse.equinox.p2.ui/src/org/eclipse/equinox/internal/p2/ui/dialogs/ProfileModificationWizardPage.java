@@ -22,7 +22,7 @@ import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.ProvisioningContext;
 import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.ProvisioningOperationRunner;
@@ -171,7 +171,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return elementsToIUs(getCheckedElements());
 	}
 
-	protected Profile getProfile() {
+	protected IProfile getProfile() {
 		try {
 			return ProvisioningUtil.getProfile(profileId);
 		} catch (ProvisionException e) {

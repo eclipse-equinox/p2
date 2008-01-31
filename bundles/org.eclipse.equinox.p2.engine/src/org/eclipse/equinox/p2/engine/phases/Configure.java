@@ -39,7 +39,7 @@ public class Configure extends Phase {
 		return Messages.Phase_Configure_Error;
 	}
 
-	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.second();
 		monitor.subTask(NLS.bind(Messages.Phase_Configure_Task, iu.getId()));
 		parameters.put(PARM_IU, iu);

@@ -14,18 +14,18 @@ import java.util.EventObject;
 
 public abstract class TransactionEvent extends EventObject {
 	private static final long serialVersionUID = 6278706971855493984L;
-	protected Profile profile;
+	protected IProfile profile;
 	protected PhaseSet phaseSet;
 	protected InstallableUnitOperand[] deltas;
 
-	public TransactionEvent(Profile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, Engine engine) {
+	public TransactionEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, Engine engine) {
 		super(engine);
 		this.profile = profile;
 		this.phaseSet = phaseSet;
 		this.deltas = deltas;
 	}
 
-	public Profile getProfile() {
+	public IProfile getProfile() {
 		return profile;
 	}
 

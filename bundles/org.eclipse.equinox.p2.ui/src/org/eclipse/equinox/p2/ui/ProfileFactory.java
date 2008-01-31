@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 
@@ -33,19 +33,19 @@ public class ProfileFactory {
 	static private String EMPTY = ""; //$NON-NLS-1$
 	static private EnvironmentInfo info;
 
-	public static Profile makeProfile(String profileID) {
+	public static IProfile makeProfile(String profileId) {
 		Map profileProperties = new HashMap();
-		profileProperties.put(Profile.PROP_INSTALL_FOLDER, getDefaultLocation());
-		profileProperties.put(Profile.PROP_FLAVOR, getDefaultFlavor());
-		profileProperties.put(Profile.PROP_ENVIRONMENTS, getDefaultEnvironments());
-		profileProperties.put(Profile.PROP_NL, getDefaultNL());
-		Profile profile = new Profile(profileID, null, profileProperties);
+		profileProperties.put(IProfile.PROP_INSTALL_FOLDER, getDefaultLocation());
+		profileProperties.put(IProfile.PROP_FLAVOR, getDefaultFlavor());
+		profileProperties.put(IProfile.PROP_ENVIRONMENTS, getDefaultEnvironments());
+		profileProperties.put(IProfile.PROP_NL, getDefaultNL());
+
 		try {
-			ProvisioningUtil.addProfile(profile, null);
+			return ProvisioningUtil.addProfile(profileId, profileProperties, null);
 		} catch (ProvisionException e) {
-			return null;
+			// log
 		}
-		return profile;
+		return null;
 	}
 
 	public static String getDefaultLocation() {

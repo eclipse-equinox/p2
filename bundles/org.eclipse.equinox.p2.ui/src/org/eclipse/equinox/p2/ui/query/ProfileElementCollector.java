@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
 
@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.ui.model.QueriedElementCollector;
  */
 public class ProfileElementCollector extends QueriedElementCollector {
 
-	public ProfileElementCollector(IQueryProvider queryProvider, Profile profile) {
+	public ProfileElementCollector(IQueryProvider queryProvider, IProfile profile) {
 		super(queryProvider, profile);
 	}
 
@@ -34,9 +34,9 @@ public class ProfileElementCollector extends QueriedElementCollector {
 	 * or <code>false</code> to indicate the query should stop.
 	 */
 	public boolean accept(Object match) {
-		if (!(match instanceof Profile))
+		if (!(match instanceof IProfile))
 			return true;
-		return super.accept(new ProfileElement(((Profile) match).getProfileId()));
+		return super.accept(new ProfileElement(((IProfile) match).getProfileId()));
 	}
 
 }

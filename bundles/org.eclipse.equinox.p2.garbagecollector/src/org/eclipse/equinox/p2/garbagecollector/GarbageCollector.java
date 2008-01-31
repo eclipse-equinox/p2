@@ -14,8 +14,8 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 
 /**
@@ -38,9 +38,9 @@ public class GarbageCollector {
 	 */
 	private Map markSet;
 
-	public void runGC(Profile profileToGC) {
+	public void runGC(IProfile profile) {
 		markSet = new HashMap();
-		if (!traverseMainProfile(profileToGC))
+		if (!traverseMainProfile(profile))
 			return;
 
 		//Complete each MarkSet with the MarkSets provided by all of the other registered Profiles
@@ -50,7 +50,7 @@ public class GarbageCollector {
 		invokeCoreGC();
 	}
 
-	private boolean traverseMainProfile(Profile profileToGC) {
+	private boolean traverseMainProfile(IProfile profile) {
 		IExtensionRegistry registry = RegistryFactory.getRegistry();
 		IConfigurationElement[] configElts = registry.getConfigurationElementsFor(PT_MARKSET);
 
@@ -64,7 +64,7 @@ public class GarbageCollector {
 				continue;
 			}
 
-			contributeMarkSets(runAttribute, profileToGC, true);
+			contributeMarkSets(runAttribute, profile, true);
 		}
 		return true;
 	}
@@ -94,7 +94,7 @@ public class GarbageCollector {
 			IProfileRegistry profileRegistry = (IProfileRegistry) GCActivator.getService(GCActivator.getContext(), IProfileRegistry.class.getName());
 			if (profileRegistry == null)
 				return;
-			Profile[] registeredProfiles = profileRegistry.getProfiles();
+			IProfile[] registeredProfiles = profileRegistry.getProfiles();
 
 			for (int j = 0; j < registeredProfiles.length; j++) {
 				contributeMarkSets(runAttribute, registeredProfiles[j], false);
@@ -104,10 +104,10 @@ public class GarbageCollector {
 
 	private class ParameterizedSafeRunnable implements ISafeRunnable {
 		IConfigurationElement cfg;
-		Profile aProfile;
+		IProfile aProfile;
 		MarkSet[] aProfileMarkSets;
 
-		public ParameterizedSafeRunnable(IConfigurationElement runtAttribute, Profile profile) {
+		public ParameterizedSafeRunnable(IConfigurationElement runtAttribute, IProfile profile) {
 			cfg = runtAttribute;
 			aProfile = profile;
 		}
@@ -130,8 +130,8 @@ public class GarbageCollector {
 		}
 	}
 
-	private void contributeMarkSets(IConfigurationElement runAttribute, Profile aProfile, boolean addRepositories) {
-		ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, aProfile);
+	private void contributeMarkSets(IConfigurationElement runAttribute, IProfile profile, boolean addRepositories) {
+		ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, profile);
 		SafeRunner.run(providerExecutor);
 		MarkSet[] aProfileMarkSets = providerExecutor.getResult();
 		if (aProfileMarkSets[0] == null)

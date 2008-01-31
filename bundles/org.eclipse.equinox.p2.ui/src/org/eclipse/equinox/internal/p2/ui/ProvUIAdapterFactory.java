@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui;
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -26,7 +26,7 @@ import org.eclipse.equinox.p2.ui.ProvUI;
  */
 
 public class ProvUIAdapterFactory implements IAdapterFactory {
-	private static final Class[] CLASSES = new Class[] {IInstallableUnit.class, Profile.class, IRepository.class, IMetadataRepository.class, IArtifactRepository.class};
+	private static final Class[] CLASSES = new Class[] {IInstallableUnit.class, IProfile.class, IRepository.class, IMetadataRepository.class, IArtifactRepository.class};
 
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		return ProvUI.getAdapter(adaptableObject, adapterType);

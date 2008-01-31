@@ -14,7 +14,7 @@ package org.eclipse.equinox.p2.ui.viewers;
 import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.p2.core.eventbus.SynchronousProvisioningListener;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.ProfileEvent;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
@@ -49,7 +49,7 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 		if (o instanceof ProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
 			ProfileEvent event = (ProfileEvent) o;
 			if (event.getReason() == ProfileEvent.CHANGED) {
-				final Profile profile = event.getProfile();
+				final IProfile profile = event.getProfile();
 				display.asyncExec(new Runnable() {
 					public void run() {
 						// We want to refresh the affected profile, so we

@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
@@ -134,10 +134,10 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	 */
 	public static String getProfileId() throws ProvisionException {
 		// Get the profile of the running system.
-		Profile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
+		IProfile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 		if (profile == null) {
 			StatusManager.getManager().handle(getNoSelfProfileStatus(), StatusManager.LOG);
-			Profile[] profiles = ProvisioningUtil.getProfiles();
+			IProfile[] profiles = ProvisioningUtil.getProfiles();
 			if (profiles.length > 0)
 				return profiles[0].getProfileId();
 			return ProfileFactory.makeProfile(DEFAULT_PROFILE_ID).getProfileId();

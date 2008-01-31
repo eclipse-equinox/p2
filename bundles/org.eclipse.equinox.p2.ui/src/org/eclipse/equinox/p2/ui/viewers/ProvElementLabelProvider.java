@@ -15,7 +15,7 @@ import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.ui.ProvUI;
@@ -41,8 +41,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		if (obj instanceof ProvElement) {
 			return ((ProvElement) obj).getLabel(obj);
 		}
-		if (obj instanceof Profile) {
-			return ((Profile) obj).getProfileId();
+		if (obj instanceof IProfile) {
+			return ((IProfile) obj).getProfileId();
 		}
 		if (obj instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) obj;
@@ -73,7 +73,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		if (obj instanceof ProvElement) {
 			return ((ProvElement) obj).getImage(obj);
 		}
-		if (obj instanceof Profile) {
+		if (obj instanceof IProfile) {
 			return ProvUIImages.getImage(ProvUIImages.IMG_PROFILE);
 		}
 		if (obj instanceof IInstallableUnit) {
@@ -110,8 +110,8 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				}
 				return getText(element);
 			case 1 :
-				if (element instanceof Profile) {
-					return ((Profile) element).getProperty(Profile.PROP_NAME);
+				if (element instanceof IProfile) {
+					return ((IProfile) element).getProperty(IProfile.PROP_NAME);
 				}
 				if (element instanceof IUElement) {
 					if (((IUElement) element).shouldShowVersion())

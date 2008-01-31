@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
@@ -28,7 +28,7 @@ import org.eclipse.equinox.p2.tests.TestActivator;
 public class RollbackTest extends AbstractProvisioningTest {
 
 	private IInstallableUnit a1;
-	private Profile profile;
+	private IProfile profile;
 	private IDirector director;
 
 	protected void setUp() throws Exception {

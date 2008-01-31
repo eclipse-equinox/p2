@@ -14,8 +14,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 
 public class Engine {
@@ -27,7 +26,7 @@ public class Engine {
 		this.eventBus = eventBus;
 	}
 
-	public IStatus perform(Profile profile, PhaseSet phaseSet, Operand[] operands, IProgressMonitor monitor) {
+	public IStatus perform(IProfile profile, PhaseSet phaseSet, Operand[] operands, IProgressMonitor monitor) {
 		if (operands == null)
 			throw new IllegalArgumentException("Operands must not be null."); //$NON-NLS-1$
 
@@ -47,10 +46,10 @@ public class Engine {
 		return perform(profile, phaseSet, iuOperandArray, propertyOperandArray, monitor);
 	}
 
-	private IStatus perform(Profile profile, PhaseSet phaseSet, InstallableUnitOperand[] iuOperands, PropertyOperand[] propertyOperands, IProgressMonitor monitor) {
+	private IStatus perform(IProfile iprofile, PhaseSet phaseSet, InstallableUnitOperand[] iuOperands, PropertyOperand[] propertyOperands, IProgressMonitor monitor) {
 
 		// TODO -- Messages
-		if (profile == null)
+		if (iprofile == null)
 			throw new IllegalArgumentException("Profile must not be null."); //$NON-NLS-1$
 
 		if (phaseSet == null)
@@ -62,6 +61,7 @@ public class Engine {
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 
+		Profile profile = (Profile) iprofile;
 		lockProfile(profile);
 		try {
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, iuOperands, this));
@@ -116,9 +116,9 @@ public class Engine {
 
 		if (propertyOperand instanceof InstallableUnitPropertyOperand) {
 			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
-			profile.internalSetInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), (String) iuPropertyOperand.second());
+			profile.setInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), (String) iuPropertyOperand.second());
 		} else {
-			profile.internalSetValue(propertyOperand.getKey(), (String) propertyOperand.second());
+			profile.setProperty(propertyOperand.getKey(), (String) propertyOperand.second());
 		}
 
 	}
@@ -126,9 +126,9 @@ public class Engine {
 	private void removeProfileProperty(Profile profile, PropertyOperand propertyOperand) {
 		if (propertyOperand instanceof InstallableUnitPropertyOperand) {
 			InstallableUnitPropertyOperand iuPropertyOperand = (InstallableUnitPropertyOperand) propertyOperand;
-			profile.internalSetInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), null);
+			profile.setInstallableUnitProperty(iuPropertyOperand.getInstallableUnit(), iuPropertyOperand.getKey(), null);
 		} else {
-			profile.internalSetValue(propertyOperand.getKey(), null);
+			profile.setProperty(propertyOperand.getKey(), null);
 		}
 	}
 
@@ -136,7 +136,7 @@ public class Engine {
 	//This has to be done in two calls because when we return from the phaseSet.perform the iu properties are already lost
 	Map snapshot = new HashMap();
 
-	private void snapshotIUProperties(Profile profile, InstallableUnitOperand[] operands) {
+	private void snapshotIUProperties(IProfile profile, InstallableUnitOperand[] operands) {
 		for (int i = 0; i < operands.length; i++) {
 			if (operands[i].first() != null && operands[i].second() != null) {
 				snapshot.put(operands[i].first(), profile.getInstallableUnitProperties(operands[i].first()));
@@ -153,19 +153,19 @@ public class Engine {
 				Enumeration enumProps = prop.keys();
 				while (enumProps.hasMoreElements()) {
 					String key = (String) enumProps.nextElement();
-					profile.internalSetInstallableUnitProperty(operands[i].second(), key, (String) prop.get(key));
+					profile.setInstallableUnitProperty(operands[i].second(), key, (String) prop.get(key));
 					prop.remove(key);
 				}
 			}
 		}
 	}
 
-	private synchronized void unlockProfile(Profile profile) {
+	private synchronized void unlockProfile(IProfile profile) {
 		lockedProfiles.remove(profile.getProfileId());
 		notify();
 	}
 
-	private synchronized void lockProfile(Profile profile) {
+	private synchronized void lockProfile(IProfile profile) {
 		String profileId = profile.getProfileId();
 		while (lockedProfiles.contains(profileId)) {
 			try {

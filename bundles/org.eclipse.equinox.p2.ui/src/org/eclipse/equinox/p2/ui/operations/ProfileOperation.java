@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.ui.operations;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 
 /**
  * Abstract class representing provisioning profile operations
@@ -23,14 +23,14 @@ public abstract class ProfileOperation extends UndoableProvisioningOperation {
 
 	String[] profileIds;
 	// We cache profiles along with ids in case we have to recreate a deleted profile
-	Profile[] cachedProfiles;
+	IProfile[] cachedProfiles;
 
 	ProfileOperation(String label, String[] ids) {
 		super(label);
 		profileIds = ids;
 	}
 
-	ProfileOperation(String label, Profile[] profiles) {
+	ProfileOperation(String label, IProfile[] profiles) {
 		super(label);
 		Assert.isNotNull(profiles);
 		cachedProfiles = profiles;
@@ -44,12 +44,12 @@ public abstract class ProfileOperation extends UndoableProvisioningOperation {
 		return profileIds != null && profileIds.length > 0;
 	}
 
-	Profile[] getProfiles() throws ProvisionException {
+	IProfile[] getProfiles() throws ProvisionException {
 		if (profileIds == null) {
 			return null;
 		}
 		if (cachedProfiles == null) {
-			cachedProfiles = new Profile[profileIds.length];
+			cachedProfiles = new IProfile[profileIds.length];
 			for (int i = 0; i < profileIds.length; i++) {
 				cachedProfiles[i] = ProvisioningUtil.getProfile(profileIds[i]);
 			}

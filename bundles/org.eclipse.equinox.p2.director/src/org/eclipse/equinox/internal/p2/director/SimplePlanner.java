@@ -30,11 +30,11 @@ import org.eclipse.osgi.util.NLS;
 public class SimplePlanner implements IPlanner {
 	static final int ExpandWork = 12;
 
-	private IInstallableUnit[] getInstallableUnits(Profile profile) {
+	private IInstallableUnit[] getInstallableUnits(IProfile profile) {
 		return (IInstallableUnit[]) profile.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
 	}
 
-	private Profile getProfile(String profileId) {
+	private IProfile getProfile(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
 		if (profileRegistry == null)
 			return null;
@@ -53,7 +53,7 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private PropertyOperand[] generatePropertyOperations(ProfileChangeRequest profileChangeRequest) {
-		Profile profile = profileChangeRequest.getProfile();
+		IProfile profile = profileChangeRequest.getProfile();
 		List operands = new ArrayList();
 		// First deal with profile properties to remove.  Only generate an operand if the property was there in the first place
 		String[] toRemove = profileChangeRequest.getPropertiesToRemove();
@@ -89,11 +89,12 @@ public class SimplePlanner implements IPlanner {
 		iter = allIUPropertyDeletions.keySet().iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			toRemove = (String[]) allIUPropertyDeletions.get(iu);
 			Map existingIUProperties = profile.getInstallableUnitProperties(iu);
-			for (int i = 0; i < toRemove.length; i++) {
-				if (existingIUProperties.containsKey(toRemove[i]))
-					operands.add(new InstallableUnitPropertyOperand(iu, toRemove[i], existingIUProperties.get(toRemove[i]), null));
+			List iuPropertyRemovals = (List) allIUPropertyDeletions.get(iu);
+			for (Iterator it = iuPropertyRemovals.iterator(); it.hasNext();) {
+				String key = (String) it.next();
+				if (existingIUProperties.containsKey(key))
+					operands.add(new InstallableUnitPropertyOperand(iu, key, existingIUProperties.get(key), null));
 			}
 
 		}
@@ -153,7 +154,7 @@ public class SimplePlanner implements IPlanner {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
 				return new ProvisioningPlan(result);
 			}
-			Profile profile = getProfile(profileSnapshot.getId());
+			IProfile profile = getProfile(profileSnapshot.getId());
 			if (profile == null) {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
 				return new ProvisioningPlan(result);
@@ -188,7 +189,7 @@ public class SimplePlanner implements IPlanner {
 
 	private Dictionary createSelectionContext(Map properties) {
 		Hashtable result = new Hashtable(properties);
-		String environments = (String) properties.get(Profile.PROP_ENVIRONMENTS);
+		String environments = (String) properties.get(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
 			return result;
 		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
@@ -215,16 +216,16 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	// TODO note that this only describes property changes, not the IU changes.
-	private ProfileChangeRequest generateChangeRequest(Profile currentProfile, IInstallableUnit iuDescribingNewState, Collection newIUs) {
-		ProfileChangeRequest request = new ProfileChangeRequest(currentProfile);
+	private ProfileChangeRequest generateChangeRequest(IProfile profile, IInstallableUnit iuDescribingNewState, Collection newIUs) {
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 
-		for (Iterator iter = currentProfile.getProperties().keySet().iterator(); iter.hasNext();) {
+		for (Iterator iter = profile.getProperties().keySet().iterator(); iter.hasNext();) {
 			String key = (String) iter.next();
 			request.removeProfileProperty(key);
 		}
-		IInstallableUnit[] ius = getInstallableUnits(currentProfile);
+		IInstallableUnit[] ius = getInstallableUnits(profile);
 		for (int i = 0; i < ius.length; i++) {
-			for (Iterator iter = currentProfile.getInstallableUnitProperties(ius[i]).keySet().iterator(); iter.hasNext();) {
+			for (Iterator iter = profile.getInstallableUnitProperties(ius[i]).keySet().iterator(); iter.hasNext();) {
 				String key = (String) iter.next();
 				request.removeInstallableUnitProfileProperty(ius[i], key);
 			}
@@ -300,7 +301,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Install_Problems, null);
 			//find the things being updated in the profile
-			Profile profile = profileChangeRequest.getProfile();
+			IProfile profile = profileChangeRequest.getProfile();
 
 			IInstallableUnit[] alreadyInstalled = getInstallableUnits(profile);
 			IInstallableUnit[] uninstallRoots = profileChangeRequest.getRemovedInstallableUnits();
@@ -327,7 +328,7 @@ public class SimplePlanner implements IPlanner {
 			URL[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			IInstallableUnit[] allUnits = gatherAvailableInstallableUnits(null, metadataRepositories, sub.newChild(ExpandWork / 3));
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
-			String newFlavor = profileChangeRequest.getProfileProperty(Profile.PROP_FLAVOR);
+			String newFlavor = profileChangeRequest.getProfileProperty(IProfile.PROP_FLAVOR);
 
 			NewDependencyExpander finalExpander = new NewDependencyExpander(profileChangeRequest.getAddedInstallableUnits(), (IInstallableUnit[]) remainingIUs.toArray(new IInstallableUnit[remainingIUs.size()]), allUnits, newSelectionContext, true);
 			IStatus finalExpanderResult = finalExpander.expand(sub.newChild(ExpandWork / 3));

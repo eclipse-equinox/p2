@@ -15,9 +15,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.*;
+import org.eclipse.equinox.p2.ui.LicenseManager;
+import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
 import org.eclipse.jface.util.LocalSelectionTransfer;
@@ -67,7 +68,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * IU, return its parent profile id.
 	 */
 	private String getProfileTarget(Object mouseTarget) {
-		Profile profile = (Profile) ProvUI.getAdapter(mouseTarget, Profile.class);
+		IProfile profile = (IProfile) ProvUI.getAdapter(mouseTarget, IProfile.class);
 		if (profile != null) {
 			return profile.getProfileId();
 		}

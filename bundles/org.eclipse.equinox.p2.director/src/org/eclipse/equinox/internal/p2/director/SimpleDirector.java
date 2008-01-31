@@ -50,7 +50,7 @@ public class SimpleDirector implements IDirector {
 		}
 	}
 
-	public IStatus revert(IInstallableUnit target, Profile profile, ProvisioningContext context, IProgressMonitor monitor) {
+	public IStatus revert(IInstallableUnit target, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.Director_Task_Updating, PlanWork + EngineWork);
 		try {
 			ProvisioningPlan plan = planner.getRevertPlan(target, context, sub.newChild(PlanWork));
@@ -63,7 +63,7 @@ public class SimpleDirector implements IDirector {
 	}
 
 	public IStatus provision(ProfileChangeRequest request, ProvisioningContext context, IProgressMonitor monitor) {
-		String taskName = NLS.bind(Messages.Director_Task_Installing, request.getProfile().getProperty(Profile.PROP_INSTALL_FOLDER));
+		String taskName = NLS.bind(Messages.Director_Task_Installing, request.getProfile().getProperty(IProfile.PROP_INSTALL_FOLDER));
 		SubMonitor sub = SubMonitor.convert(monitor, taskName, PlanWork + EngineWork);
 		try {
 			IInstallableUnit[] installRoots = request.getAddedInstallableUnits();

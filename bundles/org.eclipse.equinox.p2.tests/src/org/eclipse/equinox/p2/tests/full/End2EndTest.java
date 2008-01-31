@@ -13,8 +13,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
@@ -44,8 +43,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 			throw new RuntimeException("Repository manager could not be loaded");
 	}
 
-	protected Profile createProfile(String profileId) {
-		String installFolder = System.getProperty(Profile.PROP_INSTALL_FOLDER);
+	protected IProfile createProfile(String profileId) {
+		String installFolder = System.getProperty(IProfile.PROP_INSTALL_FOLDER);
 		ServiceReference profileRegSr = TestActivator.context.getServiceReference(IProfileRegistry.class.getName());
 		IProfileRegistry profileRegistry = (IProfileRegistry) TestActivator.context.getService(profileRegSr);
 		if (profileRegistry == null) {
@@ -55,18 +54,18 @@ public class End2EndTest extends AbstractProvisioningTest {
 		String newFlavor = System.getProperty("eclipse.p2.configurationFlavor");
 		boolean doUninstall = (Boolean.TRUE.equals(Boolean.valueOf(System.getProperty("eclipse.p2.doUninstall"))));
 
-		Profile p = null;
+		IProfile p = null;
 		if (doUninstall) {
 			p = profileRegistry.getProfile(profileId);
 			if (p == null)
 				throw new RuntimeException("Uninstalling from a nonexistent profile");
 		} else {
 			Map properties = new HashMap();
-			properties.put(Profile.PROP_INSTALL_FOLDER, installFolder + '/' + profileId);
-			properties.put(Profile.PROP_FLAVOR, newFlavor);
+			properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder + '/' + profileId);
+			properties.put(IProfile.PROP_FLAVOR, newFlavor);
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
-				properties.put(Profile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
+				properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
 
 			p = createProfile(profileId, null, properties);
 		}
@@ -74,7 +73,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 	}
 
 	public void testInstallSDK() {
-		Profile profile2 = createProfile("profile2");
+		IProfile profile2 = createProfile("profile2");
 		//First we install the sdk
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))});

@@ -63,17 +63,17 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (selfProfile == null)
 			return;
 		//only update if self is a roaming profile
-		if (!Boolean.valueOf(selfProfile.getProperty(Profile.PROP_ROAMING)).booleanValue())
+		if (!Boolean.valueOf(selfProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
 			return;
 		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
-		if (!location.equals(new File(selfProfile.getProperty(Profile.PROP_INSTALL_FOLDER)))) {
-			selfProfile.internalSetValue(Profile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
+		if (!location.equals(new File(selfProfile.getProperty(IProfile.PROP_INSTALL_FOLDER)))) {
+			selfProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, location.getAbsolutePath());
 			changed = true;
 		}
-		if (!location.equals(new File(selfProfile.getProperty(Profile.PROP_CACHE)))) {
-			selfProfile.internalSetValue(Profile.PROP_CACHE, location.getAbsolutePath());
+		if (!location.equals(new File(selfProfile.getProperty(IProfile.PROP_CACHE)))) {
+			selfProfile.setProperty(IProfile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
 		if (changed)
@@ -84,21 +84,21 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return this.profiles.toString();
 	}
 
-	public synchronized Profile getProfile(String id) {
+	public synchronized IProfile getProfile(String id) {
 		if (SELF.equals(id))
 			id = self;
-		Profile profile = (Profile) getProfileMap().get(id);
+		IProfile profile = (IProfile) getProfileMap().get(id);
 		if (profile == null)
 			return null;
 		return copyProfile(profile);
 	}
 
-	public synchronized Profile[] getProfiles() {
+	public synchronized IProfile[] getProfiles() {
 		Map profileMap = getProfileMap();
 		Profile[] result = new Profile[profileMap.size()];
 		int i = 0;
 		for (Iterator it = profileMap.values().iterator(); it.hasNext(); i++) {
-			Profile profile = (Profile) it.next();
+			IProfile profile = (IProfile) it.next();
 			result[i] = copyProfile(profile);
 		}
 		return result;
@@ -144,6 +144,43 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		broadcastChangeEvent(toAdd, ProfileEvent.ADDED);
 	}
 
+	public void addProfile(String id) {
+		addProfile(id, null, null);
+	}
+
+	public void addProfile(String id, Map properties) {
+		addProfile(id, properties, null);
+	}
+
+	public synchronized void addProfile(String id, Map properties, String parentId) {
+		if (SELF.equals(id))
+			id = self;
+		Map profileMap = getProfileMap();
+		if (profileMap.get(id) != null)
+			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
+
+		Profile parent = null;
+		if (parentId != null) {
+			if (SELF.equals(parentId))
+				parentId = self;
+			parent = (Profile) profileMap.get(parentId);
+			if (parent == null)
+				throw new IllegalArgumentException(NLS.bind(Messages.Profile_Parent_Not_Found, parentId));
+		}
+
+		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
+		if (installRegistry == null)
+			throw new IllegalStateException("InstallRegisty not available");
+		IProfileInstallRegistry profileInstallRegistry = installRegistry.createProfileInstallRegistry(id);
+
+		IProfile toAdd = new Profile(id, parent, properties);
+
+		installRegistry.addProfileInstallRegistry(profileInstallRegistry);
+		profileMap.put(id, toAdd);
+		persist();
+		broadcastChangeEvent(copyProfile(toAdd), ProfileEvent.ADDED);
+	}
+
 	private void doUpdateProfile(Profile toUpdate, Map profileMap) {
 		InstallRegistry installRegistry = (InstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
 		if (installRegistry == null)
@@ -166,13 +203,13 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		Profile current = (Profile) profileMap.get(toUpdate.getProfileId());
 		if (current == null) {
-			Profile parent = toUpdate.getParentProfile();
+			Profile parent = (Profile) toUpdate.getParentProfile();
 			if (parent != null)
 				parent = (Profile) profileMap.get(parent.getProfileId());
 			profileMap.put(toUpdate.getProfileId(), new Profile(toUpdate.getProfileId(), parent, toUpdate.getLocalProperties()));
 		} else {
-			current.internalGetLocalProperties().clear();
-			current.internalAddProperties(toUpdate.getLocalProperties());
+			current.clearLocalProperties();
+			current.addProperties(toUpdate.getLocalProperties());
 		}
 
 		// TODO: persists should be grouped some way to ensure they are consistent
@@ -188,7 +225,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		Map profileMap = getProfileMap();
 
 		// this is a copy we use for the event
-		Profile toRemove = getProfile(profileId);
+		IProfile toRemove = getProfile(profileId);
 		if (toRemove == null)
 			return;
 		installRegistry.removeProfileInstallRegistry(profileId);
@@ -197,12 +234,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		broadcastChangeEvent(toRemove, ProfileEvent.REMOVED);
 	}
 
-	public synchronized void removeProfile(Profile toRemove) {
-		removeProfile(toRemove.getProfileId());
-	}
-
-	private Profile copyProfile(Profile profile) {
-		Profile parent = profile.getParentProfile();
+	private Profile copyProfile(IProfile profile) {
+		Profile parent = (Profile) profile.getParentProfile();
 		if (parent != null)
 			parent = copyProfile(parent);
 
@@ -214,7 +247,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return copy;
 	}
 
-	private void broadcastChangeEvent(Profile profile, byte reason) {
+	private void broadcastChangeEvent(IProfile profile, byte reason) {
 		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profile, reason));
 	}
 
@@ -289,7 +322,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	}
 
-	private boolean isNamedSelf(Profile p) {
+	private boolean isNamedSelf(IProfile p) {
 		if (SELF.equals(p.getParentProfile()))
 			return true;
 		return false;
@@ -446,10 +479,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 			protected void finished() {
 				if (isValidXML()) {
-					Profile[] profyles = (profilesHandler == null ? new Profile[0] //
+					IProfile[] profyles = (profilesHandler == null ? new IProfile[0] //
 							: profilesHandler.getProfiles());
 					for (int i = 0; i < profyles.length; i++) {
-						Profile nextProfile = profyles[i];
+						IProfile nextProfile = profyles[i];
 						profileMap.put(nextProfile.getProfileId(), nextProfile);
 					}
 					properties = (propertiesHandler == null ? new OrderedProperties(0) //

@@ -25,23 +25,23 @@ public abstract class Touchpoint {
 
 	public abstract ProvisioningAction getAction(String actionId);
 
-	public IStatus initializePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus completePhase(IProgressMonitor monitor, Profile profile, String phaseId, Map touchpointParameters) {
+	public IStatus completePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus initializeOperand(Profile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+	public IStatus initializeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IStatus completeOperand(Profile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+	public IStatus completeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
 		return Status.OK_STATUS;
 	}
 
-	public IInstallableUnit prepareIU(IInstallableUnit iu, Profile profile) {
+	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
 		return iu;
 	}
 }

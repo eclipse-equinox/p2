@@ -12,7 +12,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.resolution.UnsatisfiedCapability;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.p2.query.Collector;
@@ -317,7 +317,7 @@ public class NewDependencyExpander {
 	}
 
 	private Collection collectFlavorProviders(Collection toSearchFor) {
-		String flavor = (String) selectionContext.get(Profile.PROP_ENVIRONMENTS);
+		String flavor = (String) selectionContext.get(IProfile.PROP_ENVIRONMENTS);
 		if (flavor == null)
 			return new HashSet();
 		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);

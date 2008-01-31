@@ -12,7 +12,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.osgi.framework.Version;
@@ -28,7 +28,7 @@ public class SingletonTest extends AbstractProvisioningTest {
 	IInstallableUnit junit40;
 
 	IDirector director;
-	Profile profile;
+	IProfile profile;
 
 	protected void setUp() throws Exception {
 		f1 = createIU("f1", new Version(1, 0, 0), true);

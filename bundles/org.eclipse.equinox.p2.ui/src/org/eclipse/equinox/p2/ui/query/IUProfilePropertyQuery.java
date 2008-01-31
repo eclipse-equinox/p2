@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.query;
 
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 
 /**
@@ -18,12 +18,12 @@ import org.eclipse.equinox.p2.metadata.IInstallableUnit;
  * a property associated with the specified profile, whose value matches the provided value.
  */
 public class IUProfilePropertyQuery extends IUPropertyQuery {
-	private Profile profile;
+	private IProfile profile;
 
 	/**
 	 * Creates a new query on the given property name and value.
 	 */
-	public IUProfilePropertyQuery(Profile profile, String propertyName, String propertyValue) {
+	public IUProfilePropertyQuery(IProfile profile, String propertyName, String propertyValue) {
 		super(propertyName, propertyValue);
 		this.profile = profile;
 	}

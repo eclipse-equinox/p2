@@ -14,8 +14,8 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.ProvUI;
 
@@ -30,7 +30,7 @@ public class QueryableProfileRegistry implements IQueryable {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound));
 			return result;
 		}
-		Profile[] profiles = profileRegistry.getProfiles();
+		IProfile[] profiles = profileRegistry.getProfiles();
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 		monitor.beginTask(ProvUIMessages.QueryableProfileRegistry_QueryProfileProgress, profiles.length);

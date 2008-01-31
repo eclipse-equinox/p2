@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.ui.operations;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 
 /**
  * Operation that removes a profile
@@ -22,7 +22,7 @@ import org.eclipse.equinox.p2.engine.Profile;
 public class RemoveProfilesOperation extends ProfileOperation {
 	private boolean removed = false;
 
-	public RemoveProfilesOperation(String label, Profile[] profiles) {
+	public RemoveProfilesOperation(String label, IProfile[] profiles) {
 		super(label, profiles);
 	}
 
@@ -37,7 +37,8 @@ public class RemoveProfilesOperation extends ProfileOperation {
 
 	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < cachedProfiles.length; i++) {
-			ProvisioningUtil.addProfile(cachedProfiles[i], monitor);
+			IProfile cachedProfile = cachedProfiles[i];
+			ProvisioningUtil.addProfile(cachedProfile.getProfileId(), cachedProfile.getLocalProperties(), monitor);
 		}
 		removed = false;
 		return okStatus();

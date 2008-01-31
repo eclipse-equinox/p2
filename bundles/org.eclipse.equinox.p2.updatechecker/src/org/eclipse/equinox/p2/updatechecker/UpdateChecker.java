@@ -15,8 +15,8 @@ import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.updatechecker.Activator;
 import org.eclipse.equinox.p2.director.IPlanner;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.query.Collector;
@@ -110,7 +110,7 @@ public class UpdateChecker {
 	IInstallableUnit[] checkForUpdates(String profileId) {
 		// TODO this is naive.  We get all the ius every time whereas we
 		// could monitor changes in the profile.
-		Profile profile = getProfileRegistry().getProfile(profileId);
+		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList iusWithUpdates = new ArrayList();
 		if (profile == null)
 			return new IInstallableUnit[0];

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.engine;
 
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.p2.engine.Profile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -62,7 +62,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testAddRemoveProfile() {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Profile test = createProfile(PROFILE_NAME);
+		IProfile test = createProfile(PROFILE_NAME);
 		assertEquals(test.getProfileId(), registry.getProfile(PROFILE_NAME).getProfileId());
 		registry.removeProfile(PROFILE_NAME);
 		assertNull(registry.getProfile(PROFILE_NAME));
@@ -70,7 +70,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 
 	public void testPeristence() {
 		assertNull(registry.getProfile(PROFILE_NAME));
-		Profile test = createProfile(PROFILE_NAME);
+		IProfile test = createProfile(PROFILE_NAME);
 		assertEquals(test.getProfileId(), registry.getProfile(PROFILE_NAME).getProfileId());
 
 		restart();

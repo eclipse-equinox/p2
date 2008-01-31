@@ -27,7 +27,7 @@ import org.eclipse.equinox.p2.artifact.repository.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.core.location.AgentLocation;
 import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.metadata.TouchpointData;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
@@ -53,7 +53,7 @@ public class Util {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	static URL getBundlePoolLocation(Profile profile) {
+	static URL getBundlePoolLocation(IProfile profile) {
 		String path = profile.getProperty(CACHE_PATH);
 		if (path == null)
 			path = Activator.getContext().getProperty(CACHE_PATH);
@@ -70,7 +70,7 @@ public class Util {
 		return location.getDataArea(Activator.ID);
 	}
 
-	static IFileArtifactRepository getBundlePoolRepository(Profile profile) {
+	static IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
 		URL location = getBundlePoolLocation(profile);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		try {
@@ -89,7 +89,7 @@ public class Util {
 		}
 	}
 
-	static IFileArtifactRepository getAggregatedBundleRepository(Profile profile) {
+	static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile) {
 		Set bundleRepositories = new HashSet();
 		bundleRepositories.add(Util.getBundlePoolRepository(profile));
 
@@ -129,27 +129,27 @@ public class Util {
 		return bundleInfo;
 	}
 
-	static File getBundleFile(IArtifactKey artifactKey, Profile profile) {
+	static File getBundleFile(IArtifactKey artifactKey, IProfile profile) {
 		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(profile);
 		File bundleJar = aggregatedView.getArtifactFile(artifactKey);
 		return bundleJar;
 	}
 
-	static File getConfigurationFolder(Profile profile) {
+	static File getConfigurationFolder(IProfile profile) {
 		String config = profile.getProperty(CONFIG_FOLDER);
 		if (config != null)
 			return new File(config);
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
 	}
 
-	static File getInstallFolder(Profile profile) {
-		return new File(profile.getProperty(Profile.PROP_INSTALL_FOLDER));
+	static File getInstallFolder(IProfile profile) {
+		return new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
 	}
 
 	/**
 	 * Returns the name of the Eclipse application launcher.
 	 */
-	static String getLauncherName(Profile profile) {
+	static String getLauncherName(IProfile profile) {
 		String name = profile.getProperty(FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME);
 		if (name != null)
 			return name;
@@ -232,7 +232,7 @@ public class Util {
 	 * If the agent location is not a sub-directory of the configuration folder, this
 	 * method simply returns the absolute agent location expressed as a URL.
 	 */
-	static String computeRelativeAgentLocation(Profile profile) {
+	static String computeRelativeAgentLocation(IProfile profile) {
 		URL agentURL = Util.getAgentLocation().getURL();
 		//TODO handle proper path/url conversion
 		IPath agentPath = new Path(agentURL.getPath());

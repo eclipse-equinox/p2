@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.UpdateAndInstallDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.UninstallAction;
 import org.eclipse.equinox.p2.ui.actions.UpdateAction;
@@ -58,12 +58,12 @@ public class ProfilesView extends ProvView {
 			List list = getSelection().toList();
 			List profilesOnly = new ArrayList();
 			for (int i = 0; i < list.size(); i++) {
-				Profile profile = (Profile) ProvUI.getAdapter(list.get(i), Profile.class);
+				IProfile profile = (IProfile) ProvUI.getAdapter(list.get(i), IProfile.class);
 				if (profile != null) {
 					profilesOnly.add(profile);
 				}
 			}
-			ProfileOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (Profile[]) profilesOnly.toArray(new Profile[profilesOnly.size()]));
+			ProfileOperation op = new RemoveProfilesOperation(ProvAdminUIMessages.Ops_RemoveProfileOperationLabel, (IProfile[]) profilesOnly.toArray(new IProfile[profilesOnly.size()]));
 			ProvisioningOperationRunner.schedule(op, ProfilesView.this.getShell());
 		}
 	}
@@ -181,7 +181,7 @@ public class ProfilesView extends ProvView {
 		removeProfileAction.setEnabled(false);
 		if (ss.size() == 1) {
 			propertiesAction.setEnabled(true);
-			Profile profile = (Profile) ProvUI.getAdapter(ss.getFirstElement(), Profile.class);
+			IProfile profile = (IProfile) ProvUI.getAdapter(ss.getFirstElement(), IProfile.class);
 			if (profile != null)
 				installAction.setEnabled(true);
 		}
@@ -189,7 +189,7 @@ public class ProfilesView extends ProvView {
 		if (selectionArray.length > 0) {
 			removeProfileAction.setEnabled(true);
 			for (int i = 0; i < selectionArray.length; i++) {
-				Profile profile = (Profile) ProvUI.getAdapter(selectionArray[i], Profile.class);
+				IProfile profile = (IProfile) ProvUI.getAdapter(selectionArray[i], IProfile.class);
 				if (profile == null) {
 					removeProfileAction.setEnabled(false);
 					break;
@@ -217,7 +217,7 @@ public class ProfilesView extends ProvView {
 				if (firstElement instanceof InstalledIUElement) {
 					return ((InstalledIUElement) firstElement).getProfileId();
 				}
-				Profile profile = (Profile) ProvUI.getAdapter(firstElement, Profile.class);
+				IProfile profile = (IProfile) ProvUI.getAdapter(firstElement, IProfile.class);
 				if (profile != null)
 					return profile.getProfileId();
 				return null;
@@ -237,7 +237,7 @@ public class ProfilesView extends ProvView {
 
 	String[] getKnownProfileIds() {
 		try {
-			Profile[] allProfiles = ProvisioningUtil.getProfiles();
+			IProfile[] allProfiles = ProvisioningUtil.getProfiles();
 			String[] ids = new String[allProfiles.length];
 			for (int i = 0; i < allProfiles.length; i++)
 				ids[i] = allProfiles[i].getProfileId();

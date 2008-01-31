@@ -71,17 +71,17 @@ public class PhaseTest extends AbstractProvisioningTest {
 			return super.getAction(actionId);
 		}
 
-		protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+		protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 			initializeOperand = true;
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
 
-		protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			completePhase = true;
 			return super.completePhase(monitor, profile, parameters);
 		}
 
-		protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			initializePhase = true;
 			return super.initializePhase(monitor, profile, parameters);
 		}
@@ -147,14 +147,14 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testPerform() {
 		PhaseSet phaseSet = new TestPhaseSet();
-		Profile profile = createProfile("PhaseTest");
+		IProfile profile = createProfile("PhaseTest");
 
 		engine.perform(profile, phaseSet, new InstallableUnitOperand[0], new NullProgressMonitor());
 	}
 
 	public void testInitCompletePhase() {
 		TestPhase phase = new TestPhase() {
-			protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+			protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 				assertFalse(initializePhase);
 				assertFalse(completePhase);
 				super.initializePhase(monitor, profile, parameters);
@@ -163,7 +163,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 				return null;
 			}
 
-			protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+			protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 				assertTrue(initializePhase);
 				assertFalse(completePhase);
 				super.completePhase(monitor, profile, parameters);
@@ -173,7 +173,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 			}
 		};
 		PhaseSet phaseSet = new TestPhaseSet(phase);
-		Profile profile = createProfile("PhaseTest");
+		IProfile profile = createProfile("PhaseTest");
 		IInstallableUnit unit = createIU("unit");
 		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, new NullProgressMonitor());
 		assertTrue(phase.initializePhase);
@@ -191,7 +191,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 				return null;
 			}
 
-			protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+			protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 				assertFalse(initializeOperand);
 				assertFalse(completeOperand);
 				super.initializeOperand(profile, operand, parameters, monitor);
@@ -201,7 +201,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 			}
 		};
 		PhaseSet phaseSet = new TestPhaseSet(phase);
-		Profile profile = createProfile("PhaseTest");
+		IProfile profile = createProfile("PhaseTest");
 		IInstallableUnit unit = createIU("testInitCompleteOperand");
 
 		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, new NullProgressMonitor());

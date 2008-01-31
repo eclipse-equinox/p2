@@ -11,7 +11,7 @@ package org.eclipse.equinox.p2.tests.director;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.IDirector;
 import org.eclipse.equinox.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -26,7 +26,7 @@ public class OracleTest2 extends AbstractProvisioningTest {
 	private IInstallableUnit c2;
 
 	IDirector director;
-	Profile profile;
+	IProfile profile;
 
 	protected void setUp() throws Exception {
 		RequiredCapability[] requires = createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 2.0.0)"), null);

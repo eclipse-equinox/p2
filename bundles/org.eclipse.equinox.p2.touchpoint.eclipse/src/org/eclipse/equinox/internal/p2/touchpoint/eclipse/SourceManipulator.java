@@ -14,17 +14,17 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.simpleconfigurator.manipulator.internal.SimpleConfiguratorManipulatorImpl;
 import org.osgi.framework.Version;
 
 //This class deals with source bundles and how their addition to the source.bundles.txt
 public class SourceManipulator {
 	private List sourceBundles;
-	private Profile profile;
+	private IProfile profile;
 	boolean changed = false;
 
-	public SourceManipulator(Profile profile) {
+	public SourceManipulator(IProfile profile) {
 		this.profile = profile;
 	}
 

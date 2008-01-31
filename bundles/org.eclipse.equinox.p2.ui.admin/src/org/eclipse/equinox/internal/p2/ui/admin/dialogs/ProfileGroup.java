@@ -17,7 +17,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.ui.ProfileFactory;
 import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.swt.SWT;
@@ -45,9 +45,9 @@ public class ProfileGroup {
 	Text flavor;
 	Text environments;
 	Text nl;
-	Profile profile;
+	IProfile profile;
 
-	public ProfileGroup(final Composite parent, Profile profile, ModifyListener listener) {
+	public ProfileGroup(final Composite parent, IProfile profile, ModifyListener listener) {
 		this.profile = profile;
 
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -155,72 +155,73 @@ public class ProfileGroup {
 			id.setText(value);
 
 			// The remaining values may be null
-			value = profile.getProperty(Profile.PROP_INSTALL_FOLDER);
+			value = profile.getProperty(IProfile.PROP_INSTALL_FOLDER);
 			if (value != null) {
 				location.setText(value);
 			}
-			value = profile.getProperty(Profile.PROP_CACHE);
+			value = profile.getProperty(IProfile.PROP_CACHE);
 			if (value != null) {
 				cache.setText(value);
 			}
 
-			value = profile.getProperty(Profile.PROP_NAME);
+			value = profile.getProperty(IProfile.PROP_NAME);
 			if (value != null) {
 				name.setText(value);
 			}
-			value = profile.getProperty(Profile.PROP_DESCRIPTION);
+			value = profile.getProperty(IProfile.PROP_DESCRIPTION);
 			if (value != null) {
 				description.setText(value);
 			}
-			value = profile.getProperty(Profile.PROP_FLAVOR);
+			value = profile.getProperty(IProfile.PROP_FLAVOR);
 			flavor.setText(value != null ? value : ProfileFactory.getDefaultFlavor());
 
-			value = profile.getProperty(Profile.PROP_ENVIRONMENTS);
+			value = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
 			if (value != null) {
 				environments.setText(value);
 			}
-			value = profile.getProperty(Profile.PROP_NL);
+			value = profile.getProperty(IProfile.PROP_NL);
 			if (value != null) {
 				nl.setText(value);
 			}
 		}
 	}
 
-	public void updateProfile() {
+	public Map getProfileProperties() {
 		if (profile == null) {
 			Map profileProperties = new HashMap();
 
 			String value = location.getText().trim();
 			if (value.length() > 0) {
-				profileProperties.put(Profile.PROP_INSTALL_FOLDER, value);
+				profileProperties.put(IProfile.PROP_INSTALL_FOLDER, value);
 			}
 
 			value = cache.getText().trim();
 			if (value.length() > 0) {
-				profileProperties.put(Profile.PROP_CACHE, value);
+				profileProperties.put(IProfile.PROP_CACHE, value);
 			}
 			value = name.getText().trim();
 			if (value.length() > 0) {
-				profileProperties.put(Profile.PROP_NAME, value);
+				profileProperties.put(IProfile.PROP_NAME, value);
 			}
 			value = description.getText().trim();
 			if (value.length() > 0) {
-				profileProperties.put(Profile.PROP_DESCRIPTION, value);
+				profileProperties.put(IProfile.PROP_DESCRIPTION, value);
 			}
 			value = flavor.getText().trim();
 			if (value.length() > 0) {
-				profileProperties.put(Profile.PROP_FLAVOR, value);
+				profileProperties.put(IProfile.PROP_FLAVOR, value);
 			}
 			value = environments.getText().trim();
 			if (value.length() > 0) {
-				profileProperties.put(Profile.PROP_ENVIRONMENTS, value);
+				profileProperties.put(IProfile.PROP_ENVIRONMENTS, value);
 			}
 			value = nl.getText().trim();
 			if (value.length() > 0) {
-				profileProperties.put(Profile.PROP_NL, value);
+				profileProperties.put(IProfile.PROP_NL, value);
 			}
-			profile = new Profile(id.getText().trim(), null, profileProperties);
+			return profileProperties;
 		}
+		return profile.getProperties();
 	}
 
 	public Composite getComposite() {
@@ -230,7 +231,7 @@ public class ProfileGroup {
 		return id.getParent();
 	}
 
-	public Profile getProfile() {
+	public IProfile getProfile() {
 		return profile;
 	}
 

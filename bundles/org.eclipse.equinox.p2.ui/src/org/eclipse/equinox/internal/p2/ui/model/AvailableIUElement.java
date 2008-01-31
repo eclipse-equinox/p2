@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.phases.Sizing;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUIImages;
@@ -89,7 +89,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 		}
 	}
 
-	protected Profile getProfile() throws ProvisionException {
+	protected IProfile getProfile() throws ProvisionException {
 		return ProvisioningUtil.getProfile(profileID);
 	}
 

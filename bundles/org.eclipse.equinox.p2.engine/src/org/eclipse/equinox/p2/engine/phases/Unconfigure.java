@@ -41,7 +41,7 @@ public class Unconfigure extends Phase {
 		return Messages.Phase_Unconfigure_Error;
 	}
 
-	protected IStatus initializeOperand(Profile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
 		parameters.put(PARM_IU, iu); 
 

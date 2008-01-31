@@ -7,6 +7,7 @@ Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.touchpoint.natives.Activator
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.p2.artifact.repository,
  org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.core.location,

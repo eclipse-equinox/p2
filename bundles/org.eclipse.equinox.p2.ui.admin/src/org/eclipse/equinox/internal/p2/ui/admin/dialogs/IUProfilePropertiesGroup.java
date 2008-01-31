@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
@@ -71,14 +71,14 @@ public class IUProfilePropertiesGroup extends IUGroup {
 		String[] userPropNames = new String[] {ProvAdminUIMessages.ProfileRootPropertyName};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
-			Profile profile = getProfile((InstalledIUElement) iuElement);
+			IProfile profile = getProfile((InstalledIUElement) iuElement);
 			String value = profile == null ? null : profile.getInstallableUnitProperty(getIU(), propNames[i]);
 			if (value != null)
 				item.setText(new String[] {userPropNames[i], value});
 		}
 	}
 
-	private Profile getProfile(InstalledIUElement element) {
+	private IProfile getProfile(InstalledIUElement element) {
 		try {
 			return ProvisioningUtil.getProfile(element.getProfileId());
 		} catch (ProvisionException e) {

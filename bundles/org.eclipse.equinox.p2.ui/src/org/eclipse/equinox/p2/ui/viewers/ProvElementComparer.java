@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.ui.viewers;
 
 import java.net.URL;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
@@ -56,7 +56,7 @@ public class ProvElementComparer implements IElementComparer {
 	private String getProfileId(Object obj) {
 		if (obj instanceof ProfileElement)
 			return ((ProfileElement) obj).getLabel(obj);
-		Profile profile = (Profile) ProvUI.getAdapter(obj, Profile.class);
+		IProfile profile = (IProfile) ProvUI.getAdapter(obj, IProfile.class);
 		if (profile == null)
 			return null;
 		return profile.getProfileId();

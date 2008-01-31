@@ -52,7 +52,7 @@ public class Sizing extends Phase {
 		return Messages.Phase_Sizing_Error;
 	}
 
-	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
 		Set artifactsToObtain = new HashSet(artifactRequests.size());
 
@@ -90,7 +90,7 @@ public class Sizing extends Phase {
 		return null;
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}

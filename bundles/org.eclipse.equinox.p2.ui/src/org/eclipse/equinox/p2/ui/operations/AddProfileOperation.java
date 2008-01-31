@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.ui.operations;
 
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.engine.IProfile;
 
 /**
  * Operation that adds the given profile to the profile registry.
@@ -21,13 +22,22 @@ import org.eclipse.equinox.p2.engine.Profile;
  */
 public class AddProfileOperation extends ProfileOperation {
 	private boolean added = false;
+	private String profileId;
+	private Map profileProperties;
 
-	public AddProfileOperation(String label, Profile profile) {
-		super(label, new Profile[] {profile});
+	public AddProfileOperation(String label, IProfile profile) {
+		super(label, new IProfile[0]);
+	}
+
+	public AddProfileOperation(String label, String profileId, Map profileProperties) {
+		super(label, new IProfile[0]);
+		this.profileId = profileId;
+		this.profileProperties = profileProperties;
+
 	}
 
 	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
-		ProvisioningUtil.addProfile(getProfiles()[0], monitor);
+		ProvisioningUtil.addProfile(profileId, profileProperties, monitor);
 		added = true;
 		return okStatus();
 	}

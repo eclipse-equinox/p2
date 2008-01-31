@@ -45,7 +45,7 @@ public class Collect extends Phase {
 		return Messages.Phase_Collect_Error;
 	}
 
-	protected IStatus completePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
 
 		DownloadManager dm = new DownloadManager();
@@ -56,7 +56,7 @@ public class Collect extends Phase {
 		return dm.start(monitor);
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, Profile profile, Map parameters) {
+	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}
