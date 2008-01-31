@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.LicenseManager;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 
 /**
@@ -38,6 +39,16 @@ public abstract class UpdateOrInstallWizard extends Wizard {
 		mainPage = createMainPage(profileId, ius);
 		addPage(mainPage);
 		addPage(licensePage = new AcceptLicensesWizardPage(ius, licenseManager));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jface.wizard.Wizard#getNextPage(org.eclipse.jface.wizard.IWizardPage)
+	 */
+	public IWizardPage getNextPage(IWizardPage page) {
+		if (page == mainPage && licensePage.hasLicensesToAccept())
+			return licensePage;
+		return null;
 	}
 
 	public boolean performFinish() {
