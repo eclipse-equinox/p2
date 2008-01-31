@@ -39,6 +39,13 @@ public class UpdateHandler extends AbstractHandler {
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		String profileId;
 		String message = null;
+
+		// If the dialog is already open, we've already done all this.
+		if (dialog != null) {
+			dialog.getShell().setFocus();
+			return null;
+		}
+		// Need to figure out the profile we are using and open a dialog
 		try {
 			profileId = ProvSDKUIActivator.getProfileId();
 		} catch (ProvisionException e) {
