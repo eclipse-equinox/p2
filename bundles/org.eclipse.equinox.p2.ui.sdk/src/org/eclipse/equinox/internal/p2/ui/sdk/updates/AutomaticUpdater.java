@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.updates;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
@@ -137,7 +139,23 @@ public class AutomaticUpdater implements IUpdateListener {
 		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if (activeWindow == null)
 			return null;
-		// YUCK!  
+		// YUCK!  YUCK!  YUCK!
+		// IWorkbenchWindow does not define getStatusLineManager(), yet WorkbenchWindow does
+		try {
+			Method method = activeWindow.getClass().getDeclaredMethod("getStatusLineManager", new Class[0]); //$NON-NLS-1$
+			try {
+				Object statusLine = method.invoke(activeWindow, new Object[0]);
+				if (statusLine instanceof IStatusLineManager)
+					return (IStatusLineManager) statusLine;
+			} catch (InvocationTargetException e) {
+				// oh well
+			} catch (IllegalAccessException e) {
+				// I tried
+			}
+		} catch (NoSuchMethodException e) {
+			// can't blame us for trying.
+		}
+
 		IWorkbenchPartSite site = activeWindow.getActivePage().getActivePart().getSite();
 		if (site instanceof IViewSite) {
 			return ((IViewSite) site).getActionBars().getStatusLineManager();
@@ -165,16 +183,13 @@ public class AutomaticUpdater implements IUpdateListener {
 		IStatusLineManager manager = getStatusLineManager();
 		if (manager != null) {
 			manager.add(updateAffordance);
+			manager.update(true);
 		}
-		updateAffordance.setVisible(false);
-
 	}
 
 	void showUpdatesAvailable(boolean alreadyDownloaded) {
 		if (updateAffordance == null)
 			createUpdateAffordance();
-		updateAffordance.setVisible(true);
-
 		new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, prefs).open();
 	}
 
@@ -182,8 +197,8 @@ public class AutomaticUpdater implements IUpdateListener {
 		IStatusLineManager manager = getStatusLineManager();
 		if (manager != null) {
 			manager.remove(updateAffordance);
+			manager.update(true);
 		}
-		manager.update(true);
 		updateAffordance.dispose();
 		updateAffordance = null;
 
