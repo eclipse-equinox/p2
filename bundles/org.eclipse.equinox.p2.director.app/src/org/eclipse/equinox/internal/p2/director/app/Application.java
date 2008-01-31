@@ -9,8 +9,7 @@
 package org.eclipse.equinox.internal.p2.director.app;
 
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -33,8 +32,10 @@ public class Application implements IApplication {
 	private URL artifactRepositoryLocation;
 	private URL metadataRepositoryLocation;
 	private String root;
+	private Version version = null;
 	private String flavor;
 	private String profileId;
+	private String profileProperties; // a comma-separated list of property pairs "tag=value"
 	private boolean install;
 	private String bundlePool = null;
 	private String nl;
@@ -42,7 +43,6 @@ public class Application implements IApplication {
 	private String arch;
 	private String ws;
 	private boolean roamingProfile = false;
-	private Version version = null;
 
 	private String getEnvironmentProperty() {
 		Properties values = new Properties();
@@ -83,6 +83,9 @@ public class Application implements IApplication {
 
 			if (args[i - 1].equalsIgnoreCase("-profile")) //$NON-NLS-1$
 				profileId = arg;
+
+			if (args[i - 1].equalsIgnoreCase("-profileProperties") || args[i - 1].equalsIgnoreCase("-props")) //$NON-NLS-1$ //$NON-NLS-2$
+				profileProperties = arg;
 
 			// we create a path object here to handle ../ entries in the middle of paths
 			if (args[i - 1].equalsIgnoreCase("-destination") || args[i - 1].equalsIgnoreCase("-dest")) //$NON-NLS-1$ //$NON-NLS-2$
@@ -130,6 +133,25 @@ public class Application implements IApplication {
 		}
 	}
 
+	/**
+	 * @param pairs	a comma separated list of tag=value pairs
+	 * @param properties the collection into which the pairs are put
+	 */
+	private void putProperties(String pairs, Properties properties) {
+		StringTokenizer tok = new StringTokenizer(pairs, ",", true); //$NON-NLS-1$
+		while (tok.hasMoreTokens()) {
+			String next = tok.nextToken().trim();
+			int i = next.indexOf('=');
+			if (i > 0 && i < next.length() - 1) {
+				String tag = next.substring(0, i).trim();
+				String value = next.substring(i + 1, next.length()).trim();
+				if (tag.length() > 0 && value.length() > 0) {
+					properties.put(tag, value);
+				}
+			}
+		}
+	}
+
 	public Object run(String[] args) throws Exception {
 		long time = -System.currentTimeMillis();
 		initializeFromArguments(args);
@@ -148,6 +170,9 @@ public class Application implements IApplication {
 		String env = getEnvironmentProperty();
 		if (env != null)
 			props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
+		if (profileProperties != null) {
+			putProperties(profileProperties, props);
+		}
 		IProfile profile = ProvisioningHelper.addProfile(profileId, props);
 		String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
 		if (currentFlavor != null && !currentFlavor.endsWith(flavor))

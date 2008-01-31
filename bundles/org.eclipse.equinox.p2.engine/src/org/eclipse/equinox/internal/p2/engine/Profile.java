@@ -14,7 +14,6 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
-import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
@@ -57,7 +56,6 @@ public class Profile implements IQueryable, IProfile {
 			storage.putAll(properties);
 
 		populateIUs();
-		checkUpdateCompatibility();
 	}
 
 	private void populateIUs() {
@@ -76,22 +74,6 @@ public class Profile implements IQueryable, IProfile {
 			IInstallableUnit iu = ius[i];
 			OrderedProperties properties = profileInstallRegistry.getInstallableUnitProfileProperties(iu);
 			iuProperties.put(iu, new OrderedProperties(properties));
-		}
-	}
-
-	/*
-	 * 	TODO: Temporary for determining whether eclipse installs
-	 * 		  in this profile should support backward compatibility
-	 * 		  with update manager.
-	 */
-	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
-
-	private void checkUpdateCompatibility() {
-		if (getProperty(IProfile.PROP_INSTALL_FEATURES) == null) {
-			String updateCompatible = Activator.getContext().getProperty(UPDATE_COMPATIBILITY);
-			if (updateCompatible == null)
-				updateCompatible = Boolean.FALSE.toString();
-			setProperty(IProfile.PROP_INSTALL_FEATURES, updateCompatible);
 		}
 	}
 
