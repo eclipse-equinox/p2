@@ -264,6 +264,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		if (remindScheduleRadio.getSelection()) {
 			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, true);
 			pref.setValue(PreferenceConstants.PREF_REMIND_ELAPSED, remindElapseCombo.getText());
+		} else {
+			pref.setValue(PreferenceConstants.PREF_REMIND_SCHEDULE, false);
 		}
 
 		pref.setValue(AutomaticUpdateScheduler.P_DAY, dayCombo.getText());

@@ -60,12 +60,6 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		downloaded = alreadyDownloaded;
 		this.prefs = prefs;
 		remindDelay = computeRemindDelay();
-		prefListener = new IPropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent event) {
-				handlePreferenceChange(event);
-			}
-		};
-		prefs.addPropertyChangeListener(prefListener);
 		clickListener = new MouseAdapter() {
 			public void mouseDown(MouseEvent e) {
 				ProvSDKUIActivator.getDefault().getAutomaticUpdater().launchUpdate();
@@ -90,7 +84,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		infoLabel.setLayoutData(new GridData(GridData.FILL_BOTH));
 		infoLabel.addMouseListener(clickListener);
 
-		createRemindSection(dialogArea);
+		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
+			createRemindSection(dialogArea);
 
 		return dialogArea;
 
@@ -118,12 +113,21 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		return section;
 	}
 
+	public int open() {
+		prefListener = new IPropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent event) {
+				handlePreferenceChange(event);
+			}
+		};
+		prefs.addPropertyChangeListener(prefListener);
+		return super.open();
+	}
+
 	public boolean close() {
 		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 			scheduleRemindJob();
 		}
 		prefs.removePropertyChangeListener(prefListener);
-		remindJob = null;
 		prefListener = null;
 		return super.close();
 	}
@@ -177,6 +181,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	void cancelRemindJob() {
 		if (remindJob != null) {
 			remindJob.cancel();
+			remindJob = null;
 		}
 	}
 
