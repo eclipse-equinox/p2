@@ -131,7 +131,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	}
 
 	private static boolean isTargetConfiguratorBundle(String location) {
-		final String symbolic = Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME);
+		final String symbolic = Utils.getPathFromClause(Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME));
 		return (SimpleConfiguratorConstants.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
 	}
 
