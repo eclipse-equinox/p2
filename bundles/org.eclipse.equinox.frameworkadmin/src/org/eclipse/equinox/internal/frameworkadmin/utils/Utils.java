@@ -20,6 +20,7 @@ import org.eclipse.equinox.frameworkadmin.BundleInfo;
 public class Utils {
 	private final static String PATH_SEP = "/";
 	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
+	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 
 	/**
 	 * Overwrite all properties of from to the properties of to. Return the result of to.
@@ -232,32 +233,30 @@ public class Utils {
 	}
 
 	public static Dictionary getOSGiManifest(String location) {
-		if (location.startsWith("file:") && !location.endsWith(".jar"))
-			return basicLoadManifest(new File(location.substring("file:".length())));
+		if (location.startsWith(FILE_PROTOCOL) && !location.endsWith(".jar"))
+			return basicLoadManifest(new File(location.substring(FILE_PROTOCOL.length())));
 
 		try {
-			URL url = new URL("jar:" + location + "!/");
-			JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
-			Manifest manifest = jarConnection.getManifest();
-			Attributes attributes = manifest.getMainAttributes();
-			//			Set set = attributes.keySet();
-			Hashtable table = new Hashtable();
-			for (java.util.Iterator ite = attributes.keySet().iterator(); ite.hasNext();) {
-				//				Object obj =  ite.next();
-				//System.out.println(obj.getClass().getName());
-
-				String key = (String) ite.next().toString();
-				// While table contains non OSGiManifest, it doesn't matter.
-				table.put(key, attributes.getValue(key));
-				//	System.out.println("key=" + key + " value=" + value);
+			JarFile jar = null;
+			if (location.startsWith(FILE_PROTOCOL)) {
+				jar = new JarFile(location.substring(FILE_PROTOCOL.length()));
+			} else {
+				URL url = new URL("jar:" + location + "!/");
+				JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
+				jar = jarConnection.getJarFile();
 			}
-			//	System.out.println("");
 			try {
-				jarConnection.getJarFile().close();
-			} catch (IOException e) {
-				//Ignore
+				Manifest manifest = jar.getManifest();
+				Dictionary result = new Hashtable();
+				Attributes attributes = manifest.getMainAttributes();
+				for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
+					String key = iter.next().toString();
+					result.put(key, attributes.getValue(key));
+				}
+				return result;
+			} finally {
+				jar.close();
 			}
-			return table;
 		} catch (IOException e) {
 			if (System.getProperty("osgi.debug") != null) {
 				System.err.println("location=" + location);
