@@ -62,7 +62,7 @@ public class SourceManipulator {
 	}
 
 	private File getFileLocation() {
-		return new File(Util.getConfigurationFolder(profile), "org.eclipse.source.bundles/source.bundles.txt"); //$NON-NLS-1$
+		return new File(Util.getConfigurationFolder(profile), "org.eclipse.equinox.source/source.bundles.txt"); //$NON-NLS-1$
 	}
 
 	private File getLauncherLocation() {
