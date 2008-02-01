@@ -497,7 +497,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			if (!bInfos[i].isMarkedAsStarted())
 				continue;
 			for (int j = 0; j < references.length; j++)
-				if (references[j].getProperty(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME).equals(Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME))) {
+				if (references[j].getProperty(ConfiguratorManipulator.SERVICE_PROP_KEY_CONFIGURATOR_BUNDLESYMBOLICNAME).equals(Utils.getPathFromClause(Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME)))) {
 					configuratorManipulator = (ConfiguratorManipulator) cmTracker.getService(references[j]);
 					break;
 				}
