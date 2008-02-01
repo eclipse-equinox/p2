@@ -84,8 +84,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		infoLabel.setLayoutData(new GridData(GridData.FILL_BOTH));
 		infoLabel.addMouseListener(clickListener);
 
-		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
-			createRemindSection(dialogArea);
+		createRemindSection(dialogArea);
 
 		return dialogArea;
 
@@ -93,7 +92,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 
 	private void createRemindSection(Composite parent) {
 		remindLink = new Link(parent, SWT.MULTI | SWT.WRAP | SWT.RIGHT);
-		remindLink.setText(NLS.bind(ProvSDKMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED), PREFS_HREF}));
+		updateRemindText();
 		remindLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(getShell(), PreferenceConstants.PREF_PAGE_AUTO_UPDATES, null, null);
@@ -102,6 +101,13 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			}
 		});
 		remindLink.setLayoutData(new GridData(GridData.FILL_BOTH));
+	}
+
+	private void updateRemindText() {
+		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
+			remindLink.setText(NLS.bind(ProvSDKMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED), PREFS_HREF}));
+		else
+			remindLink.setText(ProvSDKMessages.AutomaticUpdatesPopup_PrefLinkOnly);
 	}
 
 	protected IDialogSettings getDialogBoundsSettings() {
@@ -218,13 +224,17 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
 				if (remindLink == null)
 					createRemindSection(dialogArea);
-				else
-					remindLink.setVisible(true);
+				else {
+					updateRemindText();
+					getShell().layout(true, true);
+				}
 				computeRemindDelay();
 				scheduleRemindJob();
 			} else { // reminders turned off
-				if (remindLink != null)
-					remindLink.setVisible(false);
+				if (remindLink != null) {
+					updateRemindText();
+					getShell().layout(true, true);
+				}
 				cancelRemindJob();
 			}
 		} else if (PreferenceConstants.PREF_REMIND_ELAPSED.equals(event.getProperty())) {

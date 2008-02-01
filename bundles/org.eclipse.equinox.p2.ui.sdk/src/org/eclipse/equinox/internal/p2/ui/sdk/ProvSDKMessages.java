@@ -75,6 +75,7 @@ public class ProvSDKMessages extends NLS {
 	public static String SchedulerStartup_11PM;
 	public static String SchedulerStartup_12AM;
 	public static String AutomaticUpdatesJob_AutomaticUpdateSearch;
+	public static String AutomaticUpdatesPopup_PrefLinkOnly;
 	public static String AutomaticUpdatesPopup_RemindAndPrefLink;
 	public static String AutomaticUpdatesPopup_ReminderJobTitle;
 	public static String AutomaticUpdatesPreferencePage_findUpdates;
