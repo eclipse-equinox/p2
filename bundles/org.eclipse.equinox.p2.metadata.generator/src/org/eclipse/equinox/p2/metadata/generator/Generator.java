@@ -193,12 +193,7 @@ public class Generator {
 				else
 					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
 				if (info.reuseExistingPack200Files() && !info.publishArtifacts()) {
-					File packFile;
-					if (!isDir) {
-						packFile = new Path(bd.getLocation()).removeFileExtension().addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
-					} else {
-						packFile = new Path(bd.getLocation()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
-					}
+					File packFile = new Path(bd.getLocation()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 					if (packFile.exists()) {
 						IArtifactDescriptor ad200 = MetadataGeneratorHelper.createPack200ArtifactDescriptor(key, packFile, ad.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
 						publishArtifact(ad200, new File[] {packFile}, destination, true);

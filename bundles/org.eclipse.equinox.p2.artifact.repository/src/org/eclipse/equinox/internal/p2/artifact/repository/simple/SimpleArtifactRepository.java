@@ -143,7 +143,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
 	static final private String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
-	static final private String[][] PACKED_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin) (format=packed))", "${repoUrl}/plugins/${id}_${version}.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] PACKED_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin) (format=packed))", "${repoUrl}/plugins/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
 			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
