@@ -12,6 +12,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.LauncherData;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -48,12 +50,7 @@ public class EclipseLauncherParser {
 
 		if (launcherData.getFwConfigLocation() != null) {
 			lines.add(EquinoxConstants.OPTION_CONFIGURATION);
-			String path = "";
-			if (relative)
-				path = Utils.getRelativePath(launcherData.getFwConfigLocation(), outputFile.getParentFile());
-			else
-				path = launcherData.getFwConfigLocation().getAbsolutePath();
-			lines.add(path);
+			lines.add(launcherData.getFwConfigLocation().getAbsolutePath());
 		}
 
 		if (!startUpFlag)
@@ -195,37 +192,51 @@ public class EclipseLauncherParser {
 
 			String line;
 			List list = new LinkedList();
-			boolean resolveNextLine = false;
 			while ((line = br.readLine()) != null) {
-				if (resolveNextLine) {
-					line = EquinoxManipulatorImpl.makeAbsolute(line, launcherData.getLauncher().getParentFile().getAbsolutePath());
-					resolveNextLine = false;
-				} else {
-					resolveNextLine = needsPathResolution(line);
-				}
 				list.add(line);
 			}
-			String[] lines = new String[list.size()];
-			list.toArray(lines);
+			String[] lines = (String[]) list.toArray(new String[list.size()]);
+			String osgiInstallArea = getLauncher(lines) != null ? EquinoxManipulatorImpl.makeAbsolute(getLauncher(lines).getPath(), launcherData.getLauncher().getParentFile().getAbsolutePath()) : null;
+
+			String resolveNextLine = null;
+			for (int i = 0; i < lines.length; i++) {
+				if (resolveNextLine != null) {
+					lines[i] = EquinoxManipulatorImpl.makeAbsolute(lines[i], resolveNextLine);
+					resolveNextLine = null;
+				} else {
+					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
+				}
+			}
 			this.parseCmdLine(launcherData, lines);
 		} finally {
 			if (br != null)
 				br.close();
 		}
 		Log.log(LogService.LOG_INFO, "Launcher Config file(" + launcherConfigFile.getAbsolutePath() + ") is read successfully.");
-
 	}
 
-	private boolean needsPathResolution(String entry) {
+	private File getLauncher(String[] args) {
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals(EquinoxConstants.OPTION_STARTUP) && i + 1 < args.length && args[i + 1].charAt(1) != '-') {
+				IPath parentFolder = new Path(args[i + 1]).removeLastSegments(1);
+				if (parentFolder.lastSegment().equals("plugins"))
+					return parentFolder.removeLastSegments(1).toFile();
+				return parentFolder.toFile();
+			}
+		}
+		return null;
+	}
+
+	private String needsPathResolution(String entry, String osgiInstallArea, String launcherFolder) {
 		if (EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(entry))
-			return true;
+			return launcherFolder;
 		if ("--launcher.library".equalsIgnoreCase(entry))
-			return true;
+			return launcherFolder;
 		if (EquinoxConstants.OPTION_STARTUP.equalsIgnoreCase(entry))
-			return true;
+			return launcherFolder;
 		if (EquinoxConstants.OPTION_FW.equalsIgnoreCase(entry))
-			return true;
-		return false;
+			return osgiInstallArea != null ? osgiInstallArea : launcherFolder;
+		return null;
 	}
 
 	public void save(LauncherData launcherData, boolean relative, boolean backup) throws IOException {
@@ -248,13 +259,14 @@ public class EclipseLauncherParser {
 			bw = new BufferedWriter(new FileWriter(launcherConfigFile));
 
 			String[] lines = this.getConfigFileLines(launcherData, launcherConfigFile, relative);
-			boolean resolveNextLine = false;
+			String osgiInstallArea = getLauncher(lines) != null ? EquinoxManipulatorImpl.makeAbsolute(getLauncher(lines).getPath(), launcherData.getLauncher().getParentFile().getAbsolutePath()) : launcherData.getLauncher().getParentFile().getAbsolutePath();
+			String resolveNextLine = null;
 			for (int i = 0; i < lines.length; i++) {
-				if (resolveNextLine) {
-					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
-					resolveNextLine = false;
+				if (resolveNextLine != null) {
+					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], resolveNextLine);
+					resolveNextLine = null;
 				} else {
-					resolveNextLine = needsPathResolution(lines[i]);
+					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
 				}
 				bw.write(lines[i]);
 				bw.newLine();
@@ -266,5 +278,4 @@ public class EclipseLauncherParser {
 				bw.close();
 		}
 	}
-
 }

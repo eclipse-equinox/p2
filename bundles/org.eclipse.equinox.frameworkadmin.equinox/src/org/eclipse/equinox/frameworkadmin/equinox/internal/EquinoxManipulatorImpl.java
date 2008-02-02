@@ -574,8 +574,23 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		// ensure we have an absolute path to start with
 		if (!path.isAbsolute())
 			return original;
-		int index = commonPrefixEnd(original, rootPath, 0, 0);
-		return index == 0 ? original : original.substring(index);
+
+		return makeRelative(path, new Path(rootPath));
+	}
+
+	private static String makeRelative(IPath toRel, IPath base) {
+		int i = base.matchingFirstSegments(toRel);
+		if (i == 0) {
+			return toRel.toOSString();
+		}
+		String result = "";
+		for (int j = 0; j < (base.segmentCount() - i); j++) {
+			result += ".." + Path.SEPARATOR;
+		}
+		if (i == toRel.segmentCount())
+			return ".";
+		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
+		return result;
 	}
 
 	public static String makeRelative(String urlString, URL rootURL) {
@@ -601,10 +616,19 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			return urlString;
 
 		String rootString = rootURL.toExternalForm();
-		int common = commonPrefixEnd(urlString, rootString, index, rootString.indexOf(FILE_PROTOCOL) + 5);
-		if (common == 0)
-			return urlString;
-		return urlString.substring(0, index) + urlString.substring(common);
+		return urlString.substring(0, index) + makeRelative(urlString.substring(index), rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5));
+	}
+
+	public static String makeArrayRelative(String array, URL rootURL) {
+		StringBuffer buffer = new StringBuffer();
+		for (StringTokenizer tokenizer = new StringTokenizer(array, COMMA); tokenizer.hasMoreTokens();) {
+			String token = tokenizer.nextToken();
+			String absolute = makeRelative(token, rootURL);
+			buffer.append(absolute);
+			if (tokenizer.hasMoreTokens())
+				buffer.append(',');
+		}
+		return buffer.toString();
 	}
 
 	public static String makeArrayAbsolute(String array, URL rootURL) {
@@ -631,7 +655,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (path.isAbsolute())
 			return original;
 		IPath root = new Path(rootPath);
-		return root.addTrailingSeparator().append(path).toOSString();
+		return root.addTrailingSeparator().append(original.replace(':', '}')).toOSString().replace('}', ':');
 	}
 
 	public static String makeAbsolute(String urlString, URL rootURL) {
@@ -656,25 +680,6 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		if (url == null || new File(url.getFile()).isAbsolute())
 			return urlString;
 
-		String pre = urlString.substring(0, index - 5);
-		String post = urlString.substring(index);
-		return pre + rootURL.toExternalForm() + post;
-	}
-
-	/*
-	 * Look at the given strings and return the index of the first character which isn't the same.
-	 * 
-	 * Method similar to one from SimpleConfigurationManipulatorImpl.
-	 */
-	private static int commonPrefixEnd(String path, String root, int startIndex, int rootStart) {
-		if (startIndex > path.length() || rootStart > root.length())
-			return 0;
-		int index = startIndex;
-		int rootIndex = rootStart;
-		while (index < path.length() + startIndex && rootIndex < root.length() && path.charAt(index) == root.charAt(rootIndex)) {
-			index++;
-			rootIndex++;
-		}
-		return rootIndex == root.length() ? index : 0;
+		return urlString.substring(0, index - 5) + makeAbsolute(urlString.substring(index), rootURL.toExternalForm());
 	}
 }

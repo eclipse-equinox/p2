@@ -13,6 +13,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.frameworkadmin.equinox.internal.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -28,8 +30,7 @@ public class EquinoxFwConfigFileParser {
 	private static final String KEY_OSGI_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
 	private static final String[] PATHS = new String[] {KEY_OSGI_LAUNCHER_PATH, KEY_ECLIPSE_PROV_CACHE};
 	private static final String[] URLS = new String[] { //
-	KEY_OSGI_FRAMEWORK, //
-			KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, //
+	KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, //
 			KEY_ECLIPSE_PROV_DATA_AREA};
 
 	private static boolean DEBUG = false;
@@ -269,8 +270,8 @@ public class EquinoxFwConfigFileParser {
 
 		File fwJar = null;
 		if (props.getProperty(EquinoxConstants.PROP_OSGI_FW) != null) {
-			props.setProperty(KEY_OSGI_FRAMEWORK, EquinoxManipulatorImpl.makeAbsolute(props.getProperty(EquinoxConstants.PROP_OSGI_FW), rootURL));
-			String fwJarString = props.getProperty(EquinoxConstants.PROP_OSGI_FW);
+			props.setProperty(KEY_OSGI_FRAMEWORK, EquinoxManipulatorImpl.makeAbsolute(props.getProperty(EquinoxConstants.PROP_OSGI_FW), getOSGiInstallArea(launcherData).toURL()));
+			String fwJarString = props.getProperty(KEY_OSGI_FRAMEWORK);
 			if (fwJarString != null) {
 				fwJar = new File(new URL(fwJarString).getFile());
 				launcherData.setFwJar(fwJar);
@@ -278,7 +279,7 @@ public class EquinoxFwConfigFileParser {
 			}
 		}
 
-		props = makeAbsolute(props, rootURL, fwJar);
+		props = makeAbsolute(props, rootURL, fwJar, getOSGiInstallArea(manipulator.getLauncherData()));
 		for (Enumeration enumeration = props.keys(); enumeration.hasMoreElements();) {
 			String key = (String) enumeration.nextElement();
 			String value = props.getProperty(key);
@@ -308,11 +309,15 @@ public class EquinoxFwConfigFileParser {
 		Log.log(LogService.LOG_INFO, "Config file(" + inputFile.getAbsolutePath() + ") is read successfully.");
 	}
 
-	private static Properties makeRelative(Properties props, URL rootURL, File fwJar) throws IOException {
+	private static Properties makeRelative(Properties props, URL rootURL, File fwJar, File osgiInstallArea) throws IOException {
 		for (int i = 0; i < PATHS.length; i++) {
 			String path = props.getProperty(PATHS[i]);
 			if (path != null)
 				props.put(PATHS[i], EquinoxManipulatorImpl.makeRelative(path, rootURL.getFile()));
+		}
+
+		if (props.getProperty(KEY_OSGI_FRAMEWORK) != null && osgiInstallArea != null) {
+			props.put(KEY_OSGI_FRAMEWORK, EquinoxManipulatorImpl.makeRelative(props.getProperty(KEY_OSGI_FRAMEWORK), osgiInstallArea.toURL()));
 		}
 
 		for (int i = 0; i < URLS.length; i++) {
@@ -325,12 +330,12 @@ public class EquinoxFwConfigFileParser {
 		if (value != null && fwJar != null) {
 			File parent = fwJar.getParentFile();
 			if (parent != null)
-				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeRelative(value, parent.toURL()));
+				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayRelative(value, parent.toURL()));
 		}
 		return props;
 	}
 
-	private static Properties makeAbsolute(Properties props, URL rootURL, File fwJar) throws IOException {
+	private static Properties makeAbsolute(Properties props, URL rootURL, File fwJar, File osgiInstallArea) throws IOException {
 		for (int i = 0; i < PATHS.length; i++) {
 			String path = props.getProperty(PATHS[i]);
 			if (path != null)
@@ -350,6 +355,23 @@ public class EquinoxFwConfigFileParser {
 				props.setProperty(KEY_OSGI_BUNDLES, EquinoxManipulatorImpl.makeArrayAbsolute(value, parent.toURL()));
 		}
 		return props;
+	}
+
+	public static File getOSGiInstallArea(LauncherData launcherData) {
+		if (launcherData == null)
+			return null;
+		String[] args = launcherData.getProgramArgs();
+		if (args == null)
+			return null;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-startup") && i + 1 < args.length && args[i + 1].charAt(1) != '-') {
+				IPath parentFolder = new Path(args[i + 1]).removeLastSegments(1);
+				if (parentFolder.lastSegment().equals("plugins"))
+					return parentFolder.removeLastSegments(1).toFile();
+				return parentFolder.toFile();
+			}
+		}
+		return launcherData.getLauncher().getParentFile();
 	}
 
 	public void saveFwConfig(BundleInfo[] bInfos, Manipulator manipulator, boolean backup, boolean relative) throws IOException {//{
@@ -395,7 +417,7 @@ public class EquinoxFwConfigFileParser {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(outputFile);
-			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURL(), fwJar);
+			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURL(), fwJar, getOSGiInstallArea(manipulator.getLauncherData()));
 			configProps.store(out, header);
 			Log.log(LogService.LOG_INFO, "FwConfig is saved successfully into:" + outputFile);
 		} finally {

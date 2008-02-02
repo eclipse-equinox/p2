@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin;
 
+import org.eclipse.core.runtime.Path;
+
 /**
  * This object represents information of a bundle.
  *
@@ -77,7 +79,7 @@ public class BundleInfo {
 			if (info.symbolicName != null && info.version != null && symbolicName != null && version != null) {
 				// TODO: the equalsIgnoreCase for location comparison is a bug;
 				//		 need a platform sensitive location comparison method
-				if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : info.location.equalsIgnoreCase(location)))
+				if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : new Path(info.location).equals(new Path(location))))
 					return true;
 			} else {
 				return (info.location == null || location == null ? false : info.location.equals(location));
@@ -134,7 +136,7 @@ public class BundleInfo {
 
 	public void setLocation(String location) {
 		this.location = (location != null ? location.trim() : null);
-			
+
 	}
 
 	public void setManifest(String manifest) {
@@ -183,7 +185,7 @@ public class BundleInfo {
 		buffer.append(resolved);
 		buffer.append(", id=");
 		buffer.append(this.bundleId);//		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
-		buffer.append(',').append(manifest==null?"no manifest" : "manifest available");
+		buffer.append(',').append(manifest == null ? "no manifest" : "manifest available");
 		buffer.append(')');
 		return buffer.toString();
 	}

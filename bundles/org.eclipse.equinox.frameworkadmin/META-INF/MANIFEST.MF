@@ -11,3 +11,4 @@ Export-Package: org.eclipse.equinox.configuratormanipulator,
  org.eclipse.equinox.internal.frameworkadmin.utils;x-friends:="org.eclipse.equinox.frameworkadmin.equinox"
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
+Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"

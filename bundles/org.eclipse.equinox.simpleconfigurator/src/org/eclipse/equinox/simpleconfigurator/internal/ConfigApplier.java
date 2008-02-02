@@ -23,6 +23,7 @@ class ConfigApplier {
 	private PackageAdmin adminService = null;
 	private StartLevel startLevelService = null;
 	private final boolean runningOnEquinox;
+	private boolean checkManifestBeforeInstall = false;
 
 	ConfigApplier(BundleContext context, SimpleConfiguratorImpl configurator) {
 		this.manipulatingContext = context;
@@ -138,26 +139,31 @@ class ConfigApplier {
 			//TODO here we do not deal with bundles that don't have a symbolic id
 			//TODO Need to handle the case where getBundles return multiple value
 
+			String symbolicName = finalList[i].getSymbolicName();
+			String version = finalList[i].getVersion();
+
+			if (checkManifestBeforeInstall) {
+				Dictionary manifest = Utils.getOSGiManifest(finalList[i].getLocation());
+				if (manifest == null) {
+					Utils.log(1, null, null, "No bundle found at: " + finalList[i].getLocation(), null);
+					finalList[i] = null;
+					continue;
+				}
+
+				//if (manifest != null)
+				try {
+					symbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+				} catch (RuntimeException re) {
+					System.err.println("cannot get Manifest :" + finalList[i]);
+					throw re;
+				}
+				if (symbolicName != null && symbolicName.indexOf(";") != -1)
+					symbolicName = symbolicName.substring(0, symbolicName.indexOf(";")).trim();
+
+				version = (String) manifest.get(Constants.BUNDLE_VERSION);
+			}
+
 			Bundle[] matches = null;
-			Dictionary manifest = Utils.getOSGiManifest(finalList[i].getLocation());
-			if (manifest == null) {
-				Utils.log(1, null, null, "No bundle found at: " + finalList[i].getLocation(), null);
-				finalList[i] = null;
-				continue;
-			}
-
-			String symbolicName = null;
-			//if (manifest != null)
-			try {
-				symbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
-			} catch (RuntimeException re) {
-				System.err.println("cannot get Manifest :" + finalList[i]);
-				throw re;
-			}
-			if (symbolicName != null && symbolicName.indexOf(";") != -1)
-				symbolicName = symbolicName.substring(0, symbolicName.indexOf(";")).trim();
-
-			String version = (String) manifest.get(Constants.BUNDLE_VERSION);
 			if (symbolicName != null && version != null)
 				matches = adminService.getBundles(symbolicName, getVersionRange(version));
 

@@ -12,6 +12,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.frameworkadmin.*;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
@@ -314,7 +316,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	 * @return
 	 * @throws IOException
 	 */
-	public static List readConfiguration(URL url, File launcherLocation) throws IOException {
+	public static List readConfiguration(URL url, File base) throws IOException {
 		List bundles = new ArrayList();
 		try {
 			// System.out.println("readConfiguration(URL url):url()=" + url);
@@ -341,8 +343,6 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 						if (!baseUrlSt.endsWith("/"))
 							baseUrlSt += "/";
 						baseUrl = new URL(url, baseUrlSt);
-						//						if (DEBUG)
-						//							System.out.println("baseUrl=" + baseUrl);
 						continue;
 					}
 					StringTokenizer tok = new StringTokenizer(line, ",", true);
@@ -386,7 +386,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 					// urlBundle = Utils.getFullUrl(urlSt, baseUrl);
 					// }
 
-					urlSt = makeAbsolute(urlSt, launcherLocation != null ? launcherLocation.getParentFile().toURL() : null);
+					urlSt = makeAbsolute(urlSt, base != null ? base.toURL() : null);
 					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
 					bundles.add(bInfo);
 					// System.out.println("tail line=" + line);
@@ -428,12 +428,29 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		if (!configuratorConfigUrl.getProtocol().equals("file"))
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
 		File outputFile = new File(configuratorConfigUrl.getFile());
-		this.saveConfiguration(setToSimpleConfig, outputFile, manipulator.getLauncherData().getLauncher(), backup);
+		this.saveConfiguration(setToSimpleConfig, outputFile, getOSGiInstallArea(manipulator.getLauncherData()), backup);
 		configData.setFwIndependentProp(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
 
-	public static void saveConfiguration(List bundleInfoList, File outputFile, File launcherLocation, boolean backup) throws IOException {
+	public static File getOSGiInstallArea(LauncherData launcherData) {
+		if (launcherData == null)
+			return null;
+		String[] args = launcherData.getProgramArgs();
+		if (args == null)
+			return null;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i].equals("-startup") && i + 1 < args.length && args[i + 1].charAt(1) != '-') {
+				IPath parentFolder = new Path(args[i + 1]).removeLastSegments(1);
+				if (parentFolder.lastSegment().equals("plugins"))
+					return parentFolder.removeLastSegments(1).toFile();
+				return parentFolder.toFile();
+			}
+		}
+		return launcherData.getLauncher().getParentFile();
+	}
+
+	public static void saveConfiguration(List bundleInfoList, File outputFile, File base, boolean backup) throws IOException {
 		if (DEBUG) {
 			System.out.println("saveConfiguration(List bundleInfoList, File outputFile, boolean backup): outFile=" + outputFile.getAbsolutePath());
 		}
@@ -463,7 +480,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 				else
 					bw.write(bInfo.getVersion() + ",");
 
-				location = makeRelative(location, launcherLocation != null ? launcherLocation.getParentFile().toURL() : null);
+				location = makeRelative(location, base != null ? base.toURL() : null);
 				bw.write(location + ",");
 				bw.write(bInfo.getStartLevel() + "," + bInfo.isMarkedAsStarted());
 				bw.newLine();
@@ -482,10 +499,21 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	}
 
-	/*
-	 * Make the given path relative to the specified root, if applicable. If not, then
-	 * return the path as-is.
-	 */
+	private static String makeRelative(IPath toRel, IPath base) {
+		int i = base.matchingFirstSegments(toRel);
+		if (i == 0) {
+			return toRel.toOSString();
+		}
+		String result = "";
+		for (int j = 0; j < (base.segmentCount() - i); j++) {
+			result += ".." + Path.SEPARATOR;
+		}
+		if (i == toRel.segmentCount())
+			return ".";
+		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
+		return result;
+	}
+
 	public static String makeRelative(String urlString, URL rootURL) {
 		// we only traffic in file: URLs
 		int index = urlString.indexOf(FILE_PROTOCOL);
@@ -509,10 +537,16 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			return urlString;
 
 		String rootString = rootURL.toExternalForm();
-		int common = commonPrefixEnd(urlString, rootString, index, rootString.indexOf(FILE_PROTOCOL) + 5);
-		if (common == 0)
-			return urlString;
-		return urlString.substring(0, index) + urlString.substring(common);
+		return urlString.substring(0, index) + makeRelative(new Path(urlString.substring(index)), new Path(rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5)));
+	}
+
+	public static String makeAbsolute(String original, String rootPath) {
+		IPath path = new Path(original);
+		// ensure we have a relative path to start with
+		if (path.isAbsolute())
+			return original;
+		IPath root = new Path(rootPath);
+		return root.addTrailingSeparator().append(original.replace(':', '}')).toOSString().replace('}', ':');
 	}
 
 	/*
@@ -541,9 +575,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		if (url == null || new File(url.getFile()).isAbsolute())
 			return urlString;
 
-		String pre = urlString.substring(0, index - 5);
-		String post = urlString.substring(index);
-		return pre + rootURL.toExternalForm() + post;
+		return urlString.substring(0, index - 5) + makeAbsolute(urlString.substring(index), rootURL.toExternalForm());
 	}
 
 	/*
@@ -624,7 +656,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
 
-		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, manipulator.getLauncherData().getLauncher());
+		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, getOSGiInstallArea(manipulator.getLauncherData()));
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)

@@ -18,3 +18,4 @@ Export-Package: org.eclipse.equinox.internal.simpleconfigurator.utils;x-internal
  org.eclipse.equinox.simpleconfigurator.manipulator.internal;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse"
 Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
  J2SE-1.4
+Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"
