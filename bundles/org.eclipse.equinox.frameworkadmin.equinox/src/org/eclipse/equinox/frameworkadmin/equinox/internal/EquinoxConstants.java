@@ -33,6 +33,7 @@ public class EquinoxConstants {
 	public static final String OPTION_VMARGS = "-vmargs"; //$NON-NLS-1$
 	public static final String OPTION_CLEAN = "-clean"; //$NON-NLS-1$
 	public static final String OPTION_STARTUP = "-startup"; //$NON-NLS-1$
+	public static final String OPTION_SHOWSPLASH = "-showsplash"; //$NON-NLS-1$
 
 	// System properties
 	public static final String PROP_BUNDLES = "osgi.bundles"; //$NON-NLS-1$

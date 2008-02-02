@@ -236,6 +236,8 @@ public class EclipseLauncherParser {
 			return launcherFolder;
 		if (EquinoxConstants.OPTION_FW.equalsIgnoreCase(entry))
 			return osgiInstallArea != null ? osgiInstallArea : launcherFolder;
+		if (EquinoxConstants.OPTION_SHOWSPLASH.equalsIgnoreCase(entry))
+			return launcherFolder;
 		return null;
 	}
 
