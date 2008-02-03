@@ -177,7 +177,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 		IProfile grandchild11 = profiles[7];
 
 		assertTrue(parentId.equals(parent.getProfileId()));
-		assertTrue("Profile should have 3 local properties", parent.getLocalProperties().size() == 3);
+		assertTrue("Profile should have 3 local properties", parent.getLocalProperties().size() == 2);
 		assertTrue(parentValue.equals(parent.getProperty(key)));
 		assertTrue(otherValue.equals(parent.getProperty(otherKey)));
 		assertTrue("Parent should have 2 children.", parent.getSubProfileIds().length == 2);
