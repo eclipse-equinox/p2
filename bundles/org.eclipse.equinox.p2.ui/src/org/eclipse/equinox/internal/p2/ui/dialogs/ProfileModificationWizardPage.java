@@ -229,6 +229,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 					messageType = IMessageProvider.WARNING;
 				setMessage(currentPlan.getStatus().getMessage(), messageType);
 				setPageComplete(false);
+				ProvUI.reportStatus(currentPlan.getStatus());
 			}
 	}
 
