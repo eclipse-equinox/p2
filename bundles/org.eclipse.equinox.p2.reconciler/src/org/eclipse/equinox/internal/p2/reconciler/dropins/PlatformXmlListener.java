@@ -131,7 +131,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				try {
 					url = FileLocator.resolve(url);
 				} catch (IOException e) {
-					throw new ProvisionException("Exception while processing configuration.", e);
+					throw new ProvisionException(Messages.errorProcessingConfg, e);
 				}
 				File file = new File(url.getPath(), "plugins"); //$NON-NLS-1$
 				DirectoryWatcher watcher = new DirectoryWatcher(file);
@@ -140,7 +140,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				watcher.poll();
 				sites.put(site.getUrl(), new SiteInfo(site, watcher, listener));
 			} catch (MalformedURLException e) {
-				throw new ProvisionException("Exception while processing configuration.", e);
+				throw new ProvisionException(Messages.errorProcessingConfg, e);
 			}
 		}
 	}
