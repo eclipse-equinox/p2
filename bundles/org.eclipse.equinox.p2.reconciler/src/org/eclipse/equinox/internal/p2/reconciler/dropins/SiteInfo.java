@@ -57,6 +57,10 @@ public class SiteInfo {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
-		return url.equals(obj);
+		if (!(obj instanceof SiteInfo))
+			return false;
+		SiteInfo other = (SiteInfo) obj;
+		// this is ok because they are strings and not real URLs
+		return url.equals(other.getUrl());
 	}
 }
