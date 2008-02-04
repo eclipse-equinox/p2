@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
@@ -110,7 +109,6 @@ public class InstallApplication implements IApplication {
 	}
 
 	private void launchProduct(InstallDescription description) throws CoreException {
-		advisor.setResult(new Status(IStatus.INFO, InstallerActivator.PI_INSTALLER, NLS.bind(Messages.App_Launching, description.getProductName())));
 		IPath installLocation = description.getInstallLocation();
 		IPath toRun = installLocation.append(description.getLauncherName());
 		try {
@@ -149,7 +147,7 @@ public class InstallApplication implements IApplication {
 				//just exit after a successful update
 				if (!operation.isFirstInstall())
 					return IApplication.EXIT_OK;
-				if (description.isAutoStart())
+				if (description.isAutoStart() && advisor.promptForLaunch(description))
 					launchProduct(description);
 				else {
 					//notify user that the product was installed
