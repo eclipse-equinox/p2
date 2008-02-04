@@ -69,6 +69,9 @@ public class InstallAction extends ProfileModificationAction {
 		try {
 			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
 			request.addInstallableUnits(ius);
+			for (int i = 0; i < ius.length; i++) {
+				request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			}
 			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
 			return plan;
 		} catch (ProvisionException e) {
