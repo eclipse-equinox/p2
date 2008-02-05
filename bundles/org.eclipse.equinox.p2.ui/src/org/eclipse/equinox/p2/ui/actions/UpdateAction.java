@@ -12,7 +12,8 @@
 package org.eclipse.equinox.p2.ui.actions;
 
 import java.util.ArrayList;
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.p2.core.ProvisionException;
@@ -31,6 +32,7 @@ import org.eclipse.swt.widgets.Shell;
 public class UpdateAction extends ProfileModificationAction {
 
 	IQueryProvider queryProvider;
+	IStatus status = null; // used to validate the ability of updates without getting a plan
 
 	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
 		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, licenseManager, shell);
@@ -60,6 +62,14 @@ public class UpdateAction extends ProfileModificationAction {
 	}
 
 	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
+		try {
+			IInstallableUnit[] updates = ProvisioningUtil.updatesFor(ius, monitor);
+			if (updates.length <= 0) {
+				status = new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.UpdateOperation_NothingToUpdate);
+			}
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, ProvUIMessages.UpdateAction_ExceptionDuringUpdateCheck);
+		}
 		return null;
 	}
 
@@ -71,6 +81,10 @@ public class UpdateAction extends ProfileModificationAction {
 	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#validatePlan(org.eclipse.equinox.p2.director.ProvisioningPlan)
 	 */
 	protected boolean validatePlan(ProvisioningPlan plan) {
+		if (status != null) {
+			ProvUI.reportStatus(status);
+			return false;
+		}
 		return true;
 	}
 
