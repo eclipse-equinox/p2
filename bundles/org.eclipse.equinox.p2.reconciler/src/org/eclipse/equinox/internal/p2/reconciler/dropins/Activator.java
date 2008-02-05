@@ -63,7 +63,7 @@ public class Activator implements BundleActivator {
 
 		// create watchers for the sites specified in the platform.xml
 		// TODO
-		if (false)
+		if (Boolean.getBoolean("org.eclipse.p2.update.compatibility"))
 			watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
