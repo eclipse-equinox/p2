@@ -56,6 +56,8 @@ public interface IGeneratorInfo {
 
 	public String getRootVersion();
 
+	public String getProductFile();
+
 	/**
 	 * Returns the location of the site.xml file, or <code>null</code> if not
 	 * generating for an update site.

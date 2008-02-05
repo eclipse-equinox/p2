@@ -82,7 +82,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private boolean updateCompatibility = Boolean.valueOf(System.getProperty(UPDATE_COMPATIBILITY, "false")).booleanValue(); //$NON-NLS-1$
 	private String rootId;
 	private String rootVersion;
-
+	private String productFile = null;
 	private String launcherConfig;
 
 	private URL siteLocation;
@@ -309,6 +309,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return rootVersion;
 	}
 
+	public String getProductFile() {
+		return productFile;
+	}
+
 	public URL getSiteLocation() {
 		return siteLocation;
 	}
@@ -428,6 +432,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		rootVersion = value;
 	}
 
+	public void setProductFile(String file) {
+		productFile = file;
+	}
+
 	/**
 	 * Sets the location of site.xml if applicable.
 	 */
@@ -444,7 +452,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		if (bundles != null && bundles.length > 0) {
 			for (int i = 0; i < bundles.length; i++) {
 				try {
-					if ((bundles[0].getState() & Bundle.INSTALLED) > 0) {
+					if ((bundles[0].getState() & Bundle.RESOLVED) > 0) {
 						bundles[0].start();
 						return true;
 					}

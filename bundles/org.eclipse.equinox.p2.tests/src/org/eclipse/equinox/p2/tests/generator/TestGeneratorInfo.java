@@ -161,13 +161,18 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 	public void setIsUpdateCompatible(boolean isCompatible) {
 		this.updateCompatibilty = isCompatible;
 	}
-	
+
 	public boolean reuseExistingPack200Files() {
 		return false;
 	}
 
 	public void reuseExistingPack200Files(boolean publishPack) {
 		//
+	}
+
+	public String getProductFile() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

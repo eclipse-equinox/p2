@@ -49,6 +49,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private ServiceRegistration registrationDefaultMetadataManager;
 	private ProvisioningEventBus bus;
 	private ServiceRegistration registrationBus;
+	private Generator.GeneratorResult incrementalResult = null;
 	private String metadataLocation;
 	private String artifactLocation;
 	private String operation;
@@ -236,6 +237,9 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 				provider.setFlavor(arg);
 
+			if (args[i - 1].equalsIgnoreCase("-productFile")) //$NON-NLS-1$
+				provider.setProductFile(arg);
+
 			if (args[i - 1].equalsIgnoreCase("-features")) //$NON-NLS-1$
 				features = arg;
 
@@ -281,23 +285,37 @@ public class EclipseGeneratorApplication implements IApplication {
 	}
 
 	public Object run(String args[]) throws Exception {
+		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
+		processCommandLineArguments(args, provider);
+		Object result = run(provider);
+		if (result != IApplication.EXIT_OK)
+			for (int i = 0; i < args.length; i++)
+				System.out.println(args[i]);
+		return result;
+	}
+
+	public Object run(EclipseInstallGeneratorInfoProvider provider) throws Exception {
 		registerEventBus();
 		registerDefaultMetadataRepoManager();
 		registerDefaultArtifactRepoManager();
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		processCommandLineArguments(args, provider);
 		initialize(provider);
 
-		if (provider.getBaseLocation() == null) {
+		if (provider.getBaseLocation() == null && provider.getProductFile() == null) {
 			System.out.println(Messages.exception_baseLocationNotSpecified);
-			for (int i = 0; i < args.length; i++)
-				System.out.println(args[i]);
-			return IApplication.EXIT_OK;
+			return new Integer(-1);
 		}
 		System.out.println(NLS.bind(Messages.message_generatingMetadata, provider.getBaseLocation()));
 
 		long before = System.currentTimeMillis();
-		IStatus result = new Generator(provider).generate();
+
+		Generator generator = new Generator(provider);
+
+		if (incrementalResult != null)
+			generator.setIncrementalResult(incrementalResult);
+
+		IStatus result = generator.generate();
+
+		incrementalResult = null;
 		long after = System.currentTimeMillis();
 		if (result.isOK()) {
 			System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
@@ -326,4 +344,32 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 	}
 
+	public void setBase(String base) {
+		this.base = base;
+	}
+
+	public void setArtifactLocation(String location) {
+		this.artifactLocation = location;
+	}
+
+	public void setBundles(String bundles) {
+		this.bundles = bundles;
+	}
+
+	public void setOperation(String operation, String argument) {
+		this.operation = operation;
+		this.argument = argument;
+	}
+
+	public void setFeatures(String features) {
+		this.features = features;
+	}
+
+	public void setMetadataLocation(String location) {
+		this.metadataLocation = location;
+	}
+
+	public void setIncrementalResult(Generator.GeneratorResult ius) {
+		this.incrementalResult = ius;
+	}
 }

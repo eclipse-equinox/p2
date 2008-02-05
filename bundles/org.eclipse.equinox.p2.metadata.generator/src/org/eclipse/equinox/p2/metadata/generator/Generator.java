@@ -22,7 +22,10 @@ import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.p2.metadata.*;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.p2.query.Query;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
@@ -31,7 +34,7 @@ public class Generator {
 	/**
 	 * Captures the output of an execution of the generator.
 	 */
-	static class GeneratorResult {
+	public static class GeneratorResult {
 		/**
 		 * The set of generated IUs that will be children of the root IU
 		 */
@@ -78,6 +81,8 @@ public class Generator {
 
 	private final IGeneratorInfo info;
 
+	private GeneratorResult incrementalResult = null;
+
 	/**
 	 * Short term fix to ensure IUs that have no corresponding category are not lost.
 	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
@@ -111,6 +116,10 @@ public class Generator {
 		}
 	}
 
+	public void setIncrementalResult(GeneratorResult result) {
+		this.incrementalResult = result;
+	}
+
 	private boolean checkOptionalRootDependency(IInstallableUnit iu) {
 		// TODO: This is a kludge to make the default configuration unit
 		//		 for features be optional in the root. Since there is a global
@@ -119,13 +128,44 @@ public class Generator {
 		return (iu.getId().indexOf(".feature.default") > 0 ? true : false); //$NON-NLS-1$
 	}
 
+	protected IInstallableUnit createProductIU(String productFile) {
+		ProductFile product = null;
+		try {
+			product = new ProductFile(productFile, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		GeneratorResult result = new GeneratorResult();
+		List children = product.useFeatures() ? product.getFeatures() : product.getPlugins();
+		for (Iterator iterator = children.iterator(); iterator.hasNext();) {
+			Query query = new InstallableUnitQuery((String) iterator.next());
+			Collector collector = info.getMetadataRepository().query(query, new Collector(), null);
+			// product file doesn't say anything about versions, don't know how to choose if there is more than one
+			if (collector.size() > 0) {
+				result.nonRootIUs.add(collector.iterator().next());
+			}
+		}
+
+		//TODO get a real version
+		String version = info.getRootVersion() != null ? info.getRootVersion() : "0.0.0"; //$NON-NLS-1$
+		InstallableUnitDescription root = createTopLevelIUDescription(result, product.getId(), version, product.getProductName());
+		return MetadataFactory.createInstallableUnit(root);
+	}
+
 	protected IInstallableUnit createTopLevelIU(GeneratorResult result, String configurationIdentification, String configurationVersion) {
+		// TODO, bit of a hack but for now set the name of the IU to the ID.
+		InstallableUnitDescription root = createTopLevelIUDescription(result, configurationIdentification, configurationVersion, configurationIdentification);
+		return MetadataFactory.createInstallableUnit(root);
+	}
+
+	protected InstallableUnitDescription createTopLevelIUDescription(GeneratorResult result, String configurationIdentification, String configurationVersion, String configurationName) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
 		root.setVersion(new Version(configurationVersion));
-		// TODO, bit of a hack but for now set the name of the IU to the ID.
-		root.setProperty(IInstallableUnit.PROP_NAME, configurationIdentification);
+		root.setProperty(IInstallableUnit.PROP_NAME, configurationName);
 
 		ArrayList reqsConfigurationUnits = new ArrayList(result.rootIUs.size());
 		for (Iterator iterator = result.rootIUs.iterator(); iterator.hasNext();) {
@@ -188,11 +228,11 @@ public class Generator {
 		touchpointData.put("configure", configurationData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigurationData); //$NON-NLS-1$
 		root.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		return MetadataFactory.createInstallableUnit(root);
+		return root;
 	}
 
 	public IStatus generate() {
-		GeneratorResult result = new GeneratorResult();
+		GeneratorResult result = incrementalResult != null ? incrementalResult : new GeneratorResult();
 
 		Feature[] features = getFeatures(info.getFeaturesLocation());
 		generateFeatureIUs(features, result, info.getArtifactRepository());
@@ -506,14 +546,23 @@ public class Generator {
 	}
 
 	protected void generateRootIU(GeneratorResult result, String rootIUId, String rootIUVersion) {
-		if (rootIUId == null)
+		IInstallableUnit rootIU = null;
+
+		if (info.getProductFile() != null)
+			rootIU = createProductIU(info.getProductFile());
+		else if (rootIUId != null)
+			rootIU = createTopLevelIU(result, rootIUId, rootIUVersion);
+
+		if (rootIU == null)
 			return;
-		IInstallableUnit rootIU = createTopLevelIU(result, rootIUId, rootIUVersion);
+
 		result.nonRootIUs.add(rootIU);
 		result.nonRootIUs.add(generateDefaultCategory(rootIU));
 	}
 
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
+		if (bundleLocations == null)
+			return new BundleDescription[0];
 		boolean addSimpleConfigurator = false;
 		for (int i = 0; i < bundleLocations.length; i++) {
 			addSimpleConfigurator = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_UPDATE_CONFIGURATOR) > 0;
