@@ -51,6 +51,8 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 				final String profileId = event.getProfileId();
 				display.asyncExec(new Runnable() {
 					public void run() {
+						if (viewer.getControl().isDisposed())
+							return;
 						// We want to refresh the affected profile, so we
 						// construct a profile element on this profile.
 						ProfileElement element = new ProfileElement(profileId);
@@ -61,6 +63,8 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 			} else {
 				display.asyncExec(new Runnable() {
 					public void run() {
+						if (viewer.getControl().isDisposed())
+							return;
 						refreshAll();
 					}
 				});
