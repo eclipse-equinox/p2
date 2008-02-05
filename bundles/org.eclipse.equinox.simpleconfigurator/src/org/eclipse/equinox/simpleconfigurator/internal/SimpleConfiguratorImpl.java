@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.simpleconfigurator.internal;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,28 +41,54 @@ public class SimpleConfiguratorImpl implements Configurator {
 		this.context = context;
 	}
 
-	/**
-	 * @return URL
-	 */
 	private URL getConfigurationURL() {
+		String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
+		if (specifiedURL == null)
+			specifiedURL = "file:" + SimpleConfiguratorConstants.CONFIGURATOR_FOLDER + "/" + SimpleConfiguratorConstants.CONFIG_LIST;
+
 		try {
-			String specifiedURL = context.getProperty(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL);
-			if (specifiedURL != null)
+			//If it is not a file URL use it as is
+			if (!specifiedURL.startsWith("file:"))
 				return new URL(specifiedURL);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			return null;
 		}
 
 		try {
-			if (null != context.getBundle().loadClass("org.eclipse.osgi.service.datalocation.Location")) { //$NON-NLS-1$
-				URL configURL = EquinoxUtils.getDefaultConfigURL(context);
-				if (configURL != null)
-					return configURL;
+			// if it is an absolute file URL, use it as is
+			boolean done = false;
+			URL url = null;
+			String file = specifiedURL;
+			while (!done) {
+				try {
+					url = new URL(file);
+					file = url.getFile();
+				} catch (java.net.MalformedURLException e) {
+					done = true;
+				}
 			}
-		} catch (ClassNotFoundException e) {
-			// Location is not available
-			// Ok -- optional
+			if (url != null && new File(url.getFile()).isAbsolute())
+				return url;
+
+			//if it is an relative file URL, then resolve it against the configuration area
+			URL configURL = EquinoxUtils.getConfigAreaURL(context);
+			if (configURL != null) {
+				File target = new File(configURL.getFile(), url.getFile());
+				if (target.exists())
+					return target.toURL();
+				return null;
+			}
+		} catch (MalformedURLException e) {
+			return null;
 		}
+
+		//Last resort
+		try {
+			return new URL(specifiedURL);
+		} catch (MalformedURLException e) {
+			//Ignore
+		}
+
 		return null;
 	}
 

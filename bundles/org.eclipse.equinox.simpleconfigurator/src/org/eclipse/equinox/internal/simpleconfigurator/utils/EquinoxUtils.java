@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.equinox.internal.simpleconfigurator.console.ConfiguratorCommandProvider;
 import org.eclipse.osgi.framework.console.CommandProvider;
@@ -19,7 +17,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class EquinoxUtils {
 
-	public static URL getDefaultConfigURL(BundleContext context) {
+	public static URL getConfigAreaURL(BundleContext context) {
 		Filter filter = null;
 		try {
 			filter = context.createFilter(Location.CONFIGURATION_FILTER);
@@ -34,17 +32,9 @@ public class EquinoxUtils {
 				return null;
 
 			URL baseURL = configLocation.getURL();
-			if (baseURL == null)
-				return null;
+			if (baseURL != null)
+				return baseURL;
 
-			try {
-				URL configURL = new URL(baseURL, SimpleConfiguratorConstants.CONFIGURATOR_FOLDER + "/" + SimpleConfiguratorConstants.CONFIG_LIST);
-				File configFile = new File(configURL.getFile());
-				if (configFile.exists())
-					return configURL;
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
 			return null;
 		} finally {
 			configLocationTracker.close();
