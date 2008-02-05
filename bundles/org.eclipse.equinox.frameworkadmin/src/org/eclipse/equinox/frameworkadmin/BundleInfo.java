@@ -35,27 +35,32 @@ public class BundleInfo {
 	}
 
 	public BundleInfo(String location) {
-		this.location = location.trim();
+		if (location != null)
+			this.location = location.trim();
 	}
 
 	public BundleInfo(String location, boolean started) {
-		this.location = location.trim();
+		if (location != null)
+			this.location = location.trim();
 		this.markedAsStarted = started;
 	}
 
 	public BundleInfo(String location, int startLevel) {
-		this.location = location.trim();
+		if (location != null)
+			this.location = location.trim();
 		this.startLevel = startLevel;
 	}
 
 	public BundleInfo(String location, int startLevel, boolean started) {
-		this.location = location.trim();
+		if (location != null)
+			this.location = location.trim();
 		this.startLevel = startLevel;
 		this.markedAsStarted = started;
 	}
 
 	public BundleInfo(String location, int startLevel, boolean started, long bundleId) {
-		this.location = location.trim();
+		if (location != null)
+			this.location = location.trim();
 		this.startLevel = startLevel;
 		this.markedAsStarted = started;
 		this.bundleId = bundleId;
@@ -64,7 +69,8 @@ public class BundleInfo {
 	public BundleInfo(String symbolic, String version, String location, int startLevel, boolean started) {
 		this.symbolicName = symbolic;
 		this.version = version;
-		this.location = location.trim();
+		if (location != null)
+			this.location = location.trim();
 		this.markedAsStarted = started;
 		this.startLevel = startLevel;
 	}

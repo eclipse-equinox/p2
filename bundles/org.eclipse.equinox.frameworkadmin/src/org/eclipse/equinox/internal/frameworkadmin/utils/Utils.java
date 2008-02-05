@@ -233,6 +233,8 @@ public class Utils {
 	}
 
 	public static Dictionary getOSGiManifest(String location) {
+		if (location == null)
+			return null;
 		if (location.startsWith(FILE_PROTOCOL) && !location.endsWith(".jar"))
 			return basicLoadManifest(new File(location.substring(FILE_PROTOCOL.length())));
 
