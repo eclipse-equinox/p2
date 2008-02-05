@@ -11,8 +11,8 @@
 
 package org.eclipse.equinox.internal.p2.ui.viewers;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Hashtable;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -88,7 +88,7 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 
 	AbstractTreeViewer treeViewer;
 	HashSet allChildren = new HashSet();
-	ArrayList runningJobs = new ArrayList();
+	Hashtable runningJobs = new Hashtable();
 
 	public AvailableIUContentProvider(IQueryProvider queryProvider) {
 		super(queryProvider);
@@ -103,8 +103,8 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 				}
 			});
 		}
-		allChildren = new HashSet();
 		cancelJobs();
+		allChildren = new HashSet();
 		super.inputChanged(v, oldInput, newInput);
 	}
 
@@ -118,8 +118,8 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 					placeholder = new RepositoryPlaceholder(((ProvElement) elements[i]).getLabel(elements[i]));
 				else
 					placeholder = new RepositoryPlaceholder(elements[i].toString());
-				startFetchingElements(elements[i], placeholder);
 				allChildren.add(placeholder);
+				startFetchingElements(elements[i], placeholder);
 			}
 		}
 		return allChildren.toArray();
@@ -133,14 +133,15 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 			 * @see org.eclipse.core.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
 			 */
 			public IStatus run(IProgressMonitor monitor) {
+				if (monitor.isCanceled())
+					return Status.CANCEL_STATUS;
 				if (element instanceof ProvElement) {
 					if (element instanceof RemoteQueriedElement) {
 						IElementCollector collector = new IElementCollector() {
-							boolean added = false;
+							HashSet fetchedChildren = new HashSet();
 
 							public void add(Object o, IProgressMonitor pm) {
-								allChildren.add(o);
-								added = true;
+								fetchedChildren.add(o);
 							}
 
 							public void add(Object[] objs, IProgressMonitor pm) {
@@ -150,16 +151,25 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 							}
 
 							public void done() {
-								if (added)
+								if (fetchedChildren.size() > 0) {
+									allChildren.addAll(fetchedChildren);
 									allChildren.remove(placeholder);
-								else
+								} else
 									placeholder.failed = true;
 							}
 						};
 						((RemoteQueriedElement) element).fetchDeferredChildren(element, collector, SubMonitor.convert(monitor));
+						// Check whether we were cancelled during fetch.  If so, remove the placeholder without adding the
+						// fetched children.
+						if (monitor.isCanceled()) {
+							allChildren.remove(placeholder);
+							return Status.CANCEL_STATUS;
+						}
 						collector.done();
 					} else {
 						Object[] children = ((ProvElement) element).getChildren(element);
+						if (monitor.isCanceled())
+							return Status.CANCEL_STATUS;
 						for (int i = 0; i < children.length; i++)
 							allChildren.add(children[i]);
 						if (children.length == 0)
@@ -171,6 +181,8 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 				if (!treeViewer.getControl().isDisposed()) {
 					treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
 						public void run() {
+							if (treeViewer.getControl().isDisposed())
+								return;
 							treeViewer.refresh();
 						}
 					});
@@ -180,7 +192,7 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 		};
 		job.setPriority(Job.LONG);
 		job.setSystem(true);
-		runningJobs.add(job);
+		runningJobs.put(placeholder.identifier, job);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
 				runningJobs.remove(job);
@@ -190,9 +202,11 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 	}
 
 	void cancelJobs() {
-		// copy to array since we delete as we go
-		Job[] jobs = (Job[]) runningJobs.toArray(new Job[runningJobs.size()]);
-		for (int i = 0; i < jobs.length; i++)
-			jobs[i].cancel();
+		// copy to keys to an array since we delete as we go
+		String[] identifiers = (String[]) runningJobs.keySet().toArray(new String[runningJobs.size()]);
+		for (int i = 0; i < identifiers.length; i++) {
+			((Job) runningJobs.get(identifiers[i])).cancel();
+			runningJobs.remove(identifiers[i]);
+		}
 	}
 }
