@@ -51,7 +51,9 @@ public class EclipseGeneratorApplication implements IApplication {
 	private ServiceRegistration registrationBus;
 	private Generator.GeneratorResult incrementalResult = null;
 	private String metadataLocation;
+	private String metadataRepoName;
 	private String artifactLocation;
+	private String artifactRepoName;
 	private String operation;
 	private String argument;
 	private String features;
@@ -112,12 +114,14 @@ public class EclipseGeneratorApplication implements IApplication {
 
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
-		String repositoryName = artifactLocation + " - artifacts"; //$NON-NLS-1$
+		String repositoryName = artifactRepoName != null ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		provider.setArtifactRepository(result);
 		result.setProperty(IRepository.PROP_COMPRESSED, compress);
 		if (provider.reuseExistingPack200Files())
 			result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
+		if (artifactRepoName != null)
+			result.setName(artifactRepoName);
 	}
 
 	public void initializeForInplace(EclipseInstallGeneratorInfoProvider provider) {
@@ -160,10 +164,12 @@ public class EclipseGeneratorApplication implements IApplication {
 
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
-		String repositoryName = metadataLocation + " - metadata"; //$NON-NLS-1$
+		String repositoryName = metadataRepoName == null ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
 		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		if (result != null) {
 			result.setProperty(IRepository.PROP_COMPRESSED, compress);
+			if (metadataRepoName != null)
+				result.setName(metadataRepoName);
 			provider.setMetadataRepository(result);
 		}
 	}
@@ -231,8 +237,14 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataLocation = arg;
 
+			if (args[i - 1].equalsIgnoreCase("-metadataRepositoryName")) //$NON-NLS-1$
+				metadataRepoName = arg;
+
 			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactLocation = arg;
+
+			if (args[i - 1].equalsIgnoreCase("-artifactRepositoryName")) //$NON-NLS-1$
+				artifactRepoName = arg;
 
 			if (args[i - 1].equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 				provider.setFlavor(arg);

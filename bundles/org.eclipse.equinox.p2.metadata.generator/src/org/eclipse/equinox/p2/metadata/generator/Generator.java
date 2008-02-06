@@ -267,7 +267,7 @@ public class Generator {
 			BundleDescription bd = bundles[i];
 			// A bundle may be null if the associated plug-in does not have a manifest file -
 			// for example, org.eclipse.jdt.launching.j9
-			if (bd != null) {
+			if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
 				String format = (String) ((Dictionary) bd.getUserObject()).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
 				boolean isDir = format.equals(BundleDescriptionFactory.DIR) ? true : false;
 				IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
