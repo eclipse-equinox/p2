@@ -218,18 +218,6 @@ public class SimplePlanner implements IPlanner {
 	// TODO note that this only describes property changes, not the IU changes.
 	private ProfileChangeRequest generateChangeRequest(IProfile profile, IInstallableUnit iuDescribingNewState, Collection newIUs) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-
-		for (Iterator iter = profile.getProperties().keySet().iterator(); iter.hasNext();) {
-			String key = (String) iter.next();
-			request.removeProfileProperty(key);
-		}
-		IInstallableUnit[] ius = getInstallableUnits(profile);
-		for (int i = 0; i < ius.length; i++) {
-			for (Iterator iter = profile.getInstallableUnitProperties(ius[i]).keySet().iterator(); iter.hasNext();) {
-				String key = (String) iter.next();
-				request.removeInstallableUnitProfileProperty(ius[i], key);
-			}
-		}
 		Map profileProperties = iuDescribingNewState.getProperties();
 		for (Iterator iter = profileProperties.keySet().iterator(); iter.hasNext();) {
 			String key = (String) iter.next();
@@ -251,6 +239,32 @@ public class SimplePlanner implements IPlanner {
 				request.setProfileProperty(key, profileProperties.get(key));
 			}
 		}
+		// Now process removals, but don't include those that simply changed or were otherwise reset above.
+		for (Iterator iter = profile.getProperties().keySet().iterator(); iter.hasNext();) {
+			String key = (String) iter.next();
+			if (!request.getPropertiesToAdd().containsKey(key))
+				request.removeProfileProperty(key);
+		}
+		IInstallableUnit[] ius = getInstallableUnits(profile);
+		for (int i = 0; i < ius.length; i++) {
+			// Get the properties we added so those can be excluded
+			Iterator iuIter = request.getInstallableUnitProfilePropertiesToAdd().keySet().iterator();
+			HashMap addedProperties = new HashMap();
+			while (iuIter.hasNext()) {
+				IInstallableUnit iu = (IInstallableUnit) iuIter.next();
+				if (iu.getId().equals(ius[i].getId())) {
+					addedProperties = (HashMap) request.getInstallableUnitProfilePropertiesToAdd().get(iu);
+					continue;
+				}
+			}
+
+			for (Iterator iter = profile.getInstallableUnitProperties(ius[i]).keySet().iterator(); iter.hasNext();) {
+				String key = (String) iter.next();
+				if (!addedProperties.containsKey(key))
+					request.removeInstallableUnitProfileProperty(ius[i], key);
+			}
+		}
+
 		return request;
 	}
 
