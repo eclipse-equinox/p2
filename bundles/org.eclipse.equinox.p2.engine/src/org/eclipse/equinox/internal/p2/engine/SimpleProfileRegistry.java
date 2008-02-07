@@ -117,6 +117,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (result == null)
 			result = new LinkedHashMap(8);
 		profiles = new SoftReference(result);
+		if (!restored) {
+			//update roaming profile on first load
+			restored = true;
+			updateRoamingProfile(result);
+		}
 		return result;
 	}
 
@@ -265,11 +270,6 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			} finally {
 				if (bif != null)
 					bif.close();
-			}
-			if (!restored) {
-				//update roaming profile on first load
-				restored = true;
-				updateRoamingProfile(loadedMap);
 			}
 		} catch (FileNotFoundException e) {
 			//This is ok.
