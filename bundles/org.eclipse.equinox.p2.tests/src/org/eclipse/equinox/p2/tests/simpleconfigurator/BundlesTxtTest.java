@@ -191,7 +191,7 @@ public class BundlesTxtTest extends AbstractProvisioningTest {
 	private File[] getBundleJars(File directory) {
 		FilenameFilter bundleFilter = new FilenameFilter() {
 			public boolean accept(File directoryName, String filename) {
-				return !filename.startsWith(".");
+				return !filename.startsWith(".") && !filename.equals("CVS");
 			}
 		};
 		return directory.listFiles(bundleFilter);
