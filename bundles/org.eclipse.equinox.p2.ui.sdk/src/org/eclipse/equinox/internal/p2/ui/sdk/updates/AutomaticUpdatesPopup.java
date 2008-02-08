@@ -130,12 +130,20 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	}
 
 	public boolean close() {
-		if (prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE)) {
+		return close(true);
+	}
+
+	public boolean close(boolean remind) {
+		if (remind && prefs.getBoolean(PreferenceConstants.PREF_REMIND_SCHEDULE))
 			scheduleRemindJob();
+		else
+			cancelRemindJob();
+		if (prefListener != null) {
+			prefs.removePropertyChangeListener(prefListener);
+			prefListener = null;
 		}
-		prefs.removePropertyChangeListener(prefListener);
-		prefListener = null;
 		return super.close();
+
 	}
 
 	void scheduleRemindJob() {
@@ -147,6 +155,8 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			return;
 		remindJob = new WorkbenchJob(ProvSDKMessages.AutomaticUpdatesPopup_ReminderJobTitle) {
 			public IStatus runInUIThread(IProgressMonitor monitor) {
+				if (monitor.isCanceled())
+					return Status.CANCEL_STATUS;
 				open();
 				return Status.OK_STATUS;
 			}

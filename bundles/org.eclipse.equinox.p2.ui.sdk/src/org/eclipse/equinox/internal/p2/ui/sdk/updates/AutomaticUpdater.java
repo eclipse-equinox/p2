@@ -12,12 +12,16 @@ package org.eclipse.equinox.internal.p2.ui.sdk.updates;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.EventObject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.director.*;
+import org.eclipse.equinox.p2.engine.ProfileEvent;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.*;
@@ -34,6 +38,7 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
+import org.eclipse.ui.progress.WorkbenchJob;
 
 /**
  * @since 3.4
@@ -42,8 +47,12 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	Preferences prefs;
 	StatusLineCLabelContribution updateAffordance;
+	IStatusLineManager statusLineManager;
+	IInstallableUnit[] updatesFound;
 	IInstallableUnit[] toUpdate;
 	String profileId;
+	AutomaticUpdatesPopup popup;
+	ProvisioningListener profileChangeListener;
 	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
 
 	public AutomaticUpdater() {
@@ -56,12 +65,16 @@ public class AutomaticUpdater implements IUpdateListener {
 	 */
 	public void updatesAvailable(final UpdateEvent event) {
 		final boolean download = prefs.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
-		// Recompute the updates that we want to make available to the user.
-		toUpdate = getUpdatesToShow(event);
-
 		profileId = event.getProfileId();
-		if (toUpdate.length <= 0)
+		updatesFound = event.getIUs();
+		// Recompute the updates that we want to make available to the user.
+		toUpdate = getUpdatesToShow(updatesFound, new NullProgressMonitor());
+
+		if (toUpdate.length <= 0) {
+			clearUpdatesAvailable();
 			return;
+		}
+		registerProfileChangeListener();
 
 		// Download the items if the preference dictates before
 		// showing the user that updates are available.
@@ -107,20 +120,33 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	// Figure out which updates we want to expose to the user.
 	// Updates of IU's below the user's visiblity will not be shown.
-	private IInstallableUnit[] getUpdatesToShow(final UpdateEvent event) {
+	IInstallableUnit[] getUpdatesToShow(final IInstallableUnit[] iusWithUpdates, IProgressMonitor monitor) {
 		// We could simply collect the install roots ourselves, but implementing
 		// this in terms of a normal "what's installed" query allows the policy to be defined only
 		// in one place.
 		IQueryable rootQueryable = new IQueryable() {
-			public Collector query(Query query, Collector result, IProgressMonitor monitor) {
-				IInstallableUnit[] ius = event.getIUs();
-				for (int i = 0; i < ius.length; i++)
-					if (query.isMatch(ius[i]))
-						result.accept(ius[i]);
+			public Collector query(Query query, Collector result, IProgressMonitor pm) {
+				for (int i = 0; i < iusWithUpdates.length; i++)
+					if (query.isMatch(iusWithUpdates[i])) {
+						IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iusWithUpdates[i], IInstallableUnit.class);
+						if (iu != null) {
+							// It's possible that the update list is stale, so for install roots that had updates available,
+							// we do one more check here to ensure that an update is still available for it.  Otherwise
+							// we risk notifying the user of updates and then not finding them (which can still happen, but
+							// we are trying to reduce the window in which it can happen.
+							try {
+								if (ProvisioningUtil.getPlanner().updatesFor(iu, new ProvisioningContext(), pm).length > 0)
+									result.accept(iusWithUpdates[i]);
+							} catch (ProvisionException e) {
+								ProvUI.handleException(e, null);
+								continue;
+							}
+						}
+					}
 				return result;
 			}
 		};
-		ProfileElement element = new ProfileElement(event.getProfileId());
+		ProfileElement element = new ProfileElement(profileId);
 		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(element, IQueryProvider.INSTALLED_IUS);
 		Object[] elements = rootQueryable.query(descriptor.query, descriptor.collector, null).toArray(Object.class);
 		IInstallableUnit[] result = new IInstallableUnit[elements.length];
@@ -136,6 +162,8 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	IStatusLineManager getStatusLineManager() {
+		if (statusLineManager != null)
+			return statusLineManager;
 		IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if (activeWindow == null)
 			return null;
@@ -145,8 +173,10 @@ public class AutomaticUpdater implements IUpdateListener {
 			Method method = activeWindow.getClass().getDeclaredMethod("getStatusLineManager", new Class[0]); //$NON-NLS-1$
 			try {
 				Object statusLine = method.invoke(activeWindow, new Object[0]);
-				if (statusLine instanceof IStatusLineManager)
-					return (IStatusLineManager) statusLine;
+				if (statusLine instanceof IStatusLineManager) {
+					statusLineManager = (IStatusLineManager) statusLine;
+					return statusLineManager;
+				}
 			} catch (InvocationTargetException e) {
 				// oh well
 			} catch (IllegalAccessException e) {
@@ -158,11 +188,11 @@ public class AutomaticUpdater implements IUpdateListener {
 
 		IWorkbenchPartSite site = activeWindow.getActivePage().getActivePart().getSite();
 		if (site instanceof IViewSite) {
-			return ((IViewSite) site).getActionBars().getStatusLineManager();
+			statusLineManager = ((IViewSite) site).getActionBars().getStatusLineManager();
 		} else if (site instanceof IEditorSite) {
-			return ((IEditorSite) site).getActionBars().getStatusLineManager();
+			statusLineManager = ((IEditorSite) site).getActionBars().getStatusLineManager();
 		}
-		return null;
+		return statusLineManager;
 	}
 
 	void updateStatusLine() {
@@ -187,21 +217,33 @@ public class AutomaticUpdater implements IUpdateListener {
 		}
 	}
 
+	private void createUpdatePopup(boolean alreadyDownloaded) {
+		popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, prefs);
+		popup.open();
+
+	}
+
 	void showUpdatesAvailable(boolean alreadyDownloaded) {
 		if (updateAffordance == null)
 			createUpdateAffordance();
-		new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, prefs).open();
+		if (popup == null)
+			createUpdatePopup(alreadyDownloaded);
 	}
 
 	void clearUpdatesAvailable() {
-		IStatusLineManager manager = getStatusLineManager();
-		if (manager != null) {
-			manager.remove(updateAffordance);
-			manager.update(true);
+		if (updateAffordance != null) {
+			IStatusLineManager manager = getStatusLineManager();
+			if (manager != null) {
+				manager.remove(updateAffordance);
+				manager.update(true);
+			}
+			updateAffordance.dispose();
+			updateAffordance = null;
 		}
-		updateAffordance.dispose();
-		updateAffordance = null;
-
+		if (popup != null) {
+			popup.close(false);
+			popup = null;
+		}
 	}
 
 	public void launchUpdate() {
@@ -209,6 +251,55 @@ public class AutomaticUpdater implements IUpdateListener {
 		WizardDialog dialog = new WizardDialog(getWorkbenchWindowShell(), wizard);
 		if (dialog.open() == Window.OK)
 			clearUpdatesAvailable();
+	}
+
+	private void registerProfileChangeListener() {
+		if (profileChangeListener == null) {
+			profileChangeListener = new ProvisioningListener() {
+				public void notify(EventObject o) {
+					if (o instanceof ProfileEvent) {
+						ProfileEvent event = (ProfileEvent) o;
+						if (event.getReason() == ProfileEvent.CHANGED && profileId.equals(event.getProfileId())) {
+							validateUpdates();
+						}
+					}
+				}
+			};
+			ProvisioningEventBus bus = ProvSDKUIActivator.getDefault().getProvisioningEventBus();
+			if (bus != null)
+				bus.addListener(profileChangeListener);
+		}
+	}
+
+	/*
+	 * The profile has changed.  Make sure our toUpdate list is
+	 * still valid and if there is nothing to update, get rid
+	 * of the update popup and affordance.
+	 */
+	void validateUpdates() {
+		Job validateJob = new WorkbenchJob("Update validate job") { //$NON-NLS-1$
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				if (monitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				toUpdate = getUpdatesToShow(updatesFound, monitor);
+				if (toUpdate.length == 0)
+					clearUpdatesAvailable();
+				return Status.OK_STATUS;
+			}
+		};
+		validateJob.setSystem(true);
+		validateJob.setPriority(Job.SHORT);
+		validateJob.schedule();
+	}
+
+	public void shutdown() {
+		if (profileChangeListener == null)
+			return;
+		ProvisioningEventBus bus = ProvSDKUIActivator.getDefault().getProvisioningEventBus();
+		if (bus != null)
+			bus.removeListener(profileChangeListener);
+		profileChangeListener = null;
+		statusLineManager = null;
 	}
 
 }

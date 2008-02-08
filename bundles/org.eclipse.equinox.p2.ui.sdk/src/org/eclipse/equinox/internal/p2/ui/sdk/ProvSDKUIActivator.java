@@ -14,6 +14,7 @@ import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.engine.IProfile;
 import org.eclipse.equinox.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.p2.ui.*;
@@ -23,6 +24,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Activator class for the p2 UI.
@@ -113,11 +115,15 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		writeLicenseRegistry();
-		plugin = null;
 		if (scheduler != null) {
 			scheduler.shutdown();
 			scheduler = null;
 		}
+		if (updater != null) {
+			updater.shutdown();
+			updater = null;
+		}
+		plugin = null;
 		super.stop(bundleContext);
 	}
 
@@ -126,6 +132,13 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (scheduler == null)
 			scheduler = new AutomaticUpdateScheduler();
 		return scheduler;
+	}
+
+	public ProvisioningEventBus getProvisioningEventBus() {
+		ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
+		if (busReference == null)
+			return null;
+		return (ProvisioningEventBus) context.getService(busReference);
 	}
 
 	public AutomaticUpdater getAutomaticUpdater() {
