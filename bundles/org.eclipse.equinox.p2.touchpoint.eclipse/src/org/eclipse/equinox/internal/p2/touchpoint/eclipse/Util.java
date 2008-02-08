@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -155,10 +154,32 @@ public class Util {
 			return name;
 		//create a default name based on platform
 		//TODO Need a better solution for launcher name branding
-		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
-		if (info.getOS() == org.eclipse.osgi.service.environment.Constants.OS_WIN32)
+
+		String os = getOSFromProfile(profile);
+		if (os == null) {
+			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+			if (info != null)
+				os = info.getOS();
+		}
+
+		if (os != null && os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
 			return "eclipse.exe"; //$NON-NLS-1$
 		return "eclipse"; //$NON-NLS-1$
+	}
+
+	private static String getOSFromProfile(IProfile profile) {
+		String environments = profile.getProperty(IProfile.PROP_ENVIRONMENTS);
+		if (environments == null)
+			return null;
+		for (StringTokenizer tokenizer = new StringTokenizer(environments, ","); tokenizer.hasMoreElements();) { //$NON-NLS-1$
+			String entry = tokenizer.nextToken();
+			int i = entry.indexOf('=');
+			String key = entry.substring(0, i).trim();
+			if (!key.equals("osgi.os")) //$NON-NLS-1$
+				continue;
+			return entry.substring(i + 1).trim();
+		}
+		return null;
 	}
 
 	static String getManifest(TouchpointData[] data, File bundleFile) {
