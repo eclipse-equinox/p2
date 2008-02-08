@@ -7,6 +7,7 @@
  *
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
+ *  Red Hat, Inc. (Andrew Overholt) - add getFile method
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import junit.framework.Assert;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 
 /**
@@ -35,6 +37,18 @@ public class TestData {
 	 */
 	public static InputStream get(String testDataFolder, String testDataName) throws IOException {
 		return new BufferedInputStream(TestActivator.getContext().getBundle().getEntry(TEST_DATA_ROOT_FOLDER + "/" + testDataFolder + "/" + testDataName).openStream());
+	}
+
+	/**
+	 * Get a File from the resource testDataName within the folder 
+	 * testDataFolder of the testData folder of this project.
+	 * @param testDataFolder
+	 * @param testDataFilename
+	 * @return test data File
+	 * @throws IOException
+	 */
+	public static File getFile(String testDataFolder, String testDataName) throws IOException {
+		return new File(FileLocator.toFileURL(TestActivator.getContext().getBundle().getEntry(TEST_DATA_ROOT_FOLDER + "/" + testDataFolder + "/" + testDataName)).getPath());
 	}
 
 	/**
