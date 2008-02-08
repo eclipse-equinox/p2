@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.p2.director;
+package org.eclipse.equinox.p2.engine;
 
 import java.net.URL;
 

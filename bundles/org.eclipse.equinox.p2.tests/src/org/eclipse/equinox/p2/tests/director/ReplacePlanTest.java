@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.DefaultPhaseSet;
-import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.*;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -76,7 +75,7 @@ public class ReplacePlanTest extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), null);
 		assertTrue("1.0", plan.getStatus().isOK());
 		assertProfileContainsAll("1.1", profile, oldUnits);
-		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), null);
+		IStatus result = createEngine().perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 		assertTrue("1.2", result.isOK());
 		assertProfileContainsAll("1.3", profile, newUnits);
 	}

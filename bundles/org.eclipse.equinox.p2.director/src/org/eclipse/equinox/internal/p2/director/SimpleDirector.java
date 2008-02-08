@@ -56,7 +56,7 @@ public class SimpleDirector implements IDirector {
 			ProvisioningPlan plan = planner.getRevertPlan(target, context, sub.newChild(PlanWork));
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
-			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
+			return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), context, sub.newChild(EngineWork));
 		} finally {
 			sub.done();
 		}
@@ -75,7 +75,7 @@ public class SimpleDirector implements IDirector {
 			if (!plan.getStatus().isOK())
 				return plan.getStatus();
 
-			IStatus engineResult = engine.perform(request.getProfile(), new DefaultPhaseSet(), plan.getOperands(), sub.newChild(EngineWork));
+			IStatus engineResult = engine.perform(request.getProfile(), new DefaultPhaseSet(), plan.getOperands(), context, sub.newChild(EngineWork));
 			return engineResult;
 		} finally {
 			sub.done();

@@ -76,7 +76,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		try {
-			engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+			engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -89,7 +89,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = null;
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
 		try {
-			engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+			engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		} catch (IllegalArgumentException expected) {
 			return;
 		}
@@ -102,7 +102,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = null;
 		try {
-			engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+			engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 			fail();
 		} catch (IllegalArgumentException expected) {
 			//expected
@@ -114,7 +114,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("test");
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {};
-		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
 	}
 
@@ -126,7 +126,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		};
 		InstallableUnitOperand op = new InstallableUnitOperand(createResolvedIU(createIU("name")), null);
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
-		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
 	}
 
@@ -148,12 +148,12 @@ public class EngineTest extends AbstractProvisioningTest {
 			PhaseSet phaseSet = new DefaultPhaseSet();
 			IInstallableUnit doomed = (IInstallableUnit) it.next();
 			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
-			engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+			engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		}
 		PhaseSet phaseSet = new DefaultPhaseSet();
 
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
-		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		Iterator ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
@@ -166,7 +166,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("testPerformUpdateOSGiFramework", null, properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createOSGiIU(), createOSGiIU())};
-		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		Iterator ius = getInstallableUnits(profile);
 		assertTrue(ius.hasNext());
@@ -180,7 +180,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("testPerformUninstallOSGiFramework", null, properties);
 		PhaseSet phaseSet = new DefaultPhaseSet();
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createOSGiIU(), null)};
-		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertTrue(result.isOK());
 		assertEmptyProfile(profile);
 	}
@@ -196,7 +196,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		assertFalse(ius.hasNext());
 
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU()), new InstallableUnitOperand(null, createBadIU())};
-		IStatus result = engine.perform(profile, phaseSet, operands, new NullProgressMonitor());
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
 		//TODO Currently this test is failing. See bug 212058

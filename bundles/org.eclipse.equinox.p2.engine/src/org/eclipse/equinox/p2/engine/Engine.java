@@ -26,7 +26,7 @@ public class Engine {
 		this.eventBus = eventBus;
 	}
 
-	public IStatus perform(IProfile profile, PhaseSet phaseSet, Operand[] operands, IProgressMonitor monitor) {
+	public IStatus perform(IProfile profile, PhaseSet phaseSet, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		if (operands == null)
 			throw new IllegalArgumentException("Operands must not be null."); //$NON-NLS-1$
 

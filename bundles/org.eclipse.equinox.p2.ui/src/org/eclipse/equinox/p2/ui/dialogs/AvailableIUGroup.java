@@ -14,7 +14,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.AvailableIUContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
-import org.eclipse.equinox.p2.director.ProvisioningContext;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.MetadataRepositories;

@@ -22,6 +22,7 @@ import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.ProfileEvent;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.query.*;
 import org.eclipse.equinox.p2.ui.*;

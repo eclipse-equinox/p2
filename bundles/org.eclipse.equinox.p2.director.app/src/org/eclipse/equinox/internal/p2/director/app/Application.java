@@ -210,7 +210,7 @@ public class Application implements IApplication {
 			else {
 				Sizing sizeComputer = new Sizing(100, "Compute sizes"); //$NON-NLS-1$
 				PhaseSet set = new PhaseSet(new Phase[] {sizeComputer}) {/*empty */};
-				operationStatus = engine.perform(profile, set, result.getOperands(), new NullProgressMonitor());
+				operationStatus = engine.perform(profile, set, result.getOperands(), context, new NullProgressMonitor());
 				System.out.println(Messages.Disk_size + sizeComputer.getDiskSize());
 				System.out.println(Messages.Download_size + sizeComputer.getDlSize());
 				request = new ProfileChangeRequest(profile);

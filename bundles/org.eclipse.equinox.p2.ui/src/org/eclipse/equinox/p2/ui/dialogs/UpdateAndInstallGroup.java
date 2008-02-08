@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.PropertyDialogAction;
-import org.eclipse.equinox.p2.director.ProvisioningContext;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.ui.*;
 import org.eclipse.equinox.p2.ui.actions.*;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;

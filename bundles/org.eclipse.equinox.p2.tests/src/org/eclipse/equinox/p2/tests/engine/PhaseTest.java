@@ -149,7 +149,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new TestPhaseSet();
 		IProfile profile = createProfile("PhaseTest");
 
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[0], new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[0], null, new NullProgressMonitor());
 	}
 
 	public void testInitCompletePhase() {
@@ -175,7 +175,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new TestPhaseSet(phase);
 		IProfile profile = createProfile("PhaseTest");
 		IInstallableUnit unit = createIU("unit");
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
 		assertTrue(phase.initializePhase);
 		assertTrue(phase.completePhase);
 	}
@@ -204,7 +204,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("PhaseTest");
 		IInstallableUnit unit = createIU("testInitCompleteOperand");
 
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, unit)}, null, new NullProgressMonitor());
 		assertTrue(phase.initializeOperand);
 		assertTrue(phase.completeOperand);
 	}

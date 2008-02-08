@@ -58,9 +58,9 @@ public class InstallRegistryTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("testProfile");
 		String profileId = profile.getProfileId();
 		assertEquals(0, getRegistrySize(profileId));
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU())}, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU())}, null, new NullProgressMonitor());
 		assertEquals(1, getRegistrySize(profileId));
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(createTestIU(), null)}, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(createTestIU(), null)}, null, new NullProgressMonitor());
 		assertEquals(0, getRegistrySize(profileId));
 		registry.getProfileInstallRegistries().remove(profile);
 	}
@@ -75,13 +75,13 @@ public class InstallRegistryTest extends AbstractProvisioningTest {
 		IProfile profile = createProfile("testProfile");
 		String profileId = profile.getProfileId();
 		assertEquals(0, getRegistrySize(profileId));
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU())}, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(null, createTestIU())}, null, new NullProgressMonitor());
 		assertEquals(1, getRegistrySize(profileId));
 
 		restart();
 
 		assertEquals(1, getRegistrySize(profileId));
-		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(createTestIU(), null)}, new NullProgressMonitor());
+		engine.perform(profile, phaseSet, new InstallableUnitOperand[] {new InstallableUnitOperand(createTestIU(), null)}, null, new NullProgressMonitor());
 		assertEquals(0, getRegistrySize(profileId));
 		restart();
 		assertEquals(0, getRegistrySize(profileId));

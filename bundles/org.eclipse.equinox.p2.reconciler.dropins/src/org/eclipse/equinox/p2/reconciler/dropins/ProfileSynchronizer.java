@@ -17,6 +17,7 @@ import org.eclipse.equinox.configurator.Configurator;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 import org.eclipse.equinox.p2.director.*;
 import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;

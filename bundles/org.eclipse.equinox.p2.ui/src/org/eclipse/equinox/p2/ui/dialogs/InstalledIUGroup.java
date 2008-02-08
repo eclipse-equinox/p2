@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.ui.dialogs;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
-import org.eclipse.equinox.p2.director.ProvisioningContext;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;

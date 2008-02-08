@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.p2.director.ProvisioningContext;
+import org.eclipse.equinox.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.ui.ProvUI;
 import org.eclipse.equinox.p2.ui.query.IQueryProvider;
