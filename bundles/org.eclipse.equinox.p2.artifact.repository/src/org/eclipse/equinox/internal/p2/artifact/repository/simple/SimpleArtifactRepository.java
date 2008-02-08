@@ -5,6 +5,7 @@
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
+ * 						Genuitec, LLC - support for multi-threaded downloads
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository.simple;
 
@@ -15,6 +16,7 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -24,6 +26,7 @@ import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandl
 import org.eclipse.equinox.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
 
@@ -379,7 +382,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return super.getAdapter(adapter);
 	}
 
-	private IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
+	IStatus getArtifact(ArtifactRequest request, IProgressMonitor monitor) {
 		request.setSourceRepository(this);
 		request.perform(monitor);
 		return request.getResult();
@@ -429,20 +432,45 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
-		try {
-			MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
-			for (int i = 0; i < requests.length; i++) {
-				if (monitor.isCanceled())
-					return Status.CANCEL_STATUS;
-				IStatus result = getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1));
-				if (!result.isOK())
-					overallStatus.add(result);
+		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
+		LinkedList requestsPending = new LinkedList(Arrays.asList(requests));
+
+		// TODO : Determine number of threads to use from a property
+		int numberOfJobs = Math.min(requests.length, 4); // magic number
+		if (numberOfJobs <= 1) {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
+			try {
+				for (int i = 0; i < requests.length; i++) {
+					if (monitor.isCanceled())
+						return Status.CANCEL_STATUS;
+					IStatus result = getArtifact((ArtifactRequest) requests[i], subMonitor.newChild(1));
+					if (!result.isOK())
+						overallStatus.add(result);
+				}
+			} finally {
+				subMonitor.done();
 			}
-			return (monitor.isCanceled() ? Status.CANCEL_STATUS : overallStatus);
-		} finally {
-			subMonitor.done();
+		} else {
+			// initialize the various jobs needed to process the get artifact requests
+			monitor.beginTask(NLS.bind("Download {0} artifacts", Integer.toString(requests.length)), requests.length);
+			try {
+				DownloadJob jobs[] = new DownloadJob[numberOfJobs];
+				for (int i = 0; i < numberOfJobs; i++) {
+					jobs[i] = new DownloadJob("Install download " + i);
+					jobs[i].initialize(this, requestsPending, monitor, overallStatus);
+					jobs[i].schedule();
+				}
+				// wait for all the jobs to complete
+				try {
+					Job.getJobManager().join(DownloadJob.FAMILY, null);
+				} catch (InterruptedException e) {
+					//ignore
+				}
+			} finally {
+				monitor.done();
+			}
 		}
+		return (monitor.isCanceled() ? Status.CANCEL_STATUS : overallStatus);
 	}
 
 	public synchronized IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
