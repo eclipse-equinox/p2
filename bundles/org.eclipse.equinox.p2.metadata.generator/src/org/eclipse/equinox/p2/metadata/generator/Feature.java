@@ -102,6 +102,8 @@ public class Feature {
 	}
 
 	public FeatureEntry[] getEntries() {
+		if (entries == null)
+			return new FeatureEntry[0];
 		return (FeatureEntry[]) entries.toArray(new FeatureEntry[entries.size()]);
 	}
 
