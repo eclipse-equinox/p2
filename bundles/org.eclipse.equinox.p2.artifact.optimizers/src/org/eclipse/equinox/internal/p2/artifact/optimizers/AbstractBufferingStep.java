@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers;
 import java.io.*;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 
 public abstract class AbstractBufferingStep extends ProcessingStep {
 	protected static final String JAR_SUFFIX = ".jar"; //$NON-NLS-1$

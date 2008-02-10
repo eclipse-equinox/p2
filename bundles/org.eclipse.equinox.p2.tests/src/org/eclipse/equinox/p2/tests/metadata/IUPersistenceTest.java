@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.resolver.VersionRange;

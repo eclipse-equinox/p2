@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;

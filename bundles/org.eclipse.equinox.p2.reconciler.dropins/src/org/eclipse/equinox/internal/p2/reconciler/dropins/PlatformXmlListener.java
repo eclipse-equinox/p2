@@ -18,9 +18,9 @@ import java.util.*;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.SiteDelta.Change;
 import org.eclipse.equinox.internal.p2.update.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 
 /**
  * @since 1.0
@@ -44,7 +44,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#added(java.io.File)
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#added(java.io.File)
 	 */
 	public boolean added(File file) {
 		changed = changed || PLATFORM_XML.equals(file.getName());
@@ -52,7 +52,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#changed(java.io.File)
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#changed(java.io.File)
 	 */
 	public boolean changed(File file) {
 		changed = changed || PLATFORM_XML.equals(file.getName());
@@ -60,7 +60,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#getSeenFile(java.io.File)
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#getSeenFile(java.io.File)
 	 */
 	public Long getSeenFile(File file) {
 		return new Long(0);
@@ -75,7 +75,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
 	 */
 	public boolean isInterested(File file) {
 		return file.getName().equals(PLATFORM_XML) && lastModified != file.lastModified();
@@ -190,7 +190,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#removed(java.io.File)
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#removed(java.io.File)
 	 */
 	public boolean removed(File file) {
 		changed = changed || PLATFORM_XML.equals(file.getName());
@@ -198,14 +198,14 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#startPoll()
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#startPoll()
 	 */
 	public void startPoll() {
 		changed = false;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.IDirectoryChangeListener#stopPoll()
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#stopPoll()
 	 */
 	public void stopPoll() {
 		if (changed)

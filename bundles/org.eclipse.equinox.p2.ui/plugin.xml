@@ -6,11 +6,11 @@
       <factory
             adaptableType="org.eclipse.equinox.internal.p2.ui.model.ProvElement"
             class="org.eclipse.equinox.internal.p2.ui.ProvUIAdapterFactory">
-         <adapter type="org.eclipse.equinox.p2.metadata.IInstallableUnit"/>
-         <adapter type="org.eclipse.equinox.p2.engine.IProfile"/>
-         <adapter type="org.eclipse.equinox.p2.core.repository.IRepository"/>
-         <adapter type="org.eclipse.equinox.p2.metadata.repository.IMetadataRepository"/>
-         <adapter type="org.eclipse.equinox.p2.artifact.repository.IArtifactRepository"/>
+         <adapter type="org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit"/>
+         <adapter type="org.eclipse.equinox.internal.provisional.p2.engine.IProfile"/>
+         <adapter type="org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository"/>
+         <adapter type="org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository"/>
+         <adapter type="org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository"/>
       </factory>
 
    </extension>

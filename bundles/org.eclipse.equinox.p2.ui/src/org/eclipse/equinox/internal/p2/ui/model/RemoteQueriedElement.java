@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.equinox.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.p2.ui.query.QueriedElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
 

@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 /**
  * Element wrapper class for IU's that are available for installation.

@@ -11,14 +11,14 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.util.*;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.garbagecollector.IMarkSetProvider;
-import org.eclipse.equinox.p2.garbagecollector.MarkSet;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.internal.p2.garbagecollector.IMarkSetProvider;
+import org.eclipse.equinox.internal.p2.garbagecollector.MarkSet;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 /**
  * IMarkSetProvider implementation for the EclipseTouchPoint.

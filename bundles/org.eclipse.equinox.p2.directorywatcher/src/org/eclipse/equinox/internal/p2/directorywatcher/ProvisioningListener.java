@@ -15,14 +15,14 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.p2.metadata.generator.*;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 
 public class ProvisioningListener extends DirectoryChangeListener {
 

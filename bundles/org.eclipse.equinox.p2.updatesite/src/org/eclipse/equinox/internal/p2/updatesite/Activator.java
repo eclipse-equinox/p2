@@ -15,7 +15,7 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-	public static String ID = "org.eclipse.equinox.internal.p2.updatesite";
+	public static String ID = "org.eclipse.equinox.p2.updatesite"; //$NON-NLS-1$
 	private static BundleContext bundleContext;
 
 	public void start(BundleContext context) throws Exception {

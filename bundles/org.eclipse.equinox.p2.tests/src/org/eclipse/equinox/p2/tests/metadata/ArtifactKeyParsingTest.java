@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.metadata;
 
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
 
 /**

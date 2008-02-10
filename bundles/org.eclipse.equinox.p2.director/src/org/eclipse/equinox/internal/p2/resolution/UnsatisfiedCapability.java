@@ -8,8 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.resolution;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 
 /**
  * Represents a provisioning dependency that was not satisfied during

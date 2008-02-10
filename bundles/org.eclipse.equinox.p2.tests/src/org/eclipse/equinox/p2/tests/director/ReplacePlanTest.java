@@ -11,10 +11,10 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;

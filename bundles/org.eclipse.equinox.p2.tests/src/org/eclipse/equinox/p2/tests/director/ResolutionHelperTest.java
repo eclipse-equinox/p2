@@ -13,7 +13,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.resolution.UnsatisfiedCapability;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;

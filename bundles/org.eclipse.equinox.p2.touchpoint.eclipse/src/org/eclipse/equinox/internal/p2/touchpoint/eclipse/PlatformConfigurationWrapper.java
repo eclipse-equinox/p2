@@ -17,7 +17,7 @@ import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.update.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**	
  * 	This class provides a wrapper for reading and writing platform.xml.

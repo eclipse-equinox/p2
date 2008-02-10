@@ -17,10 +17,10 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.metadata.*;
-import org.eclipse.equinox.p2.metadata.generator.Generator;
-import org.eclipse.equinox.p2.metadata.generator.IGeneratorInfo;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IGeneratorInfo;
 import org.eclipse.equinox.p2.tests.*;
 import org.osgi.framework.Bundle;
 

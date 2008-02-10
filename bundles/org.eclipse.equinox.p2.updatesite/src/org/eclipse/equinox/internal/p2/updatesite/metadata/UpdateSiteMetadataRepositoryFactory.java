@@ -12,9 +12,9 @@ package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 
 public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 

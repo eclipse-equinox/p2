@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRequest;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
 import org.eclipse.osgi.util.NLS;
 
 public class DownloadJob extends Job {

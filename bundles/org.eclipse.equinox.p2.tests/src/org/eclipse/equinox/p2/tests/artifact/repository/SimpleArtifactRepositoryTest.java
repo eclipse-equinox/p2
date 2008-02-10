@@ -16,12 +16,12 @@ import java.net.URL;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.p2.metadata.generator.Generator;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class SimpleArtifactRepositoryTest extends TestCase {

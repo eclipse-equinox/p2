@@ -12,8 +12,8 @@ package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 
 public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 

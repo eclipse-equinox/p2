@@ -11,9 +11,9 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 
 public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizardPage {
 

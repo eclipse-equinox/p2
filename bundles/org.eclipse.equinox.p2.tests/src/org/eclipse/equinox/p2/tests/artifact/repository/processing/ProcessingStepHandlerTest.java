@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
 import org.eclipse.equinox.internal.p2.artifact.processors.verifier.MD5Verifier;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ProcessingStepHandlerTest extends TestCase {

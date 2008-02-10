@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.update;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
  * @since 1.0

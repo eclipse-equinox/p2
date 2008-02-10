@@ -15,11 +15,11 @@ import junit.framework.Assert;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.p2.artifact.repository.Transport;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.p2.core.repository.RepositoryCreationException;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryCreationException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 
 /**
  * A simple artifact repository implementation used for testing purposes.

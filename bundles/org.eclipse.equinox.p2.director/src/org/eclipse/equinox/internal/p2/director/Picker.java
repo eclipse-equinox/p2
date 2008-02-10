@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 //The pickers goal is to find an installable unit that satisfies a search criteria 

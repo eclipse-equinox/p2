@@ -18,13 +18,13 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.Query;
-import org.eclipse.equinox.spi.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -113,7 +113,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String)
 	 */
 	public IMetadataRepository createRepository(URL location, String name, String type) throws ProvisionException {
 		Assert.isNotNull(location);
@@ -226,7 +226,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	 * Return the preference node which is the root for where we store the repository information.
 	 */
 	private Preferences getPreferences() {
-		return new ConfigurationScope().getNode(Activator.PI_METADATA_REPOSITORY).node(NODE_REPOSITORIES);
+		return new ConfigurationScope().getNode(Activator.ID).node(NODE_REPOSITORIES);
 	}
 
 	public IMetadataRepository getRepository(URL location) {
@@ -251,7 +251,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
 	 */
 	public String getRepositoryProperty(URL location, String key) {
 		synchronized (repositoryLock) {
@@ -315,7 +315,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	protected void log(String message, Throwable t) {
-		LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, message, t));
+		LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message, t));
 	}
 
 	private boolean matchesFlags(RepositoryInfo info, int flags) {

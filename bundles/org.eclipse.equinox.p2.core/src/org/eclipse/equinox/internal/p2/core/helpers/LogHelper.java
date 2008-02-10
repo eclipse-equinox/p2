@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.Activator;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.framework.log.FrameworkLog;
 import org.eclipse.osgi.framework.log.FrameworkLogEntry;
 

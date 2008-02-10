@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 
 public class ProfileWriter extends XMLWriter implements ProfileXMLConstants {
 

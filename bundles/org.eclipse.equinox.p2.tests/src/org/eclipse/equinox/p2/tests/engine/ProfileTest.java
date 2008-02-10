@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;

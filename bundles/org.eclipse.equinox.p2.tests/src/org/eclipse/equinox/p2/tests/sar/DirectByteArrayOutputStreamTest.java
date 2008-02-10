@@ -13,10 +13,8 @@ package org.eclipse.equinox.p2.tests.sar;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.eclipse.equinox.p2.sar.DirectByteArrayOutputStream;
-
 import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.sar.DirectByteArrayOutputStream;
 
 /**
  * Test the <code>DirectByteArrayOutputStream</code>
@@ -38,8 +36,7 @@ public class DirectByteArrayOutputStreamTest extends TestCase {
 		assertEquals(ELEVEN, out.toByteArray().length);
 		assertNotSame(out.toByteArray(), out.getBuffer());
 		assertEquals(1024, out.getBuffer().length);
-		assertEquals(JUST11BYTES, new String(out.getBuffer(), 0, out
-				.getBufferLength()));
+		assertEquals(JUST11BYTES, new String(out.getBuffer(), 0, out.getBufferLength()));
 		ByteArrayInputStream in = out.getInputStream();
 		assertEquals(ELEVEN, in.available());
 		byte[] elevenBytes = new byte[ELEVEN];

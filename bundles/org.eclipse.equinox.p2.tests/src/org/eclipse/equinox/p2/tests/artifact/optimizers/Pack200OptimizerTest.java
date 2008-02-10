@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.pack200.Pack200OptimizerStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
 

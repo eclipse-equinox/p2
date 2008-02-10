@@ -14,8 +14,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 

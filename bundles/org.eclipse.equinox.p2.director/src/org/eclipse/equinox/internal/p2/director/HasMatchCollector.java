@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 /**
  * A collector that short-circuits on the first match.

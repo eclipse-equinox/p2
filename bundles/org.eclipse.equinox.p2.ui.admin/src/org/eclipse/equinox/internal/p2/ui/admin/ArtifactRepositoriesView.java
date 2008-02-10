@@ -14,10 +14,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositoryElement;
-import org.eclipse.equinox.p2.ui.model.ArtifactRepositories;
-import org.eclipse.equinox.p2.ui.model.RepositoryElement;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
-import org.eclipse.equinox.p2.ui.operations.RemoveArtifactRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.ArtifactRepositories;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveArtifactRepositoryOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**

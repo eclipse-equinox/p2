@@ -11,10 +11,10 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.p2.ui.IProfileChooser;
-import org.eclipse.equinox.p2.ui.IRepositoryManipulator;
-import org.eclipse.equinox.p2.ui.dialogs.RevertWizard;
-import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
+import org.eclipse.equinox.internal.provisional.p2.ui.IRepositoryManipulator;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RevertWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.IPreferenceStore;

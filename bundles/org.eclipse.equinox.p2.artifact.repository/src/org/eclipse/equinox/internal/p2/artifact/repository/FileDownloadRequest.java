@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
 public class FileDownloadRequest extends ArtifactRequest {

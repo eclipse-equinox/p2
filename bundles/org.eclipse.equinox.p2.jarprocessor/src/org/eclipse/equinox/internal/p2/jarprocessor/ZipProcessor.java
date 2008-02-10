@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.jarprocessor;
 import java.io.*;
 import java.util.*;
 import java.util.zip.*;
-import org.eclipse.equinox.p2.jarprocessor.IProcessStep;
-import org.eclipse.equinox.p2.jarprocessor.JarProcessor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.IProcessStep;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
 
 /**
  * @author aniefer@ca.ibm.com

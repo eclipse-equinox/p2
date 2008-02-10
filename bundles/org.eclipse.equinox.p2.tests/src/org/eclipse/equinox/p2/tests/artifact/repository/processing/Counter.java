@@ -14,9 +14,9 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 
 public class Counter extends ProcessingStep {
 

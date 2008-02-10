@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.Set;
 import org.eclipse.equinox.frameworkadmin.ConfigData;
 import org.eclipse.equinox.frameworkadmin.LauncherData;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.generator.IGeneratorInfo;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IGeneratorInfo;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.p2.tests.TestArtifactRepository;
 import org.eclipse.equinox.p2.tests.TestMetadataRepository;
 

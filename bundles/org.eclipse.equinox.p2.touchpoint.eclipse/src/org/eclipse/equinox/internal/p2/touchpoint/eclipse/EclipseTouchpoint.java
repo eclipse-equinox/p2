@@ -16,10 +16,10 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.frameworkadmin.Manipulator;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.osgi.framework.Version;
 
 public class EclipseTouchpoint extends Touchpoint {
@@ -794,7 +794,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		Class c = null;
 		try {
-			c = Class.forName("org.eclipse.equinox.p2.metadata.generator.MetadataGeneratorHelper"); //$NON-NLS-1$
+			c = Class.forName("org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper"); //$NON-NLS-1$
 			if (c != null)
 				c = Class.forName("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {

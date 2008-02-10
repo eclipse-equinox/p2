@@ -14,8 +14,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 
 public class ProcessingStepTest extends TestCase {
 

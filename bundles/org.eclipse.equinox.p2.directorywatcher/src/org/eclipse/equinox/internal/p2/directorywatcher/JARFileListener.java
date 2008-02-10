@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.directorywatcher;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.osgi.service.packageadmin.PackageAdmin;

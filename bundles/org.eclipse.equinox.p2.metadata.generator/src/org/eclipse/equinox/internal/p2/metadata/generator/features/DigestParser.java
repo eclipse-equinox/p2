@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.xml.parsers.*;
-import org.eclipse.equinox.p2.metadata.generator.Feature;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 

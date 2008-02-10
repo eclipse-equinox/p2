@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.metadata;
 import java.util.*;
 import junit.framework.AssertionFailedError;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 public class FragmentTest extends AbstractProvisioningTest {

@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.director.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;

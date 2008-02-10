@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 
 /*
  * Internal class contains information about watchers and sites. Used for caching.

@@ -19,12 +19,12 @@ import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.query.Collector;
-import org.eclipse.equinox.p2.query.Query;
-import org.eclipse.equinox.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 
 /**
  * A metadata repository that resides in the local file system.  If the repository
@@ -161,7 +161,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 			}
 			new MetadataRepositoryIO().write(this, output);
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.PI_METADATA_REPOSITORY, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$
 		}
 	}
 

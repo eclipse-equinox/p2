@@ -11,7 +11,7 @@
 package org.eclipse.equinox.p2.tests.director;
 
 import org.eclipse.equinox.internal.p2.director.Picker;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;

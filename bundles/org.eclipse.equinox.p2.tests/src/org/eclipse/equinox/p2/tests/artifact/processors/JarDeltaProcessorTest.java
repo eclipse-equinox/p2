@@ -17,11 +17,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.jardelta.JarDeltaProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.osgi.framework.Version;
 

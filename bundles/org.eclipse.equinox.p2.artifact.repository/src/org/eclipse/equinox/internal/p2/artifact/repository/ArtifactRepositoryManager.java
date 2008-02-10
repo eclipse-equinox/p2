@@ -17,12 +17,12 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.spi.p2.artifact.repository.IArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
@@ -254,7 +254,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager#getRepositoryProperty(java.net.URL, java.lang.String)
 	 */
 	public String getRepositoryProperty(URL location, String key) {
 		synchronized (repositoryLock) {

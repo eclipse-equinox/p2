@@ -18,9 +18,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository.ArtifactOutputStream;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
 
 public class ArtifactOutputStreamTest extends TestCase {

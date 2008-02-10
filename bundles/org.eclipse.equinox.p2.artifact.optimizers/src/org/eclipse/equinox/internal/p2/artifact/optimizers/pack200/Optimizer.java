@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.*;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
 public class Optimizer {

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.preferences;
 
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.ui.IWorkbench;

@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.core.commands.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;

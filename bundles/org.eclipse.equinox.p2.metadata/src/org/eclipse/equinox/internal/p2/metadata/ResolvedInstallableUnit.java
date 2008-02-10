@@ -9,7 +9,7 @@
 package org.eclipse.equinox.internal.p2.metadata;
 
 import java.util.*;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.osgi.framework.Version;
 
 public class ResolvedInstallableUnit implements IInstallableUnit {

@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.admin.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 /**

@@ -14,14 +14,14 @@ import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepositoryManager;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.RepositoryElement;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.progress.IDeferredWorkbenchAdapter;
 import org.eclipse.ui.progress.IElementCollector;
@@ -104,7 +104,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getURL()
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getURL()
 	 */
 	public URL getLocation() {
 		return url;
@@ -112,7 +112,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getName()
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getName()
 	 */
 	public String getName() {
 		try {
@@ -127,7 +127,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.RepositoryElement#getDescription()
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
 		try {

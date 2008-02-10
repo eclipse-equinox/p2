@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {

@@ -15,10 +15,10 @@ import ie.wombat.jbdiff.JBDiff;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.sar.DirectByteArrayOutputStream;
-import org.eclipse.equinox.p2.sar.SarUtil;
+import org.eclipse.equinox.internal.p2.sar.DirectByteArrayOutputStream;
+import org.eclipse.equinox.internal.p2.sar.SarUtil;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 
 public class JBDiffZipStep extends JBDiffStep {
 

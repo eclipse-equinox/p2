@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractBufferingStep;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor;
-import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
 
 /**
  * The Pack200Packer expects an input containing normal ".jar" data.   

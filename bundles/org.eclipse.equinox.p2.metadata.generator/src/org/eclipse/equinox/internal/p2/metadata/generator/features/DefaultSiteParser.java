@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
-import org.eclipse.equinox.p2.metadata.generator.URLEntry;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.URLEntry;
 import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.*;
 import org.xml.sax.*;

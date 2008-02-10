@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.processors.AbstractDeltaProcessorStep;
 import org.eclipse.equinox.internal.p2.artifact.processors.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 
 /**
  * Processor that takes a JAR delta and applies it.

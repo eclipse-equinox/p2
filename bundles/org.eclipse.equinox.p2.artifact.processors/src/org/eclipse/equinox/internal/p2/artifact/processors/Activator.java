@@ -15,7 +15,7 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 
-	public static final String ID = "org.eclipse.equinox.p2.artifact.processor"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.equinox.p2.artifact.processors"; //$NON-NLS-1$
 	private static BundleContext context = null;
 
 	public static BundleContext getContext() {

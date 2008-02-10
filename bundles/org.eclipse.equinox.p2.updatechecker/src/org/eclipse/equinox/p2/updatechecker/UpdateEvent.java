@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.updatechecker;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
  * An UpdateEvent describes what IU's have updates for a given profile.

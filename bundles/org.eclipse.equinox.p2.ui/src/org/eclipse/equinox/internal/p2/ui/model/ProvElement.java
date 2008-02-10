@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.model.IWorkbenchAdapter;

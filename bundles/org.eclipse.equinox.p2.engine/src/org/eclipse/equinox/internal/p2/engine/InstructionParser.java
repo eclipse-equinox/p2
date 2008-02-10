@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
 public class InstructionParser {
 

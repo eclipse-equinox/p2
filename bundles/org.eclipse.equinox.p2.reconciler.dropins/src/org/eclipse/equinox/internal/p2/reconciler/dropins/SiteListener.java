@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 
 /**
  * @since 1.0
@@ -42,7 +42,7 @@ public class SiteListener extends RepositoryListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
+	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
 	 */
 	public boolean isInterested(File file) {
 		String policy = site.getPolicy();

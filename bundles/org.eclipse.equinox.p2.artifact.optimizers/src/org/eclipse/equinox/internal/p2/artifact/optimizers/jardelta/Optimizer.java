@@ -24,13 +24,9 @@ import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
 
 public class Optimizer {

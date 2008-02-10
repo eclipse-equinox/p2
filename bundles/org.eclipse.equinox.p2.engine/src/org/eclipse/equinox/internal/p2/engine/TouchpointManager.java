@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.p2.engine.Touchpoint;
-import org.eclipse.equinox.p2.metadata.TouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
+import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 import org.eclipse.osgi.util.NLS;
 
 //TODO This needs to support multiple version of each touchpoint and have a lookup that supports version semantics

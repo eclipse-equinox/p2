@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata.generator.features;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.equinox.p2.metadata.generator.URLEntry;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.URLEntry;
 
 /**
  * A model of an update site.

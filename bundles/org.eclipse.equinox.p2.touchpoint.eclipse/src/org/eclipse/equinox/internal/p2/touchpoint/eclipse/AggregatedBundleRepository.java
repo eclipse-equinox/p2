@@ -15,9 +15,9 @@ import java.io.OutputStream;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.spi.p2.artifact.repository.AbstractArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 
 public class AggregatedBundleRepository extends AbstractArtifactRepository implements IFileArtifactRepository {
 

@@ -14,9 +14,9 @@ package org.eclipse.equinox.internal.p2.artifact.processors.jbdiff;
 import ie.wombat.jbdiff.JBPatch;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import org.eclipse.equinox.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.p2.sar.DirectByteArrayOutputStream;
-import org.eclipse.equinox.p2.sar.SarUtil;
+import org.eclipse.equinox.internal.p2.sar.DirectByteArrayOutputStream;
+import org.eclipse.equinox.internal.p2.sar.SarUtil;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 
 /**
  * The <code>JBPatchZipStep</code> patches a JBDiff based diff of zips/jars.   

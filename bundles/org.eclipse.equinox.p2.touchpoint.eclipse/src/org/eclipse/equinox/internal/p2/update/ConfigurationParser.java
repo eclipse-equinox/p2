@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.update;
 import java.io.*;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 

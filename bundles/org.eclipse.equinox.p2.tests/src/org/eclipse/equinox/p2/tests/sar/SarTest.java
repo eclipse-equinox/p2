@@ -13,7 +13,7 @@ package org.eclipse.equinox.p2.tests.sar;
 import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
-import org.eclipse.equinox.p2.sar.SarUtil;
+import org.eclipse.equinox.internal.p2.sar.SarUtil;
 import org.eclipse.equinox.p2.tests.TestData;
 
 /**

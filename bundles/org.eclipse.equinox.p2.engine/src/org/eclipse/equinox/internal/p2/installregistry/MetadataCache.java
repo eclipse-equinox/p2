@@ -16,15 +16,15 @@ import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
-import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.core.repository.IRepository;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.ServiceReference;
 
 public class MetadataCache {

@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.directorywatcher;
 
 import java.util.*;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.osgi.framework.*;
 import org.osgi.service.cm.*;
 import org.osgi.service.packageadmin.PackageAdmin;

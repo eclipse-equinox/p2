@@ -14,9 +14,9 @@ import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 /**
  * The <code>AbstractDeltaDiffStep</code> is an abstract processing step that

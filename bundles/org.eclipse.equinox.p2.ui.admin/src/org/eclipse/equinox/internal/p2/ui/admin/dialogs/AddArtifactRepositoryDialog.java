@@ -12,9 +12,9 @@ package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.p2.ui.operations.AddArtifactRepositoryOperation;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddArtifactRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**

@@ -14,9 +14,9 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.query.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.util.NLS;
 
 public class Profile implements IQueryable, IProfile {
@@ -78,14 +78,14 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getProfileId()
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProfileId()
 	 */
 	public String getProfileId() {
 		return profileId;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getParentProfile()
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getParentProfile()
 	 */
 	public IProfile getParentProfile() {
 		return parentProfile;
@@ -96,7 +96,7 @@ public class Profile implements IQueryable, IProfile {
 	 * 	of another profile.
 	 */
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#isRootProfile()
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#isRootProfile()
 	 */
 	public boolean isRootProfile() {
 		return parentProfile == null;
@@ -119,14 +119,14 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#hasSubProfiles()
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#hasSubProfiles()
 	 */
 	public boolean hasSubProfiles() {
 		return subProfileIds == null || subProfileIds.isEmpty();
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getSubProfileIds()
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getSubProfileIds()
 	 */
 	public String[] getSubProfileIds() {
 		if (subProfileIds == null)
@@ -136,7 +136,7 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getProperty(java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProperty(java.lang.String)
 	 */
 	public String getProperty(String key) {
 		String value = storage.getProperty(key);
@@ -147,7 +147,7 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getLocalProperty(java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getLocalProperty(java.lang.String)
 	 */
 	public String getLocalProperty(String key) {
 		return storage.getProperty(key);
@@ -163,14 +163,14 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#query(org.eclipse.equinox.p2.query.Query, org.eclipse.equinox.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(iuProperties.keySet().iterator(), collector);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getInstallableUnitProperty(org.eclipse.equinox.p2.metadata.IInstallableUnit, java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperty(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit, java.lang.String)
 	 */
 	public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
 		OrderedProperties properties = (OrderedProperties) iuProperties.get(iu);
@@ -198,14 +198,14 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getLocalProperties()
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getLocalProperties()
 	 */
 	public Map getLocalProperties() {
 		return OrderedProperties.unmodifiableProperties(storage);
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getProperties()
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProperties()
 	 */
 	public Map getProperties() {
 		if (parentProfile == null)
@@ -239,7 +239,7 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.engine.IProfile#getInstallableUnitProperties(org.eclipse.equinox.p2.metadata.IInstallableUnit)
+	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getInstallableUnitProperties(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit)
 	 */
 	public OrderedProperties getInstallableUnitProperties(IInstallableUnit iu) {
 		return (OrderedProperties) iuProperties.get(iu);

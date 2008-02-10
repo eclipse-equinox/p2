@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.p2.installregistry;
 
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public interface IProfileInstallRegistry {
 

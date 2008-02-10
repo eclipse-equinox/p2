@@ -2,10 +2,10 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.util.Map;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.generator.BundleDescriptionFactory;
-import org.eclipse.equinox.p2.metadata.generator.MetadataGeneratorHelper;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.BundleDescriptionFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;

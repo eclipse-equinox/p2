@@ -11,15 +11,15 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.director.*;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.p2.engine.phases.Sizing;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvUIImages;
-import org.eclipse.equinox.p2.ui.model.IUElement;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.engine.phases.Sizing;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 /**
  * Element wrapper class for IU's that are available for installation.
@@ -42,7 +42,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getImageID(java.lang.Object)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
 	protected String getImageId(Object obj) {
 		return ProvUIImages.IMG_UNINSTALLED_IU;
@@ -58,7 +58,7 @@ public class AvailableIUElement extends ProvElement implements IUElement {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getParent(java.lang.Object)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getParent(java.lang.Object)
 	 */
 	public Object getParent(Object o) {
 		return null;

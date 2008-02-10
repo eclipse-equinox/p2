@@ -14,7 +14,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.simpleconfigurator.manipulator.internal.SimpleConfiguratorManipulatorImpl;
 import org.osgi.framework.Version;
 

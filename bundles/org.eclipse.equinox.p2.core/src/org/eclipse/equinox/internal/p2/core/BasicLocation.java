@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.equinox.p2.core.location.AgentLocation;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.osgi.service.datalocation.Location;
 
 /**

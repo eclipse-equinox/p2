@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.directorywatcher;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.equinox.p2.directorywatcher.DirectoryChangeListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;

@@ -15,8 +15,8 @@ import java.util.Properties;
 
 import org.eclipse.equinox.internal.p2.jarprocessor.UnpackStep;
 import org.eclipse.equinox.internal.p2.jarprocessor.Utils;
-import org.eclipse.equinox.p2.jarprocessor.JarProcessor;
-import org.eclipse.equinox.p2.jarprocessor.JarProcessorExecutor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessor;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
 
 public class Verifier extends JarProcessorExecutor {
 

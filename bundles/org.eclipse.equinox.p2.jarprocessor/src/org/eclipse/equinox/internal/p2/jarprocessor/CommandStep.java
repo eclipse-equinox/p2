@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.jarprocessor;
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
-import org.eclipse.equinox.p2.jarprocessor.IProcessStep;
+import org.eclipse.internal.provisional.equinox.p2.jarprocessor.IProcessStep;
 
 /**
  * @author aniefer@ca.ibm.com

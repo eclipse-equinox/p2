@@ -10,7 +10,7 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class IUTransformationHelper {

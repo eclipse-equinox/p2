@@ -24,7 +24,7 @@
 		<antTask
 			library="ant_tasks/generator-ant.jar"
 			name="p2.generator"
-			class="org.eclipse.equinox.p2.metadata.generator.ant.GeneratorTask">
+			class="org.eclipse.equinox.internal.p2.metadata.generator.ant.GeneratorTask">
 		</antTask>
 	</extension>
 

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public abstract class IUFilter {
 	public abstract boolean accept(IInstallableUnit iu);

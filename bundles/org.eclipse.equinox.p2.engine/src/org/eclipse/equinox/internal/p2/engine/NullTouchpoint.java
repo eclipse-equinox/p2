@@ -13,9 +13,9 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.p2.engine.ProvisioningAction;
-import org.eclipse.equinox.p2.engine.Touchpoint;
-import org.eclipse.equinox.p2.metadata.TouchpointType;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningAction;
+import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
+import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointType;
 
 /**
  * A touchpoint that performs no processing.

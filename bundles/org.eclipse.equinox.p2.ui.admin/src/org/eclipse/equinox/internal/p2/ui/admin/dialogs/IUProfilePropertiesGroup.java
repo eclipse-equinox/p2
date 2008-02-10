@@ -11,12 +11,12 @@
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.engine.IProfile;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.ui.ProvUI;
-import org.eclipse.equinox.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;

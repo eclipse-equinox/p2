@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
-import org.eclipse.equinox.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.layout.GridDataFactory;

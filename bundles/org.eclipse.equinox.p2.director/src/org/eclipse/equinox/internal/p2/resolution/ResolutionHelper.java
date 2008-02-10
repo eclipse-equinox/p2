@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.resolution;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.RecommendationDescriptor;
-import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.ServiceReference;
 

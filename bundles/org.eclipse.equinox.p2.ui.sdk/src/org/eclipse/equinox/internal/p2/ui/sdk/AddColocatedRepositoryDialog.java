@@ -12,9 +12,9 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.equinox.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.p2.ui.operations.AddColocatedRepositoryOperation;
-import org.eclipse.equinox.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddColocatedRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**

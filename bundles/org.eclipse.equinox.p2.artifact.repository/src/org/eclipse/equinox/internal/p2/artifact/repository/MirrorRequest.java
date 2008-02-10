@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Properties;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.artifact.repository.*;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepDescriptor;
-import org.eclipse.equinox.p2.artifact.repository.processing.ProcessingStepHandler;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
 public class MirrorRequest extends ArtifactRequest {

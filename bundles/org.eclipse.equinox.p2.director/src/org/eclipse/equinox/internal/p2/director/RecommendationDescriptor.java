@@ -10,8 +10,8 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class RecommendationDescriptor {

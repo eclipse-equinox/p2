@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.osgi.framework.Version;
 
 /** 

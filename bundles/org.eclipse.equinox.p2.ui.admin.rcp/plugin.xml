@@ -7,7 +7,7 @@
          point="org.eclipse.core.runtime.applications">
       <application>
          <run
-               class="org.eclipse.equinox.p2.ui.admin.rcp.Application">
+               class="org.eclipse.equinox.internal.p2.ui.admin.rcp.Application">
          </run>
       </application>
    </extension>
@@ -45,7 +45,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="%perspectiveName"
-            class="org.eclipse.equinox.p2.ui.admin.rcp.ProvisioningRCPPerspective"
+            class="org.eclipse.equinox.internal.p2.ui.admin.rcp.ProvisioningRCPPerspective"
             id="org.eclipse.equinox.p2.ui.admin.rcp.ProvisioningRCPPerspective">
       </perspective>
    </extension>

@@ -14,16 +14,16 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.core.location.AgentLocation;
-import org.eclipse.equinox.p2.director.IDirector;
-import org.eclipse.equinox.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
+import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
@@ -92,7 +92,7 @@ public class DirectorTest extends AbstractProvisioningTest {
 				request.removeInstallableUnits(allRoots);
 			operationStatus = director.provision(request, null, null);
 		} else {
-			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.p2.director.test", "The installable unit '" + System.getProperty("eclipse.p2.autoInstall") + "' has not been found");
+			operationStatus = new Status(IStatus.INFO, "org.eclipse.equinox.internal.provisional.p2.director.test", "The installable unit '" + System.getProperty("eclipse.p2.autoInstall") + "' has not been found");
 		}
 
 		if (!operationStatus.isOK())

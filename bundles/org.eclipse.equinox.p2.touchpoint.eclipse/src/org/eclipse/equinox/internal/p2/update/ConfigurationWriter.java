@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.equinox.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
  * @since 1.0

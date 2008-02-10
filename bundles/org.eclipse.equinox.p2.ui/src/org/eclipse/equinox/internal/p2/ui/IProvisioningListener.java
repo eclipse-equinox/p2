@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui;
 
-import org.eclipse.equinox.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 
 /**
  * A tagging listener used to distinguish listeners

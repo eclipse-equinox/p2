@@ -14,11 +14,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.updatechecker.Activator;
-import org.eclipse.equinox.p2.director.IPlanner;
-import org.eclipse.equinox.p2.engine.*;
-import org.eclipse.equinox.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 /**
  * An UpdateChecker periodically polls for updates to specified profiles and

@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
+import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
-import org.eclipse.equinox.p2.ui.admin.ProvAdminUIActivator;
-import org.eclipse.equinox.p2.ui.dialogs.UpdateAndInstallGroup;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.TrayDialog;
 import org.eclipse.jface.resource.JFaceResources;

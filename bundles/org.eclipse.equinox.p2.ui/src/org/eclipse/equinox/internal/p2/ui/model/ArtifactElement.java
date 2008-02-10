@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.equinox.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 /**
  * Element wrapper class for an artifact key and its repository
@@ -31,7 +31,7 @@ public class ArtifactElement extends ProvElement {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.equinox.p2.ui.model.ProvElement#getImageID(java.lang.Object)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.ProvElement#getImageID(java.lang.Object)
 	 */
 	protected String getImageId(Object obj) {
 		return null;

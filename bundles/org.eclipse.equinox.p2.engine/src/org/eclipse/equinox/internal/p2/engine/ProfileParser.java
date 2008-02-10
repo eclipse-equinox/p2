@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
-import org.eclipse.equinox.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.Attributes;
 
