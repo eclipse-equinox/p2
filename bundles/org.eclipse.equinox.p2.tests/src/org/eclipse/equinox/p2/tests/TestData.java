@@ -43,7 +43,6 @@ public class TestData {
 	 * Get a File from the resource testDataName within the folder 
 	 * testDataFolder of the testData folder of this project.
 	 * @param testDataFolder
-	 * @param testDataFilename
 	 * @return test data File
 	 * @throws IOException
 	 */
