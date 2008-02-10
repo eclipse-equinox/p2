@@ -17,7 +17,7 @@ public class RollbackOperationEvent extends TransactionEvent {
 	private static final long serialVersionUID = -2076492953949691215L;
 	private IStatus cause;
 
-	public RollbackOperationEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, Engine engine, IStatus cause) {
+	public RollbackOperationEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, IEngine engine, IStatus cause) {
 		super(profile, phaseSet, deltas, engine);
 		this.cause = cause;
 	}

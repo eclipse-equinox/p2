@@ -186,7 +186,7 @@ public class Application implements IApplication {
 		if (planner == null)
 			throw new RuntimeException(Messages.Missing_planner);
 
-		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
+		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new RuntimeException(Messages.Missing_Engine);
 

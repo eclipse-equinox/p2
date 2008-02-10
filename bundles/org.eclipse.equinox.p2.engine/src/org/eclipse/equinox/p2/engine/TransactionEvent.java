@@ -18,7 +18,7 @@ public abstract class TransactionEvent extends EventObject {
 	protected PhaseSet phaseSet;
 	protected InstallableUnitOperand[] deltas;
 
-	public TransactionEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, Engine engine) {
+	public TransactionEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, IEngine engine) {
 		super(engine);
 		this.profile = profile;
 		this.phaseSet = phaseSet;

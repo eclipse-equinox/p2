@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.p2.core.eventbus.ProvisioningEventBus;
 
-public class Engine {
+public class Engine implements IEngine {
 
 	private final ProvisioningEventBus eventBus;
 	private List lockedProfiles = new ArrayList();

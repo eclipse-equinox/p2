@@ -219,8 +219,8 @@ public class AbstractProvisioningTest extends TestCase {
 		return createIU(name, version, null, requires, BUNDLE_CAPABILITY, NO_PROPERTIES, ECLIPSE_TOUCHPOINT, touchpointData, false);
 	}
 
-	public static Engine createEngine() {
-		return (Engine) ServiceHelper.getService(TestActivator.getContext(), Engine.class.getName());
+	public static IEngine createEngine() {
+		return (IEngine) ServiceHelper.getService(TestActivator.getContext(), IEngine.SERVICE_NAME);
 	}
 
 	/**

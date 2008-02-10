@@ -195,7 +195,7 @@ public class ProvisioningHelper {
 		if (planner == null)
 			throw new ProvisionException("No planner service found.");
 
-		Engine engine = (Engine) ServiceHelper.getService(Activator.getContext(), Engine.class.getName());
+		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new ProvisionException("No director service found.");
 		IInstallableUnit[] toInstall = (IInstallableUnit[]) units.toArray(IInstallableUnit.class);

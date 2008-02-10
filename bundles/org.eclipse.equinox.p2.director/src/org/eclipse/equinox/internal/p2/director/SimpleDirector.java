@@ -23,12 +23,12 @@ public class SimpleDirector implements IDirector {
 	private static final String ROLLBACK_LOCATION = "rollback"; //$NON-NLS-1$
 	static final int PlanWork = 10;
 	static final int EngineWork = 100;
-	private Engine engine;
+	private IEngine engine;
 	private IPlanner planner;
 
 	public SimpleDirector() {
 		initializeRollbackRepository();
-		engine = (Engine) ServiceHelper.getService(DirectorActivator.context, Engine.class.getName());
+		engine = (IEngine) ServiceHelper.getService(DirectorActivator.context, IEngine.SERVICE_NAME);
 		if (engine == null)
 			throw new IllegalStateException("Provisioning engine is not registered"); //$NON-NLS-1$
 		planner = (IPlanner) ServiceHelper.getService(DirectorActivator.context, IPlanner.class.getName());

@@ -32,7 +32,7 @@ import org.osgi.framework.Version;
  */
 public class EngineTest extends AbstractProvisioningTest {
 	private ServiceReference engineRef;
-	private Engine engine;
+	private IEngine engine;
 	private File testProvisioning;
 
 	public EngineTest(String name) {
@@ -61,8 +61,8 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	protected void setUp() throws Exception {
-		engineRef = TestActivator.getContext().getServiceReference(Engine.class.getName());
-		engine = (Engine) TestActivator.getContext().getService(engineRef);
+		engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
+		engine = (IEngine) TestActivator.getContext().getService(engineRef);
 	}
 
 	protected void tearDown() throws Exception {

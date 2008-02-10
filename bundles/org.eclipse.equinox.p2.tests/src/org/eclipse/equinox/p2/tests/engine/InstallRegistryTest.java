@@ -29,7 +29,7 @@ public class InstallRegistryTest extends AbstractProvisioningTest {
 	private ServiceReference registryRef;
 	private IInstallRegistry registry;
 	private ServiceReference engineRef;
-	private Engine engine;
+	private IEngine engine;
 
 	public InstallRegistryTest(String name) {
 		super(name);
@@ -42,8 +42,8 @@ public class InstallRegistryTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		registryRef = TestActivator.getContext().getServiceReference(IInstallRegistry.class.getName());
 		registry = (IInstallRegistry) TestActivator.getContext().getService(registryRef);
-		engineRef = TestActivator.getContext().getServiceReference(Engine.class.getName());
-		engine = (Engine) TestActivator.getContext().getService(engineRef);
+		engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
+		engine = (IEngine) TestActivator.getContext().getService(engineRef);
 	}
 
 	protected void tearDown() throws Exception {
