@@ -29,7 +29,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunne
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -104,6 +104,11 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 				updateDetailsArea(detailsArea, getSelectedIU());
 			}
 		});
+
+		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
+		listViewer.setComparator(new IUComparator(IUComparator.IU_ID));
+		listViewer.setComparer(new ProvElementComparer());
+
 		contentProvider = new StaticContentProvider(list.toArray());
 		listViewer.setContentProvider(contentProvider);
 		listViewer.setInput(new Object());

@@ -20,22 +20,23 @@ import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
-import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
@@ -248,10 +249,38 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	public void launchUpdate() {
-		UpdateWizard wizard = new UpdateWizard(profileId, toUpdate, ProvSDKUIActivator.getDefault().getLicenseManager(), ProvSDKUIActivator.getDefault().getQueryProvider());
-		WizardDialog dialog = new WizardDialog(getWorkbenchWindowShell(), wizard);
-		if (dialog.open() == Window.OK)
-			clearUpdatesAvailable();
+		ISelectionProvider selectionProvider = new ISelectionProvider() {
+
+			/* (non-Javadoc)
+			 * @see org.eclipse.jface.viewers.ISelectionProvider#addSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
+			 */
+			public void addSelectionChangedListener(ISelectionChangedListener listener) {
+				// Ignore because the selection won't change 
+			}
+
+			/* (non-Javadoc)
+			 * @see org.eclipse.jface.viewers.ISelectionProvider#getSelection()
+			 */
+			public ISelection getSelection() {
+				return new StructuredSelection(toUpdate);
+			}
+
+			/* (non-Javadoc)
+			 * @see org.eclipse.jface.viewers.ISelectionProvider#removeSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
+			 */
+			public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+				// ignore because the selection is static
+			}
+
+			/* (non-Javadoc)
+			 * @see org.eclipse.jface.viewers.ISelectionProvider#setSelection(org.eclipse.jface.viewers.ISelection)
+			 */
+			public void setSelection(ISelection sel) {
+				throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
+			}
+		};
+		IAction action = new UpdateAction(selectionProvider, profileId, null, ProvSDKUIActivator.getDefault().getLicenseManager(), ProvSDKUIActivator.getDefault().getQueryProvider(), getWorkbenchWindowShell());
+		action.run();
 	}
 
 	private void registerProfileChangeListener() {

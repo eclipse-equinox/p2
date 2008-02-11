@@ -12,26 +12,31 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
 
 /**
  * @since 3.4
  */
 public class UpdateWizard extends UpdateOrInstallWizard {
 
-	IQueryProvider queryProvider;
+	ProvisioningPlan plan;
+	AvailableUpdateElement[] elements;
+	Object[] initialSelections;
 
-	public UpdateWizard(String profileId, IInstallableUnit[] ius, LicenseManager licenseManager, IQueryProvider queryProvider) {
-		super(profileId, ius, licenseManager);
-		this.queryProvider = queryProvider;
+	public UpdateWizard(String profileId, IInstallableUnit[] iusToReplace, AvailableUpdateElement[] elements, Object[] initialSelections, ProvisioningPlan plan, LicenseManager licenseManager) {
+		super(profileId, iusToReplace, licenseManager);
 		setWindowTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDefaultPageImageDescriptor(ProvUIImages.getImageDescriptor(ProvUIImages.WIZARD_BANNER_UPDATE));
+		this.plan = plan;
+		this.elements = elements;
+		this.initialSelections = initialSelections;
 	}
 
 	protected UpdateOrInstallWizardPage createMainPage(String profileId, IInstallableUnit[] ius) {
-		return new UpdateWizardPage(ius, profileId, queryProvider, this);
+		return new UpdateWizardPage(ius, elements, initialSelections, profileId, plan, this);
 	}
 }

@@ -21,46 +21,24 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.swt.widgets.Text;
 
 public class UpdateWizardPage extends UpdateOrInstallWizardPage {
-
-	IQueryProvider queryProvider;
+	AvailableUpdateElement[] updateElements;
+	IInstallableUnit[] suggestedReplacements;
 	Object[] initialSelections = new Object[0];
 
-	public UpdateWizardPage(IInstallableUnit[] ius, String profileId, IQueryProvider queryProvider, UpdateOrInstallWizard wizard) {
-		super("UpdateWizardPage", ius, profileId, null, wizard); //$NON-NLS-1$
-		this.queryProvider = queryProvider;
+	public UpdateWizardPage(IInstallableUnit[] iusToReplace, AvailableUpdateElement[] elements, Object[] initialSelections, String profileId, ProvisioningPlan plan, UpdateOrInstallWizard wizard) {
+		super("UpdateWizardPage", iusToReplace, profileId, plan, wizard); //$NON-NLS-1$
+		this.updateElements = elements;
+		this.initialSelections = initialSelections;
 		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
 		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
 	}
 
 	protected void makeElements(IInstallableUnit[] ius, List elements) {
-		HashMap uniqueIds = new HashMap();
-		for (int i = 0; i < ius.length; i++) {
-			UpdateEvent event = new UpdateEvent(getProfileId(), ius);
-			ElementQueryDescriptor descriptor = queryProvider.getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
-			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, null).iterator();
-			ArrayList queryIUs = new ArrayList();
-			while (iter.hasNext()) {
-				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
-				if (iu != null)
-					queryIUs.add(iu);
-			}
-			IInstallableUnit[] replacements = (IInstallableUnit[]) queryIUs.toArray(new IInstallableUnit[queryIUs.size()]);
-			for (int j = 0; j < replacements.length; j++) {
-				AvailableUpdateElement element = new AvailableUpdateElement(replacements[j], ius[i], getProfileId());
-				elements.add(element);
-				AvailableUpdateElement latestElement = (AvailableUpdateElement) uniqueIds.get(replacements[j].getId());
-				if (latestElement == null || replacements[j].getVersion().compareTo(latestElement.getIU().getVersion()) > 0)
-					uniqueIds.put(replacements[j].getId(), element);
-
-			}
-		}
-		initialSelections = uniqueIds.values().toArray();
+		for (int i = 0; i < updateElements.length; i++)
+			elements.add(updateElements[i]);
 	}
 
 	private IInstallableUnit[] getIUsToReplace(Object[] replacementElements) {

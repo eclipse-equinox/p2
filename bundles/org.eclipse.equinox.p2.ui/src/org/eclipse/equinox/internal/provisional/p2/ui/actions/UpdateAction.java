@@ -11,19 +11,24 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import java.util.ArrayList;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
+import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -32,7 +37,8 @@ import org.eclipse.swt.widgets.Shell;
 public class UpdateAction extends ProfileModificationAction {
 
 	IQueryProvider queryProvider;
-	IStatus status = null; // used to validate the ability of updates without getting a plan
+	ArrayList allReplacements; // cache all the replacements found to seed the wizard
+	HashMap latestReplacements;
 
 	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
 		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, licenseManager, shell);
@@ -41,51 +47,62 @@ public class UpdateAction extends ProfileModificationAction {
 	}
 
 	protected void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
-		// Collect the replacements for each IU individually so that 
-		// the user can decide what to update
-		try {
-			ArrayList iusWithUpdates = new ArrayList();
-			for (int i = 0; i < ius.length; i++) {
-				IInstallableUnit[] replacements = ProvisioningUtil.updatesFor(ius[i], null);
-				if (replacements.length > 0)
-					iusWithUpdates.add(ius[i]);
-			}
-			if (iusWithUpdates.size() > 0) {
+		// Caches should have been created while formulating the plan
+		Assert.isNotNull(latestReplacements);
+		Assert.isNotNull(allReplacements);
+		Assert.isNotNull(plan);
 
-				UpdateWizard wizard = new UpdateWizard(targetProfileId, (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]), getLicenseManager(), queryProvider);
-				WizardDialog dialog = new WizardDialog(getShell(), wizard);
-				dialog.open();
-			}
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-		}
+		UpdateWizard wizard = new UpdateWizard(targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan, getLicenseManager());
+		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		dialog.open();
 	}
 
 	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
-		try {
-			IInstallableUnit[] updates = ProvisioningUtil.updatesFor(ius, monitor);
-			if (updates.length <= 0) {
-				status = new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.UpdateOperation_NothingToUpdate);
+		// Here we create a provisioning plan by finding the latest version available for any replacement.
+		// TODO to be smarter, we could check older versions if a new version made a plan invalid.
+		ArrayList toBeUpdated = new ArrayList();
+		latestReplacements = new HashMap();
+		allReplacements = new ArrayList();
+		for (int i = 0; i < ius.length; i++) {
+			UpdateEvent event = new UpdateEvent(targetProfileId, new IInstallableUnit[] {ius[i]});
+			ElementQueryDescriptor descriptor = queryProvider.getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
+			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, null).iterator();
+			if (iter.hasNext())
+				toBeUpdated.add(ius[i]);
+			ArrayList currentReplacements = new ArrayList();
+			while (iter.hasNext()) {
+				IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iter.next(), IInstallableUnit.class);
+				if (iu != null) {
+					AvailableUpdateElement element = new AvailableUpdateElement(iu, ius[i], targetProfileId);
+					currentReplacements.add(element);
+					allReplacements.add(element);
+				}
 			}
+			for (int j = 0; j < currentReplacements.size(); j++) {
+				AvailableUpdateElement replacementElement = (AvailableUpdateElement) currentReplacements.get(j);
+				AvailableUpdateElement latestElement = (AvailableUpdateElement) latestReplacements.get(replacementElement.getIU().getId());
+				IInstallableUnit latestIU = latestElement == null ? null : latestElement.getIU();
+				if (latestIU == null || replacementElement.getIU().getVersion().compareTo(latestIU.getVersion()) > 0)
+					latestReplacements.put(replacementElement.getIU().getId(), replacementElement);
+			}
+		}
+		if (toBeUpdated.size() <= 0) {
+			return new ProvisioningPlan(new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.UpdateOperation_NothingToUpdate));
+		}
+		try {
+			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
+			Iterator iter = toBeUpdated.iterator();
+			while (iter.hasNext())
+				request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) iter.next()});
+			iter = latestReplacements.values().iterator();
+			while (iter.hasNext())
+				request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});
+			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
+			return plan;
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, ProvUIMessages.UpdateAction_ExceptionDuringUpdateCheck);
+			ProvUI.handleException(e, null);
+			return null;
 		}
-		return null;
-	}
-
-	/*
-	 * Overridden to always validate because we don't construct
-	 * a plan until the dialog is launched.  The dialog uses preferences
-	 * to determine which updates to show and which are selected by default.
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction#validatePlan(org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan)
-	 */
-	protected boolean validatePlan(ProvisioningPlan plan) {
-		if (status != null) {
-			ProvUI.reportStatus(status);
-			return false;
-		}
-		return true;
 	}
 
 	/*
