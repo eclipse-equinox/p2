@@ -51,6 +51,8 @@ public class MetadataGeneratorHelper {
 
 	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
 
+	private static final String ECLIPSE_INSTALL_HANDLER_PROP = "org.eclipse.update.installHandler"; //$NON-NLS-1$
+
 	//TODO - need to come up with a way to infer launcher version
 	private static final Version LAUNCHER_VERSION = new Version(1, 0, 0);
 
@@ -130,7 +132,7 @@ public class MetadataGeneratorHelper {
 		iu.setVersion(bd.getVersion());
 		iu.setFilter(bd.getPlatformFilter());
 
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), VersionRange.emptyRange, IUpdateDescriptor.NORMAL, "A description"));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), VersionRange.emptyRange, IUpdateDescriptor.NORMAL, "A description")); //$NON-NLS-1$
 
 		boolean isFragment = bd.getHost() != null;
 		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
@@ -329,7 +331,7 @@ public class MetadataGeneratorHelper {
 
 	public static IInstallableUnit createDefaultConfigurationUnitForSourceBundles(String configurationFlavor) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configUnitId = createDefaultConfigUnitId("source", configurationFlavor);
+		String configUnitId = createDefaultConfigUnitId("source", configurationFlavor); //$NON-NLS-1$
 		cu.setId(configUnitId);
 		Version configUnitVersion = new Version(1, 0, 0);
 		cu.setVersion(configUnitVersion);
@@ -378,6 +380,18 @@ public class MetadataGeneratorHelper {
 		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
 		iu.setFilter(INSTALL_FEATURES_FILTER);
 		iu.setSingleton(true);
+
+		if (feature.getInstallHandler() != null) {
+			String installHandlerProperty = "handler=" + feature.getInstallHandler(); //$NON-NLS-1$
+
+			if (feature.getInstallHandlerLibrary() != null)
+				installHandlerProperty += ", library=" + feature.getInstallHandlerLibrary(); //$NON-NLS-1$
+
+			if (feature.getInstallHandlerURL() != null)
+				installHandlerProperty += ", url=" + feature.getInstallHandlerURL(); //$NON-NLS-1$
+
+			iu.setProperty(ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
+		}
 
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), FEATURE_CAPABILITY});
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
