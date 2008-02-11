@@ -196,6 +196,15 @@ public class SiteModel {
 		return (URLEntry[]) mirrors.toArray(new URLEntry[0]);
 	}
 
+	/**
+	 * Returns the URL from which the list of mirrors of this site can be retrieved.
+	 * 
+	 * @since org.eclipse.equinox.p2.metadata.generator 1.0
+	 */
+	public String getMirrorsURL() {
+		return mirrorsURLString;
+	}
+
 	/** 
 	 * Returns the site type.
 	 * 

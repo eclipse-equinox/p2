@@ -47,6 +47,12 @@ public interface IRepository extends IAdaptable {
 	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$
 
 	/**
+	 * The key for a string property providing a URL that can return mirrors of this
+	 * repository.
+	 */
+	public static final String PROP_MIRRORS_URL = "p2.mirrorsURL"; //$NON-NLS-1$
+
+	/**
 	 * Returns the URL of the repository.
 	 * TODO: Should we use URL or URI? URL requires a protocol handler
 	 * to be installed in Java.  Can the URL have any protocol?

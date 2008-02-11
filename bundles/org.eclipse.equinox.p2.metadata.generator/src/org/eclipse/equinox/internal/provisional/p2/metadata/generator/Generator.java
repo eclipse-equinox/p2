@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -644,6 +645,18 @@ public class Generator {
 		}
 		if (site == null)
 			return mappings;
+
+		//copy mirror information from update site to p2 repositories
+		String mirrors = site.getMirrorsURL();
+		if (mirrors != null) {
+			//remove site.xml file reference
+			int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
+			if (index != -1)
+				mirrors = mirrors.substring(0, index) + mirrors.substring(index + 9);
+			info.getMetadataRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
+			info.getArtifactRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
+		}
+
 		SiteFeature[] features = site.getFeatures();
 		for (int i = 0; i < features.length; i++) {
 			//add a mapping for each category this feature belongs to
