@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.io.IOException;
-import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;

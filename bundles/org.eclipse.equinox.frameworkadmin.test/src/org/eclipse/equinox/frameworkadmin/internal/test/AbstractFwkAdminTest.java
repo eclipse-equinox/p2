@@ -11,7 +11,7 @@ package org.eclipse.equinox.frameworkadmin.internal.test;
 import java.io.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.equinox.frameworkadmin.FrameworkAdmin;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 

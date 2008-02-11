@@ -14,8 +14,8 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Set;
-import org.eclipse.equinox.frameworkadmin.ConfigData;
-import org.eclipse.equinox.frameworkadmin.LauncherData;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 

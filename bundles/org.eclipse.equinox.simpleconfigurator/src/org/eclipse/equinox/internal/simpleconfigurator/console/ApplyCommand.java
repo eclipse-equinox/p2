@@ -11,7 +11,7 @@ package org.eclipse.equinox.internal.simpleconfigurator.console;
 import java.io.IOException;
 import java.net.URL;
 
-import org.eclipse.equinox.configurator.Configurator;
+import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;

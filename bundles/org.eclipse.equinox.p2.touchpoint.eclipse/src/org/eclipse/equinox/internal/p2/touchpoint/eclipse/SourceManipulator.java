@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.simpleconfigurator.manipulator.internal.SimpleConfiguratorManipulatorImpl;
+import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
 import org.osgi.framework.Version;
 
 //This class deals with source bundles and how their addition to the source.bundles.txt

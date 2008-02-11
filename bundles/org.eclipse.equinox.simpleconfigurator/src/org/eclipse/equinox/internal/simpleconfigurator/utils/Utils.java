@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.eclipse.equinox.simpleconfigurator.internal.Activator;
+import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 
 /**
  * This class was copied from 

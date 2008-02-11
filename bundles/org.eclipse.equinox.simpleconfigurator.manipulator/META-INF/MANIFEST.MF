@@ -4,18 +4,18 @@ Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator.manipulator;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Localization: plugin
-Bundle-Activator: org.eclipse.equinox.simpleconfigurator.manipulator.internal.Activator
+Bundle-Activator: org.eclipse.equinox.internal.simpleconfigurator.manipulator.Activator
 Eclipse-LazyStart: true
-Import-Package: org.eclipse.equinox.configuratormanipulator,
- org.eclipse.equinox.frameworkadmin,
- org.eclipse.equinox.internal.frameworkadmin.utils,
+Import-Package: org.eclipse.equinox.internal.frameworkadmin.utils,
+ org.eclipse.equinox.internal.provisional.configuratormanipulator,
+ org.eclipse.equinox.internal.provisional.frameworkadmin,
  org.osgi.framework;version="1.3.0",
  org.osgi.service.packageadmin;version="1.2.0",
  org.osgi.service.startlevel;version="1.0.0",
  org.osgi.util.tracker
 Bundle-Vendor: %providerName
-Export-Package: org.eclipse.equinox.internal.simpleconfigurator.utils;x-internal:=true,
- org.eclipse.equinox.simpleconfigurator.manipulator.internal;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse"
+Export-Package: org.eclipse.equinox.internal.simpleconfigurator.manipulator;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse",
+ org.eclipse.equinox.internal.simpleconfigurator.utils;x-internal:=true
 Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"

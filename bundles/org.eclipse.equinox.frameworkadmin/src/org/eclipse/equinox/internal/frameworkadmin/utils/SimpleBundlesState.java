@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 
-import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.Constants;
 
 /**
@@ -117,7 +117,7 @@ public class SimpleBundlesState implements BundlesState {
 	/* 
 	 * Just return required bundles.
 	 * 
-	 * @see org.eclipse.equinox.frameworkadmin.BundlesState#getPrerequisteBundles(org.eclipse.equinox.frameworkadmin.BundleInfo)
+	 * @see org.eclipse.equinox.internal.provisional.frameworkadmin.BundlesState#getPrerequisteBundles(org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo)
 	 */
 	public BundleInfo[] getPrerequisteBundles(BundleInfo bInfo) {
 		String location = bInfo.getLocation();

@@ -10,7 +10,7 @@ package org.eclipse.equinox.frameworkadmin.internal.test;
 
 import java.io.*;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 public class RelativePathTest extends FwkAdminAndSimpleConfiguratorTest {
 	public RelativePathTest(String name) throws Exception {

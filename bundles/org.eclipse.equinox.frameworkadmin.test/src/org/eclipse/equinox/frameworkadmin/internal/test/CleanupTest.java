@@ -11,8 +11,8 @@ package org.eclipse.equinox.frameworkadmin.internal.test;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.frameworkadmin.Manipulator;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 
 public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 

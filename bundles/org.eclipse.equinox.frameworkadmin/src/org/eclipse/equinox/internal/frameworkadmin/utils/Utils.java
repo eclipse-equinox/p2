@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.eclipse.equinox.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 
 public class Utils {
 	private final static String PATH_SEP = "/";

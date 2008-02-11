@@ -11,7 +11,7 @@ package org.eclipse.equinox.frameworkadmin.internal.test;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.frameworkadmin.*;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
 public class Bug196525 extends AbstractFwkAdminTest {

@@ -9,8 +9,8 @@ Bundle-Activator: org.eclipse.equinox.internal.p2.console.Activator
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.equinox.internal.p2.console;x-friends:="org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.tools"
 Import-Package: org.eclipse.core.runtime;common=split,
- org.eclipse.equinox.configurator,
  org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.provisional.configurator,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core,
  org.eclipse.equinox.internal.provisional.p2.core.repository,
