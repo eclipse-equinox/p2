@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2007 aQute, IBM Corporation and others. All rights reserved.
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License v1.0 which accompanies this distribution,
- * and is available at http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors: 
+ * Copyright (c) 2007, 2008 aQute, IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
  * aQute - initial implementation and ideas 
  * IBM Corporation - initial adaptation to Equinox provisioning use
- ******************************************************************************/
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.directorywatcher;
 
 import java.util.*;
