@@ -263,9 +263,9 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
 				RepositoryInfo info = (RepositoryInfo) it.next();
 				if (URLUtil.sameURL(info.location, location)) {
-					if (PROP_DESCRIPTION.equals(key))
+					if (IRepository.PROP_DESCRIPTION.equals(key))
 						return info.description;
-					if (PROP_NAME.equals(key))
+					if (IRepository.PROP_NAME.equals(key))
 						return info.name;
 					// Key not known, return null
 					return null;

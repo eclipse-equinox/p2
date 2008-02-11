@@ -44,15 +44,6 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	public static final int REPOSITORIES_LOCAL = 1 << 2;
 
 	/**
-	 * Property key used to query a repository's name without loading the repository first.
-	 */
-	public static final String PROP_NAME = "name"; //$NON-NLS-1$
-	/**
-	 * Property key used to query a repository's description without loading the repository first.
-	 */
-	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$
-
-	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.metadata.repository.simpleRepository"; //$NON-NLS-1$

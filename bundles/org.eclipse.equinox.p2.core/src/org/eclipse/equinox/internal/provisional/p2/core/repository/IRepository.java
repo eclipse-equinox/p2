@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.IAdaptable;
  */
 public interface IRepository extends IAdaptable {
 	/** 
-	 * The property key for a boolean property indicating that the repository
+	 * The key for a boolean property indicating that the repository
 	 * is a system repository.  System repositories are implementation details
 	 * that are not subject to general access, hidden from the typical user, etc.
 	 */
@@ -35,6 +35,16 @@ public interface IRepository extends IAdaptable {
 	 * uncompress when reading.
 	 */
 	public static final String PROP_COMPRESSED = "p2.compressed"; //$NON-NLS-1$
+
+	/**
+	 * The key for a string property providing a human-readable name for the repository.
+	 */
+	public static final String PROP_NAME = "name"; //$NON-NLS-1$
+
+	/**
+	 * The key for a string property providing a human-readable description for the repository.
+	 */
+	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$
 
 	/**
 	 * Returns the URL of the repository.

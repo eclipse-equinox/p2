@@ -17,7 +17,6 @@ import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
@@ -111,7 +110,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 	 */
 	public String getName() {
 		try {
-			String name = ProvisioningUtil.getMetadataRepositoryProperty(url, IMetadataRepositoryManager.PROP_NAME);
+			String name = ProvisioningUtil.getMetadataRepositoryProperty(url, IRepository.PROP_NAME);
 			if (name == null)
 				return ""; //$NON-NLS-1$
 			return name;
@@ -126,7 +125,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 	 */
 	public String getDescription() {
 		try {
-			String description = ProvisioningUtil.getMetadataRepositoryProperty(url, IMetadataRepositoryManager.PROP_DESCRIPTION);
+			String description = ProvisioningUtil.getMetadataRepositoryProperty(url, IRepository.PROP_DESCRIPTION);
 			if (description == null)
 				return ""; //$NON-NLS-1$
 			return description;

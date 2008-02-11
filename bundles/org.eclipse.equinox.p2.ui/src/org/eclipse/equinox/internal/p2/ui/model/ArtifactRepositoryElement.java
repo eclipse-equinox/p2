@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -116,7 +115,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 */
 	public String getName() {
 		try {
-			String name = ProvisioningUtil.getArtifactRepositoryProperty(url, IArtifactRepositoryManager.PROP_NAME);
+			String name = ProvisioningUtil.getArtifactRepositoryProperty(url, IRepository.PROP_NAME);
 			if (name == null)
 				return ""; //$NON-NLS-1$
 			return name;
@@ -131,7 +130,7 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 	 */
 	public String getDescription() {
 		try {
-			String description = ProvisioningUtil.getArtifactRepositoryProperty(url, IArtifactRepositoryManager.PROP_DESCRIPTION);
+			String description = ProvisioningUtil.getArtifactRepositoryProperty(url, IRepository.PROP_DESCRIPTION);
 			if (description == null)
 				return ""; //$NON-NLS-1$
 			return description;
