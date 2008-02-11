@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.frameworkadmin.internal.test;
+package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,29 +16,20 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.BundleException;
 
-public class Bug196525 extends AbstractFwkAdminTest {
-	private File installFolder = null;
-	private File configurationFolder = null;
-	private String launcherName = "eclipse";
-	private File bundleTXT;
-	private File configINI;
+public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 
-	public Bug196525(String name) {
+	public SimpleConfiguratorTest(String name) {
 		super(name);
 	}
 
-	protected void setUp() throws Exception {
+	public void testConfigFiles() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
 		startSimpleConfiguratormManipulator();
-		//create a configuration with osgi and simpleconfigurator in it
-
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator manipulator = fwkAdmin.getManipulator();
 
-		installFolder = Activator.getContext().getDataFile(Bug196525.class.getName());
-		configurationFolder = new File(installFolder, "configuration");
-
-		bundleTXT = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.txt");
-		configINI = new File(configurationFolder, "config.ini");
+		File installFolder = Activator.getContext().getDataFile(SimpleConfiguratorTest.class.getName());
+		File configurationFolder = new File(installFolder, "configuration");
+		String launcherName = "eclipse";
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(configurationFolder);
@@ -56,40 +47,12 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		manipulator.getConfigData().addBundle(configuratorBi);
 
 		manipulator.save(false);
-	}
 
-	public void testConfigContent() throws IllegalStateException, FrameworkAdminRuntimeException, IOException, BundleException {
-		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
-		Manipulator manipulator = fwkAdmin.getManipulator();
-
-		File installFolder = Activator.getContext().getDataFile(Bug196525.class.getName());
-		File configurationFolder = new File(installFolder, "configuration");
-		String launcherName = "eclipse";
-
-		LauncherData launcherData = manipulator.getLauncherData();
-		launcherData.setFwConfigLocation(configurationFolder);
-		launcherData.setLauncher(new File(installFolder, launcherName));
-		try {
-			manipulator.load();
-		} catch (IllegalStateException e) {
-			//TODO We ignore the framework JAR location not set exception
-		}
-
-		BundleInfo bundle1Bi = new BundleInfo("bundle_1", "1.0.0", FileLocator.resolve(Activator.getContext().getBundle().getEntry("dataFile/bundle_1")).toExternalForm(), 2, true);
-
-		manipulator.getConfigData().addBundle(bundle1Bi);
-
-		manipulator.save(false);
-
+		File bundleTXT = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.txt");
+		File configINI = new File(configurationFolder, "config.ini");
 		assertContent(bundleTXT, "org.eclipse.osgi");
 		assertContent(configINI, "org.eclipse.osgi");
 		assertContent(bundleTXT, "org.eclipse.equinox.simpleconfigurator");
 		assertContent(configINI, "org.eclipse.equinox.simpleconfigurator");
-		assertContent(bundleTXT, "bundle_1");
 	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
 }

@@ -1,4 +1,4 @@
-package org.eclipse.equinox.frameworkadmin.internal.test;
+package org.eclipse.equinox.frameworkadmin.tests;
 /*******************************************************************************
  * Copyright (c) 2005, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials

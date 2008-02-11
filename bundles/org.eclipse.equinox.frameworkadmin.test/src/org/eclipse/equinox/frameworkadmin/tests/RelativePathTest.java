@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.frameworkadmin.internal.test;
+package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.*;
 import org.eclipse.core.runtime.FileLocator;
