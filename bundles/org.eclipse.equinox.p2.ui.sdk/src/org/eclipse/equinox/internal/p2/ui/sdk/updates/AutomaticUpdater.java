@@ -31,8 +31,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
-import org.eclipse.equinox.p2.updatechecker.IUpdateListener;
-import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -62,7 +62,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.updatechecker.IUpdateListener#updatesAvailable(org.eclipse.equinox.p2.updatechecker.UpdateEvent)
+	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener#updatesAvailable(org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent)
 	 */
 	public void updatesAvailable(final UpdateEvent event) {
 		final boolean download = prefs.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);

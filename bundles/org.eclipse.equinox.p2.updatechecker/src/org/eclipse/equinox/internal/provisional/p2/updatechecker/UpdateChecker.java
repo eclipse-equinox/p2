@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.updatechecker;
+package org.eclipse.equinox.internal.provisional.p2.updatechecker;
 
 import java.text.SimpleDateFormat;
 import java.util.*;

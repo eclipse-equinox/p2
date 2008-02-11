@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
-import org.eclipse.equinox.p2.updatechecker.UpdateChecker;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateChecker;
 import org.osgi.framework.*;
 
 /**

@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.updatechecker;
+package org.eclipse.equinox.internal.provisional.p2.updatechecker;
 
 /**
  * An IUpdateListener informs listeners that an update is available for

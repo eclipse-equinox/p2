@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
-import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.swt.widgets.Text;
 
 public class UpdateWizardPage extends UpdateOrInstallWizardPage {

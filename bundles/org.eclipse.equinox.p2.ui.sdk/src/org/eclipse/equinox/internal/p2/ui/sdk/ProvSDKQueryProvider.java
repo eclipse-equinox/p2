@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.*;
-import org.eclipse.equinox.p2.updatechecker.UpdateEvent;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 
 /**
  * Provides the queries appropriate for the SDK UI.

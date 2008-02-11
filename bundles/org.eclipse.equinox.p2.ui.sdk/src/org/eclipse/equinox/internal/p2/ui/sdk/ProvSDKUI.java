@@ -8,9 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.ui.sdk;
+package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
 
