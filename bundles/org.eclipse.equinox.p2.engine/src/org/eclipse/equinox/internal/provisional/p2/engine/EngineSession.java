@@ -33,8 +33,11 @@ public class EngineSession {
 
 	private IProfile profile;
 
-	public EngineSession(IProfile profile) {
+	private ProvisioningContext context;
+
+	public EngineSession(IProfile profile, ProvisioningContext context) {
 		this.profile = profile;
+		this.context = context;
 	}
 
 	public void commit() {
@@ -64,14 +67,14 @@ public class EngineSession {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 
 		if (phase != currentPhase)
-			phase.prePerform(result, profile, new NullProgressMonitor());
+			phase.prePerform(result, profile, context, new NullProgressMonitor());
 
 		for (ListIterator it = actionRecords.listIterator(actionRecords.size()); it.hasPrevious();) {
 			ActionsRecord record = (ActionsRecord) it.previous();
 			ProvisioningAction[] actions = (ProvisioningAction[]) record.actions.toArray(new ProvisioningAction[record.actions.size()]);
-			phase.undo(result, this, profile, record.operand, actions);
+			phase.undo(result, this, profile, record.operand, actions, context);
 		}
-		phase.postPerform(result, profile, new NullProgressMonitor());
+		phase.postPerform(result, profile, context, new NullProgressMonitor());
 		return result;
 	}
 

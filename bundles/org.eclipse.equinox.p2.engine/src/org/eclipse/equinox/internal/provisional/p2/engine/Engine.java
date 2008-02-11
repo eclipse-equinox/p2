@@ -43,10 +43,12 @@ public class Engine implements IEngine {
 
 		InstallableUnitOperand[] iuOperandArray = (InstallableUnitOperand[]) iuOperands.toArray(new InstallableUnitOperand[0]);
 		PropertyOperand[] propertyOperandArray = (PropertyOperand[]) propertyOperands.toArray(new PropertyOperand[0]);
-		return perform(profile, phaseSet, iuOperandArray, propertyOperandArray, monitor);
+		if (context == null)
+			context = new ProvisioningContext();
+		return perform(profile, phaseSet, iuOperandArray, propertyOperandArray, context, monitor);
 	}
 
-	private IStatus perform(IProfile iprofile, PhaseSet phaseSet, InstallableUnitOperand[] iuOperands, PropertyOperand[] propertyOperands, IProgressMonitor monitor) {
+	private IStatus perform(IProfile iprofile, PhaseSet phaseSet, InstallableUnitOperand[] iuOperands, PropertyOperand[] propertyOperands, ProvisioningContext context, IProgressMonitor monitor) {
 
 		// TODO -- Messages
 		if (iprofile == null)
@@ -64,18 +66,19 @@ public class Engine implements IEngine {
 		Profile profile = (Profile) iprofile;
 		lockProfile(profile);
 		try {
+			// TODO we should check that the profile that the profile is up to date
 			SimpleProfileRegistry profileRegistry = (SimpleProfileRegistry) ServiceHelper.getService(EngineActivator.getContext(), IProfileRegistry.class.getName());
 			if (profileRegistry.getProfile(profile.getProfileId()) == null)
 				throw new IllegalArgumentException("Profile is not registered."); //$NON-NLS-1$
 
 			eventBus.publishEvent(new BeginOperationEvent(profile, phaseSet, iuOperands, this));
 
-			EngineSession session = new EngineSession(profile);
+			EngineSession session = new EngineSession(profile, context);
 
 			synchronizeProfileProperties(profile, propertyOperands);
 
 			snapshotIUProperties(profile, iuOperands);
-			MultiStatus result = phaseSet.perform(session, profile, iuOperands, monitor);
+			MultiStatus result = phaseSet.perform(session, profile, iuOperands, context, monitor);
 			if (result.isOK()) {
 				if (profile.isChanged()) {
 					moveIUProperties(profile, iuOperands);

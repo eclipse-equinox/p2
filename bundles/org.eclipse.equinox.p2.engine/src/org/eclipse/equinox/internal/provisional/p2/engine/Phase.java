@@ -25,6 +25,7 @@ public abstract class Phase {
 	protected static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	protected static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
 	protected static final String PARM_IU = "iu"; //$NON-NLS-1$
+	protected static final String PARM_CONTEXT = "context"; //$NON-NLS-1$
 
 	protected final String phaseId;
 	protected final int weight;
@@ -47,9 +48,9 @@ public abstract class Phase {
 		return getClass().getName() + " - " + this.weight; //$NON-NLS-1$
 	}
 
-	public final MultiStatus perform(EngineSession session, IProfile profile, InstallableUnitOperand[] operands, IProgressMonitor monitor) {
+	public final MultiStatus perform(EngineSession session, IProfile profile, InstallableUnitOperand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		perform(status, session, profile, operands, monitor);
+		perform(status, session, profile, operands, context, monitor);
 		if (status.matches(IStatus.CANCEL)) {
 			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, Messages.Engine_Operation_Canceled_By_User, null);
 			result.merge(status);
@@ -62,7 +63,7 @@ public abstract class Phase {
 		return status;
 	}
 
-	void perform(MultiStatus status, EngineSession session, IProfile profile, InstallableUnitOperand[] operands, IProgressMonitor monitor) {
+	void perform(MultiStatus status, EngineSession session, IProfile profile, InstallableUnitOperand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		touchpointToTouchpointParameters = new HashMap();
 		for (int i = 0; i < operands.length; i++) {
 			TouchpointType type = getTouchpointType(operands[i]);
@@ -78,29 +79,31 @@ public abstract class Phase {
 		}
 
 		SubMonitor subMonitor = SubMonitor.convert(monitor, prePerformWork + mainPerformWork + postPerformWork);
-		prePerform(status, profile, subMonitor.newChild(prePerformWork));
+		prePerform(status, profile, context, subMonitor.newChild(prePerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 		session.recordPhaseStart(this);
 
 		subMonitor.setWorkRemaining(mainPerformWork + postPerformWork);
-		mainPerform(status, session, profile, operands, subMonitor.newChild(mainPerformWork));
+		mainPerform(status, session, profile, operands, context, subMonitor.newChild(mainPerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 
 		session.recordPhaseEnd(this);
 		subMonitor.setWorkRemaining(postPerformWork);
-		postPerform(status, profile, subMonitor.newChild(postPerformWork));
+		postPerform(status, profile, context, subMonitor.newChild(postPerformWork));
 		if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 			return;
 
 		subMonitor.done();
 	}
 
-	void prePerform(MultiStatus status, IProfile profile, IProgressMonitor monitor) {
+	void prePerform(MultiStatus status, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		phaseParameters = new HashMap();
 		phaseParameters.put(PARM_PROFILE, profile);
+		phaseParameters.put(PARM_CONTEXT, context);
 		phaseParameters.put(PARM_PHASE_ID, phaseId);
+
 		mergeStatus(status, initializePhase(monitor, profile, phaseParameters));
 
 		for (Iterator it = touchpointToTouchpointParameters.entrySet().iterator(); it.hasNext();) {
@@ -113,7 +116,7 @@ public abstract class Phase {
 		}
 	}
 
-	private void mainPerform(MultiStatus status, EngineSession session, IProfile profile, InstallableUnitOperand[] operands, SubMonitor subMonitor) {
+	private void mainPerform(MultiStatus status, EngineSession session, IProfile profile, InstallableUnitOperand[] operands, ProvisioningContext context, SubMonitor subMonitor) {
 		subMonitor.beginTask("", operands.length); //$NON-NLS-1$
 		for (int i = 0; i < operands.length; i++) {
 			subMonitor.setWorkRemaining(operands.length - i);
@@ -163,7 +166,7 @@ public abstract class Phase {
 			multi.add(status);
 	}
 
-	void postPerform(MultiStatus status, IProfile profile, IProgressMonitor monitor) {
+	void postPerform(MultiStatus status, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
 		for (Iterator it = touchpointToTouchpointParameters.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
 			Touchpoint touchpoint = (Touchpoint) entry.getKey();
@@ -175,7 +178,7 @@ public abstract class Phase {
 		phaseParameters = null;
 	}
 
-	void undo(MultiStatus status, EngineSession session, IProfile profile, InstallableUnitOperand operand, ProvisioningAction[] actions) {
+	void undo(MultiStatus status, EngineSession session, IProfile profile, InstallableUnitOperand operand, ProvisioningAction[] actions, ProvisioningContext context) {
 		Touchpoint touchpoint = getTouchpoint(operand);
 		Map touchpointParameters = (Map) touchpointToTouchpointParameters.get(touchpoint);
 		Map parameters = new HashMap(touchpointParameters);
