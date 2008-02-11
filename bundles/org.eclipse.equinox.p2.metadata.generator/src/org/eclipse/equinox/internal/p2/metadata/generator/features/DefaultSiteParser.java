@@ -738,11 +738,14 @@ public class DefaultSiteParser extends DefaultHandler {
 		// get mirrors, if any
 		String mirrorsURL = attributes.getValue("mirrorsURL"); //$NON-NLS-1$
 		if (mirrorsURL != null && mirrorsURL.trim().length() > 0) {
-			URLEntry[] mirrors = getMirrors(mirrorsURL);
-			if (mirrors != null)
-				site.setMirrors(mirrors);
-			else
-				site.setMirrorsURLString(mirrorsURL);
+			//			URLEntry[] mirrors = getMirrors(mirrorsURL);
+			//			if (mirrors != null)
+			//				site.setMirrors(mirrors);
+			//			else
+
+			//Since we are parsing the site at p2 generation time and the 
+			//mirrors may change, there is no point doing the mirror expansion now
+			site.setMirrorsURLString(mirrorsURL);
 		}
 
 		String pack200 = attributes.getValue("pack200"); //$NON-NLS-1$
