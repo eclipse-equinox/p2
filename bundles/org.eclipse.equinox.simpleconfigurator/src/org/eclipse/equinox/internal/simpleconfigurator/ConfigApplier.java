@@ -134,7 +134,12 @@ class ConfigApplier {
 		ArrayList installed = new ArrayList();
 		//printSystemBundle();
 
-		boolean useReference = Boolean.valueOf(manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE)).booleanValue();
+		boolean useReference = true;
+		if (manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE) == null)
+			useReference = true;
+		else
+			useReference = Boolean.valueOf(manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE) == null).booleanValue();
+
 		for (int i = 0; i < finalList.length; i++) {
 			if (finalList[i] == null)
 				continue;
