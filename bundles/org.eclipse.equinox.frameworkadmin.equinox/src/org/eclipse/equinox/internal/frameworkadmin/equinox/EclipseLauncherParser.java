@@ -243,7 +243,7 @@ public class EclipseLauncherParser {
 		return null;
 	}
 
-	public void save(LauncherData launcherData, boolean relative, boolean backup) throws IOException {
+	public void save(EquinoxLauncherData launcherData, boolean relative, boolean backup) throws IOException {
 		File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
 
 		if (launcherConfigFile == null)
@@ -280,6 +280,8 @@ public class EclipseLauncherParser {
 		} finally {
 			if (bw != null)
 				bw.close();
+			if (launcherData.getPreviousLauncherIni() != null)
+				launcherData.getPreviousLauncherIni().delete();
 		}
 	}
 }

@@ -96,7 +96,7 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	}
 
 	ConfigData configData = new ConfigData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
-	LauncherData launcherData = new LauncherData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
+	EquinoxLauncherData launcherData = new EquinoxLauncherData(EquinoxConstants.FW_NAME, EquinoxConstants.FW_VERSION, EquinoxConstants.LAUNCHER_NAME, EquinoxConstants.LAUNCHER_VERSION);
 
 	BundleContext context = null;
 	private Properties platformProperties = new Properties();
