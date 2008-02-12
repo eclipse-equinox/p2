@@ -12,9 +12,11 @@ package org.eclipse.equinox.internal.p2.exemplarysetup;
 
 import org.eclipse.equinox.internal.p2.director.SimpleDirector;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
+import org.eclipse.equinox.internal.p2.engine.MetadataCache;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
 import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
-import org.eclipse.equinox.internal.p2.installregistry.*;
+import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
+import org.eclipse.equinox.internal.p2.installregistry.InstallRegistry;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
