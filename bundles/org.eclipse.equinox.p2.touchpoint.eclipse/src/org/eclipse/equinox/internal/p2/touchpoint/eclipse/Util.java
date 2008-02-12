@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
@@ -145,16 +144,19 @@ public class Util {
 		return new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
 	}
 
+	static File getLauncherPath(IProfile profile) {
+		return new File(getInstallFolder(profile), getLauncherName(profile));
+	}
+
 	/**
 	 * Returns the name of the Eclipse application launcher.
 	 */
-	static String getLauncherName(IProfile profile) {
-		String name = profile.getProperty(FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME);
+	private static String getLauncherName(IProfile profile) {
+		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
 		if (name != null)
 			return name;
-		//create a default name based on platform
-		//TODO Need a better solution for launcher name branding
 
+		//create a default name based on platform
 		String os = getOSFromProfile(profile);
 		if (os == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());

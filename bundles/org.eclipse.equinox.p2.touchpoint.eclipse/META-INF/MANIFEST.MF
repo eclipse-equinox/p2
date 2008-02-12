@@ -7,6 +7,7 @@ Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.core.runtime;common=split,
  org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.internal.p2.garbagecollector,
  org.eclipse.equinox.internal.provisional.frameworkadmin,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,

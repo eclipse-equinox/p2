@@ -14,8 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.eclipse.equinox.internal.p2.engine.Profile;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -41,6 +41,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String ACTION_UNINSTALL_BUNDLE = "uninstallBundle"; //$NON-NLS-1$
 	private static final String ACTION_UNINSTALL_FEATURE = "uninstallFeature"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_SOURCEBUNDLE = "removeSourceBundle"; //$NON-NLS-1$
+	private static final String ACTION_SET_LAUNCHERNAME = "setLauncherName"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	private static final String PARM_BUNDLE = "bundle"; //$NON-NLS-1$
@@ -65,6 +66,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String PARM_START_LEVEL = "startLevel"; //$NON-NLS-1$
 	private static final String PARM_STARTED = "started"; //$NON-NLS-1$
 	private static final String PARM_DEFAULT_VALUE = "default"; //$NON-NLS-1$
+	private static final String PARAM_LAUNCHERNAME = "name"; //$NON-NLS-1$
 
 	// TODO: phase id constants should be defined elsewhere.
 	private static final String INSTALL_PHASE_ID = "install"; //$NON-NLS-1$
@@ -72,6 +74,8 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	// private static final String CONFIGURE_PHASE_ID = "configure"; //$NON-NLS-1$
 	// private static final String UNCONFIGURE_PHASE_ID = "unconfigure"; //$NON-NLS-1$
+
+	static final String PROFILE_PROP_LAUNCHER_NAME = "eclipse.touchpoint.launcherName"; //$NON-NLS-1$
 
 	protected static IStatus createError(String message) {
 		return createError(message, null);
@@ -254,6 +258,39 @@ public class EclipseTouchpoint extends Touchpoint {
 
 				public IStatus undo(Map parameters) {
 					return installFeature(parameters);
+				}
+			};
+		}
+
+		if (actionId.equals(ACTION_SET_LAUNCHERNAME)) {
+			return new ProvisioningAction() {
+				private IStatus changeName(String newName, Manipulator manipulator, Profile profile) {
+					try {
+						//force the load to make sure we read the values in the old filename
+						manipulator.load();
+					} catch (IllegalStateException e) {
+						return createError(Messages.error_loading_manipulator);
+					} catch (FrameworkAdminRuntimeException e) {
+						return createError(Messages.error_loading_manipulator);
+					} catch (IOException e) {
+						return createError(Messages.error_loading_manipulator);
+					}
+					getMemento().put(PROFILE_PROP_LAUNCHER_NAME, profile.getProperty(PROFILE_PROP_LAUNCHER_NAME));
+					profile.setProperty(PROFILE_PROP_LAUNCHER_NAME, newName);
+					manipulator.getLauncherData().setLauncher(Util.getLauncherPath(profile));
+					return Status.OK_STATUS;
+				}
+
+				public IStatus execute(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
+					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					return changeName((String) parameters.get(PARAM_LAUNCHERNAME), manipulator, profile);
+				}
+
+				public IStatus undo(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
+					Profile profile = (Profile) parameters.get(PARM_PROFILE);
+					return changeName((String) getMemento().get(PROFILE_PROP_LAUNCHER_NAME), manipulator, profile);
 				}
 			};
 		}

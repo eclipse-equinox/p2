@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.File;
 import java.io.IOException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -41,7 +40,7 @@ public class LazyManipulator implements Manipulator {
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(Util.getConfigurationFolder(profile));
-		launcherData.setLauncher(new File(Util.getInstallFolder(profile), Util.getLauncherName(profile)));
+		launcherData.setLauncher(Util.getLauncherPath(profile));
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e2) {
@@ -115,7 +114,7 @@ public class LazyManipulator implements Manipulator {
 		manipulator.initialize();
 	}
 
-	public void load() throws IllegalStateException, IOException, FrameworkAdminRuntimeException {
+	public void load() throws IllegalStateException, FrameworkAdminRuntimeException {
 		loadDelegate();
 	}
 
