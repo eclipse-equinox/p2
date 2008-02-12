@@ -195,7 +195,8 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			start(LICENSES_ELEMENT);
 			attribute(COLLECTION_SIZE_ATTRIBUTE, 1);
 			start(LICENSE_ELEMENT);
-			attribute(URL_ATTRIBUTE, license.getURL().toExternalForm());
+			if (license.getURL() != null)
+				attribute(URL_ATTRIBUTE, license.getURL().toExternalForm());
 			cdata(license.getBody(), true);
 			end(LICENSE_ELEMENT);
 			end(LICENSES_ELEMENT);
@@ -205,7 +206,8 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 	private void writeCopyright(Copyright copyright) {
 		if (copyright != null) {
 			start(COPYRIGHT_ELEMENT);
-			attribute(URL_ATTRIBUTE, copyright.getURL().toExternalForm());
+			if (copyright.getURL() != null)
+				attribute(URL_ATTRIBUTE, copyright.getURL().toExternalForm());
 			cdata(copyright.getBody(), true);
 			end(COPYRIGHT_ELEMENT);
 		}
