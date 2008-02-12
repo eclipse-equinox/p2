@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.persistence;
 
@@ -40,6 +41,12 @@ public interface XMLConstants {
 	public static final String CLASSIFIER_ATTRIBUTE = "classifier"; //$NON-NLS-1$
 	public static final String DESCRIPTION_ATTRIBUTE = "description"; //$NON-NLS-1$
 	public static final String PROVIDER_ATTRIBUTE = "provider"; //$NON-NLS-1$
+	public static final String URL_ATTRIBUTE = "url"; //$NON-NLS-1$
+
+	// Constants for the license and copyright elements
+	public static final String LICENSES_ELEMENT = "licenses"; //$NON-NLS-1$
+	public static final String LICENSE_ELEMENT = "license"; //$NON-NLS-1$
+	public static final String COPYRIGHT_ELEMENT = "copyright"; //$NON-NLS-1$
 
 	// A constant for the name of an attribute of a collection or array element
 	// specifying the size or length

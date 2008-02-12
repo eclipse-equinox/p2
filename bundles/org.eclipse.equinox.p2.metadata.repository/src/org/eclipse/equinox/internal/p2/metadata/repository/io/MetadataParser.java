@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
@@ -21,6 +22,7 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
 import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 
 public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
@@ -74,6 +76,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private TouchpointTypeHandler touchpointTypeHandler = null;
 		private TouchpointDataHandler touchpointDataHandler = null;
 		private UpdateDescriptorHandler updateDescriptorHandler = null;
+		private LicensesHandler licensesHandler = null;
+		private CopyrightHandler copyrightHandler = null;
 
 		public InstallableUnitHandler(AbstractHandler parentHandler, Attributes attributes, List units) {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
@@ -167,6 +171,18 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			} else if (UPDATE_DESCRIPTOR_ELEMENT.equals(name)) {
 				if (updateDescriptorHandler == null)
 					updateDescriptorHandler = new UpdateDescriptorHandler(this, attributes);
+			} else if (LICENSES_ELEMENT.equals(name)) {
+				if (licensesHandler == null) {
+					licensesHandler = new LicensesHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
+			} else if (COPYRIGHT_ELEMENT.equals(name)) {
+				if (copyrightHandler == null) {
+					copyrightHandler = new CopyrightHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
 			} else {
 				invalidElement(name, attributes);
 			}
@@ -196,6 +212,16 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				if (updateFrom != null && updateRange != null)
 					currentUnit.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(updateFrom, updateRange, IUpdateDescriptor.NORMAL, null));
 				//End of backward compatibility
+
+				if (licensesHandler != null) {
+					License license = licensesHandler.getLicense();
+					currentUnit.setLicense(license);
+				}
+
+				if (copyrightHandler != null) {
+					Copyright copyright = copyrightHandler.getCopyright();
+					currentUnit.setCopyright(copyright);
+				}
 
 				ProvidedCapability[] providedCapabilities = (providedCapabilitiesHandler == null ? new ProvidedCapability[0] : providedCapabilitiesHandler.getProvidedCapabilities());
 				currentUnit.setCapabilities(providedCapabilities);
@@ -502,6 +528,83 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		public IUpdateDescriptor getUpdateDescriptor() {
 			return descriptor;
+		}
+	}
+
+	/**
+	 * 	Handler for a list of licenses.
+	 */
+	protected class LicensesHandler extends AbstractHandler {
+		// Note this handler is set up to handle multiple license elements, but for now
+		// the API for IInstallableUnit only reflects one.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
+		private List licenses;
+
+		public LicensesHandler(ContentHandler parentHandler, Attributes attributes) {
+			super(parentHandler, LICENSES_ELEMENT);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			licenses = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(2));
+		}
+
+		public License getLicense() {
+			if (licenses.size() == 0)
+				return null;
+			return (License) licenses.get(0);
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(LICENSE_ELEMENT)) {
+				new LicenseHandler(this, attributes, licenses);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+
+	}
+
+	/**
+	 * 	Handler for a license in an list of licenses.
+	 */
+	protected class LicenseHandler extends TextHandler {
+
+		String url = null;
+
+		private final List licenses;
+
+		public LicenseHandler(AbstractHandler parentHandler, Attributes attributes, List licenses) {
+			super(parentHandler, LICENSE_ELEMENT);
+			url = parseOptionalAttribute(attributes, URL_ATTRIBUTE);
+			this.licenses = licenses;
+		}
+
+		protected void finished() {
+			if (isValidXML()) {
+				licenses.add(new License(url, getText()));
+			}
+		}
+	}
+
+	/**
+	 * 	Handler for a copyright.
+	 */
+	protected class CopyrightHandler extends TextHandler {
+
+		String url = null;
+		private Copyright copyright;
+
+		public CopyrightHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, COPYRIGHT_ELEMENT);
+			url = parseOptionalAttribute(attributes, URL_ATTRIBUTE);
+		}
+
+		protected void finished() {
+			if (isValidXML()) {
+				copyright = new Copyright(url, getText());
+			}
+		}
+
+		public Copyright getCopyright() {
+			return copyright;
 		}
 	}
 }

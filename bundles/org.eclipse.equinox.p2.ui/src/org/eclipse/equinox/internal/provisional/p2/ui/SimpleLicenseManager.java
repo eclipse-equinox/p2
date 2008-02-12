@@ -7,21 +7,23 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.io.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.math.BigInteger;
+import java.util.*;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.License;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 /**
  * SimpleLicenseManager is a license manager that keeps track of 
- * IInstallableUnit licenses by using the IU's license id property.
+ * IInstallableUnit licenses by using the digests of the IU's licenses.
  * It can read and write its accepted list to a stream.
  * 
  * @since 3.4
@@ -29,27 +31,25 @@ import org.xml.sax.SAXException;
 public class SimpleLicenseManager extends LicenseManager {
 	java.util.Set accepted = new HashSet();
 
-	public boolean acceptLicense(IInstallableUnit iu) {
-		String id = getLicenseId(iu);
-		if (id != null) {
-			accepted.add(id);
-			return true;
-		}
-		return false;
+	public boolean accept(IInstallableUnit iu) {
+		License license = iu.getLicense();
+		if (license != null)
+			accepted.add(license.getDigest());
+		return true;
 	}
 
-	public boolean rejectLicense(IInstallableUnit iu) {
-		String id = getLicenseId(iu);
-		if (id != null)
-			return accepted.remove(id);
-		return false;
+	public boolean reject(IInstallableUnit iu) {
+		License license = iu.getLicense();
+		if (license != null)
+			accepted.remove(license.getDigest());
+		return true;
 	}
 
 	public boolean isAccepted(IInstallableUnit iu) {
-		String id = getLicenseId(iu);
-		if (id != null)
-			return accepted.contains(id);
-		return false;
+		License license = iu.getLicense();
+		if (license == null)
+			return true;
+		return accepted.contains(license.getDigest());
 	}
 
 	public boolean hasAcceptedLicenses() {
@@ -79,9 +79,9 @@ public class SimpleLicenseManager extends LicenseManager {
 			writer = new PrintWriter(osw);
 			writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //$NON-NLS-1$
 			writer.println("<licenses>"); //$NON-NLS-1$
-			String[] licenses = (String[]) accepted.toArray(new String[accepted.size()]);
-			for (int i = 0; i < accepted.size(); i++) {
-				writer.print("    " + "<license id=\"" + licenses[i] + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			for (Iterator i = accepted.iterator(); i.hasNext();) {
+				BigInteger digest = (BigInteger) i.next();
+				writer.print("    " + "<license digest=\"" + digest.toString(16) + "\"/>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ 
 			}
 		} finally {
 			writer.println("</licenses>"); //$NON-NLS-1$
@@ -90,10 +90,6 @@ public class SimpleLicenseManager extends LicenseManager {
 			if (osw != null)
 				osw.close();
 		}
-	}
-
-	private String getLicenseId(IInstallableUnit iu) {
-		return iu.getProperty(IInstallableUnit.PROP_LICENSE_ID);
 	}
 
 	private void processRoot(Node root, Set licenses) {
@@ -109,9 +105,11 @@ public class SimpleLicenseManager extends LicenseManager {
 			if (child.getNodeType() == Node.ELEMENT_NODE) {
 				if (child.getNodeName().equals("license")) { //$NON-NLS-1$
 					NamedNodeMap atts = child.getAttributes();
-					Node att = atts.getNamedItem("id"); //$NON-NLS-1$
-					if (att != null)
-						licenses.add(att.getNodeValue());
+					Node digestAtt = atts.getNamedItem("digest"); //$NON-NLS-1$
+					if (digestAtt != null) {
+						BigInteger digest = new BigInteger(digestAtt.getNodeValue(), 16);
+						licenses.add(digest);
+					}
 				}
 			}
 		}

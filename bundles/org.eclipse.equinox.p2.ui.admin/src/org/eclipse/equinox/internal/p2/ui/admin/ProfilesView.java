@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
@@ -111,7 +112,7 @@ public class ProfilesView extends ProvView {
 
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
-		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer, null);
+		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer, ProvAdminUIActivator.getDefault().getLicenseManager());
 		adapter.setFeedbackEnabled(false);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);

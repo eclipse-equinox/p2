@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
@@ -30,7 +31,7 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
 public class MetadataGeneratorHelper {
-	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_COPYRIGHT, IInstallableUnit.PROP_COPYRIGHT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnit.PROP_UPDATE_SITE};
+	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnit.PROP_UPDATE_SITE};
 
 	private static final String CAPABILITY_TYPE_OSGI_PACKAGES = "osgi.packages"; //$NON-NLS-1$
 	private static final String CAPABILITY_TYPE_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
@@ -372,6 +373,10 @@ public class MetadataGeneratorHelper {
 		iu.setId(id);
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
+		if (feature.getLicense() != null)
+			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+		if (feature.getCopyright() != null)
+			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
 
 		// TODO: The required capabilities are specified
 		//		 by the feature group; is this right?
@@ -413,7 +418,10 @@ public class MetadataGeneratorHelper {
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
-
+		if (feature.getLicense() != null)
+			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+		if (feature.getCopyright() != null)
+			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();

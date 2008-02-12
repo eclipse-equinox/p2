@@ -5,8 +5,9 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors:
- *     IBM Corporation - initial API and implementation
+ * Contributors: 
+ * 		IBM Corporation - initial API and implementation
+ * 		Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
@@ -155,6 +156,14 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 
 	public IUpdateDescriptor getUpdateDescriptor() {
 		return original.getUpdateDescriptor();
+	}
+
+	public License getLicense() {
+		return original.getLicense();
+	}
+
+	public Copyright getCopyright() {
+		return original.getCopyright();
 	}
 
 }

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
@@ -63,6 +64,8 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeArtifactKeys(iu.getArtifacts());
 		writeTouchpointType(iu.getTouchpointType());
 		writeTouchpointData(iu.getTouchpointData());
+		writeLicenses(iu.getLicense());
+		writeCopyright(iu.getCopyright());
 
 		end(INSTALLABLE_UNIT_ELEMENT);
 	}
@@ -183,4 +186,29 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			end(element);
 		}
 	}
+
+	private void writeLicenses(License license) {
+		if (license != null) {
+			// In the future there may be more than one license, so we write this 
+			// as a collection of one.
+			// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=216911
+			start(LICENSES_ELEMENT);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, 1);
+			start(LICENSE_ELEMENT);
+			attribute(URL_ATTRIBUTE, license.getURL().toExternalForm());
+			cdata(license.getBody(), true);
+			end(LICENSE_ELEMENT);
+			end(LICENSES_ELEMENT);
+		}
+	}
+
+	private void writeCopyright(Copyright copyright) {
+		if (copyright != null) {
+			start(COPYRIGHT_ELEMENT);
+			attribute(URL_ATTRIBUTE, copyright.getURL().toExternalForm());
+			cdata(copyright.getBody(), true);
+			end(COPYRIGHT_ELEMENT);
+		}
+	}
+
 }

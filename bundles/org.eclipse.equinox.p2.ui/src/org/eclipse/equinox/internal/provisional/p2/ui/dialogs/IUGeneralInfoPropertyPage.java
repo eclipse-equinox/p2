@@ -15,7 +15,6 @@ import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -23,10 +22,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.browser.IWebBrowser;
-import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
 /**
  * PropertyPage that shows an IU's properties
@@ -40,7 +35,6 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
-		layout.verticalSpacing = 15;
 		composite.setLayout(layout);
 
 		createGeneralSection(composite, iu);
@@ -137,15 +131,5 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 			}
 		}
 		return result.toString();
-	}
-
-	void showURL(URL url) {
-		IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
-		try {
-			IWebBrowser browser = support.getExternalBrowser();
-			browser.openURL(url);
-		} catch (PartInitException e) {
-			ProvUI.handleException(e, ProvUIMessages.IUGeneralInfoPropertyPage_CouldNotOpenBrowser);
-		}
 	}
 }

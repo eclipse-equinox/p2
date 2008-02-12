@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.eclipse.pde.ui.EquinoxLauncher">
 <booleanAttribute key="append.args" value="true"/>
 <booleanAttribute key="automaticAdd" value="false"/>
@@ -11,8 +11,8 @@
 <intAttribute key="default_start_level" value="4"/>
 <booleanAttribute key="includeOptional" value="false"/>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
-<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.6.0"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-console &#13;&#10;-consolelog&#13;&#10;-application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator&#13;&#10;-metadataRepository file:C:/prov/p2/servers/&#13;&#10;-artifactRepository file:C:/prov/p2/servers/&#13;&#10;-source d:\oldeclipses\3.3\eclipse&#13;&#10;-root sdk&#13;&#10;-rootVersion 3.3.0&#13;&#10;-flavor tooling&#13;&#10;-publishArtifacts&#13;&#10;-append"/>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/j2sdk1.4.2_08"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-console &#13;&#10;-consolelog&#13;&#10;-application org.eclipse.equinox.p2.metadata.generator.EclipseGenerator&#13;&#10;-metadataRepository file:C:/equinox.p2/servers/&#13;&#10;-artifactRepository file:C:/equinox.p2/servers/&#13;&#10;-source c:\eclipse\latest\eclipse&#13;&#10;-root sdk&#13;&#10;-rootVersion 3.4.0.I20080212withcopyrightlicensechanges&#13;&#10;-flavor tooling&#13;&#10;-publishArtifacts&#13;&#10;-append"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <booleanAttribute key="show_selected_only" value="false"/>

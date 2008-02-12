@@ -4,7 +4,9 @@
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ * 		IBM Corporation - initial API and implementation
+ * 		Genuitec, LLC - added license support
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -53,13 +55,6 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_CONTACT = "equinox.p2.contact"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.copyright"</code>) representing a 
-	 * String property containing copyright information about the installable unit.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_COPYRIGHT = "equinox.p2.copyright"; //$NON-NLS-1$
-	/**
 	 * A property key (value <code>"equinox.p2.description"</code>) representing a 
 	 * String property containing a human-readable description of the installable unit.
 	 * 
@@ -73,23 +68,6 @@ public interface IInstallableUnit extends Comparable {
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_DOC_URL = "equinox.p2.doc.url"; //$NON-NLS-1$
-	/**
-	 * A property key (value <code>"equinox.p2.license"</code>) representing a 
-	 * String property containing license information about the installable unit.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_LICENSE = "equinox.p2.license"; //$NON-NLS-1$
-	/**
-	 * A property key (value <code>"equinox.p2.license.id"</code>) representing a 
-	 * String property containing a unique id for the specified license.  The id
-	 * is used when remembering which licenses have already been accepted.  If the license
-	 * for an installable unit changes, its id should also be changed so that the
-	 * user must accept it again.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_LICENSE_ID = "equinox.p2.license.id"; //$NON-NLS-1$
 
 	/**
 	 * A property key (value <code>"equinox.p2.name"</code>) representing a 
@@ -192,4 +170,16 @@ public interface IInstallableUnit extends Comparable {
 	 * @return The lineage information about the installable unit
 	 */
 	public IUpdateDescriptor getUpdateDescriptor();
+
+	/**
+	 * Returns the license that applies to this installable unit.
+	 * @return the license that applies to this installable unit or <code>null</code>
+	 */
+	public License getLicense();
+
+	/**
+	 * Returns the copyright that applies to this installable unit.
+	 * @return the copyright that applies to this installable unit or <code>null</code>
+	 */
+	public Copyright getCopyright();
 }

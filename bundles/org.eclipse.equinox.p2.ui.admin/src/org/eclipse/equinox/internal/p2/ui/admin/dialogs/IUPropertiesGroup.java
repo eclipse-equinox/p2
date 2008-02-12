@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin.dialogs;
 
@@ -61,8 +62,8 @@ public class IUPropertiesGroup extends IUGroup {
 		if (iuElement == null) {
 			return;
 		}
-		String[] propNames = new String[] {IInstallableUnit.PROP_NAME, IInstallableUnit.PROP_DESCRIPTION, IInstallableUnit.PROP_PROVIDER, IInstallableUnit.PROP_COPYRIGHT, IInstallableUnit.PROP_LICENSE};
-		String[] userPropNames = new String[] {ProvAdminUIMessages.IUPropertiesGroup_NamePropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_DescriptionPropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_ProviderPropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_CopyrightProviderLabel, ProvAdminUIMessages.IUPropertiesGroup_LicenseProviderLabel};
+		String[] propNames = new String[] {IInstallableUnit.PROP_NAME, IInstallableUnit.PROP_DESCRIPTION, IInstallableUnit.PROP_PROVIDER};
+		String[] userPropNames = new String[] {ProvAdminUIMessages.IUPropertiesGroup_NamePropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_DescriptionPropertyLabel, ProvAdminUIMessages.IUPropertiesGroup_ProviderPropertyLabel};
 		for (int i = 0; i < propNames.length; i++) {
 			TableItem item = new TableItem(propertiesTable, SWT.NULL);
 			String value = getIU().getProperty(propNames[i]);

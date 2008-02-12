@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
@@ -52,6 +53,7 @@ public abstract class UpdateOrInstallWizard extends Wizard {
 	}
 
 	public boolean performFinish() {
+		licensePage.performFinish();
 		return mainPage.performFinish();
 	}
 

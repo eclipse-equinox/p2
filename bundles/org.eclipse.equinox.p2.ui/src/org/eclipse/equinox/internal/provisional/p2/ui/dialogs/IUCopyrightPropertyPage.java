@@ -12,28 +12,59 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
+import org.eclipse.equinox.internal.provisional.p2.metadata.Copyright;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 /**
- * PropertyPage that shows an IU's properties
+ * PropertyPage that shows an IU's copyright
  * 
  * @since 3.4
  */
 public class IUCopyrightPropertyPage extends IUPropertyPage {
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
-		String copyrightText = iu.getProperty(IInstallableUnit.PROP_COPYRIGHT);
-		if (copyrightText != null && copyrightText.length() > 0) {
-			Text text = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.WRAP);
-			GridData gd = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
+		final Copyright copyright = iu.getCopyright();
+		if (copyright != null && copyright.getBody().length() > 0) {
+			Composite composite = new Composite(parent, SWT.NONE);
+			GridLayout layout = new GridLayout();
+			layout.marginWidth = 0;
+			layout.marginHeight = 0;
+			composite.setLayout(layout);
+
+			Text text = new Text(composite, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.WRAP);
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true);
 			gd.widthHint = computeWidthLimit(text, 80);
+			gd.grabExcessVerticalSpace = true;
 			text.setLayoutData(gd);
-			text.setText(copyrightText);
+			text.setText(copyright.getBody());
 			text.setEditable(false);
-			return text;
+
+			// If an URL was specified, provide a link to it
+			String filename = (copyright.getURL() != null) ? copyright.getURL().getFile() : null;
+			if (filename != null & (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
+				Label label = new Label(composite, SWT.NONE);
+				label.setText(ProvUIMessages.IUCopyrightPropertyPage_ViewLinkLabel);
+				// Create a link to the copyright URL
+				Link link = new Link(composite, SWT.LEFT | SWT.WRAP);
+				link.setText(NLS.bind("<a>{0}</a>", copyright.getURL().toExternalForm())); //$NON-NLS-1$
+				gd = new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_BEGINNING);
+				gd.widthHint = computeWidthLimit(link, 80);
+				link.setLayoutData(gd);
+				link.addSelectionListener(new SelectionAdapter() {
+					public void widgetSelected(SelectionEvent e) {
+						showURL(copyright.getURL());
+					}
+				});
+			}
+
+			return composite;
 		}
 		Label label = new Label(parent, SWT.NULL);
 		label.setText(ProvUIMessages.IUCopyrightPropertyPage_NoCopyright);

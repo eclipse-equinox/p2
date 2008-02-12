@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
@@ -42,6 +43,8 @@ public class InstallableUnit implements IInstallableUnit {
 	private Version version;
 
 	private IUpdateDescriptor updateInfo;
+	private License license;
+	private Copyright copyright;
 
 	public InstallableUnit() {
 		super();
@@ -258,5 +261,21 @@ public class InstallableUnit implements IInstallableUnit {
 
 	public void setUpdateDescriptor(IUpdateDescriptor updateInfo) {
 		this.updateInfo = updateInfo;
+	}
+
+	public void setLicense(License license) {
+		this.license = license;
+	}
+
+	public License getLicense() {
+		return license;
+	}
+
+	public void setCopyright(Copyright copyright) {
+		this.copyright = copyright;
+	}
+
+	public Copyright getCopyright() {
+		return copyright;
 	}
 }

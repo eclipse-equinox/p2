@@ -39,6 +39,7 @@ public class ProvUIMessages extends NLS {
 	public static String ChooseProfileDialog_DefaultDialogTitle;
 	public static String InstallDialog_InstallSelectionMessage;
 	public static String IUCopyrightPropertyPage_NoCopyright;
+	public static String IUCopyrightPropertyPage_ViewLinkLabel;
 	public static String IUDetailsLabelProvider_KB;
 	public static String IUDetailsLabelProvider_Bytes;
 	public static String IUDetailsLabelProvider_ComputingSize;
@@ -52,6 +53,7 @@ public class ProvUIMessages extends NLS {
 	public static String IUGeneralInfoPropertyPage_ProviderLabel;
 	public static String IUGeneralInfoPropertyPage_VersionLabel;
 	public static String IULicensePropertyPage_NoLicense;
+	public static String IULicensePropertyPage_ViewLicenseLabel;
 	public static String ProfileElement_InvalidProfile;
 	public static String ProfileModificationAction_NullPlan;
 	public static String ProfileModificationWizardPage_DetailsLabel;

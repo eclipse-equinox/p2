@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
@@ -50,6 +51,14 @@ public class MetadataFactory {
 
 		public void setId(String id) {
 			unit().setId(id);
+		}
+
+		public void setLicense(License license) {
+			unit().setLicense(license);
+		}
+
+		public void setCopyright(Copyright copyright) {
+			unit().setCopyright(copyright);
 		}
 
 		public void setProperty(String key, String value) {
@@ -231,4 +240,13 @@ public class MetadataFactory {
 	public static IUpdateDescriptor createUpdateDescriptor(String id, VersionRange range, int severity, String description) {
 		return new UpdateDescriptor(id, range, severity, description);
 	}
+
+	public static License createLicense(String url, String licenseBody) {
+		return new License(url, licenseBody);
+	}
+
+	public static Copyright createCopyright(String url, String copyrightBody) {
+		return new Copyright(url, copyrightBody);
+	}
+
 }

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
@@ -80,7 +81,7 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	protected void makeActions() {
 		super.makeActions();
-		installAction = new InstallAction(viewer, null, getProfileChooser(), null, getShell());
+		installAction = new InstallAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getLicenseManager(), getShell());
 		revertAction = new RevertAction(viewer, null, getProfileChooser(), getShell());
 	}
 

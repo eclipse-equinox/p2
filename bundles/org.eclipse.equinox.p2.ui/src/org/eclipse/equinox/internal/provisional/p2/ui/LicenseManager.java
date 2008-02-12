@@ -19,9 +19,9 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
  */
 public abstract class LicenseManager {
 
-	public abstract boolean acceptLicense(IInstallableUnit iu);
+	public abstract boolean accept(IInstallableUnit iu);
 
-	public abstract boolean rejectLicense(IInstallableUnit iu);
+	public abstract boolean reject(IInstallableUnit iu);
 
 	public abstract boolean isAccepted(IInstallableUnit iu);
 

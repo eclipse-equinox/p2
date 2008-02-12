@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.SimpleLicenseManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -27,6 +29,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	public static final String PERSPECTIVE_ID = "org.eclipse.equinox.internal.provisional.p2.ui.admin.ProvisioningPerspective"; //$NON-NLS-1$
 
 	private IQueryProvider queryProvider;
+	private LicenseManager licenseManager;
 
 	public static BundleContext getContext() {
 		return context;
@@ -77,5 +80,11 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		if (queryProvider == null)
 			queryProvider = new ProvAdminQueryProvider();
 		return queryProvider;
+	}
+
+	public LicenseManager getLicenseManager() {
+		if (licenseManager == null)
+			licenseManager = new SimpleLicenseManager();
+		return licenseManager;
 	}
 }

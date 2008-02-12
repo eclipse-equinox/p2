@@ -16,9 +16,10 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.License;
 import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
@@ -36,7 +37,7 @@ import org.eclipse.swt.widgets.*;
 public class AcceptLicensesWizardPage extends WizardPage {
 
 	TableViewer iuViewer;
-	Text license;
+	Text licenseTextBox;
 	Button acceptButton;
 	Button declineButton;
 	private IInstallableUnit[] ius;
@@ -149,15 +150,15 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.AcceptLicensesWizardPage_LicenseTextLabel);
-		license = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.WRAP | SWT.READ_ONLY);
-		license.setBackground(license.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+		licenseTextBox = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.WRAP | SWT.READ_ONLY);
+		licenseTextBox.setBackground(licenseTextBox.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
 		gd = new GridData(GridData.FILL_BOTH);
-		license.setLayoutData(gd);
+		licenseTextBox.setLayoutData(gd);
 
 		createLicenseAcceptSection(composite, !singleLicense);
 
 		if (singleLicense) {
-			license.setText(getLicense(ius[0]));
+			licenseTextBox.setText(getLicenseBody(ius[0]));
 			setControl(composite);
 		}
 	}
@@ -166,7 +167,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		if (!selection.isEmpty()) {
 			Object selected = selection.getFirstElement();
 			if (selected instanceof IInstallableUnit)
-				license.setText(getLicense((IInstallableUnit) selected));
+				licenseTextBox.setText(getLicenseBody((IInstallableUnit) selected));
 		}
 	}
 
@@ -202,12 +203,12 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		}
 	}
 
-	private String getLicense(IInstallableUnit iu) {
-		String licenseText = iu.getProperty(IInstallableUnit.PROP_LICENSE);
-		if (licenseText != null)
-			return licenseText;
+	private String getLicenseBody(IInstallableUnit iu) {
+		License license = iu.getLicense();
+		if (license != null && license.getBody() != null)
+			return license.getBody();
 		// shouldn't happen because we already reduced the list to those
-		// that have licenses
+		// that have licenses and bodies are required.
 		return ""; //$NON-NLS-1$
 	}
 
@@ -215,9 +216,9 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		List unaccepted = new ArrayList();
 		for (int i = 0; i < allIUs.length; i++) {
 			IInstallableUnit iu = allIUs[i];
-			String licenseText = iu.getProperty(IInstallableUnit.PROP_LICENSE);
+			License license = iu.getLicense();
 			// It has a license, is it already accepted?
-			if (licenseText != null && licenseText.length() > 0) {
+			if (license != null) {
 				if (licenseManager == null || !licenseManager.isAccepted(iu))
 					unaccepted.add(iu);
 			}
@@ -228,7 +229,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	private void rememberAcceptedLicenses() {
 		for (int i = 0; i < ius.length; i++) {
 			if (licenseManager != null)
-				licenseManager.acceptLicense(ius[i]);
+				licenseManager.accept(ius[i]);
 		}
 	}
 

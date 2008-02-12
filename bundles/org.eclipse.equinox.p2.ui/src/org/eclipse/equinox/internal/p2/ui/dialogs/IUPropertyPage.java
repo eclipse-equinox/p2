@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -18,6 +19,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.dialogs.PropertyPage;
 
 /**
@@ -50,4 +55,14 @@ public abstract class IUPropertyPage extends PropertyPage {
 	}
 
 	protected abstract Control createIUPage(Composite parent, IInstallableUnit iu);
+
+	protected void showURL(URL url) {
+		IWorkbenchBrowserSupport support = PlatformUI.getWorkbench().getBrowserSupport();
+		try {
+			IWebBrowser browser = support.getExternalBrowser();
+			browser.openURL(url);
+		} catch (PartInitException e) {
+			ProvUI.handleException(e, ProvUIMessages.IUGeneralInfoPropertyPage_CouldNotOpenBrowser);
+		}
+	}
 }
