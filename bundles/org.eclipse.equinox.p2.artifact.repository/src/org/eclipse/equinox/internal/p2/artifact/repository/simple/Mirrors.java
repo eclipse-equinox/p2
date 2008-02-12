@@ -82,7 +82,8 @@ public class Mirrors {
 	public Mirrors(IArtifactRepository repository) {
 		this.repository = repository;
 		try {
-			this.baseURI = repository.getLocation().toURI();
+			URL repositoryURL = repository.getLocation();
+			this.baseURI = new URI(repositoryURL.toExternalForm());
 		} catch (URISyntaxException e) {
 			log("Error initializing mirrors for: " + repository.getLocation(), e); //$NON-NLS-1$
 		}
