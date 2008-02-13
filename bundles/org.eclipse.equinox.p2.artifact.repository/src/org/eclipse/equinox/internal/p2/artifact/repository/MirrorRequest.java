@@ -21,6 +21,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
+/**
+ * A request to mirror (copy) an artifact into a given destination artifact repository.
+ */
 public class MirrorRequest extends ArtifactRequest {
 	private static final ProcessingStepDescriptor[] EMPTY_STEPS = new ProcessingStepDescriptor[0];
 
