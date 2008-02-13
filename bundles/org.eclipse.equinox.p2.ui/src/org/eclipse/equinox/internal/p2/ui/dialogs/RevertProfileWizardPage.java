@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Comparator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -90,12 +89,19 @@ public class RevertProfileWizardPage extends WizardPage {
 		configsViewer.setContentProvider(new RepositoryContentProvider(queryProvider));
 		configsViewer.setInput(getInput());
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
-		configsViewer.setComparator(new ViewerComparator(new Comparator() {
-			// This comparator sorts in reverse order so that we see the newest configs first
-			public int compare(Object o1, Object o2) {
-				return ((String) o2).compareTo((String) o1);
+		configsViewer.setComparator(new ViewerComparator() {
+			// We override the ViewerComparator so that we don't get the labels of the elements
+			// for comparison, but rather get the version numbers and compare them.
+			// Reverse sorting is used so that newest is first.
+			public int compare(Viewer viewer, Object o1, Object o2) {
+				IInstallableUnit iu1 = (IInstallableUnit) ProvUI.getAdapter(o1, IInstallableUnit.class);
+				IInstallableUnit iu2 = (IInstallableUnit) ProvUI.getAdapter(o2, IInstallableUnit.class);
+				if (iu1 == null || iu2 == null)
+					// this is naive (doesn't consult the label provider), but shouldn't happen
+					return o2.toString().compareTo(o1.toString());
+				return iu2.getVersion().compareTo(iu1.getVersion());
 			}
-		}));
+		});
 		configsViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				handleSelectionChanged((IStructuredSelection) event.getSelection());
