@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRequest;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRequest;
-import org.eclipse.osgi.util.NLS;
 
 public class DownloadJob extends Job {
 	static final Object FAMILY = new Object();
@@ -47,7 +46,7 @@ public class DownloadJob extends Job {
 	 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	protected IStatus run(IProgressMonitor jobMonitor) {
-		jobMonitor.beginTask("Downloading artifacts", 1);
+		jobMonitor.beginTask("Downloading software", IProgressMonitor.UNKNOWN);
 		do {
 			// get the request we are going to process
 			IArtifactRequest request;
@@ -58,22 +57,13 @@ public class DownloadJob extends Job {
 			}
 			if (masterMonitor.isCanceled())
 				return Status.CANCEL_STATUS;
-
-			// prepare a progress monitor that reports to both the master monitor and for the job
-			IProgressMonitor monitor = new NullProgressMonitor();
-			// progress monitor updating from getArtifact() doesn't seem to be working
-			masterMonitor.subTask(NLS.bind("Downloading {0}.", request.getArtifactKey().getId()));
-
 			// process the actual request
-			IStatus status = repository.getArtifact((ArtifactRequest) request, monitor);
+			IStatus status = repository.getArtifact((ArtifactRequest) request, new SubProgressMonitor(masterMonitor, 1));
 			if (!status.isOK()) {
 				synchronized (overallStatus) {
 					overallStatus.add(status);
 				}
 			}
-
-			// update progress
-			masterMonitor.worked(1);
 		} while (true);
 
 		jobMonitor.done();
