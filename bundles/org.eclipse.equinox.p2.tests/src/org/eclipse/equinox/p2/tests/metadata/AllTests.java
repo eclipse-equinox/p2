@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(FragmentMethodTest.class);
 		suite.addTestSuite(FragmentTest.class);
 		suite.addTestSuite(IUPersistenceTest.class);
+		suite.addTestSuite(LicenseTest.class);
 		suite.addTestSuite(MultipleIUAndFragmentTest.class);
 		return suite;
 	}

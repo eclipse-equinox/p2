@@ -23,11 +23,6 @@ import java.security.NoSuchAlgorithmException;
  * which links to full text.  Licenses can be easily compared using their digests.
  */
 public class License {
-	private static final String SPACES_REPLACE = "$1 $2"; //$NON-NLS-1$
-	private static final String SPACES_REGEX = "(\\S)[\\s]+(\\S)"; //$NON-NLS-1$
-	private static final String LINE_FEED = "\n"; //$NON-NLS-1$
-	private static final String ONE_SPACE = " "; //$NON-NLS-1$
-	private static final String CARRAGE_RETURN_LINE_FEED = "\r\n"; //$NON-NLS-1$
 	/**
 	 * The <code>body</code> contains the descriptive text for the license. This may
 	 * be a summary for a full license specified in a URL.
@@ -85,14 +80,9 @@ public class License {
 	 * version of the license where all whitespace has been reduced to one space.
 	 * @return the message digest as a <code>BigInteger</code>, never <code>null</code>
 	 */
-	public BigInteger getDigest() {
-		if (digest == null) {
-			synchronized (this) {
-				if (digest == null) {
-					digest = calculateLicenseDigest();
-				}
-			}
-		}
+	public synchronized BigInteger getDigest() {
+		if (digest == null)
+			digest = calculateLicenseDigest();
 		return digest;
 	}
 
@@ -134,11 +124,25 @@ public class License {
 		}
 	}
 
+	/**
+	 * Replace all sequences of whitespace with a single whitespace character.
+	 */
 	private String normalize(String license) {
 		String text = license.trim();
-		text = text.replaceAll(CARRAGE_RETURN_LINE_FEED, ONE_SPACE);
-		text = text.replaceAll(LINE_FEED, ONE_SPACE);
-		text = text.replaceAll(SPACES_REGEX, SPACES_REPLACE);
-		return text;
+		StringBuffer result = new StringBuffer();
+		int length = text.length();
+		for (int i = 0; i < length; i++) {
+			char c = text.charAt(i);
+			boolean foundWhitespace = false;
+			while (Character.isWhitespace(c) && i < length) {
+				foundWhitespace = true;
+				c = text.charAt(++i);
+			}
+			if (foundWhitespace)
+				result.append(' ');
+			if (i < length)
+				result.append(c);
+		}
+		return result.toString();
 	}
 }
