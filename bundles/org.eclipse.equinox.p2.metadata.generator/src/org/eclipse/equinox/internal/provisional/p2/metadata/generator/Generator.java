@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
@@ -464,10 +465,23 @@ public class Generator {
 		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		if (!"win32".equals(os)) { //$NON-NLS-1$
+		if (Constants.OS_MACOSX.equals(os)) {
+			//navigate down to Contents/MacOS
+			File[] launcherFiles = root.listFiles()[0].listFiles()[0].listFiles();
+			for (int i = 0; i < launcherFiles.length; i++) {
+				if (launcherFiles[i].isDirectory()) {
+					launcherFiles = launcherFiles[i].listFiles();
+				}
+				configurationData += " chmod(targetDir:${installFolder}/" + root.getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				MetadataGeneratorHelper.generateLauncherSetter(new Path(launcherFiles[i].getName()).lastSegment().toString(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+			}
+		}
+		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
 			File[] launcherFiles = root.listFiles();
 			for (int i = 0; i < launcherFiles.length; i++) {
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+				if (new Path(launcherFiles[i].getName()).getFileExtension() == null)
+					MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 			}
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$

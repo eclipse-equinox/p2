@@ -59,6 +59,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		}
 		if (theOS.equalsIgnoreCase("win32")) //$NON-NLS-1$
 			return "eclipse.exe"; //$NON-NLS-1$
+		if (theOS.equalsIgnoreCase("macosx")) //$NON-NLS-1$
+			return "Eclispse.app"; //$NON-NLS-1$
 		//FIXME Is this a reasonable default for all non-Windows platforms?
 		return "eclipse"; //$NON-NLS-1$
 	}

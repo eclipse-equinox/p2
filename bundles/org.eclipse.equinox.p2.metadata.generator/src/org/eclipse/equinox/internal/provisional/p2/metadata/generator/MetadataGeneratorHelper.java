@@ -531,8 +531,15 @@ public class MetadataGeneratorHelper {
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
-		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
-			configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
+			if (info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
+				configurationData += " chmod(targetDir:${installFolder}/Eclipse.app/Contents/MacOS, targetFile:eclipse, permissions:755);"; //$NON-NLS-1$
+				generateLauncherSetter("Eclipse", launcherId, LAUNCHER_VERSION, "macosx", null, null, resultantIUs);
+			} else
+				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			generateLauncherSetter("eclipse", launcherId, LAUNCHER_VERSION, "win32", null, null, resultantIUs);
+		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
@@ -541,6 +548,25 @@ public class MetadataGeneratorHelper {
 
 		//Create the artifact descriptor
 		return createArtifactDescriptor(key, launcher, false, true);
+	}
+
+	public static void generateLauncherSetter(String launcherName, String iuId, Version version, String os, String ws, String arch, Set result) {
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		iud.setId(iuId + '.' + launcherName);
+		iud.setVersion(version);
+		iud.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
+
+		if (os != null || ws != null || arch != null) {
+			String filterOs = os != null ? "(os=" + os + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterWs = ws != null ? "(ws=" + ws + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterArch = arch != null ? "(arch=" + arch + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			iud.setFilter("(& " + filterOs + filterWs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		Map touchpointData = new HashMap();
+		touchpointData.put("configure", "setLauncherName(name:" + launcherName + ")");
+		touchpointData.put("unconfigure", "setLauncherName()");
+		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		result.add(MetadataFactory.createInstallableUnit(iud));
 	}
 
 	public static ProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {

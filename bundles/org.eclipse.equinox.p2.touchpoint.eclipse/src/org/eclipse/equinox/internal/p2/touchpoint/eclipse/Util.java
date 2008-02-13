@@ -153,20 +153,20 @@ public class Util {
 	 */
 	private static String getLauncherName(IProfile profile) {
 		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
-		if (name != null)
-			return name;
 
-		//create a default name based on platform
 		String os = getOSFromProfile(profile);
 		if (os == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
 				os = info.getOS();
 		}
+		if (name == null)
+			name = "eclipse"; //$NON-NLS-1$
 
-		if (os != null && os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32))
-			return "eclipse.exe"; //$NON-NLS-1$
-		return "eclipse"; //$NON-NLS-1$
+		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
+			return name + ".app/Contents/MacOS/" + name.toLowerCase();
+		}
+		return name;
 	}
 
 	private static String getOSFromProfile(IProfile profile) {
