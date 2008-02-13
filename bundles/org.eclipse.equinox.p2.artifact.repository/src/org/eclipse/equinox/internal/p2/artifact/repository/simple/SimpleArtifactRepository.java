@@ -29,6 +29,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Abstr
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
+	private static final boolean MIRRORS_ENABLED = "true".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
 	public class ArtifactOutputStream extends OutputStream implements IStateful {
 		private boolean closed;
@@ -169,6 +170,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 
 	private boolean signatureVerification = false;
+	private Mirrors mirrors;
 
 	static void delete(File toDelete) {
 		if (toDelete.isFile()) {
@@ -370,8 +372,29 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return Status.OK_STATUS;
 		}
 
-		String toDownload = getLocation(descriptor);
-		return getTransport().download(toDownload, destination, monitor);
+		//download from the best available mirror
+		String baseLocation = getLocation(descriptor);
+		String mirrorLocation = getMirror(baseLocation);
+		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
+		if (mirrors != null)
+			mirrors.reportResult(mirrorLocation, result);
+		if (result.isOK() || baseLocation.equals(mirrorLocation))
+			return result;
+		//maybe we hit a bad mirror - try the base location
+		return getTransport().download(baseLocation, destination, monitor);
+	}
+
+	/**
+	 * Returns an equivalent mirror location for the given artifact location.
+	 * @param baseLocation The location of the artifact in this repository
+	 * @return the Location of the artifact in this repository, or an equivalent mirror
+	 */
+	private synchronized String getMirror(String baseLocation) {
+		if (!MIRRORS_ENABLED || isLocal())
+			return baseLocation;
+		if (mirrors == null)
+			mirrors = new Mirrors(this);
+		return mirrors.getMirrorLocation(baseLocation);
 	}
 
 	public Object getAdapter(Class adapter) {
@@ -487,10 +510,19 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return artifactDescriptors;
 	}
 
+	/**
+	 * Typically non-canonical forms of the artifact are stored in the blob store.
+	 * However, we support having the pack200 files alongside the canonical artifact
+	 * for compatibility with the format used in optimized update sites.  We call
+	 * this arrangement "flat but packed".
+	 */
 	private boolean flatButPackedEnabled(IArtifactDescriptor descriptor) {
 		return Boolean.TRUE.toString().equals(getProperties().get(PUBLISH_PACK_FILES_AS_SIBLINGS)) && PACKED_FORMAT.equals(descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
+	/**
+	 * @see #flatButPackedEnabled(IArtifactDescriptor)
+	 */
 	private String getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
 		return mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));

@@ -27,6 +27,7 @@ public class Tracing {
 	public static boolean DEBUG_GENERATOR_PARSING = false;
 	public static boolean DEBUG_INSTALL_REGISTRY = false;
 	public static boolean DEBUG_METADATA_PARSING = false;
+	public static boolean DEBUG_MIRRORS = false;
 
 	static {
 		DebugOptions options = (DebugOptions) ServiceHelper.getService(Activator.context, DebugOptions.class.getName());
@@ -37,6 +38,7 @@ public class Tracing {
 				DEBUG_GENERATOR_PARSING = options.getBooleanOption(Activator.ID + "/generator/parsing", false); //$NON-NLS-1$
 				DEBUG_INSTALL_REGISTRY = options.getBooleanOption(Activator.ID + "/engine/installregistry", false); //$NON-NLS-1$
 				DEBUG_METADATA_PARSING = options.getBooleanOption(Activator.ID + "/metadata/parsing", false); //$NON-NLS-1$
+				DEBUG_MIRRORS = options.getBooleanOption(Activator.ID + "/artifacts/mirrors", false); //$NON-NLS-1$
 			}
 		}
 	}

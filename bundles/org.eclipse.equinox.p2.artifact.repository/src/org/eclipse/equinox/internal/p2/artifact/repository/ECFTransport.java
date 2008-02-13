@@ -53,12 +53,26 @@ public class ECFTransport extends Transport {
 		retrievalFactoryTracker.open();
 	}
 
-	protected IStatus convertToStatus(Exception failure) {
+	protected IStatus convertToStatus(IFileTransferEvent event, Exception failure, long startTime) {
+		long speed = DownloadStatus.UNKNOWN_RATE;
+		if (event instanceof IIncomingFileTransferEvent) {
+			long bytes = ((IIncomingFileTransferEvent) event).getSource().getBytesReceived();
+			if (bytes > 0) {
+				long elapsed = (System.currentTimeMillis() - startTime) / 1000;//in seconds
+				if (elapsed == 0)
+					elapsed = 1;
+				speed = bytes / elapsed;
+			}
+		}
+		DownloadStatus result = null;
 		if (failure == null)
-			return Status.OK_STATUS;
-		if (failure instanceof UserCancelledException)
-			return new Status(IStatus.CANCEL, Activator.ID, failure.getMessage(), failure);
-		return new Status(IStatus.ERROR, Activator.ID, "error during transfer", failure);
+			result = new DownloadStatus(IStatus.OK, Activator.ID, Status.OK_STATUS.getMessage());
+		else if (failure instanceof UserCancelledException)
+			result = new DownloadStatus(IStatus.CANCEL, Activator.ID, failure.getMessage(), failure);
+		else
+			result = new DownloadStatus(IStatus.ERROR, Activator.ID, "Error during transfer", failure);
+		result.setTransferRate(speed);
+		return result;
 	}
 
 	public IStatus download(String toDownload, OutputStream target, IProgressMonitor monitor) {
@@ -71,6 +85,7 @@ public class ECFTransport extends Transport {
 
 	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, final IProgressMonitor monitor) {
 		final IStatus[] result = new IStatus[1];
+		final long startTime = System.currentTimeMillis();
 		IFileTransferListener listener = new IFileTransferListener() {
 			public void handleTransferEvent(IFileTransferEvent event) {
 				if (event instanceof IIncomingFileTransferReceiveStartEvent) {
@@ -80,7 +95,7 @@ public class ECFTransport extends Transport {
 							rse.receive(target);
 						}
 					} catch (IOException e) {
-						IStatus status = convertToStatus(e);
+						IStatus status = convertToStatus(event, e, startTime);
 						synchronized (result) {
 							result[0] = status;
 							result.notify();
@@ -95,7 +110,8 @@ public class ECFTransport extends Transport {
 					}
 				}
 				if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
-					IStatus status = convertToStatus(((IIncomingFileTransferReceiveDoneEvent) event).getException());
+					Exception exception = ((IIncomingFileTransferReceiveDoneEvent) event).getException();
+					IStatus status = convertToStatus(event, exception, startTime);
 					synchronized (result) {
 						result[0] = status;
 						result.notify();

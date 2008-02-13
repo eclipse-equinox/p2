@@ -12,3 +12,6 @@ org.eclipse.equinox.p2.core/engine/installregistry=false
 
 #Detailed debugging information while saving/restoring metadata repositories
 org.eclipse.equinox.p2.core/metadata/parsing=false
+
+#Detailed debugging information about mirror selection
+org.eclipse.equinox.p2.core/artifacts/mirrors=false
