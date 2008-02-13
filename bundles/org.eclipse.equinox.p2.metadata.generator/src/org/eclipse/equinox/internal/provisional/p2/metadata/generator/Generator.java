@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
+import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -24,10 +24,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
@@ -135,20 +133,17 @@ public class Generator {
 
 	protected IInstallableUnit createProductIU() {
 		GeneratorResult result = new GeneratorResult();
-		List children = productFile.useFeatures() ? productFile.getFeatures() : productFile.getPlugins();
-		for (Iterator iterator = children.iterator(); iterator.hasNext();) {
-			Query query = new InstallableUnitQuery((String) iterator.next());
-			Collector collector = info.getMetadataRepository().query(query, new Collector(), null);
-			// product file doesn't say anything about versions, don't know how to choose if there is more than one
-			if (collector.size() > 0) {
-				result.rootIUs.add(collector.iterator().next());
-			}
+
+		ProductQuery query = new ProductQuery(productFile, info.getFlavor());
+		Collector collector = info.getMetadataRepository().query(query, new Collector(), null);
+		for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
+			result.rootIUs.add(iterator.next());
 		}
 
 		//TODO get a real version
 		String version = info.getRootVersion() != null ? info.getRootVersion() : "0.0.0"; //$NON-NLS-1$
 		ArrayList requires = new ArrayList(1);
-		requires.add(MetadataFactory.createRequiredCapability(productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, true)); //$NON-NLS-1$
 		InstallableUnitDescription root = createTopLevelIUDescription(result, productFile.getId(), version, productFile.getProductName(), requires);
 		return MetadataFactory.createInstallableUnit(root);
 	}
@@ -312,25 +307,25 @@ public class Generator {
 	}
 
 	protected void generateConfigIUs(BundleInfo[] infos, GeneratorResult result) {
-		if (infos == null)
-			return;
-		for (int i = 0; i < infos.length; i++) {
-			GeneratorBundleInfo bundle = new GeneratorBundleInfo(infos[i]);
-			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
-				bundle.setStartLevel(BundleInfo.NO_LEVEL);
-				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
-						"addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
-						"removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
+		if (infos != null) {
+			for (int i = 0; i < infos.length; i++) {
+				GeneratorBundleInfo bundle = new GeneratorBundleInfo(infos[i]);
+				if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
+					bundle.setStartLevel(BundleInfo.NO_LEVEL);
+					bundle.setMarkedAsStarted(false);
+					bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
+							"addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
+					bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
+							"removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
+				}
+				if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
+					bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
+					bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
+				}
+				IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), null);
+				if (cu != null)
+					result.rootIUs.add(cu);
 			}
-			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
-			}
-			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), null);
-			if (cu != null)
-				result.rootIUs.add(cu);
 		}
 
 		if (info.addDefaultIUs()) {
@@ -473,6 +468,7 @@ public class Generator {
 		cu.setVersion(launcherVersion);
 		cu.setFilter(filter);
 		cu.setHost(launcherId, new VersionRange(launcherVersion, true, launcherVersion, true));
+		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
 		cu.setCapabilities(new ProvidedCapability[] {IInstallableUnitFragment.FRAGMENT_CAPABILITY, MetadataGeneratorHelper.createSelfCapability(configUnitId, launcherVersion)});
 
 		mungeLauncherFileNames(root);
