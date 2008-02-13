@@ -29,8 +29,6 @@ import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
  *  
  *   This checker simply writes to system.out when updates are available and lists the
  *   IU's that have updates available.
- *   
- * @since 3.4
  */
 public class UpdateCheckerApplication implements IApplication {
 
