@@ -38,8 +38,10 @@ public class GeneratorTask extends Task {
 				if (result == null)
 					result = new GeneratorResult();
 				generator.setIncrementalResult(result);
+				generator.setGeneratorRootIU(false);
 			} else if ("final".equals(mode) && result != null) { //$NON-NLS-1$
 				generator.setIncrementalResult(result);
+				generator.setGeneratorRootIU(true);
 			}
 
 			generator.run(provider);

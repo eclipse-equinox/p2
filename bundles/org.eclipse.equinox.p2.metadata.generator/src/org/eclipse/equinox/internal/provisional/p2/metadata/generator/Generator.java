@@ -85,6 +85,8 @@ public class Generator {
 	private final IGeneratorInfo info;
 
 	private GeneratorResult incrementalResult = null;
+	private ProductFile productFile = null;
+	private boolean generateRootIU = true;
 
 	/**
 	 * Short term fix to ensure IUs that have no corresponding category are not lost.
@@ -131,39 +133,33 @@ public class Generator {
 		return (iu.getId().indexOf(".feature.default") > 0 ? true : false); //$NON-NLS-1$
 	}
 
-	protected IInstallableUnit createProductIU(String productFile) {
-		ProductFile product = null;
-		try {
-			product = new ProductFile(productFile, null);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-
+	protected IInstallableUnit createProductIU() {
 		GeneratorResult result = new GeneratorResult();
-		List children = product.useFeatures() ? product.getFeatures() : product.getPlugins();
+		List children = productFile.useFeatures() ? productFile.getFeatures() : productFile.getPlugins();
 		for (Iterator iterator = children.iterator(); iterator.hasNext();) {
 			Query query = new InstallableUnitQuery((String) iterator.next());
 			Collector collector = info.getMetadataRepository().query(query, new Collector(), null);
 			// product file doesn't say anything about versions, don't know how to choose if there is more than one
 			if (collector.size() > 0) {
-				result.nonRootIUs.add(collector.iterator().next());
+				result.rootIUs.add(collector.iterator().next());
 			}
 		}
 
 		//TODO get a real version
 		String version = info.getRootVersion() != null ? info.getRootVersion() : "0.0.0"; //$NON-NLS-1$
-		InstallableUnitDescription root = createTopLevelIUDescription(result, product.getId(), version, product.getProductName());
+		ArrayList requires = new ArrayList(1);
+		requires.add(MetadataFactory.createRequiredCapability(productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		InstallableUnitDescription root = createTopLevelIUDescription(result, productFile.getId(), version, productFile.getProductName(), requires);
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
 	protected IInstallableUnit createTopLevelIU(GeneratorResult result, String configurationIdentification, String configurationVersion) {
 		// TODO, bit of a hack but for now set the name of the IU to the ID.
-		InstallableUnitDescription root = createTopLevelIUDescription(result, configurationIdentification, configurationVersion, configurationIdentification);
+		InstallableUnitDescription root = createTopLevelIUDescription(result, configurationIdentification, configurationVersion, configurationIdentification, null);
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
-	protected InstallableUnitDescription createTopLevelIUDescription(GeneratorResult result, String configurationIdentification, String configurationVersion, String configurationName) {
+	protected InstallableUnitDescription createTopLevelIUDescription(GeneratorResult result, String configurationIdentification, String configurationVersion, String configurationName, List requires) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
@@ -177,6 +173,8 @@ public class Generator {
 			boolean isOptional = checkOptionalRootDependency(iu);
 			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), isOptional, false));
 		}
+		if (requires != null)
+			reqsConfigurationUnits.addAll(requires);
 		root.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
 		root.setApplicabilityFilter(""); //$NON-NLS-1$
 		root.setArtifacts(new IArtifactKey[0]);
@@ -237,6 +235,14 @@ public class Generator {
 	public IStatus generate() {
 		GeneratorResult result = incrementalResult != null ? incrementalResult : new GeneratorResult();
 
+		if (info.getProductFile() != null) {
+			try {
+				productFile = new ProductFile(info.getProductFile(), null);
+			} catch (Exception e) {
+				//TODO
+			}
+		}
+
 		Feature[] features = getFeatures(info.getFeaturesLocation());
 		generateFeatureIUs(features, result, info.getArtifactRepository());
 
@@ -250,7 +256,8 @@ public class Generator {
 		if (info.addDefaultIUs())
 			generateDefaultConfigIU(result.rootIUs);
 
-		generateRootIU(result, info.getRootId(), info.getRootVersion());
+		if (generateRootIU)
+			generateRootIU(result, info.getRootId(), info.getRootVersion());
 
 		//		persistence.setMappingRules(info.getMappingRules() == null ? defaultMappingRules : info.getMappingRules());
 		//		if (info.publishArtifacts() || info.publishArtifactRepository()) {
@@ -438,7 +445,9 @@ public class Generator {
 		//Create the IU
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
-		String launcherId = "org.eclipse.launcher." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
+		String productNamespace = (productFile != null) ? productFile.getId() : "org.eclipse"; //$NON-NLS-1$
+		String launcherIdPrefix = productNamespace + ".launcher"; //$NON-NLS-1$
+		String launcherId = launcherIdPrefix + '.' + ws + '.' + os + '.' + arch;
 		iu.setId(launcherId);
 		Version launcherVersion = new Version(version);
 		iu.setVersion(launcherVersion);
@@ -448,7 +457,13 @@ public class Generator {
 		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(launcherId, launcherVersion);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
-		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(launcherId, launcherVersion)});
+		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(productNamespace, launcherIdPrefix, new Version("1.0.0")); //$NON-NLS-1$
+		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(launcherId, launcherVersion), launcherCapability});
+
+		String launcherFragment = "org.eclipse.equinox.launcher." + ws + '.' + os; //$NON-NLS-1$
+		if (!Constants.OS_MACOSX.equals(os))
+			launcherFragment += '.' + arch;
+		iu.setRequiredCapabilities(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.rootIUs.add(MetadataFactory.createInstallableUnit(iu));
 
 		//Create the CU
@@ -565,7 +580,7 @@ public class Generator {
 		IInstallableUnit rootIU = null;
 
 		if (info.getProductFile() != null)
-			rootIU = createProductIU(info.getProductFile());
+			rootIU = createProductIU();
 		else if (rootIUId != null)
 			rootIU = createTopLevelIU(result, rootIUId, rootIUVersion);
 
@@ -754,5 +769,9 @@ public class Generator {
 					tempFile.delete();
 			}
 		}
+	}
+
+	public void setGenerateRootIU(boolean generateRootIU) {
+		this.generateRootIU = generateRootIU;
 	}
 }

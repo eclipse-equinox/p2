@@ -592,31 +592,33 @@ public class EquinoxBundlesState implements BundlesState {
 		BundleDescription[] currentInstalledBundles = state.getBundles();
 		String newLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
 		Dictionary manifest = Utils.getOSGiManifest(newLocation);
-		if (manifest != null) {
-			String newSymbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
-			int position = newSymbolicName.indexOf(";");
-			if (position >= 0)
-				newSymbolicName = newSymbolicName.substring(0, position).trim();
-			String newVersion = (String) manifest.get(Constants.BUNDLE_VERSION);
-			for (int i = 0; i < currentInstalledBundles.length; i++) {
-				String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation(), true);
-				if (newLocation.equals(location)) {
-					found = true;
-					break;
-				}
-				String symbolicName = currentInstalledBundles[i].getSymbolicName();
-				String version = currentInstalledBundles[i].getVersion().toString();
-				if (newSymbolicName.equals(symbolicName) && newVersion.equals(version)) {
-					found = true;
-					break;
-				}
+		if (manifest == null)
+			return;
+
+		String newSymbolicName = (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME);
+		int position = newSymbolicName.indexOf(";"); //$NON-NLS-1$
+		if (position >= 0)
+			newSymbolicName = newSymbolicName.substring(0, position).trim();
+		String newVersion = (String) manifest.get(Constants.BUNDLE_VERSION);
+		for (int i = 0; i < currentInstalledBundles.length; i++) {
+			String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation(), true);
+			if (newLocation.equals(location)) {
+				found = true;
+				break;
+			}
+			String symbolicName = currentInstalledBundles[i].getSymbolicName();
+			String version = currentInstalledBundles[i].getVersion().toString();
+			if (newSymbolicName.equals(symbolicName) && newVersion.equals(version)) {
+				found = true;
+				break;
 			}
 		}
+
 		if (!found) {
 			BundleDescription newBundleDescription = null;
 			try {
 				bInfo.setBundleId(++maxId);
-				newBundleDescription = soFactory.createBundleDescription(state, Utils.getOSGiManifest(newLocation), newLocation, bInfo.getBundleId());
+				newBundleDescription = soFactory.createBundleDescription(state, manifest, newLocation, bInfo.getBundleId());
 				state.addBundle(newBundleDescription);
 				manipulator.getConfigData().addBundle(bInfo);
 			} catch (BundleException e) {

@@ -24,7 +24,8 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
@@ -50,6 +51,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private ProvisioningEventBus bus;
 	private ServiceRegistration registrationBus;
 	private Generator.GeneratorResult incrementalResult = null;
+	private boolean generateRootIU = true;
 	private String metadataLocation;
 	private String metadataRepoName;
 	private String artifactLocation;
@@ -324,7 +326,7 @@ public class EclipseGeneratorApplication implements IApplication {
 
 		if (incrementalResult != null)
 			generator.setIncrementalResult(incrementalResult);
-
+		generator.setGenerateRootIU(generateRootIU);
 		IStatus result = generator.generate();
 
 		incrementalResult = null;
@@ -383,5 +385,9 @@ public class EclipseGeneratorApplication implements IApplication {
 
 	public void setIncrementalResult(Generator.GeneratorResult ius) {
 		this.incrementalResult = ius;
+	}
+
+	public void setGeneratorRootIU(boolean b) {
+		this.generateRootIU = b;
 	}
 }
