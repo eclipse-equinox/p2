@@ -4,5 +4,10 @@
          <run class="org.eclipse.equinox.internal.p2.tools.FileServerApplication"/>
       </application>
    </extension>
+	<extension id="application" point="org.eclipse.core.runtime.applications"> 
+      <application> 
+         <run class="org.eclipse.equinox.internal.p2.tools.UpdateCheckerApplication"/> 
+      </application> 
+   </extension>
 
 </plugin>
