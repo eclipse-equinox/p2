@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
@@ -66,10 +65,6 @@ public abstract class ProvisioningOperation {
 
 	protected IStatus okStatus() {
 		return Status.OK_STATUS;
-	}
-
-	protected IStatus failureStatus() {
-		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, label);
 	}
 
 	public String getLabel() {

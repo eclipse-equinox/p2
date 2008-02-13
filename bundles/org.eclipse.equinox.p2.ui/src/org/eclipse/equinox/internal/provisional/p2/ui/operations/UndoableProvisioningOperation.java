@@ -15,7 +15,6 @@ import java.util.List;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -223,10 +222,6 @@ abstract class UndoableProvisioningOperation extends ProvisioningOperation imple
 
 	protected IStatus okStatus() {
 		return Status.OK_STATUS;
-	}
-
-	protected IStatus failureStatus() {
-		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, getLabel());
 	}
 
 	/*
