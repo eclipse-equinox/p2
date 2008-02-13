@@ -483,7 +483,7 @@ public class InstallRegistry implements IInstallRegistry {
 
 	public InstallRegistry() {
 		/*	
-		busReference = EngineActivator.getContext().getServiceReference(ProvisioningEventBus.class.getName());
+		busReference = EngineActivator.getContext().getServiceReference(IProvisioningEventBus.SERVICE_NAME);
 		bus = (ProvisioningEventBus) EngineActivator.getContext().getService(busReference);
 
 		

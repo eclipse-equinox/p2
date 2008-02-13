@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.installregistry.*;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -238,7 +238,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private void broadcastChangeEvent(String profileId, byte reason) {
-		((ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profileId, reason));
+		((IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME)).publishEvent(new ProfileEvent(profileId, reason));
 	}
 
 	private URL getRegistryLocation() {

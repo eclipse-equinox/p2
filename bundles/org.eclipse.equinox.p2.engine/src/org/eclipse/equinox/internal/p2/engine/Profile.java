@@ -192,7 +192,7 @@ public class Profile implements IQueryable, IProfile {
 		// TODO this is not the ideal place for this.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=206077
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
-		//		ProvisioningEventBus bus = (ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), ProvisioningEventBus.class.getName());
+		//		ProvisioningEventBus bus = (ProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		//		if (bus != null)
 		//			bus.publishEvent(new ProfileEvent(this, ProfileEvent.CHANGED));
 	}

@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.osgi.service.debug.DebugOptions;
@@ -51,7 +51,7 @@ public class GCActivator implements BundleActivator {
 
 	//	Register the listener used to trigger the GC.
 	private void registerGCTrigger() {
-		ProvisioningEventBus eventBus = (ProvisioningEventBus) getService(GCActivator.context, ProvisioningEventBus.class.getName());
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) getService(GCActivator.context, IProvisioningEventBus.SERVICE_NAME);
 		if (eventBus == null) {
 			LogHelper.log(new Status(IStatus.ERROR, GCActivator.ID, Messages.Missing_bus));
 			return;
@@ -83,7 +83,7 @@ public class GCActivator implements BundleActivator {
 	}
 
 	private void unregisterGCTrigger() {
-		ProvisioningEventBus eventBus = (ProvisioningEventBus) getService(GCActivator.context, ProvisioningEventBus.class.getName());
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) getService(GCActivator.context, IProvisioningEventBus.SERVICE_NAME);
 		if (eventBus != null && busListener != null)
 			eventBus.removeListener(busListener);
 	}

@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -296,7 +296,7 @@ public class AutomaticUpdater implements IUpdateListener {
 					}
 				}
 			};
-			ProvisioningEventBus bus = ProvSDKUIActivator.getDefault().getProvisioningEventBus();
+			IProvisioningEventBus bus = ProvSDKUIActivator.getDefault().getProvisioningEventBus();
 			if (bus != null)
 				bus.addListener(profileChangeListener);
 		}
@@ -326,7 +326,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	public void shutdown() {
 		if (profileChangeListener == null)
 			return;
-		ProvisioningEventBus bus = ProvSDKUIActivator.getDefault().getProvisioningEventBus();
+		IProvisioningEventBus bus = ProvSDKUIActivator.getDefault().getProvisioningEventBus();
 		if (bus != null)
 			bus.removeListener(profileChangeListener);
 		profileChangeListener = null;

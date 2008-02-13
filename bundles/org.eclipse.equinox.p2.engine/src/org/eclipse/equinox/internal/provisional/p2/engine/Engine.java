@@ -15,14 +15,14 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 
 public class Engine implements IEngine {
 
-	private final ProvisioningEventBus eventBus;
+	private final IProvisioningEventBus eventBus;
 	private List lockedProfiles = new ArrayList();
 
-	public Engine(ProvisioningEventBus eventBus) {
+	public Engine(IProvisioningEventBus eventBus) {
 		this.eventBus = eventBus;
 	}
 

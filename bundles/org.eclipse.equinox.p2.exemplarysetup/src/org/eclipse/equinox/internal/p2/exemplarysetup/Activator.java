@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.exemplarysetup;
 
+import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.director.SimpleDirector;
 import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.p2.engine.MetadataCache;
@@ -18,7 +19,7 @@ import org.eclipse.equinox.internal.p2.garbagecollector.GarbageCollector;
 import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
 import org.eclipse.equinox.internal.p2.installregistry.InstallRegistry;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
@@ -28,7 +29,7 @@ import org.osgi.framework.*;
 public class Activator implements BundleActivator {
 	public static BundleContext context;
 
-	private ProvisioningEventBus bus;
+	private IProvisioningEventBus bus;
 	private ServiceRegistration registrationBus;
 
 	private IInstallRegistry installRegistry;
@@ -160,7 +161,7 @@ public class Activator implements BundleActivator {
 
 	private void registerEventBus() {
 		bus = new ProvisioningEventBus();
-		registrationBus = context.registerService(ProvisioningEventBus.class.getName(), bus, null);
+		registrationBus = context.registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
 	}
 
 	private void unregisterEventBus() {

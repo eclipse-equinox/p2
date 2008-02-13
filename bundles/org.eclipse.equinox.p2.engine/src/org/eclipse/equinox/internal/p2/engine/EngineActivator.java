@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.Engine;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.osgi.framework.*;
@@ -31,7 +31,7 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 
 	public Object addingService(ServiceReference reference) {
 		if (registration == null) {
-			ProvisioningEventBus eventBus = (ProvisioningEventBus) context.getService(reference);
+			IProvisioningEventBus eventBus = (IProvisioningEventBus) context.getService(reference);
 			registration = context.registerService(IEngine.SERVICE_NAME, new Engine(eventBus), null);
 			return eventBus;
 		}
@@ -51,7 +51,7 @@ public class EngineActivator implements BundleActivator, ServiceTrackerCustomize
 
 	public void start(BundleContext aContext) throws Exception {
 		EngineActivator.context = aContext;
-		tracker = new ServiceTracker(aContext, ProvisioningEventBus.class.getName(), this);
+		tracker = new ServiceTracker(aContext, IProvisioningEventBus.SERVICE_NAME, this);
 		tracker.open();
 	}
 

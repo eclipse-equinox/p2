@@ -15,7 +15,7 @@ import java.util.EventObject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -134,14 +134,14 @@ public class ProvUIActivator extends AbstractUIPlugin {
 				}
 			};
 		}
-		ProvisioningEventBus bus = getProvisioningEventBus();
+		IProvisioningEventBus bus = getProvisioningEventBus();
 		if (bus != null)
 			bus.addListener(profileChangeListener);
 	}
 
 	private void removeProfileChangeListener() {
 		if (profileChangeListener != null) {
-			ProvisioningEventBus bus = getProvisioningEventBus();
+			IProvisioningEventBus bus = getProvisioningEventBus();
 			if (bus != null)
 				bus.removeListener(profileChangeListener);
 		}
@@ -157,11 +157,11 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		}
 	}
 
-	private ProvisioningEventBus getProvisioningEventBus() {
-		ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
+	private IProvisioningEventBus getProvisioningEventBus() {
+		ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
 		if (busReference == null)
 			return null;
-		return (ProvisioningEventBus) context.getService(busReference);
+		return (IProvisioningEventBus) context.getService(busReference);
 	}
 
 	public void notifyListeners(EventObject event) {
@@ -173,8 +173,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
 			eventManager.removeListener(listener);
 		} else {
-			ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
-			ProvisioningEventBus bus = (ProvisioningEventBus) context.getService(busReference);
+			ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
+			IProvisioningEventBus bus = (IProvisioningEventBus) context.getService(busReference);
 			bus.removeListener(listener);
 		}
 	}

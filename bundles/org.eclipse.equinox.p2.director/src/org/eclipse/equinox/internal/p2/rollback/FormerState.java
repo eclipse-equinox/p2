@@ -15,7 +15,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
 import org.eclipse.equinox.internal.p2.director.IUTransformationHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -38,7 +38,7 @@ public class FormerState {
 	public FormerState(URL repoLocation) {
 		if (repoLocation == null)
 			throw new IllegalArgumentException("Repository location can't be null"); //$NON-NLS-1$
-		ProvisioningEventBus eventBus = (ProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, ProvisioningEventBus.class.getName());
+		IProvisioningEventBus eventBus = (IProvisioningEventBus) ServiceHelper.getService(DirectorActivator.context, IProvisioningEventBus.SERVICE_NAME);
 		location = repoLocation;
 
 		//listen for pre-event. to snapshot the profile

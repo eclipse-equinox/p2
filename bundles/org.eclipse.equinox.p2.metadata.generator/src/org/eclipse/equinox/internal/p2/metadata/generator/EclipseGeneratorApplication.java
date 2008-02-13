@@ -17,12 +17,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
+import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
@@ -48,7 +49,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private ServiceRegistration registrationDefaultArtifactManager;
 	private MetadataRepositoryManager defaultMetadataManager;
 	private ServiceRegistration registrationDefaultMetadataManager;
-	private ProvisioningEventBus bus;
+	private IProvisioningEventBus bus;
 	private ServiceRegistration registrationBus;
 	private Generator.GeneratorResult incrementalResult = null;
 	private boolean generateRootIU = true;
@@ -292,9 +293,9 @@ public class EclipseGeneratorApplication implements IApplication {
 	}
 
 	private void registerEventBus() {
-		if (ServiceHelper.getService(Activator.getContext(), ProvisioningEventBus.class.getName()) == null) {
+		if (ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME) == null) {
 			bus = new ProvisioningEventBus();
-			registrationBus = Activator.getContext().registerService(ProvisioningEventBus.class.getName(), bus, null);
+			registrationBus = Activator.getContext().registerService(IProvisioningEventBus.SERVICE_NAME, bus, null);
 		}
 	}
 

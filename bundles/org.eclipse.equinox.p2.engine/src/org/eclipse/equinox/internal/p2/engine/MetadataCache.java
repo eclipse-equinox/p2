@@ -16,8 +16,7 @@ import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -29,7 +28,7 @@ import org.osgi.framework.ServiceReference;
 public class MetadataCache {
 	static final private String REPOSITORY_NAME = "Agent Metadata Cache"; //$NON-NLS-1$
 	private ServiceReference busReference;
-	private ProvisioningEventBus bus;
+	private IProvisioningEventBus bus;
 	private URL location;
 	//tracks the IUs that have been installed but not yet committed
 	//TODO: This will work if a single profile is being modified but we should consider how to handle multiple concurrent profile changes.OD
@@ -60,8 +59,8 @@ public class MetadataCache {
 
 	private void hookListener() {
 		// TODO: We should check for writing permission here, otherwise it may be too late
-		busReference = EngineActivator.getContext().getServiceReference(ProvisioningEventBus.class.getName());
-		bus = (ProvisioningEventBus) EngineActivator.getContext().getService(busReference);
+		busReference = EngineActivator.getContext().getServiceReference(IProvisioningEventBus.SERVICE_NAME);
+		bus = (IProvisioningEventBus) EngineActivator.getContext().getService(busReference);
 		bus.addListener(new ProvisioningListener() {
 			public void notify(EventObject o) {
 				if (o instanceof InstallableUnitEvent) { //TODO This dependency on InstallableUnitEvent is not great

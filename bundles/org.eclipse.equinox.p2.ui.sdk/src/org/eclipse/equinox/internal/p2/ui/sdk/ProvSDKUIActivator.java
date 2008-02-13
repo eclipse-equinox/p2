@@ -14,7 +14,7 @@ import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
@@ -134,11 +134,11 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		return scheduler;
 	}
 
-	public ProvisioningEventBus getProvisioningEventBus() {
-		ServiceReference busReference = context.getServiceReference(ProvisioningEventBus.class.getName());
+	public IProvisioningEventBus getProvisioningEventBus() {
+		ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
 		if (busReference == null)
 			return null;
-		return (ProvisioningEventBus) context.getService(busReference);
+		return (IProvisioningEventBus) context.getService(busReference);
 	}
 
 	public AutomaticUpdater getAutomaticUpdater() {
