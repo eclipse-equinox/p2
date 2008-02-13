@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 public class UninstallWizardPage extends ProfileModificationWizardPage {
@@ -27,15 +26,10 @@ public class UninstallWizardPage extends ProfileModificationWizardPage {
 		setDescription(ProvUIMessages.UninstallDialog_UninstallMessage);
 	}
 
-	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) {
-		try {
-			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
-			request.removeInstallableUnits(elementsToIUs(selectedElements));
-			return ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-		}
-		return null;
+	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) throws ProvisionException {
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
+		request.removeInstallableUnits(elementsToIUs(selectedElements));
+		return ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
 	}
 
 	protected String getOperationLabel() {

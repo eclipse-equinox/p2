@@ -24,6 +24,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.dialogs.PropertyPage;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * PropertyPage that shows an IU's properties
@@ -62,7 +63,7 @@ public abstract class IUPropertyPage extends PropertyPage {
 			IWebBrowser browser = support.getExternalBrowser();
 			browser.openURL(url);
 		} catch (PartInitException e) {
-			ProvUI.handleException(e, ProvUIMessages.IUGeneralInfoPropertyPage_CouldNotOpenBrowser);
+			ProvUI.handleException(e, ProvUIMessages.IUGeneralInfoPropertyPage_CouldNotOpenBrowser, StatusManager.LOG | StatusManager.BLOCK);
 		}
 	}
 }

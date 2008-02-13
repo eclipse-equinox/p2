@@ -25,6 +25,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Provides the queries appropriate for the SDK UI.
@@ -87,7 +89,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					try {
 						profile = ProvisioningUtil.getProfile(((UpdateEvent) element).getProfileId());
 					} catch (ProvisionException e) {
-						ProvUI.handleException(e, null);
+						ProvUI.handleException(e, NLS.bind(ProvSDKMessages.ProvSDKQueryProvider_ErrorRetrievingProfile, ((UpdateEvent) element).getProfileId()), StatusManager.LOG);
 						return null;
 					}
 					toUpdate = ((UpdateEvent) element).getIUs();

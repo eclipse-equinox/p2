@@ -37,7 +37,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ArtifactRepositoriesView_AddRepositoryLabel;
 	public static String ArtifactRepositoriesView_RemoveRepositoryTooltip;
 	public static String ArtifactRepositoriesView_RemoveRepositoryOperationLabel;
-	public static String ProfilesView_0;
+	public static String ProfilesView_ErrorRetrievingProfiles;
 	public static String ProfilesView_AddProfileTooltip;
 	public static String ProfilesView_AddProfileLabel;
 	public static String ProfilesView_RemoveProfileLabel;
@@ -45,6 +45,7 @@ public class ProvAdminUIMessages extends NLS {
 	public static String RepositoriesView_RemoveCommandLabel;
 	// Preferences
 	public static String InstalledIUPropertyPage_NoInfoAvailable;
+	public static String ProvAdminQueryProvider_UpdateQueryError;
 	public static String ProvisioningPrefPage_HideSystemRepos;
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
 	public static String ProvisioningPrefPage_ShowInstallRootsOnly;

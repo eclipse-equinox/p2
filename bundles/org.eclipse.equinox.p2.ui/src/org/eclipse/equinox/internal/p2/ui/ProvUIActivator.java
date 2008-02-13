@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerPr
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -126,7 +127,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 									});
 							}
 						} catch (ProvisionException e) {
-							ProvUI.handleException(e, null);
+							ProvUI.handleException(e, ProvUIMessages.ProvUIActivator_ExceptionDuringProfileChange, StatusManager.LOG);
+
 						}
 					}
 				}

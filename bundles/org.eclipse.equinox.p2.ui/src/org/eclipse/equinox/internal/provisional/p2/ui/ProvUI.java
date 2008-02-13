@@ -73,22 +73,31 @@ public class ProvUI {
 		return display.getActiveShell();
 	}
 
-	public static IStatus handleException(Throwable t, String message) {
+	public static IStatus handleException(Throwable t, String message, int style) {
 		if (message == null && t != null) {
 			message = t.getMessage();
 		}
 		IStatus status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, t);
-		StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
+		StatusManager.getManager().handle(status, style);
 		return status;
 	}
 
-	public static void reportStatus(IStatus status) {
-		// TODO investigate why platform status manager is so ugly with INFO status
-		if (status.getSeverity() == IStatus.INFO) {
-			MessageDialog.openInformation(null, ProvUIMessages.ProvUI_InformationTitle, status.getMessage());
-			return;
+	public static void reportStatus(IStatus status, int style) {
+		// workaround for
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=211933
+		if ((style & StatusManager.BLOCK) == StatusManager.BLOCK) {
+			if (status.getSeverity() == IStatus.INFO) {
+				MessageDialog.openInformation(null, ProvUIMessages.ProvUI_InformationTitle, status.getMessage());
+				// unset the block bit
+				style = style & ~StatusManager.BLOCK;
+			} else if (status.getSeverity() == IStatus.WARNING) {
+				MessageDialog.openWarning(null, ProvUIMessages.ProvUI_WarningTitle, status.getMessage());
+				// unset the block bit
+				style = style & ~StatusManager.BLOCK;
+			}
 		}
-		StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
+		if (style != 0)
+			StatusManager.getManager().handle(status, style);
 	}
 
 	public static IUColumnConfig[] getIUColumnConfig() {
@@ -106,7 +115,7 @@ public class ProvUI {
 			try {
 				configurator.applyConfiguration();
 			} catch (IOException e) {
-				ProvUI.handleException(e, null);
+				ProvUI.handleException(e, ProvUIMessages.ProvUI_ErrorDuringApplyConfig, StatusManager.LOG | StatusManager.BLOCK);
 			}
 		} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
 			PlatformUI.getWorkbench().restart();
@@ -143,11 +152,11 @@ public class ProvUI {
 							try {
 								status[0] = ((IAdvancedUndoableOperation) operation).computeUndoableStatus(monitor);
 								if (!status[0].isOK()) {
-									StatusManager.getManager().handle(status[0], StatusManager.SHOW);
+									ProvUI.reportStatus(status[0], StatusManager.SHOW | StatusManager.LOG);
 								}
 							} catch (ExecutionException e) {
 								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null);
+								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
 							}
 						}
 					};
@@ -159,7 +168,7 @@ public class ProvUI {
 								// don't report thread interruption
 							} catch (InvocationTargetException e) {
 								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null);
+								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
 							}
 						}
 					});
@@ -177,11 +186,11 @@ public class ProvUI {
 							try {
 								status[0] = ((IAdvancedUndoableOperation) operation).computeRedoableStatus(monitor);
 								if (!status[0].isOK()) {
-									StatusManager.getManager().handle(status[0], StatusManager.SHOW);
+									ProvUI.reportStatus(status[0], StatusManager.SHOW);
 								}
 							} catch (ExecutionException e) {
 								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null);
+								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
 							}
 						}
 					};
@@ -193,7 +202,7 @@ public class ProvUI {
 								// don't report thread interruption
 							} catch (InvocationTargetException e) {
 								status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, e.getMessage(), e);
-								ProvUI.handleException(e.getCause(), null);
+								ProvUI.handleException(e.getCause(), null, StatusManager.SHOW | StatusManager.LOG);
 							}
 						}
 					});

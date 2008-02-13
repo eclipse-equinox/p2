@@ -41,6 +41,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.*;
 import org.eclipse.ui.progress.WorkbenchJob;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * @since 3.4
@@ -101,7 +102,7 @@ public class AutomaticUpdater implements IUpdateListener {
 									}
 								});
 							} else if (status.getSeverity() != IStatus.CANCEL) {
-								ProvUI.reportStatus(status);
+								ProvUI.reportStatus(status, StatusManager.LOG);
 							}
 						}
 					});
@@ -115,7 +116,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			}
 
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
+			ProvUI.handleException(e, ProvSDKMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
 		}
 
 	}
@@ -140,7 +141,7 @@ public class AutomaticUpdater implements IUpdateListener {
 								if (ProvisioningUtil.getPlanner().updatesFor(iu, new ProvisioningContext(), pm).length > 0)
 									result.accept(iusWithUpdates[i]);
 							} catch (ProvisionException e) {
-								ProvUI.handleException(e, null);
+								ProvUI.handleException(e, ProvSDKMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
 								continue;
 							}
 						}

@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.ui.model.ArtifactRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An object that adds queryable support to an artifact repository 
@@ -31,7 +32,7 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager));
+			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
 		int flags = IArtifactRepositoryManager.REPOSITORIES_ALL;

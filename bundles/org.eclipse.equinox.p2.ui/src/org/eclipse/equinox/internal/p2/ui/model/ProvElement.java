@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
@@ -84,7 +85,7 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 			message = e.getMessage();
 		}
 		IStatus status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, e);
-		StatusManager.getManager().handle(status, StatusManager.LOG);
+		ProvUI.reportStatus(status, StatusManager.LOG);
 	}
 
 	public boolean hasChildren(Object o) {

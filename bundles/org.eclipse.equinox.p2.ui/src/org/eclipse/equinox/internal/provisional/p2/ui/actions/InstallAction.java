@@ -15,7 +15,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.*;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
@@ -66,18 +67,13 @@ public class InstallAction extends ProfileModificationAction {
 		dialog.open();
 	}
 
-	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
-		try {
-			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
-			request.addInstallableUnits(ius);
-			for (int i = 0; i < ius.length; i++) {
-				request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-			}
-			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
-			return plan;
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-			return null;
+	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
+		request.addInstallableUnits(ius);
+		for (int i = 0; i < ius.length; i++) {
+			request.setInstallableUnitProfileProperty(ius[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}
+		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
+		return plan;
 	}
 }

@@ -21,14 +21,12 @@ import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -39,6 +37,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ProfileModificationWizardPage extends WizardPage {
 	private static final int DEFAULT_HEIGHT = 20;
@@ -176,15 +175,6 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return elementsToIUs(getCheckedElements());
 	}
 
-	protected IProfile getProfile() {
-		try {
-			return ProvisioningUtil.getProfile(profileId);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, ProvUIMessages.ProfileModificationWizardPage_ProfileNotFound);
-		}
-		return null;
-	}
-
 	protected String getProfileId() {
 		return profileId;
 	}
@@ -210,14 +200,20 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			} else
 				getContainer().run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
-						currentPlan = computeProvisioningPlan(selections, monitor);
+						try {
+							currentPlan = computeProvisioningPlan(selections, monitor);
+						} catch (ProvisionException e) {
+							currentPlan = null;
+							ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
+							setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
+						}
 					}
 				});
 		} catch (InterruptedException e) {
 			// Nothing to report if thread was interrupted
 		} catch (InvocationTargetException e) {
 			currentPlan = null;
-			ProvUI.handleException(e.getCause(), null);
+			ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
 			setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
 		}
 		if (currentPlan != null)
@@ -234,7 +230,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 					messageType = IMessageProvider.WARNING;
 				setMessage(currentPlan.getStatus().getMessage(), messageType);
 				setPageComplete(false);
-				ProvUI.reportStatus(currentPlan.getStatus());
+				ProvUI.reportStatus(currentPlan.getStatus(), StatusManager.LOG);
 			}
 	}
 
@@ -242,7 +238,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return new ProfileModificationOperation(getOperationLabel(), profileId, plan);
 	}
 
-	protected abstract ProvisioningPlan computeProvisioningPlan(Object[] checkedElements, IProgressMonitor monitor);
+	protected abstract ProvisioningPlan computeProvisioningPlan(Object[] checkedElements, IProgressMonitor monitor) throws ProvisionException;
 
 	protected void setInitialCheckState() {
 		// The default is to check everything because 

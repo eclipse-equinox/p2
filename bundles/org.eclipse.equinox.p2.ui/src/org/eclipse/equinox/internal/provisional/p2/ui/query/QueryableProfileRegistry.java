@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An object that adds queryable support to the profile registry.
@@ -27,7 +28,7 @@ public class QueryableProfileRegistry implements IQueryable {
 	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound));
+			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoProfileRegistryFound), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
 		IProfile[] profiles = profileRegistry.getProfiles();

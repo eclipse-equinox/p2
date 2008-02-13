@@ -18,6 +18,7 @@ import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
+import org.eclipse.ui.statushandlers.StatusManager;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -65,9 +66,9 @@ public class SimpleLicenseManager extends LicenseManager {
 			Node root = doc.getDocumentElement();
 			processRoot(root, accepted);
 		} catch (ParserConfigurationException e) {
-			ProvUI.handleException(e, ProvUIMessages.ProvUILicenseManager_ParsingError);
+			ProvUI.handleException(e, ProvUIMessages.ProvUILicenseManager_ParsingError, StatusManager.LOG);
 		} catch (SAXException e) {
-			ProvUI.handleException(e, ProvUIMessages.ProvUILicenseManager_ParsingError);
+			ProvUI.handleException(e, ProvUIMessages.ProvUILicenseManager_ParsingError, StatusManager.LOG);
 		}
 	}
 

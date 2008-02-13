@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
@@ -24,6 +25,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ProfileModificationAction extends ProvisioningAction {
 
@@ -64,7 +66,11 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		final String id = targetProfileId;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
-				plan[0] = getProvisioningPlan(ius, id, monitor);
+				try {
+					plan[0] = getProvisioningPlan(ius, id, monitor);
+				} catch (ProvisionException e) {
+					ProvUI.handleException(e, ProvUIMessages.ProfileModificationAction_UnexpectedError, StatusManager.BLOCK | StatusManager.LOG);
+				}
 			}
 		};
 		try {
@@ -72,7 +78,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		} catch (InterruptedException e) {
 			// don't report thread interruption
 		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), null);
+			ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationAction_UnexpectedError, StatusManager.BLOCK | StatusManager.LOG);
 		}
 
 		if (validatePlan(plan[0]))
@@ -91,18 +97,19 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		if (plan != null) {
 			if (plan.getStatus().isOK())
 				return true;
-			ProvUI.reportStatus(plan.getStatus());
+			// TODO give user option to continue anyway to wizard
+			ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK | StatusManager.LOG);
 			return false;
 		}
 		// plan was null, no exception thrown.  
-		ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationAction_NullPlan));
+		ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationAction_NullPlan), StatusManager.BLOCK | StatusManager.LOG);
 		return false;
 	}
 
 	/*
 	 * Get a provisioning plan for this action.
 	 */
-	protected abstract ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor);
+	protected abstract ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException;
 
 	protected abstract void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan);
 

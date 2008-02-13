@@ -30,15 +30,9 @@ public class RevertAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.REVERT_COMMAND_TOOLTIP);
 	}
 
-	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] toRevert, String targetProfileId, IProgressMonitor monitor) {
-		if (toRevert.length == 1) {
-			try {
-				return ProvisioningUtil.getRevertPlan(toRevert[0], monitor);
-			} catch (ProvisionException e) {
-				ProvUI.handleException(e, null);
-				return null;
-			}
-		}
+	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] toRevert, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {
+		if (toRevert.length == 1)
+			return ProvisioningUtil.getRevertPlan(toRevert[0], monitor);
 		// should never happen
 		return null;
 	}

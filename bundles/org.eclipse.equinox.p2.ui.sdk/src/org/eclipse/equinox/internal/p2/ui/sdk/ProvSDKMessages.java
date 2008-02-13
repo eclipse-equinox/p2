@@ -25,6 +25,7 @@ public class ProvSDKMessages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, ProvSDKMessages.class);
 	}
 	public static String AddColocatedRepositoryDialog_InvalidURL;
+	public static String RepositoryManipulationDialog_ErrorRetrievingSites;
 	public static String RepositoryManipulationDialog_AddButton;
 	public static String RepositoryManipulationDialog_LocationColumnHeader;
 	public static String RepositoryManipulationDialog_NameColumnHeader;
@@ -87,6 +88,7 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesDialog_DownloadedNotification;
 	public static String AutomaticUpdatesDialog_UpdatesAvailableTitle;
 	public static String AutomaticUpdater_AutomaticDownloadOperationName;
+	public static String AutomaticUpdater_ErrorCheckingUpdates;
 	public static String AutomaticUpdatesDialog_UpdatesFoundNotification;
 	public static String AutomaticUpdatesPreferencePage_UpdateSchedule;
 	public static String AutomaticUpdatesPreferencePage_findOnStart;
@@ -108,6 +110,7 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvisioningPreferencePage_enableGC;
 	public static String ProvisioningPreferencePage_gcImmediately;
 	public static String ProvisioningPreferencePage_gcRetentionTime;
+	public static String ProvSDKQueryProvider_ErrorRetrievingProfile;
 	public static String ProvSDKUIActivator_ErrorWritingLicenseRegistry;
 	public static String ProvSDKUIActivator_LicenseManagerReadError;
 	public static String ProvSDKUIActivator_NoSelfProfile;

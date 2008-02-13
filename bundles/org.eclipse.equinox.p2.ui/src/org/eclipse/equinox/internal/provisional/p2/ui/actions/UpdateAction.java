@@ -57,7 +57,7 @@ public class UpdateAction extends ProfileModificationAction {
 		dialog.open();
 	}
 
-	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) {
+	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {
 		// Here we create a provisioning plan by finding the latest version available for any replacement.
 		// TODO to be smarter, we could check older versions if a new version made a plan invalid.
 		ArrayList toBeUpdated = new ArrayList();
@@ -89,20 +89,16 @@ public class UpdateAction extends ProfileModificationAction {
 		if (toBeUpdated.size() <= 0) {
 			return new ProvisioningPlan(new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.UpdateOperation_NothingToUpdate));
 		}
-		try {
-			ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
-			Iterator iter = toBeUpdated.iterator();
-			while (iter.hasNext())
-				request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) iter.next()});
-			iter = latestReplacements.values().iterator();
-			while (iter.hasNext())
-				request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});
-			ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
-			return plan;
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
-			return null;
-		}
+
+		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
+		Iterator iter = toBeUpdated.iterator();
+		while (iter.hasNext())
+			request.removeInstallableUnits(new IInstallableUnit[] {(IInstallableUnit) iter.next()});
+		iter = latestReplacements.values().iterator();
+		while (iter.hasNext())
+			request.addInstallableUnits(new IInstallableUnit[] {((AvailableUpdateElement) iter.next()).getIU()});
+		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, new ProvisioningContext(), monitor);
+		return plan;
 	}
 
 	/*

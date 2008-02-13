@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateChecker;
 import org.eclipse.ui.IStartup;
@@ -48,7 +49,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		if (checker == null) {
 			// Something did not initialize properly
 			IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, ProvSDKMessages.AutomaticUpdateScheduler_UpdateNotInitialized);
-			StatusManager.getManager().handle(status, StatusManager.LOG);
+			ProvUI.reportStatus(status, StatusManager.LOG);
 			return;
 		}
 		try {
@@ -56,7 +57,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 		} catch (ProvisionException e) {
 			profileId = null;
 			IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, ProvSDKMessages.UpdateHandler_NoProfilesDefined, e);
-			StatusManager.getManager().handle(status, StatusManager.LOG);
+			ProvUI.reportStatus(status, StatusManager.LOG);
 			return;
 		}
 

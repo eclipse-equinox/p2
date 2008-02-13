@@ -37,6 +37,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Dialog that allows users to update, add, or remove repositories.
@@ -188,7 +189,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 				try {
 					new AddColocatedRepositoryDialog(getShell(), ProvisioningUtil.getMetadataRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM)).open();
 				} catch (ProvisionException e) {
-					ProvUI.handleException(e, null);
+					ProvUI.handleException(e, ProvSDKMessages.RepositoryManipulationDialog_ErrorRetrievingSites, StatusManager.BLOCK | StatusManager.LOG);
 				}
 			}
 		});

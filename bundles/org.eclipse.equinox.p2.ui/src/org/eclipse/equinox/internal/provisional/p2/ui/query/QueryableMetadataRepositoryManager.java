@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryElement;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An object that adds queryable support to a metadata repository 
@@ -47,7 +48,7 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		} else {
 			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 			if (manager == null) {
-				ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager));
+				ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 				return result;
 			}
 			int flags = IArtifactRepositoryManager.REPOSITORIES_ALL;

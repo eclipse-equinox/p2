@@ -16,10 +16,13 @@ import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.WorkbenchJob;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Utility methods for running provisioning operations. All operations are
@@ -52,8 +55,15 @@ public class ProvisioningOperationRunner {
 							status = op.execute(monitor, ProvUI.getUIInfoAdapter(shell));
 						}
 						return status;
-					} catch (ExecutionException e) {
-						return ProvUI.handleException(e.getCause(), null);
+					} catch (final ExecutionException e) {
+						final IStatus[] status = new IStatus[1];
+						shell.getDisplay().asyncExec(new Runnable() {
+							public void run() {
+								status[0] = ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), StatusManager.SHOW | StatusManager.LOG);
+
+							}
+						});
+						return status[0];
 					}
 				}
 			};
@@ -71,7 +81,7 @@ public class ProvisioningOperationRunner {
 						}
 						return status;
 					} catch (ExecutionException e) {
-						return ProvUI.handleException(e.getCause(), null);
+						return ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), StatusManager.SHOW | StatusManager.LOG);
 					}
 				}
 			};

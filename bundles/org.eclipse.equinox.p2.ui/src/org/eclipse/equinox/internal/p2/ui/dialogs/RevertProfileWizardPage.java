@@ -26,8 +26,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.RollbackRepositoryEl
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
+import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
@@ -37,6 +37,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * @since 3.4
@@ -133,7 +134,7 @@ public class RevertProfileWizardPage extends WizardPage {
 			element.setQueryProvider(queryProvider);
 			return element;
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
+			ProvUI.handleException(e, ProvUIMessages.RevertProfileWizardPage_ErrorRetrievingHistory, StatusManager.BLOCK | StatusManager.LOG);
 			return null;
 		}
 	}
@@ -187,21 +188,31 @@ public class RevertProfileWizardPage extends WizardPage {
 				try {
 					plan[0] = ProvisioningUtil.getRevertPlan(iu, monitor);
 				} catch (ProvisionException e) {
-					ProvUI.handleException(e, ProvUIMessages.RevertDialog_RevertError);
+					plan[0] = null;
+					ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
+					setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
 				}
 			}
 		};
 		try {
 			getContainer().run(true, true, runnable);
-			ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
-			Job job = ProvisioningOperationRunner.schedule(op, getShell());
-			job.join();
+			if (plan[0] != null) {
+				if (plan[0].getStatus().isOK()) {
+					ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
+					Job job = ProvisioningOperationRunner.schedule(op, getShell());
+					job.join();
+					return true;
+				}
+				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG);
+				setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
+			}
 		} catch (InterruptedException e) {
 			// don't report thread interruption
 		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), ProvUIMessages.RevertDialog_RevertError);
+			ProvUI.handleException(e.getCause(), ProvUIMessages.RevertDialog_RevertError, StatusManager.LOG);
+			setMessage(ProvUIMessages.RevertDialog_RevertError, IMessageProvider.ERROR);
 		}
-		return true;
+		return false;
 	}
 
 	public boolean isPageComplete() {

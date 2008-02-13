@@ -93,7 +93,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 				getLicenseManager().read(stream);
 				stream.close();
 			} catch (IOException e) {
-				ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_LicenseManagerReadError, e));
+				ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_LicenseManagerReadError, e), StatusManager.LOG);
 			}
 		}
 	}
@@ -109,7 +109,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			getLicenseManager().write(stream);
 			stream.close();
 		} catch (IOException e) {
-			ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorWritingLicenseRegistry, e));
+			ProvUI.reportStatus(new Status(IStatus.ERROR, PLUGIN_ID, 0, ProvSDKMessages.ProvSDKUIActivator_ErrorWritingLicenseRegistry, e), StatusManager.LOG);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		// Get the profile of the running system.
 		IProfile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 		if (profile == null) {
-			StatusManager.getManager().handle(getNoSelfProfileStatus(), StatusManager.LOG);
+			ProvUI.reportStatus(getNoSelfProfileStatus(), StatusManager.LOG);
 			IProfile[] profiles = ProvisioningUtil.getProfiles();
 			if (profiles.length > 0)
 				return profiles[0].getProfileId();

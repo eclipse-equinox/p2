@@ -23,6 +23,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An IUPropertiesGroup is a reusable UI component that displays and edits the 
@@ -82,7 +83,7 @@ public class IUProfilePropertiesGroup extends IUGroup {
 		try {
 			return ProvisioningUtil.getProfile(element.getProfileId());
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, NLS.bind(ProvAdminUIMessages.IUProfilePropertiesGroup_InvalidProfileID, element.getProfileId()));
+			ProvUI.handleException(e, NLS.bind(ProvAdminUIMessages.IUProfilePropertiesGroup_InvalidProfileID, element.getProfileId()), StatusManager.LOG);
 			return null;
 		}
 	}

@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 public class InstallWizardPage extends UpdateOrInstallWizardPage {
@@ -31,18 +30,13 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 		return ProvUIMessages.InstallIUOperationLabel;
 	}
 
-	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) {
-		try {
-			IInstallableUnit[] selected = elementsToIUs(selectedElements);
-			ProfileChangeRequest changeRequest = ProfileChangeRequest.createByProfileId(getProfileId());
-			changeRequest.addInstallableUnits(selected);
-			for (int i = 0; i < selected.length; i++) {
-				changeRequest.setInstallableUnitProfileProperty(selected[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-			}
-			return ProvisioningUtil.getProvisioningPlan(changeRequest, getProvisioningContext(), monitor);
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, null);
+	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) throws ProvisionException {
+		IInstallableUnit[] selected = elementsToIUs(selectedElements);
+		ProfileChangeRequest changeRequest = ProfileChangeRequest.createByProfileId(getProfileId());
+		changeRequest.addInstallableUnits(selected);
+		for (int i = 0; i < selected.length; i++) {
+			changeRequest.setInstallableUnitProfileProperty(selected[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}
-		return null;
+		return ProvisioningUtil.getProvisioningPlan(changeRequest, getProvisioningContext(), monitor);
 	}
 }

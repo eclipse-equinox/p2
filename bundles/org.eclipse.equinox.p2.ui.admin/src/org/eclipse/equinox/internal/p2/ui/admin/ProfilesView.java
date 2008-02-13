@@ -34,6 +34,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This view allows users to interact with installed profiles.
@@ -243,7 +244,7 @@ public class ProfilesView extends ProvView {
 				ids[i] = allProfiles[i].getProfileId();
 			return ids;
 		} catch (ProvisionException e) {
-			ProvUI.handleException(e, ProvAdminUIMessages.ProfilesView_0);
+			ProvUI.handleException(e, ProvAdminUIMessages.ProfilesView_ErrorRetrievingProfiles, StatusManager.LOG);
 			return new String[0];
 		}
 

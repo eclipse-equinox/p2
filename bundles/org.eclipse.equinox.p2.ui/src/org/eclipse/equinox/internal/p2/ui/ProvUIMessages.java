@@ -56,6 +56,7 @@ public class ProvUIMessages extends NLS {
 	public static String IULicensePropertyPage_ViewLicenseLabel;
 	public static String ProfileElement_InvalidProfile;
 	public static String ProfileModificationAction_NullPlan;
+	public static String ProfileModificationAction_UnexpectedError;
 	public static String ProfileModificationWizardPage_DetailsLabel;
 	public static String ProfileModificationWizardPage_NothingSelected;
 	public static String ProfileModificationWizardPage_ProfileNotFound;
@@ -88,6 +89,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningOperation_ExecuteErrorTitle;
 	public static String ProvisioningOperation_RedoErrorTitle;
 	public static String ProvisioningOperation_UndoErrorTitle;
+	public static String ProvisioningOperationRunner_ErrorExecutingOperation;
 	public static String InstallIUOperationLabel;
 	public static String InstallIUOperationLabelWithMnemonic;
 	public static String InstallIUCommandLabel;
@@ -141,11 +143,14 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateAction_UpdatesAvailableTitle;
 	public static String PlatformUpdateTitle;
 	public static String PlatformRestartMessage;
+	public static String ProvUI_ErrorDuringApplyConfig;
 	public static String ProvUI_InformationTitle;
 	public static String ProvUI_NameColumnTitle;
 	public static String ProvUI_SizeColumnTitle;
 	public static String ProvUI_VersionColumnTitle;
 	public static String ProvUI_IDColumnTitle;
+	public static String ProvUI_WarningTitle;
+	public static String ProvUIActivator_ExceptionDuringProfileChange;
 	public static String ProvUILicenseManager_ParsingError;
 	public static String OptionalPlatformRestartMessage;
 	public static String QueryableArtifactRepositoryManager_RepositoryQueryProgress;
@@ -162,6 +167,7 @@ public class ProvUIMessages extends NLS {
 	public static String RevertDialog_RevertOperationLabel;
 	public static String RevertDialog_SelectMessage;
 	public static String RevertDialog_Title;
+	public static String RevertProfileWizardPage_ErrorRetrievingHistory;
 
 	// Operations
 	public static String UpdateAndInstallGroup_Properties;
