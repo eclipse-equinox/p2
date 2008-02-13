@@ -14,8 +14,6 @@ package org.eclipse.equinox.internal.provisional.p2.updatechecker;
  * An IUpdateListener informs listeners that an update is available for
  * the specified profile.  Listeners should expect to receive this notification
  * from a background thread.
- * 
- * @since 3.4
  */
 public interface IUpdateListener {
 

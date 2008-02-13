@@ -14,8 +14,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
  * An UpdateEvent describes what IU's have updates for a given profile.
- * 
- * @since 3.4
  */
 public class UpdateEvent {
 

@@ -16,8 +16,8 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
-import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateChecker;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -37,7 +37,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 			ProvSDKMessages.SchedulerStartup_8PM, ProvSDKMessages.SchedulerStartup_9PM, ProvSDKMessages.SchedulerStartup_10PM, ProvSDKMessages.SchedulerStartup_11PM, ProvSDKMessages.SchedulerStartup_12AM,};
 
 	private IUpdateListener listener = null;
-	private UpdateChecker checker = null;
+	private IUpdateChecker checker = null;
 	private String profileId;
 
 	/**
@@ -45,7 +45,7 @@ public class AutomaticUpdateScheduler implements IStartup {
 	 */
 	public AutomaticUpdateScheduler() {
 		ProvSDKUIActivator.getDefault().setScheduler(this);
-		checker = (UpdateChecker) ServiceHelper.getService(ProvSDKUIActivator.getContext(), UpdateChecker.class.getName());
+		checker = (IUpdateChecker) ServiceHelper.getService(ProvSDKUIActivator.getContext(), IUpdateChecker.SERVICE_NAME);
 		if (checker == null) {
 			// Something did not initialize properly
 			IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, ProvSDKMessages.AutomaticUpdateScheduler_UpdateNotInitialized);
@@ -90,8 +90,8 @@ public class AutomaticUpdateScheduler implements IStartup {
 		if (pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED) == false)
 			return;
 		String schedule = pref.getString(PreferenceConstants.PREF_AUTO_UPDATE_SCHEDULE);
-		long delay = UpdateChecker.ONE_TIME_CHECK;
-		long poll = UpdateChecker.ONE_TIME_CHECK;
+		long delay = IUpdateChecker.ONE_TIME_CHECK;
+		long poll = IUpdateChecker.ONE_TIME_CHECK;
 		if (!schedule.equals(PreferenceConstants.PREF_UPDATE_ON_STARTUP)) {
 			delay = computeDelay(pref);
 			poll = computePoll(pref);

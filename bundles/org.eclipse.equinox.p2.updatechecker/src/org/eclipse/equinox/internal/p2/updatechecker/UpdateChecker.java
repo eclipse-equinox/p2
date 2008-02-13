@@ -8,31 +8,26 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.updatechecker;
+package org.eclipse.equinox.internal.p2.updatechecker;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.updatechecker.Activator;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 
 /**
- * An UpdateChecker periodically polls for updates to specified profiles and
- * informs listeners if updates are available.  Listeners may then determine
- * whether to retrieve the updates, inform the user, etc.
- * 
+ * Default implementation of {@link IUpdateChecker}.
+ * <p>
  * This implementation is not optimized.  It doesn't optimize for multiple
  * polls on the same profile, nor does it cache any info about a profile from
  * poll to poll.
- *
- * @since 3.4
  */
-public class UpdateChecker {
-	public static long ONE_TIME_CHECK = -1L;
+public class UpdateChecker implements IUpdateChecker {
 	public static boolean DEBUG = false;
 	public static boolean TRACE = false;
 	private HashSet checkers = new HashSet(); // threads
@@ -83,6 +78,9 @@ public class UpdateChecker {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
+	 */
 	public void addUpdateCheck(String profileId, long delay, long poll, IUpdateListener listener) {
 		log("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
 		UpdateCheckThread thread = new UpdateCheckThread(profileId, delay, poll, listener);
@@ -90,6 +88,9 @@ public class UpdateChecker {
 		thread.start();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#removeUpdateCheck(org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
+	 */
 	public void removeUpdateCheck(IUpdateListener listener) {
 		Iterator iter = checkers.iterator();
 		while (iter.hasNext()) {
