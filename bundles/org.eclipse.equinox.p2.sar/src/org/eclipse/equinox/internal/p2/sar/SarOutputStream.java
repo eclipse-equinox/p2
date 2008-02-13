@@ -39,7 +39,7 @@ public class SarOutputStream extends OutputStream {
 	/**
 	 * Ends the SAR archive and closes the underlying OutputStream.
 	 * 
-	 * @see java.io.Closeable#close()
+	 * @see java.io.OutputStream#close()
 	 */
 	// @Override
 	public void close() throws IOException {
