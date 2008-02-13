@@ -17,7 +17,9 @@ import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -89,6 +91,62 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals("3.1", systemCount + 1, newSystemCount);
 		assertEquals("3.2", allCount + 1, newAllCount);
 
+	}
+
+	/**
+	 * Tests that we don't create a local cache when contacting a local metadata repository.
+	 */
+	public void testMetadataCachingLocalRepo() throws MalformedURLException, ProvisionException {
+		File repoLocation = getTempLocation();
+		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
+		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
+		File dataAreaFile = URLUtil.toFile(dataArea);
+		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
+		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
+
+		// create a local repository
+		IMetadataRepository testRepo = manager.createRepository(repoLocation.toURL(), "MetadataRepositoryCachingTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.loadRepository(repoLocation.toURL(), null);
+
+		// check that a local cache was not created
+		assertFalse("Cache file was created.", cacheFileXML.exists() || cacheFileJAR.exists());
+	}
+
+	/**
+	 * Tests that local caching of remote metadata repositories works, and that the
+	 * cache is updated when it becomes stale.
+	 */
+	public void testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
+		URL repoLocation = new URL("http://download.eclipse.org/eclipse/testUpdates/");
+		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
+		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
+		File dataAreaFile = URLUtil.toFile(dataArea);
+		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
+		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
+		File cacheFile;
+
+		// load a remote repository and check that a local cache was created
+		manager.loadRepository(repoLocation, null);
+		assertTrue("Cache file was not created.", cacheFileXML.exists() || cacheFileJAR.exists());
+		if (cacheFileXML.exists())
+			cacheFile = cacheFileXML;
+		else
+			cacheFile = cacheFileJAR;
+
+		// modify the last modified date to be older than the remote file
+		cacheFile.setLastModified(0);
+		// reload the repository and check that the cache was updated
+		manager.removeRepository(repoLocation);
+		manager.loadRepository(repoLocation, null);
+		long lastModified = cacheFile.lastModified();
+		assertTrue(0 != lastModified);
+
+		// reload the repository and check that the cache was not updated
+		manager.removeRepository(repoLocation);
+		manager.loadRepository(repoLocation, null);
+		assertTrue(lastModified == cacheFile.lastModified());
+
+		cacheFile.delete();
 	}
 
 	/**
