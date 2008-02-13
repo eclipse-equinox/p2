@@ -138,7 +138,7 @@ class ConfigApplier {
 		if (manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE) == null)
 			useReference = true;
 		else
-			useReference = Boolean.valueOf(manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE) == null).booleanValue();
+			useReference = Boolean.valueOf(manipulatingContext.getProperty(SimpleConfiguratorConstants.PROP_KEY_USE_REFERENCE)).booleanValue();
 
 		for (int i = 0; i < finalList.length; i++) {
 			if (finalList[i] == null)
