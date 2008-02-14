@@ -49,7 +49,7 @@ public class IULicensePropertyPage extends IUPropertyPage {
 
 			// If an URL was specified, provide a link to it
 			String filename = (license.getURL() != null) ? license.getURL().getFile() : null;
-			if (filename != null & (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			if (filename != null && (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				Label label = new Label(composite, SWT.NONE);
 				label.setText(ProvUIMessages.IULicensePropertyPage_ViewLicenseLabel);
 				// Create a link to the license URL

@@ -89,7 +89,7 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 				return;
 			}
 			String filename = (url != null) ? url.getFile() : null;
-			if (filename != null & (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			if (filename != null && (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				// create some space
 				new Label(parent, SWT.NONE);
 				// Now create a link to the documentation

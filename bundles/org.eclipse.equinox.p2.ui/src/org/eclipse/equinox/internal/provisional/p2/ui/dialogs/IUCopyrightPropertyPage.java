@@ -48,7 +48,7 @@ public class IUCopyrightPropertyPage extends IUPropertyPage {
 
 			// If an URL was specified, provide a link to it
 			String filename = (copyright.getURL() != null) ? copyright.getURL().getFile() : null;
-			if (filename != null & (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
+			if (filename != null && (filename.endsWith(".htm") || filename.endsWith(".html"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				Label label = new Label(composite, SWT.NONE);
 				label.setText(ProvUIMessages.IUCopyrightPropertyPage_ViewLinkLabel);
 				// Create a link to the copyright URL
