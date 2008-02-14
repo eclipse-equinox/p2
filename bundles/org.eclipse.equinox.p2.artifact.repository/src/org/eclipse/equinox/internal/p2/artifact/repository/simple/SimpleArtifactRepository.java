@@ -82,7 +82,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 
 		public void setStatus(IStatus status) {
-			this.status = status;
+			this.status = status == null ? Status.OK_STATUS : status;
 		}
 
 		public void write(byte[] b) throws IOException {
@@ -376,8 +376,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		String baseLocation = getLocation(descriptor);
 		String mirrorLocation = getMirror(baseLocation);
 		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
-			if (mirrors != null)
-				mirrors.reportResult(mirrorLocation, result);
+		if (mirrors != null)
+			mirrors.reportResult(mirrorLocation, result);
 		if (result.isOK() || baseLocation.equals(mirrorLocation))
 			return result;
 		//maybe we hit a bad mirror - try the base location
