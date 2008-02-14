@@ -47,7 +47,7 @@ public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 		try {
 			key = ArtifactKey.parse(descriptor.getData());
 		} catch (IllegalArgumentException e) {
-			status = new Status(IStatus.ERROR, Activator.ID, "Predecessor artifact key for delta could not be deserialized. Serialized key is " + descriptor.getData(), e);
+			setStatus(new Status(IStatus.ERROR, Activator.ID, "Predecessor artifact key for delta could not be deserialized. Serialized key is " + descriptor.getData(), e));
 		}
 	}
 
@@ -60,7 +60,7 @@ public abstract class AbstractDeltaStep extends AbstractBufferingStep {
 			try {
 				result = File.createTempFile(PREDECESSOR_ROOT, JAR_SUFFIX);
 				resultStream = new BufferedOutputStream(new FileOutputStream(result));
-				status = repository.getArtifact(descriptor, resultStream, monitor);
+				setStatus(repository.getArtifact(descriptor, resultStream, getProgressMonitor()));
 				return result;
 			} finally {
 				if (resultStream != null)

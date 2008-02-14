@@ -45,9 +45,9 @@ public class Pack200OptimizerStep extends AbstractBufferingStep {
 			// now write the optimized content to the destination
 			if (resultFile.length() > 0) {
 				InputStream resultStream = new BufferedInputStream(new FileInputStream(resultFile));
-				FileUtils.copyStream(resultStream, true, destination, false);
+				FileUtils.copyStream(resultStream, true, getDestination(), false);
 			} else {
-				status = new Status(IStatus.ERROR, Activator.ID, "Empty intermediate file: " + resultFile); //$NON-NLS-1$
+				setStatus(new Status(IStatus.ERROR, Activator.ID, "Empty intermediate file: " + resultFile)); //$NON-NLS-1$
 			}
 		} finally {
 			if (resultFile != null)

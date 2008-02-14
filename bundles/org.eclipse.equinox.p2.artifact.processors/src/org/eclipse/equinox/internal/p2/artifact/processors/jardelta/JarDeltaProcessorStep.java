@@ -47,9 +47,9 @@ public class JarDeltaProcessorStep extends AbstractDeltaProcessorStep {
 			// now write the optimized content to the destination
 			if (resultFile.length() > 0) {
 				InputStream resultStream = new BufferedInputStream(new FileInputStream(resultFile));
-				FileUtils.copyStream(resultStream, true, destination, false);
+				FileUtils.copyStream(resultStream, true, getDestination(), false);
 			} else {
-				status = new Status(IStatus.ERROR, Activator.ID, "Empty optimized file: " + resultFile); //$NON-NLS-1$
+				setStatus(new Status(IStatus.ERROR, Activator.ID, "Empty optimized file: " + resultFile)); //$NON-NLS-1$
 			}
 		} finally {
 			if (resultFile != null)

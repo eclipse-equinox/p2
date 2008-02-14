@@ -30,7 +30,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 
 	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
-		if (!status.isOK())
+		if (!getStatus().isOK())
 			return;
 		fetchLocalArtifactRepository();
 	}
@@ -43,7 +43,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 			return;
 		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (repoMgr == null) {
-			status = new Status(IStatus.ERROR, Activator.ID, "Could not get artifact repository manager.");
+			setStatus(new Status(IStatus.ERROR, Activator.ID, "Could not get artifact repository manager."));
 			return;
 		}
 
@@ -59,7 +59,7 @@ public abstract class AbstractDeltaProcessorStep extends AbstractDeltaStep {
 				//just skip unreadable repositories
 			}
 		}
-		status = new Status(IStatus.ERROR, Activator.ID, "No repository available containing key " + key);
+		setStatus(new Status(IStatus.ERROR, Activator.ID, "No repository available containing key " + key));
 	}
 
 }

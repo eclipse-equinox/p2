@@ -38,17 +38,16 @@ public class Multiplier extends ProcessingStep {
 			operand = Integer.valueOf(descriptor.getData()).intValue();
 		} catch (NumberFormatException e) {
 			int code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
-			status = new Status(code, Activator.ID, "Multiplier operand specification invalid", e);
+			setStatus(new Status(code, Activator.ID, "Multiplier operand specification invalid", e));
 			return;
 		}
 	}
 
 	public void write(int b) throws IOException {
-		destination.write(b == -1 ? b : b * operand);
+		getDestination().write(b == -1 ? b : b * operand);
 	}
 
 	public void close() throws IOException {
 		super.close();
-		status = Status.OK_STATUS;
 	}
 }

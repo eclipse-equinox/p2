@@ -10,7 +10,8 @@
  *  IBM Corporation - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.processors.pack200;
-import java.io.*;
+
+import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.AbstractBufferingStep;
@@ -21,7 +22,6 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor;
 import org.eclipse.internal.provisional.equinox.p2.jarprocessor.JarProcessorExecutor.Options;
-
 
 /**
  * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.   
@@ -39,7 +39,7 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
 		super.initialize(descriptor, context);
 		if (!UnpackStep.canUnpack())
-			status = new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured"); //$NON-NLS-1$
+			setStatus(new Status(IStatus.ERROR, Activator.ID, "Unpack facility not configured")); //$NON-NLS-1$
 	}
 
 	protected void cleanupTempFiles() {
@@ -55,9 +55,9 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 			// now write the processed content to the destination
 			if (resultFile.length() > 0) {
 				InputStream resultStream = new BufferedInputStream(new FileInputStream(resultFile));
-				FileUtils.copyStream(resultStream, true, destination, false);
+				FileUtils.copyStream(resultStream, true, getDestination(), false);
 			} else {
-				status = new Status(IStatus.ERROR, Activator.ID, "Empty intermediate file: " + resultFile); //$NON-NLS-1$
+				setStatus(new Status(IStatus.ERROR, Activator.ID, "Empty intermediate file: " + resultFile)); //$NON-NLS-1$
 			}
 		} finally {
 			if (resultFile != null)

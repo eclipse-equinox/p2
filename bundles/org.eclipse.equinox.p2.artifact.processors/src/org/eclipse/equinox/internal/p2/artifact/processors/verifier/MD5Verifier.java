@@ -49,24 +49,20 @@ public class MD5Verifier extends ProcessingStep {
 	}
 
 	private void basicInitialize(ProcessingStepDescriptor descriptor) {
-		int code;
-		if (descriptor == null)
-			code = IStatus.ERROR;
-		else
-			code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
+		int code = (descriptor == null) ? IStatus.ERROR : descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 		if (md5Test == null || md5Test.length() != 32)
-			status = new Status(code, Activator.ID, "MD5 value not available or incorrect size");
+			setStatus(new Status(code, Activator.ID, "MD5 value not available or incorrect size"));
 		try {
 			md5 = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			status = new Status(code, Activator.ID, "Could not create MD5 algorithm", e);
+			setStatus(new Status(code, Activator.ID, "Could not create MD5 algorithm", e));
 		}
 	}
 
 	public void write(int b) throws IOException {
 		if (b != -1)
 			md5.update((byte) b);
-		destination.write(b);
+		getDestination().write(b);
 	}
 
 	public void close() throws IOException {
@@ -81,10 +77,7 @@ public class MD5Verifier extends ProcessingStep {
 		}
 
 		// if the hashes don't line up set the status to error.
-		if (!buf.toString().equals(md5Test)) {
-			String message = "Error processing stream. MD5 hash is not as expected.";
-			status = new Status(IStatus.ERROR, "plugin id", message);
-		} else
-			status = Status.OK_STATUS;
+		if (!buf.toString().equals(md5Test))
+			setStatus(new Status(IStatus.ERROR, Activator.ID, "Error processing stream. MD5 hash is not as expected."));
 	}
 }

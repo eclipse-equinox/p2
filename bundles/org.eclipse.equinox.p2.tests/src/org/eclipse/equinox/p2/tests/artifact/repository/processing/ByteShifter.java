@@ -35,7 +35,7 @@ public class ByteShifter extends ProcessingStep {
 
 	private void basicInitialize(ProcessingStepDescriptor descriptor) {
 		// if the status is already set to something that not ok, we've already found a problem.
-		if (status != null && status.getCode() != IStatus.OK)
+		if (!getStatus().isOK())
 			return;
 
 		int code;
@@ -48,7 +48,7 @@ public class ByteShifter extends ProcessingStep {
 
 		// finally, check the actual setup and set the status.
 		if (operand <= 0)
-			status = new Status(code, Activator.ID, "ByteShifter operand invalid: " + operand);
+			setStatus(new Status(code, Activator.ID, "ByteShifter operand invalid: " + operand));
 	}
 
 	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
@@ -57,14 +57,14 @@ public class ByteShifter extends ProcessingStep {
 			operand = Integer.valueOf(descriptor.getData()).intValue();
 		} catch (NumberFormatException e) {
 			int code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
-			status = new Status(code, Activator.ID, "ByteShifter operand specification invalid", e);
+			setStatus(new Status(code, Activator.ID, "ByteShifter operand specification invalid", e));
 			return;
 		}
 		basicInitialize(descriptor);
 	}
 
 	public void write(int b) throws IOException {
-		destination.write(b == -1 ? b : b << operand);
+		getDestination().write(b == -1 ? b : b << operand);
 	}
 
 	public IStatus getStatus() {

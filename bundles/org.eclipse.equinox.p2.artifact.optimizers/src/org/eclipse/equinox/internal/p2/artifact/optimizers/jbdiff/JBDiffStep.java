@@ -48,14 +48,14 @@ public class JBDiffStep extends AbstractDeltaStep {
 		incomingStream = null;
 
 		// copy the result of the optimization to the destination.
-		FileUtils.copyStream(new ByteArrayInputStream(diff), true, destination, false);
+		FileUtils.copyStream(new ByteArrayInputStream(diff), true, getDestination(), false);
 	}
 
 	private DirectByteArrayOutputStream fetchPredecessorBytes(ArtifactDescriptor artifactDescriptor) throws IOException {
 		DirectByteArrayOutputStream result = new DirectByteArrayOutputStream();
-		status = repository.getArtifact(artifactDescriptor, result, monitor);
-		if (!status.isOK())
-			throw (IOException) new IOException(status.getMessage()).initCause(status.getException());
+		setStatus(repository.getArtifact(artifactDescriptor, result, getProgressMonitor()));
+		if (!getStatus().isOK())
+			throw (IOException) new IOException(getStatus().getMessage()).initCause(getStatus().getException());
 		return result;
 	}
 }

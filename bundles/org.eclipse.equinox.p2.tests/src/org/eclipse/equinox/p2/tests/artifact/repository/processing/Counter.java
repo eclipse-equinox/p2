@@ -35,12 +35,12 @@ public class Counter extends ProcessingStep {
 
 	private void basicInitialize(ProcessingStepDescriptor descriptor) {
 		// if the status is already set to something that not ok, we've already found a problem.
-		if (status != null && status.getCode() != IStatus.OK)
+		if (!getStatus().isOK())
 			return;
 
 		int code;
 		// if there is a descriptor, decide if the "bad case" is an error or info.  If no 
-		// descriptor then default to erorr.
+		// descriptor then default to error.
 		if (descriptor != null)
 			code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
 		else
@@ -48,7 +48,7 @@ public class Counter extends ProcessingStep {
 
 		// finally, check the actual setup and set the status.
 		if (size != -1)
-			status = new Status(code, Activator.ID, "Counter size not set");
+			setStatus(new Status(code, Activator.ID, "Counter size not set"));
 	}
 
 	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
@@ -65,7 +65,7 @@ public class Counter extends ProcessingStep {
 				size = Long.parseLong(data);
 		} catch (NumberFormatException e) {
 			int code = descriptor.isRequired() ? IStatus.ERROR : IStatus.INFO;
-			status = new Status(code, Activator.ID, "Counter size specification invalid", e);
+			setStatus(new Status(code, Activator.ID, "Counter size specification invalid", e));
 			return;
 		}
 		basicInitialize(descriptor);
@@ -73,14 +73,12 @@ public class Counter extends ProcessingStep {
 
 	public void write(int b) throws IOException {
 		total++;
-		destination.write(b);
+		getDestination().write(b);
 	}
 
 	public void close() throws IOException {
 		super.close();
 		if (total != size)
-			status = new Status(IStatus.WARNING, "plugin id", "Size mismatch.  Was " + total + " should have been " + size);
-		else
-			status = Status.OK_STATUS;
+			setStatus(new Status(IStatus.WARNING, "plugin id", "Size mismatch.  Was " + total + " should have been " + size));
 	}
 }

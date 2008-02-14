@@ -44,15 +44,15 @@ public class JBDiffZipStep extends JBDiffStep {
 		sarredCurrent = null;
 
 		// copy the result of the optimization to the destination.
-		FileUtils.copyStream(new ByteArrayInputStream(diff), true, destination, false);
+		FileUtils.copyStream(new ByteArrayInputStream(diff), true, getDestination(), false);
 	}
 
 	private DirectByteArrayOutputStream fetchPredecessorBytes(ArtifactDescriptor artifactDescriptor) throws IOException {
 		DirectByteArrayOutputStream zippedPredecessor = new DirectByteArrayOutputStream();
 
-		status = repository.getArtifact(artifactDescriptor, zippedPredecessor, monitor);
-		if (!status.isOK())
-			throw (IOException) new IOException(status.getMessage()).initCause(status.getException());
+		setStatus(repository.getArtifact(artifactDescriptor, zippedPredecessor, getProgressMonitor()));
+		if (!getStatus().isOK())
+			throw (IOException) new IOException(getStatus().getMessage()).initCause(getStatus().getException());
 
 		DirectByteArrayOutputStream result = new DirectByteArrayOutputStream();
 		SarUtil.zipToSar(zippedPredecessor.getInputStream(), result);
