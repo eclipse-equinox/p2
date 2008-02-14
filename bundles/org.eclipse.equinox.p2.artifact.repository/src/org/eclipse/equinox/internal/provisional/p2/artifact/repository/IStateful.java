@@ -13,12 +13,21 @@ package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 import org.eclipse.core.runtime.IStatus;
 
 /**
- * Implementing <code>IStateful</code> adds the ability to store state information.
+ * Implementing <code>IStateful</code> adds the ability to store status information.
  */
 public interface IStateful {
 
+	/**
+	 * Set the status.
+	 * 
+	 * @param status if status equals null => getStatus().isOK
+	 */
 	void setStatus(IStatus status);
 
+	/**
+	 * Get status.
+	 * @return status
+	 */
 	public IStatus getStatus();
 
 }
