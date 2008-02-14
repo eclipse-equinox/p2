@@ -31,6 +31,13 @@ import org.eclipse.osgi.util.NLS;
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
 	private static final boolean MIRRORS_ENABLED = "true".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
+	/** 
+	 * The key for a integer property controls the maximum number
+	 * of threads that should be used when optimizing downloads from a remote
+	 * artifact repository.
+	 */
+	public static final String PROP_MAX_THREADS = "eclipse.p2.max.threads"; //$NON-NLS-1$
+
 	public class ArtifactOutputStream extends OutputStream implements IStateful {
 		private boolean closed;
 		private long count = 0;
@@ -166,6 +173,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	static final private String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 	static final private String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
+
+	private static final int DEFAULT_MAX_THREADS = 4;
 
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 
@@ -458,8 +467,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		final MultiStatus overallStatus = new MultiStatus(Activator.ID, IStatus.OK, null, null);
 		LinkedList requestsPending = new LinkedList(Arrays.asList(requests));
 
-		// TODO : Determine number of threads to use from a property
-		int numberOfJobs = Math.min(requests.length, 4); // magic number
+		int numberOfJobs = Math.min(requests.length, getMaximumThreads());
 		if (isLocal() || numberOfJobs <= 1) {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 			try {
@@ -565,6 +573,20 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		// in the end there is not enough information so return null 
 		return null;
+	}
+
+	/**
+	 * Returns the maximum number of concurrent download threads.
+	 */
+	private int getMaximumThreads() {
+		try {
+			String maxThreadString = (String) getProperties().get(PROP_MAX_THREADS);
+			if (maxThreadString != null)
+				return Math.max(1, Integer.parseInt(maxThreadString));
+		} catch (NumberFormatException nfe) {
+			// return default number of threads
+		}
+		return DEFAULT_MAX_THREADS;
 	}
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
