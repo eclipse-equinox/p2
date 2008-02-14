@@ -12,7 +12,6 @@
 package org.eclipse.equinox.internal.p2.artifact.optimizers;
 
 import java.io.*;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 
@@ -64,8 +63,7 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 		super.close();
 		// TODO need to get real status here.  sometimes the optimizers do not give 
 		// any reasonable return status
-		if (status == null)
-			status = Status.OK_STATUS;
+		// COMMENT status is initially set to OK!
 	}
 
 	protected abstract void performProcessing() throws IOException;
