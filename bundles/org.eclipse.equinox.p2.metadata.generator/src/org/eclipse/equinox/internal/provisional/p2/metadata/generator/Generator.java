@@ -144,17 +144,18 @@ public class Generator {
 		String version = info.getRootVersion() != null ? info.getRootVersion() : "0.0.0"; //$NON-NLS-1$
 		ArrayList requires = new ArrayList(1);
 		requires.add(MetadataFactory.createRequiredCapability(productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, true)); //$NON-NLS-1$
-		InstallableUnitDescription root = createTopLevelIUDescription(result, productFile.getId(), version, productFile.getProductName(), requires);
+		requires.add(MetadataFactory.createRequiredCapability(productFile.getId(), productFile.getId() + ".ini", VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
+		InstallableUnitDescription root = createTopLevelIUDescription(result, productFile.getId(), version, productFile.getProductName(), requires, false);
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
 	protected IInstallableUnit createTopLevelIU(GeneratorResult result, String configurationIdentification, String configurationVersion) {
 		// TODO, bit of a hack but for now set the name of the IU to the ID.
-		InstallableUnitDescription root = createTopLevelIUDescription(result, configurationIdentification, configurationVersion, configurationIdentification, null);
+		InstallableUnitDescription root = createTopLevelIUDescription(result, configurationIdentification, configurationVersion, configurationIdentification, null, true);
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
-	protected InstallableUnitDescription createTopLevelIUDescription(GeneratorResult result, String configurationIdentification, String configurationVersion, String configurationName, List requires) {
+	protected InstallableUnitDescription createTopLevelIUDescription(GeneratorResult result, String configurationIdentification, String configurationVersion, String configurationName, List requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
@@ -204,21 +205,23 @@ public class Generator {
 			}
 		}
 
-		LauncherData launcherData = info.getLauncherData();
-		if (launcherData != null) {
-			final String[] jvmArgs = launcherData.getJvmArgs();
-			for (int i = 0; i < jvmArgs.length; i++) {
-				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
+		if (configureLauncherData) {
+			LauncherData launcherData = info.getLauncherData();
+			if (launcherData != null) {
+				final String[] jvmArgs = launcherData.getJvmArgs();
+				for (int i = 0; i < jvmArgs.length; i++) {
+					configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+					unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				}
 
-			final String[] programArgs = launcherData.getProgramArgs();
-			for (int i = 0; i < programArgs.length; i++) {
-				String programArg = programArgs[i];
-				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					i++;
-				configurationData += "addProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				final String[] programArgs = launcherData.getProgramArgs();
+				for (int i = 0; i < programArgs.length; i++) {
+					String programArg = programArgs[i];
+					if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						i++;
+					configurationData += "addProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+					unconfigurationData += "removeProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 		}
 		touchpointData.put("configure", configurationData); //$NON-NLS-1$
@@ -506,6 +509,60 @@ public class Generator {
 		publishArtifact(descriptor, root.listFiles(), destination, false);
 	}
 
+	private void generateProductIniCU(String ws, String os, String arch, String version, GeneratorResult result) {
+		if (productFile == null)
+			return;
+
+		//attempt to merge arguments from the launcher data and the product file
+		Set jvmArgs = new LinkedHashSet();
+		Set progArgs = new LinkedHashSet();
+		LauncherData launcherData = info.getLauncherData();
+		if (launcherData != null) {
+			jvmArgs.addAll(Arrays.asList(launcherData.getJvmArgs()));
+			progArgs.addAll(Arrays.asList(launcherData.getProgramArgs()));
+		}
+		progArgs.addAll(Arrays.asList(getArrayFromString(productFile.getProgramArguments(os), " "))); //$NON-NLS-1$
+		jvmArgs.addAll(Arrays.asList(getArrayFromString(productFile.getVMArguments(os), " "))); //$NON-NLS-1$
+
+		String configurationData = ""; //$NON-NLS-1$
+		String unconfigurationData = ""; //$NON-NLS-1$
+		for (Iterator iterator = jvmArgs.iterator(); iterator.hasNext();) {
+			String arg = (String) iterator.next();
+			configurationData += "addJvmArg(jvmArg:" + arg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+			unconfigurationData += "removeJvmArg(jvmArg:" + arg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		for (Iterator iterator = progArgs.iterator(); iterator.hasNext();) {
+			String arg = (String) iterator.next();
+			if (arg.equals("--launcher.library") || arg.equals("-startup") || arg.equals("-configuration")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				continue;
+			configurationData += "addProgramArg(programArg:" + arg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+			unconfigurationData += "removeProgramArg(programArg:" + arg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		if (configurationData.length() == 0)
+			return;
+
+		InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
+		String configUnitId = info.getFlavor() + productFile.getId() + ".ini." + os; //$NON-NLS-1$
+		Version cuVersion = new Version(version);
+		cu.setId(configUnitId);
+		cu.setVersion(cuVersion);
+		cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ProvidedCapability productIniCapability = MetadataFactory.createProvidedCapability(productFile.getId(), productFile.getId() + ".ini", Version.emptyVersion); //$NON-NLS-1$
+		ProvidedCapability selfCapability = MetadataGeneratorHelper.createSelfCapability(configUnitId, cuVersion);
+		cu.setCapabilities(new ProvidedCapability[] {IInstallableUnitFragment.FRAGMENT_CAPABILITY, selfCapability, productIniCapability});
+
+		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
+		Map touchpointData = new HashMap();
+		touchpointData.put("configure", configurationData); //$NON-NLS-1$
+		touchpointData.put("unconfigure", unconfigurationData); //$NON-NLS-1$
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+
+		result.rootIUs.add(MetadataFactory.createInstallableUnit(cu));
+
+	}
+
 	protected void generateFeatureIUs(Feature[] features, GeneratorResult result, IArtifactRepository destination) {
 		Map categoriesToFeatureIUs = new HashMap();
 		Map featuresToCategories = getFeatureToCategoryMappings();
@@ -553,6 +610,7 @@ public class Generator {
 		if (info.getLauncherConfig() != null) {
 			String[] config = getArrayFromString(info.getLauncherConfig(), "_"); //$NON-NLS-1$
 			generateExecutableIUs(config[1], config[0], config[2], "1.0.0", executableLocation.getParentFile(), result, destination); //$NON-NLS-1$
+			generateProductIniCU(config[1], config[0], config[2], "1.0.0", result); //$NON-NLS-1$
 			return;
 		}
 

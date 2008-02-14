@@ -44,6 +44,10 @@ public interface IGeneratorInfo {
 
 	public File getJRELocation();
 
+	/**
+	 * The platform for the data this location
+	 * @return Returns a pde.build style platform config in the form os_ws_arch
+	 */
 	public String getLauncherConfig();
 
 	public LauncherData getLauncherData();
