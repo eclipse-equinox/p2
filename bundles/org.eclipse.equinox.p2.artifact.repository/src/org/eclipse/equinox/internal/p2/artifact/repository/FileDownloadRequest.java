@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
 public class FileDownloadRequest extends ArtifactRequest {
-	public static FileDownloadRequest[] NO_REQUEST = new FileDownloadRequest[0];
+	public static final FileDownloadRequest[] NO_REQUEST = new FileDownloadRequest[0];
 
 	private File destination; // The fully qualified path where the file should be written
 
@@ -37,6 +37,6 @@ public class FileDownloadRequest extends ArtifactRequest {
 			}
 		} catch (IOException e) {
 			setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.FileDownloadError, descriptor, destination), e));
-		};
+		}
 	}
 }
