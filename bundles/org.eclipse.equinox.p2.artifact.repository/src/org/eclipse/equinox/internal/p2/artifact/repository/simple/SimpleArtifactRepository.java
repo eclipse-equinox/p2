@@ -376,8 +376,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		String baseLocation = getLocation(descriptor);
 		String mirrorLocation = getMirror(baseLocation);
 		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
-		if (mirrors != null)
-			mirrors.reportResult(mirrorLocation, result);
+			if (mirrors != null)
+				mirrors.reportResult(mirrorLocation, result);
 		if (result.isOK() || baseLocation.equals(mirrorLocation))
 			return result;
 		//maybe we hit a bad mirror - try the base location
@@ -782,12 +782,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
 			return oldValue;
 		if (PUBLISH_PACK_FILES_AS_SIBLINGS.equals(key)) {
-			if (Boolean.TRUE.toString().equals(newValue)) {
-				mappingRules = PACKED_MAPPING_RULES;
-			} else {
-				mappingRules = DEFAULT_MAPPING_RULES;
+			synchronized (this) {
+				if (Boolean.TRUE.toString().equals(newValue)) {
+					mappingRules = PACKED_MAPPING_RULES;
+				} else {
+					mappingRules = DEFAULT_MAPPING_RULES;
+				}
+				initializeMapper();
 			}
-			initializeMapper();
 		}
 		save();
 		//force repository manager to reload this repository because it caches properties
