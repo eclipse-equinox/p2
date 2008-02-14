@@ -204,7 +204,11 @@ public abstract class Phase {
 		if (touchpoint == null)
 			return null;
 		InstructionParser parser = new InstructionParser(this, touchpoint);
-		return parser.parseActions(instructions[0]);
+		List actions = new ArrayList();
+		for (int i = 0; i < instructions.length; i++) {
+			actions.addAll(Arrays.asList(parser.parseActions(instructions[i])));
+		}
+		return (ProvisioningAction[]) actions.toArray(new ProvisioningAction[actions.size()]);
 	}
 
 	protected boolean isApplicable(InstallableUnitOperand op) {
