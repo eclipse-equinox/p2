@@ -56,9 +56,7 @@ public class SignatureVerifier extends ProcessingStep {
 			CertificateVerifierFactory verifierFactory = (CertificateVerifierFactory) ServiceHelper.getService(Activator.getContext(), CertificateVerifierFactory.class.getName());
 			CertificateVerifier verifier = verifierFactory.getVerifier(inputFile);
 			if (verifier.verifyContent().length > 0)
-				setStatus(new Status(IStatus.ERROR, "plugin id", "signature verification failure"));
-			else
-				setStatus(Status.OK_STATUS);
+				setStatus(new Status(IStatus.ERROR, Activator.ID, "signature verification failure"));
 			// now write the  content to the final destination
 			resultStream = new BufferedInputStream(new FileInputStream(inputFile));
 			FileUtils.copyStream(resultStream, true, getDestination(), false);
