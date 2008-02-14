@@ -25,13 +25,10 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful
  * about the data (e.g., checksum or hash) or transform the data (e.g., unpack200).
  */
 public abstract class ProcessingStep extends OutputStream implements IStateful {
-	//TODO It's generally not good to expose fields as API. It raises difficulties about
-	//when the subclass should be writing the fields, when the fields will have
-	//meaningful values, etc. It's generally better to pass values as parameters
-	//in a hook method rather than letting the subclass access this state directly.
-	protected OutputStream destination;
-	protected IProgressMonitor monitor;
-	protected IStatus status = Status.OK_STATUS;
+
+	private OutputStream destination;
+	private IProgressMonitor monitor;
+	private IStatus status = Status.OK_STATUS;
 
 	protected ProcessingStep() {
 		super();
@@ -45,6 +42,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * @param context the context in which the step is being used
 	 */
 	public void initialize(ProcessingStepDescriptor descriptor, IArtifactDescriptor context) {
+		// nothing to do here!
 	}
 
 	/**
@@ -63,6 +61,7 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * @param b the byte being written
 	 */
 	public void write(int b) throws IOException {
+		// nothing to do here!
 	}
 
 	/** 
@@ -92,7 +91,24 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	}
 
 	public void setStatus(IStatus status) {
-		this.status = status;
+		this.status = status == null ? Status.OK_STATUS : status;
+	}
+
+	/**
+	 * Get the progress monitor. 
+	 * @return the progress monitor; may be null
+	 */
+	protected IProgressMonitor getProgressMonitor() {
+		return monitor;
+	}
+
+	/**
+	 * Get the stream to write the processed data into.
+	 * 
+	 * @return output stream for processed data
+	 */
+	protected OutputStream getDestination() {
+		return destination;
 	}
 
 	/**
