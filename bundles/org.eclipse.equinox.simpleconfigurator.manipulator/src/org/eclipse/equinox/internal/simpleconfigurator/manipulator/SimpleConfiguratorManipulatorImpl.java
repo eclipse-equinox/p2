@@ -690,4 +690,11 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		manipulator.getConfigData().setBundles(bundleState.getExpectedState());
 	}
 
+	public void cleanup(Manipulator manipulator) {
+		File outputFile = new File(getConfigLocation(manipulator).getFile());
+		outputFile.delete();
+
+		if (outputFile.getParentFile().isDirectory())
+			outputFile.getParentFile().delete();
+	}
 }

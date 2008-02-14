@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.configuratormanipulator;
 
 import java.io.File;
 import java.io.IOException;
-
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 
 /**
@@ -68,4 +67,5 @@ public interface ConfiguratorManipulator {
 	 */
 	void updateBundles(Manipulator manipulator) throws IOException;
 
+	void cleanup(Manipulator manipulator);
 }

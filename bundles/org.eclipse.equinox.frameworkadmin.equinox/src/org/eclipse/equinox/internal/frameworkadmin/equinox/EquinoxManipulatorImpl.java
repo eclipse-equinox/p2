@@ -384,7 +384,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		//			launcherData.setFwJar(fwJar);
 
 		//if (context != null)
-		setConfiguratorManipulator();
+		ConfiguratorManipulator previousConfigurator = setConfiguratorManipulator();
+		if (previousConfigurator != null)
+			previousConfigurator.cleanup(this);
 
 		BundleInfo[] newBInfos = null;
 		if (configuratorManipulator != null) { // Optimize BundleInfo[] 
@@ -474,25 +476,26 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * 4. set the object that corresponds to the chosen ConfiguratorBundle.  
 	 * 
 	 */
-	private void setConfiguratorManipulator() {
+	private ConfiguratorManipulator setConfiguratorManipulator() {
 		if (context == null) {
 			this.configuratorManipulator = this.fwAdmin.getConfiguratorManipulator();
-			return;
+			return null;
 		}
 		ServiceReference[] references = cmTracker.getServiceReferences();
+		if (references == null)
+			return null;
 
-		int count = cmTracker.getTrackingCount();
-		if (count == this.trackingCount && configuratorManipulator != null)
-			return;
-		this.trackingCount = count;
+		//		int count = cmTracker.getTrackingCount();
+		//		if (count == this.trackingCount)
+		//			return;
+		//		this.trackingCount = count;
 
 		BundleInfo[] bInfos = configData.getBundles();
 		int initialBSL = configData.getInitialBundleStartLevel();
 		bInfos = Utils.sortBundleInfos(bInfos, initialBSL);
 		//int index = -1;	
+		ConfiguratorManipulator previousConfiguratorManipulator = configuratorManipulator;
 		configuratorManipulator = null;
-		if (references == null)
-			return;
 		for (int i = 0; i < bInfos.length; i++) {
 			String location = bInfos[i].getLocation();
 			location = FileUtils.getRealLocation(this, location, true);
@@ -506,6 +509,9 @@ public class EquinoxManipulatorImpl implements Manipulator {
 			if (configuratorManipulator != null)
 				break;
 		}
+		if (configuratorManipulator != previousConfiguratorManipulator)
+			return previousConfiguratorManipulator;
+		return null;
 	}
 
 	public void setLauncherData(LauncherData value) {
