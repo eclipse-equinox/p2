@@ -49,13 +49,14 @@ public class Mirror {
 				repositoryStream = destination.getOutputStream(newDescriptor);
 				if (repositoryStream == null)
 					return;
+				// TODO Is that ok to ignore the result?
 				source.getArtifact(descriptor, repositoryStream, new NullProgressMonitor());
 			} finally {
 				if (repositoryStream != null)
 					repositoryStream.close();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO Is that ok to ignore the exception
 			e.printStackTrace();
 		}
 	}
