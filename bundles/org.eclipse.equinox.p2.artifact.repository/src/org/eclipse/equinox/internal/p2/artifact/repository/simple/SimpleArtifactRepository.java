@@ -460,7 +460,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		// TODO : Determine number of threads to use from a property
 		int numberOfJobs = Math.min(requests.length, 4); // magic number
-		if (numberOfJobs <= 1) {
+		if (isLocal() || numberOfJobs <= 1) {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 			try {
 				for (int i = 0; i < requests.length; i++) {
