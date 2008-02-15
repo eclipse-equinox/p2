@@ -482,7 +482,7 @@ public class NewDependencyExpander {
 			RequiredCapability[] toAdd = currentUnit.getRequiredCapabilities();
 			outer: for (int i = 0; i < toAdd.length; i++) {
 				RequiredCapability current = toAdd[i];
-				if (isApplicable(current) && !isMeta(current)) {
+				if (isApplicable(current) && !isMeta(current) && !current.isOptional()) {
 					MatchKey key = new MatchKey(current);
 					List match = (List) must.get(key);
 					if (match == null) {

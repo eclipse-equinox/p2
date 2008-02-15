@@ -93,7 +93,7 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 		if (!result.isOK())
 			LogHelper.log(result);
 		assertTrue("1.0", result.isOK());
-		assertProfileContains("1.1", profile, allUnits);
+		assertProfileContains("1.1", profile, toInstallArray);
 	}
 
 	/**
