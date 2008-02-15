@@ -99,4 +99,8 @@ public class Collector {
 			collected.toArray(result);
 		return result;
 	}
+
+	public Collection toCollection() {
+		return collected == null ? Collections.EMPTY_LIST : Collections.unmodifiableList(collected);
+	}
 }
