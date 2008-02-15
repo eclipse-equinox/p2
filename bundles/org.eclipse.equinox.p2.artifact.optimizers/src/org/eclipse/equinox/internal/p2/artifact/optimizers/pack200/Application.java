@@ -31,7 +31,7 @@ public class Application implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
 		Map args = context.getArguments();
-		initializeFromArguments((String[]) args.get("application.args"));
+		initializeFromArguments((String[]) args.get("application.args")); //$NON-NLS-1$
 		IArtifactRepository repository = setupRepository(artifactRepositoryLocation);
 		if (!repository.isModifiable())
 			return NON_WRITTABLE_REPOSITORY;
@@ -48,6 +48,7 @@ public class Application implements IApplication {
 	}
 
 	public void stop() {
+		//nothing to do
 	}
 
 	public void initializeFromArguments(String[] args) throws Exception {
