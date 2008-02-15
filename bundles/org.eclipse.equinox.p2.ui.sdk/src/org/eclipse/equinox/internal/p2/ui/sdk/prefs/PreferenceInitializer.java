@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.osgi.service.prefs.Preferences;
 
 /**
@@ -33,6 +34,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		node.putBoolean(PreferenceConstants.PREF_ENABLE_GC, false);
 		node.putBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY, true);
 		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, ProvSDKMessages.AutomaticUpdateScheduler_5Minutes);
+		node.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN, MessageDialogWithToggle.PROMPT);
 	}
 
 }

@@ -15,19 +15,19 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -40,8 +40,8 @@ public class UpdateAction extends ProfileModificationAction {
 	ArrayList allReplacements; // cache all the replacements found to seed the wizard
 	HashMap latestReplacements;
 
-	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
-		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, licenseManager, shell);
+	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
+		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, planValidator, licenseManager, shell);
 		this.queryProvider = queryProvider;
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
@@ -87,7 +87,7 @@ public class UpdateAction extends ProfileModificationAction {
 			}
 		}
 		if (toBeUpdated.size() <= 0) {
-			return new ProvisioningPlan(new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, ProvUIMessages.UpdateOperation_NothingToUpdate));
+			return new ProvisioningPlan(new Status(IStatus.INFO, ProvUIActivator.PLUGIN_ID, IStatusCodes.NOTHING_TO_UPDATE, ProvUIMessages.UpdateOperation_NothingToUpdate, null));
 		}
 
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(targetProfileId);
@@ -134,5 +134,4 @@ public class UpdateAction extends ProfileModificationAction {
 	protected String getTaskName() {
 		return ProvUIMessages.UpdateIUProgress;
 	}
-
 }

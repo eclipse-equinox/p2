@@ -88,6 +88,8 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesDialog_DownloadedNotification;
 	public static String AutomaticUpdatesDialog_UpdatesAvailableTitle;
 	public static String AutomaticUpdater_AutomaticDownloadOperationName;
+	public static String AutomaticUpdater_ClickToReviewUpdates;
+	public static String AutomaticUpdater_ClickToReviewUpdatesWithProblems;
 	public static String AutomaticUpdater_ErrorCheckingUpdates;
 	public static String AutomaticUpdatesDialog_UpdatesFoundNotification;
 	public static String AutomaticUpdatesPreferencePage_UpdateSchedule;
@@ -103,6 +105,7 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesJob_Updates;
 	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
 	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
+	public static String ProvisioningPreferencePage_Always;
 	public static String ProvisioningPreferencePage_BrowsingPrefsGroup;
 	public static String ProvisioningPreferencePage_ShowLatestVersions;
 	public static String ProvisioningPreferencePage_ShowAllVersions;
@@ -110,8 +113,13 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvisioningPreferencePage_enableGC;
 	public static String ProvisioningPreferencePage_gcImmediately;
 	public static String ProvisioningPreferencePage_gcRetentionTime;
+	public static String ProvisioningPreferencePage_Never;
+	public static String ProvisioningPreferencePage_OpenWizardIfInvalid;
+	public static String ProvisioningPreferencePage_Prompt;
 	public static String ProvSDKQueryProvider_ErrorRetrievingProfile;
 	public static String ProvSDKUIActivator_ErrorWritingLicenseRegistry;
 	public static String ProvSDKUIActivator_LicenseManagerReadError;
 	public static String ProvSDKUIActivator_NoSelfProfile;
+	public static String ProvSDKUIActivator_OpenWizardAnyway;
+	public static String ProvSDKUIActivator_Question;
 }

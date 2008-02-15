@@ -15,8 +15,8 @@ import org.eclipse.equinox.internal.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableUpdateElement;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 
 /**
  * @since 3.4

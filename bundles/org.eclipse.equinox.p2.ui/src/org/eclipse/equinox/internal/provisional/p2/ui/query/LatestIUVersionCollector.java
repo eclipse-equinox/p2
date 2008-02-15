@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 import java.util.HashMap;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Collector that only accepts categories or the latest version of each

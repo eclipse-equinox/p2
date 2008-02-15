@@ -13,20 +13,21 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
 public class RevertAction extends ProfileModificationAction {
 
-	public RevertAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profileId, chooser, null, shell);
+	public RevertAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, Shell shell) {
+		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profileId, chooser, planValidator, null, shell);
 		setToolTipText(ProvUI.REVERT_COMMAND_TOOLTIP);
 	}
 

@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 import org.eclipse.equinox.internal.p2.ui.model.CachedQueryElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Element wrapper class for a particular IU version, whose

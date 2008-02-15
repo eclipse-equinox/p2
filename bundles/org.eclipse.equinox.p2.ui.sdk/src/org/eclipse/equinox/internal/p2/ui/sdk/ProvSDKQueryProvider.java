@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.*;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.osgi.util.NLS;

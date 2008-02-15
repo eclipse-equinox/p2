@@ -23,9 +23,6 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	protected ProvisioningAction(String text, ISelectionProvider selectionProvider, Shell shell) {
 		super(selectionProvider, text);
 		this.shell = shell;
-		if (this.shell == null) {
-			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		}
 		// prime the selection validation
 		ISelection selection = selectionProvider.getSelection();
 		if (selection instanceof IStructuredSelection) {
@@ -36,6 +33,8 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	}
 
 	protected Shell getShell() {
+		if (shell == null)
+			return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		return shell;
 	}
 }

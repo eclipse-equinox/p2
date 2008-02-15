@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 

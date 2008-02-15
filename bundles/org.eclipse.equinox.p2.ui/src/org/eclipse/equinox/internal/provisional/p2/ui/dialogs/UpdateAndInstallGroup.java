@@ -14,10 +14,9 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.PropertyDialogAction;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.Dialog;
@@ -50,6 +49,7 @@ public class UpdateAndInstallGroup {
 	IRepositoryManipulator repositoryManipulator;
 	IProfileChooser profileChooser;
 	LicenseManager licenseManager;
+	IPlanValidator planValidator;
 	private FontMetrics fm;
 	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton;
 
@@ -57,12 +57,13 @@ public class UpdateAndInstallGroup {
 	 * Create an instance of this group.
 	 * 
 	 */
-	public UpdateAndInstallGroup(Composite parent, String profileId, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, IQueryProvider queryProvider, LicenseManager licenseManager, FontMetrics fm) {
+	public UpdateAndInstallGroup(Composite parent, String profileId, String installedString, String availableString, IRepositoryManipulator repositoryManipulator, IProfileChooser profileChooser, IQueryProvider queryProvider, IPlanValidator planValidator, LicenseManager licenseManager, FontMetrics fm) {
 
 		this.profileId = profileId;
 		this.repositoryManipulator = repositoryManipulator;
 		this.profileChooser = profileChooser;
 		this.licenseManager = licenseManager;
+		this.planValidator = planValidator;
 
 		// tab folder
 		tabFolder = new TabFolder(parent, SWT.NONE);
@@ -139,7 +140,7 @@ public class UpdateAndInstallGroup {
 		availablePropButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Properties, false);
 		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer()));
 		installButton = createVerticalButton(composite, ProvUIMessages.InstallIUCommandLabel, false);
-		installButton.setData(BUTTONACTION, new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, licenseManager, parent.getShell()));
+		installButton.setData(BUTTONACTION, new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, planValidator, licenseManager, parent.getShell()));
 		if (repositoryManipulator != null) {
 			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
 			repoButton.setData(BUTTONACTION, new Action() {
@@ -209,7 +210,7 @@ public class UpdateAndInstallGroup {
 		installedPropButton = createVerticalButton(composite, ProvUIMessages.UpdateAndInstallGroup_Properties, false);
 		installedPropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer()));
 		uninstallButton = createVerticalButton(composite, ProvUIMessages.UninstallIUCommandLabel, false);
-		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, parent.getShell()));
+		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, planValidator, parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUIMessages.UpdateIUCommandLabel, false);
 		// For update only, we want it to check for all updates if there is nothing selected
 		updateButton.setData(BUTTONACTION, new UpdateAction(new ISelectionProvider() {
@@ -234,7 +235,7 @@ public class UpdateAndInstallGroup {
 			public void setSelection(ISelection selection) {
 				installedIUGroup.getStructuredViewer().setSelection(selection);
 			}
-		}, profileId, null, licenseManager, queryProvider, parent.getShell()));
+		}, profileId, null, planValidator, licenseManager, queryProvider, parent.getShell()));
 		if (profileChooser != null) {
 			Button profileButton = createVerticalButton(composite, profileChooser.getLabel(), false);
 			profileButton.setData(BUTTONACTION, new Action() {

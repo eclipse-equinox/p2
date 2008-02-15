@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Element class that represents an element that gets its children

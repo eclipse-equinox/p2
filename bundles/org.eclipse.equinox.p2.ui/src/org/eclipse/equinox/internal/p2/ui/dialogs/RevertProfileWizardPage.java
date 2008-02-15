@@ -23,7 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunne
 import org.eclipse.equinox.internal.provisional.p2.ui.model.RollbackProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.RollbackRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;

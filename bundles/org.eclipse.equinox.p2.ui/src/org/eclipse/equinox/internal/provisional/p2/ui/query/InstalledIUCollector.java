@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.QueriedElementCollector;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Collectors that accepts the matched IU's and

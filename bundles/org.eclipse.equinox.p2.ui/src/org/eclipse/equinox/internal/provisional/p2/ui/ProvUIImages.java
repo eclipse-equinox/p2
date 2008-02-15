@@ -41,6 +41,7 @@ public class ProvUIImages {
 	public final static String IMG_CATEGORY = "obj/category_obj.gif"; //$NON-NLS-1$
 	// tools
 	public final static String IMG_TOOL_UPDATE = "tool/update.gif"; //$NON-NLS-1$
+	public final static String IMG_TOOL_UPDATE_PROBLEMS = "tool/update_problems.gif"; //$NON-NLS-1$
 	public final static String IMG_TOOL_CLOSE = "tool/close.gif"; //$NON-NLS-1$
 	public final static String IMG_TOOL_CLOSE_HOT = "tool/close_hot.gif"; //$NON-NLS-1$
 

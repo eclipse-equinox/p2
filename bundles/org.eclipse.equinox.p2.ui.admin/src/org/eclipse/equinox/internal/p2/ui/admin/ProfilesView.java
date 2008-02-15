@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.Profiles;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.viewers.*;
@@ -113,7 +114,7 @@ public class ProfilesView extends ProvView {
 
 	protected void configureViewer(TreeViewer treeViewer) {
 		super.configureViewer(treeViewer);
-		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer, ProvAdminUIActivator.getDefault().getLicenseManager());
+		InstallIUDropAdapter adapter = new InstallIUDropAdapter(treeViewer, ProvAdminUIActivator.getDefault().getPlanValidator(), ProvAdminUIActivator.getDefault().getLicenseManager());
 		adapter.setFeedbackEnabled(false);
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer()};
 		treeViewer.addDropSupport(DND.DROP_COPY, transfers, adapter);
@@ -158,8 +159,8 @@ public class ProfilesView extends ProvView {
 		super.makeActions();
 		addProfileAction = new AddProfileAction();
 		removeProfileAction = new RemoveProfileAction();
-		uninstallAction = new UninstallAction(viewer, null, getProfileChooser(), getShell());
-		updateAction = new UpdateAction(viewer, null, getProfileChooser(), null, ProvAdminUIActivator.getDefault().getQueryProvider(), getShell());
+		uninstallAction = new UninstallAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPlanValidator(), getShell());
+		updateAction = new UpdateAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPlanValidator(), null, ProvAdminUIActivator.getDefault().getQueryProvider(), getShell());
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
 		installAction = new InstallIntoProfileAction();
 

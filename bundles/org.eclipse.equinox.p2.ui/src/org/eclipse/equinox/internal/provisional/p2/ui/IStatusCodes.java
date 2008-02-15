@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * Copyright (c) 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,20 +10,18 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-
 /**
- * Abstract class for a manager which tracks which licenses have been accepted.
+ * IStatusCodes defines codes for common status conditions in the
+ * p2 UI.
+ * 
+ * This interface is not intended to be implemented
  * 
  * @since 3.4
  */
-public abstract class LicenseManager {
+public interface IStatusCodes {
 
-	public abstract boolean accept(IInstallableUnit iu);
+	//UI status codes [10000-10999] - note these cannot conflict with the core codes
+	//in ProvisionException or we'll see strange results.
 
-	public abstract boolean reject(IInstallableUnit iu);
-
-	public abstract boolean isAccepted(IInstallableUnit iu);
-
-	public abstract boolean hasAcceptedLicenses();
+	public static final int NOTHING_TO_UPDATE = 10000;
 }

@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.QueriedElementCollector;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Collector that examines available IU's and wraps them in an

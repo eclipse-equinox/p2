@@ -8,21 +8,22 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.ui.query;
+package org.eclipse.equinox.internal.provisional.p2.ui.policy;
+
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
- * An interface for an object that provides element queries
+ * Abstract class for a manager which tracks which licenses have been accepted.
  * 
  * @since 3.4
  */
-public interface IQueryProvider {
+public abstract class LicenseManager {
 
-	public static final int METADATA_REPOS = 1;
-	public static final int ARTIFACT_REPOS = 2;
-	public static final int PROFILES = 3;
-	public static final int AVAILABLE_IUS = 4;
-	public static final int AVAILABLE_UPDATES = 5;
-	public static final int INSTALLED_IUS = 6;
+	public abstract boolean accept(IInstallableUnit iu);
 
-	public ElementQueryDescriptor getQueryDescriptor(Object element, int queryType);
+	public abstract boolean reject(IInstallableUnit iu);
+
+	public abstract boolean isAccepted(IInstallableUnit iu);
+
+	public abstract boolean hasAcceptedLicenses();
 }

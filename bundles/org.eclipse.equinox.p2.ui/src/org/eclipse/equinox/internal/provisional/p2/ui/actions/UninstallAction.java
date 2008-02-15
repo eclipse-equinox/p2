@@ -13,17 +13,17 @@ package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.actions.ProfileModificationAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UninstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class UninstallAction extends ProfileModificationAction {
 
-	public UninstallAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Shell shell) {
-		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profileId, chooser, null, shell);
+	public UninstallAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, Shell shell) {
+		super(ProvUI.UNINSTALL_COMMAND_LABEL, selectionProvider, profileId, chooser, planValidator, null, shell);
 		setToolTipText(ProvUI.UNINSTALL_COMMAND_TOOLTIP);
 	}
 

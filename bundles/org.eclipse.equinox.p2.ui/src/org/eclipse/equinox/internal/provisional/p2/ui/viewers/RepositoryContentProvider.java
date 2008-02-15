@@ -12,7 +12,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Content provider for provisioning repositories. The repositories are the

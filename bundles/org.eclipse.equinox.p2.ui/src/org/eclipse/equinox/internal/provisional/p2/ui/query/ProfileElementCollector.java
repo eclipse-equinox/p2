@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.QueriedElementCollector;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
  * Collector that accepts the matched Profiles and

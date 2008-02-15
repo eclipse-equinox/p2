@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.SimpleLicenseManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -30,6 +31,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 
 	private IQueryProvider queryProvider;
 	private LicenseManager licenseManager;
+	private IPlanValidator planValidator;
 
 	public static BundleContext getContext() {
 		return context;
@@ -86,5 +88,15 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		if (licenseManager == null)
 			licenseManager = new SimpleLicenseManager();
 		return licenseManager;
+	}
+
+	public IPlanValidator getPlanValidator() {
+		if (planValidator == null)
+			planValidator = new IPlanValidator() {
+				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+					return true;
+				}
+			};
+		return planValidator;
 	}
 }

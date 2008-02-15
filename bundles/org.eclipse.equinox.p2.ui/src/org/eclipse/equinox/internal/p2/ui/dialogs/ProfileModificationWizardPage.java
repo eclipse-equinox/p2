@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
@@ -42,11 +42,14 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public abstract class ProfileModificationWizardPage extends WizardPage {
 	private static final int DEFAULT_HEIGHT = 20;
 	private static final int DEFAULT_WIDTH = 120;
-	private static final int DEFAULT_DESCRIPTION_HEIGHT = 3;
+	private static final int DEFAULT_DESCRIPTION_HEIGHT = 4;
 	private static final int DEFAULT_COLUMN_WIDTH = 50;
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
+	private static final String NESTING_INDENT = "  "; //$NON-NLS-1$
+	private static final IStatus NULL_PLAN_STATUS = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
 	private IInstallableUnit[] ius;
 	ProvisioningPlan currentPlan;
+	IStatus currentStatus;
 	private String profileId;
 	CheckboxTableViewer listViewer;
 	Text detailsArea;
@@ -100,7 +103,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 		listViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				updateDetailsArea(detailsArea, getSelectedIU());
+				updateStatus();
 			}
 		});
 
@@ -117,18 +120,21 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		// no need to repeat it until the user changes selections
 		if (currentPlan == null)
 			checkedIUsChanged();
+		else
+			currentStatus = currentPlan.getStatus();
 
-		// The text area shows a description of the selected IU.
+		// The text area shows a description of the selected IU, or error detail if applicable.
 		Group group = new Group(composite, SWT.NONE);
 		group.setText(ProvUIMessages.ProfileModificationWizardPage_DetailsLabel);
 		group.setLayout(new GridLayout());
 		group.setLayoutData(new GridData(GridData.FILL_BOTH));
 		detailsArea = new Text(group, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
-		data = new GridData(GridData.FILL_HORIZONTAL | GridData.FILL_VERTICAL);
+		data = new GridData(SWT.FILL, SWT.FILL, true, false);
 		data.heightHint = convertHeightInCharsToPixels(DEFAULT_DESCRIPTION_HEIGHT);
+		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
 		detailsArea.setLayoutData(data);
 
-		updateDetailsArea(detailsArea, getSelectedIU());
+		updateStatus();
 		setControl(composite);
 		Dialog.applyDialogFont(composite);
 	}
@@ -196,16 +202,19 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			final Object[] selections = getCheckedElements();
 			if (selections.length == 0) {
 				currentPlan = null;
-				setMessage(ProvUIMessages.ProfileModificationWizardPage_NothingSelected, IMessageProvider.WARNING);
+				currentStatus = new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationWizardPage_NothingSelected);
 			} else
 				getContainer().run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
 						try {
 							currentPlan = computeProvisioningPlan(selections, monitor);
+							if (currentPlan != null)
+								currentStatus = currentPlan.getStatus();
+							else
+								currentStatus = NULL_PLAN_STATUS;
 						} catch (ProvisionException e) {
 							currentPlan = null;
-							ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
-							setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
+							currentStatus = ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
 						}
 					}
 				});
@@ -213,25 +222,9 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			// Nothing to report if thread was interrupted
 		} catch (InvocationTargetException e) {
 			currentPlan = null;
-			ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
-			setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
+			currentStatus = ProvUI.handleException(e.getCause(), ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, StatusManager.LOG);
 		}
-		if (currentPlan != null)
-			if (currentPlan.getStatus().isOK()) {
-				setPageComplete(true);
-				setMessage(getDescription(), IMessageProvider.NONE);
-
-			} else {
-				int messageType = IMessageProvider.INFORMATION;
-				int severity = currentPlan.getStatus().getSeverity();
-				if (severity == IStatus.ERROR)
-					messageType = IMessageProvider.ERROR;
-				else if (severity == IStatus.WARNING)
-					messageType = IMessageProvider.WARNING;
-				setMessage(currentPlan.getStatus().getMessage(), messageType);
-				setPageComplete(false);
-				ProvUI.reportStatus(currentPlan.getStatus(), StatusManager.LOG);
-			}
+		updateStatus();
 	}
 
 	private ProfileModificationOperation createProfileModificationOperation(ProvisioningPlan plan) {
@@ -253,15 +246,85 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return new ProvisioningContext();
 	}
 
-	protected void updateDetailsArea(Text details, IInstallableUnit iu) {
-		String description = null;
-		if (iu != null)
-			description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION);
-		if (description == null)
-			description = ""; //$NON-NLS-1$
-		details.setText(description);
-	}
-
 	protected abstract String getOperationLabel();
 
+	void updateStatus() {
+		int messageType = IMessageProvider.NONE;
+		if (currentStatus != null && !currentStatus.isOK()) {
+			messageType = IMessageProvider.INFORMATION;
+			int severity = currentStatus.getSeverity();
+			if (severity == IStatus.ERROR)
+				messageType = IMessageProvider.ERROR;
+			else if (severity == IStatus.WARNING)
+				messageType = IMessageProvider.WARNING;
+			setPageComplete(false);
+			ProvUI.reportStatus(currentStatus, StatusManager.LOG);
+		} else {
+			setPageComplete(true);
+		}
+		setMessage(getMessageText(), messageType);
+		detailsArea.setText(getDetailText());
+	}
+
+	String getDetailText() {
+		String detail = ""; //$NON-NLS-1$
+		if (currentStatus == null || currentStatus.isOK()) {
+			IInstallableUnit iu = getSelectedIU();
+			if (iu != null)
+				detail = getIUDescription(iu);
+		} else {
+			// current status is not OK.  See if there are embedded exceptions or status to report
+			StringBuffer buffer = new StringBuffer();
+			appendDetailText(currentStatus, buffer, -1, false);
+			detail = buffer.toString();
+		}
+		return detail;
+	}
+
+	void appendDetailText(IStatus status, StringBuffer buffer, int indent, boolean includeTopLevel) {
+		for (int i = 0; i < indent; i++)
+			buffer.append(NESTING_INDENT);
+		if (includeTopLevel && status.getMessage() != null)
+			buffer.append(status.getMessage());
+		Throwable t = status.getException();
+		if (t != null) {
+			// A provision (or core) exception occurred.  Get its status message or if none, its top level message.
+			if (t instanceof CoreException) {
+				IStatus exceptionStatus = ((CoreException) t).getStatus();
+				if (exceptionStatus != null && exceptionStatus.getMessage() != null)
+					buffer.append(exceptionStatus.getMessage());
+				else {
+					String details = t.getLocalizedMessage();
+					if (details != null)
+						buffer.append(details);
+				}
+			} else {
+				String details = t.getLocalizedMessage();
+				if (details != null)
+					buffer.append(details);
+			}
+		} else {
+			// This is the most important case.  No exception occurred, we have a non-OK status after trying
+			// to get a provisioning plan.  It's important not to lose the multi status information.  The top level status
+			// message has already been reported 
+			IStatus[] children = status.getChildren();
+			for (int i = 0; i < children.length; i++) {
+				appendDetailText(children[i], buffer, indent + 1, true);
+				buffer.append('\n');
+			}
+		}
+	}
+
+	String getMessageText() {
+		if (currentStatus == null || currentStatus.isOK())
+			return getDescription();
+		return currentStatus.getMessage();
+	}
+
+	protected String getIUDescription(IInstallableUnit iu) {
+		String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION);
+		if (description == null)
+			description = ""; //$NON-NLS-1$
+		return description;
+	}
 }

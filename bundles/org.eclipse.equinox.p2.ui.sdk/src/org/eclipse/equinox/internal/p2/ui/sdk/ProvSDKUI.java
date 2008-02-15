@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 
 /**
  * ProvSDKUI provides API for accessing the configurable p2 UI components 

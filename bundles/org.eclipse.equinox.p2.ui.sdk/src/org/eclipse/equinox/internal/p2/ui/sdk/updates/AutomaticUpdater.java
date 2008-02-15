@@ -30,12 +30,12 @@ import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
@@ -48,14 +48,43 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class AutomaticUpdater implements IUpdateListener {
 
+	/**
+	 * @since 3.4
+	 *
+	 */
+	final class AutomaticUpdateAction extends UpdateAction {
+		ProvisioningPlan plan;
+
+		AutomaticUpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
+			super(selectionProvider, profileId, chooser, planValidator, licenseManager, queryProvider, shell);
+		}
+
+		public void initializePlan() {
+			try {
+				plan = getProvisioningPlan(toUpdate, profileId, new NullProgressMonitor());
+			} catch (ProvisionException e) {
+				// ignore
+			}
+		}
+
+		protected ProvisioningPlan getProvisioningPlan() {
+			if (plan != null)
+				return plan;
+			return super.getProvisioningPlan();
+		}
+	}
+
 	Preferences prefs;
 	StatusLineCLabelContribution updateAffordance;
+	AutomaticUpdateAction updateAction;
 	IStatusLineManager statusLineManager;
 	IInstallableUnit[] updatesFound;
 	IInstallableUnit[] toUpdate;
 	String profileId;
 	AutomaticUpdatesPopup popup;
 	ProvisioningListener profileChangeListener;
+	boolean alreadyValidated = false;
+	boolean alreadyDownloaded = false;
 	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
 
 	public AutomaticUpdater() {
@@ -70,6 +99,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		final boolean download = prefs.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
 		profileId = event.getProfileId();
 		updatesFound = event.getIUs();
+		alreadyDownloaded = false;
 		// Recompute the updates that we want to make available to the user.
 		toUpdate = getUpdatesToShow(updatesFound, new NullProgressMonitor());
 
@@ -94,11 +124,14 @@ public class AutomaticUpdater implements IUpdateListener {
 					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), plan, new DownloadPhaseSet(), false), null);
 					job.addJobChangeListener(new JobChangeAdapter() {
 						public void done(IJobChangeEvent jobEvent) {
+							alreadyDownloaded = true;
 							IStatus status = jobEvent.getResult();
 							if (status.isOK()) {
+								createUpdateAction();
+								updateAction.initializePlan();
 								PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 									public void run() {
-										showUpdatesAvailable(true);
+										updateAction.run();
 									}
 								});
 							} else if (status.getSeverity() != IStatus.CANCEL) {
@@ -108,9 +141,11 @@ public class AutomaticUpdater implements IUpdateListener {
 					});
 				}
 			} else {
+				createUpdateAction();
+				updateAction.initializePlan();
 				PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 					public void run() {
-						showUpdatesAvailable(false);
+						updateAction.run();
 					}
 				});
 			}
@@ -204,15 +239,13 @@ public class AutomaticUpdater implements IUpdateListener {
 			manager.update(true);
 	}
 
-	private void createUpdateAffordance() {
+	void createUpdateAffordance() {
 		updateAffordance = new StatusLineCLabelContribution(AUTO_UPDATE_STATUS_ITEM, 5);
 		updateAffordance.addListener(SWT.MouseDown, new Listener() {
 			public void handleEvent(Event event) {
 				launchUpdate();
 			}
 		});
-		updateAffordance.setTooltip(ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle);
-		updateAffordance.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE));
 		IStatusLineManager manager = getStatusLineManager();
 		if (manager != null) {
 			manager.add(updateAffordance);
@@ -220,17 +253,55 @@ public class AutomaticUpdater implements IUpdateListener {
 		}
 	}
 
-	private void createUpdatePopup(boolean alreadyDownloaded) {
+	void setUpdateAffordanceState(boolean isValid) {
+		if (updateAffordance == null)
+			return;
+		if (isValid) {
+			updateAffordance.setTooltip(ProvSDKMessages.AutomaticUpdater_ClickToReviewUpdates);
+			updateAffordance.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE));
+		} else {
+			updateAffordance.setTooltip(ProvSDKMessages.AutomaticUpdater_ClickToReviewUpdatesWithProblems);
+			updateAffordance.setImage(ProvUIImages.getImage(ProvUIImages.IMG_TOOL_UPDATE_PROBLEMS));
+		}
+		IStatusLineManager manager = getStatusLineManager();
+		if (manager != null) {
+			manager.update(true);
+		}
+	}
+
+	void createUpdatePopup() {
 		popup = new AutomaticUpdatesPopup(getWorkbenchWindowShell(), alreadyDownloaded, prefs);
 		popup.open();
 
 	}
 
-	void showUpdatesAvailable(boolean alreadyDownloaded) {
-		if (updateAffordance == null)
-			createUpdateAffordance();
-		if (popup == null)
-			createUpdatePopup(alreadyDownloaded);
+	void createUpdateAction() {
+		if (updateAction == null)
+			updateAction = new AutomaticUpdateAction(getSelectionProvider(), profileId, null, getPlanValidator(), ProvSDKUIActivator.getDefault().getLicenseManager(), ProvSDKUIActivator.getDefault().getQueryProvider(), null);
+	}
+
+	IPlanValidator getPlanValidator() {
+		return new IPlanValidator() {
+			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+				if (alreadyValidated)
+					return true;
+				// In all other cases we return false, because the clicking the popup will actually run the action.
+				String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+				if (plan != null) {
+					if (plan.getStatus().isOK() || !(MessageDialogWithToggle.NEVER.equals(openPlan))) {
+						if (updateAffordance == null)
+							createUpdateAffordance();
+						setUpdateAffordanceState(plan.getStatus().isOK());
+						if (popup == null)
+							createUpdatePopup();
+					} else {
+						// The pref is NEVER, the user doesn't want to know about it
+						ProvUI.reportStatus(plan.getStatus(), StatusManager.LOG);
+					}
+				}
+				return false;
+			}
+		};
 	}
 
 	void clearUpdatesAvailable() {
@@ -247,10 +318,11 @@ public class AutomaticUpdater implements IUpdateListener {
 			popup.close(false);
 			popup = null;
 		}
+		alreadyValidated = false;
 	}
 
-	public void launchUpdate() {
-		ISelectionProvider selectionProvider = new ISelectionProvider() {
+	ISelectionProvider getSelectionProvider() {
+		return new ISelectionProvider() {
 
 			/* (non-Javadoc)
 			 * @see org.eclipse.jface.viewers.ISelectionProvider#addSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
@@ -280,8 +352,11 @@ public class AutomaticUpdater implements IUpdateListener {
 				throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 			}
 		};
-		IAction action = new UpdateAction(selectionProvider, profileId, null, ProvSDKUIActivator.getDefault().getLicenseManager(), ProvSDKUIActivator.getDefault().getQueryProvider(), getWorkbenchWindowShell());
-		action.run();
+	}
+
+	public void launchUpdate() {
+		alreadyValidated = true;
+		updateAction.run();
 	}
 
 	private void registerProfileChangeListener() {
@@ -315,6 +390,11 @@ public class AutomaticUpdater implements IUpdateListener {
 				toUpdate = getUpdatesToShow(updatesFound, monitor);
 				if (toUpdate.length == 0)
 					clearUpdatesAvailable();
+				else {
+					createUpdateAction();
+					updateAction.initializePlan();
+					setUpdateAffordanceState(updateAction.getProvisioningPlan().getStatus().isOK());
+				}
 				return Status.OK_STATUS;
 			}
 		};

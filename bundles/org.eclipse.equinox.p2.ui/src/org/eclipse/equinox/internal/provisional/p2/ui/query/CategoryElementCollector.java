@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.osgi.framework.Version;
 
 /**

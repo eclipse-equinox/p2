@@ -11,7 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import java.net.URL;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 
 /**

@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Display;
 

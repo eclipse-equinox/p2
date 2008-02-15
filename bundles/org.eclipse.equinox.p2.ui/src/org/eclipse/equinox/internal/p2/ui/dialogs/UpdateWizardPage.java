@@ -20,7 +20,6 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IUpdateDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.swt.widgets.Text;
 
 public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 	AvailableUpdateElement[] updateElements;
@@ -65,14 +64,12 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 		listViewer.setCheckedElements(initialSelections);
 	}
 
-	protected void updateDetailsArea(Text details, IInstallableUnit iu) {
+	protected String getIUDescription(IInstallableUnit iu) {
 		if (iu != null) {
 			IUpdateDescriptor updateDescriptor = iu.getUpdateDescriptor();
-			if (updateDescriptor != null && updateDescriptor.getDescription() != null && updateDescriptor.getDescription().length() > 0) {
-				details.setText(updateDescriptor.getDescription());
-				return;
-			}
+			if (updateDescriptor != null && updateDescriptor.getDescription() != null && updateDescriptor.getDescription().length() > 0)
+				return updateDescriptor.getDescription();
 		}
-		super.updateDetailsArea(details, iu);
+		return super.getIUDescription(iu);
 	}
 }

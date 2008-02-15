@@ -17,10 +17,11 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.LicenseManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.*;
@@ -37,6 +38,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	static boolean DEBUG = false;
 	LicenseManager licenseManager;
+	IPlanValidator planValidator;
 
 	/**
 	 * Constructs a new drop adapter.
@@ -44,9 +46,10 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * @param viewer
 	 *            the navigator's viewer
 	 */
-	public InstallIUDropAdapter(StructuredViewer viewer, LicenseManager licenseManager) {
+	public InstallIUDropAdapter(StructuredViewer viewer, IPlanValidator planValidator, LicenseManager licenseManager) {
 		super(viewer);
 		this.licenseManager = licenseManager;
+		this.planValidator = planValidator;
 	}
 
 	/**
@@ -146,7 +149,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(selectionProvider, profileId, null, licenseManager, getShell());
+			InstallAction action = new InstallAction(selectionProvider, profileId, null, planValidator, licenseManager, getShell());
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();

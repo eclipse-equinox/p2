@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.RevertProfileWizardPage;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.jface.wizard.Wizard;
 
 /**

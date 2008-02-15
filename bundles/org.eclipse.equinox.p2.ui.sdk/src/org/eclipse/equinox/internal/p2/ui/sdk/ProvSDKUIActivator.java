@@ -12,15 +12,21 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.io.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.BundleContext;
@@ -39,6 +45,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private AutomaticUpdater updater;
 	private IQueryProvider queryProvider;
 	private SimpleLicenseManager licenseManager;
+	private IPlanValidator planValidator;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
 
@@ -184,5 +191,38 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		if (licenseManager == null)
 			licenseManager = new SimpleLicenseManager();
 		return licenseManager;
+	}
+
+	public IPlanValidator getPlanValidator() {
+		if (planValidator == null)
+			planValidator = new IPlanValidator() {
+				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+					if (plan == null)
+						return false;
+					if (plan.getStatus().isOK())
+						return true;
+					// Special case those statuses where we would never want to open a wizard
+					if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
+						ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK);
+						return false;
+					}
+
+					String openPlan = getPreferenceStore().getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+					if (MessageDialogWithToggle.ALWAYS.equals(openPlan)) {
+						return true;
+					}
+					if (MessageDialogWithToggle.NEVER.equals(openPlan)) {
+						ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
+						return false;
+					}
+					MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, ProvSDKMessages.ProvSDKUIActivator_OpenWizardAnyway, null, false, getPreferenceStore(), PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+					// Any answer but yes will stop the performance of the plan, but NO is interpreted to mean, show me the error.
+					if (dialog.getReturnCode() == IDialogConstants.NO_ID)
+						ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
+					return dialog.getReturnCode() == IDialogConstants.YES_ID;
+				}
+
+			};
+		return planValidator;
 	}
 }

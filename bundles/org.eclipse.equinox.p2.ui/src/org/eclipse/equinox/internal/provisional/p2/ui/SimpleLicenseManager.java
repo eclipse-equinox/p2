@@ -18,6 +18,7 @@ import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
