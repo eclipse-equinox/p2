@@ -1,26 +1,25 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
 import java.util.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.p2.engine.Operand;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.p2.query.Collector;
+import org.eclipse.osgi.service.resolver.VersionRange;
 
 public class OperationGenerator {
 	private static final IInstallableUnit NULL_IU = MetadataFactory.createResolvedInstallableUnit(MetadataFactory.createInstallableUnit(new InstallableUnitDescription()), new IInstallableUnitFragment[0]);
 
-	public InstallableUnitOperand[] generateOperation(Collection from_, Collection to_) {
+	public Operand[] generateOperation(Collection from_, Collection to_) {
 		List from = new ArrayList(from_);
 		Collections.sort(from);
 
@@ -30,7 +29,7 @@ public class OperationGenerator {
 		ArrayList operations = new ArrayList();
 		generateUpdates(from, to, operations);
 		generateInstallUninstall(from, to, operations);
-		InstallableUnitOperand[] ops = (InstallableUnitOperand[]) operations.toArray(new InstallableUnitOperand[operations.size()]);
+		Operand[] ops = (Operand[]) operations.toArray(new Operand[operations.size()]);
 		return ops;
 	}
 
@@ -75,10 +74,10 @@ public class OperationGenerator {
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
 				continue;
 			}
-			if (iuTo.getUpdateDescriptor() == null)
+			if (iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM) == null)
 				continue;
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
-			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
+			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_FROM), new VersionRange(iuTo.getProperty(IInstallableUnit.PROP_UPDATE_RANGE)));
 			Iterator updates = updateQuery.perform(from.iterator(), new Collector()).iterator();
 
 			IInstallableUnit iuFrom;
@@ -103,16 +102,16 @@ public class OperationGenerator {
 		to.removeAll(removedFromTo);
 	}
 
-	private InstallableUnitOperand createUninstallOperation(IInstallableUnit iu) {
-		return new InstallableUnitOperand(iu, null);
+	private Operand createUninstallOperation(IInstallableUnit iu) {
+		return new Operand(iu, null);
 	}
 
-	private InstallableUnitOperand createInstallOperation(IInstallableUnit iu) {
-		return new InstallableUnitOperand(null, iu);
+	private Operand createInstallOperation(IInstallableUnit iu) {
+		return new Operand(null, iu);
 	}
 
-	private InstallableUnitOperand createUpdateOperation(IInstallableUnit from, IInstallableUnit to) {
-		return new InstallableUnitOperand(from, to);
+	private Operand createUpdateOperation(IInstallableUnit from, IInstallableUnit to) {
+		return new Operand(from, to);
 	}
 
 	private IInstallableUnit next(List l, int i) {

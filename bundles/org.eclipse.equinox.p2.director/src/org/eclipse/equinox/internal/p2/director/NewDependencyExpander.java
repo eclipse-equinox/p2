@@ -1,12 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: 
- * 	IBM Corporation - initial API and implementation
- * 	Genuitec, LLC - added license support
+ * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
@@ -14,10 +12,10 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.resolution.UnsatisfiedCapability;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.p2.engine.Profile;
+import org.eclipse.equinox.p2.metadata.*;
+import org.eclipse.equinox.p2.metadata.query.CapabilityQuery;
+import org.eclipse.equinox.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
@@ -148,7 +146,7 @@ public class NewDependencyExpander {
 			ArrayList result = new ArrayList();
 			ProvidedCapability[] caps = wrapped.getProvidedCapabilities();
 			for (int i = 0; i < caps.length; i++) {
-				result.add(MetadataFactory.createRequiredCapability(caps[i].getNamespace(), caps[i].getName(), new VersionRange(caps[i].getVersion(), true, caps[i].getVersion(), true), wrapped.getFilter(), optionalReqs, false));
+				result.add(new RequiredCapability(caps[i].getNamespace(), caps[i].getName(), new VersionRange(caps[i].getVersion(), true, caps[i].getVersion(), true), wrapped.getFilter(), optionalReqs, false));
 			}
 			result.addAll(Arrays.asList(wrapped.getRequiredCapabilities()));
 			return (RequiredCapability[]) result.toArray(new RequiredCapability[result.size()]);
@@ -212,18 +210,6 @@ public class NewDependencyExpander {
 		public IInstallableUnit unresolved() {
 			return this;
 		}
-
-		public IUpdateDescriptor getUpdateDescriptor() {
-			return wrapped.getUpdateDescriptor();
-		}
-
-		public License getLicense() {
-			return wrapped.getLicense();
-		}
-
-		public Copyright getCopyright() {
-			return wrapped.getCopyright();
-		}
 	}
 
 	static final int OperationWork = 100;
@@ -239,7 +225,7 @@ public class NewDependencyExpander {
 	private Map must = new HashMap();
 	private Picker picker;
 
-	private Dictionary selectionContext;
+	private Profile profile;
 
 	private RecommendationDescriptor recommendations;
 
@@ -249,12 +235,12 @@ public class NewDependencyExpander {
 
 	private Collection solution;
 
-	public NewDependencyExpander(IInstallableUnit[] r, IInstallableUnit[] alreadyInstalled, IInstallableUnit[] availableIUs, Dictionary selectionContext, boolean includeOptional) {
+	public NewDependencyExpander(IInstallableUnit[] r, IInstallableUnit[] alreadyInstalled, IInstallableUnit[] availableIUs, Profile profile, boolean includeOptional) {
+		this.profile = profile;
 		this.roots = (r == null) ? new IInstallableUnit[0] : r;
 		this.includeOptional = includeOptional;
 		alreadyInstalled = alreadyInstalled == null ? new IInstallableUnit[0] : alreadyInstalled;
 		this.alreadyInstalled.addAll(Arrays.asList(alreadyInstalled));
-		this.selectionContext = selectionContext;
 
 		IInstallableUnit[] result = new IInstallableUnit[roots.length + alreadyInstalled.length + availableIUs.length];
 		System.arraycopy(roots, 0, result, 0, roots.length);
@@ -327,10 +313,10 @@ public class NewDependencyExpander {
 	}
 
 	private Collection collectFlavorProviders(Collection toSearchFor) {
-		String flavor = (String) selectionContext.get(IProfile.PROP_ENVIRONMENTS);
+		String flavor = profile.getValue(Profile.PROP_FLAVOR);
 		if (flavor == null)
 			return new HashSet();
-		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
+		IInstallableUnit[][] picked = picker.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability(IInstallableUnit.NAMESPACE_FLAVOR, flavor, VersionRange.emptyRange, null, false, false)}, true /* fragmentsOnly */);
 		IInstallableUnit[] ius;
 		if (picked[0].length > 0)
 			ius = picked[0];
@@ -349,7 +335,7 @@ public class NewDependencyExpander {
 		Set picked = new HashSet();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit current = (IInstallableUnit) iterator.next();
-			IInstallableUnit[][] candidates = picker.findInstallableUnit(null, null, new RequiredCapability[] {MetadataFactory.createRequiredCapability("fragment", current.getId(), VersionRange.emptyRange, null, true, false)}, false /* not fragmentsOnly */); //$NON-NLS-1$
+			IInstallableUnit[][] candidates = picker.findInstallableUnit(null, null, new RequiredCapability[] {new RequiredCapability("fragment", current.getId(), VersionRange.emptyRange, null, true, false)}, false /* not fragmentsOnly */); //$NON-NLS-1$
 			IInstallableUnit[] matches = candidates[0].length > 0 ? candidates[0] : candidates[1];
 			if (matches.length > 0) { //TODO Here we need to check the filter of the found iu
 				if (matches.length == 1) {
@@ -357,7 +343,7 @@ public class NewDependencyExpander {
 					continue;
 				}
 				//verify that each IU requires the current iu
-				ProvidedCapability capForCurrent = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, current.getId(), current.getVersion());
+				ProvidedCapability capForCurrent = new ProvidedCapability(IInstallableUnit.NAMESPACE_IU, current.getId(), current.getVersion());
 				Map toAdd = new HashMap();
 				for (int i = 0; i < matches.length; i++) {
 					RequiredCapability[] reqs = matches[i].getRequiredCapabilities();
@@ -482,12 +468,12 @@ public class NewDependencyExpander {
 			RequiredCapability[] toAdd = currentUnit.getRequiredCapabilities();
 			outer: for (int i = 0; i < toAdd.length; i++) {
 				RequiredCapability current = toAdd[i];
-				if (isApplicable(current) && !isMeta(current) && !current.isOptional()) {
+				if (isApplicable(current) && !isMeta(current)) {
 					MatchKey key = new MatchKey(current);
 					List match = (List) must.get(key);
 					if (match == null) {
 						//We've never seen a requirement like this. Make a new match
-						must.put(key, createList(new Match(current, selectionContext)));
+						must.put(key, createList(new Match(current, profile.getSelectionContext())));
 					} else {
 						//look for an existing match whose version range is overlapping the new one
 						for (Iterator matches = match.iterator(); matches.hasNext();) {
@@ -495,13 +481,13 @@ public class NewDependencyExpander {
 							VersionRange newRange = intersect(currentMatch.req.getRange(), current.getRange());
 							if (newRange != null) {
 								//merge version range and environment with existing match
-								currentMatch.req = MetadataFactory.createRequiredCapability(current.getNamespace(), current.getName(), newRange, current.getFilter(), currentMatch.req.isOptional() && current.isOptional(), false);
+								currentMatch.req = new RequiredCapability(current.getNamespace(), current.getName(), newRange, current.getFilter(), currentMatch.req.isOptional() && current.isOptional(), false);
 								currentMatch.env = mergeEnvironments(currentMatch.env, current);
 								continue outer;
 							}
 						}
 						//the new match is disjoint from existing ones, so add a new match to the list
-						match.add(new Match(current, selectionContext));
+						match.add(new Match(current, profile.getSelectionContext()));
 					}
 				}
 			}
@@ -569,7 +555,7 @@ public class NewDependencyExpander {
 	}
 
 	private void invokeResolver(MultiStatus problems) {
-		resolver = new ResolutionHelper(selectionContext, recommendations);
+		resolver = new ResolutionHelper(profile.getSelectionContext(), recommendations);
 		Set toInstall = new HashSet(must.size());
 		for (Iterator iterator = must.values().iterator(); iterator.hasNext();) {
 			List allMatches = (List) iterator.next();
@@ -591,7 +577,7 @@ public class NewDependencyExpander {
 		if (filter == null)
 			return true;
 		try {
-			return DirectorActivator.context.createFilter(filter).match(selectionContext);
+			return DirectorActivator.context.createFilter(filter).match(profile.getSelectionContext());
 		} catch (InvalidSyntaxException e) {
 			return false;
 		}
