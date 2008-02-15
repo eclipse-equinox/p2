@@ -11,11 +11,12 @@
 package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.equinox.internal.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
@@ -26,6 +27,7 @@ import org.xml.sax.*;
  * Simple test of the engine API.
  */
 public class ProfileTest extends AbstractProvisioningTest {
+
 	public ProfileTest(String name) {
 		super(name);
 	}
@@ -224,6 +226,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 	private static Version PROFILE_TEST_VERSION = new Version("0.0.1");
 
 	private static String PROFILE_TEST_ELEMENT = "test";
+	public static final String PROFILES_ELEMENT = "profiles"; //$NON-NLS-1$
 
 	class ProfileStringWriter extends ProfileWriter {
 
@@ -235,6 +238,17 @@ public class ProfileTest extends AbstractProvisioningTest {
 			start(PROFILE_TEST_ELEMENT);
 			writeProfiles(profiles);
 			end(PROFILE_TEST_ELEMENT);
+		}
+
+		public void writeProfiles(IProfile[] profiles) {
+			if (profiles.length > 0) {
+				start(PROFILES_ELEMENT);
+				attribute(COLLECTION_SIZE_ATTRIBUTE, profiles.length);
+				for (int i = 0; i < profiles.length; i++) {
+					writeProfile(profiles[i]);
+				}
+				end(PROFILES_ELEMENT);
+			}
 		}
 	}
 
@@ -250,7 +264,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 			this.status = null;
 			try {
 				getParser();
-				TestHandler2 testHandler = new TestHandler2();
+				TestHandler testHandler = new TestHandler();
 				xmlReader.setContentHandler(new ProfileDocHandler(PROFILE_TEST_ELEMENT, testHandler));
 				xmlReader.parse(new InputSource(new StringReader(profileString)));
 				if (isValidXML()) {
@@ -288,7 +302,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 			}
 		}
 
-		private final class TestHandler2 extends RootHandler {
+		private final class TestHandler extends RootHandler {
 
 			private ProfilesHandler profilesHandler;
 			IProfile[] profiles;
@@ -318,45 +332,87 @@ public class ProfileTest extends AbstractProvisioningTest {
 
 		}
 
-		//		private final class TestHandler extends RootHandler {
-		//
-		//			private ProfileHandler profileHandler = null;
-		//
-		//			private Profile profile = null;
-		//			private Map singleton = new HashMap(1);
-		//
-		//			public TestHandler() {
-		//				super();
-		//			}
-		//
-		//			public Profile getProfile() {
-		//				return profile;
-		//			}
-		//
-		//			protected void handleRootAttributes(Attributes attributes) {
-		//				String[] values = parseAttributes(attributes, noAttributes, noAttributes);
-		//			}
-		//
-		//			public void startElement(String name, Attributes attributes) {
-		//				if (PROFILE_ELEMENT.equals(name)) {
-		//					if (profileHandler == null) {
-		//						profileHandler = new ProfileHandler(this, attributes, singleton);
-		//					} else {
-		//						duplicateElement(this, name, attributes);
-		//					}
-		//				} else {
-		//					invalidElement(name, attributes);
-		//				}
-		//			}
-		//
-		//			protected void finished() {
-		//				if (isValidXML()) {
-		//					if (profileHandler != null && singleton.size() == 1) {
-		//						profile = new Profile(profileHandler.getProfileId(), null, profileHandler.getProperties());
-		//					}
-		//				}
-		//			}
-		//		}
+		protected class ProfilesHandler extends AbstractHandler {
+
+			private final Map profileHandlers;
+
+			public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes) {
+				super(parentHandler, PROFILES_ELEMENT);
+				String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+				profileHandlers = (size != null ? new HashMap(new Integer(size).intValue()) : new HashMap(4));
+			}
+
+			public IProfile[] getProfiles() {
+				if (profileHandlers.isEmpty())
+					return new IProfile[0];
+
+				Map profileMap = new LinkedHashMap();
+				for (Iterator it = profileHandlers.keySet().iterator(); it.hasNext();) {
+					String profileId = (String) it.next();
+					addProfile(profileId, profileMap);
+				}
+
+				return (IProfile[]) profileMap.values().toArray(new IProfile[profileMap.size()]);
+			}
+
+			private void addProfile(String profileId, Map profileMap) {
+				if (profileMap.containsKey(profileId))
+					return;
+
+				ProfileHandler profileHandler = (ProfileHandler) profileHandlers.get(profileId);
+				Profile parentProfile = null;
+
+				String parentId = profileHandler.getParentId();
+				if (parentId != null) {
+					addProfile(parentId, profileMap);
+					parentProfile = (Profile) profileMap.get(parentId);
+				}
+
+				Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
+				IInstallableUnit[] ius = profileHandler.getInstallableUnits();
+				if (ius != null) {
+					for (int i = 0; i < ius.length; i++) {
+						IInstallableUnit iu = ius[i];
+						profile.addInstallableUnit(iu);
+						Map iuProperties = profileHandler.getIUProperties(iu);
+						if (iuProperties != null) {
+							for (Iterator it = iuProperties.entrySet().iterator(); it.hasNext();) {
+								Entry entry = (Entry) it.next();
+								String key = (String) entry.getKey();
+								String value = (String) entry.getValue();
+								profile.setInstallableUnitProperty(iu, key, value);
+							}
+						}
+					}
+				}
+				profileMap.put(profileId, profile);
+			}
+
+			public void startElement(String name, Attributes attributes) {
+				if (name.equals(PROFILE_ELEMENT)) {
+					new ProfilesProfileHandler(this, attributes, profileHandlers);
+				} else {
+					invalidElement(name, attributes);
+				}
+			}
+		}
+
+		public class ProfilesProfileHandler extends ProfileHandler {
+			private final Map profileHandlers;
+
+			public ProfilesProfileHandler(ProfilesHandler profilesHandler, Attributes attributes, Map profileHandlers) {
+				this.profileHandlers = profileHandlers;
+				this.parentHandler = profilesHandler;
+				xmlReader.setContentHandler(this);
+				handleRootAttributes(attributes);
+			}
+
+			protected void finished() {
+				if (isValidXML()) {
+					profileHandlers.put(getProfileId(), this);
+				}
+			}
+		}
 
 		protected String getErrorMessage() {
 			return "Error parsing profile string";

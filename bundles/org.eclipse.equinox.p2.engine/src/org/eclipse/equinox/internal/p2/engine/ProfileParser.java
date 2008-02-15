@@ -10,35 +10,40 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.util.*;
-import org.eclipse.equinox.internal.p2.persistence.XMLParser;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataParser;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Version;
 import org.xml.sax.Attributes;
 
 /**
  *	An abstract XML parser class for parsing profiles as written by the ProfileWriter.
  */
-public abstract class ProfileParser extends XMLParser implements ProfileXMLConstants {
+public abstract class ProfileParser extends MetadataParser implements ProfileXMLConstants {
 
 	public ProfileParser(BundleContext context, String bundleId) {
 		super(context, bundleId);
 	}
 
-	protected class ProfileHandler extends AbstractHandler {
+	protected class ProfileHandler extends RootHandler {
 
 		private final String[] required = new String[] {ID_ATTRIBUTE};
 
-		private final Map profileHandlers;
-		private String profileId = null;
+		private String profileId;
 		private String parentId;
-		private PropertiesHandler propertiesHandler = null;
+		private PropertiesHandler propertiesHandler;
+		private InstallableUnitsHandler unitsHandler;
+		private IUsPropertiesHandler iusPropertiesHandler;
 
-		public ProfileHandler(AbstractHandler parentHandler, Attributes attributes, Map profileHandlers) {
-			super(parentHandler, PROFILE_ELEMENT);
+		public ProfileHandler() {
+			// default
+		}
+
+		protected void handleRootAttributes(Attributes attributes) {
 			profileId = parseRequiredAttributes(attributes, required)[0];
 			parentId = parseOptionalAttribute(attributes, PARENT_ID_ATTRIBUTE);
-			this.profileHandlers = profileHandlers;
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -48,14 +53,20 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 				} else {
 					duplicateElement(this, name, attributes);
 				}
+			} else if (INSTALLABLE_UNITS_ELEMENT.equals(name)) {
+				if (unitsHandler == null) {
+					unitsHandler = new InstallableUnitsHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
+			} else if (IUS_PROPERTIES_ELEMENT.equals(name)) {
+				if (iusPropertiesHandler == null) {
+					iusPropertiesHandler = new IUsPropertiesHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
 			} else {
 				invalidElement(name, attributes);
-			}
-		}
-
-		protected void finished() {
-			if (isValidXML()) {
-				profileHandlers.put(profileId, this);
 			}
 		}
 
@@ -72,50 +83,76 @@ public abstract class ProfileParser extends XMLParser implements ProfileXMLConst
 				return null;
 			return propertiesHandler.getProperties();
 		}
+
+		public IInstallableUnit[] getInstallableUnits() {
+			if (unitsHandler == null)
+				return null;
+			return unitsHandler.getUnits();
+		}
+
+		public Map getIUProperties(IInstallableUnit iu) {
+			if (iusPropertiesHandler == null)
+				return null;
+
+			Map iusPropertiesMap = iusPropertiesHandler.getIUsPropertiesMap();
+			if (iusPropertiesMap == null)
+				return null;
+
+			String iuIdentity = iu.getId() + "_" + iu.getVersion().toString(); //$NON-NLS-1$
+			return (Map) iusPropertiesMap.get(iuIdentity);
+		}
 	}
 
-	protected class ProfilesHandler extends AbstractHandler {
+	protected class IUPropertiesHandler extends AbstractHandler {
 
-		private Map profileHandlers = null;
-		private Map profiles;
+		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 
-		public ProfilesHandler(AbstractHandler parentHandler, Attributes attributes) {
-			super(parentHandler, PROFILES_ELEMENT);
-			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
-			profileHandlers = (size != null ? new HashMap(new Integer(size).intValue()) : new HashMap(4));
+		private String iuIdentity;
+		private Map iusPropertiesMap;
+		private PropertiesHandler propertiesHandler;
+
+		public IUPropertiesHandler(AbstractHandler parentHandler, Attributes attributes, Map iusPropertiesMap) {
+			super(parentHandler, IU_PROPERTIES_ELEMENT);
+			this.iusPropertiesMap = iusPropertiesMap;
+
+			String values[] = parseRequiredAttributes(attributes, required);
+			String id = values[0];
+			Version version = checkVersion(IU_PROPERTIES_ELEMENT, VERSION_ATTRIBUTE, values[1]);
+			iuIdentity = id + "_" + version.toString(); //$NON-NLS-1$
 		}
 
-		public IProfile[] getProfiles() {
-			if (profileHandlers.isEmpty())
-				return new IProfile[0];
-
-			profiles = new HashMap();
-			for (Iterator it = profileHandlers.keySet().iterator(); it.hasNext();) {
-				String profileId = (String) it.next();
-				addProfile(profileId);
+		protected void finished() {
+			if (isValidXML() && iuIdentity != null && propertiesHandler != null) {
+				iusPropertiesMap.put(iuIdentity, propertiesHandler.getProperties());
 			}
-
-			return (IProfile[]) profiles.values().toArray(new IProfile[profiles.size()]);
-		}
-
-		private void addProfile(String profileId) {
-			if (profiles.containsKey(profileId))
-				return;
-
-			ProfileHandler profileHandler = (ProfileHandler) profileHandlers.get(profileId);
-			Profile parentProfile = null;
-			String parentId = profileHandler.parentId;
-			if (parentId != null) {
-				addProfile(parentId);
-				parentProfile = (Profile) profiles.get(parentId);
-			}
-			IProfile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
-			profiles.put(profileId, profile);
 		}
 
 		public void startElement(String name, Attributes attributes) {
-			if (name.equals(PROFILE_ELEMENT)) {
-				new ProfileHandler(this, attributes, profileHandlers);
+			if (name.equals(PROPERTIES_ELEMENT)) {
+				propertiesHandler = new PropertiesHandler(this, attributes);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+	}
+
+	protected class IUsPropertiesHandler extends AbstractHandler {
+
+		private Map iusPropertiesMap;
+
+		public IUsPropertiesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, IUS_PROPERTIES_ELEMENT);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			iusPropertiesMap = (size != null ? new LinkedHashMap(new Integer(size).intValue()) : new LinkedHashMap(4));
+		}
+
+		public Map getIUsPropertiesMap() {
+			return iusPropertiesMap;
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(IU_PROPERTIES_ELEMENT)) {
+				new IUPropertiesHandler(this, attributes, iusPropertiesMap);
 			} else {
 				invalidElement(name, attributes);
 			}

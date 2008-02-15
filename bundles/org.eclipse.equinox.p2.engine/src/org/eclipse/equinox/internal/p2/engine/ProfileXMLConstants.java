@@ -25,7 +25,9 @@ public interface ProfileXMLConstants extends XMLConstants {
 	public static final VersionRange XML_TOLERANCE = new VersionRange(COMPATIBLE_VERSION, true, new Version(2, 0, 0), false);
 
 	// Constants for profile elements
-	public static final String PROFILES_ELEMENT = "profiles"; //$NON-NLS-1$
-	public static final String PROFILE_ELEMENT = "profile"; //$NON-NLS-1$
 
+	public static final String PROFILE_ELEMENT = "profile"; //$NON-NLS-1$
+	public static final String IUS_PROPERTIES_ELEMENT = "iusProperties"; //$NON-NLS-1$
+	public static final String IU_PROPERTIES_ELEMENT = "iuProperties"; //$NON-NLS-1$
+	public static final String PROFILE_TARGET = "profile";
 }

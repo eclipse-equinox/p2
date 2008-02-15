@@ -9,11 +9,9 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.util.*;
+import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.installregistry.IInstallRegistry;
-import org.eclipse.equinox.internal.p2.installregistry.IProfileInstallRegistry;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
@@ -22,14 +20,14 @@ import org.eclipse.osgi.util.NLS;
 public class Profile implements IQueryable, IProfile {
 
 	//Internal id of the profile
-	private String profileId;
+	private final String profileId;
 
 	private Profile parentProfile;
 
 	/**
 	 * 	A collection of child profiles.
 	 */
-	private List subProfileIds = null; // child profile ids
+	private List subProfileIds; // child profile ids
 
 	private static String[] noSubProfiles = new String[0];
 	/**
@@ -48,33 +46,9 @@ public class Profile implements IQueryable, IProfile {
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Null_Profile_Id, null));
 		}
 		this.profileId = profileId;
-		this.parentProfile = parent;
-		if (parent != null) {
-			parent.addSubProfile(profileId);
-		}
+		setParent(parent);
 		if (properties != null)
 			storage.putAll(properties);
-
-		populateIUs();
-	}
-
-	private void populateIUs() {
-		IInstallRegistry installRegistry = (IInstallRegistry) ServiceHelper.getService(EngineActivator.getContext(), IInstallRegistry.class.getName());
-		if (installRegistry == null)
-			return;
-		IProfileInstallRegistry profileInstallRegistry = installRegistry.getProfileInstallRegistry(getProfileId());
-		if (profileInstallRegistry == null)
-			return;
-
-		IInstallableUnit[] ius = profileInstallRegistry.getInstallableUnits();
-		if (ius == null)
-			return;
-
-		for (int i = 0; i < ius.length; i++) {
-			IInstallableUnit iu = ius[i];
-			OrderedProperties properties = profileInstallRegistry.getInstallableUnitProfileProperties(iu);
-			iuProperties.put(iu, new OrderedProperties(properties));
-		}
 	}
 
 	/* (non-Javadoc)
@@ -89,6 +63,18 @@ public class Profile implements IQueryable, IProfile {
 	 */
 	public IProfile getParentProfile() {
 		return parentProfile;
+	}
+
+	public void setParent(Profile profile) {
+		if (profile == parentProfile)
+			return;
+
+		if (parentProfile != null)
+			parentProfile.removeSubProfile(profileId);
+
+		parentProfile = profile;
+		if (parentProfile != null)
+			parentProfile.addSubProfile(profileId);
 	}
 
 	/*
@@ -247,9 +233,50 @@ public class Profile implements IQueryable, IProfile {
 
 	public void clearLocalProperties() {
 		storage.clear();
+		changed = true;
 	}
 
 	public boolean isChanged() {
 		return changed;
 	}
+
+	public void clearInstallableUnits() {
+		iuProperties.clear();
+		changed = true;
+	}
+
+	public Profile snapshot() {
+		Profile parentSnapshot = null;
+		if (parentProfile != null)
+			parentSnapshot = parentProfile.snapshot();
+
+		Profile snapshot = new Profile(profileId, parentSnapshot, storage);
+
+		if (subProfileIds != null) {
+			for (Iterator it = subProfileIds.iterator(); it.hasNext();) {
+				String subProfileId = (String) it.next();
+				snapshot.addSubProfile(subProfileId);
+			}
+		}
+
+		Set ius = iuProperties.keySet();
+		for (Iterator it = ius.iterator(); it.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) it.next();
+			snapshot.addInstallableUnit(iu);
+			Map properties = getInstallableUnitProperties(iu);
+			if (properties != null)
+				snapshot.addInstallableUnitProperties(iu, properties);
+		}
+		return snapshot;
+	}
+
+	public void addInstallableUnitProperties(IInstallableUnit iu, Map properties) {
+		for (Iterator it = properties.entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			String key = (String) entry.getKey();
+			String value = (String) entry.getValue();
+			setInstallableUnitProperty(iu, key, value);
+		}
+	}
+
 }

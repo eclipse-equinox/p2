@@ -16,5 +16,5 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
  * @see IEngine#perform(IProfile, PhaseSet, Operand[], ProvisioningContext, org.eclipse.core.runtime.IProgressMonitor)
  */
 public class Operand {
-
+	// marker class
 }

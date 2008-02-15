@@ -12,10 +12,15 @@ package org.eclipse.equinox.internal.p2.engine;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
+import java.util.Iterator;
+import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
-public class ProfileWriter extends XMLWriter implements ProfileXMLConstants {
+public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants {
 
 	public ProfileWriter(OutputStream output, ProcessingInstruction[] processingInstructions) throws IOException {
 		super(output, processingInstructions);
@@ -28,17 +33,29 @@ public class ProfileWriter extends XMLWriter implements ProfileXMLConstants {
 		if (parentProfile != null)
 			attribute(PARENT_ID_ATTRIBUTE, parentProfile.getProfileId());
 		writeProperties(profile.getLocalProperties());
+		Collector collector = profile.query(InstallableUnitQuery.ANY, new Collector(), null);
+		writeInstallableUnits(collector.iterator(), collector.size());
+		writeInstallableUnitsProperties(collector.iterator(), collector.size(), profile);
 		end(PROFILE_ELEMENT);
 	}
 
-	public void writeProfiles(IProfile[] profiles) {
-		if (profiles.length > 0) {
-			start(PROFILES_ELEMENT);
-			attribute(COLLECTION_SIZE_ATTRIBUTE, profiles.length);
-			for (int i = 0; i < profiles.length; i++) {
-				writeProfile(profiles[i]);
-			}
-			end(PROFILES_ELEMENT);
+	private void writeInstallableUnitsProperties(Iterator it, int size, IProfile profile) {
+		if (size == 0)
+			return;
+		start(IUS_PROPERTIES_ELEMENT);
+		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
+		while (it.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) it.next();
+			OrderedProperties properties = profile.getInstallableUnitProperties(iu);
+			if (properties.isEmpty())
+				continue;
+
+			start(IU_PROPERTIES_ELEMENT);
+			attribute(ID_ATTRIBUTE, iu.getId());
+			attribute(VERSION_ATTRIBUTE, iu.getVersion().toString());
+			writeProperties(properties);
+			end(IU_PROPERTIES_ELEMENT);
 		}
+		end(IUS_PROPERTIES_ELEMENT);
 	}
 }
