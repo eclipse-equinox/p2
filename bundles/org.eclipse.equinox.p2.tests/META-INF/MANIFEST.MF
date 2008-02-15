@@ -55,8 +55,7 @@ Bundle-Activator: org.eclipse.equinox.p2.tests.TestActivator
 Bundle-ClassPath: .
 Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.frameworkadmin,
- org.eclipse.equinox.common,
- org.eclipse.equinox.p2.download
+ org.eclipse.equinox.common
 Eclipse-LazyStart: true
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.4

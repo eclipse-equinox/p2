@@ -11,7 +11,6 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.e
  org.eclipse.equinox.internal.provisional.p2.engine.phases
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.core.helpers,
- org.eclipse.equinox.internal.p2.download,
  org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.p2.metadata.repository,
  org.eclipse.equinox.internal.p2.metadata.repository.io,

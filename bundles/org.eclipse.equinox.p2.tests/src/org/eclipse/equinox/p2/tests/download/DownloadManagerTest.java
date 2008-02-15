@@ -12,7 +12,7 @@ package org.eclipse.equinox.p2.tests.download;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.download.DownloadManager;
+import org.eclipse.equinox.internal.p2.engine.DownloadManager;
 
 /**
  * Simple tests of {@link DownloadManager} API.

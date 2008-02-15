@@ -15,6 +15,9 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.engine.messages"; //$NON-NLS-1$
 
+	public static String download_artifact;
+	public static String download_no_repository;
+
 	public static String Engine_Error_During_Phase;
 	public static String Engine_Operation_Canceled_By_User;
 
