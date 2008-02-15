@@ -15,14 +15,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
-public class Mirror {
+/**
+ * A utility class that performs mirroring of artifacts between repositories.
+ */
+public class Mirroring {
 	private IArtifactRepository source;
 	private IArtifactRepository destination;
 	private boolean raw;
 
-	public Mirror(IArtifactRepository source, IArtifactRepository destination, boolean raw) {
+	public Mirroring(IArtifactRepository source, IArtifactRepository destination, boolean raw) {
 		this.source = source;
 		this.destination = destination;
 		this.raw = raw;
@@ -55,6 +59,9 @@ public class Mirror {
 				if (repositoryStream != null)
 					repositoryStream.close();
 			}
+		} catch (ProvisionException e) {
+			// TODO Is that ok to ignore the exception
+			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Is that ok to ignore the exception
 			e.printStackTrace();

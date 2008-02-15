@@ -20,6 +20,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
+/**
+ * An application that performs mirroring of artifacts between repositories.
+ */
 public class MirrorApplication implements IApplication {
 
 	private URL sourceLocation;
@@ -33,7 +36,7 @@ public class MirrorApplication implements IApplication {
 		Map args = context.getArguments();
 		initializeFromArguments((String[]) args.get("application.args"));
 		setupRepositories();
-		new Mirror(source, destination, raw).run();
+		new Mirroring(source, destination, raw).run();
 		return null;
 	}
 
