@@ -240,7 +240,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		return artifactRepository.getArtifacts(requests, monitor);
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		return artifactRepository.getOutputStream(descriptor);
 	}
 

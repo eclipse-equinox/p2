@@ -23,14 +23,14 @@ import org.eclipse.equinox.internal.p2.core.Activator;
 public class ProvisionException extends CoreException {
 	private static final long serialVersionUID = 1L;
 
-	//Core status codes [0-100]
+	//General and core status codes [0-1000]
 	/**
 	 * Status code constant (value 1) for an uncategorized error.
 	 */
 	public static final int INTERNAL_ERROR = 1;
 
 	//Repository status codes [1000-1999]
-
+	//General repository codes [1000-1099]
 	/** 
 	 * Status code constant (value 1000) indicating a repository
 	 * unexpectedly does not exist.
@@ -66,6 +66,22 @@ public class ProvisionException extends CoreException {
 	 * made to create or access a repository of unknown type.
 	 */
 	public static final int REPOSITORY_UNKNOWN_TYPE = 1005;
+
+	//Metadata repository codes [1100-1199]
+
+	//Artifact repository codes [1200-1299]
+
+	/** 
+	 * Status code constant (value 1200) indicating an artifact unexpectedly
+	 * does not exist.
+	 */
+	public static final int ARTIFACT_NOT_FOUND = 1200;
+
+	/** 
+	 * Status code constant (value 1201) indicating an artifact unexpectedly
+	 * already exists.
+	 */
+	public static final int ARTIFACT_EXISTS = 1201;
 
 	/**
 	 * Creates a new exception with the given status object.  The message

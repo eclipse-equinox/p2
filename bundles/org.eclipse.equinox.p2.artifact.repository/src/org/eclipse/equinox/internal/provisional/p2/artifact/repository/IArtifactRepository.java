@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 import java.io.OutputStream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
@@ -91,8 +92,13 @@ public interface IArtifactRepository extends IRepository {
 	 * resultant stream
 	 * @return the stream to which the artifact content can be written. The returned output
 	 *  stream may implement <code>IStateful</code>.
+	 * @throws ProvisionException if the output stream could not be created.  Reasons include:
+	 * <ul>
+	 * <li>An I/O exception occurred (@link {@link ProvisionException#REPOSITORY_FAILED_WRITE}) .</li>
+	 * <li>An artifact already exists at that location ({@link ProvisionException#ARTIFACT_EXISTS}).</li>
+	 * </ul>
 	 */
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor);
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
 
 	/**
 	 * Remove the all keys, descriptors, and contents from this repository.

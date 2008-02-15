@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
@@ -105,9 +106,11 @@ public class MirrorRequest extends ArtifactRequest {
 		if (targetRepositoryProperties != null)
 			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
 
-		OutputStream destination = target.getOutputStream(destinationDescriptor);
-		if (destination == null) {
-			setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cant_get_outputstream, target, getArtifactKey())));
+		OutputStream destination;
+		try {
+			destination = target.getOutputStream(destinationDescriptor);
+		} catch (ProvisionException e) {
+			setResult(e.getStatus());
 			return;
 		}
 

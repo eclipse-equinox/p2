@@ -589,13 +589,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return DEFAULT_MAX_THREADS;
 	}
 
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor) {
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
 		assertModifiable();
-		// TODO we need a better way of distinguishing between errors and cases where 
-		// the stuff just already exists
 		// Check if the artifact is already in this repository
-		if (contains(descriptor))
-			return null;
+		if (contains(descriptor)) {
+			String msg = NLS.bind(Messages.available_already_in, getLocation().toExternalForm());
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.ARTIFACT_EXISTS, msg, null));
+		}
 
 		// create a copy of the original descriptor that we can manipulate
 		ArtifactDescriptor newDescriptor = new ArtifactDescriptor(descriptor);
@@ -604,9 +604,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		// Determine writing location
 		String newLocation = createLocation(newDescriptor);
-		if (newLocation == null)
-			// TODO: Log an error, or throw an exception?
-			return null;
 		String file = null;
 		try {
 			file = new URL(newLocation).getFile();
@@ -615,12 +612,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			Assert.isTrue(false, "Unexpected failure: " + e1); //$NON-NLS-1$
 		}
 
-		// TODO at this point we have to assume that the repo is file-based.  Eventually 
+		// TODO at this point we have to assume that the repository is file-based.  Eventually 
 		// we should end up with writeable URLs...
 		// Make sure that the file does not exist and that the parents do
 		File outputFile = new File(file);
 		if (outputFile.exists()) {
-			System.err.println("Artifact repository out of synch. Overwriting " + outputFile.getAbsoluteFile()); //$NON-NLS-1$
+			System.err.println("Artifact repository out of sync. Overwriting " + outputFile.getAbsoluteFile()); //$NON-NLS-1$
 			delete(outputFile);
 		}
 
@@ -629,26 +626,27 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			if (isFolderBased(newDescriptor)) {
 				outputFile.mkdirs();
 				if (!outputFile.exists())
-					// TODO: Log an error, or throw an exception?
-					return null;
+					throw failedWrite(null);
 
 				target = new ZippedFolderOutputStream(outputFile);
 			} else {
 				// file based
 				if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
-					// TODO: Log an error, or throw an exception?
-					return null;
+					throw failedWrite(null);
 				target = new FileOutputStream(file);
 			}
 
 			// finally create and return an output stream suitably wrapped so that when it is 
 			// closed the repository is updated with the descriptor
-
 			return new ArtifactOutputStream(new BufferedOutputStream(target), newDescriptor, outputFile);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw failedWrite(e);
 		}
-		return null;
+	}
+
+	private ProvisionException failedWrite(Exception e) throws ProvisionException {
+		String msg = NLS.bind(Messages.repoFailedWrite, getLocation().toExternalForm());
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, msg, e));
 	}
 
 	public synchronized String[][] getRules() {

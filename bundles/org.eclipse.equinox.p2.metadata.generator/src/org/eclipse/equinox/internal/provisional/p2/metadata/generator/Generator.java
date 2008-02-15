@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -794,15 +795,13 @@ public class Generator {
 		if (asIs && files.length == 1) {
 			try {
 				if (!destination.contains(descriptor)) {
-					OutputStream output = destination.getOutputStream(descriptor);
-					if (output == null)
-						throw new IOException(NLS.bind(Messages.exception_outputStream, descriptor));
-					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, new BufferedOutputStream(output), true);
+					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
+					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, output, true);
 				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+			} catch (ProvisionException e) {
+				LogHelper.log(e.getStatus());
 			} catch (IOException e) {
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
 			}
 		} else {
 			File tempFile = null;
@@ -810,14 +809,13 @@ public class Generator {
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				FileUtils.zip(files, tempFile);
 				if (!destination.contains(descriptor)) {
-					OutputStream output = destination.getOutputStream(descriptor);
-					if (output == null)
-						throw new IOException(NLS.bind(Messages.exception_outputStream, descriptor));
-					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, new BufferedOutputStream(output), true);
+					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
+					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
 				}
+			} catch (ProvisionException e) {
+				LogHelper.log(e.getStatus());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
 			} finally {
 				if (tempFile != null)
 					tempFile.delete();

@@ -13,19 +13,13 @@ package org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.VersionlessArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 public class Optimizer {
@@ -202,20 +196,24 @@ public class Optimizer {
 				// Do the actual work by asking the repo to get the artifact and put it in the destination.
 				IStatus status = repository.getArtifact(complete, destination, new NullProgressMonitor());
 				if (!status.isOK()) {
-					System.out.println("Getting the artifact is not ok.");
+					System.out.println("Getting the artifact is not ok."); //$NON-NLS-1$
 					System.out.println(status);
 				}
+			} catch (ProvisionException e) {
+				System.out.println("Skipping optimization of: " + descriptors[i].getArtifactKey()); //$NON-NLS-1$
+				System.out.println(e.getMessage());
+				e.printStackTrace();
 			} finally {
 				if (repositoryStream != null)
 					try {
 						repositoryStream.close();
 						IStatus status = ProcessingStepHandler.checkStatus(repositoryStream);
 						if (!status.isOK()) {
-							System.out.println("Skipping optimization of: " + descriptors[i].getArtifactKey());
+							System.out.println("Skipping optimization of: " + descriptors[i].getArtifactKey()); //$NON-NLS-1$
 							System.out.println(status.toString());
 						}
 					} catch (IOException e) {
-						System.out.println("Skipping optimization of: " + descriptors[i].getArtifactKey());
+						System.out.println("Skipping optimization of: " + descriptors[i].getArtifactKey()); //$NON-NLS-1$
 						System.out.println(e.getMessage());
 						e.printStackTrace();
 					}

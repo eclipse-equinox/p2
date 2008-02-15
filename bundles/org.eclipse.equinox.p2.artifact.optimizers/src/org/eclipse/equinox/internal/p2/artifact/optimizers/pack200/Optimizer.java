@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.osgi.util.NLS;
 
@@ -74,6 +75,10 @@ public class Optimizer {
 				System.out.println(NLS.bind(Messages.failed_getting_artifact, descriptor.getArtifactKey()));
 				System.out.println(status);
 			}
+		} catch (ProvisionException e) {
+			System.out.println(NLS.bind(Messages.skip_optimization, descriptor.getArtifactKey()));
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 		} finally {
 			if (repositoryStream != null)
 				try {
