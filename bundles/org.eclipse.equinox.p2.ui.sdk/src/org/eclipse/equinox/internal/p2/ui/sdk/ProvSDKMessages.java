@@ -117,8 +117,11 @@ public class ProvSDKMessages extends NLS {
 	public static String ProvisioningPreferencePage_Prompt;
 	public static String ProvSDKQueryProvider_ErrorRetrievingProfile;
 	public static String ProvSDKUIActivator_ErrorWritingLicenseRegistry;
+	public static String ProvSDKUIActivator_LaunchUpdateManager;
 	public static String ProvSDKUIActivator_LicenseManagerReadError;
 	public static String ProvSDKUIActivator_NoSelfProfile;
 	public static String ProvSDKUIActivator_OpenWizardAnyway;
 	public static String ProvSDKUIActivator_Question;
+	public static String ProvSDKUIActivator_UnsupportedFeatureMessage;
+	public static String ProvSDKUIActivator_UnsupportedFeatureTitle;
 }

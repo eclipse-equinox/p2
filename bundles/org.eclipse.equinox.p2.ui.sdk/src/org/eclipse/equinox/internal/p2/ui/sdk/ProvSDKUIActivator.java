@@ -23,8 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.dialogs.MessageDialogWithToggle;
+import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -199,8 +198,16 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
 					if (plan == null)
 						return false;
+					// If the plan requires install handler support, we want to open the old update UI
+					if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
+						MessageDialog dialog = new MessageDialog(shell, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureTitle, null, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureMessage, MessageDialog.WARNING, new String[] {ProvSDKMessages.ProvSDKUIActivator_LaunchUpdateManager, IDialogConstants.CANCEL_LABEL}, 0);
+						if (dialog.open() == 0)
+							UpdateManagerCompatibility.openInstaller();
+						return false;
+					}
 					if (plan.getStatus().isOK())
 						return true;
+
 					// Special case those statuses where we would never want to open a wizard
 					if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
 						ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK);

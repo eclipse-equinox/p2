@@ -174,6 +174,8 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateAndInstallSelectionDialog_DeselectAllLabel;
 	public static String UpdateAndInstallSelectionDialog_SelectAllLabel;
 	public static String UpdateAndInstallGroup_Refresh;
+	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
+	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
 	public static String UpdateOperation_NothingToUpdate;
 
 }

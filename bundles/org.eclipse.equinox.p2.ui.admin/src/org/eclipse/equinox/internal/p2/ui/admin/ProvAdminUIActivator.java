@@ -11,8 +11,11 @@
 package org.eclipse.equinox.internal.p2.ui.admin;
 
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.SimpleLicenseManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.UpdateManagerCompatibility;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -94,6 +97,18 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		if (planValidator == null)
 			planValidator = new IPlanValidator() {
 				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+					if (plan == null)
+						return false;
+					// If the plan requires install handler support, we want to open the old update UI
+					if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
+						MessageDialog dialog = new MessageDialog(shell, ProvAdminUIMessages.ProvAdminUIActivator_UnsupportedInstallHandler, null, ProvAdminUIMessages.ProvAdminUIActivator_UnsupportedInstallHandlerMessage, MessageDialog.WARNING, new String[] {ProvAdminUIMessages.ProvAdminUIActivator_LaunchUpdateManager, ProvAdminUIMessages.ProvAdminUIActivator_ContinueAnyway, IDialogConstants.CANCEL_LABEL}, 0);
+						int ret = dialog.open();
+						if (ret == 1) // continue anyway
+							return true;
+						if (ret == 0)
+							UpdateManagerCompatibility.openInstaller();
+						return false;
+					}
 					return true;
 				}
 			};

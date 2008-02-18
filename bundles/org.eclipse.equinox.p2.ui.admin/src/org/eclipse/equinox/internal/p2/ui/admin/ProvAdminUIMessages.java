@@ -46,6 +46,10 @@ public class ProvAdminUIMessages extends NLS {
 	// Preferences
 	public static String InstalledIUPropertyPage_NoInfoAvailable;
 	public static String ProvAdminQueryProvider_UpdateQueryError;
+	public static String ProvAdminUIActivator_ContinueAnyway;
+	public static String ProvAdminUIActivator_LaunchUpdateManager;
+	public static String ProvAdminUIActivator_UnsupportedInstallHandler;
+	public static String ProvAdminUIActivator_UnsupportedInstallHandlerMessage;
 	public static String ProvisioningPrefPage_HideSystemRepos;
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
 	public static String ProvisioningPrefPage_ShowInstallRootsOnly;
