@@ -97,4 +97,14 @@ public abstract class ProvElement implements IWorkbenchAdapter, IAdaptable {
 		}
 		return children.length > 0;
 	}
+
+	/**
+	 * Return true if labels should indicate that the element
+	 * is busy retrieving its contents.
+	 * @return <code>true</code> if the element is currently retrieving information
+	 * about itself, and <code>false</code> if it is not.
+	 */
+	public boolean isBusy() {
+		return false;
+	}
 }

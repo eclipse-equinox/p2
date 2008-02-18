@@ -22,9 +22,12 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -33,10 +36,11 @@ import org.eclipse.swt.widgets.Shell;
  * 
  * @since 3.4
  */
-public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITableLabelProvider {
+public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITableLabelProvider, IFontProvider {
 	final static int PRIMARY_COLUMN = 0;
 	final static String BLANK = ""; //$NON-NLS-1$
 	private String toolTipProperty = null;
+	Font busyFont;
 
 	private IUColumnConfig[] columnConfig = ProvUI.getIUColumnConfig();
 	Shell shell;
@@ -170,4 +174,45 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			return null;
 		return iu.getProperty(toolTipProperty);
 	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
+	 */
+	public Font getFont(Object element) {
+		if (element instanceof ProvElement) {
+			if (((ProvElement) element).isBusy()) {
+				if (busyFont == null) {
+					Font defaultFont = JFaceResources.getDefaultFont();
+					FontData[] data = defaultFont.getFontData();
+					for (int i = 0; i < data.length; i++) {
+						data[i].setStyle(SWT.ITALIC);
+					}
+					Display display = getDisplay();
+					if (display != null) {
+						busyFont = new Font(getDisplay(), data);
+						return busyFont;
+					}
+				} else {
+					return busyFont;
+				}
+			}
+		}
+		return null;
+	}
+
+	private Display getDisplay() {
+		Display display = Display.getCurrent();
+		if (display == null) {
+			display = Display.getDefault();
+		}
+		return display;
+	}
+
+	public void dispose() {
+		if (busyFont != null) {
+			busyFont.dispose();
+			busyFont = null;
+		}
+	}
+
 }

@@ -53,6 +53,14 @@ public class AvailableIUContentProvider extends RepositoryContentProvider {
 		}
 
 		/*
+		 * (non-Javadoc)
+		 * @see org.eclipse.equinox.internal.p2.ui.model.ProvElement#isBusy()
+		 */
+		public boolean isBusy() {
+			return true;
+		}
+
+		/*
 		 * 
 		 */
 		public String getImageId(Object o) {
