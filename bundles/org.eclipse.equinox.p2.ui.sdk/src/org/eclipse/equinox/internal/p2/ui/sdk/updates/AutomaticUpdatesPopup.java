@@ -40,7 +40,7 @@ import org.eclipse.ui.progress.WorkbenchJob;
  * @since 3.4
  */
 public class AutomaticUpdatesPopup extends PopupDialog {
-	public static final String[] ELAPSED = {ProvSDKMessages.AutomaticUpdateScheduler_5Minutes, ProvSDKMessages.AutomaticUpdateScheduler_15Minutes, ProvSDKMessages.AutomaticUpdateScheduler_30Minutes, ProvSDKMessages.AutomaticUpdateScheduler_60Minutes};
+	public static final String[] ELAPSED = {ProvSDKMessages.AutomaticUpdateScheduler_30Minutes, ProvSDKMessages.AutomaticUpdateScheduler_60Minutes, ProvSDKMessages.AutomaticUpdateScheduler_240Minutes};
 	private static final long MINUTE = 60 * 1000L;
 	private static final String PREFS_HREF = "PREFS"; //$NON-NLS-1$
 	private static final String DIALOG_SETTINGS_SECTION = "AutomaticUpdatesPopup"; //$NON-NLS-1$
@@ -178,17 +178,14 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 				if (ELAPSED[d].equals(elapsed))
 					switch (d) {
 						case 0 :
-							// 5 minutes
-							return 5 * MINUTE;
-						case 1 :
-							// 15 minutes
-							return 15 * MINUTE;
-						case 2 :
 							// 30 minutes
 							return 30 * MINUTE;
-						case 3 :
-							// 1 hour
+						case 1 :
+							// 60 minutes
 							return 60 * MINUTE;
+						case 2 :
+							// 240 minutes
+							return 240 * MINUTE;
 					}
 		}
 		return -1L;

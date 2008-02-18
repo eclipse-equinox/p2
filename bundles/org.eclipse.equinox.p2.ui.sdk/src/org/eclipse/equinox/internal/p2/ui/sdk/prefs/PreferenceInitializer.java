@@ -33,7 +33,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		node.putBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION, true);
 		node.putBoolean(PreferenceConstants.PREF_ENABLE_GC, false);
 		node.putBoolean(PreferenceConstants.PREF_GC_IMMEDIATELY, true);
-		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, ProvSDKMessages.AutomaticUpdateScheduler_5Minutes);
+		node.put(PreferenceConstants.PREF_REMIND_ELAPSED, ProvSDKMessages.AutomaticUpdateScheduler_30Minutes);
 		node.put(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN, MessageDialogWithToggle.PROMPT);
 	}
 

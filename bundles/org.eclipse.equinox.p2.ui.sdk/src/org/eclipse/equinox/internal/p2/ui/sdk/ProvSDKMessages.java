@@ -80,10 +80,9 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesPopup_RemindAndPrefLink;
 	public static String AutomaticUpdatesPopup_ReminderJobTitle;
 	public static String AutomaticUpdatesPreferencePage_findUpdates;
-	public static String AutomaticUpdateScheduler_15Minutes;
 	public static String AutomaticUpdateScheduler_30Minutes;
-	public static String AutomaticUpdateScheduler_5Minutes;
 	public static String AutomaticUpdateScheduler_60Minutes;
+	public static String AutomaticUpdateScheduler_240Minutes;
 	public static String AutomaticUpdateScheduler_UpdateNotInitialized;
 	public static String AutomaticUpdatesDialog_DownloadedNotification;
 	public static String AutomaticUpdatesDialog_UpdatesAvailableTitle;
