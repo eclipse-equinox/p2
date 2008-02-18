@@ -147,13 +147,6 @@ abstract class UndoableProvisioningOperation extends ProvisioningOperation imple
 	 */
 	public IStatus computeExecutionStatus(IProgressMonitor monitor) {
 		return okStatus();
-	} /*
-	 * (non-Javadoc)
-	 * @see org.eclipse.core.commands.operations.IAdvancedUndoableOperation2#runInBackground()
-	 */
-
-	public boolean runInBackground() {
-		return false;
 	}
 
 	/*

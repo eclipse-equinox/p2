@@ -43,8 +43,4 @@ abstract class RepositoryOperation extends UndoableProvisioningOperation {
 		return urls;
 	}
 
-	public boolean runInBackground() {
-		return true;
-	}
-
 }

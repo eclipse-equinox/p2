@@ -142,7 +142,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 		URL newURL = makeRepositoryURL(userURL);
 		if (newURL != null) {
-			ProvisioningOperationRunner.schedule(getOperation(newURL), getShell());
+			ProvisioningOperationRunner.run(getOperation(newURL), getShell());
 			return Status.OK_STATUS;
 		}
 		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);

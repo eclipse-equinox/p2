@@ -25,13 +25,34 @@ import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * Utility methods for running provisioning operations. All operations are
- * run in jobs, with the operation determining whether the job is run in
+ * Utility methods for running provisioning operations.   Operations can either
+ * be run synchronously or in a job.  When scheduled as a job, the operation
+ * determines whether the job is run in
  * the background or in the UI.
  * 
  * @since 3.4
  */
 public class ProvisioningOperationRunner {
+
+	/**
+	 * Run the provisioning operation synchronously, adding it to the undo history if it
+	 * supports undo.  Should only be used for operations that run quickly.
+	 * @param op The operation to execute
+	 * @param shell provided by the caller in order to supply UI information for prompting the
+	 *            user if necessary. May be <code>null</code>.
+	 */
+	public static void run(ProvisioningOperation op, Shell shell) {
+		try {
+			if (op instanceof IUndoableOperation) {
+				PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, null, ProvUI.getUIInfoAdapter(shell));
+			} else {
+				op.execute(null, ProvUI.getUIInfoAdapter(shell));
+			}
+		} catch (ExecutionException e) {
+			ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), StatusManager.SHOW | StatusManager.LOG);
+		}
+
+	}
 
 	/**
 	 * Schedule a job to execute the supplied ProvisioningOperation, and add it to the

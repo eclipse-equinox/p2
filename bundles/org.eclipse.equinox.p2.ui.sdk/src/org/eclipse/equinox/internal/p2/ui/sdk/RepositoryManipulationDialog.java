@@ -204,7 +204,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 				}
 				if (urls.size() > 0) {
 					RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, (URL[]) urls.toArray(new URL[urls.size()]));
-					ProvisioningOperationRunner.schedule(op, getShell());
+					ProvisioningOperationRunner.run(op, getShell());
 				}
 			}
 		});

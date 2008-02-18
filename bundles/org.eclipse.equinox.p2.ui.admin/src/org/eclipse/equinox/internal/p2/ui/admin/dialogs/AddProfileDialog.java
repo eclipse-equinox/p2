@@ -77,7 +77,7 @@ public class AddProfileDialog extends StatusDialog {
 		}
 		addedProfileId = profileGroup.getProfileId();
 		Map profileProperties = profileGroup.getProfileProperties();
-		ProvisioningOperationRunner.schedule(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfileId, profileProperties), getShell());
+		ProvisioningOperationRunner.run(new AddProfileOperation(ProvAdminUIMessages.AddProfileDialog_OperationLabel, addedProfileId, profileProperties), getShell());
 	}
 
 	void verifyComplete() {
