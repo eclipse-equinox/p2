@@ -240,9 +240,9 @@ public class MirrorSelector {
 		if (selected.failureCount > 0)
 			selected = mirrors[0];
 		//for now, don't tolerate failing mirrors
-		if (mirrors[0].failureCount > 0)
+		if (selected.failureCount > 0)
 			return null;
-		return mirrors[0];
+		return selected;
 	}
 
 }
