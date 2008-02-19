@@ -32,7 +32,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	/** 
 	 * A boolean property controlling whether mirroring is enabled.
 	 */
-	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
+	//	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
+	public static final boolean MIRRORS_ENABLED = "true".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
 	/** 
 	 * The key for a integer property controls the maximum number
