@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
@@ -207,6 +208,20 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	public ConfigData getConfigData() {
 		return manipulator == null ? null : manipulator.getConfigData();
+	}
+
+	public ConfigData loadConfigData(File location) {
+		if (manipulator == null)
+			return null;
+
+		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(Activator.getContext());
+		try {
+			parser.readFwConfig(manipulator, location);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return manipulator.getConfigData();
 	}
 
 	public File getConfigurationLocation() {

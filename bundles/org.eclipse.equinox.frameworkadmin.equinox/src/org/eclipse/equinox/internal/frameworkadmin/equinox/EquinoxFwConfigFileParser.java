@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
@@ -47,20 +48,20 @@ public class EquinoxFwConfigFileParser {
 		if (location == null)
 			return null;
 		boolean useReference = true;
-		if (location.startsWith("file:")) {
-			if (USE_REFERENCE_STRING != null && USE_REFERENCE_STRING.equals("false"))
+		if (location.startsWith("file:")) { //$NON-NLS-1$
+			if (USE_REFERENCE_STRING != null && USE_REFERENCE_STRING.equals("false")) //$NON-NLS-1$
 				useReference = false;
 		}
 
 		try {
 			new URL(location);
 		} catch (MalformedURLException e) {
-			Log.log(LogService.LOG_ERROR, "EquinoxFwConfigFileParser.getCommandLine():bundleInfo=" + bundleInfo, e);
+			Log.log(LogService.LOG_ERROR, "EquinoxFwConfigFileParser.getCommandLine():bundleInfo=" + bundleInfo, e); //$NON-NLS-1$
 			//			Never happen. ignore.
 		}
 		if (useReference)
-			if (!location.startsWith("reference:"))
-				location = "reference:" + location;
+			if (!location.startsWith("reference:")) //$NON-NLS-1$
+				location = "reference:" + location; //$NON-NLS-1$
 
 		int startLevel = bundleInfo.getStartLevel();
 		boolean toBeStarted = bundleInfo.isMarkedAsStarted();
@@ -74,11 +75,11 @@ public class EquinoxFwConfigFileParser {
 		sb.append(location);
 		if (startLevel == BundleInfo.NO_LEVEL && !toBeStarted)
 			return sb.toString();
-		sb.append("@");
+		sb.append('@');
 		if (startLevel != BundleInfo.NO_LEVEL)
 			sb.append(startLevel);
 		if (toBeStarted)
-			sb.append(":start");
+			sb.append(":start"); //$NON-NLS-1$
 		return sb.toString();
 	}
 
@@ -105,7 +106,7 @@ public class EquinoxFwConfigFileParser {
 				normalizeLocation(bInfos[i]);
 				sb.append(getCommandLine(bInfos[i], null));
 				if (i + 1 < bInfos.length)
-					sb.append(",");
+					sb.append(',');
 			}
 			props.setProperty(EquinoxConstants.PROP_BUNDLES, sb.toString());
 
@@ -138,12 +139,26 @@ public class EquinoxFwConfigFileParser {
 		if (msg == null)
 			return false;
 		msg = msg.trim();
-		if (msg.equals("start")) {
-			return true;
+		int colon = msg.indexOf(":"); //$NON-NLS-1$
+		if (colon > -1) {
+			return msg.substring(colon + 1).equals("start"); //$NON-NLS-1$
 		}
-		if (!msg.equals(""))
-			new IllegalArgumentException("Invalid Format =" + original);
-		return false;
+		return msg.equals("start"); //$NON-NLS-1$
+	}
+
+	private static int getStartLevel(String msg, String original) {
+		if (msg == null)
+			return BundleInfo.NO_LEVEL;
+		msg = msg.trim();
+		int colon = msg.indexOf(":"); //$NON-NLS-1$
+		if (colon > 0) {
+			try {
+				return Integer.parseInt(msg.substring(0, colon));
+			} catch (NumberFormatException e) {
+				return BundleInfo.NO_LEVEL;
+			}
+		}
+		return BundleInfo.NO_LEVEL;
 	}
 
 	static boolean isFwDependent(String key) {
@@ -156,7 +171,7 @@ public class EquinoxFwConfigFileParser {
 	private static void normalizeLocation(BundleInfo bInfo) {
 		String location = bInfo.getLocation();
 		try {
-			if (location.startsWith("file:")) {
+			if (location.startsWith("file:")) { //$NON-NLS-1$
 				bInfo.setLocation(new URL(location).toExternalForm());
 			} else {
 				bInfo.setLocation(new File(location).toURL().toExternalForm());
@@ -185,46 +200,23 @@ public class EquinoxFwConfigFileParser {
 	private static void setInstallingBundles(Manipulator manipulator, String value) throws NumberFormatException {
 		ConfigData configData = manipulator.getConfigData();
 		if (value != null) {
-			String[] bInfoStrings = Utils.getTokens(value, ",");
+			String[] bInfoStrings = Utils.getTokens(value, ","); //$NON-NLS-1$
 			for (int i = 0; i < bInfoStrings.length; i++) {
 				String token = bInfoStrings[i].trim();
-				token = FileUtils.getRealLocation(manipulator, token, false);
-				int index = 0;
-				while (true) {
-					if (token.charAt(index) == ' ')
-						index++;
-					else
-						break;
-				}
-				if (index != 0)
-					token = token.substring(index);
+				token = FileUtils.getRealLocation(manipulator, token, false).trim();
 
-				int indexI = token.indexOf("@");
-				if (indexI == -1) {
-					String location = FileUtils.getEclipseRealLocation(manipulator, token);
-					configData.addBundle(new BundleInfo(location));
-					//	configData.installingBundlesList.add(new BundleInfo(this.convertUrl(bInfoStrings[i])));
-					continue;
-				}
-				String location = token.substring(0, indexI);
-				location = FileUtils.getEclipseRealLocation(manipulator, location);
-				//					URL url = this.convertUrl(bInfoStrings[i].substring(0, indexI));
-				String slAndFlag = token.substring(indexI + "@".length());
-				boolean markedAsStarted = false;
-				int startLevel = -1;
-				int indexJ = slAndFlag.indexOf(":");
-				if (indexJ == -1) {
-					markedAsStarted = getMarkedAsStartedFormat(slAndFlag, token);
-					configData.addBundle(new BundleInfo(location, markedAsStarted));
-					continue;
-				} else if (indexJ == 0) {
-					markedAsStarted = getMarkedAsStartedFormat(slAndFlag.substring(indexJ + ":".length()), token);
-					configData.addBundle(new BundleInfo(location, startLevel, markedAsStarted));
-					continue;
-				}
-				startLevel = Integer.parseInt(slAndFlag.substring(0, indexJ));
-				markedAsStarted = getMarkedAsStartedFormat(slAndFlag.substring(indexJ + ":".length()), bInfoStrings[i]);
-				configData.addBundle(new BundleInfo(location, startLevel, markedAsStarted));
+				int indexI = token.indexOf("@"); //$NON-NLS-1$
+				String location = (indexI == -1) ? token : token.substring(0, indexI);
+				String realLocation = FileUtils.getEclipseRealLocation(manipulator, location);
+				String slAndFlag = (indexI > -1) ? token.substring(indexI + 1) : null;
+
+				boolean markedAsStarted = getMarkedAsStartedFormat(slAndFlag, token);
+				int startLevel = getStartLevel(slAndFlag, token);
+
+				if (realLocation != null)
+					configData.addBundle(new BundleInfo(realLocation, startLevel, markedAsStarted));
+				else
+					configData.addBundle(new BundleInfo(location, null, null, startLevel, markedAsStarted));
 			}
 		}
 	}
@@ -238,7 +230,7 @@ public class EquinoxFwConfigFileParser {
 	 */
 	public void readFwConfig(Manipulator manipulator, File inputFile) throws IOException {
 		if (inputFile.isDirectory())
-			throw new IllegalArgumentException("inputFile:" + inputFile + " must not be a directory.");
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_inputFileIsDirectory, inputFile));
 
 		//Initialize data structures
 		ConfigData configData = manipulator.getConfigData();
@@ -306,7 +298,7 @@ public class EquinoxFwConfigFileParser {
 			launcherData.setLauncher(new File(launcherPath, launcherName + EquinoxConstants.EXE_EXTENSION));
 		}
 
-		Log.log(LogService.LOG_INFO, "Config file(" + inputFile.getAbsolutePath() + ") is read successfully.");
+		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, inputFile.getAbsolutePath()));
 	}
 
 	private static Properties makeRelative(Properties props, URL rootURL, File fwJar, File configArea, File osgiInstallArea) throws IOException {
@@ -372,9 +364,9 @@ public class EquinoxFwConfigFileParser {
 		if (args == null)
 			return null;
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-startup") && i + 1 < args.length && args[i + 1].charAt(1) != '-') {
+			if (args[i].equals("-startup") && i + 1 < args.length && args[i + 1].charAt(1) != '-') { //$NON-NLS-1$
 				IPath parentFolder = new Path(args[i + 1]).removeLastSegments(1);
-				if (parentFolder.lastSegment().equals("plugins"))
+				if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
 					return parentFolder.removeLastSegments(1).toFile();
 				return parentFolder.toFile();
 			}
@@ -391,35 +383,35 @@ public class EquinoxFwConfigFileParser {
 		if (outputFile.exists()) {
 			if (outputFile.isFile()) {
 				if (!outputFile.getName().equals(EquinoxConstants.CONFIG_INI))
-					throw new IllegalStateException("launcherData.getFwConfigLocation() is a File but its name doesn't equal " + EquinoxConstants.CONFIG_INI);
+					throw new IllegalStateException(NLS.bind(Messages.exception_fwConfigLocationName, outputFile.getAbsolutePath(), EquinoxConstants.CONFIG_INI));
 			} else { // Directory
 				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
 			}
 		} else {
 			if (!outputFile.getName().equals(EquinoxConstants.CONFIG_INI)) {
 				if (!outputFile.mkdir())
-					throw new IOException("Fail to mkdir (" + outputFile + ")");
+					throw new IOException(NLS.bind(Messages.exception_failedToCreateDir, outputFile));
 				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
 			}
 		}
-		String header = "This properties were written by " + this.getClass().getName();
+		String header = NLS.bind(Messages.msg_ConfigFileHeader, this.getClass().getName());
 
 		Properties configProps = getConfigProps(bInfos, configData, launcherData, relative, fwJar);
 		if (configProps == null || configProps.size() == 0) {
-			Log.log(LogService.LOG_WARNING, this, "saveFwConfig() ", "configProps is empty");
+			Log.log(LogService.LOG_WARNING, this, "saveFwConfig() ", Messages.log_configProps); //$NON-NLS-1$
 			return;
 		}
 		Utils.createParentDir(outputFile);
 
 		if (DEBUG)
-			Utils.printoutProperties(System.out, "configProps", configProps);
+			Utils.printoutProperties(System.out, "configProps", configProps); //$NON-NLS-1$
 
 		if (backup)
 			if (outputFile.exists()) {
 				File dest = Utils.getSimpleDataFormattedFile(outputFile);
 				if (!outputFile.renameTo(dest))
-					throw new IOException("Fail to rename from (" + outputFile + ") to (" + dest + ")");
-				Log.log(LogService.LOG_INFO, this, "saveFwConfig()", "Succeed to rename from (" + outputFile + ") to (" + dest + ")");
+					throw new IOException(NLS.bind(Messages.exception_failedToRename, outputFile, dest));
+				Log.log(LogService.LOG_INFO, this, "saveFwConfig()", NLS.bind(Messages.log_renameSuccessful, outputFile, dest)); //$NON-NLS-1$
 			}
 
 		FileOutputStream out = null;
@@ -427,7 +419,7 @@ public class EquinoxFwConfigFileParser {
 			out = new FileOutputStream(outputFile);
 			configProps = makeRelative(configProps, launcherData.getLauncher().getParentFile().toURL(), fwJar, outputFile.getParentFile(), getOSGiInstallArea(manipulator.getLauncherData()));
 			configProps.store(out, header);
-			Log.log(LogService.LOG_INFO, "FwConfig is saved successfully into:" + outputFile);
+			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_fwConfigSave, outputFile));
 		} finally {
 			try {
 				out.flush();

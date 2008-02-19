@@ -21,28 +21,48 @@ public class ProductQuery extends Query {
 
 	private final ProductFile product;
 	private final String flavor;
-	private final String launcherCUPrefix;
 	private final Map children = new HashMap();
 
-	public ProductQuery(ProductFile product, String flavor) {
+	public ProductQuery(ProductFile product, String flavor, Map configIUs) {
 		this.product = product;
 		this.flavor = flavor;
-		this.launcherCUPrefix = flavor + product.getId() + ".launcher"; //$NON-NLS-1$
-		initialize();
+		initialize(configIUs);
 	}
 
-	private void initialize() {
+	private void initialize(Map configIUs) {
 		List contents = product.useFeatures() ? product.getFeatures() : product.getPlugins();
 		for (Iterator iterator = contents.iterator(); iterator.hasNext();) {
 			String item = (String) iterator.next();
 			children.put(item, VersionRange.emptyRange);
-			children.put(flavor + item, VersionRange.emptyRange); //CUs
+			if (configIUs.containsKey(item)) {
+				for (Iterator ius = ((Set) configIUs.get(item)).iterator(); ius.hasNext();) {
+					IInstallableUnit object = (IInstallableUnit) ius.next();
+					children.put(object.getId(), new VersionRange(object.getVersion(), true, object.getVersion(), true));
+				}
+			}
+		}
+
+		//also include the launcher CU fragments as a workaround to bug 218890
+		String launcherPrefix = product.getId() + ".launcher"; //$NON-NLS-1$
+		if (configIUs.containsKey(launcherPrefix)) {
+			for (Iterator ius = ((Set) configIUs.get(launcherPrefix)).iterator(); ius.hasNext();) {
+				IInstallableUnit object = (IInstallableUnit) ius.next();
+				children.put(object.getId(), new VersionRange(object.getVersion(), true, object.getVersion(), true));
+			}
 		}
 
 		//also add the launcher.jar
 		if (!children.containsKey(EQUINOX_LAUNCHER)) {
 			children.put(EQUINOX_LAUNCHER, VersionRange.emptyRange);
 			children.put(flavor + EQUINOX_LAUNCHER, VersionRange.emptyRange);
+		}
+
+		// and launcher fragment CUs
+		if (configIUs.containsKey(EQUINOX_LAUNCHER)) {
+			for (Iterator ius = ((Set) configIUs.get(EQUINOX_LAUNCHER)).iterator(); ius.hasNext();) {
+				IInstallableUnit object = (IInstallableUnit) ius.next();
+				children.put(object.getId(), new VersionRange(object.getVersion(), true, object.getVersion(), true));
+			}
 		}
 	}
 
@@ -58,13 +78,6 @@ public class ProductQuery extends Query {
 		if (range != null) {
 			return range.isIncluded(candidate.getVersion());
 		}
-
-		//also include the launcher CU fragments as a workaround to bug 218890
-		if (candidate.getId().startsWith(launcherCUPrefix))
-			return true;
-		//and include the launcher fragment CUs
-		if (candidate.getId().startsWith(flavor + EQUINOX_LAUNCHER))
-			return true;
 
 		return false;
 	}
