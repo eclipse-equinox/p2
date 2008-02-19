@@ -56,6 +56,7 @@ class ConfigApplier {
 			saveStateAsLast(url);
 		}
 
+		Collection prevouslyResolved = getResolvedBundles();
 		Collection toRefresh = new ArrayList();
 		Collection toStart = new ArrayList();
 		if (exclusiveMode) {
@@ -67,6 +68,17 @@ class ConfigApplier {
 				toRefresh.addAll(uninstallBundles(toUninstall));
 		}
 		refreshPackages((Bundle[]) toRefresh.toArray(new Bundle[toRefresh.size()]), manipulatingContext);
+		if (toRefresh.size() > 0)
+			try {
+				manipulatingContext.getBundle().loadClass("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
+				// now see if there are any currently resolved bundles with option imports which could be resolved or
+				// if there are fragments with additional constraints which conflict with an already resolved host
+				Bundle[] additionalRefresh = StateResolverUtils.getAdditionalRefresh(prevouslyResolved, manipulatingContext);
+				if (additionalRefresh.length > 0)
+					refreshPackages(additionalRefresh, manipulatingContext);
+			} catch (ClassNotFoundException cnfe) {
+				// do nothing; no resolver package available
+			}
 		startBundles((Bundle[]) toStart.toArray(new Bundle[toStart.size()]));
 		//if time stamps are the same
 		//  do nothing
@@ -75,6 +87,15 @@ class ConfigApplier {
 		//  force the list in the fwk
 		//else
 		//  discover bundles in folders and force the list in the fwk
+	}
+
+	private Collection getResolvedBundles() {
+		Collection resolved = new HashSet();
+		Bundle[] allBundles = manipulatingContext.getBundles();
+		for (int i = 0; i < allBundles.length; i++)
+			if ((allBundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0)
+				resolved.add(allBundles[i]);
+		return resolved;
 	}
 
 	private Collection uninstallBundles(HashSet toUninstall) {
