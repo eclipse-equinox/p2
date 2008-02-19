@@ -58,11 +58,17 @@ public class DownloadJob extends Job {
 			if (masterMonitor.isCanceled())
 				return Status.CANCEL_STATUS;
 			// process the actual request
-			IStatus status = repository.getArtifact((ArtifactRequest) request, new SubProgressMonitor(masterMonitor, 1));
-			if (!status.isOK()) {
-				synchronized (overallStatus) {
-					overallStatus.add(status);
+			SubProgressMonitor subMonitor = new SubProgressMonitor(masterMonitor, 1);
+			subMonitor.beginTask("", 1); //$NON-NLS-1$
+			try {
+				IStatus status = repository.getArtifact((ArtifactRequest) request, subMonitor);
+				if (!status.isOK()) {
+					synchronized (overallStatus) {
+						overallStatus.add(status);
+					}
 				}
+			} finally {
+				subMonitor.done();
 			}
 		} while (true);
 
