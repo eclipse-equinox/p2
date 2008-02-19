@@ -46,8 +46,6 @@ public class MetadataGeneratorHelper {
 
 	private static final String INSTALL_FEATURES_FILTER = "(eclipse.p2.install.features=true)"; //$NON-NLS-1$
 
-	private static final String ECLIPSE_EXTENSIBLE_API = "Eclipse-ExtensibleAPI"; //$NON-NLS-1$
-
 	private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU_ID;
 
 	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
@@ -136,13 +134,13 @@ public class MetadataGeneratorHelper {
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), VersionRange.emptyRange, IUpdateDescriptor.NORMAL, "A description")); //$NON-NLS-1$
 
 		boolean isFragment = bd.getHost() != null;
-		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
+		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
 
 		//Process the required bundles
 		BundleSpecification requiredBundles[] = bd.getRequiredBundles();
 		ArrayList reqsDeps = new ArrayList();
-		if (requiresAFragment)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
+		//		if (requiresAFragment)
+		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
 			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getHost().getName(), bd.getHost().getVersionRange(), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
@@ -711,27 +709,6 @@ public class MetadataGeneratorHelper {
 	private static boolean isOptional(ImportPackageSpecification importedPackage) {
 		if (importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_DYNAMIC) || importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL))
 			return true;
-		return false;
-	}
-
-	private static boolean requireAFragment(BundleDescription bd, Map manifest) {
-		if (manifest == null)
-			return false;
-		if (manifest.get(ECLIPSE_EXTENSIBLE_API) == null)
-			return false;
-		if (bd.getSymbolicName().equals("org.eclipse.osgi")) //Special case for OSGi //$NON-NLS-1$
-			return false;
-		String classpath = (String) ((Map) bd.getUserObject()).get(Constants.BUNDLE_CLASSPATH);
-		if (classpath == null)
-			return true;
-		ManifestElement[] classpathEntries;
-		try {
-			classpathEntries = ManifestElement.parseHeader(Constants.BUNDLE_CLASSPATH, classpath);
-			if (classpathEntries.length != 0 && classpathEntries[0].getValue().equals(".")) //$NON-NLS-1$
-				return true;
-		} catch (BundleException e) {
-			//If we are here, it is that we have already parsed the bundle manifest and it contains no error 
-		}
 		return false;
 	}
 
