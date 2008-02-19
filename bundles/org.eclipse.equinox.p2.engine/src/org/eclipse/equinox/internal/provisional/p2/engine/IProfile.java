@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.Map;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 
@@ -108,6 +107,6 @@ public interface IProfile extends IQueryable {
 
 	public Map getProperties();
 
-	public OrderedProperties getInstallableUnitProperties(IInstallableUnit iu);
+	public Map getInstallableUnitProperties(IInstallableUnit iu);
 
 }

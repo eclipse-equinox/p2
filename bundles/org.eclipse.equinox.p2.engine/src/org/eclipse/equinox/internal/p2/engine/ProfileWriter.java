@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
-import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
+import java.util.Map;
 import org.eclipse.equinox.internal.p2.metadata.repository.io.MetadataWriter;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -46,7 +46,7 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		attribute(COLLECTION_SIZE_ATTRIBUTE, size);
 		while (it.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) it.next();
-			OrderedProperties properties = profile.getInstallableUnitProperties(iu);
+			Map properties = profile.getInstallableUnitProperties(iu);
 			if (properties.isEmpty())
 				continue;
 

@@ -141,7 +141,9 @@ public class Engine implements IEngine {
 	private void snapshotIUProperties(IProfile profile, InstallableUnitOperand[] operands) {
 		for (int i = 0; i < operands.length; i++) {
 			if (operands[i].first() != null && operands[i].second() != null) {
-				snapshot.put(operands[i].first(), profile.getInstallableUnitProperties(operands[i].first()));
+				OrderedProperties properties = new OrderedProperties();
+				properties.putAll(profile.getInstallableUnitProperties(operands[i].first()));
+				snapshot.put(operands[i].first(), properties);
 			}
 		}
 	}
