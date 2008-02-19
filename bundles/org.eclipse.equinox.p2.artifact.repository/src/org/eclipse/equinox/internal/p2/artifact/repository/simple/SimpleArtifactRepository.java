@@ -29,7 +29,10 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Abstr
 import org.eclipse.osgi.util.NLS;
 
 public class SimpleArtifactRepository extends AbstractArtifactRepository implements IArtifactRepository, IFileArtifactRepository {
-	private static final boolean MIRRORS_ENABLED = "true".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
+	/** 
+	 * A boolean property controlling whether mirroring is enabled.
+	 */
+	public static final boolean MIRRORS_ENABLED = !"false".equals(Activator.getContext().getProperty("eclipse.p2.mirrors")); //$NON-NLS-1$//$NON-NLS-2$
 
 	/** 
 	 * The key for a integer property controls the maximum number
@@ -179,7 +182,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 
 	private boolean signatureVerification = false;
-	private Mirrors mirrors;
+	private MirrorSelector mirrors;
 
 	static void delete(File toDelete) {
 		if (toDelete.isFile()) {
@@ -402,7 +405,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (!MIRRORS_ENABLED || isLocal())
 			return baseLocation;
 		if (mirrors == null)
-			mirrors = new Mirrors(this);
+			mirrors = new MirrorSelector(this);
 		return mirrors.getMirrorLocation(baseLocation);
 	}
 

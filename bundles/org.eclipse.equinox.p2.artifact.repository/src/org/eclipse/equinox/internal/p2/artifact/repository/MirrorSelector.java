@@ -28,7 +28,9 @@ import org.w3c.dom.*;
  * containing a list of <mirror> elements. The mirrors are assumed to be already 
  * sorted geographically with closer mirrors first.
  */
-public class Mirrors {
+public class MirrorSelector {
+	private static final double LOG2 = Math.log(2);
+
 	/**
 	 * Encapsulates information about a single mirror
 	 */
@@ -78,12 +80,14 @@ public class Mirrors {
 
 	private final IRepository repository;
 
+	private final Random random = new Random();
+
 	/**
 	 * Constructs a mirror support class for the given repository. Mirrors are
 	 * not contacted and the mirrorsURL document is not parsed until a
 	 * mirror location request is sent.
 	 */
-	public Mirrors(IRepository repository) {
+	public MirrorSelector(IRepository repository) {
 		this.repository = repository;
 		try {
 			URL repositoryURL = repository.getLocation();
@@ -221,8 +225,20 @@ public class Mirrors {
 	 */
 	private MirrorInfo selectMirror() {
 		initMirrors();
-		if (mirrors == null || mirrors.length == 0)
+		int mirrorCount;
+		if (mirrors == null || (mirrorCount = mirrors.length) == 0)
 			return null;
+		//this is a function that randomly selects a mirror based on a logarithmic
+		//distribution. Mirror 0 has a 1/2 chance of being selected, mirror 1 has a 1/4 chance, 
+		// mirror 2 has a 1/8 chance, etc. This introduces some variation in the mirror 
+		//selection, while still favoring better mirrors
+		int result = (int) (Math.log(random.nextInt(1 << Math.min(15, mirrorCount)) + 1) / LOG2);
+		if (result >= mirrorCount)
+			result = mirrorCount - 1;
+		MirrorInfo selected = mirrors[mirrorCount - 1 - result];
+		//if we selected a mirror that has failed in the past, revert to best available mirror
+		if (selected.failureCount > 0)
+			selected = mirrors[0];
 		//for now, don't tolerate failing mirrors
 		if (mirrors[0].failureCount > 0)
 			return null;
