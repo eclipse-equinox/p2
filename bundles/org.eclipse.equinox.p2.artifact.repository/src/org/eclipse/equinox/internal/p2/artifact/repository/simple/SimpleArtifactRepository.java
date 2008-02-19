@@ -487,11 +487,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			}
 		} else {
 			// initialize the various jobs needed to process the get artifact requests
-			monitor.beginTask(NLS.bind("Download {0} artifacts", Integer.toString(requests.length)), requests.length);
+			monitor.beginTask(NLS.bind(Messages.sar_downloading, Integer.toString(requests.length)), requests.length);
 			try {
 				DownloadJob jobs[] = new DownloadJob[numberOfJobs];
 				for (int i = 0; i < numberOfJobs; i++) {
-					jobs[i] = new DownloadJob("Install download " + i);
+					jobs[i] = new DownloadJob(Messages.sar_downloadJobName + i);
 					jobs[i].initialize(this, requestsPending, monitor, overallStatus);
 					jobs[i].schedule();
 				}
@@ -630,13 +630,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			if (isFolderBased(newDescriptor)) {
 				outputFile.mkdirs();
 				if (!outputFile.exists())
-					throw failedWrite(null);
-
+					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, outputFile.toString())));
 				target = new ZippedFolderOutputStream(outputFile);
 			} else {
-				// file based
-				if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs())
-					throw failedWrite(null);
+				// file based0
+				File parent = outputFile.getParentFile();
+				if (!parent.exists() && !parent.mkdirs())
+					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, parent.toString()))); //$NON-NLS-1$
 				target = new FileOutputStream(file);
 			}
 
@@ -740,15 +740,15 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		try {
 			destination.close();
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, Activator.ID, "Error closing processing steps", e);
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.sar_reportStatus, descriptor.getArtifactKey().toExternalForm()), e);
 		}
 
 		IStatus stepStatus = ((ProcessingStep) destination).getStatus(true);
 		// if the steps all ran ok and there is no interesting information, return the status from this method
 		if (!stepStatus.isMultiStatus() && stepStatus.isOK())
 			return status;
-		// else gather up the status from the 
-		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, new IStatus[0], "Status of getting artifact " + descriptor.getArtifactKey(), null);
+		// else gather up the status from the steps
+		MultiStatus result = new MultiStatus(Activator.ID, IStatus.OK, new IStatus[0], NLS.bind(Messages.sar_reportStatus, descriptor.getArtifactKey().toExternalForm()), null);
 		result.merge(status);
 		result.merge(stepStatus);
 		return result;

@@ -33,6 +33,11 @@ public class Messages extends NLS {
 	public static String repoFailedWrite;
 	public static String repoReadOnly;
 
+	public static String sar_downloading;
+	public static String sar_downloadJobName;
+	public static String sar_failedMkdir;
+	public static String sar_reportStatus;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
