@@ -116,7 +116,7 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(VERSION_RANGE_ATTRIBUTE, capability.getRange());
 		attribute(CAPABILITY_OPTIONAL_ATTRIBUTE, capability.isOptional(), false);
 		attribute(CAPABILITY_MULTIPLE_ATTRIBUTE, capability.isMultiple(), false);
-
+		attribute(CAPABILITY_GREED_ATTRIBUTE, capability.isGreedy(), true);
 		writeTrimmedCdata(CAPABILITY_FILTER_ELEMENT, capability.getFilter());
 
 		String[] selectors = capability.getSelectors();

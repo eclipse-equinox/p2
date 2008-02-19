@@ -314,7 +314,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	protected class RequiredCapabilityHandler extends AbstractHandler {
 
 		private final String[] required = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
-		private final String[] optional = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE};
+		private final String[] optional = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};
 
 		private RequiredCapability currentCapability = null;
 
@@ -327,7 +327,8 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			VersionRange range = checkVersionRange(REQUIRED_CAPABILITY_ELEMENT, VERSION_RANGE_ATTRIBUTE, values[2]);
 			boolean isOptional = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_OPTIONAL_ATTRIBUTE, values[3], false).booleanValue();
 			boolean isMultiple = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_MULTIPLE_ATTRIBUTE, values[4], false).booleanValue();
-			currentCapability = MetadataFactory.createRequiredCapability(values[0], values[1], range, null, isOptional, isMultiple);
+			boolean isGreedy = checkBoolean(REQUIRED_CAPABILITY_ELEMENT, CAPABILITY_GREED_ATTRIBUTE, values[5], true).booleanValue();
+			currentCapability = MetadataFactory.createRequiredCapability(values[0], values[1], range, null, isOptional, isMultiple, isGreedy);
 			capabilities.add(currentCapability);
 		}
 

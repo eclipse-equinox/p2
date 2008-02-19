@@ -173,6 +173,10 @@ public class MetadataFactory {
 		return new RequiredCapability(namespace, name, range, filter, optional, multiple);
 	}
 
+	public static RequiredCapability createRequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
+		return new RequiredCapability(namespace, name, range, filter, optional, multiple, greedy);
+	}
+
 	/**
 	 * Returns an {@link IInstallableUnit} that represents the given
 	 * unit bound to the given fragments.

@@ -33,6 +33,7 @@ public class RequiredCapability {
 	private final String name;//never null
 	private final String namespace;//never null
 	private boolean optional;
+	private boolean greedy = true;
 	private final VersionRange range;//never null
 	private String[] selectors = NO_SELECTORS;//never null
 
@@ -45,6 +46,11 @@ public class RequiredCapability {
 		this.optional = optional;
 		this.filter = filter;
 		this.multiple = multiple;
+	}
+
+	RequiredCapability(String namespace, String name, VersionRange range, String filter, boolean optional, boolean multiple, boolean greedy) {
+		this(namespace, name, range, filter, optional, multiple);
+		this.greedy = greedy;
 	}
 
 	public boolean equals(Object obj) {
@@ -131,6 +137,10 @@ public class RequiredCapability {
 
 	public void setSelectors(String[] selectors) {
 		this.selectors = selectors;
+	}
+
+	public boolean isGreedy() {
+		return greedy;
 	}
 
 	public String toString() {

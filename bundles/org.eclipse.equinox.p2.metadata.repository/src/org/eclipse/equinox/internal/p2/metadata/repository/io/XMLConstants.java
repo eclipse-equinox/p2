@@ -57,6 +57,7 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	// Constants for attributes of a required capability element
 	public static final String CAPABILITY_OPTIONAL_ATTRIBUTE = "optional"; //$NON-NLS-1$
 	public static final String CAPABILITY_MULTIPLE_ATTRIBUTE = "multiple"; //$NON-NLS-1$
+	public static final String CAPABILITY_GREED_ATTRIBUTE = "greedy"; //$NON-NLS-1$
 
 	// Constants for attributes of an artifact key element
 	public static final String ARTIFACT_KEY_NAMESPACE_ATTRIBUTE = NAMESPACE_ATTRIBUTE;
