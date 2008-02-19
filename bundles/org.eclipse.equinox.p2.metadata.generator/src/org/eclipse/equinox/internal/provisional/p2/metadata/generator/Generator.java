@@ -440,7 +440,7 @@ public class Generator {
 	 * Generates IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
 	 */
-	private void generateExecutableIUs(String ws, String os, String arch, String version, File root, GeneratorResult result, IArtifactRepository destination) {
+	private void generateExecutableIUs(String ws, String os, final String arch, String version, File root, GeneratorResult result, IArtifactRepository destination) {
 		//Create the IU
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
@@ -481,7 +481,15 @@ public class Generator {
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (Constants.OS_MACOSX.equals(os)) {
-			//navigate down to Contents/MacOS
+			//navigate down to the arch specific folder 
+			root = root.listFiles(new FileFilter() {
+				public boolean accept(File pathname) {
+					if (pathname.getName().equalsIgnoreCase(arch))
+						return true;
+					return false;
+				}
+			})[0];
+			//navigate down to Contents/MacOs
 			File[] launcherFiles = root.listFiles()[0].listFiles()[0].listFiles();
 			for (int i = 0; i < launcherFiles.length; i++) {
 				if (launcherFiles[i].isDirectory()) {
