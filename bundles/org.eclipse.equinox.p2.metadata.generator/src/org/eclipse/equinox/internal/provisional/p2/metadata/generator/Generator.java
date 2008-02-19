@@ -614,13 +614,13 @@ public class Generator {
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (Constants.OS_MACOSX.equals(os)) {
 			//navigate down to the arch specific folder 
-			root = root.listFiles(new FileFilter() {
-				public boolean accept(File pathname) {
-					if (pathname.getName().equalsIgnoreCase(arch))
-						return true;
-					return false;
-				}
-			})[0];
+			//			root = root.listFiles(new FileFilter() {
+			//				public boolean accept(File pathname) {
+			//					if (pathname.getName().equalsIgnoreCase(arch))
+			//						return true;
+			//					return false;
+			//				}
+			//			})[0];
 			//navigate down to Contents/MacOs
 			File[] launcherFiles = root.listFiles()[0].listFiles()[0].listFiles();
 			for (int i = 0; i < launcherFiles.length; i++) {
