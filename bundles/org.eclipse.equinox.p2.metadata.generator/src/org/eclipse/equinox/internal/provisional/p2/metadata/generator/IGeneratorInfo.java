@@ -20,14 +20,41 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 public interface IGeneratorInfo {
+
+	/**
+	 * Returns whether or not to add the default IUs to the published result.
+	 * The default IUs are typically used to configure bundles, features and 
+	 * source bundles.
+	 * @return whether or not to publish default IUs
+	 */
 	public boolean addDefaultIUs();
 
+	/**
+	 * Returns whether or not to append to existing repositories or overwrite.
+	 * @return whether or not to append to existing repositories or overwrite.
+	 */
 	public boolean append();
 
+	/**
+	 * Returns the artifact repository into which any publishable artifacts are published
+	 * or <code>null</code> if none.
+	 * @return a destination artifact repository or <code>null</code>
+	 */
 	public IArtifactRepository getArtifactRepository();
 
+	/**
+	 * Returns a list of locations in which bundles may be found.  The locations may
+	 * be directories to search or actual bundle files.
+	 * @return the list of locations holding bundles to process.
+	 */
 	public File[] getBundleLocations();
 
+	/** 
+	 * Return the configuration data to use during publishing or <code>null</code> 
+	 * if none.  The configuration data details the framework and launcher setup.
+	 *
+	 * @return the configuration data or <code>null</code>
+	 */
 	public ConfigData getConfigData();
 
 	public File getConfigurationLocation();
