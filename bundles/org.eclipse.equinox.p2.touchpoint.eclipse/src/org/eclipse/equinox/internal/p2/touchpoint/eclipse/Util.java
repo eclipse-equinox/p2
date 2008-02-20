@@ -262,6 +262,8 @@ public class Util {
 		IPath configPath = new Path(Util.getConfigurationFolder(profile).getAbsolutePath());
 		if (configPath.isPrefixOf(agentPath))
 			return "@config.dir/" + agentPath.removeFirstSegments(configPath.segmentCount()).makeRelative().setDevice(null); //$NON-NLS-1$
+		if (agentPath.removeLastSegments(1).equals(configPath.removeLastSegments(1)))
+			return "@config.dir/../" + agentPath.lastSegment(); //$NON-NLS-1$
 		return agentURL.toString();
 	}
 
