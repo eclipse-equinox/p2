@@ -37,7 +37,7 @@ public class PhaseTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public static class TestPhase extends Phase {
+	public static class TestPhase extends InstallableUnitPhase {
 
 		boolean completeOperand;
 		boolean getAction;
@@ -53,22 +53,9 @@ public class PhaseTest extends AbstractProvisioningTest {
 			super(phaseId, weight);
 		}
 
-		protected ProvisioningAction[] getActions(InstallableUnitOperand currentOperand) {
-			return null;
-		}
-
-		protected boolean isApplicable(InstallableUnitOperand op) {
-			return true;
-		}
-
-		protected IStatus completeOperand(InstallableUnitOperand operand, Map parameters) {
+		protected IStatus completeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 			completeOperand = true;
-			return super.completeOperand(operand, parameters);
-		}
-
-		public ProvisioningAction getAction(String actionId) {
-			getAction = true;
-			return super.getAction(actionId);
+			return super.completeOperand(profile, operand, parameters, monitor);
 		}
 
 		protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
@@ -76,14 +63,18 @@ public class PhaseTest extends AbstractProvisioningTest {
 			return super.initializeOperand(profile, operand, parameters, monitor);
 		}
 
-		protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus completeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			completePhase = true;
-			return super.completePhase(monitor, profile, parameters);
+			return super.completeInstallableUnitPhase(monitor, profile, parameters);
 		}
 
-		protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+		protected IStatus initializeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 			initializePhase = true;
-			return super.initializePhase(monitor, profile, parameters);
+			return super.initializeInstallableUnitPhase(monitor, profile, parameters);
+		}
+
+		protected ProvisioningAction[] getActions(InstallableUnitOperand operand) {
+			return null;
 		}
 	}
 
@@ -182,16 +173,16 @@ public class PhaseTest extends AbstractProvisioningTest {
 
 	public void testInitCompleteOperand() {
 		TestPhase phase = new TestPhase() {
-			protected IStatus completeOperand(InstallableUnitOperand operand, Map parameters) {
+			protected IStatus completeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 				assertTrue(initializeOperand);
 				assertFalse(completeOperand);
-				super.completeOperand(operand, parameters);
+				super.completeOperand(profile, operand, parameters, monitor);
 				assertTrue(initializeOperand);
 				assertTrue(completeOperand);
 				return null;
 			}
 
-			protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
+			protected IStatus initializeOperand(IProfile profile, Operand operand, Map parameters, IProgressMonitor monitor) {
 				assertFalse(initializeOperand);
 				assertFalse(completeOperand);
 				super.initializeOperand(profile, operand, parameters, monitor);

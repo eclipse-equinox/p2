@@ -23,9 +23,9 @@ public abstract class PhaseSet {
 		this.phases = phases;
 	}
 
-	public final MultiStatus perform(EngineSession session, IProfile profile, InstallableUnitOperand[] deltas, ProvisioningContext context, IProgressMonitor monitor) {
+	public final MultiStatus perform(EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		int[] weights = getProgressWeights(deltas);
+		int[] weights = getProgressWeights(operands);
 		int totalWork = getTotalWork(weights);
 		SubMonitor pm = SubMonitor.convert(monitor, totalWork);
 		try {
@@ -35,7 +35,7 @@ public abstract class PhaseSet {
 					return result;
 				}
 				Phase phase = phases[i];
-				MultiStatus performResult = phase.perform(session, profile, deltas, context, pm.newChild(weights[i]));
+				MultiStatus performResult = phase.perform(session, profile, operands, context, pm.newChild(weights[i]));
 				if (!performResult.isOK())
 					result.add(performResult);
 				if (result.matches(IStatus.ERROR | IStatus.CANCEL))
@@ -54,19 +54,19 @@ public abstract class PhaseSet {
 		return sum;
 	}
 
-	private int[] getProgressWeights(InstallableUnitOperand[] operands) {
+	private int[] getProgressWeights(Operand[] operands) {
 		int[] weights = new int[phases.length];
 		for (int i = 0; i < phases.length; i += 1) {
 			if (operands.length > 0)
 				//alter weights according to the number of operands applicable to that phase
-				weights[i] = phases[i].weight * (countApplicable(phases[i], operands) / operands.length);
+				weights[i] = (phases[i].weight * countApplicable(phases[i], operands) / operands.length);
 			else
 				weights[i] = phases[i].weight;
 		}
 		return weights;
 	}
 
-	private int countApplicable(Phase phase, InstallableUnitOperand[] operands) {
+	private int countApplicable(Phase phase, Operand[] operands) {
 		int count = 0;
 		for (int i = 0; i < operands.length; i++) {
 			if (phase.isApplicable(operands[i]))

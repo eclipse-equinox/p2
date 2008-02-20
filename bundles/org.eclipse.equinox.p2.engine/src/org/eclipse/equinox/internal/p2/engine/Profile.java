@@ -146,6 +146,11 @@ public class Profile implements IQueryable, IProfile {
 		changed = true;
 	}
 
+	public void removeProperty(String key) {
+		storage.remove(key);
+		changed = true;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
@@ -174,6 +179,20 @@ public class Profile implements IQueryable, IProfile {
 
 		changed = true;
 		return (String) properties.setProperty(key, value);
+	}
+
+	public String removeInstallableUnitProperty(IInstallableUnit iu, String key) {
+		String iuKey = createIUKey(iu);
+		OrderedProperties properties = (OrderedProperties) iuProperties.get(iuKey);
+		if (properties == null)
+			return null;
+
+		String oldValue = (String) properties.remove(key);
+		if (properties.isEmpty())
+			iuProperties.remove(iuKey);
+
+		changed = true;
+		return oldValue;
 	}
 
 	private static String createIUKey(IInstallableUnit iu) {
@@ -217,10 +236,8 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	public void removeInstallableUnit(IInstallableUnit iu) {
-		if (ius.remove(iu) == true) {
-			iuProperties.remove(createIUKey(iu));
-			changed = true;
-		}
+		ius.remove(iu);
+		changed = true;
 	}
 
 	/* (non-Javadoc)
@@ -280,6 +297,11 @@ public class Profile implements IQueryable, IProfile {
 			String value = (String) entry.getValue();
 			setInstallableUnitProperty(iu, key, value);
 		}
+	}
+
+	public void clearInstallableUnitProperties(IInstallableUnit iu) {
+		iuProperties.remove(createIUKey(iu));
+		changed = true;
 	}
 
 }

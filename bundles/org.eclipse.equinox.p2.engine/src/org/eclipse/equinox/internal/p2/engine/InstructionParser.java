@@ -16,10 +16,10 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
 public class InstructionParser {
 
-	Phase phase;
+	InstallableUnitPhase phase;
 	Touchpoint touchpoint;
 
-	public InstructionParser(Phase phase, Touchpoint touchpoint) {
+	public InstructionParser(InstallableUnitPhase phase, Touchpoint touchpoint) {
 		Assert.isNotNull(phase);
 		Assert.isNotNull(touchpoint);
 		this.phase = phase;

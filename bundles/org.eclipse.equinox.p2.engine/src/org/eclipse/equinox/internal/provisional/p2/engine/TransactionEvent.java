@@ -16,22 +16,16 @@ public abstract class TransactionEvent extends EventObject {
 	private static final long serialVersionUID = 6278706971855493984L;
 	protected IProfile profile;
 	protected PhaseSet phaseSet;
-	protected InstallableUnitOperand[] deltas;
+	protected Operand[] operands;
 
-	public TransactionEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, IEngine engine) {
+	public TransactionEvent(IProfile profile, PhaseSet phaseSet, Operand[] operands, IEngine engine) {
 		super(engine);
 		this.profile = profile;
 		this.phaseSet = phaseSet;
-		this.deltas = deltas;
+		this.operands = operands;
 	}
 
 	public IProfile getProfile() {
 		return profile;
-	}
-
-	// TODO this was added as a workaround 
-	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=208251
-	public PhaseSet getPhaseSet() {
-		return phaseSet;
 	}
 }

@@ -17,7 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
-public class Unconfigure extends Phase {
+public class Unconfigure extends InstallableUnitPhase {
 
 	public Unconfigure(int weight) {
 		super("unconfigure", weight); //$NON-NLS-1$
@@ -43,11 +43,11 @@ public class Unconfigure extends Phase {
 
 	protected IStatus initializeOperand(IProfile profile, InstallableUnitOperand operand, Map parameters, IProgressMonitor monitor) {
 		IInstallableUnit iu = operand.first();
-		parameters.put(PARM_IU, iu); 
+		parameters.put(PARM_IU, iu);
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put(PARM_ARTIFACT, artifacts[0]); 
+			parameters.put(PARM_ARTIFACT, artifacts[0]);
 
 		return Status.OK_STATUS;
 	}

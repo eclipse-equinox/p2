@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 /**
  * The goal of the collect phase is to ask the touchpoints if the artifacts associated with an IU need to be downloaded.
  */
-public class Collect extends Phase {
+public class Collect extends InstallableUnitPhase {
 	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
 
 	public Collect(int weight) {
@@ -45,7 +45,7 @@ public class Collect extends Phase {
 		return Messages.Phase_Collect_Error;
 	}
 
-	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus completeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
 
 		DownloadManager dm = new DownloadManager();
@@ -56,7 +56,7 @@ public class Collect extends Phase {
 		return dm.start(monitor);
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus initializeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}

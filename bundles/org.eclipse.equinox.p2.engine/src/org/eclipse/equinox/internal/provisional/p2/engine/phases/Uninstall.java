@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
-public class Uninstall extends Phase {
+public class Uninstall extends InstallableUnitPhase {
 
 	final static class BeforeUninstallEventAction extends ProvisioningAction {
 		public IStatus execute(Map parameters) {

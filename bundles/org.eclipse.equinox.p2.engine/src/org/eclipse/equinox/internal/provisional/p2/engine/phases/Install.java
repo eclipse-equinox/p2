@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
-public class Install extends Phase {
+public class Install extends InstallableUnitPhase {
 
 	final static class BeforeInstallEventAction extends ProvisioningAction {
 

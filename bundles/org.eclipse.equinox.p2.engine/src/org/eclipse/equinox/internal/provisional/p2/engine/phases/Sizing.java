@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 
-public class Sizing extends Phase {
+public class Sizing extends InstallableUnitPhase {
 	private static final String PHASE_ID = "collect"; //$NON-NLS-1$
 
 	private long sizeOnDisk;
@@ -52,7 +52,7 @@ public class Sizing extends Phase {
 		return Messages.Phase_Sizing_Error;
 	}
 
-	protected IStatus completePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus completeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get("artifactRequests"); //$NON-NLS-1$
 		Set artifactsToObtain = new HashSet(artifactRequests.size());
 
@@ -90,7 +90,7 @@ public class Sizing extends Phase {
 		return null;
 	}
 
-	protected IStatus initializePhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
+	protected IStatus initializeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		parameters.put(PARM_ARTIFACT_REQUESTS, new ArrayList());
 		return null;
 	}

@@ -13,8 +13,8 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 public class CommitOperationEvent extends TransactionEvent {
 	private static final long serialVersionUID = -523967775426133720L;
 
-	public CommitOperationEvent(IProfile profile, PhaseSet phaseSet, InstallableUnitOperand[] deltas, IEngine engine) {
-		super(profile, phaseSet, deltas, engine);
+	public CommitOperationEvent(IProfile profile, PhaseSet phaseSet, Operand[] operands, IEngine engine) {
+		super(profile, phaseSet, operands, engine);
 	}
 
 }

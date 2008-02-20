@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.util.NLS;
 
-public class Configure extends Phase {
+public class Configure extends InstallableUnitPhase {
 
 	public Configure(int weight) {
 		super("configure", weight); //$NON-NLS-1$
@@ -46,7 +46,7 @@ public class Configure extends Phase {
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts != null && artifacts.length > 0)
-			parameters.put(PARM_ARTIFACT, artifacts[0]); 
+			parameters.put(PARM_ARTIFACT, artifacts[0]);
 
 		return Status.OK_STATUS;
 	}

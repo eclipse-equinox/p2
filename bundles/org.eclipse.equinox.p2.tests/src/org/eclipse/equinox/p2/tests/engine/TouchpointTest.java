@@ -97,7 +97,7 @@ public class TouchpointTest extends AbstractProvisioningTest {
 			return null;
 		}
 
-		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+		public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map parameters) {
 			assertEquals(0, initializePhase);
 			assertEquals(0, completePhase);
 			super.initializePhase(monitor, profile, phaseId, parameters);
