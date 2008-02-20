@@ -22,7 +22,7 @@ import org.eclipse.osgi.service.datalocation.Location;
  */
 public class BasicLocation implements AgentLocation {
 	private static class MockLocker implements Locker {
-		public boolean lock() throws IOException {
+		public boolean lock() {
 			// locking always successful
 			return true;
 		}
@@ -109,7 +109,10 @@ public class BasicLocation implements AgentLocation {
 		return isReadOnly;
 	}
 
-	public synchronized boolean setURL(URL value, boolean lock) throws IllegalStateException {
+	/**
+	 * @deprecated
+	 */
+	public synchronized boolean setURL(URL value, boolean lock) {
 		//		if (location != null)
 		//			throw new IllegalStateException(Messages.ECLIPSE_CANNOT_CHANGE_LOCATION);
 		////		File file = null;
@@ -136,6 +139,11 @@ public class BasicLocation implements AgentLocation {
 		//		LocationManager.buildURL(value.toExternalForm(), true);
 		//		if (property != null)
 		//			System.setProperty(property, location.toExternalForm());
+		return lock;
+	}
+
+	public boolean set(URL value, boolean lock) {
+		location = value;
 		return lock;
 	}
 
@@ -204,21 +212,5 @@ public class BasicLocation implements AgentLocation {
 			// TODO Auto-generated catch block
 			return null;
 		}
-	}
-
-	/**
-	 * TODO: This method was added in Eclipse 3.4 - We need to stop implementing the OSGi interface,
-	 * and then this stub method can be removed.
-	 */
-	public Location createLocation(Location parent, URL defaultValue, boolean readonly) {
-		return null;
-	}
-
-	/**
-	 * TODO: This method was added in Eclipse 3.4 - We need to stop implementing the OSGi interface,
-	 * and then this stub method can be removed.
-	 */
-	public boolean isLocked() throws IOException {
-		return false;
 	}
 }

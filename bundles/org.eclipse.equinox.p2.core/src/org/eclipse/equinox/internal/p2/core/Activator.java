@@ -25,7 +25,7 @@ import org.osgi.util.tracker.ServiceTracker;
 public class Activator implements BundleActivator {
 	public static final String ID = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
 
-	public static Location agentDataLocation = null;
+	public static AgentLocation agentDataLocation = null;
 	public static BundleContext context;
 	private static final String DEFAULT_AGENT_LOCATION = "p2"; //$NON-NLS-1$
 
@@ -113,7 +113,7 @@ public class Activator implements BundleActivator {
 		return value + source.substring(var.length());
 	}
 
-	private Location buildLocation(String property, URL defaultLocation, boolean readOnlyDefault, boolean addTrailingSlash) {
+	private AgentLocation buildLocation(String property, URL defaultLocation, boolean readOnlyDefault, boolean addTrailingSlash) {
 		String location = Activator.context.getProperty(property);
 		// the user/product may specify a non-default readOnly setting   
 		String userReadOnlySetting = Activator.context.getProperty(property + READ_ONLY_AREA_SUFFIX);
@@ -143,7 +143,7 @@ public class Activator implements BundleActivator {
 		BasicLocation result = null;
 		if (url != null) {
 			result = new BasicLocation(property, null, readOnly);
-			result.setURL(url, false);
+			result.set(url, false);
 		}
 		return result;
 	}
@@ -167,7 +167,7 @@ public class Activator implements BundleActivator {
 		Dictionary locationProperties = new Hashtable();
 		if (defaultLocation != null) {
 			locationProperties.put("type", PROP_AGENT_DATA_AREA); //$NON-NLS-1$
-			agentLocationRegistration = aContext.registerService(new String[] {Location.class.getName(), AgentLocation.class.getName()}, agentDataLocation, locationProperties);
+			agentLocationRegistration = aContext.registerService(AgentLocation.SERVICE_NAME, agentDataLocation, locationProperties);
 		}
 	}
 

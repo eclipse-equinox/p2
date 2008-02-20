@@ -11,13 +11,13 @@
 package org.eclipse.equinox.internal.provisional.p2.core.location;
 
 import java.net.URL;
-import org.eclipse.osgi.service.datalocation.Location;
 
 /**
  * TODO: We are not allowed to extend Location because it's not intended
  * to be implemented by clients.
  */
-public interface AgentLocation extends Location {
+public interface AgentLocation {
+	public static final String SERVICE_NAME = AgentLocation.class.getName();
 
 	public URL getArtifactRepositoryURL();
 
@@ -30,4 +30,15 @@ public interface AgentLocation extends Location {
 	 * @return The data location
 	 */
 	public URL getDataArea(String namespace);
+
+	/**
+	 * Returns the actual {@link URL} of this location.  If the location's value has been set, 
+	 * that value is returned.  If the value is not set and the location allows defaults, 
+	 * the value is set to the default and returned.  In all other cases <code>null</code>
+	 * is returned.
+	 * 
+	 * @return the URL for this location or <code>null</code> if none
+	 */
+	public URL getURL();
+
 }
