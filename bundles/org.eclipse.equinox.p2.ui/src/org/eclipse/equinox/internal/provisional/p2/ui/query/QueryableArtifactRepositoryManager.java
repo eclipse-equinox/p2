@@ -18,33 +18,53 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ArtifactRepositoryElement;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An object that adds queryable support to an artifact repository 
- * manager.  The object being queried is the repositry URL, not the 
- * repository instance itself.  Callers should load the repository
- * if necessary to complete the query.
+ * manager.  It can be constructed to filter the repositories according to repository filter
+ * flags.  When a query is provided, the object being queried is repository URL.
+ * Callers interested in only the resulting repository URL's can specify a null query, 
+ * in which case the collector will be accepting all iterated URL's.
  */
 public class QueryableArtifactRepositoryManager implements IQueryable {
 
+	int flags = IArtifactRepositoryManager.REPOSITORIES_ALL;
+
+	public QueryableArtifactRepositoryManager(int flags) {
+		this.flags = flags;
+	}
+
+	/**
+	 * Iterates over the artifact repositories configured in this queryable.
+	 * If a query is specified, the query is run on each URL, passing any URLs that satisfy the
+	 * query to the provided collector.  If no query is specified, all repository URLs iterated are passed
+	 * to the collector.
+	 * <p>
+	 * This method is long-running; progress and cancellation are provided
+	 * by the given progress monitor. 
+	 * </p>
+	 * 
+	 * @param query The query to perform on the URLs, or <code>null</code> if all URLs should
+	 * be accepted.
+	 * @param collector Collects the repository URLs
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The collector argument
+	 */
 	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
-		int flags = IArtifactRepositoryManager.REPOSITORIES_ALL;
-		if (query instanceof FilteredRepositoryQuery)
-			flags = ((FilteredRepositoryQuery) query).getFlags();
 		URL[] repoURLs = manager.getKnownRepositories(flags);
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
-		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoURLs.length * 2);
+		monitor.beginTask(ProvUIMessages.QueryableArtifactRepositoryManager_RepositoryQueryProgress, repoURLs.length);
 		for (int i = 0; i < repoURLs.length; i++) {
-			if (query.isMatch(repoURLs[i]))
-				result.accept(new ArtifactRepositoryElement(repoURLs[i]));
+			if (query == null || query.isMatch(repoURLs[i]))
+				result.accept(repoURLs[i]);
 			monitor.worked(1);
 		}
 		monitor.done();

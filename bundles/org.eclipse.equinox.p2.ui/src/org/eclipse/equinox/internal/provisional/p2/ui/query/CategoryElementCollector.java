@@ -53,6 +53,13 @@ public class CategoryElementCollector extends QueriedElementCollector {
 				referredIUs.add(requirements[i].getName());
 			}
 		}
+		Iterator iter = super.iterator();
+		// Don't add the same category IU twice
+		while (iter.hasNext()) {
+			CategoryElement element = (CategoryElement) iter.next();
+			if (element.getIU().getId().equals(iu.getId()))
+				return true;
+		}
 		return super.accept(new CategoryElement(iu));
 	}
 
@@ -92,11 +99,11 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	}
 
 	private void removeNestedCategories() {
-		CategoryElement[] ius = (CategoryElement[]) getList().toArray(new CategoryElement[getList().size()]);
+		CategoryElement[] categoryIUs = (CategoryElement[]) getList().toArray(new CategoryElement[getList().size()]);
 		// If any other element refers to a category element, remove it from the list
-		for (int i = 0; i < ius.length; i++) {
-			if (referredIUs.contains(ius[i].getIU().getId())) {
-				getList().remove(ius[i]);
+		for (int i = 0; i < categoryIUs.length; i++) {
+			if (referredIUs.contains(categoryIUs[i].getIU().getId())) {
+				getList().remove(categoryIUs[i]);
 			}
 		}
 	}

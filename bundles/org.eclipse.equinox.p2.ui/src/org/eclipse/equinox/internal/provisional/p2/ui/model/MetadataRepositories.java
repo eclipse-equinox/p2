@@ -15,10 +15,11 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 
 /**
- * Element class that represents the root of a metadata
- * repository viewer.  Its children are obtained using the
- * metadata repository query specified by the client in the
- * content provider.
+ * Element class that represents some collection of metadata repositories.
+ * It can be configured so that it retrieves its children in different ways.
+ * The default query type will return the metadata repositories specified in
+ * this element.  Other query types can be used to query each repository and
+ * aggregate the children.
  * 
  * @since 3.4
  *
@@ -26,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 public class MetadataRepositories extends QueriedElement {
 
 	private URL[] metadataRepositories = null;
+	private int queryType = IQueryProvider.METADATA_REPOS;
 
 	public MetadataRepositories() {
 		super();
@@ -40,7 +42,11 @@ public class MetadataRepositories extends QueriedElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryType()
 	 */
 	protected int getQueryType() {
-		return IQueryProvider.METADATA_REPOS;
+		return queryType;
+	}
+
+	public void setQueryType(int queryType) {
+		this.queryType = queryType;
 	}
 
 	/**
