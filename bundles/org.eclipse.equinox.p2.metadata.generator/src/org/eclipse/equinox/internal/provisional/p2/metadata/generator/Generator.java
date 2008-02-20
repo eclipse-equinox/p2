@@ -155,12 +155,20 @@ public class Generator {
 			productContents.rootIUs.add(iterator.next());
 		}
 
-		//TODO get a real version
-		String version = info.getRootVersion() != null ? info.getRootVersion() : "0.0.0"; //$NON-NLS-1$
+		String version = productFile.getVersion();
+		if (version.equals("0.0.0") && info.getRootVersion() != null) //$NON-NLS-1$
+			version = info.getRootVersion();
 		ArrayList requires = new ArrayList(1);
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, true)); //$NON-NLS-1$
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".ini", VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".ini", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".config", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		
+		//default CUs		
+		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, info.getFlavor() + ".plugin.default", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, info.getFlavor() + ".source.default", VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
+		if(productFile.useFeatures())
+			requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, info.getFlavor() + ".feature.default", VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
+		
 		InstallableUnitDescription root = createTopLevelIUDescription(productContents, productFile.getId(), version, productFile.getProductName(), requires, false);
 		return MetadataFactory.createInstallableUnit(root);
 	}
@@ -415,14 +423,21 @@ public class Generator {
 						"addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
 						"removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
-			}
-			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
+			} else if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
 				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
+			} else if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
+				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
+				continue;
 			}
 
-			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(cuIdPrefix + bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor() + cuIdPrefix, filter);
 			if (cu != null) {
+				// Product Query will run against the repo, make sure these CUs are in before then
+				IMetadataRepository metadataRepository = info.getMetadataRepository();
+				if (metadataRepository != null) {
+					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
+				}
 				result.rootIUs.add(cu);
 				if (result.configurationIUs.containsKey(bundle.getSymbolicName())) {
 					((Set) result.configurationIUs.get(bundle.getSymbolicName())).add(cu);
@@ -459,8 +474,9 @@ public class Generator {
 			for (Iterator iterator = info.getDefaultIUs(result.rootIUs).iterator(); iterator.hasNext();) {
 				GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
 				IInstallableUnit configuredIU = result.getInstallableUnit(bundle.getSymbolicName());
-				if (configuredIU != null)
-					bundle.setVersion(configuredIU.getVersion().toString());
+				if (configuredIU == null)
+					continue;
+				bundle.setVersion(configuredIU.getVersion().toString());
 				String filter = configuredIU == null ? null : configuredIU.getFilter();
 				IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
 				//the configuration unit should share the same platform filter as the IU being configured.
@@ -666,7 +682,7 @@ public class Generator {
 
 			InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
 			String configUnitId = info.getFlavor() + productFile.getId() + ".config." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
-			Version cuVersion = new Version("0.0.0"); //$NON-NLS-1$
+			Version cuVersion = new Version(productFile.getVersion());
 			cu.setId(configUnitId);
 			cu.setVersion(cuVersion);
 			cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -778,8 +794,11 @@ public class Generator {
 
 		if (info.getLauncherConfig() != null) {
 			String[] config = getArrayFromString(info.getLauncherConfig(), "_"); //$NON-NLS-1$
-			generateExecutableIUs(config[1], config[0], config[2], "1.0.0", executableLocation.getParentFile(), result, destination); //$NON-NLS-1$
-			generateProductIniCU(config[1], config[0], config[2], "1.0.0", result); //$NON-NLS-1$
+			String version = "1.0.0"; //$NON-NLS-1$
+			if (productFile != null && !productFile.getVersion().equals("0.0.0")) //$NON-NLS-1$
+				version = productFile.getVersion();
+			generateExecutableIUs(config[1], config[0], config[2], version, executableLocation.getParentFile(), result, destination);
+			generateProductIniCU(config[1], config[0], config[2], version, result);
 			return;
 		}
 

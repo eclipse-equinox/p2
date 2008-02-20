@@ -137,7 +137,7 @@ public class GeneratorTask extends Task {
 	public void setNoDefaultIUs(String value) {
 		if (provider == null)
 			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setAddDefaultIUs(Boolean.valueOf(value).booleanValue());
+		provider.setAddDefaultIUs(!Boolean.valueOf(value).booleanValue());
 	}
 
 	public void setP2OS(String value) {

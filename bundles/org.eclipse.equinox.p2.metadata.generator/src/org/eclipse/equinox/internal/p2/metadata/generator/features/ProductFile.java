@@ -98,6 +98,7 @@ public class ProductFile extends DefaultHandler {
 	private String splashLocation = null;
 	private String productName = null;
 	private String application = null;
+	private String version = null;
 
 	private Properties launcherArgs = new Properties();
 
@@ -211,6 +212,10 @@ public class ProductFile extends DefaultHandler {
 
 	public boolean useFeatures() {
 		return useFeatures;
+	}
+
+	public String getVersion() {
+		return (version == null) ? "0.0.0" : version; //$NON-NLS-1$
 	}
 
 	public String getVMArguments(String os) {
@@ -446,6 +451,7 @@ public class ProductFile extends DefaultHandler {
 		String use = attributes.getValue("useFeatures"); //$NON-NLS-1$
 		if (use != null)
 			useFeatures = Boolean.valueOf(use).booleanValue();
+		version = attributes.getValue("version"); //$NON-NLS-1$
 	}
 
 	private void processConfigIni(Attributes attributes) {
