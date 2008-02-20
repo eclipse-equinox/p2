@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
