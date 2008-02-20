@@ -46,22 +46,20 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	protected ProvisioningPlan getProvisioningPlan() {
 		// If the profile was not provided, see if we have a
 		// viewer element that can tell us.
-		String targetProfileId = profileId;
-		if (targetProfileId == null && profileChooser != null) {
-			targetProfileId = profileChooser.getProfileId(getShell());
+		if (profileId == null && profileChooser != null) {
+			profileId = profileChooser.getProfileId(getShell());
 		}
 		// We could not figure out a profile to operate on, so return
-		if (targetProfileId == null) {
+		if (profileId == null) {
 			return null;
 		}
 
 		final IInstallableUnit[] ius = getSelectedIUs();
 		final ProvisioningPlan[] plan = new ProvisioningPlan[1];
-		final String id = targetProfileId;
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
-					plan[0] = getProvisioningPlan(ius, id, monitor);
+					plan[0] = getProvisioningPlan(ius, profileId, monitor);
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, ProvUIMessages.ProfileModificationAction_UnexpectedError, StatusManager.BLOCK | StatusManager.LOG);
 				}
