@@ -122,8 +122,7 @@ abstract class ProvView extends ViewPart {
 		undoRedoGroup = new UndoRedoActionGroup(getSite(), ProvUI.getProvisioningUndoContext(), true);
 		refreshAction = new Action(ProvAdminUIMessages.ProvView_RefreshCommandLabel) {
 			public void run() {
-				refreshUnderlyingModel();
-				viewer.refresh();
+				refreshAll();
 			}
 		};
 		refreshAction.setToolTipText(ProvAdminUIMessages.ProvView_RefreshCommandTooltip);
@@ -155,9 +154,7 @@ abstract class ProvView extends ViewPart {
 
 			public void propertyChange(PropertyChangeEvent event) {
 				if (getVisualProperties().contains(event.getProperty())) {
-					// Refresh all model content.  The SDK query provider will provide an updated
-					// query for content based on these pref changes.
-					viewer.refresh();
+					ProvView.this.refreshAll();
 				}
 			}
 
@@ -223,5 +220,14 @@ abstract class ProvView extends ViewPart {
 		ArrayList list = new ArrayList(1);
 		list.add(PreferenceConstants.PREF_SHOW_GROUPS_ONLY);
 		return list;
+	}
+
+	final void refreshAll() {
+		// Refresh the underlying elements
+		refreshUnderlyingModel();
+		// We then reset the input to ensure that anything the content providers 
+		// are caching gets reset also.  The net effect is that everything 
+		// will get queried again.
+		viewer.setInput(getInput());
 	}
 }

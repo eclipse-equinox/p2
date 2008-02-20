@@ -91,7 +91,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 				if (event.getProperty().equals(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED))
 					checkBox.setSelection(store.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
 				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
-					group.getAvailableIUViewer().refresh();
+					group.getAvailableIUGroup().refreshAll();
 			}
 		};
 		store.addPropertyChangeListener(preferenceListener);

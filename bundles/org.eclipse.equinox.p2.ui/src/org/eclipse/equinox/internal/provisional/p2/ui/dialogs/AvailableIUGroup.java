@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
-import org.eclipse.equinox.internal.p2.ui.viewers.AvailableIUContentProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -64,8 +63,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		availableIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
-		availableIUViewer.setContentProvider(new AvailableIUContentProvider(getQueryProvider()));
-		availableIUViewer.setInput(new MetadataRepositories(getProvisioningContext().getMetadataRepositories()));
+		availableIUViewer.setContentProvider(new DeferredQueryContentProvider(getQueryProvider()));
+		availableIUViewer.setInput(getInput());
 
 		// Now the presentation, columns before label provider.
 		setTreeColumns(availableIUViewer.getTree());
@@ -73,9 +72,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, getQueryProvider()) {
 			protected void refreshAll() {
-				// The content provider caches the children unless input changes,
-				// so a viewer.refresh() is not enough.
-				availableIUViewer.setInput(new MetadataRepositories(getProvisioningContext().getMetadataRepositories()));
+				AvailableIUGroup.this.refreshAll();
 			}
 		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
@@ -98,5 +95,17 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			tc.setText(columns[i].columnTitle);
 			tc.setWidth(convertHorizontalDLUsToPixels(columns[i].defaultColumnWidth));
 		}
+	}
+
+	Object getInput() {
+		MetadataRepositories input = new MetadataRepositories(getProvisioningContext().getMetadataRepositories());
+		input.setQueryType(IQueryProvider.AVAILABLE_IUS);
+		return input;
+	}
+
+	public void refreshAll() {
+		// The content provider caches the children unless input changes,
+		// so a viewer.refresh() is not enough.
+		getStructuredViewer().setInput(getInput());
 	}
 }

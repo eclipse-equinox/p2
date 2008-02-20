@@ -103,7 +103,13 @@ public class ProfilesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, ProvAdminUIActivator.getDefault().getQueryProvider());
+		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, ProvAdminUIActivator.getDefault().getQueryProvider()) {
+			protected void refreshAll() {
+				// The content provider maintains the same deferred content manager
+				// unless input changes, so a viewer.refresh() is not enough.
+				ProfilesView.this.refreshAll();
+			}
+		};
 		ProvUI.addProvisioningListener(listener);
 	}
 

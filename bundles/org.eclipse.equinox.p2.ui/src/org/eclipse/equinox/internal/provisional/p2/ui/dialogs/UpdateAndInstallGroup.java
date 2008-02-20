@@ -330,11 +330,11 @@ public class UpdateAndInstallGroup {
 		return Dialog.convertVerticalDLUsToPixels(fm, dlus);
 	}
 
-	public StructuredViewer getAvailableIUViewer() {
-		return availableIUGroup.getStructuredViewer();
+	public AvailableIUGroup getAvailableIUGroup() {
+		return availableIUGroup;
 	}
 
-	public StructuredViewer getInstalledIUViewer() {
-		return installedIUGroup.getStructuredViewer();
+	public InstalledIUGroup getInstalledIUGroup() {
+		return installedIUGroup;
 	}
 }
