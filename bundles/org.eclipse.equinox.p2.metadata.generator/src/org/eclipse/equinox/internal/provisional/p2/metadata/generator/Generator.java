@@ -613,21 +613,13 @@ public class Generator {
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (Constants.OS_MACOSX.equals(os)) {
-			//navigate down to the arch specific folder 
-			//			root = root.listFiles(new FileFilter() {
-			//				public boolean accept(File pathname) {
-			//					if (pathname.getName().equalsIgnoreCase(arch))
-			//						return true;
-			//					return false;
-			//				}
-			//			})[0];
 			//navigate down to Contents/MacOs
 			File[] launcherFiles = root.listFiles()[0].listFiles()[0].listFiles();
 			for (int i = 0; i < launcherFiles.length; i++) {
 				if (launcherFiles[i].isDirectory()) {
 					launcherFiles = launcherFiles[i].listFiles();
 				}
-				configurationData += " chmod(targetDir:${installFolder}/" + root.getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				configurationData += " chmod(targetDir:${installFolder}/" + root.listFiles()[0].getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				MetadataGeneratorHelper.generateLauncherSetter(new Path(launcherFiles[i].getName()).lastSegment().toString(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 			}
 		}
