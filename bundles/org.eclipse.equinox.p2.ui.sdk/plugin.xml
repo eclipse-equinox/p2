@@ -105,5 +105,38 @@
             </command>
       </menuContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.activities">
+      <activity
+            description="Enables classic update functionality"
+            id="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
+            name="Classic Update">
+      </activity>
+      <activityPatternBinding
+            activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
+            isEqualityPattern="false"
+            pattern=".*org\.eclipse\.update\.ui.*">
+      </activityPatternBinding>
+      <activityPatternBinding
+            activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
+            isEqualityPattern="false"
+            pattern=".*org\.eclipse\.ui\.update.*">
+      </activityPatternBinding>
+      <category
+            description="Enables classic update functionality"
+            id="org.eclipse.equinox.p2.ui.sdk.category.classicUpdate"
+            name="Classic Update">
+      </category>
+      <categoryActivityBinding
+            activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
+            categoryId="org.eclipse.equinox.p2.ui.sdk.category.classicUpdate">
+      </categoryActivityBinding>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.ClassicUpdateInitializer">
+      </initializer>
+   </extension>
 
 </plugin>
