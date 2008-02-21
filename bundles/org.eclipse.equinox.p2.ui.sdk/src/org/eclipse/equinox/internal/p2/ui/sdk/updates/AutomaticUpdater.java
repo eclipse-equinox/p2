@@ -289,10 +289,14 @@ public class AutomaticUpdater implements IUpdateListener {
 				String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
 				if (plan != null) {
 					if (plan.getStatus().isOK() || !(MessageDialogWithToggle.NEVER.equals(openPlan))) {
+						// Show the affordance if user prefers always opening a plan or being prompted
+						// In this context, the affordance is the prompt.
 						if (updateAffordance == null)
 							createUpdateAffordance();
 						setUpdateAffordanceState(plan.getStatus().isOK());
-						if (popup == null)
+						// If the user always wants to open invalid plans, then go ahead and show
+						// the popup.
+						if (MessageDialogWithToggle.ALWAYS.equals(openPlan) && popup == null)
 							createUpdatePopup();
 					} else {
 						// The pref is NEVER, the user doesn't want to know about it
