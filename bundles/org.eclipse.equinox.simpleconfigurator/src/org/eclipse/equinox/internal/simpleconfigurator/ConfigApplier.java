@@ -279,7 +279,7 @@ class ConfigApplier {
 	private void startBundles(Bundle[] bundles) {
 		for (int i = 0; i < bundles.length; i++) {
 			Bundle bundle = bundles[i];
-			if (bundle.getState() == Bundle.STARTING)
+			if (bundle.getState() == Bundle.STARTING && (bundle == manipulatingContext.getBundle()))
 				continue;
 
 			try {
