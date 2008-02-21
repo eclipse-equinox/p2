@@ -29,6 +29,7 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 	public void writeProfile(IProfile profile) {
 		start(PROFILE_ELEMENT);
 		attribute(ID_ATTRIBUTE, profile.getProfileId());
+		attribute(TIMESTAMP_ATTRIBUTE, Long.toString(profile.getTimestamp()));
 		IProfile parentProfile = profile.getParentProfile();
 		if (parentProfile != null)
 			attribute(PARENT_ID_ATTRIBUTE, parentProfile.getProfileId());

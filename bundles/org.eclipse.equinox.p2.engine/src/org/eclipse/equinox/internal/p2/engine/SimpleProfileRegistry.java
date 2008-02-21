@@ -32,6 +32,54 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class SimpleProfileRegistry implements IProfileRegistry {
+
+	static class Lock {
+
+		private Thread lockHolder;
+		private int lockedCount;
+
+		protected void lock(Object monitor) {
+			Thread current = Thread.currentThread();
+			if (lockHolder != current) {
+				boolean interrupted = false;
+				try {
+					while (lockedCount != 0)
+						try {
+							monitor.wait();
+						} catch (InterruptedException e) {
+							// although we don't handle an interrupt we should still 
+							// save and restore the interrupt for others further up the stack
+							interrupted = true;
+						}
+				} finally {
+					if (interrupted)
+						current.interrupt(); // restore interrupted status
+				}
+			}
+			lockedCount++;
+			lockHolder = current;
+		}
+
+		protected void unlock(Object monitor) {
+			Thread current = Thread.currentThread();
+			if (lockHolder != current)
+				throw new IllegalStateException("Thread not lock owner"); //$NON-NLS-1$
+
+			lockedCount--;
+			if (lockedCount == 0) {
+				lockHolder = null;
+				monitor.notifyAll();
+			}
+		}
+
+		protected synchronized void checkLocked() {
+			Thread current = Thread.currentThread();
+			if (lockHolder != current)
+				throw new IllegalStateException("Thread not lock owner"); //$NON-NLS-1$
+		}
+
+	}
+
 	private static final String STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
 
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
@@ -40,6 +88,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * Reference to Map of String(Profile id)->Profile. 
 	 */
 	private SoftReference profiles;
+	private Map profileLocks = new HashMap();
 
 	private String self;
 
@@ -85,12 +134,17 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	public synchronized IProfile getProfile(String id) {
-		if (SELF.equals(id))
-			id = self;
-		Profile profile = (Profile) getProfileMap().get(id);
+		Profile profile = internalGetProfile(id);
 		if (profile == null)
 			return null;
 		return profile.snapshot();
+	}
+
+	private Profile internalGetProfile(String id) {
+		if (SELF.equals(id))
+			id = self;
+		Profile profile = (Profile) getProfileMap().get(id);
+		return profile;
 	}
 
 	public synchronized IProfile[] getProfiles() {
@@ -127,11 +181,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	public synchronized void updateProfile(Profile profile) {
 		String id = profile.getProfileId();
-		if (SELF.equals(id))
-			id = self;
-		Profile current = (Profile) getProfileMap().get(id);
+		Profile current = internalGetProfile(id);
 		if (current == null)
 			throw new IllegalArgumentException("Profile to be updated does not exist:" + id); //$NON-NLS-1$
+
+		Lock lock = (Lock) profileLocks.get(id);
+		lock.checkLocked();
 
 		current.clearLocalProperties();
 		current.clearInstallableUnits();
@@ -145,7 +200,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			if (iuProperties != null)
 				current.addInstallableUnitProperties(iu, iuProperties);
 		}
-		saveProfile(profile);
+		saveProfile(current);
+		profile.setTimestamp(current.getTimestamp());
 		broadcastChangeEvent(id, ProfileEvent.CHANGED);
 	}
 
@@ -193,9 +249,14 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		for (int i = 0; i < subProfileIds.length; i++) {
 			removeProfile(subProfileIds[i]);
 		}
-
-		profile.setParent(null);
+		internalLockProfile(profile);
+		try {
+			profile.setParent(null);
+		} finally {
+			internalUnlockProfile(profile);
+		}
 		profileMap.remove(profileId);
+		profileLocks.remove(profileId);
 		deleteProfile(profileId);
 		broadcastChangeEvent(profileId, ProfileEvent.REMOVED);
 	}
@@ -227,7 +288,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		File store = getRegistryDirectory();
 		if (store == null || !store.isDirectory())
-			throw new IllegalStateException("Registry Directory not available");
+			throw new IllegalStateException("Registry Directory not available"); //$NON-NLS-1$
 
 		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 		File[] profileDirectories = store.listFiles();
@@ -267,14 +328,20 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		File profileDirectory = new File(registryDirectory, escape(profile.getProfileId()) + PROFILE_EXT);
 		profileDirectory.mkdir();
-		long timestamp = new Date().getTime();
-		File profileFile = new File(profileDirectory, Long.toString(timestamp) + PROFILE_EXT);
+
+		long previousTimestamp = profile.getTimestamp();
+		long currentTimestamp = System.currentTimeMillis();
+		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_EXT);
+
+		profile.setTimestamp(currentTimestamp);
 		OutputStream os = null;
 		try {
 			os = new BufferedOutputStream(new FileOutputStream(profileFile));
 			Writer writer = new Writer(os);
 			writer.writeProfile(profile);
 		} catch (IOException e) {
+			profile.setTimestamp(previousTimestamp);
+			profileFile.delete();
 			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error persisting profile", e)); //$NON-NLS-1$
 		} finally {
 			try {
@@ -316,7 +383,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		return buffer.toString();
 	}
 
-	private class Writer extends ProfileWriter {
+	static class Writer extends ProfileWriter {
 
 		public Writer(OutputStream output) throws IOException {
 			super(output, new ProcessingInstruction[] {ProcessingInstruction.makeClassVersionInstruction(PROFILE_TARGET, Profile.class, ProfileXMLConstants.CURRENT_VERSION)});
@@ -327,7 +394,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * 	Parser for the contents of a SimpleProfileRegistry,
 	 * 	as written by the Writer class.
 	 */
-	private class Parser extends ProfileParser {
+	static class Parser extends ProfileParser {
 		private final Map profileHandlers = new HashMap();
 
 		public Parser(BundleContext context, String bundleId) {
@@ -358,7 +425,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		}
 
 		protected Object getRootObject() {
-			return SimpleProfileRegistry.this;
+			return this;
 		}
 
 		public Map getProfileMap() {
@@ -384,6 +451,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 
 			Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
+			profile.setTimestamp(profileHandler.getTimestamp());
+
 			IInstallableUnit[] ius = profileHandler.getInstallableUnits();
 			if (ius != null) {
 				for (int i = 0; i < ius.length; i++) {
@@ -429,4 +498,52 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		}
 
 	}
+
+	public synchronized void lockProfile(IProfile profile) {
+		Profile internalProfile = internalGetProfile(profile.getProfileId());
+		if (internalProfile == null)
+			throw new IllegalArgumentException("Profile not registered."); //$NON-NLS-1$
+
+		if (!checkTimestamps(profile, internalProfile))
+			throw new IllegalArgumentException("Profile not current."); //$NON-NLS-1$
+
+		internalLockProfile(internalProfile);
+	}
+
+	private void internalLockProfile(IProfile profile) {
+		Lock lock = (Lock) profileLocks.get(profile.getProfileId());
+		if (lock == null) {
+			lock = new Lock();
+			profileLocks.put(profile.getProfileId(), lock);
+		}
+		lock.lock(this);
+		if (profile.getParentProfile() != null)
+			internalLockProfile(profile.getParentProfile());
+	}
+
+	private boolean checkTimestamps(IProfile profile, IProfile internalProfile) {
+		if (profile.getTimestamp() == internalProfile.getTimestamp()) {
+			if (profile.getParentProfile() == null)
+				return true;
+
+			return checkTimestamps(profile.getParentProfile(), internalProfile.getParentProfile());
+		}
+		return false;
+	}
+
+	public synchronized void unlockProfile(IProfile profile) {
+		Profile internalProfile = internalGetProfile(profile.getProfileId());
+		if (internalProfile == null)
+			throw new IllegalArgumentException("Profile not registered."); //$NON-NLS-1$
+		internalUnlockProfile(internalProfile);
+	}
+
+	private void internalUnlockProfile(IProfile profile) {
+		if (profile.getParentProfile() != null)
+			internalUnlockProfile(profile.getParentProfile());
+
+		Lock lock = (Lock) profileLocks.get(profile.getProfileId());
+		lock.unlock(this);
+	}
+
 }

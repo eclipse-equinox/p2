@@ -33,6 +33,7 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 
 		private String profileId;
 		private String parentId;
+		private String timestamp;
 		private PropertiesHandler propertiesHandler;
 		private InstallableUnitsHandler unitsHandler;
 		private IUsPropertiesHandler iusPropertiesHandler;
@@ -44,6 +45,8 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 		protected void handleRootAttributes(Attributes attributes) {
 			profileId = parseRequiredAttributes(attributes, required)[0];
 			parentId = parseOptionalAttribute(attributes, PARENT_ID_ATTRIBUTE);
+			timestamp = parseOptionalAttribute(attributes, TIMESTAMP_ATTRIBUTE);
+
 		}
 
 		public void startElement(String name, Attributes attributes) {
@@ -76,6 +79,17 @@ public abstract class ProfileParser extends MetadataParser implements ProfileXML
 
 		public String getParentId() {
 			return parentId;
+		}
+
+		public long getTimestamp() {
+			if (timestamp != null) {
+				try {
+					return Long.parseLong(timestamp);
+				} catch (NumberFormatException e) {
+					// TODO: log
+				}
+			}
+			return 0;
 		}
 
 		public Map getProperties() {

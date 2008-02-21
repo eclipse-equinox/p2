@@ -109,4 +109,6 @@ public interface IProfile extends IQueryable {
 
 	public Map getInstallableUnitProperties(IInstallableUnit iu);
 
+	public long getTimestamp();
+
 }

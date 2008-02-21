@@ -369,6 +369,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 				}
 
 				Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
+				profile.setTimestamp(profileHandler.getTimestamp());
 				IInstallableUnit[] ius = profileHandler.getInstallableUnits();
 				if (ius != null) {
 					for (int i = 0; i < ius.length; i++) {
@@ -457,5 +458,4 @@ public class ProfileTest extends AbstractProvisioningTest {
 		output1.close();
 		assertTrue("Profile write after read after write produced different XML", profileText1.equals(profileText0));
 	}
-
 }

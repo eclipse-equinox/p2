@@ -27,7 +27,8 @@ public interface ProfileXMLConstants extends XMLConstants {
 	// Constants for profile elements
 
 	public static final String PROFILE_ELEMENT = "profile"; //$NON-NLS-1$
+	public static final String TIMESTAMP_ATTRIBUTE = "timestamp"; //$NON-NLS-1$
 	public static final String IUS_PROPERTIES_ELEMENT = "iusProperties"; //$NON-NLS-1$
 	public static final String IU_PROPERTIES_ELEMENT = "iuProperties"; //$NON-NLS-1$
-	public static final String PROFILE_TARGET = "profile";
+	public static final String PROFILE_TARGET = "profile"; //$NON-NLS-1$
 }

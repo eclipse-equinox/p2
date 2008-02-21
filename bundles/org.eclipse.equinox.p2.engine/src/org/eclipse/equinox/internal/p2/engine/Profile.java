@@ -39,6 +39,8 @@ public class Profile implements IQueryable, IProfile {
 	private Map iuProperties = new HashMap();
 	private boolean changed = false;
 
+	private long timestamp;
+
 	public Profile(String profileId, Profile parent, Map properties) {
 		if (profileId == null || profileId.length() == 0) {
 			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Null_Profile_Id, null));
@@ -260,6 +262,10 @@ public class Profile implements IQueryable, IProfile {
 		return changed;
 	}
 
+	public void setChanged(boolean isChanged) {
+		changed = isChanged;
+	}
+
 	public void clearInstallableUnits() {
 		ius.clear();
 		iuProperties.clear();
@@ -272,6 +278,7 @@ public class Profile implements IQueryable, IProfile {
 			parentSnapshot = parentProfile.snapshot();
 
 		Profile snapshot = new Profile(profileId, parentSnapshot, storage);
+		snapshot.setTimestamp(timestamp);
 
 		if (subProfileIds != null) {
 			for (Iterator it = subProfileIds.iterator(); it.hasNext();) {
@@ -304,4 +311,11 @@ public class Profile implements IQueryable, IProfile {
 		changed = true;
 	}
 
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long millis) {
+		timestamp = millis;
+	}
 }
