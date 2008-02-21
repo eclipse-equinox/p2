@@ -12,10 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.core.location;
 
 import java.net.URL;
 
-/**
- * TODO: We are not allowed to extend Location because it's not intended
- * to be implemented by clients.
- */
 public interface AgentLocation {
 	public static final String SERVICE_NAME = AgentLocation.class.getName();
 
