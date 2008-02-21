@@ -56,7 +56,7 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 	 * 
 	 * @param query The query to perform, or <code>null</code> if the repositories
 	 * should not be loaded and queried.
-	 * @param collector Collects either the repository URLs (when the query is null), or the results 
+	 * @param result Collects either the repository URLs (when the query is null), or the results 
 	 *    of the query on each repository
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired

@@ -47,7 +47,7 @@ public class QueryableArtifactRepositoryManager implements IQueryable {
 	 * 
 	 * @param query The query to perform on the URLs, or <code>null</code> if all URLs should
 	 * be accepted.
-	 * @param collector Collects the repository URLs
+	 * @param result Collects the repository URLs
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The collector argument
