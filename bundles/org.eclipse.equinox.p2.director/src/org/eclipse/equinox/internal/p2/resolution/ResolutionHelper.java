@@ -131,6 +131,26 @@ public class ResolutionHelper {
 					IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
 
 					if (potentialFragment.getHostId() == null) {
+						// Check to make sure the host meets the requirements of the fragment
+						RequiredCapability fragmentRequiredCapabilities[] = potentialFragment.getRequiredCapabilities();
+						if (fragmentRequiredCapabilities != null) {
+							ProvidedCapability hostCapabilities[] = hostIU.getProvidedCapabilities();
+							boolean matchedCapability = false;
+							for (int l = 0; l < fragmentRequiredCapabilities.length; l++) {
+								RequiredCapability nextRequiredCapability = fragmentRequiredCapabilities[l];
+								for (int m = 0; m < hostCapabilities.length; m++) {
+									if (hostCapabilities[m].isSatisfiedBy(nextRequiredCapability)) {
+										matchedCapability = true;
+										break;
+									}
+
+								}
+							}
+							if (!matchedCapability) {
+								break;
+							}
+						}
+
 						// default fragment - we'll mark it selected but keep looking for a fragment that matches the host
 						selectedFragment = potentialFragment;
 					} else if (potentialFragment.getHostId().equals(hostIU.getId()) && potentialFragment.getHostVersionRange().isIncluded(hostIU.getVersion())) {
