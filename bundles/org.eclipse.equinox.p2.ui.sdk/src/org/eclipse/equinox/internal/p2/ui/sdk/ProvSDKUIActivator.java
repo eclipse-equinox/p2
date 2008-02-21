@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -202,7 +203,11 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 					if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
 						MessageDialog dialog = new MessageDialog(shell, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureTitle, null, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureMessage, MessageDialog.WARNING, new String[] {ProvSDKMessages.ProvSDKUIActivator_LaunchUpdateManager, IDialogConstants.CANCEL_LABEL}, 0);
 						if (dialog.open() == 0)
-							UpdateManagerCompatibility.openInstaller();
+							BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+								public void run() {
+									UpdateManagerCompatibility.openInstaller();
+								}
+							});
 						return false;
 					}
 					if (plan.getStatus().isOK())

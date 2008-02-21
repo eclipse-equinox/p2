@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -106,7 +107,11 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 						if (ret == 1) // continue anyway
 							return true;
 						if (ret == 0)
-							UpdateManagerCompatibility.openInstaller();
+							BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+								public void run() {
+									UpdateManagerCompatibility.openInstaller();
+								}
+							});
 						return false;
 					}
 					return true;
