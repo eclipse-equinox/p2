@@ -72,7 +72,7 @@ public class Pack200ProcessorStep extends AbstractBufferingStep {
 		options.processAll = false;
 		options.input = incoming;
 		options.outputDir = getWorkDir().getPath();
-		options.verbose = true;
+		options.verbose = false;
 		new JarProcessorExecutor().runJarProcessor(options);
 		return new File(getWorkDir(), incoming.getName().substring(0, incoming.getName().length() - PACKED_SUFFIX.length()));
 	}
