@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.2"?>
+
+<target name="Provisioning base">
+
+   <location path="d:\targets\provisioning-base"/>
+
+   <content>
+      <plugins>
+         <plugin id="org.eclipse.core.jobs"/>
+         <plugin id="org.eclipse.equinox.app"/>
+         <plugin id="org.eclipse.equinox.common"/>
+         <plugin id="org.eclipse.equinox.launcher"/>
+         <plugin id="org.eclipse.equinox.registry"/>
+         <plugin id="org.eclipse.osgi"/>
+         <plugin id="org.eclipse.osgi.services"/>
+         <plugin id="org.junit"/>
+      </plugins>
+      <features>
+      </features>
+      <extraLocations>
+         <location path="D:\targets\equinox\eclipse"/>
+      </extraLocations>
+   </content>
+
+</target>
