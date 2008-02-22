@@ -29,8 +29,8 @@ Import-Package: org.eclipse.core.runtime.preferences,
  org.xml.sax
 Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.repository.Activator
 Eclipse-LazyStart: true
-Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
- J2SE-1.4
+Bundle-RequiredExecutionEnvironment: J2SE-1.4,
+ CDC-1.1/Foundation-1.1
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.registry,
  org.eclipse.ecf;bundle-version="1.2.0",
