@@ -28,12 +28,12 @@ import org.osgi.framework.Version;
  */
 public class CategoryElementCollector extends QueriedElementCollector {
 
-	private boolean allowEmpty;
+	private boolean groupUncategorized;
 	private Set referredIUs = new HashSet();
 
-	public CategoryElementCollector(IQueryProvider queryProvider, IQueryable queryable, boolean allowEmpty) {
+	public CategoryElementCollector(IQueryProvider queryProvider, IQueryable queryable, boolean showUncategorized) {
 		super(queryProvider, queryable);
-		this.allowEmpty = allowEmpty;
+		this.groupUncategorized = showUncategorized;
 	}
 
 	/**
@@ -63,34 +63,73 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		return super.accept(new CategoryElement(iu));
 	}
 
-	public Iterator iterator() {
-		if (!allowEmpty && getList().isEmpty())
+	private void cleanList() {
+		if (groupUncategorized)
 			createDummyCategory();
 		removeNestedCategories();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.query.Collector#iterator()
+	 */
+	public Iterator iterator() {
+		cleanList();
 		return super.iterator();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.query.Collector#toArray(java.lang.Class)
+	 */
 	public Object[] toArray(Class clazz) {
-		if (!allowEmpty && getList().isEmpty())
-			createDummyCategory();
-		removeNestedCategories();
+		cleanList();
 		return super.toArray(clazz);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.query.Collector#toCollection()
+	 */
+	public Collection toCollection() {
+		cleanList();
+		return super.toCollection();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.query.Collector#size()
+	 */
+	public int size() {
+		cleanList();
+		return super.size();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.query.Collector#isEmpty()
+	 */
+	public boolean isEmpty() {
+		cleanList();
+		return super.isEmpty();
 	}
 
 	private void createDummyCategory() {
 		InstallableUnitDescription unit = new InstallableUnitDescription();
 		unit.setId(ProvUIMessages.CategoryElementCollector_Uncategorized);
 		unit.setProperty(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
-		unit.setVersion(Version.emptyVersion);
+		unit.setVersion(new Version(0, 0, 0, "generated")); //$NON-NLS-1$
+		String name;
 		if (queryable instanceof IRepository) {
 			IRepository repo = (IRepository) queryable;
-			String name = repo.getName();
+			name = repo.getName();
 			if (name == null)
 				name = repo.getLocation().toExternalForm();
-			unit.setProperty(IInstallableUnit.PROP_NAME, name);
 		} else {
-			unit.setProperty(IInstallableUnit.PROP_NAME, ProvUIMessages.CategoryElementCollector_Uncategorized);
+			name = ProvUIMessages.CategoryElementCollector_Uncategorized;
 		}
+		unit.setProperty(IInstallableUnit.PROP_NAME, name);
+
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(unit);
 		CategoryElement element = new UncategorizedCategoryElement(iu);
 		element.setQueryable(queryable);

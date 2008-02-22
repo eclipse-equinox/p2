@@ -78,7 +78,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 				if (element instanceof MetadataRepositoryElement) {
 					if (useCategories)
 						// We are using categories, group into categories first.
-						return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false));
+						return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), true));
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
 						return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), groupQuery, showLatest ? new LatestIUVersionElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false) : new AvailableIUCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false));
@@ -96,7 +96,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
 					if (useCategories)
 						// We are using categories, group into categories first.
-						return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, false));
+						return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, true));
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
 						return new ElementQueryDescriptor(queryable, groupQuery, showLatest ? new LatestIUVersionElementCollector(this, queryable, false) : new AvailableIUCollector(this, queryable, false));
@@ -107,13 +107,20 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 					return new ElementQueryDescriptor(queryable, allQuery, new AvailableIUCollector(this, queryable, false));
 				}
 				// Things have been grouped by category, now what?
-				if (element instanceof CategoryElement) {
-					Query membersOfCategoryQuery;
-					if (element instanceof UncategorizedCategoryElement)
-						membersOfCategoryQuery = allQuery;
-					else
-						membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getIU());
+				// Handle uncategorized elements first
+				if (element instanceof UncategorizedCategoryElement) {
+					// Will have to look at all categories and other items first. 
+					queryable = ((UncategorizedCategoryElement) element).getQueryable();
+					Query firstPassQuery = allQuery;
+					if (showGroupsOnly)
+						firstPassQuery = new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false);
+					queryable = ((UncategorizedCategoryElement) element).getQueryable();
+					Collector collector = showLatest ? new LatestIUVersionElementCollector(this, queryable, false) : new AvailableIUCollector(this, queryable, false);
+					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(this, queryable, collector));
 
+				}
+				if (element instanceof CategoryElement) {
+					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getIU());
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
 						return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), true) : new AvailableIUCollector(this, ((CategoryElement) element).getQueryable(), true));

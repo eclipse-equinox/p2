@@ -71,17 +71,22 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 						queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
 					else
 						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
-					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, false));
+					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, true));
 				}
 				if (element instanceof MetadataRepositoryElement) {
-					return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), false));
+					return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), true));
+				}
+				// Must do this one before CategoryElement since it's a subclass
+				if (element instanceof UncategorizedCategoryElement) {
+					// Will have to look at all categories and groups and from there, figure out what's left
+					Query firstPassQuery = new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false);
+					queryable = ((UncategorizedCategoryElement) element).getQueryable();
+					Collector collector = showLatest ? new LatestIUVersionElementCollector(this, queryable, false) : new AvailableIUCollector(this, queryable, false);
+					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(this, queryable, collector));
+
 				}
 				if (element instanceof CategoryElement) {
-					Query membersOfCategoryQuery;
-					if (element instanceof UncategorizedCategoryElement)
-						membersOfCategoryQuery = allQuery;
-					else
-						membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getIU());
+					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getIU());
 					Collector collector;
 					if (showLatest)
 						collector = new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), true);
