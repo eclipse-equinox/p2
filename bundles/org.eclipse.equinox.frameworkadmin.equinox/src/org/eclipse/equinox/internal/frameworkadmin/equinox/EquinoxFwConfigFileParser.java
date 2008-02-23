@@ -25,6 +25,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
 public class EquinoxFwConfigFileParser {
+	private static final String CONFIG_DIR = "@config.dir/"; //$NON-NLS-1$
 	private static final String KEY_ECLIPSE_PROV_CACHE = "eclipse.p2.cache"; //$NON-NLS-1$
 	private static final String KEY_ECLIPSE_PROV_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
@@ -32,7 +33,6 @@ public class EquinoxFwConfigFileParser {
 	private static final String KEY_OSGI_FRAMEWORK = "osgi.framework"; //$NON-NLS-1$
 	private static final String KEY_OSGI_LAUNCHER_PATH = "osgi.launcherPath"; //$NON-NLS-1$
 	private static final String[] PATHS = new String[] {KEY_OSGI_LAUNCHER_PATH, KEY_ECLIPSE_PROV_CACHE};
-	private static final String[] URLS = new String[] {KEY_ECLIPSE_PROV_DATA_AREA};
 
 	private static boolean DEBUG = false;
 	private static String USE_REFERENCE_STRING = null;
@@ -316,10 +316,17 @@ public class EquinoxFwConfigFileParser {
 			props.put(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL), configArea.toURL()));
 		}
 
-		for (int i = 0; i < URLS.length; i++) {
-			String url = props.getProperty(URLS[i]);
-			if (url != null)
-				props.put(URLS[i], EquinoxManipulatorImpl.makeRelative(url, rootURL));
+		if (props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA) != null) {
+			String url = props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA);
+			if (url != null) {
+				String result = EquinoxManipulatorImpl.makeRelative(url, configArea.toURL());
+				//We only relativize up to the level where the p2 and config folder are siblings (e.g. foo/p2 and foo/config)
+				if (result.startsWith("file:../..")) //$NON-NLS-1$
+					result = url;
+				else if (!result.equals(url) && result.startsWith("file:")) //$NON-NLS-1$
+					result = CONFIG_DIR + result.substring(5);
+				props.put(KEY_ECLIPSE_PROV_DATA_AREA, result);
+			}
 		}
 
 		String value = props.getProperty(KEY_OSGI_BUNDLES);
@@ -342,10 +349,13 @@ public class EquinoxFwConfigFileParser {
 			props.put(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeAbsolute(props.getProperty(KEY_ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL), configArea.toURL()));
 		}
 
-		for (int i = 0; i < URLS.length; i++) {
-			String url = props.getProperty(URLS[i]);
-			if (url != null)
-				props.put(URLS[i], EquinoxManipulatorImpl.makeAbsolute(url, rootURL));
+		if (props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA) != null) {
+			String url = props.getProperty(KEY_ECLIPSE_PROV_DATA_AREA);
+			if (url != null) {
+				if (url.startsWith(CONFIG_DIR))
+					url = "file:" + url.substring(CONFIG_DIR.length()); //$NON-NLS-1$
+				props.put(KEY_ECLIPSE_PROV_DATA_AREA, EquinoxManipulatorImpl.makeAbsolute(url, configArea.toURL()));
+			}
 		}
 
 		String value = props.getProperty(KEY_OSGI_BUNDLES);

@@ -571,21 +571,23 @@ public class EquinoxManipulatorImpl implements Manipulator {
 		configData.setBundles(newBundleInfos);
 	}
 
-	/*
-	 * Make the given path relative to the specified root, if applicable. If not, then
-	 * return the path as-is.
-	 * 
-	 * Method similar to one from SimpleConfigurationManipulatorImpl.
-	 */
 	public static String makeRelative(String original, String rootPath) {
 		IPath path = new Path(original);
 		// ensure we have an absolute path to start with
 		if (!path.isAbsolute())
 			return original;
 
-		return makeRelative(path, new Path(rootPath));
+		//Returns the original string if no relativization has been done
+		String result = makeRelative(path, new Path(rootPath));
+		return path.toOSString().equals(result) ? original : result;
 	}
 
+	/*
+	 * Make the given path relative to the specified root, if applicable. If not, then
+	 * return the path as-is.
+	 * 
+	 * Method similar to one from SimpleConfigurationManipulatorImpl.
+	 */
 	private static String makeRelative(IPath toRel, IPath base) {
 		int i = base.matchingFirstSegments(toRel);
 		if (i == 0) {
