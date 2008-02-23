@@ -27,14 +27,13 @@ public class Activator implements BundleActivator {
 
 	public static AgentLocation agentDataLocation = null;
 	public static BundleContext context;
-	private static final String DEFAULT_AGENT_LOCATION = "p2"; //$NON-NLS-1$
+	private static final String DEFAULT_AGENT_LOCATION = "../p2"; //$NON-NLS-1$
 
 	public static Location downloadLocation = null;
 	private static Activator instance;
 	// Data mode constants for user, configuration and data locations.
 	private static final String NO_DEFAULT = "@noDefault"; //$NON-NLS-1$
 	private static final String NONE = "@none"; //$NON-NLS-1$
-	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 
 	private static final String PROP_AGENT_DATA_AREA = "eclipse.p2.data.area"; //$NON-NLS-1$
 	private static final String PROP_CONFIG_DIR = "osgi.configuration.area"; //$NON-NLS-1$
@@ -122,20 +121,17 @@ public class Activator implements BundleActivator {
 		// put the instance area inside the workspace meta area.
 		if (location == null)
 			return new BasicLocation(property, defaultLocation, readOnly);
-		// handle ../ entries in the middle of the location
-		location = new Path(location).toOSString();
-		String trimmedLocation = location.trim();
-		if (trimmedLocation.equalsIgnoreCase(NONE))
+		if (location.equalsIgnoreCase(NONE))
 			return null;
-		if (trimmedLocation.equalsIgnoreCase(NO_DEFAULT))
+		if (location.equalsIgnoreCase(NO_DEFAULT))
 			return new BasicLocation(property, null, readOnly);
-		if (trimmedLocation.startsWith(VAR_USER_HOME)) {
+		if (location.startsWith(VAR_USER_HOME)) {
 			String base = substituteVar(location, VAR_USER_HOME, PROP_USER_HOME);
-			location = new File(base).getAbsolutePath();
-		} else if (trimmedLocation.startsWith(VAR_USER_DIR)) {
+			location = new Path(base).toFile().getAbsolutePath();
+		} else if (location.startsWith(VAR_USER_DIR)) {
 			String base = substituteVar(location, VAR_USER_DIR, PROP_USER_DIR);
-			location = new File(base).getAbsolutePath();
-		} else if (trimmedLocation.startsWith(VAR_CONFIG_DIR)) {
+			location = new Path(base).toFile().getAbsolutePath();
+		} else if (location.startsWith(VAR_CONFIG_DIR)) {
 			//note the config dir system property is already a URL
 			location = substituteVar(location, VAR_CONFIG_DIR, PROP_CONFIG_DIR);
 		}
@@ -162,7 +158,7 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext aContext) throws Exception {
 		instance = this;
 		Activator.context = aContext;
-		URL defaultLocation = new URL(aContext.getProperty(OSGI_INSTALL_AREA) + DEFAULT_AGENT_LOCATION + '/');
+		URL defaultLocation = new URL(aContext.getProperty(PROP_CONFIG_DIR) + DEFAULT_AGENT_LOCATION + '/');
 		agentDataLocation = buildLocation(PROP_AGENT_DATA_AREA, defaultLocation, false, true);
 		Dictionary locationProperties = new Hashtable();
 		if (defaultLocation != null) {
