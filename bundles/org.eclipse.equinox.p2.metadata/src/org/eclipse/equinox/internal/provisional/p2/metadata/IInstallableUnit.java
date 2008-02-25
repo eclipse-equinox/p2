@@ -18,7 +18,7 @@ public interface IInstallableUnit extends Comparable {
 	/**
 	 * A capability namespace representing a particular profile flavor.
 	 */
-	public static final String NAMESPACE_FLAVOR = "flavor"; //$NON-NLS-1$
+	public static final String NAMESPACE_FLAVOR = "org.eclipse.equinox.p2.flavor"; //$NON-NLS-1$
 
 	/**
 	 * A capability namespace representing a particular InstallableUnit by id.
