@@ -111,7 +111,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 					}
 				}
 
-				IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureIU(feature, false);
+				IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, false);
 				IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
 
 				String featureKey = feature.getId() + "_" + feature.getVersion();

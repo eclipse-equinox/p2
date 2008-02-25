@@ -38,6 +38,8 @@ public class MetadataGeneratorHelper {
 	private static final String CAPABILITY_NS_OSGI_SOURCE_BUNDLES = "osgi.source.bundles"; //$NON-NLS-1$
 	private static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
+	private static final String CAPABILITY_NS_UPDATE_FEATURE = "org.eclipse.update.feature"; //$NON-NLS-1$
+
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
 
 	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
@@ -365,7 +367,7 @@ public class MetadataGeneratorHelper {
 		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_FEATURE_CLASSIFIER, fsn, new Version(version));
 	}
 
-	public static IInstallableUnit createFeatureIU(Feature feature, boolean isExploded) {
+	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
@@ -376,9 +378,7 @@ public class MetadataGeneratorHelper {
 		if (feature.getCopyright() != null)
 			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
 
-		// TODO: The required capabilities are specified
-		//		 by the feature group; is this right?
-		//		 Do they need to be duplicated here??
+		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
 
 		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
 		iu.setFilter(INSTALL_FEATURES_FILTER);
@@ -396,7 +396,7 @@ public class MetadataGeneratorHelper {
 			iu.setProperty(ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
 		}
 
-		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), FEATURE_CAPABILITY});
+		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
 
 		if (isExploded) {
@@ -676,7 +676,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	private static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
-		return (isPlugin ? original : original + (isGroup ? ".featureGroup" : ".featureIU")); //$NON-NLS-1$//$NON-NLS-2$
+		return (isPlugin ? original : original + (isGroup ? ".feature.group" : ".feature.jar")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	public static VersionRange getVersionRange(FeatureEntry entry) {

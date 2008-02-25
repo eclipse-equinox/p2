@@ -753,7 +753,7 @@ public class Generator {
 			Feature feature = features[i];
 			String location = feature.getLocation();
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
-			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureIU(feature, isExploded);
+			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, isExploded);
 			IArtifactKey[] artifacts = featureIU.getArtifacts();
 			for (int arti = 0; arti < artifacts.length; arti++) {
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
