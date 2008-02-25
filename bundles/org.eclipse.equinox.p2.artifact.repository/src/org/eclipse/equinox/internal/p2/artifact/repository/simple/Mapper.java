@@ -19,12 +19,11 @@ public class Mapper {
 	private Filter[] filters;
 	private String[] outputStrings;
 
-	private static final String REPOURL = "repoUrl";
-	private static final String NAMESPACE = "namespace";
-	private static final String CLASSIFIER = "classifier";
-	private static final String FORMAT = "format";
-	private static final String ID = "id";
-	private static final String VERSION = "version";
+	private static final String REPOURL = "repoUrl"; //$NON-NLS-1$
+	private static final String CLASSIFIER = "classifier"; //$NON-NLS-1$
+	private static final String FORMAT = "format"; //$NON-NLS-1$
+	private static final String ID = "id"; //$NON-NLS-1$
+	private static final String VERSION = "version"; //$NON-NLS-1$
 
 	public Mapper() {
 		filters = new Filter[0];
@@ -49,13 +48,10 @@ public class Mapper {
 		}
 	}
 
-	public String map(String repoUrl, String namespace, String classifier, String id, String version, String format) {
+	public String map(String repoUrl, String classifier, String id, String version, String format) {
 		Dictionary values = new Hashtable(5);
 		if (repoUrl != null)
 			values.put(REPOURL, repoUrl);
-
-		if (namespace != null)
-			values.put(NAMESPACE, namespace);
 
 		if (classifier != null)
 			values.put(CLASSIFIER, classifier);
@@ -71,33 +67,31 @@ public class Mapper {
 
 		for (int i = 0; i < filters.length; i++) {
 			if (filters[i].match(values))
-				return doReplacement(outputStrings[i], repoUrl, namespace, classifier, id, version, format);
+				return doReplacement(outputStrings[i], repoUrl, classifier, id, version, format);
 		}
 		return null;
 	}
 
-	private String doReplacement(String pattern, String repoUrl, String namespace, String classifier, String id, String version, String format) {
+	private String doReplacement(String pattern, String repoUrl, String classifier, String id, String version, String format) {
 		// currently our mapping rules assume the repo URL is not "/" terminated. 
 		// This may be the case for repoURLs in the root of a URL space e.g. root of a jar file or file:/c:/
-		if (repoUrl.endsWith("/"))
+		if (repoUrl.endsWith("/")) //$NON-NLS-1$
 			repoUrl = repoUrl.substring(0, repoUrl.length() - 1);
 
 		StringBuffer output = new StringBuffer(pattern);
 		int index = 0;
 		while (index < output.length()) {
-			int beginning = output.indexOf("${", index);
+			int beginning = output.indexOf("${", index); //$NON-NLS-1$
 			if (beginning == -1)
 				return output.toString();
 
-			int end = output.indexOf("}", beginning);
+			int end = output.indexOf("}", beginning); //$NON-NLS-1$
 			if (end == -1)
 				return pattern;
 
 			String varName = output.substring(beginning + 2, end);
 			String varValue = null;
-			if (varName.equalsIgnoreCase(NAMESPACE)) {
-				varValue = namespace;
-			} else if (varName.equalsIgnoreCase(CLASSIFIER)) {
+			if (varName.equalsIgnoreCase(CLASSIFIER)) {
 				varValue = classifier;
 			} else if (varName.equalsIgnoreCase(ID)) {
 				varValue = id;
@@ -109,7 +103,7 @@ public class Mapper {
 				varValue = format;
 			}
 			if (varValue == null)
-				varValue = "";
+				varValue = ""; //$NON-NLS-1$
 
 			output.replace(beginning, end + 1, varValue);
 			index = beginning + varValue.length();

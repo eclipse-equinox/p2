@@ -29,9 +29,9 @@ public class ProvisioningListener extends DirectoryChangeListener {
 
 	// The mapping rules for in-place generation need to construct paths that are flat,
 	// with no nesting structure. 
-	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=plugin))", "${repoUrl}/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=native))", "${repoUrl}/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
 
 	private Set toUninstall;
 	private Set toUpdate;
@@ -159,7 +159,7 @@ public class ProvisioningListener extends DirectoryChangeListener {
 		}
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
 		try {
-			IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY); 
+			IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 			provider.setArtifactRepository(result);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);

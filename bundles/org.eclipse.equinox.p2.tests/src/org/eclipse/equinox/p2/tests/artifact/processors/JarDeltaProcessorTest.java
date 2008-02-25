@@ -40,7 +40,7 @@ public class JarDeltaProcessorTest extends TestCase {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/testdata_1.0.0.1.jar");
 		ProcessingStep step = new MockableJarDeltaProcessorStep(repoMock);
 		ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0.0.1", true);
-		IArtifactKey key = new ArtifactKey("ns", "cl", "id1", new Version("1.0.0.2"));
+		IArtifactKey key = new ArtifactKey("cl", "id1", new Version("1.0.0.2"));
 		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 		step.initialize(stepDescriptor, descriptor);
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();

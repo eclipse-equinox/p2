@@ -16,17 +16,16 @@ import org.osgi.framework.Version;
 
 public class VersionlessArtifactKey extends ArtifactKey {
 
-	public VersionlessArtifactKey(String namespace, String classifier, String id) {
-		super(namespace, classifier, id, Version.emptyVersion);
+	public VersionlessArtifactKey(String classifier, String id) {
+		super(classifier, id, Version.emptyVersion);
 	}
 
 	public VersionlessArtifactKey(IArtifactKey base) {
-		super(base.getNamespace(), base.getClassifier(), base.getId(), Version.emptyVersion);
+		super(base.getClassifier(), base.getId(), Version.emptyVersion);
 	}
 
 	public int hashCode() {
 		int hash = getId().hashCode();
-		hash = 17 * hash + getNamespace().hashCode();
 		hash = 17 * hash + getClassifier().hashCode();
 		return hash;
 	}
@@ -35,6 +34,6 @@ public class VersionlessArtifactKey extends ArtifactKey {
 		if (!(obj instanceof IArtifactKey))
 			return false;
 		IArtifactKey ak = (IArtifactKey) obj;
-		return ak.getId().equals(getId()) && ak.getNamespace().equals(getNamespace()) && ak.getClassifier().equals(getClassifier());
+		return ak.getId().equals(getId()) && ak.getClassifier().equals(getClassifier());
 	}
 }

@@ -35,7 +35,7 @@ public class JBPatchStepTest extends TestCase {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/eclipse-3.2.exe");
 		ProcessingStep patcher = new MockableJBPatchStep(repoMock);
 		ProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
-		IArtifactKey key = new ArtifactKey("ns", "cl", "id1", new Version("1.1"));
+		IArtifactKey key = new ArtifactKey("cl", "id1", new Version("1.1"));
 		ArtifactDescriptor context = new ArtifactDescriptor(key);
 		patcher.initialize(descriptor, context);
 

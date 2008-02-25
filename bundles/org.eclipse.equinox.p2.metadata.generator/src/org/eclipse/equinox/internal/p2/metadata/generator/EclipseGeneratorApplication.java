@@ -38,10 +38,10 @@ public class EclipseGeneratorApplication implements IApplication {
 	// of an eclipse installation; in the future the default artifact mapping declared in
 	// SimpleArtifactRepository may change, for example, to not have a 'bundles' directory
 	// instead of a 'plugins' directory, so a separate constant is defined and used here.
-	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (classifier=plugin) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=native))", "${repoUrl}/native/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
 
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 

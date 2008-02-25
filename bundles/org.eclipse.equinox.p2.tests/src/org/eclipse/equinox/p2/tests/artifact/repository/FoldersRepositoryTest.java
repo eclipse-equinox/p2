@@ -77,7 +77,7 @@ public class FoldersRepositoryTest extends TestCase {
 			String identifier = fileName.substring(0, fileName.indexOf('_'));
 			String version = fileName.substring(fileName.indexOf('_') + 1);
 
-			ArtifactKey key = new ArtifactKey("eclipse", "plugin", identifier, new Version(version));
+			ArtifactKey key = new ArtifactKey("osgi.bundle", identifier, new Version(version));
 			ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
 			if (file.isDirectory())
 				descriptor.setProperty("artifact.folder", "true");

@@ -128,7 +128,6 @@ public class SimpleArtifactRepositoryIO {
 		public static final String MAPPING_RULE_FILTER_ATTRIBUTE = "filter"; //$NON-NLS-1$
 		public static final String MAPPING_RULE_OUTPUT_ATTRIBUTE = "output"; //$NON-NLS-1$
 
-		public static final String ARTIFACT_NAMESPACE_ATTRIBUTE = NAMESPACE_ATTRIBUTE;
 		public static final String ARTIFACT_CLASSIFIER_ATTRIBUTE = CLASSIFIER_ATTRIBUTE;
 
 		public static final String STEP_DATA_ATTRIBUTE = "data"; //$NON-NLS-1$
@@ -183,7 +182,6 @@ public class SimpleArtifactRepositoryIO {
 				ArtifactDescriptor descriptor = (ArtifactDescriptor) iter.next();
 				IArtifactKey key = descriptor.getArtifactKey();
 				start(ARTIFACT_ELEMENT);
-				attribute(ARTIFACT_NAMESPACE_ATTRIBUTE, key.getNamespace());
 				attribute(ARTIFACT_CLASSIFIER_ATTRIBUTE, key.getClassifier());
 				attribute(ID_ATTRIBUTE, key.getId());
 				attribute(VERSION_ATTRIBUTE, key.getVersion());
@@ -417,7 +415,7 @@ public class SimpleArtifactRepositoryIO {
 
 		protected class ArtifactHandler extends AbstractHandler {
 
-			private final String[] required = new String[] {ARTIFACT_NAMESPACE_ATTRIBUTE, ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE};
+			private final String[] required = new String[] {ARTIFACT_CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 
 			private Set artifacts;
 			ArtifactDescriptor currentArtifact = null;
@@ -430,9 +428,9 @@ public class SimpleArtifactRepositoryIO {
 				super(parentHandler, ARTIFACT_ELEMENT);
 				this.artifacts = artifacts;
 				String[] values = parseRequiredAttributes(attributes, required);
-				Version version = checkVersion(ARTIFACT_ELEMENT, VERSION_ATTRIBUTE, values[3]);
+				Version version = checkVersion(ARTIFACT_ELEMENT, VERSION_ATTRIBUTE, values[2]);
 				// TODO: resolve access restriction on ArtifactKey construction
-				currentArtifact = new ArtifactDescriptor(new ArtifactKey(values[0], values[1], values[2], version));
+				currentArtifact = new ArtifactDescriptor(new ArtifactKey(values[0], values[1], version));
 			}
 
 			public ArtifactDescriptor getArtifact() {

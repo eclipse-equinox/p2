@@ -157,14 +157,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	private static final String ARTIFACT_UUID = "artifact.uuid"; //$NON-NLS-1$
 	static final private String BLOBSTORE = ".blobstore/"; //$NON-NLS-1$
 	static final private String CONTENT_FILENAME = "artifacts"; //$NON-NLS-1$
-	static final private String[][] PACKED_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin) (format=packed))", "${repoUrl}/plugins/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] PACKED_MAPPING_RULES = { {"(& (classifier=plugin) (format=packed))", "${repoUrl}/plugins/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
+			{"(& (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 
-	static final private String[][] DEFAULT_MAPPING_RULES = { {"(& (namespace=eclipse) (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
-			{"(& (namespace=eclipse) (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] DEFAULT_MAPPING_RULES = { {"(& (classifier=plugin))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=native))", "${repoUrl}/native/${id}_${version}"}, //$NON-NLS-1$ //$NON-NLS-2$
+			{"(& (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 
@@ -332,7 +332,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (descriptor.getProcessingSteps().length == 0) {
 			descriptor.setProperty(ARTIFACT_UUID, null);
 			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+			String result = mapper.map(location.toExternalForm(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
 					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));
@@ -536,7 +536,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	private String getLocationForPackedButFlatArtifacts(IArtifactDescriptor descriptor) {
 		IArtifactKey key = descriptor.getArtifactKey();
-		return mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+		return mapper.map(location.toExternalForm(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 	}
 
 	public synchronized String getLocation(IArtifactDescriptor descriptor) {
@@ -565,7 +565,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// if the descriptor is complete then use the mapping rules...
 		if (descriptor.getProcessingSteps().length == 0) {
 			IArtifactKey key = descriptor.getArtifactKey();
-			String result = mapper.map(location.toExternalForm(), key.getNamespace(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
+			String result = mapper.map(location.toExternalForm(), key.getClassifier(), key.getId(), key.getVersion().toString(), descriptor.getProperty(IArtifactDescriptor.FORMAT));
 			if (result != null) {
 				if (isFolderBased(descriptor) && result.endsWith(JAR_EXTENSION))
 					return result.substring(0, result.lastIndexOf(JAR_EXTENSION));

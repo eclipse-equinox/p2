@@ -67,7 +67,6 @@ public class MetadataGeneratorHelper {
 
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
 
-	private static final String ECLIPSE_ARTIFACT_NAMESPACE = "eclipse"; //$NON-NLS-1$
 	private static final String ECLIPSE_FEATURE_CLASSIFIER = "feature"; //$NON-NLS-1$
 	private static final String ECLIPSE_BUNDLE_CLASSIFIER = "plugin"; //$NON-NLS-1$
 
@@ -120,7 +119,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
-		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_BUNDLE_CLASSIFIER, bsn, new Version(version));
+		return new ArtifactKey(ECLIPSE_BUNDLE_CLASSIFIER, bsn, new Version(version));
 	}
 
 	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
@@ -389,7 +388,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IArtifactKey createFeatureArtifactKey(String fsn, String version) {
-		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, ECLIPSE_FEATURE_CLASSIFIER, fsn, new Version(version));
+		return new ArtifactKey(ECLIPSE_FEATURE_CLASSIFIER, fsn, new Version(version));
 	}
 
 	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded) {
@@ -502,7 +501,7 @@ public class MetadataGeneratorHelper {
 		generateJREIUData(iu, id, version, jreLocation);
 
 		//Generate artifact for JRE
-		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_ARTIFACT_CLASSIFIER, id, version);
+		IArtifactKey key = new ArtifactKey(NATIVE_ARTIFACT_CLASSIFIER, id, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
@@ -519,7 +518,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static ArtifactKey createLauncherArtifactKey(String id, Version version) {
-		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_ARTIFACT_CLASSIFIER, id, version);
+		return new ArtifactKey(NATIVE_ARTIFACT_CLASSIFIER, id, version);
 	}
 
 	/**

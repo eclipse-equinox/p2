@@ -23,12 +23,6 @@ import org.osgi.framework.Version;
 public interface IArtifactKey {
 
 	/**
-	 * Returns the namespace for this artifact key. The returned value can never be empty.
-	 * @return the namespace segment of the key.
-	 */
-	public String getNamespace();
-
-	/**
 	 * Returns the classifier for this artifact key. The returned value can be empty.
 	 * @return the classifier segment of the key.
 	 */

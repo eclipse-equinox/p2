@@ -371,13 +371,13 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 	protected class ArtifactHandler extends AbstractHandler {
 
-		private final String[] required = new String[] {NAMESPACE_ATTRIBUTE, CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE};
+		private final String[] required = new String[] {CLASSIFIER_ATTRIBUTE, ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 
 		public ArtifactHandler(AbstractHandler parentHandler, Attributes attributes, List artifacts) {
 			super(parentHandler, ARTIFACT_KEY_ELEMENT);
 			String[] values = parseRequiredAttributes(attributes, required);
-			Version version = checkVersion(ARTIFACT_KEY_ELEMENT, VERSION_ATTRIBUTE, values[3]);
-			artifacts.add(new ArtifactKey(values[0], values[1], values[2], version));
+			Version version = checkVersion(ARTIFACT_KEY_ELEMENT, VERSION_ATTRIBUTE, values[2]);
+			artifacts.add(new ArtifactKey(values[0], values[1], version));
 		}
 
 		public void startElement(String name, Attributes attributes) {

@@ -59,7 +59,6 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String CAPABILITY_GREED_ATTRIBUTE = "greedy"; //$NON-NLS-1$
 
 	// Constants for attributes of an artifact key element
-	public static final String ARTIFACT_KEY_NAMESPACE_ATTRIBUTE = NAMESPACE_ATTRIBUTE;
 	public static final String ARTIFACT_KEY_CLASSIFIER_ATTRIBUTE = "classifier"; //$NON-NLS-1$
 
 	// Constants for sub-elements of a touchpoint data element

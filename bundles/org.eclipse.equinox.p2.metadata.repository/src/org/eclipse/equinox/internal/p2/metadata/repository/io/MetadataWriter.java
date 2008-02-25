@@ -137,7 +137,6 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			attribute(COLLECTION_SIZE_ATTRIBUTE, artifactKeys.length);
 			for (int i = 0; i < artifactKeys.length; i++) {
 				start(ARTIFACT_KEY_ELEMENT);
-				attribute(ARTIFACT_KEY_NAMESPACE_ATTRIBUTE, artifactKeys[i].getNamespace());
 				attribute(ARTIFACT_KEY_CLASSIFIER_ATTRIBUTE, artifactKeys[i].getClassifier());
 				attribute(ID_ATTRIBUTE, artifactKeys[i].getId());
 				attribute(VERSION_ATTRIBUTE, artifactKeys[i].getVersion());

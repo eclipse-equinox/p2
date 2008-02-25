@@ -47,7 +47,7 @@ public class ArtifactElement extends ProvElement {
 	}
 
 	public String getLabel(Object o) {
-		return key.getId() + " [" + key.getNamespace() + "]"; //$NON-NLS-1$//$NON-NLS-2$
+		return key.getId() + " [" + key.getClassifier() + "]"; //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	public Object[] getChildren(Object o) {

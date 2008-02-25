@@ -21,19 +21,18 @@ import org.osgi.framework.Version;
 public class ArtifactKeyParsingTest extends TestCase {
 
 	public void testSerialize() {
-		IArtifactKey key = new ArtifactKey("namespace", "classifier", "identifier", new Version("1.0"));
+		IArtifactKey key = new ArtifactKey("classifier", "identifier", new Version("1.0"));
 		assertEquals("namespace,classifier,identifier,1.0.0", key.toExternalForm());
 	}
 
 	public void testSerializeEmptyNamespace() {
-		IArtifactKey key = new ArtifactKey("", "classifier", "identifier", new Version("1.0"));
+		IArtifactKey key = new ArtifactKey("classifier", "identifier", new Version("1.0"));
 		assertEquals(",classifier,identifier,1.0.0", key.toExternalForm());
 	}
 
 	public void testDeserialize() {
 		IArtifactKey key = ArtifactKey.parse("namespace,classifier,identifier,1.0.0");
 		assertNotNull(key);
-		assertEquals("namespace", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
 		assertEquals("identifier", key.getId());
 		assertEquals(new Version("1.0"), key.getVersion());
@@ -42,7 +41,6 @@ public class ArtifactKeyParsingTest extends TestCase {
 	public void testDeserializeEmptyNamespace() {
 		IArtifactKey key = ArtifactKey.parse(",classifier,identifier,1.0.0");
 		assertNotNull(key);
-		assertEquals("", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
 		assertEquals("identifier", key.getId());
 		assertEquals(new Version("1.0"), key.getVersion());
@@ -51,7 +49,6 @@ public class ArtifactKeyParsingTest extends TestCase {
 	public void testDeserializeEmptyClassifier() {
 		IArtifactKey key = ArtifactKey.parse("namespace,,identifier,1.0.0");
 		assertNotNull(key);
-		assertEquals("namespace", key.getNamespace());
 		assertEquals("", key.getClassifier());
 		assertEquals("identifier", key.getId());
 		assertEquals(new Version("1.0"), key.getVersion());
@@ -60,7 +57,6 @@ public class ArtifactKeyParsingTest extends TestCase {
 	public void testDeserializeEmptyIdentifier() {
 		IArtifactKey key = ArtifactKey.parse("namespace,classifier,,1.0.0");
 		assertNotNull(key);
-		assertEquals("namespace", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
 		assertEquals("", key.getId());
 		assertEquals(new Version("1.0"), key.getVersion());
@@ -69,7 +65,6 @@ public class ArtifactKeyParsingTest extends TestCase {
 	public void testDeserializeEmptyVersion() {
 		IArtifactKey key = ArtifactKey.parse("namespace,classifier,identifier,");
 		assertNotNull(key);
-		assertEquals("namespace", key.getNamespace());
 		assertEquals("classifier", key.getClassifier());
 		assertEquals("identifier", key.getId());
 		assertEquals(new Version("0.0"), key.getVersion());
@@ -78,7 +73,6 @@ public class ArtifactKeyParsingTest extends TestCase {
 	public void testDeserializeEmptyEverything() {
 		IArtifactKey key = ArtifactKey.parse(",,,");
 		assertNotNull(key);
-		assertEquals("", key.getNamespace());
 		assertEquals("", key.getClassifier());
 		assertEquals("", key.getId());
 		assertEquals(new Version("0.0"), key.getVersion());

@@ -104,7 +104,7 @@ public class Optimizer {
 	}
 
 	private IArtifactKey getVersionlessKey(IArtifactKey key) {
-		return new ArtifactKey(key.getNamespace(), key.getClassifier(), key.getId(), Version.emptyVersion);
+		return new ArtifactKey(key.getClassifier(), key.getId(), Version.emptyVersion);
 	}
 
 	/**

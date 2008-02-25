@@ -37,7 +37,7 @@ public class ArtifactOutputStreamTest extends TestCase {
 
 		sar = new SimpleArtifactRepository("name", new URL("http://justaurl.com"));
 		destination = new Destination();
-		ak = new ArtifactKey("namespace", "classifier", "id", new Version("1.0"));
+		ak = new ArtifactKey("classifier", "id", new Version("1.0"));
 		ad = new ArtifactDescriptor(ak);
 		temp = File.createTempFile("ArtifactOutputStreamTest", ".tmp");
 		temp.deleteOnExit();

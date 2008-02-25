@@ -57,7 +57,7 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 		}
 		if (obj instanceof IArtifactKey) {
 			IArtifactKey key = (IArtifactKey) obj;
-			return key.getId() + " [" + key.getNamespace() + "]"; //$NON-NLS-1$//$NON-NLS-2$
+			return key.getId() + " [" + key.getClassifier() + "]"; //$NON-NLS-1$//$NON-NLS-2$
 		}
 		if (obj instanceof ProcessingStepDescriptor) {
 			ProcessingStepDescriptor descriptor = (ProcessingStepDescriptor) obj;

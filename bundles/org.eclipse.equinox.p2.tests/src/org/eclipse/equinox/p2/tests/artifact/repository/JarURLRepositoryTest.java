@@ -53,6 +53,6 @@ public class JarURLRepositoryTest extends TestCase {
 			fail(e.getMessage());
 		}
 		IArtifactRepository repo = manager.loadRepository(jarRepoURL, null);
-		assertTrue(repo.contains(new ArtifactKey("eclipse", "plugin", "testdata", new Version("1.0.0.1"))));
+		assertTrue(repo.contains(new ArtifactKey("osgi.bundle", "testdata", new Version("1.0.0.1"))));
 	}
 }
