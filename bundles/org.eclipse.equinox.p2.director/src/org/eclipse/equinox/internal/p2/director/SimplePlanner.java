@@ -303,9 +303,8 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private boolean hasHigherFidelity(IInstallableUnit iu, IInstallableUnit currentIU) {
-		if (new Boolean(currentIU.getProperty("iu.mock")).booleanValue() && !new Boolean(iu.getProperty("iu.mock")).booleanValue()) //$NON-NLS-1$ //$NON-NLS-2$
+		if (Boolean.valueOf(currentIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue() && !Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
 			return true;
-
 		return false;
 	}
 

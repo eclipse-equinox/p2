@@ -31,6 +31,15 @@ public interface IInstallableUnit extends Comparable {
 	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iu"; //$NON-NLS-1$
 
 	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.partial.iu"</code>) for a 
+	 * boolean property indicating the IU is generated from incomplete information and
+	 * should be replaced by the complete IU if available.
+	 * 
+	 * @see #getProperty(String)
+	 */
+	public static final String PROP_PARTIAL_IU = "org.eclipse.equinox.p2.partial.iu"; //$NON-NLS-1$
+
+	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.type.profile"</code>) for a 
 	 * boolean property indicating that an installable unit is a profile.
 	 * 

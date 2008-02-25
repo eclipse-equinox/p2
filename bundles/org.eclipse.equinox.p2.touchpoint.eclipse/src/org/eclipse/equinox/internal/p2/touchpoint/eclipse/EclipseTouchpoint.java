@@ -826,7 +826,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
 
-		if (!new Boolean(iu.getProperty("iu.mock")).booleanValue()) //$NON-NLS-1$
+		if (!Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
 			return iu;
 
 		Class c = null;
