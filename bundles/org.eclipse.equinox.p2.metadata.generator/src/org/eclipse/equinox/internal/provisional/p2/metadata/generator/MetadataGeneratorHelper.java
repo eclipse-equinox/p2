@@ -67,8 +67,9 @@ public class MetadataGeneratorHelper {
 
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
 
-	private static final String ECLIPSE_FEATURE_CLASSIFIER = "feature"; //$NON-NLS-1$
-	private static final String ECLIPSE_BUNDLE_CLASSIFIER = "plugin"; //$NON-NLS-1$
+	private static final String ECLIPSE_FEATURE_CLASSIFIER = "org.eclipse.update.feature"; //$NON-NLS-1$
+	private static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
+	public static final String BINARY_ARTIFACT_CLASSIFIER = "binary"; //$NON-NLS-1$
 
 	private static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
 
@@ -85,8 +86,6 @@ public class MetadataGeneratorHelper {
 
 	public static final TouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", new Version(1, 0, 0)); //$NON-NLS-1$
 	public static final TouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0)); //$NON-NLS-1$
-
-	public static final String NATIVE_ARTIFACT_CLASSIFIER = "native"; //$NON-NLS-1$
 
 	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
 	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, new Version(1, 0, 0));
@@ -119,7 +118,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
-		return new ArtifactKey(ECLIPSE_BUNDLE_CLASSIFIER, bsn, new Version(version));
+		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
 	}
 
 	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
@@ -299,7 +298,7 @@ public class MetadataGeneratorHelper {
 
 	public static IInstallableUnit createDefaultBundleConfigurationUnit(GeneratorBundleInfo configInfo, GeneratorBundleInfo unconfigInfo, String configurationFlavor) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configUnitId = createDefaultConfigUnitId(ECLIPSE_BUNDLE_CLASSIFIER, configurationFlavor);
+		String configUnitId = createDefaultConfigUnitId(OSGI_BUNDLE_CLASSIFIER, configurationFlavor);
 		cu.setId(configUnitId);
 		Version configUnitVersion = new Version(1, 0, 0);
 		cu.setVersion(configUnitVersion);
@@ -501,7 +500,7 @@ public class MetadataGeneratorHelper {
 		generateJREIUData(iu, id, version, jreLocation);
 
 		//Generate artifact for JRE
-		IArtifactKey key = new ArtifactKey(NATIVE_ARTIFACT_CLASSIFIER, id, version);
+		IArtifactKey key = new ArtifactKey(BINARY_ARTIFACT_CLASSIFIER, id, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
@@ -518,7 +517,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static ArtifactKey createLauncherArtifactKey(String id, Version version) {
-		return new ArtifactKey(NATIVE_ARTIFACT_CLASSIFIER, id, version);
+		return new ArtifactKey(BINARY_ARTIFACT_CLASSIFIER, id, version);
 	}
 
 	/**

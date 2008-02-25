@@ -29,9 +29,9 @@ public class ProvisioningListener extends DirectoryChangeListener {
 
 	// The mapping rules for in-place generation need to construct paths that are flat,
 	// with no nesting structure. 
-	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (classifier=feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=plugin))", "${repoUrl}/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=native))", "${repoUrl}/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
+	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=osgi.bundle))", "${repoUrl}/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=binary))", "${repoUrl}/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
 
 	private Set toUninstall;
 	private Set toUpdate;
