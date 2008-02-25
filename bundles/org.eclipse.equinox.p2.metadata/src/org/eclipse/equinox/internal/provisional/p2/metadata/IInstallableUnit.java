@@ -35,16 +35,43 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iunamespace"; //$NON-NLS-1$
 
+	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.type.profile"</code>) for a 
+	 * boolean property indicating that an installable unit is a profile.
+	 * 
+	 * @see #getProperty(String)
+	 */
 	public static final String PROP_TYPE_PROFILE = "org.eclipse.equinox.p2.type.profile"; //$NON-NLS-1$	 
+
+	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.type.category"</code>) for a 
+	 * boolean property indicating that an installable unit is a category.
+	 * 
+	 * @see #getProperty(String)
+	 */
 	public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
+
+	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.type.fragment"</code>) for a 
+	 * boolean property indicating that an installable unit is a fragment.
+	 * 
+	 * @see #getProperty(String)
+	 */
 	public static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
+
+	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.type.group"</code>) for a 
+	 * boolean property indicating that an installable unit is a group.
+	 * 
+	 * @see #getProperty(String)
+	 */
 	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
 
 	//TODO Move to UI
 	public static final String PROP_PROFILE_ROOT_IU = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
 
 	/**
-	 * A property key (value <code>"equinox.p2.contact"</code>) representing a 
+	 * A property key (value <code>"equinox.p2.contact"</code>) for a 
 	 * String property containing a contact address where problems can be reported, 
 	 * such as an email address.
 	 * 
@@ -52,14 +79,14 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_CONTACT = "equinox.p2.contact"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.description"</code>) representing a 
+	 * A property key (value <code>"equinox.p2.description"</code>) for a 
 	 * String property containing a human-readable description of the installable unit.
 	 * 
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_DESCRIPTION = "equinox.p2.description"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.doc.url"</code>) representing a 
+	 * A property key (value <code>"equinox.p2.doc.url"</code>) for a 
 	 * String property containing a URL for documentation about the installable unit.
 	 * 
 	 * @see #getProperty(String)
@@ -67,14 +94,14 @@ public interface IInstallableUnit extends Comparable {
 	public static final String PROP_DOC_URL = "equinox.p2.doc.url"; //$NON-NLS-1$
 
 	/**
-	 * A property key (value <code>"equinox.p2.name"</code>) representing a 
+	 * A property key (value <code>"equinox.p2.name"</code>) for a 
 	 * String property containing a human-readable name for the installable unit.
 	 * 
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_NAME = "equinox.p2.name"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.provider"</code>) representing a 
+	 * A property key (value <code>"equinox.p2.provider"</code>) for a 
 	 * String property containing information about the vendor or provider of the 
 	 * installable unit.
 	 * 
@@ -82,7 +109,7 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_PROVIDER = "equinox.p2.provider"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.update.site"</code>) representing a 
+	 * A property key (value <code>"equinox.p2.update.site"</code>) for a 
 	 * String property containing the URL of the Web site or repository where updates for this 
 	 * installable unit can be obtained.
 	 * 
