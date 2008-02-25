@@ -160,7 +160,7 @@ public class MetadataGeneratorHelper {
 		iu.setVersion(bd.getVersion());
 		iu.setFilter(bd.getPlatformFilter());
 
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), VersionRange.emptyRange, IUpdateDescriptor.NORMAL, "A description")); //$NON-NLS-1$
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null)); //$NON-NLS-1$
 
 		boolean isFragment = bd.getHost() != null;
 		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
