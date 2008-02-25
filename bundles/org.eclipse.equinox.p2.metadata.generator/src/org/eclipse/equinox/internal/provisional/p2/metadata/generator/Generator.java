@@ -162,13 +162,13 @@ public class Generator {
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, true)); //$NON-NLS-1$
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".ini", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".config", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
-		
+
 		//default CUs		
 		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, info.getFlavor() + ".plugin.default", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
 		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, info.getFlavor() + ".source.default", VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
-		if(productFile.useFeatures())
+		if (productFile.useFeatures())
 			requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, info.getFlavor() + ".feature.default", VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
-		
+
 		InstallableUnitDescription root = createTopLevelIUDescription(productContents, productFile.getId(), version, productFile.getProductName(), requires, false);
 		return MetadataFactory.createInstallableUnit(root);
 	}
@@ -423,9 +423,6 @@ public class Generator {
 						"addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
 				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
 						"removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
-			} else if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR)) {
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
 			} else if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
 				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
 				continue;

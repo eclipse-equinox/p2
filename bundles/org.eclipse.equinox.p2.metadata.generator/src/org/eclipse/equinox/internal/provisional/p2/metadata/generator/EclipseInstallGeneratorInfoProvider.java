@@ -170,8 +170,6 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		result.setVersion("0.0.0"); //$NON-NLS-1$
 		result.setStartLevel(1);
 		result.setMarkedAsStarted(true);
-		result.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
-		result.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.equinox.simpleconfigurator.useReference=true);"); //$NON-NLS-1$
 		return result;
 	}
 
