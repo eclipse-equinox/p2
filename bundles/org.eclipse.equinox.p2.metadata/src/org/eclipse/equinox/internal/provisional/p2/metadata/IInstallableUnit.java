@@ -108,14 +108,6 @@ public interface IInstallableUnit extends Comparable {
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_PROVIDER = "equinox.p2.provider"; //$NON-NLS-1$
-	/**
-	 * A property key (value <code>"equinox.p2.update.site"</code>) for a 
-	 * String property containing the URL of the Web site or repository where updates for this 
-	 * installable unit can be obtained.
-	 * 
-	 * @see #getProperty(String)
-	 */
-	public static final String PROP_UPDATE_SITE = "equinox.p2.update.site"; //$NON-NLS-1$
 
 	public String getApplicabilityFilter();
 
