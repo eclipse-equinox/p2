@@ -53,7 +53,7 @@ public class RevertAction extends ProfileModificationAction {
 		Object[] selectionArray = selection.toArray();
 		if (selectionArray.length == 1) {
 			IInstallableUnit iu = getIU(selectionArray[0]);
-			setEnabled(iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PROFILE_IU_KEY)).booleanValue());
+			setEnabled(iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_PROFILE)).booleanValue());
 		} else {
 			setEnabled(false);
 		}

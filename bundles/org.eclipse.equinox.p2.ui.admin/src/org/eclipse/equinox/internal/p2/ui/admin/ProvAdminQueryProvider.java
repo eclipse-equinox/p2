@@ -53,7 +53,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 		boolean useCategories = store.getBoolean(PreferenceConstants.PREF_USE_CATEGORIES);
 		boolean showRootsOnly = store.getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
 		Query groupQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.TRUE.toString());
+		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.TRUE.toString());
 		Query query;
 		IProfile profile;
 		switch (queryType) {

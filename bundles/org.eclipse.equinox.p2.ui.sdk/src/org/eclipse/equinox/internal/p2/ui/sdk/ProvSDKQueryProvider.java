@@ -60,11 +60,11 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 			case IQueryProvider.AVAILABLE_IUS :
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
-					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_PROFILE_IU_KEY, Boolean.toString(true));
+					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_PROFILE, Boolean.toString(true));
 					return new ElementQueryDescriptor(((RollbackRepositoryElement) element).getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), new RollbackIUCollector(this, ((RollbackRepositoryElement) element).getQueryable()));
 				}
 				Query groupQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-				Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
+				Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;
 					if (metaRepos.getMetadataRepositories() != null)

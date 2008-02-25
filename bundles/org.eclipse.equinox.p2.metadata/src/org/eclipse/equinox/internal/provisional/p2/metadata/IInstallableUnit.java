@@ -35,9 +35,8 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iunamespace"; //$NON-NLS-1$
 
-	//TODO This is not the ideal location for these constants
-	public static final String PROP_PROFILE_IU_KEY = "org.eclipse.equinox.p2.type.profile"; //$NON-NLS-1$	 
-	public static final String PROP_CATEGORY_IU = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
+	public static final String PROP_TYPE_PROFILE = "org.eclipse.equinox.p2.type.profile"; //$NON-NLS-1$	 
+	public static final String PROP_TYPE_CATEGORY = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
 	public static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
 	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
 

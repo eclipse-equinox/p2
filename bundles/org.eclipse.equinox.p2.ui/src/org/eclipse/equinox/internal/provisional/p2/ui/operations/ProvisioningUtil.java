@@ -244,7 +244,7 @@ public class ProvisioningUtil {
 	}
 
 	public static boolean isCategory(IInstallableUnit iu) {
-		String isCategory = iu.getProperty(IInstallableUnit.PROP_CATEGORY_IU);
+		String isCategory = iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY);
 		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
 	}
 }

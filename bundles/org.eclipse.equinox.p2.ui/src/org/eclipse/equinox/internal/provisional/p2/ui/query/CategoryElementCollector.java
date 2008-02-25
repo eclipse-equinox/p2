@@ -117,7 +117,7 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	private void createDummyCategory() {
 		InstallableUnitDescription unit = new InstallableUnitDescription();
 		unit.setId(ProvUIMessages.CategoryElementCollector_Uncategorized);
-		unit.setProperty(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
+		unit.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
 		unit.setVersion(new Version(0, 0, 0, "generated")); //$NON-NLS-1$
 		String name;
 		if (queryable instanceof IRepository) {

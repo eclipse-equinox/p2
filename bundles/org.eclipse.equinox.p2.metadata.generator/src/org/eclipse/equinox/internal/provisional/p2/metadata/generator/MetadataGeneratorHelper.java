@@ -245,7 +245,7 @@ public class MetadataGeneratorHelper {
 		cat.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, category.getName(), Version.emptyVersion)});
 		cat.setApplicabilityFilter(""); //$NON-NLS-1$
 		cat.setArtifacts(new IArtifactKey[0]);
-		cat.setProperty(IInstallableUnit.PROP_CATEGORY_IU, "true"); //$NON-NLS-1$
+		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 

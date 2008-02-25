@@ -150,7 +150,7 @@ public class SimplePlanner implements IPlanner {
 		try {
 			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Become_Problems, null);
 
-			if (!Boolean.valueOf(profileSnapshot.getProperty(IInstallableUnit.PROP_PROFILE_IU_KEY)).booleanValue()) {
+			if (!Boolean.valueOf(profileSnapshot.getProperty(IInstallableUnit.PROP_TYPE_PROFILE)).booleanValue()) {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
 				return new ProvisioningPlan(result);
 			}
@@ -207,7 +207,7 @@ public class SimplePlanner implements IPlanner {
 		for (Iterator it = profileSnapshot.getProperties().entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
 			String key = (String) entry.getKey();
-			if (IInstallableUnit.PROP_PROFILE_IU_KEY.equals(key) || key.startsWith(FormerState.IUPROP_PREFIX))
+			if (IInstallableUnit.PROP_TYPE_PROFILE.equals(key) || key.startsWith(FormerState.IUPROP_PREFIX))
 				continue;
 
 			result.put(key, entry.getValue());
@@ -222,7 +222,7 @@ public class SimplePlanner implements IPlanner {
 		for (Iterator iter = profileProperties.keySet().iterator(); iter.hasNext();) {
 			String key = (String) iter.next();
 			// ignore the property that confirms this IU is a profile snapshot
-			if (IInstallableUnit.PROP_PROFILE_IU_KEY.equals(key))
+			if (IInstallableUnit.PROP_TYPE_PROFILE.equals(key))
 				continue;
 			if (key.startsWith(FormerState.IUPROP_PREFIX)) {
 				int postID = key.indexOf(FormerState.IUPROP_POSTFIX, FormerState.IUPROP_PREFIX.length());

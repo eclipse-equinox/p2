@@ -48,7 +48,7 @@ public class UncategorizedElementCollector extends QueriedElementCollector {
 	public boolean accept(Object match) {
 		if (match instanceof IInstallableUnit) {
 			IInstallableUnit iu = (IInstallableUnit) match;
-			if (Boolean.toString(true).equals(iu.getProperty(IInstallableUnit.PROP_CATEGORY_IU)))
+			if (Boolean.toString(true).equals(iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY)))
 				categories.add(iu);
 			else
 				allOthersById.put(iu.getId(), iu);
