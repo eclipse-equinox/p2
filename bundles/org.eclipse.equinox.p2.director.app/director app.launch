@@ -12,9 +12,9 @@
 <booleanAttribute key="includeOptional" value="false"/>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.6.0"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-console -consolelog -application org.eclipse.equinox.p2.director.app.application&#13;&#10;-metadataRepository file:c:/prov/p2/servers/&#13;&#10;-artifactRepository file:c:/prov/p2/servers/&#13;&#10;-installIU sdk&#13;&#10;-destination c:/prov/p2/eclipseApp&#13;&#10;-flavor tooling&#13;&#10;-profile foo"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-console -consolelog -application org.eclipse.equinox.p2.director.app.application&#13;&#10;-metadataRepository file:C:/equinox.p2/servers/&#13;&#10;-artifactRepository file:C:/equinox.p2/servers/&#13;&#10;-installIU sdk&#13;&#10;-destination c:/equinox.p2/eclipseApp&#13;&#10;-flavor tooling&#13;&#10;-profile foo"/>
 <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.pde.ui.workbenchClasspathProvider"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.p2.data.area=c:/prov/p2/agentData"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Declipse.p2.data.area=c:/equinox.p2/agentData"/>
 <stringAttribute key="pde.version" value="3.3"/>
 <booleanAttribute key="show_selected_only" value="false"/>
 <stringAttribute key="target_bundles" value="org.eclipse.core.contenttype@default:default,org.eclipse.core.jobs@default:default,org.eclipse.core.net@default:default,org.eclipse.core.runtime@default:default,org.eclipse.core.runtime.compatibility.auth@default:default,org.eclipse.core.runtime.compatibility.registry@default:false,org.eclipse.equinox.app@default:true,org.eclipse.equinox.common@default:default,org.eclipse.equinox.preferences@default:default,org.eclipse.equinox.registry@default:default,org.eclipse.osgi@:,org.eclipse.osgi.services@default:default"/>
