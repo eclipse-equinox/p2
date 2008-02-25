@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddColocatedRepositoryOperation;
@@ -33,18 +32,5 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 
 	protected ProvisioningOperation getOperation(URL url) {
 		return new AddColocatedRepositoryOperation(getShell().getText(), url);
-	}
-
-	protected URL makeRepositoryURL(URL userURL) {
-		// TODO need to do better validation of the URL
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
-		String urlSpec = userURL.toExternalForm();
-		try {
-			if (!urlSpec.endsWith("/")) //$NON-NLS-1$
-				urlSpec += "/"; //$NON-NLS-1$
-			return new URL(urlSpec);
-		} catch (MalformedURLException e) {
-			return null;
-		}
 	}
 }

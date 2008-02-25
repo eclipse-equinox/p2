@@ -32,11 +32,4 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 	protected ProvisioningOperation getOperation(URL url) {
 		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, url);
 	}
-
-	protected URL makeRepositoryURL(URL newURL) {
-		// TODO need to do better validation of the URL
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
-		// For now we don't further process the URL
-		return newURL;
-	}
 }

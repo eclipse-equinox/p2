@@ -150,7 +150,18 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	protected abstract ProvisioningOperation getOperation(URL repoURL);
 
-	protected abstract URL makeRepositoryURL(URL userURL);
+	/**
+	 * Return a valid URL for the repository to be added given the URL
+	 * that the user has entered.  Subclasses may override if there is special
+	 * validation to be done for certain types of repositories, but the super
+	 * implementation should always be called.
+	 */
+	protected URL makeRepositoryURL(URL newURL) {
+		// TODO need to do better validation of the URL
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
+		// For now we don't further process the URL
+		return newURL;
+	}
 
 	void verifyComplete() {
 		if (okButton == null) {
