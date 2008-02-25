@@ -158,7 +158,7 @@ public class MetadataGeneratorHelper {
 		iu.setVersion(bd.getVersion());
 		iu.setFilter(bd.getPlatformFilter());
 
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null)); //$NON-NLS-1$
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(new Version(0, 0, 0), true, bd.getVersion(), false), IUpdateDescriptor.NORMAL, null)); //$NON-NLS-1$
 
 		boolean isFragment = bd.getHost() != null;
 		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
@@ -443,7 +443,7 @@ public class MetadataGeneratorHelper {
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
 		RequiredCapability[] required = new RequiredCapability[entries.length + 1];
