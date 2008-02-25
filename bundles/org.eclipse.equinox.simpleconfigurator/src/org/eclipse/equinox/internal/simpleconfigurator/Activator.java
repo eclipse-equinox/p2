@@ -43,10 +43,8 @@ public class Activator implements BundleActivator {
 	private SimpleConfiguratorImpl bundleConfigurator;
 	private ServiceRegistration configuratorRegistration;
 	private ServiceRegistration commandRegistration;
-	private static BundleContext ctx;
 
 	public void start(BundleContext context) throws Exception {
-		ctx = context;
 		bundleConfigurator = new SimpleConfiguratorImpl(context);
 		bundleConfigurator.applyConfiguration();
 
@@ -78,6 +76,5 @@ public class Activator implements BundleActivator {
 		}
 
 		this.bundleConfigurator = null;
-		ctx = null;
 	}
 }
