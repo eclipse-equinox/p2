@@ -28,7 +28,7 @@ public interface IInstallableUnit extends Comparable {
 	 * 
 	 * @see IInstallableUnit#getId()
 	 */
-	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iunamespace"; //$NON-NLS-1$
+	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iu"; //$NON-NLS-1$
 
 	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.type.profile"</code>) for a 
@@ -66,43 +66,43 @@ public interface IInstallableUnit extends Comparable {
 	public static final String PROP_PROFILE_ROOT_IU = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
 
 	/**
-	 * A property key (value <code>"equinox.p2.contact"</code>) for a 
+	 * A property key (value <code>"org.eclipse.equinox.p2.contact"</code>) for a 
 	 * String property containing a contact address where problems can be reported, 
 	 * such as an email address.
 	 * 
 	 * @see #getProperty(String)
 	 */
-	public static final String PROP_CONTACT = "equinox.p2.contact"; //$NON-NLS-1$
+	public static final String PROP_CONTACT = "org.eclipse.equinox.p2.contact"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.description"</code>) for a 
+	 * A property key (value <code>"org.eclipse.equinox.p2.description"</code>) for a 
 	 * String property containing a human-readable description of the installable unit.
 	 * 
 	 * @see #getProperty(String)
 	 */
-	public static final String PROP_DESCRIPTION = "equinox.p2.description"; //$NON-NLS-1$
+	public static final String PROP_DESCRIPTION = "org.eclipse.equinox.p2.description"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.doc.url"</code>) for a 
+	 * A property key (value <code>"org.eclipse.equinox.p2.doc.url"</code>) for a 
 	 * String property containing a URL for documentation about the installable unit.
 	 * 
 	 * @see #getProperty(String)
 	 */
-	public static final String PROP_DOC_URL = "equinox.p2.doc.url"; //$NON-NLS-1$
+	public static final String PROP_DOC_URL = "org.eclipse.equinox.p2.doc.url"; //$NON-NLS-1$
 
 	/**
-	 * A property key (value <code>"equinox.p2.name"</code>) for a 
+	 * A property key (value <code>"org.eclipse.equinox.p2.name"</code>) for a 
 	 * String property containing a human-readable name for the installable unit.
 	 * 
 	 * @see #getProperty(String)
 	 */
-	public static final String PROP_NAME = "equinox.p2.name"; //$NON-NLS-1$
+	public static final String PROP_NAME = "org.eclipse.equinox.p2.name"; //$NON-NLS-1$
 	/**
-	 * A property key (value <code>"equinox.p2.provider"</code>) for a 
+	 * A property key (value <code>"org.eclipse.equinox.p2.provider"</code>) for a 
 	 * String property containing information about the vendor or provider of the 
 	 * installable unit.
 	 * 
 	 * @see #getProperty(String)
 	 */
-	public static final String PROP_PROVIDER = "equinox.p2.provider"; //$NON-NLS-1$
+	public static final String PROP_PROVIDER = "org.eclipse.equinox.p2.provider"; //$NON-NLS-1$
 
 	public String getApplicabilityFilter();
 
