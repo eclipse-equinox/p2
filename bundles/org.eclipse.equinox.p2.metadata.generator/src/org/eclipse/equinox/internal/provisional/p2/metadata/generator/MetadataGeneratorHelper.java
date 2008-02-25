@@ -35,7 +35,6 @@ public class MetadataGeneratorHelper {
 
 	private static final String CAPABILITY_NS_JAVA_PACKAGE = "java.package"; //$NON-NLS-1$
 	private static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
-	private static final String CAPABILITY_NS_OSGI_SOURCE_BUNDLES = "osgi.source.bundles"; //$NON-NLS-1$
 	private static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
 	private static final String CAPABILITY_NS_UPDATE_FEATURE = "org.eclipse.update.feature"; //$NON-NLS-1$
@@ -167,10 +166,7 @@ public class MetadataGeneratorHelper {
 		// Create Set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
 		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
-		if (isBinaryBundle)
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), bd.getVersion()));
-		else
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_SOURCE_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), bd.getVersion()));
 
 		//Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
