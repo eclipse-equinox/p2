@@ -100,10 +100,22 @@ public class EquinoxFwConfigFileParser {
 			}
 		}
 
+		String fwJarSt = null;
+		try {
+			if (fwJar != null) {
+				fwJarSt = fwJar.toURL().toExternalForm();
+			}
+		} catch (MalformedURLException e) {
+			// Never happens
+			e.printStackTrace();
+		}
+
 		if (bInfos != null) {
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < bInfos.length; i++) {
 				normalizeLocation(bInfos[i]);
+				if (fwJarSt != null && fwJarSt.equals(bInfos[i].getLocation()))
+					continue; //framework jar should not appear in the bundles list
 				sb.append(getCommandLine(bInfos[i], null));
 				if (i + 1 < bInfos.length)
 					sb.append(',');
@@ -118,15 +130,6 @@ public class EquinoxFwConfigFileParser {
 
 		//Deal with the fw jar and ensure it is not set. 
 		//TODO This can't be done before because of the previous calls to appendProperties 
-		String fwJarSt = null;
-		try {
-			if (fwJar != null) {
-				fwJarSt = fwJar.toURL().toExternalForm();
-			}
-		} catch (MalformedURLException e) {
-			// Never happens
-			e.printStackTrace();
-		}
 		if (fwJarSt != null)
 			props.setProperty(EquinoxConstants.PROP_OSGI_FW, fwJarSt /* fwJar.getAbsolutePath() */);
 		else
