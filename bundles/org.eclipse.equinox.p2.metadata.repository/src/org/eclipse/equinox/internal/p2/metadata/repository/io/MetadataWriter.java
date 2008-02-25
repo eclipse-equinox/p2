@@ -59,7 +59,6 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
 		writeRequiredCapabilities(iu.getRequiredCapabilities());
 		writeTrimmedCdata(IU_FILTER_ELEMENT, iu.getFilter());
-		writeTrimmedCdata(APPLICABILITY_FILTER_ELEMENT, iu.getApplicabilityFilter());
 
 		writeArtifactKeys(iu.getArtifacts());
 		writeTouchpointType(iu.getTouchpointType());

@@ -71,7 +71,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private ProvidedCapabilitiesHandler providedCapabilitiesHandler = null;
 		private RequiredCapabilitiesHandler requiredCapabilitiesHandler = null;
 		private TextHandler filterHandler = null;
-		private TextHandler applicabilityHandler = null;
 		private ArtifactsHandler artifactsHandler = null;
 		private TouchpointTypeHandler touchpointTypeHandler = null;
 		private TouchpointDataHandler touchpointDataHandler = null;
@@ -141,12 +140,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			} else if (IU_FILTER_ELEMENT.equals(name)) {
 				if (filterHandler == null) {
 					filterHandler = new TextHandler(this, IU_FILTER_ELEMENT, attributes);
-				} else {
-					duplicateElement(this, name, attributes);
-				}
-			} else if (APPLICABILITY_FILTER_ELEMENT.equals(name)) {
-				if (applicabilityHandler == null) {
-					applicabilityHandler = new TextHandler(this, APPLICABILITY_FILTER_ELEMENT, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
@@ -229,9 +222,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 				currentUnit.setRequiredCapabilities(requiredCapabilities);
 				if (filterHandler != null) {
 					currentUnit.setFilter(filterHandler.getText());
-				}
-				if (applicabilityHandler != null) {
-					currentUnit.setApplicabilityFilter(applicabilityHandler.getText());
 				}
 				IArtifactKey[] artifacts = (artifactsHandler == null ? new IArtifactKey[0] : artifactsHandler.getArtifactKeys());
 				currentUnit.setArtifacts(artifacts);

@@ -211,7 +211,6 @@ public class MetadataGeneratorHelper {
 		if (isFragment)
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), bd.getVersion()));
 		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
-		iu.setApplicabilityFilter(""); //$NON-NLS-1$
 
 		iu.setArtifacts(new IArtifactKey[] {key});
 
@@ -271,7 +270,6 @@ public class MetadataGeneratorHelper {
 		}
 		cat.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
 		cat.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, category.getName(), Version.emptyVersion)});
-		cat.setApplicabilityFilter(""); //$NON-NLS-1$
 		cat.setArtifacts(new IArtifactKey[0]);
 		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);

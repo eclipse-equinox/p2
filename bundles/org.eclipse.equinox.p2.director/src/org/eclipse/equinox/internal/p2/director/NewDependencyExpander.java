@@ -165,10 +165,6 @@ public class NewDependencyExpander {
 			return wrapped.toString();
 		}
 
-		public String getApplicabilityFilter() {
-			return wrapped.getApplicabilityFilter();
-		}
-
 		public IArtifactKey[] getArtifacts() {
 			return wrapped.getArtifacts();
 		}

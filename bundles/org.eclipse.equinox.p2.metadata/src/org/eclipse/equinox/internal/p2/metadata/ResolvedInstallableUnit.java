@@ -42,10 +42,6 @@ public class ResolvedInstallableUnit implements IInstallableUnit {
 		return (IInstallableUnitFragment[]) result.toArray(new IInstallableUnitFragment[result.size()]);
 	}
 
-	public String getApplicabilityFilter() {
-		return original.getApplicabilityFilter();
-	}
-
 	public IArtifactKey[] getArtifacts() {
 		return original.getArtifacts();
 	}

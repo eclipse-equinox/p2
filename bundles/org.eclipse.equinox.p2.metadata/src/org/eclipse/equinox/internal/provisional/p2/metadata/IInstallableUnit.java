@@ -104,8 +104,6 @@ public interface IInstallableUnit extends Comparable {
 	 */
 	public static final String PROP_PROVIDER = "org.eclipse.equinox.p2.provider"; //$NON-NLS-1$
 
-	public String getApplicabilityFilter();
-
 	public IArtifactKey[] getArtifacts();
 
 	/**
