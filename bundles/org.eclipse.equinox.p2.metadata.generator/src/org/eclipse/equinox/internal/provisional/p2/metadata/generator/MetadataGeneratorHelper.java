@@ -33,10 +33,10 @@ import org.osgi.framework.*;
 public class MetadataGeneratorHelper {
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION, IInstallableUnit.PROP_UPDATE_SITE};
 
-	private static final String CAPABILITY_TYPE_OSGI_PACKAGES = "osgi.packages"; //$NON-NLS-1$
-	private static final String CAPABILITY_TYPE_OSGI_BUNDLES = "osgi.bundles"; //$NON-NLS-1$
-	private static final String CAPABILITY_TYPE_OSGI_SOURCE_BUNDLES = "osgi.source.bundles"; //$NON-NLS-1$
-	private static final String CAPABILITY_TYPE_OSGI_FRAGMENTS = "osgi.fragments"; //$NON-NLS-1$
+	private static final String CAPABILITY_NS_JAVA_PACKAGE = "java.package"; //$NON-NLS-1$
+	private static final String CAPABILITY_NS_OSGI_BUNDLE = "osgi.bundle"; //$NON-NLS-1$
+	private static final String CAPABILITY_NS_OSGI_SOURCE_BUNDLES = "osgi.source.bundles"; //$NON-NLS-1$
+	private static final String CAPABILITY_NS_OSGI_FRAGMENT = "osgi.fragment"; //$NON-NLS-1$
 
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
 
@@ -142,9 +142,9 @@ public class MetadataGeneratorHelper {
 		//		if (requiresAFragment)
 		//			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getSymbolicName(), VersionRange.emptyRange, null, false, false));
 		if (isFragment)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getHost().getName(), bd.getHost().getVersionRange(), null, false, false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getHost().getName(), bd.getHost().getVersionRange(), null, false, false));
 		for (int j = 0; j < requiredBundles.length; j++)
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_BUNDLES, requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), null, requiredBundles[j].isOptional(), false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), null, requiredBundles[j].isOptional(), false));
 
 		//Process the import package
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
@@ -158,7 +158,7 @@ public class MetadataGeneratorHelper {
 			VersionRange versionRange = importSpec.getVersionRange() == VersionRange.emptyRange ? null : importSpec.getVersionRange();
 
 			//TODO this needs to be refined to take into account all the attribute handled by imports
-			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_TYPE_OSGI_PACKAGES, importPackageName, versionRange, null, isOptional(importSpec), false));
+			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
 		iu.setRequiredCapabilities((RequiredCapability[]) reqsDeps.toArray(new RequiredCapability[reqsDeps.size()]));
 
@@ -166,15 +166,15 @@ public class MetadataGeneratorHelper {
 		ArrayList providedCapabilities = new ArrayList();
 		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
 		if (isBinaryBundle)
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), bd.getVersion()));
 		else
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_SOURCE_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_SOURCE_BUNDLES, bd.getSymbolicName(), bd.getVersion()));
 
 		//Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
 		for (int i = 0; i < exports.length; i++) {
 			//TODO make sure that we support all the refinement on the exports
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_PACKAGES, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
 		}
 		// Here we add a bundle capability to identify bundles
 		if (isBinaryBundle)
@@ -183,7 +183,7 @@ public class MetadataGeneratorHelper {
 			providedCapabilities.add(SOURCE_BUNDLE_CAPABILITY);
 
 		if (isFragment)
-			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_TYPE_OSGI_FRAGMENTS, bd.getHost().getName(), bd.getVersion()));
+			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), bd.getVersion()));
 		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
 		iu.setApplicabilityFilter(""); //$NON-NLS-1$
 
@@ -605,7 +605,7 @@ public class MetadataGeneratorHelper {
 			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length + 1];
 			exportedPackageAsCapabilities[0] = createSelfCapability(installableUnitId, installableUnitVersion);
 			for (int i = 1; i <= jrePackages.length; i++) {
-				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability("osgi.packages", jrePackages[i - 1].getValue(), null); //$NON-NLS-1$
+				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, jrePackages[i - 1].getValue(), null); //$NON-NLS-1$
 			}
 			return exportedPackageAsCapabilities;
 		} catch (IOException e) {
