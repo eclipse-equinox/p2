@@ -45,7 +45,7 @@ public class IUComparator extends ViewerComparator {
 		}
 
 		int result = 0;
-		result = getComparator().compare(key1, key2);
+		result = key1.compareToIgnoreCase(key2);
 		if (result == 0) {
 			// We want to show later versions first so compare backwards.
 			result = iu2.getVersion().compareTo(iu1.getVersion());

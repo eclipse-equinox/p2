@@ -59,7 +59,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		labelProvider.setToolTipProperty(IInstallableUnit.PROP_DESCRIPTION);
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		availableIUViewer.setComparator(new IUComparator(IUComparator.IU_ID));
+		availableIUViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
 		availableIUViewer.setComparer(new ProvElementComparer());
 
 		// Now the content.
