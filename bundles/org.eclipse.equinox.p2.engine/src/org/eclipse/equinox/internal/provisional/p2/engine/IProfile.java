@@ -59,7 +59,7 @@ public interface IProfile extends IQueryable {
 	/**
 	 * Profile property constant indicating the bundle pool cache location.
 	 */
-	public static final String PROP_INSTALL_FEATURES = "eclipse.p2.install.features"; //$NON-NLS-1$
+	public static final String PROP_INSTALL_FEATURES = "org.eclipse.update.install.features"; //$NON-NLS-1$
 
 	public String getProfileId();
 

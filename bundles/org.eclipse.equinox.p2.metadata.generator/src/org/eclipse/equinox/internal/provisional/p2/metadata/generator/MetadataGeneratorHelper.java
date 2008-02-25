@@ -45,7 +45,7 @@ public class MetadataGeneratorHelper {
 	private static final String ECLIPSE_FEATURE_CLASSIFIER = "feature"; //$NON-NLS-1$
 	private static final String ECLIPSE_BUNDLE_CLASSIFIER = "plugin"; //$NON-NLS-1$
 
-	private static final String INSTALL_FEATURES_FILTER = "(eclipse.p2.install.features=true)"; //$NON-NLS-1$
+	private static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
 
 	private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU_ID;
 
