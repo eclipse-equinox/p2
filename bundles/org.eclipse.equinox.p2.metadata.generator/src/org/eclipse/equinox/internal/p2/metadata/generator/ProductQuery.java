@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata.generator;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.resolver.VersionRange;
 
@@ -30,9 +31,13 @@ public class ProductQuery extends Query {
 	}
 
 	private void initialize(Map configIUs) {
-		List contents = product.useFeatures() ? product.getFeatures() : product.getPlugins();
+		boolean features = product.useFeatures();
+		List contents = features ? product.getFeatures() : product.getPlugins();
 		for (Iterator iterator = contents.iterator(); iterator.hasNext();) {
 			String item = (String) iterator.next();
+			if (features) // for features we want the group
+				item += ".featureGroup"; //$NON-NLS-1$
+
 			children.put(item, VersionRange.emptyRange);
 			if (configIUs.containsKey(item)) {
 				for (Iterator ius = ((Set) configIUs.get(item)).iterator(); ius.hasNext();) {
@@ -60,6 +65,14 @@ public class ProductQuery extends Query {
 		// and launcher fragment CUs
 		if (configIUs.containsKey(EQUINOX_LAUNCHER)) {
 			for (Iterator ius = ((Set) configIUs.get(EQUINOX_LAUNCHER)).iterator(); ius.hasNext();) {
+				IInstallableUnit object = (IInstallableUnit) ius.next();
+				children.put(object.getId(), new VersionRange(object.getVersion(), true, object.getVersion(), true));
+			}
+		}
+
+		// feature based product, individual bundle config CUs are under CONFIGURATION_CUS for convenience
+		if (features && configIUs.containsKey(GeneratorResult.CONFIGURATION_CUS)) {
+			for (Iterator ius = ((Set) configIUs.get(GeneratorResult.CONFIGURATION_CUS)).iterator(); ius.hasNext();) {
 				IInstallableUnit object = (IInstallableUnit) ius.next();
 				children.put(object.getId(), new VersionRange(object.getVersion(), true, object.getVersion(), true));
 			}

@@ -38,6 +38,8 @@ public class Generator {
 	 * Captures the output of an execution of the generator.
 	 */
 	public static class GeneratorResult {
+		public static final String CONFIGURATION_CUS = "CONFIGURATION_CUS"; //$NON-NLS-1$
+
 		/**
 		 * The set of generated IUs that will be children of the root IU
 		 */
@@ -435,12 +437,13 @@ public class Generator {
 					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
 				}
 				result.rootIUs.add(cu);
-				if (result.configurationIUs.containsKey(bundle.getSymbolicName())) {
-					((Set) result.configurationIUs.get(bundle.getSymbolicName())).add(cu);
+				String key = (productFile != null && productFile.useFeatures()) ? GeneratorResult.CONFIGURATION_CUS : bundle.getSymbolicName();
+				if (result.configurationIUs.containsKey(key)) {
+					((Set) result.configurationIUs.get(key)).add(cu);
 				} else {
 					Set set = new HashSet();
 					set.add(cu);
-					result.configurationIUs.put(bundle.getSymbolicName(), set);
+					result.configurationIUs.put(key, set);
 				}
 			}
 		}
