@@ -39,6 +39,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
+	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 
 	/*
 	 * 	TODO: Temporary for determining whether eclipse installs
@@ -164,11 +165,19 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
-	private GeneratorBundleInfo createSimpleConfigurator() {
+	private GeneratorBundleInfo createSimpleConfiguratorBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
 		result.setVersion("0.0.0"); //$NON-NLS-1$
 		result.setStartLevel(1);
+		result.setMarkedAsStarted(true);
+		return result;
+	}
+
+	private GeneratorBundleInfo createDropinsReconcilerBundleInfo() {
+		GeneratorBundleInfo result = new GeneratorBundleInfo();
+		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS);
+		result.setVersion("0.0.0"); //$NON-NLS-1$
 		result.setMarkedAsStarted(true);
 		return result;
 	}
@@ -233,7 +242,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		if (addDefaultIUs) {
 			defaultIUs.addAll(createLauncherBundleInfo(ius));
 			defaultIUs.add(createLauncher());
-			defaultIUs.add(createSimpleConfigurator());
+			defaultIUs.add(createSimpleConfiguratorBundleInfo());
+			defaultIUs.add(createDropinsReconcilerBundleInfo());
 			//			defaultIUs.add(createDefaultConfigurationBundleInfo());
 			//			defaultIUs.add(createDefaultUnconfigurationBundleInfo());
 		}

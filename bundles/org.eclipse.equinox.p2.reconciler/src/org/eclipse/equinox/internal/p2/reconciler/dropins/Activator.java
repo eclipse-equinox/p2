@@ -26,7 +26,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 public class Activator implements BundleActivator {
 
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
-	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
+	private static final String OSGI_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
@@ -146,8 +146,9 @@ public class Activator implements BundleActivator {
 			return folder;
 		}
 		try {
-			URL baseURL = new URL(context.getProperty(OSGI_INSTALL_AREA));
-			URL folderURL = new URL(baseURL, DROPINS);
+			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
+			URL baseURL = new URL(context.getProperty(OSGI_CONFIGURATION_AREA));
+			URL folderURL = new URL(baseURL, "../" + DROPINS); //$NON-NLS-1$
 			File folder = new File(folderURL.getPath());
 			return folder;
 		} catch (MalformedURLException e) {
