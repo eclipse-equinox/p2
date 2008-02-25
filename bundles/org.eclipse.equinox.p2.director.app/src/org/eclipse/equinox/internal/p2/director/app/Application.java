@@ -163,11 +163,11 @@ public class Application implements IApplication {
 		props.setProperty(IProfile.PROP_FLAVOR, flavor);
 		if (bundlePool != null)
 			if (bundlePool.equals(Messages.destination_commandline))
-				props.setProperty("eclipse.p2.cache", destination); //$NON-NLS-1$
+				props.setProperty(IProfile.PROP_CACHE, destination);
 			else
-				props.setProperty("eclipse.p2.cache", bundlePool); //$NON-NLS-1$
+				props.setProperty(IProfile.PROP_CACHE, bundlePool);
 		if (roamingProfile)
-			props.setProperty("eclipse.p2.roaming", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+			props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
 		String env = getEnvironmentProperty();
 		if (env != null)

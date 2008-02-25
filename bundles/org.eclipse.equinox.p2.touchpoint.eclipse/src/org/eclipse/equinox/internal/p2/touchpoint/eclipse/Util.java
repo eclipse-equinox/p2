@@ -38,7 +38,6 @@ public class Util {
 	/**
 	 * TODO "cache" is probably not the right term for this location
 	 */
-	private final static String CACHE_PATH = "eclipse.p2.cache"; //$NON-NLS-1$
 	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
 	private static final String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 	private static final Object PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
@@ -52,9 +51,7 @@ public class Util {
 	}
 
 	static URL getBundlePoolLocation(IProfile profile) {
-		String path = profile.getProperty(CACHE_PATH);
-		if (path == null)
-			path = Activator.getContext().getProperty(CACHE_PATH);
+		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
 			try {
 				// TODO this is a hack for now.
