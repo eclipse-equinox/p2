@@ -604,7 +604,8 @@ public class NewDependencyExpander {
 	 */
 	private boolean isMeta(RequiredCapability requiredCapability) {
 		String namespace = requiredCapability.getNamespace();
-		return namespace.equals(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES) || namespace.equals(IInstallableUnit.NAMESPACE_FLAVOR);
+		//TODO Should not reference OSGi touchpoint concepts here
+		return namespace.equals("org.eclipse.equinox.p2.eclipse.type") || namespace.equals(IInstallableUnit.NAMESPACE_FLAVOR); //$NON-NLS-1$
 	}
 
 	private IInstallableUnit match(Collection close, IInstallableUnit picked) {

@@ -31,6 +31,32 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
 public class MetadataGeneratorHelper {
+	/**
+	 * A capability namespace representing the type of Eclipse resource (bundle, feature, source bundle, etc)
+	 * @see RequiredCapability#getNamespace()
+	 */
+	public static final String NAMESPACE_ECLIPSE_TYPE = "org.eclipse.equinox.p2.eclipse.type"; //$NON-NLS-1$
+
+	/**
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * representing and OSGi bundle resource
+	 * @see RequiredCapability#getName()
+	 */
+	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
+	/**
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * representing a feature
+	 * @see RequiredCapability#getName()
+	 */
+	public static final String TYPE_ECLIPSE_FEATURE = "feature"; //$NON-NLS-1$
+
+	/**
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * representing a source bundle
+	 * @see RequiredCapability#getName()
+	 */
+	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
+
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL, Constants.BUNDLE_UPDATELOCATION};
 
 	private static final String CAPABILITY_NS_JAVA_PACKAGE = "java.package"; //$NON-NLS-1$
@@ -63,9 +89,9 @@ public class MetadataGeneratorHelper {
 
 	public static final String NATIVE_ARTIFACT_CLASSIFIER = "native"; //$NON-NLS-1$
 
-	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0));
-	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, new Version(1, 0, 0));
-	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_SOURCE, new Version(1, 0, 0));
+	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
+	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, new Version(1, 0, 0));
+	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recur) {
 		//TODO this size calculation is bogus
@@ -286,7 +312,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		// Create a required capability on bundles
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
 		cu.setRequiredCapabilities(reqs);
 		Map touchpointData = new HashMap();
 
@@ -319,7 +345,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		// Create a required capability on features
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, VersionRange.emptyRange, null, false, true)};
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, false, true)};
 		cu.setRequiredCapabilities(reqs);
 
 		Map touchpointData = new HashMap();
@@ -342,7 +368,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		// Create a required capability on source providers
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_SOURCE, VersionRange.emptyRange, null, false, true)};
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, false, true)};
 		cu.setRequiredCapabilities(reqs);
 		Map touchpointData = new HashMap();
 
