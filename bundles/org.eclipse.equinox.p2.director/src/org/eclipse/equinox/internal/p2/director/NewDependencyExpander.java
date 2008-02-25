@@ -604,7 +604,7 @@ public class NewDependencyExpander {
 	 */
 	private boolean isMeta(RequiredCapability requiredCapability) {
 		String namespace = requiredCapability.getNamespace();
-		return namespace.equals(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES) || namespace.equals(IInstallableUnit.NAMESPACE_IU_KIND) || namespace.equals(IInstallableUnit.NAMESPACE_FLAVOR);
+		return namespace.equals(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES) || namespace.equals(IInstallableUnit.NAMESPACE_FLAVOR);
 	}
 
 	private IInstallableUnit match(Collection close, IInstallableUnit picked) {

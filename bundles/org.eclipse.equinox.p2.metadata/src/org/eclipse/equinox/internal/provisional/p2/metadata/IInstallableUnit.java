@@ -34,17 +34,15 @@ public interface IInstallableUnit extends Comparable {
 	 * @see IInstallableUnit#getId()
 	 */
 	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iunamespace"; //$NON-NLS-1$
-	/**
-	 * A capability namespace representing a particular kind of installable unit.
-	 * For example, an InstallableUnit may specify that it provides the "group" kind
-	 * capability to express that it represents a group of installable units. 
-	 */
-	public static final String NAMESPACE_IU_KIND = "org.eclipse.equinox.p2.type"; //$NON-NLS-1$
 
 	//TODO This is not the ideal location for these constants
-	public static final String PROP_PROFILE_IU_KEY = "profileIU"; //$NON-NLS-1$	 
-	public static final String PROP_PROFILE_ROOT_IU = "profileRootIU"; //$NON-NLS-1$
-	public static final String PROP_CATEGORY_IU = "categoryIU"; //$NON-NLS-1$
+	public static final String PROP_PROFILE_IU_KEY = "org.eclipse.equinox.p2.type.profile"; //$NON-NLS-1$	 
+	public static final String PROP_CATEGORY_IU = "org.eclipse.equinox.p2.type.category"; //$NON-NLS-1$
+	public static final String PROP_TYPE_FRAGMENT = "org.eclipse.equinox.p2.type.fragment"; //$NON-NLS-1$
+	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
+
+	//TODO Move to UI
+	public static final String PROP_PROFILE_ROOT_IU = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
 
 	/**
 	 * A property key (value <code>"equinox.p2.contact"</code>) representing a 

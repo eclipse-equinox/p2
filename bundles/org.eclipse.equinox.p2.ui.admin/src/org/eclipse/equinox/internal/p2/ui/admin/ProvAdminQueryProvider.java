@@ -16,8 +16,8 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -52,8 +52,8 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 		boolean showLatest = store.getBoolean(PreferenceConstants.PREF_COLLAPSE_IU_VERSIONS);
 		boolean useCategories = store.getBoolean(PreferenceConstants.PREF_USE_CATEGORIES);
 		boolean showRootsOnly = store.getBoolean(PreferenceConstants.PREF_SHOW_INSTALL_ROOTS_ONLY);
-		Query groupQuery = new CapabilityQuery(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)); //$NON-NLS-1$
-		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
+		Query groupQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.TRUE.toString());
 		Query query;
 		IProfile profile;
 		switch (queryType) {

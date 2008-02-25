@@ -19,8 +19,9 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
@@ -194,8 +195,7 @@ public class ProvCommandProvider implements CommandProvider {
 			if (queryable == null)
 				return;
 		}
-		RequiredCapability requirement = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false); //$NON-NLS-1$
-		Query query = new CapabilityQuery(requirement);
+		Query query = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		IInstallableUnit[] units = sort(queryable.query(query, new Collector(), null));
 		for (int i = 0; i < units.length; i++)
 			println(interpreter, units[i]);

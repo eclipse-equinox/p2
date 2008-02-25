@@ -63,7 +63,6 @@ public class MetadataGeneratorHelper {
 
 	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0));
 	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, new Version(1, 0, 0));
-	public static final ProvidedCapability FRAGMENT_CAPABILITY = IInstallableUnitFragment.FRAGMENT_CAPABILITY;
 	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_SOURCE, new Version(1, 0, 0));
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recur) {
@@ -109,7 +108,8 @@ public class MetadataGeneratorHelper {
 		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, iuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, iuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -280,7 +280,8 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		// Create a required capability on bundles
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
@@ -312,7 +313,8 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		// Create a required capability on features
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, VersionRange.emptyRange, null, false, true)};
@@ -334,7 +336,8 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(configUnitVersion);
 
 		// Add capabilities for fragment, self, and describing the flavor supported
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, Version.emptyVersion)});
 
 		// Create a required capability on source providers
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_SOURCE, VersionRange.emptyRange, null, false, true)};
@@ -427,11 +430,11 @@ public class MetadataGeneratorHelper {
 		required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(TouchpointType.NONE);
+		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
-		ProvidedCapability groupCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0")); //$NON-NLS-1$ //$NON-NLS-2$
-		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), groupCapability});
+		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
@@ -454,7 +457,8 @@ public class MetadataGeneratorHelper {
 		cu.setId(configId);
 		cu.setVersion(version);
 		cu.setHost(id, new VersionRange(version, true, versionMax, true));
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configId, version)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configId, version)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 
@@ -519,8 +523,8 @@ public class MetadataGeneratorHelper {
 		cu.setId(configUnitId);
 		cu.setVersion(LAUNCHER_VERSION);
 		cu.setHost(launcherId, new VersionRange(LAUNCHER_VERSION, true, versionMax, true));
-
-		cu.setCapabilities(new ProvidedCapability[] {FRAGMENT_CAPABILITY, createSelfCapability(configUnitId, LAUNCHER_VERSION)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, LAUNCHER_VERSION)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$

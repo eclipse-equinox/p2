@@ -201,8 +201,8 @@ public class Generator {
 
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(configurationIdentification, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
-		ProvidedCapability groupCapability = MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", new Version("1.0.0")); //$NON-NLS-1$ //$NON-NLS-2$
-		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion)), groupCapability});
+		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion))});
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
 		Map touchpointData = new HashMap();
 
@@ -617,8 +617,9 @@ public class Generator {
 		cu.setVersion(launcherVersion);
 		cu.setFilter(filter);
 		cu.setHost(launcherId, new VersionRange(launcherVersion, true, launcherVersion, true));
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
-		cu.setCapabilities(new ProvidedCapability[] {IInstallableUnitFragment.FRAGMENT_CAPABILITY, MetadataGeneratorHelper.createSelfCapability(configUnitId, launcherVersion)});
+		cu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configUnitId, launcherVersion)});
 
 		mungeLauncherFileNames(root);
 

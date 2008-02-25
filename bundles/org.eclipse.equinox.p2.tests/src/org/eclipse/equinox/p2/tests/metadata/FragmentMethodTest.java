@@ -71,8 +71,8 @@ public class FragmentMethodTest extends TestCase {
 			FragmentTest.assertContainsWithEquals(mergedCapabilities, iuCapabilities[i]);
 		}
 
-		//The fragment capability is not listed in the capabilities
-		assertDoesNotContain(mergedCapabilities, IInstallableUnitFragment.FRAGMENT_CAPABILITY);
+		//The fragment property is not set
+		assertNull(iu1.getProperty(IInstallableUnit.PROP_TYPE_FRAGMENT));
 
 		//The fragment does not contain iu namespace
 		for (int i = 0; i < initialFragmentCapabilities.length; i++) {

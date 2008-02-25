@@ -367,8 +367,7 @@ public class AbstractProvisioningTest extends TestCase {
 		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
 		fragment.setId(name);
 		fragment.setVersion(version);
-		ProvidedCapability[] cap = new ProvidedCapability[] {getSelfCapability(name, version), IInstallableUnitFragment.FRAGMENT_CAPABILITY};
-		fragment.setCapabilities(cap);
+		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		fragment.setRequiredCapabilities(required);
 		fragment.setTouchpointType(tpType);
 		if (tpData != null)

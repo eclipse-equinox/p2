@@ -78,8 +78,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testFragmentCapability() {
 		IInstallableUnit iu = createBundleFragment("iuFragment.test1");
-		ProvidedCapability[] all = iu.getProvidedCapabilities();
-		assertContains(all, IInstallableUnitFragment.FRAGMENT_CAPABILITY);
+		assertEquals(Boolean.TRUE.toString(), iu.getProperty(IInstallableUnit.PROP_TYPE_FRAGMENT));
 	}
 
 	public void testDefaultIUCapability() {

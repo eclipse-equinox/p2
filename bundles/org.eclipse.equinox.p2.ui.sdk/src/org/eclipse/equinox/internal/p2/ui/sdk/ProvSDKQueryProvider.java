@@ -16,8 +16,8 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -63,7 +63,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_PROFILE_IU_KEY, Boolean.toString(true));
 					return new ElementQueryDescriptor(((RollbackRepositoryElement) element).getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), new RollbackIUCollector(this, ((RollbackRepositoryElement) element).getQueryable()));
 				}
-				CapabilityQuery groupQuery = new CapabilityQuery(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_KIND, "group", null, null, false, false)); //$NON-NLS-1$
+				Query groupQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 				Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_CATEGORY_IU, Boolean.toString(true));
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;

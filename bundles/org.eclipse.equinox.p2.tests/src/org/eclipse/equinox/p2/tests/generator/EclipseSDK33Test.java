@@ -18,7 +18,8 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IGeneratorInfo;
 import org.eclipse.equinox.p2.tests.*;
@@ -89,12 +90,7 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 	 * Asserts that the given IU represents a group.
 	 */
 	private void assertGroup(IInstallableUnit unit) {
-		ProvidedCapability[] capabilities = unit.getProvidedCapabilities();
-		for (int i = 0; i < capabilities.length; i++) {
-			if (capabilities[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_KIND) && capabilities[i].getName().equals("group"))
-				return;
-		}
-		fail("IU is not a group:" + unit);
+		assertEquals("IU is not a group", Boolean.TRUE.toString(), unit.getProperty(IInstallableUnit.PROP_TYPE_GROUP));
 	}
 
 	private IGeneratorInfo createGeneratorInfo() {
