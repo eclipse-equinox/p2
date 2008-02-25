@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -154,7 +155,7 @@ public class FragmentMethodTest extends TestCase {
 		InstallableUnitFragmentDescription iu = new InstallableUnitFragmentDescription();
 		iu.setId(name);
 		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0)));
+		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_FRAG, "value");
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
 		iu.setRequiredCapabilities(reqs);
@@ -167,7 +168,7 @@ public class FragmentMethodTest extends TestCase {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(name);
 		iu.setVersion(new Version(1, 0, 0));
-		iu.setTouchpointType(MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0)));
+		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_IU, "valueIU");
 		ProvidedCapability[] cap = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0)), MetadataFactory.createProvidedCapability("testCapability", "testCapability", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);

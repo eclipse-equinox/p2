@@ -68,7 +68,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		TouchpointData tpData = createTouchpointData(instructions);
 		IUpdateDescriptor update = createUpdateDescriptor();
 		boolean singleton = false;
-		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, ECLIPSE_TOUCHPOINT, tpData, singleton, update);
+		IInstallableUnit iu = createIU(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update);
 		return iu;
 	}
 

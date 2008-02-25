@@ -24,7 +24,7 @@ import org.osgi.framework.Version;
 
 public class EclipseTouchpoint extends Touchpoint {
 
-	private static final TouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("eclipse", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
+	private static final TouchpointType TOUCHPOINT_TYPE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version("1.0")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ACTION_ADD_JVM_ARG = "addJvmArg"; //$NON-NLS-1$

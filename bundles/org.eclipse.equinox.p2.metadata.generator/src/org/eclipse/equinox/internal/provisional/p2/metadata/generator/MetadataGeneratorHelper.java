@@ -58,8 +58,10 @@ public class MetadataGeneratorHelper {
 
 	private static final Version versionMax = new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
 
-	public static final TouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("native", new Version(1, 0, 0)); //$NON-NLS-1$
-	public static final TouchpointType TOUCHPOINT_ECLIPSE = MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0)); //$NON-NLS-1$
+	public static final TouchpointType TOUCHPOINT_NATIVE = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", new Version(1, 0, 0)); //$NON-NLS-1$
+	public static final TouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0)); //$NON-NLS-1$
+
+	public static final String NATIVE_ARTIFACT_CLASSIFIER = "native"; //$NON-NLS-1$
 
 	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_BUNDLE, new Version(1, 0, 0));
 	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(IInstallableUnit.CAPABILITY_ECLIPSE_TYPES, IInstallableUnit.CAPABILITY_ECLIPSE_FEATURE, new Version(1, 0, 0));
@@ -187,7 +189,7 @@ public class MetadataGeneratorHelper {
 
 		iu.setArtifacts(new IArtifactKey[] {key});
 
-		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
+		iu.setTouchpointType(TOUCHPOINT_OSGI);
 
 		// Set IU properties from the manifest header attributes
 		// TODO The values of the attributes may be localized. Metadata generation
@@ -379,7 +381,7 @@ public class MetadataGeneratorHelper {
 
 		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
 
-		iu.setTouchpointType(TOUCHPOINT_ECLIPSE);
+		iu.setTouchpointType(TOUCHPOINT_OSGI);
 		iu.setFilter(INSTALL_FEATURES_FILTER);
 		iu.setSingleton(true);
 
@@ -476,7 +478,7 @@ public class MetadataGeneratorHelper {
 		generateJREIUData(iu, id, version, jreLocation);
 
 		//Generate artifact for JRE
-		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, TOUCHPOINT_NATIVE.getId(), id, version);
+		IArtifactKey key = new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_ARTIFACT_CLASSIFIER, id, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
 
@@ -493,7 +495,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static ArtifactKey createLauncherArtifactKey(String id, Version version) {
-		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, TOUCHPOINT_NATIVE.getId(), id, version);
+		return new ArtifactKey(ECLIPSE_ARTIFACT_NAMESPACE, NATIVE_ARTIFACT_CLASSIFIER, id, version);
 	}
 
 	/**
@@ -552,7 +554,7 @@ public class MetadataGeneratorHelper {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId(iuId + '.' + launcherName);
 		iud.setVersion(version);
-		iud.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
+		iud.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 
 		if (os != null || ws != null || arch != null) {
 			String filterOs = os != null ? "(os=" + os + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

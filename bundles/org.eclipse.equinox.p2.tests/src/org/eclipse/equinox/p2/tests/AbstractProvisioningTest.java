@@ -38,7 +38,7 @@ public class AbstractProvisioningTest extends TestCase {
 	private static final RequiredCapability[] BUNDLE_REQUIREMENT = new RequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true)};
 
 	protected static final Version DEFAULT_VERSION = new Version(1, 0, 0);
-	protected static final TouchpointType ECLIPSE_TOUCHPOINT = MetadataFactory.createTouchpointType("eclipse", new Version(1, 0, 0));
+	public static final TouchpointType TOUCHPOINT_OSGI = MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.osgi", new Version(1, 0, 0));
 
 	protected static final Map NO_PROPERTIES = Collections.EMPTY_MAP;
 	protected static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
@@ -179,7 +179,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 *  fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createBundleFragment(String name) {
-		return createIUFragment(null, name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, NO_TP_DATA);
+		return createIUFragment(null, name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, TOUCHPOINT_OSGI, NO_TP_DATA);
 	}
 
 	/**
@@ -188,7 +188,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 *  are added to the IU.
 	 */
 	public static IInstallableUnitFragment createBundleFragment(String name, Version version, TouchpointData tpData) {
-		return createIUFragment(null, name, version, BUNDLE_REQUIREMENT, ECLIPSE_TOUCHPOINT, tpData);
+		return createIUFragment(null, name, version, BUNDLE_REQUIREMENT, TOUCHPOINT_OSGI, tpData);
 	}
 
 	public static IDirector createDirector() {
@@ -208,7 +208,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createEclipseIU(String name, Version version) {
-		return createIU(name, version, null, NO_REQUIRES, BUNDLE_CAPABILITY, NO_PROPERTIES, ECLIPSE_TOUCHPOINT, NO_TP_DATA, false);
+		return createIU(name, version, null, NO_REQUIRES, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, NO_TP_DATA, false);
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class AbstractProvisioningTest extends TestCase {
 	 * assume default values, and the default self capability is also added to the IU.
 	 */
 	public static IInstallableUnit createEclipseIU(String name, Version version, RequiredCapability[] requires, TouchpointData touchpointData) {
-		return createIU(name, version, null, requires, BUNDLE_CAPABILITY, NO_PROPERTIES, ECLIPSE_TOUCHPOINT, touchpointData, false);
+		return createIU(name, version, null, requires, BUNDLE_CAPABILITY, NO_PROPERTIES, TOUCHPOINT_OSGI, touchpointData, false);
 	}
 
 	public static IEngine createEngine() {

@@ -105,7 +105,7 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	public TouchpointType getTouchpointType() {
-		return MetadataFactory.createTouchpointType("native", new Version(1, 0, 0));
+		return MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", new Version(1, 0, 0));
 	}
 
 	IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {

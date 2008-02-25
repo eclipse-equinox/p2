@@ -203,7 +203,7 @@ public class Generator {
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(configurationIdentification, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
 		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configurationIdentification, new Version(configurationVersion))});
-		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
+		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 
 		String configurationData = ""; //$NON-NLS-1$
@@ -689,7 +689,7 @@ public class Generator {
 			ProvidedCapability selfCapability = MetadataGeneratorHelper.createSelfCapability(configUnitId, cuVersion);
 			cu.setCapabilities(new ProvidedCapability[] {selfCapability, productConfigCapability});
 
-			cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
+			cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 			Map touchpointData = new HashMap();
 			String[] dataStrings = getConfigurationStrings(data);
 			touchpointData.put("configure", dataStrings[0]); //$NON-NLS-1$
@@ -736,7 +736,7 @@ public class Generator {
 		ProvidedCapability selfCapability = MetadataGeneratorHelper.createSelfCapability(configUnitId, cuVersion);
 		cu.setCapabilities(new ProvidedCapability[] {selfCapability, productIniCapability});
 
-		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_ECLIPSE);
+		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 		touchpointData.put("configure", configurationData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigurationData); //$NON-NLS-1$
