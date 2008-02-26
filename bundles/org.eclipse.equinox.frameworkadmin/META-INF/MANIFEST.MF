@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: FrameworkAdmin Service IF (Incubation)
+Bundle-Name: FrameworkAdmin Service IF
 Bundle-SymbolicName: org.eclipse.equinox.frameworkadmin;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Vendor: Eclipse.org
