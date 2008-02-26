@@ -20,7 +20,7 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.garbagecollector,org.eclipse.equinox.p2.garbagecollector"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.reconciler.dropins"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.core,org.eclipse.equinox.p2.core"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.releng,org.eclipse.equinox.p2.releng"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/org.eclipse.equinox.p2.releng,org.eclipse.equinox.p2.releng"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.metadata.generator"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.artifact.optimizers,org.eclipse.equinox.p2.artifact.optimizers"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.artifact.processors,org.eclipse.equinox.p2.artifact.processors"/>
