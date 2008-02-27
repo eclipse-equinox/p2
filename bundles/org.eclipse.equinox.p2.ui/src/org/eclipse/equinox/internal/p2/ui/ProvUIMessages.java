@@ -131,6 +131,7 @@ public class ProvUIMessages extends NLS {
 	public static String AddRepositoryDialog_DuplicateURL;
 	public static String AddRepositoryDialog_InvalidURL;
 	public static String AddRepositoryDialog_Title;
+	public static String AddRepositoryDialog_URLValidationError;
 	public static String AvailableIUContentProvider_FailureRetrievingContents;
 	public static String AvailableIUContentProvider_JobName;
 	public static String AvailableIUContentProvider_PlaceholderLabel;

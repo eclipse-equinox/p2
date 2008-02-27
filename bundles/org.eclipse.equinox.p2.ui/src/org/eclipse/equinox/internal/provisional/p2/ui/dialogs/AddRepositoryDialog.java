@@ -10,21 +10,26 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Abstract dialog class for adding repositories of different types. This class
@@ -73,7 +78,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		url.setLayoutData(data);
 		url.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				verifyComplete();
+				validateRepositoryURL(false);
 			}
 		});
 		url.setText("http://"); //$NON-NLS-1$
@@ -99,6 +104,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				if (path != null) {
 					lastLocalLocation = path;
 					url.setText("file:" + path); //$NON-NLS-1$
+					validateRepositoryURL(true);
 				}
 			}
 		});
@@ -115,6 +121,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				if (path != null) {
 					lastArchiveLocation = path;
 					url.setText("jar:file:" + path + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+					validateRepositoryURL(true);
 				}
 			}
 		});
@@ -127,66 +134,69 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		IStatus status = addRepository();
 		if (status.isOK())
 			super.okPressed();
-		setOkEnablement(false);
-		updateStatus(status);
 
 	}
 
-	protected IStatus addRepository() {
+	private URL getUserURL() {
 		URL userURL;
 		try {
 			userURL = new URL(url.getText().trim());
 		} catch (MalformedURLException e) {
-			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+			return null;
 		}
+		return userURL;
+	}
 
-		URL newURL = makeRepositoryURL(userURL);
-		if (newURL != null) {
-			ProvisioningOperationRunner.run(getOperation(newURL), getShell());
-			return Status.OK_STATUS;
+	protected IStatus addRepository() {
+		IStatus status = validateRepositoryURL(true);
+		if (status.isOK()) {
+			ProvisioningOperationRunner.run(getOperation(getUserURL()), getShell());
 		}
-		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+		return status;
 	}
 
 	protected abstract ProvisioningOperation getOperation(URL repoURL);
 
 	/**
-	 * Return a valid URL for the repository to be added given the URL
-	 * that the user has entered.  Subclasses may override if there is special
-	 * validation to be done for certain types of repositories, but the super
-	 * implementation should always be called.
+	 * Validate the repository URL, returning a status that is appropriate
+	 * for showing the user.  The boolean indicates whether the repositories
+	 * should be consulted for validating the URL.  For example, it is not 
+	 * appropriate to contact the repositories on every keystroke.
 	 */
-	protected URL makeRepositoryURL(URL newURL) {
-		// TODO need to do better validation of the URL
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=211102	
-		// For now we don't further process the URL
-		return newURL;
-	}
-
-	void verifyComplete() {
-		if (okButton == null) {
-			return;
-		}
-		String urlText = url.getText().trim();
-		IStatus status = Status.OK_STATUS;
-		if (urlText.length() == 0) {
-			status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.RepositoryGroup_URLRequired, null);
-		} else {
-			URL userURL;
-			try {
-				userURL = new URL(urlText);
-				for (int i = 0; i < knownRepositories.length; i++) {
-					if (knownRepositories[i].toExternalForm().equalsIgnoreCase(userURL.toExternalForm())) {
-						status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
-						break;
-					}
+	protected IStatus validateRepositoryURL(boolean contactRepositories) {
+		if (url == null || url.isDisposed())
+			return Status.OK_STATUS;
+		final IStatus[] status = new IStatus[1];
+		status[0] = Status.OK_STATUS;
+		final URL userURL = getUserURL();
+		if (url.getText().length() == 0)
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.RepositoryGroup_URLRequired, null);
+		else if (userURL == null)
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+		else {
+			for (int i = 0; i < knownRepositories.length; i++) {
+				if (knownRepositories[i].toExternalForm().equalsIgnoreCase(userURL.toExternalForm())) {
+					status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
+					break;
 				}
-			} catch (MalformedURLException e) {
-				// we don't report this until the user is done typing.
 			}
+			if (status[0].isOK() && contactRepositories)
+				try {
+					PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+						public void run(IProgressMonitor monitor) {
+							status[0] = ProvisioningUtil.validateMetadataRepositoryLocation(userURL, monitor);
+						}
+					});
+				} catch (InvocationTargetException e) {
+					return ProvUI.handleException(e, ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW);
+				} catch (InterruptedException e) {
+					// ignore
+				}
 		}
-		setOkEnablement(status.isOK());
-		updateStatus(status);
+		setOkEnablement(status[0].isOK());
+		updateStatus(status[0]);
+		return status[0];
+
 	}
 
 	protected void updateButtonsEnableState(IStatus status) {

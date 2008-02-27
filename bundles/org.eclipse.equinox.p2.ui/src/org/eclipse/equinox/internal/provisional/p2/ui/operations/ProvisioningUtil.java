@@ -61,6 +61,13 @@ public class ProvisioningUtil {
 		return repo;
 	}
 
+	public static IStatus validateMetadataRepositoryLocation(URL location, IProgressMonitor monitor) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		return manager.validateRepositoryLocation(location, monitor);
+	}
+
 	public static URL getRollbackRepositoryURL() throws ProvisionException {
 		IDirector director = getDirector();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
