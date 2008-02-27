@@ -628,13 +628,14 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		try {
 			if (isFolderBased(newDescriptor)) {
 				outputFile.mkdirs();
-				if (!outputFile.exists())
+				if (!outputFile.isDirectory())
 					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, outputFile.toString())));
 				target = new ZippedFolderOutputStream(outputFile);
 			} else {
-				// file based0
+				// file based
 				File parent = outputFile.getParentFile();
-				if (!parent.exists() && !parent.mkdirs())
+				parent.mkdirs();
+				if (!parent.isDirectory())
 					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, parent.toString()))); //$NON-NLS-1$
 				target = new FileOutputStream(file);
 			}
