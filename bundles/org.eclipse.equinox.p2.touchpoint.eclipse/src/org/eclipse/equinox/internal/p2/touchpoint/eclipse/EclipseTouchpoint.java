@@ -42,6 +42,8 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String ACTION_UNINSTALL_FEATURE = "uninstallFeature"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_SOURCEBUNDLE = "removeSourceBundle"; //$NON-NLS-1$
 	private static final String ACTION_SET_LAUNCHERNAME = "setLauncherName"; //$NON-NLS-1$
+	private static final String ACTION_MKDIR = "mkdir"; //$NON-NLS-1$
+	private static final String ACTION_RMDIR = "rmdir"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
 	private static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	private static final String PARM_BUNDLE = "bundle"; //$NON-NLS-1$
@@ -66,7 +68,8 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String PARM_START_LEVEL = "startLevel"; //$NON-NLS-1$
 	private static final String PARM_STARTED = "started"; //$NON-NLS-1$
 	private static final String PARM_DEFAULT_VALUE = "default"; //$NON-NLS-1$
-	private static final String PARAM_LAUNCHERNAME = "name"; //$NON-NLS-1$
+	private static final String PARM_LAUNCHERNAME = "name"; //$NON-NLS-1$
+	private static final String PARM_PATH = "path"; //$NON-NLS-1$
 
 	// TODO: phase id constants should be defined elsewhere.
 	private static final String INSTALL_PHASE_ID = "install"; //$NON-NLS-1$
@@ -284,7 +287,7 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					Profile profile = (Profile) parameters.get(PARM_PROFILE);
-					return changeName((String) parameters.get(PARAM_LAUNCHERNAME), manipulator, profile);
+					return changeName((String) parameters.get(PARM_LAUNCHERNAME), manipulator, profile);
 				}
 
 				public IStatus undo(Map parameters) {
@@ -645,6 +648,46 @@ public class EclipseTouchpoint extends Touchpoint {
 					if (jvmArg == null)
 						return createError("The \"jvmArg\" parameter was not set in the \"remove jvm args\" action.");
 					manipulator.getLauncherData().addJvmArg(jvmArg);
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
+		if (actionId.equals(ACTION_MKDIR)) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					String path = (String) parameters.get(PARM_PATH);
+					if (path == null)
+						return createError("The \"path\" parameter was not set in the \"mkdir\" action.");
+					new File(path).mkdir();
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					String path = (String) parameters.get(PARM_PATH);
+					if (path == null)
+						return createError("The \"path\" parameter was not set in the \"mkdir\" action.");
+					new File(path).delete();
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
+		if (actionId.equals(ACTION_RMDIR)) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					String path = (String) parameters.get(PARM_PATH);
+					if (path == null)
+						return createError("The \"path\" parameter was not set in the \"rmdir\" action.");
+					new File(path).delete();
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					String path = (String) parameters.get(PARM_PATH);
+					if (path == null)
+						return createError("The \"path\" parameter was not set in the \"rmdir\" action.");
+					new File(path).mkdir();
 					return Status.OK_STATUS;
 				}
 			};
