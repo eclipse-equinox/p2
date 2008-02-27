@@ -46,7 +46,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {f1, fa});
 
-		profile = createProfile("TestProfile." + getName());
+		profile = createProfile("UpdateTest." + getName());
 		director = createDirector();
 		planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
