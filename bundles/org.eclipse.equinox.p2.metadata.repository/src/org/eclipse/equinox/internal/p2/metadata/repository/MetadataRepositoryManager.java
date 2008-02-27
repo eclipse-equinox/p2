@@ -338,7 +338,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				if (factory != null)
 					return factory.load(location, monitor.newChild(10));
 			} catch (ProvisionException e) {
-				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+				int code = e.getStatus().getCode();
+				if (code != ProvisionException.REPOSITORY_NOT_FOUND && code != ProvisionException.REPOSITORY_INVALID_LOCATION)
 					log("Unable to load repository: " + location, e); //$NON-NLS-1$
 				//keep trying with other factories
 			}
