@@ -140,6 +140,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	private void fail(URL location, int code) throws ProvisionException {
+		throw new ProvisionException(failStatus(location, code));
+	}
+
+	private IStatus failStatus(URL location, int code) {
 		String msg = null;
 		switch (code) {
 			case ProvisionException.REPOSITORY_EXISTS :
@@ -160,7 +164,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 		if (msg == null)
 			msg = Messages.repoMan_internalError;
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, null));
+		return new Status(IStatus.ERROR, Activator.ID, code, msg, null);
 	}
 
 	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
@@ -283,8 +287,9 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			return result;
 		String[] suffixes = getAllSuffixes();
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPOMGR_ADDING_REPO, suffixes.length * 100);
+		MultiStatus notFoundStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
 		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i], sub.newChild(100));
+			result = loadRepository(location, suffixes[i], sub.newChild(100), notFoundStatus);
 			if (result != null) {
 				addRepository(result);
 				sub.done();
@@ -292,8 +297,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			}
 		}
 		sub.done();
-		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return null;//will never get here
+		throw new ProvisionException(notFoundStatus);
 	}
 
 	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor) {
@@ -328,7 +332,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	/**
 	 * Try to load a pre-existing repo at the given location
 	 */
-	private IMetadataRepository loadRepository(URL location, String suffix, SubMonitor monitor) {
+	private IMetadataRepository loadRepository(URL location, String suffix, SubMonitor monitor, MultiStatus failures) {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
@@ -338,9 +342,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 				if (factory != null)
 					return factory.load(location, monitor.newChild(10));
 			} catch (ProvisionException e) {
-				int code = e.getStatus().getCode();
-				if (code != ProvisionException.REPOSITORY_NOT_FOUND && code != ProvisionException.REPOSITORY_INVALID_LOCATION)
-					log("Unable to load repository: " + location, e); //$NON-NLS-1$
+				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+					failures.add(e.getStatus());
 				//keep trying with other factories
 			}
 		}
