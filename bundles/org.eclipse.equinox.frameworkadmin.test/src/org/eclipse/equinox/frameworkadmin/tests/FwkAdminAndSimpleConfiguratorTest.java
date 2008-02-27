@@ -97,7 +97,7 @@ public abstract class FwkAdminAndSimpleConfiguratorTest extends AbstractFwkAdmin
 	}
 
 	public File getBundleTxt() {
-		return new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.txt");
+		return new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info");
 	}
 
 	public File getConfigIni() {

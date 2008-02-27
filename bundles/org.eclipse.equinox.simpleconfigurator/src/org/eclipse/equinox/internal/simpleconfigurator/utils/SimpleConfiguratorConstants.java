@@ -37,7 +37,7 @@ public class SimpleConfiguratorConstants {
 	 */
 	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 
-	public static final String CONFIG_LIST = "bundles.txt"; //$NON-NLS-1$
+	public static final String CONFIG_LIST = "bundles.info"; //$NON-NLS-1$
 	public static final String CONFIGURATOR_FOLDER = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 
 	public static final String TARGET_CONFIGURATOR_NAME = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$

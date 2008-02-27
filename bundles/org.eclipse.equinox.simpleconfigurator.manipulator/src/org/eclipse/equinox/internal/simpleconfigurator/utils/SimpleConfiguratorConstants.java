@@ -20,7 +20,7 @@ public class SimpleConfiguratorConstants {
 	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation";
 
 	public static final String LAST_CONFIG_STAMP = "last.config.stamps"; //$NON-NLS-1$
-	public static final String CONFIG_LIST = "bundles.txt"; //$NON-NLS-1$
+	public static final String CONFIG_LIST = "bundles.info"; //$NON-NLS-1$
 	public static final String CONFIGURATOR_FOLDER = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	public static final String CONFIG_INI = "config.ini"; //$NON-NLS-1$
 	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl";

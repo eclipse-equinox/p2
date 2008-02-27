@@ -18,7 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.simpleconfigurator.manipulator.SimpleConfiguratorManipulatorImpl;
 import org.osgi.framework.Version;
 
-//This class deals with source bundles and how their addition to the source.bundles.txt
+//This class deals with source bundles and how their addition to the sourcerce.info
 public class SourceManipulator {
 	private List sourceBundles;
 	private IProfile profile;
@@ -62,7 +62,7 @@ public class SourceManipulator {
 	}
 
 	private File getFileLocation() {
-		return new File(Util.getConfigurationFolder(profile), "org.eclipse.equinox.source/source.bundles.txt"); //$NON-NLS-1$
+		return new File(Util.getConfigurationFolder(profile), "org.eclipse.equinox.source/source.info"); //$NON-NLS-1$
 	}
 
 	private File getLauncherLocation() {

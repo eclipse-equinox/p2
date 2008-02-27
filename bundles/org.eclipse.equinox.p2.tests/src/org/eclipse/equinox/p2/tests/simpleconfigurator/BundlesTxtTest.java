@@ -45,7 +45,7 @@ public class BundlesTxtTest extends AbstractProvisioningTest {
 
 		numBundles = bundleJars.length;
 
-		// Create a test bundles.txt
+		// Create a test bundles.info
 		createBundlesTxt();
 
 		// for demonstration purposes this is just using an install.area and configuration.area located

@@ -48,7 +48,7 @@ public class SimpleConfiguratorTest extends AbstractFwkAdminTest {
 
 		manipulator.save(false);
 
-		File bundleTXT = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.txt");
+		File bundleTXT = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info");
 		File configINI = new File(configurationFolder, "config.ini");
 		assertContent(bundleTXT, "org.eclipse.osgi");
 		assertContent(configINI, "org.eclipse.osgi");

@@ -37,7 +37,7 @@ public class Bug196525 extends AbstractFwkAdminTest {
 		installFolder = Activator.getContext().getDataFile(Bug196525.class.getName());
 		configurationFolder = new File(installFolder, "configuration");
 
-		bundleTXT = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.txt");
+		bundleTXT = new File(configurationFolder, "org.eclipse.equinox.simpleconfigurator/bundles.info");
 		configINI = new File(configurationFolder, "config.ini");
 
 		LauncherData launcherData = manipulator.getLauncherData();

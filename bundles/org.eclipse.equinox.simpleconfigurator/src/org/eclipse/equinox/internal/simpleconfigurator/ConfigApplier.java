@@ -19,7 +19,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
-	private static final String LAST_BUNDLES_TXT = "last.bundles.txt";
+	private static final String LAST_BUNDLES_TXT = "last.bundles.info";
 
 	private BundleContext manipulatingContext;
 	private PackageAdmin adminService = null;

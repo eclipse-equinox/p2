@@ -69,6 +69,6 @@ public class RemovingAllBundles extends AbstractFwkAdminTest {
 		}
 		m2.save(false);
 
-		assertEquals(new File(configurationFolder + "/org.eclipse.equinox.simpleconfigurator", "bundles.txt").exists(), false);
+		assertEquals(new File(configurationFolder + "/org.eclipse.equinox.simpleconfigurator", "bundles.info").exists(), false);
 	}
 }

@@ -91,7 +91,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	/*
-	 * This is where we reconcile the platform.xml and bundles.txt.
+	 * This is where we reconcile the platform.xml and bundles.info.
 	 */
 	private void process() throws ProvisionException {
 		lastModified = root.lastModified();

@@ -71,7 +71,7 @@ public class CleanupTest extends FwkAdminAndSimpleConfiguratorTest {
 		}
 		assertIsDirectory(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator"));
 		assertIsDirectory(getConfigurationFolder());
-		assertNotContent(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator/bundles.txt"), "org.eclipse.osgi");
+		assertNotContent(new File(getConfigurationFolder(), "org.eclipse.equinox.simpleconfigurator/bundles.info"), "org.eclipse.osgi");
 
 		bis = m.getConfigData().getBundles();
 		for (int i = 0; i < bis.length; i++) {
