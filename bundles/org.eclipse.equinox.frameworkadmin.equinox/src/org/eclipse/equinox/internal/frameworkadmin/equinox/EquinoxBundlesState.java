@@ -489,7 +489,11 @@ public class EquinoxBundlesState implements BundlesState {
 		ImportPackageSpecification[] imports = bundle.getImportPackages();
 		for (int i = 0; i < imports.length; i++) {
 			BaseDescription supplier = imports[i].getSupplier();
-			set.add(supplier.getSupplier());
+			if (supplier == null) {
+				if (!imports[i].getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL))
+					throw new IllegalStateException("Internal error: import supplier should not be null");
+			} else
+				set.add(supplier.getSupplier());
 			// System.out.println(supplier.getSupplier());
 		}
 		BundleDescription[] requires = bundle.getResolvedRequires();
