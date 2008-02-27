@@ -154,6 +154,9 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			case ProvisionException.REPOSITORY_NOT_FOUND :
 				msg = NLS.bind(Messages.repoMan_notExists, location);
 				break;
+			case ProvisionException.REPOSITORY_INVALID_LOCATION :
+				msg = NLS.bind(Messages.repoMan_invalidLocation, location);
+				break;
 		}
 		if (msg == null)
 			msg = Messages.repoMan_internalError;
@@ -291,6 +294,35 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		sub.done();
 		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		return null;//will never get here
+	}
+
+	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor) {
+		Assert.isNotNull(location);
+		IMetadataRepository result = getRepository(location);
+		if (result != null)
+			return Status.OK_STATUS;
+		String[] suffixes = getAllSuffixes();
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPO_LOADING, suffixes.length * 100);
+		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
+		for (int i = 0; i < suffixes.length; i++) {
+			SubMonitor loopMonitor = sub.newChild(100);
+			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i]);
+			// Loop over the candidates and return the first one that successfully loads
+			monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
+			for (int j = 0; j < providers.length; j++) {
+				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[j], FACTORY);
+				if (factory != null) {
+					status = factory.validate(location, loopMonitor.newChild(10));
+					if (status.isOK()) {
+						sub.done();
+						return status;
+					}
+				}
+			}
+
+		}
+		sub.done();
+		return status;
 	}
 
 	/**

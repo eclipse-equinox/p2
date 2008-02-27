@@ -35,5 +35,6 @@ public class Messages extends NLS {
 	public static String repoMan_internalError;
 	public static String repoMan_notExists;
 	public static String repoMan_unknownType;
+	public static String repoMan_invalidLocation;
 
 }

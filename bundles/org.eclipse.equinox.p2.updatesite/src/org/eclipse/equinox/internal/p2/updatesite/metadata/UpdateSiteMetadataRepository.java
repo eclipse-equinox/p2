@@ -14,11 +14,12 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.zip.*;
-import org.eclipse.core.runtime.IProgressMonitor;
+import java.util.zip.Checksum;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
+import org.eclipse.equinox.internal.p2.updatesite.Messages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -30,6 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.osgi.service.resolver.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.xml.sax.SAXException;
@@ -37,32 +39,25 @@ import org.xml.sax.SAXException;
 public class UpdateSiteMetadataRepository extends AbstractRepository implements IMetadataRepository {
 
 	private final IMetadataRepository metadataRepository;
+	private static final String FEATURE_VERSION_SEPARATOR = "_"; //$NON-NLS-1$
+	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
+	private static final String FEATURE_DIR = "features/"; //$NON-NLS-1$
+	private static final String FEATURE_TEMP_FILE = "feature"; //$NON-NLS-1$
+	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 
-	public UpdateSiteMetadataRepository(URL location) throws ProvisionException {
+	public UpdateSiteMetadataRepository(URL location, URL localRepositoryURL, InputStream is, Checksum checksum) throws ProvisionException {
 		super("update site: " + location.toExternalForm(), null, null, location, null, null);
 		BundleContext context = Activator.getBundleContext();
 
-		URL localRepositoryURL = null;
-		try {
-			String stateDirName = Integer.toString(location.toExternalForm().hashCode());
-			File bundleData = context.getDataFile(null);
-			File stateDir = new File(bundleData, stateDirName);
-			localRepositoryURL = stateDir.toURL();
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
 
 		try {
 			DefaultSiteParser siteParser = new DefaultSiteParser();
 			long start = System.currentTimeMillis();
-			Checksum checksum = new CRC32();
-			InputStream is = new CheckedInputStream(new BufferedInputStream(location.openStream()), checksum);
 			SiteModel siteModel = siteParser.parse(is);
-			System.out.println("Time Fetching Metadata Site " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
+			System.out.println("Time Fetching Metadata Site " + location + " was: " + (System.currentTimeMillis() - start) + " ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-			String savedChecksum = (String) metadataRepository.getProperties().get("site.checksum");
+			String savedChecksum = (String) metadataRepository.getProperties().get(PROP_SITE_CHECKSUM);
 			String checksumString = Long.toString(checksum.getValue());
 			if (savedChecksum != null && savedChecksum.equals(checksumString))
 				return;
@@ -79,7 +74,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			Map featureKeyToCategoryNames = new HashMap();
 			for (int i = 0; i < siteFeatures.length; i++) {
 				SiteFeature siteFeature = siteFeatures[i];
-				String featureKey = siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion();
+				String featureKey = siteFeature.getFeatureIdentifier() + FEATURE_VERSION_SEPARATOR + siteFeature.getFeatureVersion();
 				featureKeyToCategoryNames.put(featureKey, siteFeature.getCategoryNames());
 			}
 
@@ -114,7 +109,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 				IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, false);
 				IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
 
-				String featureKey = feature.getId() + "_" + feature.getVersion();
+				String featureKey = feature.getId() + FEATURE_VERSION_SEPARATOR + feature.getVersion();
 				String[] categoryNames = (String[]) featureKeyToCategoryNames.get(featureKey);
 				if (categoryNames != null) {
 					for (int j = 0; j < categoryNames.length; j++) {
@@ -137,15 +132,15 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 			IInstallableUnit[] ius = (IInstallableUnit[]) allSiteIUs.toArray(new IInstallableUnit[allSiteIUs.size()]);
 			metadataRepository.addInstallableUnits(ius);
-			metadataRepository.setProperty("site.checksum", checksumString);
-			System.out.println("Time Fetching Metadata Site and Features for " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
+			metadataRepository.setProperty(PROP_SITE_CHECKSUM, checksumString);
+			System.out.println("Time Fetching Metadata Site and Features for " + location + " was: " + (System.currentTimeMillis() - start) + " ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_ErrorParsingUpdateSite, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+		} catch (IOException e) {
+			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_ErrorReadingUpdateSite, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		}
 	}
 
@@ -173,7 +168,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		Map featuresMap = new HashMap();
 		for (int i = 0; i < siteFeatures.length; i++) {
 			SiteFeature siteFeature = siteFeatures[i];
-			String key = siteFeature.getFeatureIdentifier() + "_" + siteFeature.getFeatureVersion();
+			String key = siteFeature.getFeatureIdentifier() + FEATURE_VERSION_SEPARATOR + siteFeature.getFeatureVersion();
 			if (featuresMap.containsKey(key))
 				continue;
 
@@ -200,12 +195,12 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			if (entry.isRequires() || entry.isPlugin())
 				continue;
 
-			String key = entry.getId() + "_" + entry.getVersion();
+			String key = entry.getId() + FEATURE_VERSION_SEPARATOR + entry.getVersion();
 			if (featuresMap.containsKey(key))
 				continue;
 
 			try {
-				URL featureURL = new URL(location, "features/" + entry.getId() + "_" + entry.getVersion() + ".jar");
+				URL featureURL = new URL(location, FEATURE_DIR + entry.getId() + FEATURE_VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
 				Feature includedFeature = parseFeature(featureParser, featureURL);
 				featuresMap.put(key, includedFeature);
 				loadIncludedFeatures(includedFeature, featureParser, featuresMap);
@@ -221,7 +216,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 	private Feature parseFeature(FeatureParser featureParser, URL featureURL) throws IOException, FileNotFoundException {
 
-		File featureFile = File.createTempFile("feature", ".jar");
+		File featureFile = File.createTempFile(FEATURE_TEMP_FILE, JAR_EXTENSION);
 		try {
 			FileUtils.copyStream(featureURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(featureFile)), true);
 			Feature feature = featureParser.parse(featureFile);
@@ -245,10 +240,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
 		if (reference == null)
-			throw new IllegalStateException("PlatformAdmin not registered.");
+			throw new IllegalStateException(Messages.UpdateSiteMetadataRepository_PlatformAdminNotRegistered);
 		PlatformAdmin platformAdmin = (PlatformAdmin) context.getService(reference);
 		if (platformAdmin == null)
-			throw new IllegalStateException("PlatformAdmin not registered.");
+			throw new IllegalStateException(Messages.UpdateSiteMetadataRepository_PlatformAdminNotRegistered);
 
 		try {
 			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.repository;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
@@ -110,6 +111,31 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * </ul>
 	 */
 	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Validates a given URL and returns a status indicating whether a valid repository is likely
+	 * to be found at the given URL.  Callers must assume that the validity of a 
+	 * repository location cannot be completely determined until an attempt to load 
+	 * the repository is made.  Implementors should make all attempts to validate
+	 * the URL without actually loading the repository.  The computation for this 
+	 * method must be signficantly faster than that of loading the repository.
+	 * Early detectable error conditions, such as the inexistence of the location,
+	 * or an inability to read the location, should be determined in this method.
+	 * 
+	 * @param location The location of the repository to validate
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return A status indicating whether a valid repository is likely located at the
+	 * location.  A status with severity <code>OK</code> indicates that the repository is
+	 * likely to be loadable, or that as much validation as could be done was done.
+	 * Reasons for a non-OK status include:
+	 * <ul>
+	 * <li>The specified location is not a valid repository location.</li>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 */
+	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor);
 
 	/**
 	 * Removes the metadata repository at the given location from the list of

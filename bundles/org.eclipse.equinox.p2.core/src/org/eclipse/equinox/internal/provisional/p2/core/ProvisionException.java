@@ -66,6 +66,11 @@ public class ProvisionException extends CoreException {
 	 * made to create or access a repository of unknown type.
 	 */
 	public static final int REPOSITORY_UNKNOWN_TYPE = 1005;
+	/** 
+	 * Status code constant (value 1006) indicating that a specified
+	 * repository location is not valid.
+	 */
+	public static final int REPOSITORY_INVALID_LOCATION = 1006;
 
 	//Metadata repository codes [1100-1199]
 
