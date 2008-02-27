@@ -467,26 +467,30 @@ public class Generator {
 			}
 		}
 
-		if (info.addDefaultIUs()) {
-			for (Iterator iterator = info.getDefaultIUs(result.rootIUs).iterator(); iterator.hasNext();) {
-				GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
-				IInstallableUnit configuredIU = result.getInstallableUnit(bundle.getSymbolicName());
-				if (configuredIU == null)
-					continue;
-				bundle.setVersion(configuredIU.getVersion().toString());
-				String filter = configuredIU == null ? null : configuredIU.getFilter();
-				IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
-				//the configuration unit should share the same platform filter as the IU being configured.
-				if (cu != null)
-					result.rootIUs.add(cu);
-				if (bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.')) {
-					if (result.configurationIUs.containsKey(ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
-						((Set) result.configurationIUs.get(ORG_ECLIPSE_EQUINOX_LAUNCHER)).add(cu);
-					} else {
-						Set set = new HashSet();
-						set.add(cu);
-						result.configurationIUs.put(ORG_ECLIPSE_EQUINOX_LAUNCHER, set);
-					}
+		List bundleInfoList = new ArrayList();
+		if (info.addDefaultIUs())
+			bundleInfoList.addAll(info.getDefaultIUs(result.rootIUs));
+
+		bundleInfoList.addAll(info.getOtherIUs());
+
+		for (Iterator iterator = bundleInfoList.iterator(); iterator.hasNext();) {
+			GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
+			IInstallableUnit configuredIU = result.getInstallableUnit(bundle.getSymbolicName());
+			if (configuredIU == null)
+				continue;
+			bundle.setVersion(configuredIU.getVersion().toString());
+			String filter = configuredIU == null ? null : configuredIU.getFilter();
+			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
+			//the configuration unit should share the same platform filter as the IU being configured.
+			if (cu != null)
+				result.rootIUs.add(cu);
+			if (bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.')) {
+				if (result.configurationIUs.containsKey(ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
+					((Set) result.configurationIUs.get(ORG_ECLIPSE_EQUINOX_LAUNCHER)).add(cu);
+				} else {
+					Set set = new HashSet();
+					set.add(cu);
+					result.configurationIUs.put(ORG_ECLIPSE_EQUINOX_LAUNCHER, set);
 				}
 			}
 		}

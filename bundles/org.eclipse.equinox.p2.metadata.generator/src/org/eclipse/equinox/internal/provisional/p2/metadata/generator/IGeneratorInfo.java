@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -116,4 +115,7 @@ public interface IGeneratorInfo {
 
 	public void setRootId(String value);
 
+	// TODO: This is kind of ugly. It's purpose is to allow us to craft CUs that we know about and need for our build
+	// We should try to replace this with something more generic prior to release
+	public Collection getOtherIUs();
 }

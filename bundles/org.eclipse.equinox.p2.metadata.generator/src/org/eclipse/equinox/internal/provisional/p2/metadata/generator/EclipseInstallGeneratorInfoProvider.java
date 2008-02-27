@@ -75,6 +75,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private File[] bundleLocations;
 	private File configLocation;
 	private ArrayList defaultIUs;
+	private List otherIUs;
 	private File executableLocation;
 	private File featuresLocation;
 	private String flavor;
@@ -250,6 +251,16 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			//			defaultIUs.add(createDefaultUnconfigurationBundleInfo());
 		}
 		return defaultIUs;
+	}
+
+	// TODO: This is kind of ugly. It's purpose is to allow us to craft CUs that we know about and need for our build
+	// We should try to replace this with something more generic prior to release
+	public Collection getOtherIUs() {
+		if (otherIUs != null)
+			return otherIUs;
+		otherIUs = new ArrayList();
+		otherIUs.add(createDropinsReconcilerBundleInfo());
+		return otherIUs;
 	}
 
 	public File getExecutableLocation() {

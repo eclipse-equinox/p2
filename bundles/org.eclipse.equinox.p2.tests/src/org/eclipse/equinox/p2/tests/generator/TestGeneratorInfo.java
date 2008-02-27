@@ -12,8 +12,7 @@ package org.eclipse.equinox.p2.tests.generator;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -173,6 +172,10 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 	public String getProductFile() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public Collection getOtherIUs() {
+		return Collections.EMPTY_LIST;
 	}
 
 }
