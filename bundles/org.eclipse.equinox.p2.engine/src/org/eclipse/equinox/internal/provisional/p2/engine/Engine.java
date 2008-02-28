@@ -60,13 +60,13 @@ public class Engine implements IEngine {
 			} else if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
 				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
 				session.rollback();
-				profile.setChanged(false);
 			}
 			//if there is only one child status, return that status instead because it will have more context
 			IStatus[] children = result.getChildren();
 			return children.length == 1 ? children[0] : result;
 		} finally {
 			profileRegistry.unlockProfile(profile);
+			profile.setChanged(false);
 		}
 	}
 }

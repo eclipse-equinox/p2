@@ -334,6 +334,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		File profileFile = new File(profileDirectory, Long.toString(currentTimestamp) + PROFILE_EXT);
 
 		profile.setTimestamp(currentTimestamp);
+		profile.setChanged(false);
 		OutputStream os = null;
 		try {
 			os = new BufferedOutputStream(new FileOutputStream(profileFile));
@@ -469,6 +470,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 					}
 				}
 			}
+			profile.setChanged(false);
 			profileMap.put(profileId, profile);
 		}
 
@@ -499,12 +501,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	}
 
-	public synchronized void lockProfile(IProfile profile) {
+	public synchronized void lockProfile(Profile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
 		if (internalProfile == null)
 			throw new IllegalArgumentException("Profile not registered."); //$NON-NLS-1$
 
-		if (!checkTimestamps(profile, internalProfile))
+		if (profile.isChanged() || !checkTimestamps(profile, internalProfile))
 			throw new IllegalArgumentException("Profile not current."); //$NON-NLS-1$
 
 		internalLockProfile(internalProfile);

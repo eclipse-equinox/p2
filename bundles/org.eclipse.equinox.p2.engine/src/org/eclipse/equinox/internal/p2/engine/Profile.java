@@ -294,6 +294,7 @@ public class Profile implements IQueryable, IProfile {
 			if (properties != null)
 				snapshot.addInstallableUnitProperties(iu, properties);
 		}
+		snapshot.setChanged(false);
 		return snapshot;
 	}
 
