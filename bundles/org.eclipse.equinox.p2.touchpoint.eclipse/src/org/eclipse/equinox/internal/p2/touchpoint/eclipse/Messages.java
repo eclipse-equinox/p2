@@ -21,5 +21,6 @@ public class Messages extends NLS {
 	}
 
 	public static String error_loading_manipulator;
+	public static String BundlePool;
 
 }

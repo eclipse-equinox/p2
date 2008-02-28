@@ -74,7 +74,7 @@ public class Util {
 			//the repository doesn't exist, so fall through and create a new one
 		}
 		try {
-			String repositoryName = location + " - bundle pool"; //$NON-NLS-1$
+			String repositoryName = location + Messages.BundlePool;
 			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
 			bundlePool.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
 			return (IFileArtifactRepository) bundlePool;
@@ -161,7 +161,7 @@ public class Util {
 			name = "eclipse"; //$NON-NLS-1$
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
-			return name + ".app/Contents/MacOS/" + name.toLowerCase();
+			return name + ".app/Contents/MacOS/" + name.toLowerCase(); //$NON-NLS-1$
 		}
 		return name;
 	}
