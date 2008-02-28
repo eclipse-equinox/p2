@@ -346,6 +346,7 @@ public class MetadataGeneratorHelper {
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, false, true)};
 		cu.setHost(reqs);
 
+		cu.setFilter(INSTALL_FEATURES_FILTER);
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
 		touchpointData.put("uninstall", "uninstallFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$

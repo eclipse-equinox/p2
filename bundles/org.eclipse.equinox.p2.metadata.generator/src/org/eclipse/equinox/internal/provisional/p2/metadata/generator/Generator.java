@@ -136,14 +136,6 @@ public class Generator {
 		this.incrementalResult = result;
 	}
 
-	private boolean checkOptionalRootDependency(IInstallableUnit iu) {
-		// TODO: This is a kludge to make the default configuration unit
-		//		 for features be optional in the root. Since there is a global
-		//		 filter to prevent features from being installed, the fragment
-		//		 needs to be optional.
-		return (iu.getId().indexOf(".feature.default") > 0 ? true : false); //$NON-NLS-1$
-	}
-
 	protected IInstallableUnit createProductIU(GeneratorResult result) {
 		generateProductConfigCUs(result);
 
@@ -190,8 +182,8 @@ public class Generator {
 		for (Iterator iterator = result.rootIUs.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			boolean isOptional = checkOptionalRootDependency(iu);
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), isOptional, false));
+			//			boolean isOptional = checkOptionalRootDependency(iu);
+			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
 		}
 		if (requires != null)
 			reqsConfigurationUnits.addAll(requires);
