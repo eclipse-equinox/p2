@@ -10,20 +10,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 
 /**
- * ProvSDKUI provides API for accessing the configurable p2 UI components 
- * specified when creating UI classes.
+ * ProvPolicies defines the configurable aspects of the SDK UI.
  */
-public class ProvSDKUI {
+public class ProvPolicies extends Policies {
+	private static ProvPolicies defaultInstance;
 
-	public static IQueryProvider getQueryProvider() {
+	public static ProvPolicies getDefault() {
+		if (defaultInstance == null)
+			defaultInstance = new ProvPolicies();
+		return defaultInstance;
+	}
+
+	public IQueryProvider getQueryProvider() {
 		return ProvSDKUIActivator.getDefault().getQueryProvider();
 	}
 
-	public static LicenseManager getLicenseManager() {
+	public LicenseManager getLicenseManager() {
 		return ProvSDKUIActivator.getDefault().getLicenseManager();
+	}
+
+	public IPlanValidator getPlanValidator() {
+		return ProvSDKUIActivator.getDefault().getPlanValidator();
 	}
 }

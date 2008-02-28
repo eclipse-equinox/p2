@@ -18,16 +18,15 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
 public class RevertAction extends ProfileModificationAction {
 
-	public RevertAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, Shell shell) {
-		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profileId, chooser, planValidator, null, shell);
+	public RevertAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
+		super(ProvUI.REVERT_COMMAND_LABEL, selectionProvider, profileId, chooser, policies, shell);
 		setToolTipText(ProvUI.REVERT_COMMAND_TOOLTIP);
 	}
 

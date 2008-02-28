@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.ui.actions.ProvisioningAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -32,15 +33,13 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	String profileId;
 	IProfileChooser profileChooser;
-	LicenseManager licenseManager;
-	IPlanValidator planValidator;
+	Policies policies;
 
-	protected ProfileModificationAction(String text, ISelectionProvider selectionProvider, String profileId, IProfileChooser profileChooser, IPlanValidator planValidator, LicenseManager licenseManager, Shell shell) {
+	protected ProfileModificationAction(String text, ISelectionProvider selectionProvider, String profileId, IProfileChooser profileChooser, Policies policies, Shell shell) {
 		super(text, selectionProvider, shell);
 		this.profileId = profileId;
 		this.profileChooser = profileChooser;
-		this.licenseManager = licenseManager;
-		this.planValidator = planValidator;
+		this.policies = policies;
 	}
 
 	protected ProvisioningPlan getProvisioningPlan() {
@@ -90,8 +89,8 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 */
 	protected boolean validatePlan(ProvisioningPlan plan) {
 		if (plan != null) {
-			if (planValidator != null)
-				return planValidator.continueWorkingWithPlan(plan, getShell());
+			if (getPlanValidator() != null)
+				return getPlanValidator().continueWorkingWithPlan(plan, getShell());
 			if (plan.getStatus().isOK())
 				return true;
 			ProvUI.reportStatus(plan.getStatus(), StatusManager.BLOCK | StatusManager.LOG);
@@ -128,7 +127,19 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected LicenseManager getLicenseManager() {
-		return licenseManager;
+		return policies.getLicenseManager();
+	}
+
+	protected IQueryProvider getQueryProvider() {
+		return policies.getQueryProvider();
+	}
+
+	protected IPlanValidator getPlanValidator() {
+		return policies.getPlanValidator();
+	}
+
+	protected Policies getPolicies() {
+		return policies;
 	}
 
 }

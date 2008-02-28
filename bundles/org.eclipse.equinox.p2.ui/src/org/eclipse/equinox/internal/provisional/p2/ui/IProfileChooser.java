@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.ui.policy;
+package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import org.eclipse.swt.widgets.Shell;
 

@@ -18,10 +18,11 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -29,8 +30,8 @@ import org.eclipse.swt.widgets.Shell;
 
 public class InstallAction extends ProfileModificationAction {
 
-	public InstallAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, LicenseManager licenseManager, Shell shell) {
-		super(ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, profileId, chooser, planValidator, licenseManager, shell);
+	public InstallAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
+		super(ProvUI.INSTALL_COMMAND_LABEL, selectionProvider, profileId, chooser, policies, shell);
 		setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
 	}
 

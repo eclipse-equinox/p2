@@ -36,6 +36,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	private IQueryProvider queryProvider;
 	private LicenseManager licenseManager;
 	private IPlanValidator planValidator;
+	private Policies policies;
 
 	public static BundleContext getContext() {
 		return context;
@@ -118,5 +119,24 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 				}
 			};
 		return planValidator;
+	}
+
+	public Policies getPolicies() {
+		if (policies == null) {
+			policies = new Policies() {
+				public LicenseManager getLicenseManager() {
+					return ProvAdminUIActivator.this.getLicenseManager();
+				}
+
+				public IPlanValidator getPlanValidator() {
+					return ProvAdminUIActivator.this.getPlanValidator();
+				}
+
+				public IQueryProvider getQueryProvider() {
+					return ProvAdminUIActivator.this.getQueryProvider();
+				}
+			};
+		}
+		return policies;
 	}
 }

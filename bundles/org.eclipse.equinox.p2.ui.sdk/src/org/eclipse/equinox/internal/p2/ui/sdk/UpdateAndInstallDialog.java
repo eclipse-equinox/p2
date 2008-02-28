@@ -11,10 +11,10 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
+import org.eclipse.equinox.internal.provisional.p2.ui.IRepositoryManipulator;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RevertWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateAndInstallGroup;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IRepositoryManipulator;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -75,7 +75,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		group = new UpdateAndInstallGroup(comp, profileId, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), getProfileChooser(), ProvSDKUIActivator.getDefault().getQueryProvider(), ProvSDKUIActivator.getDefault().getPlanValidator(), ProvSDKUIActivator.getDefault().getLicenseManager(), fontMetrics);
+		group = new UpdateAndInstallGroup(comp, profileId, ProvSDKMessages.UpdateAndInstallDialog_InstalledFeatures, ProvSDKMessages.UpdateAndInstallDialog_AvailableFeatures, getRepositoryManipulator(), getProfileChooser(), ProvPolicies.getDefault(), fontMetrics);
 		final Button checkBox = new Button(comp, SWT.CHECK);
 		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
 		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);

@@ -21,12 +21,12 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -36,13 +36,11 @@ import org.eclipse.swt.widgets.Shell;
 
 public class UpdateAction extends ProfileModificationAction {
 
-	IQueryProvider queryProvider;
 	ArrayList allReplacements; // cache all the replacements found to seed the wizard
 	HashMap latestReplacements;
 
-	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
-		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, planValidator, licenseManager, shell);
-		this.queryProvider = queryProvider;
+	public UpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
+		super(ProvUI.UPDATE_COMMAND_LABEL, selectionProvider, profileId, chooser, policies, shell);
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
@@ -65,7 +63,7 @@ public class UpdateAction extends ProfileModificationAction {
 		allReplacements = new ArrayList();
 		for (int i = 0; i < ius.length; i++) {
 			UpdateEvent event = new UpdateEvent(targetProfileId, new IInstallableUnit[] {ius[i]});
-			ElementQueryDescriptor descriptor = queryProvider.getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
+			ElementQueryDescriptor descriptor = getQueryProvider().getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
 			Iterator iter = descriptor.queryable.query(descriptor.query, descriptor.collector, null).iterator();
 			if (iter.hasNext())
 				toBeUpdated.add(ius[i]);

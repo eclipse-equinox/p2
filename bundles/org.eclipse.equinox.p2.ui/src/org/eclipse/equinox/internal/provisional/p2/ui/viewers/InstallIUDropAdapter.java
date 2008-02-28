@@ -11,17 +11,15 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IPlanValidator;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.util.LocalSelectionTransfer;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.dnd.*;
@@ -37,8 +35,7 @@ import org.eclipse.swt.widgets.Shell;
 public class InstallIUDropAdapter extends ViewerDropAdapter {
 
 	static boolean DEBUG = false;
-	LicenseManager licenseManager;
-	IPlanValidator planValidator;
+	Policies policies;
 
 	/**
 	 * Constructs a new drop adapter.
@@ -46,10 +43,10 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 	 * @param viewer
 	 *            the navigator's viewer
 	 */
-	public InstallIUDropAdapter(StructuredViewer viewer, IPlanValidator planValidator, LicenseManager licenseManager) {
+	public InstallIUDropAdapter(StructuredViewer viewer, Policies policies) {
 		super(viewer);
-		this.licenseManager = licenseManager;
-		this.planValidator = planValidator;
+		Assert.isNotNull(policies);
+		this.policies = policies;
 	}
 
 	/**
@@ -149,7 +146,7 @@ public class InstallIUDropAdapter extends ViewerDropAdapter {
 					throw new UnsupportedOperationException("This ISelectionProvider is static, and cannot be modified."); //$NON-NLS-1$
 				}
 			};
-			InstallAction action = new InstallAction(selectionProvider, profileId, null, planValidator, licenseManager, getShell());
+			InstallAction action = new InstallAction(selectionProvider, profileId, null, policies, getShell());
 			if (DEBUG)
 				System.out.println("Running install action"); //$NON-NLS-1$
 			action.run();

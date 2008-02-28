@@ -49,7 +49,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 		FontMetrics fontMetrics = gc.getFontMetrics();
 		gc.dispose();
 
-		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profileId, ProvAdminUIMessages.UpdateAndInstallDialog_InstalledIUsPageLabel, ProvAdminUIMessages.UpdateAndInstallDialog_AvailableIUsPageLabel, null, null, ProvAdminUIActivator.getDefault().getQueryProvider(), ProvAdminUIActivator.getDefault().getPlanValidator(), ProvAdminUIActivator.getDefault().getLicenseManager(), fontMetrics);
+		UpdateAndInstallGroup group = new UpdateAndInstallGroup(parent, profileId, ProvAdminUIMessages.UpdateAndInstallDialog_InstalledIUsPageLabel, ProvAdminUIMessages.UpdateAndInstallDialog_AvailableIUsPageLabel, null, null, ProvAdminUIActivator.getDefault().getPolicies(), fontMetrics);
 		Dialog.applyDialogFont(group.getTabFolder());
 		return group.getTabFolder();
 	}

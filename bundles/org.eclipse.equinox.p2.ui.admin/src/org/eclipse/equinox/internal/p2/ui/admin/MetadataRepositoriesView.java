@@ -16,13 +16,13 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.RevertAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveMetadataRepositoryOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.policy.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
@@ -81,8 +81,8 @@ public class MetadataRepositoriesView extends RepositoriesView {
 
 	protected void makeActions() {
 		super.makeActions();
-		installAction = new InstallAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPlanValidator(), ProvAdminUIActivator.getDefault().getLicenseManager(), getShell());
-		revertAction = new RevertAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPlanValidator(), getShell());
+		installAction = new InstallAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPolicies(), getShell());
+		revertAction = new RevertAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPolicies(), getShell());
 	}
 
 	private IProfileChooser getProfileChooser() {

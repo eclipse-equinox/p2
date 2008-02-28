@@ -55,8 +55,8 @@ public class AutomaticUpdater implements IUpdateListener {
 	final class AutomaticUpdateAction extends UpdateAction {
 		ProvisioningPlan plan;
 
-		AutomaticUpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, IPlanValidator planValidator, LicenseManager licenseManager, IQueryProvider queryProvider, Shell shell) {
-			super(selectionProvider, profileId, chooser, planValidator, licenseManager, queryProvider, shell);
+		AutomaticUpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
+			super(selectionProvider, profileId, chooser, policies, shell);
 		}
 
 		public void initializePlan() {
@@ -277,7 +277,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	void createUpdateAction() {
 		if (updateAction == null)
-			updateAction = new AutomaticUpdateAction(getSelectionProvider(), profileId, null, getPlanValidator(), ProvSDKUIActivator.getDefault().getLicenseManager(), ProvSDKUIActivator.getDefault().getQueryProvider(), null);
+			updateAction = new AutomaticUpdateAction(getSelectionProvider(), profileId, null, ProvPolicies.getDefault(), null);
 	}
 
 	IPlanValidator getPlanValidator() {
