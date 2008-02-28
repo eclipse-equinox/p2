@@ -838,15 +838,23 @@ public class Generator {
 		if (bundleLocations == null)
 			return new BundleDescription[0];
 		boolean addSimpleConfigurator = false;
+		boolean scIn = false;
 		for (int i = 0; i < bundleLocations.length; i++) {
-			addSimpleConfigurator = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_UPDATE_CONFIGURATOR) > 0;
-			if (addSimpleConfigurator)
-				break;
+			if (!addSimpleConfigurator)
+				addSimpleConfigurator = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_UPDATE_CONFIGURATOR) > 0;
+			if (!scIn) {
+				scIn = bundleLocations[i].toString().indexOf(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR) > 0;
+				if (scIn)
+					break;
+			}
 		}
+		if (scIn)
+			addSimpleConfigurator = false;
 		BundleDescription[] result = new BundleDescription[bundleLocations.length + (addSimpleConfigurator ? 1 : 0)];
 		BundleDescriptionFactory factory = getBundleFactory();
-		for (int i = 0; i < bundleLocations.length; i++)
+		for (int i = 0; i < bundleLocations.length; i++) {
 			result[i] = factory.getBundleDescription(bundleLocations[i]);
+		}
 		if (addSimpleConfigurator) {
 			//Add simple configurator to the list of bundles
 			try {
