@@ -36,6 +36,7 @@ public class EclipseTouchpoint extends Touchpoint {
 	private static final String ACTION_MARK_STARTED = "markStarted"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_JVM_ARG = "removeJvmArg"; //$NON-NLS-1$
 	private static final String ACTION_REMOVE_PROGRAM_ARG = "removeProgramArg"; //$NON-NLS-1$
+	private static final String ACTION_SET_PROGRAM_PROP = "setProgramProperty"; //$NON-NLS-1$
 	private static final String ACTION_SET_FW_DEPENDENT_PROP = "setFwDependentProp"; //$NON-NLS-1$
 	private static final String ACTION_SET_FW_INDEPENDENT_PROP = "setFwIndependentProp"; //$NON-NLS-1$
 	private static final String ACTION_UNINSTALL_BUNDLE = "uninstallBundle"; //$NON-NLS-1$
@@ -604,6 +605,35 @@ public class EclipseTouchpoint extends Touchpoint {
 					if (previousValue == null)
 						return createError("The \"propValue\" parameter was not set in the \"set framework independent properties\" action.");
 					manipulator.getConfigData().setFwIndependentProp(propName, previousValue);
+					return Status.OK_STATUS;
+				}
+			};
+		}
+
+		if (actionId.equals(ACTION_SET_PROGRAM_PROP)) {
+			return new ProvisioningAction() {
+				public IStatus execute(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
+					String propName = (String) parameters.get(PARM_PROP_NAME);
+					if (propName == null)
+						return createError("The \"propName\" parameter was not set in the \"set program property\" action."); //$NON-NLS-1$
+					String propValue = (String) parameters.get(PARM_PROP_VALUE);
+					if (propValue == null)
+						return createError("The \"propValue\" parameter was not set in the \"set program property\" action."); //$NON-NLS-1$
+					getMemento().put(PARM_PREVIOUS_VALUE, manipulator.getConfigData().getFwDependentProp(propName));
+					manipulator.getConfigData().setFwDependentProp(propName, propValue);
+					return Status.OK_STATUS;
+				}
+
+				public IStatus undo(Map parameters) {
+					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
+					String propName = (String) parameters.get(PARM_PROP_NAME);
+					if (propName == null)
+						return createError("The \"propName\" parameter was not set in the \"set program property\" action."); //$NON-NLS-1$
+					String previousValue = (String) getMemento().get(PARM_PREVIOUS_VALUE);
+					if (previousValue == null)
+						return createError("The \"propValue\" parameter was not set in the \"set program property\" action."); //$NON-NLS-1$
+					manipulator.getConfigData().setFwDependentProp(propName, previousValue);
 					return Status.OK_STATUS;
 				}
 			};

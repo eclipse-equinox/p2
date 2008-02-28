@@ -238,16 +238,16 @@ public class Generator {
 			String key = ((String) aProperty.getKey());
 			if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				continue;
-			configurationData += "setFwDependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			unconfigurationData += "setFwDependentProp(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
+			configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
 			Entry aProperty = (Entry) iterator.next();
 			String key = ((String) aProperty.getKey());
 			if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				continue;
-			configurationData += "setFwIndependentProp(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			unconfigurationData += "setFwIndependentProp(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
+			configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		return new String[] {configurationData, unconfigurationData};
@@ -418,10 +418,10 @@ public class Generator {
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("addJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
-						"addJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("removeJvmArg(jvmArg:-Dorg.eclipse.update.reconcile=false);" + //$NON-NLS-1$
-						"removeJvmArg(jvmArg:-Dorg.eclipse.p2.update.compatibility=false);"); //$NON-NLS-1$
+				bundle.setSpecialConfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:false);" + //$NON-NLS-1$
+						"setProgramProperty(propName:org.eclipse.p2.update.compatibility, propValue:false);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:);" + //$NON-NLS-1$
+						"setProgramProperty(propName:org.eclipse.p2.update.compatibility, propValue:);"); //$NON-NLS-1$
 			} else if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
 				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
 				continue;
