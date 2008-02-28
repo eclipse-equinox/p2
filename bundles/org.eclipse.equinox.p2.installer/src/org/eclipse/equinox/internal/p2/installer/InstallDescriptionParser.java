@@ -27,6 +27,7 @@ public class InstallDescriptionParser {
 	private static final String PROP_BUNDLE_LOCATION = "eclipse.p2.bundleLocation";//$NON-NLS-1$
 	private static final String PROP_INSTALL_LOCATION = "eclipse.p2.installLocation";//$NON-NLS-1$
 	private static final String PROP_IS_AUTO_START = "eclipse.p2.autoStart";//$NON-NLS-1$
+	private static final String PROP_LAUNCHER_NAME = "eclipse.p2.launcherName";//$NON-NLS-1$
 	private static final String PROP_METADATA_REPOSITORY = "eclipse.p2.metadata";//$NON-NLS-1$
 	private static final String PROP_PROFILE_NAME = "eclipse.p2.profileName";//$NON-NLS-1$
 	private static final String PROP_ROOT_ID = "eclipse.p2.rootId";//$NON-NLS-1$
@@ -49,6 +50,7 @@ public class InstallDescriptionParser {
 			description.setArtifactRepository(new URL(properties.getProperty(PROP_ARTIFACT_REPOSITORY)));
 			description.setMetadataRepository(new URL(properties.getProperty(PROP_METADATA_REPOSITORY)));
 			description.setAutoStart(Boolean.TRUE.toString().equalsIgnoreCase(properties.getProperty(PROP_IS_AUTO_START)));
+			description.setLauncherName(properties.getProperty(PROP_LAUNCHER_NAME));
 			String locationString = properties.getProperty(PROP_INSTALL_LOCATION);
 			if (locationString != null)
 				description.setInstallLocation(new Path(locationString));
