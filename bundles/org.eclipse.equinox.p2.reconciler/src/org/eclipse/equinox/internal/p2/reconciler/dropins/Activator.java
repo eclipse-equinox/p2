@@ -90,7 +90,7 @@ public class Activator implements BundleActivator {
 	/*
 	 * Watch the platform.xml file.
 	 */
-	private void watchConfiguration() {
+	private void watchConfiguration() throws ProvisionException {
 		File configFile = new File("configuration/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
 		try {
@@ -102,6 +102,11 @@ public class Activator implements BundleActivator {
 		}
 		watchers.add(watcher);
 		watcher.start();
+
+		// pay attention to the links/ folder too. this is only needed on startup though since
+		// any other changes during execution will be reflected in the platform.xml file
+		LinksManager manager = new LinksManager();
+		manager.synchronize(configFile, new File("links"));
 	}
 
 	/*
