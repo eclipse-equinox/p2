@@ -37,12 +37,6 @@ import org.osgi.framework.*;
  */
 public class InstallUpdateProductOperation implements IInstallOperation {
 
-	/**
-	 * This constant comes from value of FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME.
-	 * This profile property is being used as a short term solution for branding of the launcher.
-	 */
-	private static final String PROP_LAUNCHER_NAME = "org.eclipse.equinox.frameworkhandler.launcher.name"; //$NON-NLS-1$
-
 	private IArtifactRepositoryManager artifactRepoMan;
 	private BundleContext bundleContext;
 	private IDirector director;
@@ -81,7 +75,6 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		if (profile == null) {
 			Map properties = new HashMap();
 			properties.put(IProfile.PROP_INSTALL_FOLDER, installDescription.getInstallLocation().toString());
-			properties.put(PROP_LAUNCHER_NAME, installDescription.getLauncherName());
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
