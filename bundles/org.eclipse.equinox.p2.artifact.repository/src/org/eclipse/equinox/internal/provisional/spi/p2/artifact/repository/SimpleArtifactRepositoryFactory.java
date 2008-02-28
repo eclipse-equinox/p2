@@ -26,37 +26,48 @@ import org.eclipse.osgi.util.NLS;
 public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 
 	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
+		final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 		long time = 0;
 		final String debugMsg = "Restoring artifact repository "; //$NON-NLS-1$
 		if (Tracing.DEBUG_METADATA_PARSING) {
 			Tracing.debug(debugMsg + location);
 			time = -System.currentTimeMillis();
 		}
-		File temp = null;
+		File localFile = null;
+		boolean local = false;
 		try {
 			SubMonitor sub = SubMonitor.convert(monitor, 300);
-			// TODO This temporary file stuff is not very elegant. 
 			OutputStream artifacts = null;
-			temp = File.createTempFile("artifacts", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
 			// try with compressed
 			boolean compress = true;
-			try {
-				artifacts = new BufferedOutputStream(new FileOutputStream(temp));
-				IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress).toExternalForm(), artifacts, sub.newChild(100));
-				if (!status.isOK()) {
-					// retry uncompressed
+			if (PROTOCOL_FILE.equals(location.getProtocol())) {
+				local = true;
+				localFile = new File(SimpleArtifactRepository.getActualLocation(location, true).getPath());
+				if (!localFile.exists()) {
+					localFile = new File(SimpleArtifactRepository.getActualLocation(location, false).getPath());
 					compress = false;
-					status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress).toExternalForm(), artifacts, sub.newChild(100));
-					if (!status.isOK())
-						throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), null));
 				}
-			} finally {
-				if (artifacts != null)
-					artifacts.close();
+			} else {
+				//download to local temp file
+				localFile = File.createTempFile("artifacts", ".xml"); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					artifacts = new BufferedOutputStream(new FileOutputStream(localFile));
+					IStatus status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress).toExternalForm(), artifacts, sub.newChild(100));
+					if (!status.isOK()) {
+						// retry uncompressed
+						compress = false;
+						status = getTransport().download(SimpleArtifactRepository.getActualLocation(location, compress).toExternalForm(), artifacts, sub.newChild(100));
+						if (!status.isOK())
+							throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, status.getMessage(), null));
+					}
+				} finally {
+					if (artifacts != null)
+						artifacts.close();
+				}
 			}
 			InputStream descriptorStream = null;
 			try {
-				descriptorStream = new BufferedInputStream(new FileInputStream(temp));
+				descriptorStream = new BufferedInputStream(new FileInputStream(localFile));
 				if (compress) {
 					URL actualFile = SimpleArtifactRepository.getActualLocation(location, false);
 					JarInputStream jInStream = new JarInputStream(descriptorStream);
@@ -71,7 +82,7 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 					descriptorStream = jInStream;
 				}
 				SimpleArtifactRepositoryIO io = new SimpleArtifactRepositoryIO();
-				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(temp.toURL(), descriptorStream, sub.newChild(100));
+				SimpleArtifactRepository result = (SimpleArtifactRepository) io.read(localFile.toURL(), descriptorStream, sub.newChild(100));
 				result.initializeAfterLoad(location);
 				if (Tracing.DEBUG_METADATA_PARSING) {
 					time += System.currentTimeMillis();
@@ -89,8 +100,8 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
-			if (temp != null && !temp.delete())
-				temp.deleteOnExit();
+			if (!local && localFile != null && !localFile.delete())
+				localFile.deleteOnExit();
 		}
 	}
 
