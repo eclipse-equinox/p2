@@ -30,7 +30,7 @@ import org.osgi.framework.Version;
 /**
  * Base class for provisioning tests with convenience methods used by multiple tests.
  */
-public class AbstractProvisioningTest extends TestCase {
+public abstract class AbstractProvisioningTest extends TestCase {
 
 	protected static final VersionRange ANY_VERSION = new VersionRange(Version.emptyVersion, true, new Version(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), true);
 	private static final ProvidedCapability[] BUNDLE_CAPABILITY = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("eclipse.touchpoint", "bundle", new Version(1, 0, 0))};
