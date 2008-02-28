@@ -393,6 +393,10 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded) {
+		return createFeatureJarIU(feature, isExploded, null);
+	}
+
+	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded, Properties extraProperties) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
@@ -431,6 +435,15 @@ public class MetadataGeneratorHelper {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
+
+		if (extraProperties != null) {
+			Enumeration e = extraProperties.propertyNames();
+			while (e.hasMoreElements()) {
+				String name = (String) e.nextElement();
+				iu.setProperty(name, extraProperties.getProperty(name));
+			}
+		}
+
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
