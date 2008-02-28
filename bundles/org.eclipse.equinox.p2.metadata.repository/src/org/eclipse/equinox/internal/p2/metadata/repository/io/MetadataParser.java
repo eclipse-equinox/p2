@@ -63,13 +63,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	protected class InstallableUnitHandler extends AbstractHandler {
 
 		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
-		private final String[] optional = new String[] {SINGLETON_ATTRIBUTE, FRAGMENT_ATTRIBUTE, FRAGMENT_HOST_ID_ATTRIBUTE, FRAGMENT_HOST_RANGE_ATTRIBUTE};
+		private final String[] optional = new String[] {SINGLETON_ATTRIBUTE};
 
 		InstallableUnitDescription currentUnit = null;
 
 		private PropertiesHandler propertiesHandler = null;
 		private ProvidedCapabilitiesHandler providedCapabilitiesHandler = null;
 		private RequiredCapabilitiesHandler requiredCapabilitiesHandler = null;
+		private HostRequiredCapabilitiesHandler hostRequiredCapabilitiesHandler = null;
 		private TextHandler filterHandler = null;
 		private ArtifactsHandler artifactsHandler = null;
 		private TouchpointTypeHandler touchpointTypeHandler = null;
@@ -78,39 +79,23 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private LicensesHandler licensesHandler = null;
 		private CopyrightHandler copyrightHandler = null;
 
+		private String id;
+		private Version version;
+		private boolean singleton;
+
+		private List units;
+
 		public InstallableUnitHandler(AbstractHandler parentHandler, Attributes attributes, List units) {
 			super(parentHandler, INSTALLABLE_UNIT_ELEMENT);
 			String[] values = parseAttributes(attributes, required, optional);
+			this.units = units;
 			//skip entire IU if the id is missing
 			if (values[0] == null)
 				return;
-			Version version = checkVersion(INSTALLABLE_UNIT_ELEMENT, VERSION_ATTRIBUTE, values[1]);
-			boolean singleton = checkBoolean(INSTALLABLE_UNIT_ELEMENT, SINGLETON_ATTRIBUTE, values[2], true).booleanValue();
-			boolean isFragment = checkBoolean(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_ATTRIBUTE, values[3], false).booleanValue();
-			if (isFragment) {
-				String hostId = values[4];
-				// TODO: tooling default fragment does not have a host id
-				if (hostId != null)
-					checkRequiredAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_ID_ATTRIBUTE, hostId);
-				checkRequiredAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_RANGE_ATTRIBUTE, values[5]);
-				VersionRange hostRange = checkVersionRange(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_RANGE_ATTRIBUTE, values[5]);
-				currentUnit = new InstallableUnitFragmentDescription();
-				currentUnit.setId(values[0]);
-				currentUnit.setVersion(version);
-				currentUnit.setSingleton(singleton);
-				((InstallableUnitFragmentDescription) currentUnit).setHost(values[4], hostRange);
-			} else {
-				if (values[4] != null) {
-					unexpectedAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_ID_ATTRIBUTE, values[4]);
-				} else if (values[5] != null) {
-					unexpectedAttribute(INSTALLABLE_UNIT_ELEMENT, FRAGMENT_HOST_RANGE_ATTRIBUTE, values[4]);
-				}
-				currentUnit = new InstallableUnitDescription();
-				currentUnit.setId(values[0]);
-				currentUnit.setVersion(version);
-				currentUnit.setSingleton(singleton);
-			}
-			units.add(currentUnit);
+
+			id = values[0];
+			version = checkVersion(INSTALLABLE_UNIT_ELEMENT, VERSION_ATTRIBUTE, values[1]);
+			singleton = checkBoolean(INSTALLABLE_UNIT_ELEMENT, SINGLETON_ATTRIBUTE, values[2], true).booleanValue();
 		}
 
 		public IInstallableUnit getInstallableUnit() {
@@ -134,6 +119,12 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			} else if (REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
 				if (requiredCapabilitiesHandler == null) {
 					requiredCapabilitiesHandler = new RequiredCapabilitiesHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
+			} else if (HOST_REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
+				if (hostRequiredCapabilitiesHandler == null) {
+					hostRequiredCapabilitiesHandler = new HostRequiredCapabilitiesHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
@@ -182,7 +173,16 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 
 		protected void finished() {
-			if (isValidXML() && currentUnit != null) {
+			if (isValidXML()) {
+				if (hostRequiredCapabilitiesHandler == null || hostRequiredCapabilitiesHandler.getHostRequiredCapabilities().length == 0) {
+					currentUnit = new InstallableUnitDescription();
+				} else {
+					currentUnit = new MetadataFactory.InstallableUnitFragmentDescription();
+					((InstallableUnitFragmentDescription) currentUnit).setHost(hostRequiredCapabilitiesHandler.getHostRequiredCapabilities());
+				}
+				currentUnit.setId(id);
+				currentUnit.setVersion(version);
+				currentUnit.setSingleton(singleton);
 				OrderedProperties properties = (propertiesHandler == null ? new OrderedProperties(0) : propertiesHandler.getProperties());
 				String updateFrom = null;
 				VersionRange updateRange = null;
@@ -235,6 +235,7 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 					currentUnit.addTouchpointData(touchpointData[i]);
 				if (updateDescriptorHandler != null)
 					currentUnit.setUpdateDescriptor(updateDescriptorHandler.getUpdateDescriptor());
+				units.add(currentUnit);
 			}
 		}
 	}
@@ -278,8 +279,29 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 	}
 
-	protected class RequiredCapabilitiesHandler extends AbstractHandler {
+	protected class HostRequiredCapabilitiesHandler extends AbstractHandler {
+		private List requiredCapabilities;
 
+		public HostRequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, HOST_REQUIRED_CAPABILITIES_ELEMENT);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			requiredCapabilities = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+		}
+
+		public RequiredCapability[] getHostRequiredCapabilities() {
+			return (RequiredCapability[]) requiredCapabilities.toArray(new RequiredCapability[requiredCapabilities.size()]);
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(REQUIRED_CAPABILITY_ELEMENT)) {
+				new RequiredCapabilityHandler(this, attributes, requiredCapabilities);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+	}
+
+	protected class RequiredCapabilitiesHandler extends AbstractHandler {
 		private List requiredCapabilities;
 
 		public RequiredCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {

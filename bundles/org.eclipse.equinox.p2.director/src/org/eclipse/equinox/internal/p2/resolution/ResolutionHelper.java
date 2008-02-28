@@ -121,47 +121,49 @@ public class ResolutionHelper {
 			// For now we will select just one fragment by preferring a fragment that matches the host
 
 			IInstallableUnit hostIU = ((StateMetadataMap) bds[i].getUserObject()).getUnit();
-			IInstallableUnitFragment selectedFragment = null;
+			ArrayList applicableFragments = new ArrayList();
 			for (int k = 0; k < potentialIUFragments.length; k++) {
 				IInstallableUnit dependentIU = ((StateMetadataMap) potentialIUFragments[k].getUserObject()).getUnit();
-				if (hostIU.equals(dependentIU))
+				if (hostIU.equals(dependentIU) || !dependentIU.isFragment())
 					continue;
 
-				if (dependentIU.isFragment()) {
-					IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
+				IInstallableUnitFragment potentialFragment = (IInstallableUnitFragment) dependentIU;
 
-					if (potentialFragment.getHostId() == null) {
-						// Check to make sure the host meets the requirements of the fragment
-						RequiredCapability fragmentRequiredCapabilities[] = potentialFragment.getRequiredCapabilities();
-						if (fragmentRequiredCapabilities != null) {
-							ProvidedCapability hostCapabilities[] = hostIU.getProvidedCapabilities();
-							boolean matchedCapability = false;
-							for (int l = 0; l < fragmentRequiredCapabilities.length; l++) {
-								RequiredCapability nextRequiredCapability = fragmentRequiredCapabilities[l];
-								for (int m = 0; m < hostCapabilities.length; m++) {
-									if (hostCapabilities[m].isSatisfiedBy(nextRequiredCapability)) {
-										matchedCapability = true;
-										break;
-									}
-
-								}
-							}
-							if (!matchedCapability) {
-								break;
-							}
+				// Check to make sure the host meets the requirements of the fragment
+				RequiredCapability reqsFromFragment[] = potentialFragment.getHost();
+				ProvidedCapability hostCapabilities[] = hostIU.getProvidedCapabilities();
+				boolean match = true;
+				boolean requirementMatched = false;
+				for (int l = 0; l < reqsFromFragment.length && match == true; l++) {
+					requirementMatched = false;
+					for (int m = 0; m < hostCapabilities.length; m++) {
+						if (hostCapabilities[m].isSatisfiedBy(reqsFromFragment[l])) {
+							requirementMatched = true;
+							break;
 						}
-
-						// default fragment - we'll mark it selected but keep looking for a fragment that matches the host
-						selectedFragment = potentialFragment;
-					} else if (potentialFragment.getHostId().equals(hostIU.getId()) && potentialFragment.getHostVersionRange().isIncluded(hostIU.getVersion())) {
-						// matches host - we're done
-						selectedFragment = potentialFragment;
+					}
+					if (requirementMatched == false) {
+						match = false;
 						break;
-					} // otherwise keep looking
+					}
+
+				}
+				if (match) {
+					applicableFragments.add(potentialFragment);
 				}
 			}
-			if (selectedFragment != null)
-				fragmentBindings.put(hostIU, selectedFragment);
+
+			IInstallableUnitFragment theFragment = null;
+			int specificityLevel = 0;
+			for (Iterator iterator = applicableFragments.iterator(); iterator.hasNext();) {
+				IInstallableUnitFragment fragment = (IInstallableUnitFragment) iterator.next();
+				if (fragment.getHost().length > specificityLevel) {
+					theFragment = fragment;
+					specificityLevel = fragment.getHost().length;
+				}
+			}
+			if (theFragment != null)
+				fragmentBindings.put(hostIU, theFragment);
 		}
 		//build the collection of resolved IUs
 		Collection result = new HashSet(toAttach.size());

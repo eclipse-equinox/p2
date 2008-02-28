@@ -44,7 +44,7 @@ public class AbstractProvisioningTest extends TestCase {
 	protected static final ProvidedCapability[] NO_PROVIDES = new ProvidedCapability[0];
 	protected static final RequiredCapability[] NO_REQUIRES = new RequiredCapability[0];
 
-	protected static final TouchpointData NO_TP_DATA = null;
+	protected static final TouchpointData NO_TP_DATA = MetadataFactory.createTouchpointData(new HashMap());
 
 	/**
 	 * Tracks the metadata repositories created by this test instance. The repositories
@@ -179,7 +179,16 @@ public class AbstractProvisioningTest extends TestCase {
 	 *  fragment provided capabilities are added to the IU.
 	 */
 	public static IInstallableUnitFragment createBundleFragment(String name) {
-		return createIUFragment(null, name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, TOUCHPOINT_OSGI, NO_TP_DATA);
+		InstallableUnitFragmentDescription fragment = new InstallableUnitFragmentDescription();
+		fragment.setId(name);
+		fragment.setVersion(DEFAULT_VERSION);
+		fragment.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		fragment.setTouchpointType(TOUCHPOINT_OSGI);
+		fragment.addTouchpointData(NO_TP_DATA);
+		fragment.setHost(BUNDLE_REQUIREMENT);
+		return MetadataFactory.createInstallableUnitFragment(fragment);
+
+		//		return createIUFragment(null, name, DEFAULT_VERSION, BUNDLE_REQUIREMENT, TOUCHPOINT_OSGI, NO_TP_DATA);
 	}
 
 	/**
@@ -374,25 +383,9 @@ public class AbstractProvisioningTest extends TestCase {
 			fragment.addTouchpointData(tpData);
 		if (host != null) {
 			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
-			fragment.setHost(host.getId(), hostRange);
+			fragment.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
 		}
 		return MetadataFactory.createInstallableUnitFragment(fragment);
-	}
-
-	/**
-	 * 	Create a basic InstallableUnitFragment with the given attributes. 
-	 * The self and fragment provided capabilities are added to the IU.
-	 */
-	public static IInstallableUnitFragment createIUFragment(String name) {
-		return createIUFragment(null, name, DEFAULT_VERSION, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
-	}
-
-	/**
-	 * 	Create a basic InstallableUnitFragment with the given attributes. 
-	 * The self and fragment provided capabilities are added to the IU.
-	 */
-	public static IInstallableUnitFragment createIUFragment(String name, Version version) {
-		return createIUFragment(null, name, version, NO_REQUIRES, TouchpointType.NONE, NO_TP_DATA);
 	}
 
 	public static IPlanner createPlanner() {

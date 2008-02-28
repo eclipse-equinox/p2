@@ -99,8 +99,8 @@ public class MetadataFactory {
 	}
 
 	public static class InstallableUnitFragmentDescription extends InstallableUnitDescription {
-		public void setHost(String hostId, VersionRange hostRange) {
-			((InstallableUnitFragment) unit()).setHost(hostId, hostRange);
+		public void setHost(RequiredCapability[] hostRequirements) {
+			((InstallableUnitFragment) unit()).setHost(hostRequirements);
 		}
 
 		InstallableUnit unit() {

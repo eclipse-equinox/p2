@@ -10,45 +10,37 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata;
 
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.osgi.service.resolver.VersionRange;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnitFragment;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 
 public class InstallableUnitFragment extends InstallableUnit implements IInstallableUnitFragment {
 
-	//a host id of null is used for the default fragment
-	private String hostId = null;
-	private VersionRange hostRange = VersionRange.emptyRange;
+	private RequiredCapability[] hostRequirements;
 
 	public InstallableUnitFragment() {
 		super();
 	}
 
-	public void setHost(String iuId, VersionRange versionRange) {
-		if (versionRange == null)
-			throw new IllegalArgumentException();
-		hostId = iuId;
-		hostRange = versionRange;
-		if (hostId != null)
-			addRequiredCapability(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iuId, versionRange, null, false, false));
+	public void setHost(RequiredCapability[] hostRequirements) {
+		if (hostRequirements == null)
+			return;
+		this.hostRequirements = hostRequirements;
+		addRequiredCapability(hostRequirements);
 	}
 
-	public String getHostId() {
-		return hostId;
-	}
-
-	public VersionRange getHostVersionRange() {
-		return hostRange;
-	}
-
-	private void addRequiredCapability(RequiredCapability toAdd) {
+	private void addRequiredCapability(RequiredCapability[] toAdd) {
 		RequiredCapability[] current = super.getRequiredCapabilities();
-		RequiredCapability[] result = new RequiredCapability[current.length + 1];
+		RequiredCapability[] result = new RequiredCapability[current.length + toAdd.length];
 		System.arraycopy(current, 0, result, 0, current.length);
-		result[current.length] = toAdd;
+		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
 		setRequiredCapabilities(result);
 	}
 
 	public boolean isFragment() {
 		return true;
+	}
+
+	public RequiredCapability[] getHost() {
+		return hostRequirements;
 	}
 }

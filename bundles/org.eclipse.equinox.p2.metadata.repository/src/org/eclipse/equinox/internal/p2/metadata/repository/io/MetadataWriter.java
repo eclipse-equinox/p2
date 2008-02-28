@@ -46,12 +46,11 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(ID_ATTRIBUTE, iu.getId());
 		attribute(VERSION_ATTRIBUTE, iu.getVersion());
 		attribute(SINGLETON_ATTRIBUTE, iu.isSingleton(), true);
-		attribute(FRAGMENT_ATTRIBUTE, iu.isFragment(), false);
+		//		attribute(FRAGMENT_ATTRIBUTE, iu.isFragment(), false);
 
 		if (iu.isFragment() && iu instanceof IInstallableUnitFragment) {
 			IInstallableUnitFragment fragment = (IInstallableUnitFragment) iu;
-			attribute(FRAGMENT_HOST_ID_ATTRIBUTE, fragment.getHostId());
-			attribute(FRAGMENT_HOST_RANGE_ATTRIBUTE, fragment.getHostVersionRange());
+			writeHostRequiredCapabilities(fragment.getHost());
 		}
 
 		writeUpdateDescriptor(resolvedIU, resolvedIU.getUpdateDescriptor());
@@ -67,6 +66,17 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeCopyright(iu.getCopyright());
 
 		end(INSTALLABLE_UNIT_ELEMENT);
+	}
+
+	protected void writeHostRequiredCapabilities(RequiredCapability[] capabilities) {
+		if (capabilities != null && capabilities.length > 0) {
+			start(HOST_REQUIRED_CAPABILITIES_ELEMENT);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, capabilities.length);
+			for (int i = 0; i < capabilities.length; i++) {
+				writeRequiredCapability(capabilities[i]);
+			}
+			end(HOST_REQUIRED_CAPABILITIES_ELEMENT);
+		}
 	}
 
 	protected void writeProvidedCapabilities(ProvidedCapability[] capabilities) {

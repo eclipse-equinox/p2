@@ -131,20 +131,6 @@ public class FragmentMethodTest extends TestCase {
 		}
 	}
 
-	public void testDependencies() {
-		RequiredCapability[] iuDependencies = iu1Deps;
-		RequiredCapability[] initialFragmentDependencies = iu3Deps;
-
-		RequiredCapability[] mergedDependencies = iu1.getRequiredCapabilities();
-		for (int i = 0; i < iuDependencies.length; i++) {
-			FragmentTest.assertContains(mergedDependencies, iuDependencies[i]);
-		}
-		for (int i = 0; i < initialFragmentDependencies.length; i++) {
-			FragmentTest.assertContains(mergedDependencies, initialFragmentDependencies[i]);
-		}
-		assertEquals("The fragment dependencies should not change", initialFragmentDependencies, iu3.getRequiredCapabilities(), false);
-	}
-
 	public void testProperties() {
 		assertNotNull("The property is missing", iu3.getProperty(PROP_FRAG));
 		assertNotNull("The property is missing", iu1.getProperty(PROP_IU));
@@ -158,7 +144,7 @@ public class FragmentMethodTest extends TestCase {
 		iu.setTouchpointType(AbstractProvisioningTest.TOUCHPOINT_OSGI);
 		iu.setProperty(PROP_FRAG, "value");
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability("eclipse.touchpoint", "bundle", VersionRange.emptyRange, null, false, true), MetadataFactory.createRequiredCapability(TEST_REQUIRED, TEST_REQUIRED, VersionRange.emptyRange, null, true, false)};
-		iu.setRequiredCapabilities(reqs);
+		iu.setHost(reqs);
 		ProvidedCapability[] cap = new ProvidedCapability[] {MetadataFactory.createProvidedCapability("testCapabilityInFragment", "testCapabilityInFragment", new Version(1, 0, 0))};
 		iu.setCapabilities(cap);
 		return MetadataFactory.createInstallableUnitFragment(iu);

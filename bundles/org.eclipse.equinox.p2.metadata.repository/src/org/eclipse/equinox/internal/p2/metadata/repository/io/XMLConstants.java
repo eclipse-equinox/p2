@@ -32,6 +32,7 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String ARTIFACT_KEYS_ELEMENT = "artifacts"; //$NON-NLS-1$
 	public static final String ARTIFACT_KEY_ELEMENT = "artifact"; //$NON-NLS-1$
 	public static final String REQUIRED_CAPABILITIES_ELEMENT = "requires"; //$NON-NLS-1$
+	public static final String HOST_REQUIRED_CAPABILITIES_ELEMENT = "hostRequirements"; //$NON-NLS-1$
 	public static final String REQUIRED_CAPABILITY_ELEMENT = "required"; //$NON-NLS-1$
 	public static final String PROVIDED_CAPABILITIES_ELEMENT = "provides"; //$NON-NLS-1$
 	public static final String PROVIDED_CAPABILITY_ELEMENT = "provided"; //$NON-NLS-1$
@@ -43,10 +44,6 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	// Constants for attributes of an installable unit element
 	public static final String SINGLETON_ATTRIBUTE = "singleton"; //$NON-NLS-1$
 	public static final String FRAGMENT_ATTRIBUTE = "fragment"; //$NON-NLS-1$
-
-	// Constants for attributes of a fragment installable unit element
-	public static final String FRAGMENT_HOST_ID_ATTRIBUTE = "hostId"; //$NON-NLS-1$
-	public static final String FRAGMENT_HOST_RANGE_ATTRIBUTE = "hostRange"; //$NON-NLS-1$
 
 	// Constants for sub-elements of a required capability element
 	public static final String CAPABILITY_FILTER_ELEMENT = "filter"; //$NON-NLS-1$

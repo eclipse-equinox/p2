@@ -131,7 +131,9 @@ public class MetadataGeneratorHelper {
 		cu.setVersion(iuVersion);
 
 		//Indicate the IU to which this CU apply
-		cu.setHost(iuId, new VersionRange(iuVersion, true, versionMax, true));
+		cu.setHost(new RequiredCapability[] { //
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, versionMax, true), null, false, false), // 
+						MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
@@ -309,7 +311,7 @@ public class MetadataGeneratorHelper {
 
 		// Create a required capability on bundles
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, VersionRange.emptyRange, null, false, true)};
-		cu.setRequiredCapabilities(reqs);
+		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -342,7 +344,7 @@ public class MetadataGeneratorHelper {
 
 		// Create a required capability on features
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, false, true)};
-		cu.setRequiredCapabilities(reqs);
+		cu.setHost(reqs);
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installFeature(feature:${artifact},featureId:default,featureVersion:default)"); //$NON-NLS-1$//$NON-NLS-2$
@@ -365,7 +367,7 @@ public class MetadataGeneratorHelper {
 
 		// Create a required capability on source providers
 		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, false, true)};
-		cu.setRequiredCapabilities(reqs);
+		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
 		touchpointData.put("install", "addSourceBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -480,7 +482,7 @@ public class MetadataGeneratorHelper {
 		String configId = "config." + id;//$NON-NLS-1$
 		cu.setId(configId);
 		cu.setVersion(version);
-		cu.setHost(id, new VersionRange(version, true, versionMax, true));
+		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, versionMax, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configId, version)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);
@@ -546,7 +548,7 @@ public class MetadataGeneratorHelper {
 		String configUnitId = configurationFlavor + launcherId;
 		cu.setId(configUnitId);
 		cu.setVersion(LAUNCHER_VERSION);
-		cu.setHost(launcherId, new VersionRange(LAUNCHER_VERSION, true, versionMax, true));
+		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(LAUNCHER_VERSION, true, versionMax, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, LAUNCHER_VERSION)});
 		cu.setTouchpointType(TOUCHPOINT_NATIVE);

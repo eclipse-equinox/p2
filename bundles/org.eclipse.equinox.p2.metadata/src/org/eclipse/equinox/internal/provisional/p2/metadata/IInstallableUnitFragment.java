@@ -8,12 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.osgi.service.resolver.VersionRange;
-
 public interface IInstallableUnitFragment extends IInstallableUnit {
-
-	public abstract String getHostId();
-
-	public abstract VersionRange getHostVersionRange();
-
+	public RequiredCapability[] getHost();
 }

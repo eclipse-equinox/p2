@@ -19,7 +19,8 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testAssociation() {
-		IInstallableUnit iu1 = createEclipseIU("ui.test1");
+		String ID = "ui.test1";
+		IInstallableUnit iu1 = createEclipseIU(ID);
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		HashSet set = new HashSet();
@@ -28,7 +29,7 @@ public class FragmentTest extends AbstractProvisioningTest {
 		Collection result = rh.attachCUs(set);
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			if (iu.getId().equals("iu1.test1")) {
+			if (iu.getId().equals(ID)) {
 				assertEquals(iu.getFragments().length, 1);
 				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
 			}
@@ -36,8 +37,10 @@ public class FragmentTest extends AbstractProvisioningTest {
 	}
 
 	public void testAssociation2() {
-		IInstallableUnit iu1 = createEclipseIU("ui.test1");
-		IInstallableUnit iu3 = createEclipseIU("ui.test3");
+		String ID1 = "ui.test1";
+		String ID3 = "ui.test3";
+		IInstallableUnit iu1 = createEclipseIU(ID1);
+		IInstallableUnit iu3 = createEclipseIU(ID3);
 		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		HashSet set = new HashSet();
@@ -47,11 +50,11 @@ public class FragmentTest extends AbstractProvisioningTest {
 		Collection result = rh.attachCUs(set);
 		for (Iterator iterator = result.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			if (iu.getId().equals("iu1.test1")) {
+			if (iu.getId().equals(ID1)) {
 				assertEquals(iu.getFragments().length, 1);
 				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
 			}
-			if (iu.getId().equals("iu1.test3")) {
+			if (iu.getId().equals(ID3)) {
 				assertEquals(iu.getFragments().length, 1);
 				assertEquals(iu.getFragments()[0].getId(), "iuFragment.test1");
 			}
@@ -60,9 +63,9 @@ public class FragmentTest extends AbstractProvisioningTest {
 
 	public void testTouchpointData() {
 		assertEquals(createIUWithTouchpointData().getTouchpointData().length, 1);
-		assertEquals(createIUFragmentWithTouchpointData().getTouchpointData().length, 1);
+		assertEquals(createBundleFragment("iuFragment.test1").getTouchpointData().length, 1);
 		IInstallableUnit iu1 = createIUWithTouchpointData();
-		IInstallableUnit iu2 = createIUFragmentWithTouchpointData();
+		IInstallableUnit iu2 = createBundleFragment("iuFragment.test1");
 		ResolutionHelper rh = new ResolutionHelper(new Hashtable(), null);
 		HashSet set = new HashSet();
 		set.add(iu1);
@@ -115,9 +118,9 @@ public class FragmentTest extends AbstractProvisioningTest {
 		return createEclipseIU("ui.test1", DEFAULT_VERSION, NO_REQUIRES, data);
 	}
 
-	private IInstallableUnit createIUFragmentWithTouchpointData() {
-		TouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
-		IInstallableUnitFragment unit = createBundleFragment("iuFragment.test1", DEFAULT_VERSION, data);
-		return unit;
-	}
+	//	private IInstallableUnit createIUFragmentWithTouchpointData() {
+	//		TouchpointData data = MetadataFactory.createTouchpointData(new HashMap());
+	//		IInstallableUnitFragment unit = createBundleFragment("iuFragment.test1");
+	//		return unit;
+	//	}
 }
