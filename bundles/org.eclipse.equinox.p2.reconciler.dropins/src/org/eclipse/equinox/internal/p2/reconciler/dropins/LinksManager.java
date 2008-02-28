@@ -52,6 +52,9 @@ public class LinksManager {
 	 * the configuration.
 	 */
 	public void synchronize(File configurationFile, File linksFolder) throws ProvisionException {
+		if (!configurationFile.exists() || !linksFolder.exists())
+			return;
+
 		// read the existing configuration from disk
 		configuration = ConfigurationParser.parse(configurationFile);
 		if (configuration == null)
