@@ -71,6 +71,7 @@ public class InstallDescriptionParser {
 			profileProperties.remove(PROP_ARTIFACT_REPOSITORY);
 			profileProperties.remove(PROP_METADATA_REPOSITORY);
 			profileProperties.remove(PROP_IS_AUTO_START);
+			profileProperties.remove(PROP_LAUNCHER_NAME);
 			profileProperties.remove(PROP_AGENT_LOCATION);
 			profileProperties.remove(PROP_BUNDLE_LOCATION);
 			profileProperties.remove(PROP_ROOT_ID);
