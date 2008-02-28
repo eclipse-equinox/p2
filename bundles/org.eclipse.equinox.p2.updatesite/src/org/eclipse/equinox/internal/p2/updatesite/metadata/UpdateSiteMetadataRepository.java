@@ -84,7 +84,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			}
 
 			Properties extraProperties = new Properties();
-			extraProperties.put("iu.mock", "true");
+			extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 			Set allSiteIUs = new HashSet();
 			BundleDescriptionFactory bundleDesciptionFactory = initializeBundleDescriptionFactory(Activator.getBundleContext());
 
