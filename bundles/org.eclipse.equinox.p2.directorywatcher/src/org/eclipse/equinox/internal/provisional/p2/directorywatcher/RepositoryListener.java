@@ -14,13 +14,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.BundleDescriptionFactory;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -254,7 +254,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			lastModifed = System.currentTimeMillis();
 	}
 
-	private IArtifactDescriptor generateArtifactDescriptor(File bundle) {
+	IArtifactDescriptor generateArtifactDescriptor(File bundle) {
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundle);
 		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IArtifactDescriptor basicDescriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, bundle, true, false);
@@ -276,22 +276,51 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private IInstallableUnit[] generateIUs(Collection files, String repositoryId) {
 		List ius = new ArrayList();
 		for (Iterator it = files.iterator(); it.hasNext();) {
-			File bundle = (File) it.next();
-			IInstallableUnit iu = generateIU(bundle, repositoryId);
-			if (iu != null)
-				ius.add(iu);
+			File candidate = (File) it.next();
+
+			Properties props = new Properties();
+			props.setProperty("repository.id", repositoryId);
+			props.setProperty("file.name", candidate.getAbsolutePath());
+			props.setProperty("file.lastModified", Long.toString(candidate.lastModified()));
+
+			if (candidate.isDirectory() && candidate.getName().equals("eclipse"))
+				continue;
+
+			// feature check
+			String parentName = candidate.getParent();
+			if (parentName != null && parentName.equals("features")) {
+				IInstallableUnit[] featureIUs = generateFeatureIUs(candidate, props);
+				if (featureIUs != null)
+					ius.add(Arrays.asList(featureIUs));
+			} else {
+				IInstallableUnit bundleIU = generateBundleIU(candidate, props);
+				if (bundleIU != null)
+					ius.add(bundleIU);
+			}
 		}
 		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
 	}
 
-	private IInstallableUnit generateIU(File bundle, String repositoryId) {
-		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundle);
+	private IInstallableUnit[] generateFeatureIUs(File featureFile, Properties props) {
+
+		FeatureParser parser = new FeatureParser();
+		Feature feature = parser.parse(featureFile);
+
+		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true);
+		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
+
+		if (!Boolean.getBoolean("org.eclipse.p2.update.compatibility")) //$NON-NLS-1$
+			return new IInstallableUnit[] {groupIU};
+
+		return new IInstallableUnit[] {featureIU, groupIU};
+	}
+
+	private IInstallableUnit generateBundleIU(File bundleFile, Properties props) {
+
+		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundleFile);
 		if (bundleDescription == null)
 			return null;
-		Properties props = new Properties();
-		props.setProperty("repository.id", repositoryId);
-		props.setProperty("file.name", bundle.getAbsolutePath());
-		props.setProperty("file.lastModified", Long.toString(bundle.lastModified()));
+
 		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
 		return iu;

@@ -58,7 +58,7 @@ public class Activator implements BundleActivator {
 
 		// create watchers for the sites specified in the platform.xml
 		// TODO
-		if (Boolean.getBoolean("org.eclipse.p2.update.compatibility"))
+		if (Boolean.getBoolean("org.eclipse.p2.update.compatibility")) //$NON-NLS-1$
 			watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
@@ -111,11 +111,28 @@ public class Activator implements BundleActivator {
 		File folder = getWatchedDirectory(bundleContext);
 		if (folder == null)
 			return;
-		DirectoryWatcher watcher = new DirectoryWatcher(folder);
+
 		RepositoryListener listener = new RepositoryListener(Activator.getContext(), Integer.toString(folder.hashCode()));
 		listener.getArtifactRepository().setProperty(PROFILE_EXTENSION, profile.getProfileId());
+
+		DirectoryWatcher watcher = new DirectoryWatcher(folder);
 		watcher.addListener(listener);
 		watcher.poll();
+
+		File eclipseFeatures = new File(folder, "eclipse/features");
+		if (eclipseFeatures.isDirectory()) {
+			DirectoryWatcher eclipsePluginsWatcher = new DirectoryWatcher(eclipseFeatures);
+			eclipsePluginsWatcher.addListener(listener);
+			eclipsePluginsWatcher.poll();
+		}
+
+		File eclipsePlugins = new File(folder, "eclipse/plugins");
+		if (eclipsePlugins.isDirectory()) {
+			DirectoryWatcher eclipsePluginsWatcher = new DirectoryWatcher(eclipsePlugins);
+			eclipsePluginsWatcher.addListener(listener);
+			eclipsePluginsWatcher.poll();
+		}
+
 		dropinRepository = listener.getMetadataRepository();
 	}
 

@@ -6,6 +6,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.metadata.generator.features,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core,
  org.eclipse.equinox.internal.provisional.p2.core.repository,
