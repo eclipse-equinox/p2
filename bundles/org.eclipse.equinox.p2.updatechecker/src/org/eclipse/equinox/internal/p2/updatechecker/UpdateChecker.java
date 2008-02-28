@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatechecker;
 
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 
@@ -114,14 +117,33 @@ public class UpdateChecker implements IUpdateChecker {
 		ArrayList iusWithUpdates = new ArrayList();
 		if (profile == null)
 			return new IInstallableUnit[0];
+		ProvisioningContext context = new ProvisioningContext(getAvailableRepositories());
 		Iterator iter = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, new ProvisioningContext(), null);
+			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, context, null);
 			if (replacements.length > 0)
 				iusWithUpdates.add(iu);
 		}
 		return (IInstallableUnit[]) iusWithUpdates.toArray(new IInstallableUnit[iusWithUpdates.size()]);
+	}
+
+	/**
+	 * Returns the list of metadata repositories that are currently available.
+	 */
+	private URL[] getAvailableRepositories() {
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		URL[] repositories = repoMgr.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		ArrayList available = new ArrayList();
+		for (int i = 0; i < repositories.length; i++) {
+			try {
+				repoMgr.loadRepository(repositories[i], null);
+				available.add(repositories[i]);
+			} catch (ProvisionException e) {
+				//ignore unavailable repository
+			}
+		}
+		return (URL[]) available.toArray(new URL[available.size()]);
 	}
 
 	void log(String string, Throwable e) {
