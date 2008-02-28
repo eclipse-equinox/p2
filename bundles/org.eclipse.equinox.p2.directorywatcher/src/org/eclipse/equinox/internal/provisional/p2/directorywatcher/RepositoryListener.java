@@ -254,23 +254,36 @@ public class RepositoryListener extends DirectoryChangeListener {
 			lastModifed = System.currentTimeMillis();
 	}
 
-	IArtifactDescriptor generateArtifactDescriptor(File bundle) {
-		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundle);
-		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-		IArtifactDescriptor basicDescriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, bundle, true, false);
+	IArtifactDescriptor generateArtifactDescriptor(File candidate) {
 
+		IArtifactDescriptor basicDescriptor = generateBasicDescriptor(candidate);
 		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
 		try {
-			pathDescriptor.setRepositoryProperty("artifact.reference", bundle.toURL().toExternalForm());
+			pathDescriptor.setRepositoryProperty("artifact.reference", candidate.toURL().toExternalForm());
 		} catch (MalformedURLException e) {
 			// unexpected
 			e.printStackTrace();
 			return null;
 		}
-		if (bundle.isDirectory())
+		if (candidate.isDirectory())
 			pathDescriptor.setRepositoryProperty("artifact.folder", "true");
 
 		return pathDescriptor;
+	}
+
+	private IArtifactDescriptor generateBasicDescriptor(File candidate) {
+		// feature check
+		File parent = candidate.getParentFile();
+		if (parent != null && parent.getName().equals("features")) {
+			FeatureParser parser = new FeatureParser();
+			Feature feature = parser.parse(candidate);
+			IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
+			return new ArtifactDescriptor(featureKey);
+		}
+
+		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(candidate);
+		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+		return MetadataGeneratorHelper.createArtifactDescriptor(key, candidate, true, false);
 	}
 
 	private IInstallableUnit[] generateIUs(Collection files, String repositoryId) {
@@ -287,11 +300,11 @@ public class RepositoryListener extends DirectoryChangeListener {
 				continue;
 
 			// feature check
-			String parentName = candidate.getParent();
-			if (parentName != null && parentName.equals("features")) {
+			File parent = candidate.getParentFile();
+			if (parent != null && parent.getName().equals("features")) {
 				IInstallableUnit[] featureIUs = generateFeatureIUs(candidate, props);
 				if (featureIUs != null)
-					ius.add(Arrays.asList(featureIUs));
+					ius.addAll(Arrays.asList(featureIUs));
 			} else {
 				IInstallableUnit bundleIU = generateBundleIU(candidate, props);
 				if (bundleIU != null)
@@ -306,8 +319,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 		FeatureParser parser = new FeatureParser();
 		Feature feature = parser.parse(featureFile);
 
-		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true);
-		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
+		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, props);
+		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU, props);
 
 		if (!Boolean.getBoolean("org.eclipse.p2.update.compatibility")) //$NON-NLS-1$
 			return new IInstallableUnit[] {groupIU};

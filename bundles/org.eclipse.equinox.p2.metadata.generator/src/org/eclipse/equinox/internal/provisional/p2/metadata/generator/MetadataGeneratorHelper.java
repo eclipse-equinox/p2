@@ -449,6 +449,10 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU) {
+		return createGroupIU(feature, featureIU, null);
+	}
+
+	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
@@ -475,6 +479,15 @@ public class MetadataGeneratorHelper {
 		// 		 of the feature?
 		// iu.setFilter(filter);
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+
+		if (extraProperties != null) {
+			Enumeration e = extraProperties.propertyNames();
+			while (e.hasMoreElements()) {
+				String name = (String) e.nextElement();
+				iu.setProperty(name, extraProperties.getProperty(name));
+			}
+		}
+
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
