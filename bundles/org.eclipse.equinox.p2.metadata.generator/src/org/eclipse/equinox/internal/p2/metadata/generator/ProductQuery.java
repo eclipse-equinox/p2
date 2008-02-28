@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata.generator;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -36,7 +37,7 @@ public class ProductQuery extends Query {
 		for (Iterator iterator = contents.iterator(); iterator.hasNext();) {
 			String item = (String) iterator.next();
 			if (features) // for features we want the group
-				item += ".featureGroup"; //$NON-NLS-1$
+				item = MetadataGeneratorHelper.getTransformedId(item, false, true);
 
 			children.put(item, VersionRange.emptyRange);
 			if (configIUs.containsKey(item)) {

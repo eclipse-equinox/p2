@@ -67,8 +67,8 @@ public class MetadataGeneratorHelper {
 
 	private static final Version DEFAULT_JRE_VERSION = new Version("1.6"); //$NON-NLS-1$
 
-	private static final String ECLIPSE_FEATURE_CLASSIFIER = "org.eclipse.update.feature"; //$NON-NLS-1$
-	private static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
+	public static final String ECLIPSE_FEATURE_CLASSIFIER = "org.eclipse.update.feature"; //$NON-NLS-1$
+	public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
 	public static final String BINARY_ARTIFACT_CLASSIFIER = "binary"; //$NON-NLS-1$
 
 	private static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
@@ -327,7 +327,7 @@ public class MetadataGeneratorHelper {
 		return createUnconfigScript(unconfigInfo, false);
 	}
 
-	private static String createDefaultConfigUnitId(String classifier, String configurationFlavor) {
+	public static String createDefaultConfigUnitId(String classifier, String configurationFlavor) {
 		return configurationFlavor + "." + classifier + ".default"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
@@ -701,7 +701,7 @@ public class MetadataGeneratorHelper {
 		return result.toString();
 	}
 
-	private static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
+	public static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
 		return (isPlugin ? original : original + (isGroup ? ".feature.group" : ".feature.jar")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
