@@ -54,8 +54,15 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	 * obtained vai getKey(URL).
 	 */
 	private Map repositories = null;
+
 	//lock object to be held when referring to the repositories field
 	private final Object repositoryLock = new Object();
+
+	/**
+	 * Cache List of repositories that are not reachable. Maintain cache
+	 * for short duration because repository may become available at any time.
+	 */
+	private SoftReference unavailableRepositories;
 
 	public MetadataRepositoryManager() {
 		//initialize repositories lazily
@@ -285,19 +292,55 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
 			return result;
+		MultiStatus notFoundStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
+		if (checkNotFound(location))
+			throw new ProvisionException(notFoundStatus);
 		String[] suffixes = getAllSuffixes();
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPOMGR_ADDING_REPO, suffixes.length * 100);
-		MultiStatus notFoundStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
-		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i], sub.newChild(100), notFoundStatus);
-			if (result != null) {
-				addRepository(result);
-				sub.done();
-				return result;
+		try {
+			for (int i = 0; i < suffixes.length; i++) {
+				result = loadRepository(location, suffixes[i], sub.newChild(100), notFoundStatus);
+				if (result != null) {
+					addRepository(result);
+					return result;
+				}
+			}
+		} finally {
+			sub.done();
+		}
+		rememberNotFound(location);
+		throw new ProvisionException(notFoundStatus);
+	}
+
+	/**
+	 * Check if we recently attempted to load the given location and failed
+	 * to find anything. Returns <code>true</code> if the repository was not
+	 * found, and <code>false</code> otherwise.
+	 */
+	private boolean checkNotFound(URL location) {
+		if (unavailableRepositories == null)
+			return false;
+		List badRepos = (List) unavailableRepositories.get();
+		if (badRepos == null)
+			return false;
+		return badRepos.contains(location);
+	}
+
+	/**
+	 * Cache the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void rememberNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.add(location);
+				return;
 			}
 		}
-		sub.done();
-		throw new ProvisionException(notFoundStatus);
+		badRepos = new ArrayList();
+		badRepos.add(location);
+		unavailableRepositories = new SoftReference(badRepos);
 	}
 
 	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor) {

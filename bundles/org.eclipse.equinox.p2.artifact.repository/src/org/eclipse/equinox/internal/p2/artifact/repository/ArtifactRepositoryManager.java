@@ -60,6 +60,12 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	//lock object to be held when referring to the repositories field
 	private final Object repositoryLock = new Object();
 
+	/**
+	 * Cache List of repositories that are not reachable. Maintain cache
+	 * for short duration because repository may become available at any time.
+	 */
+	private SoftReference unavailableRepositories;
+
 	public ArtifactRepositoryManager() {
 		//initialize repositories lazily
 	}
@@ -281,6 +287,8 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		IArtifactRepository result = getRepository(location);
 		if (result != null)
 			return result;
+		if (checkNotFound(location))
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		String[] suffixes = getAllSuffixes();
 		SubMonitor sub = SubMonitor.convert(monitor, suffixes.length * 100);
 		for (int i = 0; i < suffixes.length; i++) {
@@ -290,8 +298,40 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 				return result;
 			}
 		}
+		rememberNotFound(location);
 		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		return null;
+	}
+
+	/**
+	 * Check if we recently attempted to load the given location and failed
+	 * to find anything. Returns <code>true</code> if the repository was not
+	 * found, and <code>false</code> otherwise.
+	 */
+	private boolean checkNotFound(URL location) {
+		if (unavailableRepositories == null)
+			return false;
+		List badRepos = (List) unavailableRepositories.get();
+		if (badRepos == null)
+			return false;
+		return badRepos.contains(location);
+	}
+
+	/**
+	 * Cache the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void rememberNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.add(location);
+				return;
+			}
+		}
+		badRepos = new ArrayList();
+		badRepos.add(location);
+		unavailableRepositories = new SoftReference(badRepos);
 	}
 
 	private IArtifactRepository loadRepository(URL location, String suffix, SubMonitor monitor) {
