@@ -52,11 +52,9 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		try {
 
 			DefaultSiteParser siteParser = new DefaultSiteParser();
-			long start = System.currentTimeMillis();
 			Checksum checksum = new CRC32();
 			InputStream is = new CheckedInputStream(new BufferedInputStream(location.openStream()), checksum);
 			SiteModel siteModel = siteParser.parse(is);
-			System.out.println("Time Fetching Artifact Site " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
 
 			String savedChecksum = (String) artifactRepository.getProperties().get("site.checksum");
 			String checksumString = Long.toString(checksum.getValue());
@@ -97,9 +95,6 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 			IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
 			artifactRepository.addDescriptors(descriptors);
-
-			System.out.println("Time Fetching Artifact Site and Features for " + location + " was: " + (System.currentTimeMillis() - start) + " ms");
-
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

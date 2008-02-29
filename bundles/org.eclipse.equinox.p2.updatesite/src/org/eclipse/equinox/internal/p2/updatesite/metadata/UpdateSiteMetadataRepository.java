@@ -53,9 +53,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 		try {
 			DefaultSiteParser siteParser = new DefaultSiteParser();
-			long start = System.currentTimeMillis();
 			SiteModel siteModel = siteParser.parse(is);
-			System.out.println("Time Fetching Metadata Site " + location + " was: " + (System.currentTimeMillis() - start) + " ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 			String savedChecksum = (String) metadataRepository.getProperties().get(PROP_SITE_CHECKSUM);
 			String checksumString = Long.toString(checksum.getValue());
@@ -135,8 +133,6 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			IInstallableUnit[] ius = (IInstallableUnit[]) allSiteIUs.toArray(new IInstallableUnit[allSiteIUs.size()]);
 			metadataRepository.addInstallableUnits(ius);
 			metadataRepository.setProperty(PROP_SITE_CHECKSUM, checksumString);
-			System.out.println("Time Fetching Metadata Site and Features for " + location + " was: " + (System.currentTimeMillis() - start) + " ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
 		} catch (SAXException e) {
 			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_ErrorParsingUpdateSite, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
