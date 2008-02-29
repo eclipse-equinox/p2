@@ -40,9 +40,9 @@ public class IULicensePropertyPage extends IUPropertyPage {
 			composite.setLayout(layout);
 
 			Text text = new Text(composite, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER | SWT.WRAP);
-			GridData gd = new GridData(SWT.FILL, SWT.FILL, false, true);
+			GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 			gd.widthHint = computeWidthLimit(text, 80);
-			gd.grabExcessVerticalSpace = true;
+			gd.heightHint = computeHeightLimit(text, 20);
 			text.setLayoutData(gd);
 			text.setText(license.getBody());
 			text.setEditable(false);

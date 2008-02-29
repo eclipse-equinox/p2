@@ -55,6 +55,14 @@ public abstract class IUPropertyPage extends PropertyPage {
 		return Dialog.convertWidthInCharsToPixels(fontMetrics, nchars);
 	}
 
+	protected int computeHeightLimit(Control control, int nchars) {
+		GC gc = new GC(control);
+		gc.setFont(control.getFont());
+		FontMetrics fontMetrics = gc.getFontMetrics();
+		gc.dispose();
+		return Dialog.convertHeightInCharsToPixels(fontMetrics, nchars);
+	}
+
 	protected abstract Control createIUPage(Composite parent, IInstallableUnit iu);
 
 	protected void showURL(URL url) {

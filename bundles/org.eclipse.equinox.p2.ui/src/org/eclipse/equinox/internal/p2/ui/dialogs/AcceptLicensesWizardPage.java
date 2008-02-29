@@ -152,7 +152,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		label.setText(ProvUIMessages.AcceptLicensesWizardPage_LicenseTextLabel);
 		licenseTextBox = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.WRAP | SWT.READ_ONLY);
 		licenseTextBox.setBackground(licenseTextBox.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
-		gd = new GridData(GridData.FILL_BOTH);
+		initializeDialogUnits(licenseTextBox);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+		gd.widthHint = convertWidthInCharsToPixels(80);
+		gd.heightHint = convertHeightInCharsToPixels(20);
+
 		licenseTextBox.setLayoutData(gd);
 
 		createLicenseAcceptSection(composite, !singleLicense);
