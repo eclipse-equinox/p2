@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.updatechecker;
 
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
+
 /**
  * An UpdateChecker periodically polls for updates to specified profiles and
  * informs listeners if updates are available.  Listeners may then determine
@@ -19,7 +21,7 @@ public interface IUpdateChecker {
 	public static final String SERVICE_NAME = IUpdateChecker.class.getName();
 	public static long ONE_TIME_CHECK = -1L;
 
-	public abstract void addUpdateCheck(String profileId, long delay, long poll, IUpdateListener listener);
+	public abstract void addUpdateCheck(String profileId, Query iusToCheckQuery, long delay, long poll, IUpdateListener listener);
 
 	public abstract void removeUpdateCheck(IUpdateListener listener);
 

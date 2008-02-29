@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 
 /**
@@ -42,11 +43,13 @@ public class UpdateChecker implements IUpdateChecker {
 		long poll, delay;
 		IUpdateListener listener;
 		String profileId;
+		Query query;
 
-		UpdateCheckThread(String profileId, long delay, long poll, IUpdateListener listener) {
+		UpdateCheckThread(String profileId, Query query, long delay, long poll, IUpdateListener listener) {
 			this.poll = poll;
 			this.delay = delay;
 			this.profileId = profileId;
+			this.query = query;
 			this.listener = listener;
 		}
 
@@ -58,7 +61,7 @@ public class UpdateChecker implements IUpdateChecker {
 				while (!done) {
 
 					log("Checking for updates for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
-					IInstallableUnit[] iusWithUpdates = checkForUpdates(profileId);
+					IInstallableUnit[] iusWithUpdates = checkForUpdates(profileId, query);
 					if (iusWithUpdates.length > 0) {
 						log("Notifying listener of available updates"); //$NON-NLS-1$
 						UpdateEvent event = new UpdateEvent(profileId, iusWithUpdates);
@@ -84,9 +87,9 @@ public class UpdateChecker implements IUpdateChecker {
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateChecker#addUpdateCheck(java.lang.String, long, long, org.eclipse.equinox.internal.provisional.p2.updatechecker.IUpdateListener)
 	 */
-	public void addUpdateCheck(String profileId, long delay, long poll, IUpdateListener listener) {
+	public void addUpdateCheck(String profileId, Query query, long delay, long poll, IUpdateListener listener) {
 		log("Adding update checker for " + profileId + " at " + getTimeStamp()); //$NON-NLS-1$ //$NON-NLS-2$
-		UpdateCheckThread thread = new UpdateCheckThread(profileId, delay, poll, listener);
+		UpdateCheckThread thread = new UpdateCheckThread(profileId, query, delay, poll, listener);
 		checkers.add(thread);
 		thread.start();
 	}
@@ -110,15 +113,15 @@ public class UpdateChecker implements IUpdateChecker {
 	 * Return the array of ius in the profile that have updates
 	 * available.
 	 */
-	IInstallableUnit[] checkForUpdates(String profileId) {
-		// TODO this is naive.  We get all the ius every time whereas we
-		// could monitor changes in the profile.
+	IInstallableUnit[] checkForUpdates(String profileId, Query query) {
 		IProfile profile = getProfileRegistry().getProfile(profileId);
 		ArrayList iusWithUpdates = new ArrayList();
 		if (profile == null)
 			return new IInstallableUnit[0];
 		ProvisioningContext context = new ProvisioningContext(getAvailableRepositories());
-		Iterator iter = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
+		if (query == null)
+			query = InstallableUnitQuery.ANY;
+		Iterator iter = profile.query(query, new Collector(), null).iterator();
 		while (iter.hasNext()) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			IInstallableUnit[] replacements = getPlanner().updatesFor(iu, context, null);

@@ -16,6 +16,7 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.updatechecker.UpdateChecker;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.*;
 
 /**
@@ -67,7 +68,7 @@ public class UpdateCheckerApplication implements IApplication {
 		if (profileId == null) {
 			System.out.println("Must specify a profile id using -profile arg"); //$NON-NLS-1$
 		} else {
-			checker.addUpdateCheck(profileId, delay, poll, listener);
+			checker.addUpdateCheck(profileId, InstallableUnitQuery.ANY, delay, poll, listener);
 		}
 
 		return null;
