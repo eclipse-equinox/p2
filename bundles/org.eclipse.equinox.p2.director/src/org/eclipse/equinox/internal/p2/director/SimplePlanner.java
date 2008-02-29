@@ -339,7 +339,7 @@ public class SimplePlanner implements IPlanner {
 			//			remainingIUs.add(updateRoots[i]);
 			//		}
 			URL[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
-			IInstallableUnit[] allUnits = gatherAvailableInstallableUnits(null, metadataRepositories, sub.newChild(ExpandWork / 3));
+			IInstallableUnit[] allUnits = gatherAvailableInstallableUnits(alreadyInstalled, metadataRepositories, sub.newChild(ExpandWork / 3));
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
 			String newFlavor = profileChangeRequest.getProfileProperty(IProfile.PROP_FLAVOR);
 
