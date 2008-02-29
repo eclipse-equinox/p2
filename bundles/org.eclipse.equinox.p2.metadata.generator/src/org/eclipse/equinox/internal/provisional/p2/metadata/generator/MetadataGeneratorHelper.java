@@ -87,7 +87,7 @@ public class MetadataGeneratorHelper {
 	public static final String OSGI_BUNDLE_CLASSIFIER = "osgi.bundle"; //$NON-NLS-1$
 	public static final String BINARY_ARTIFACT_CLASSIFIER = "binary"; //$NON-NLS-1$
 
-	private static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
+	public static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
 
 	private static final String IU_NAMESPACE = IInstallableUnit.NAMESPACE_IU_ID;
 
