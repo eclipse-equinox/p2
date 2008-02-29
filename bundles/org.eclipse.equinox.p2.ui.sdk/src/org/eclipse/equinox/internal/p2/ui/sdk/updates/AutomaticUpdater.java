@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.sdk.updates;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.EventObject;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
@@ -25,10 +26,8 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
@@ -61,7 +60,7 @@ public class AutomaticUpdater implements IUpdateListener {
 
 		public void initializePlan() {
 			try {
-				plan = getProvisioningPlan(toUpdate, profileId, new NullProgressMonitor());
+				plan = getProvisioningPlan(iusWithUpdates, profileId, new NullProgressMonitor());
 			} catch (ProvisionException e) {
 				// ignore
 			}
@@ -78,8 +77,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	StatusLineCLabelContribution updateAffordance;
 	AutomaticUpdateAction updateAction;
 	IStatusLineManager statusLineManager;
-	IInstallableUnit[] updatesFound;
-	IInstallableUnit[] toUpdate;
+	IInstallableUnit[] iusWithUpdates;
 	String profileId;
 	AutomaticUpdatesPopup popup;
 	ProvisioningListener profileChangeListener;
@@ -98,12 +96,10 @@ public class AutomaticUpdater implements IUpdateListener {
 	public void updatesAvailable(final UpdateEvent event) {
 		final boolean download = prefs.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
 		profileId = event.getProfileId();
-		updatesFound = event.getIUs();
+		iusWithUpdates = event.getIUs();
 		alreadyDownloaded = false;
-		// Recompute the updates that we want to make available to the user.
-		toUpdate = getUpdatesToShow(updatesFound, new NullProgressMonitor());
 
-		if (toUpdate.length <= 0) {
+		if (iusWithUpdates.length <= 0) {
 			clearUpdatesAvailable();
 			return;
 		}
@@ -113,12 +109,11 @@ public class AutomaticUpdater implements IUpdateListener {
 		// showing the user that updates are available.
 		try {
 			if (download) {
-				UpdateEvent eventWithOnlyRoots = new UpdateEvent(event.getProfileId(), toUpdate);
-				ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(eventWithOnlyRoots, IQueryProvider.AVAILABLE_UPDATES);
+				ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(event, IQueryProvider.AVAILABLE_UPDATES);
 				IInstallableUnit[] replacements = (IInstallableUnit[]) descriptor.queryable.query(descriptor.query, descriptor.collector, null).toArray(IInstallableUnit.class);
 				if (replacements.length > 0) {
 					ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(event.getProfileId());
-					request.removeInstallableUnits(toUpdate);
+					request.removeInstallableUnits(iusWithUpdates);
 					request.addInstallableUnits(replacements);
 					final ProvisioningPlan plan = ProvisioningUtil.getPlanner().getProvisioningPlan(request, new ProvisioningContext(), null);
 					Job job = ProvisioningOperationRunner.schedule(new ProfileModificationOperation(ProvSDKMessages.AutomaticUpdater_AutomaticDownloadOperationName, event.getProfileId(), plan, new DownloadPhaseSet(), false), null);
@@ -156,41 +151,27 @@ public class AutomaticUpdater implements IUpdateListener {
 
 	}
 
-	// Figure out which updates we want to expose to the user.
-	// Updates of IU's below the user's visiblity will not be shown.
-	IInstallableUnit[] getUpdatesToShow(final IInstallableUnit[] iusWithUpdates, IProgressMonitor monitor) {
-		// We could simply collect the install roots ourselves, but implementing
-		// this in terms of a normal "what's installed" query allows the policy to be defined only
-		// in one place.
-		IQueryable rootQueryable = new IQueryable() {
-			public Collector query(Query query, Collector result, IProgressMonitor pm) {
-				for (int i = 0; i < iusWithUpdates.length; i++)
-					if (query.isMatch(iusWithUpdates[i])) {
-						IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(iusWithUpdates[i], IInstallableUnit.class);
-						if (iu != null) {
-							// It's possible that the update list is stale, so for install roots that had updates available,
-							// we do one more check here to ensure that an update is still available for it.  Otherwise
-							// we risk notifying the user of updates and then not finding them (which can still happen, but
-							// we are trying to reduce the window in which it can happen.
-							try {
-								if (ProvisioningUtil.getPlanner().updatesFor(iu, new ProvisioningContext(), pm).length > 0)
-									result.accept(iusWithUpdates[i]);
-							} catch (ProvisionException e) {
-								ProvUI.handleException(e, ProvSDKMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
-								continue;
-							}
-						}
-					}
-				return result;
+	/*
+	 * Recheck that iusToBeUpdated is still valid, and reset the cache.  
+	 * Reminding the user of updates may happen long after the update 
+	 * was discovered,  so it's possible that the update list is stale.
+	 * This reduces the risk of notifying the user of updates and then 
+	 * not finding them (which can still happen, but
+	 * we are trying to reduce the window in which it can happen.)
+	 */
+
+	private void recheckUpdates(IProgressMonitor monitor) {
+		ArrayList list = new ArrayList();
+		for (int i = 0; i < iusWithUpdates.length; i++) {
+			try {
+				if (ProvisioningUtil.getPlanner().updatesFor(iusWithUpdates[i], new ProvisioningContext(), monitor).length > 0)
+					list.add(iusWithUpdates[i]);
+			} catch (ProvisionException e) {
+				ProvUI.handleException(e, ProvSDKMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
+				continue;
 			}
-		};
-		ProfileElement element = new ProfileElement(profileId);
-		ElementQueryDescriptor descriptor = ProvSDKUIActivator.getDefault().getQueryProvider().getQueryDescriptor(element, IQueryProvider.INSTALLED_IUS);
-		Object[] elements = rootQueryable.query(descriptor.query, descriptor.collector, null).toArray(Object.class);
-		IInstallableUnit[] result = new IInstallableUnit[elements.length];
-		for (int i = 0; i < result.length; i++)
-			result[i] = (IInstallableUnit) ProvUI.getAdapter(elements[i], IInstallableUnit.class);
-		return result;
+		}
+		iusWithUpdates = (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);
 	}
 
 	Shell getWorkbenchWindowShell() {
@@ -339,7 +320,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			 * @see org.eclipse.jface.viewers.ISelectionProvider#getSelection()
 			 */
 			public ISelection getSelection() {
-				return new StructuredSelection(toUpdate);
+				return new StructuredSelection(iusWithUpdates);
 			}
 
 			/* (non-Javadoc)
@@ -391,8 +372,8 @@ public class AutomaticUpdater implements IUpdateListener {
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
-				toUpdate = getUpdatesToShow(updatesFound, monitor);
-				if (toUpdate.length == 0)
+				recheckUpdates(monitor);
+				if (iusWithUpdates.length == 0)
 					clearUpdatesAvailable();
 				else {
 					createUpdateAction();
