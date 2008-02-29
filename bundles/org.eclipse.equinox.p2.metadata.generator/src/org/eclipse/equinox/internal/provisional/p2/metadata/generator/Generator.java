@@ -93,6 +93,8 @@ public class Generator {
 	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
 
+	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
+
 	private final IGeneratorInfo info;
 
 	private GeneratorResult incrementalResult = null;
@@ -305,30 +307,84 @@ public class Generator {
 	}
 
 	protected void generateBundleIUs(BundleDescription[] bundles, GeneratorResult result, IArtifactRepository destination) {
-		for (int i = 0; i < bundles.length; i++) {
-			BundleDescription bd = bundles[i];
-			// A bundle may be null if the associated plug-in does not have a manifest file -
-			// for example, org.eclipse.jdt.launching.j9
-			if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
-				String format = (String) ((Dictionary) bd.getUserObject()).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
-				boolean isDir = format.equals(BundleDescriptionFactory.DIR) ? true : false;
-				IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
-				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
-				if (isDir)
-					publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
-				else
-					publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
-				if (info.reuseExistingPack200Files() && !info.publishArtifacts()) {
-					File packFile = new Path(bd.getLocation()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
-					if (packFile.exists()) {
-						IArtifactDescriptor ad200 = MetadataGeneratorHelper.createPack200ArtifactDescriptor(key, packFile, ad.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-						publishArtifact(ad200, new File[] {packFile}, destination, true);
+		// Computing the path for localized property files in a NL fragment bundle
+		// requires the BUNDLE_LOCALIZATION property from the manifest of the host bundle,
+		// so a first pass is done over all the bundles to cache this value as well as the tags
+		// from the manifest for the localizable properties.
+		final int CACHE_PHASE = 0;
+		final int GENERATE_PHASE = 1;
+		final int BUNDLE_LOCALIZATION_INDEX = MetadataGeneratorHelper.BUNDLE_LOCALIZATION_INDEX;
+		Map bundleLocalizationMap = new HashMap(bundles.length);
+		Set localizationIUs = new HashSet(32);
+		for (int phase = CACHE_PHASE; phase <= GENERATE_PHASE; phase++) {
+			for (int i = 0; i < bundles.length; i++) {
+				BundleDescription bd = bundles[i];
+				// A bundle may be null if the associated plug-in does not have a manifest file -
+				// for example, org.eclipse.jdt.launching.j9
+				if (bd != null && bd.getSymbolicName() != null && bd.getVersion() != null) {
+					Map bundleManifest = (Map) bd.getUserObject();
+
+					if (phase == CACHE_PHASE) {
+						if (bundleManifest != null) {
+							String[] cachedValues = MetadataGeneratorHelper.getManifestCachedValues(bundleManifest);
+							bundleLocalizationMap.put(makeSimpleKey(bd), cachedValues);
+						}
+					} else {
+						String format = (String) (bundleManifest).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
+						boolean isDir = (format != null && format.equals(BundleDescriptionFactory.DIR) ? true : false);
+
+						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
+						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
+						if (isDir)
+							publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
+						else
+							publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
+						if (info.reuseExistingPack200Files() && !info.publishArtifacts()) {
+							File packFile = new Path(bd.getLocation()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
+							if (packFile.exists()) {
+								IArtifactDescriptor ad200 = MetadataGeneratorHelper.createPack200ArtifactDescriptor(key, packFile, ad.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
+								publishArtifact(ad200, new File[] {packFile}, destination, true);
+							}
+						}
+
+						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key, localizationIUs);
+
+						if (isFragment(bd)) {
+							// TODO: Can NL fragments be multi-host?  What special handling
+							//		 is required for multi-host fragments in general?
+							String hostId = bd.getHost().getName();
+							String hostKey = makeSimpleKey(hostId);
+							String[] cachedValues = (String[]) bundleLocalizationMap.get(hostKey);
+
+							if (cachedValues != null) {
+								MetadataGeneratorHelper.createHostLocalizationFragments(bd, hostId, cachedValues, localizationIUs);
+							}
+						}
+
+						result.rootIUs.add(bundleIU);
+						result.nonRootIUs.addAll(localizationIUs);
+						localizationIUs.clear();
 					}
 				}
-				IInstallableUnit iu = MetadataGeneratorHelper.createBundleIU(bd, (Map) bd.getUserObject(), isDir, key);
-				result.rootIUs.add(iu);
 			}
 		}
+	}
+
+	private static boolean isFragment(BundleDescription bd) {
+		return (bd.getHost() != null ? true : false);
+	}
+
+	private static String makeSimpleKey(BundleDescription bd) {
+		// TODO: can't use the bundle version in the key for the BundleLocalization
+		//		 property map since the host specification for a fragment has a
+		//		 version range, not a version. Hence, this mechanism for finding
+		// 		 manifest localization property files may break under changes
+		//		 to the BundleLocalization property of a bundle.
+		return makeSimpleKey(bd.getSymbolicName() /*, bd.getVersion() */);
+	}
+
+	private static String makeSimpleKey(String id /*, Version version */) {
+		return id; // + '_' + version.toString();
 	}
 
 	/**

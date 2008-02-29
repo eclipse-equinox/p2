@@ -101,8 +101,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 						mockManifest.put("Bundle-Version", entry.getVersion());
 						BundleDescription bundleDescription = bundleDesciptionFactory.getBundleDescription(mockManifest, null);
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
-						IInstallableUnit bundleIU = MetadataGeneratorHelper.createEclipseIU(bundleDescription, null, entry.isUnpack(), key, extraProperties);
-						allSiteIUs.add(bundleIU);
+						IInstallableUnit[] bundleIUs = MetadataGeneratorHelper.createEclipseIU(bundleDescription, null, entry.isUnpack(), key, extraProperties);
+						for (int n = 0; n < bundleIUs.length; n++) {
+							allSiteIUs.add(bundleIUs[n]);
+						}
 					}
 				}
 

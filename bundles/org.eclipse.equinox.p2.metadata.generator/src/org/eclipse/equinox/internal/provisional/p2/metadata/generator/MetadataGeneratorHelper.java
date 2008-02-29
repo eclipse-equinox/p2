@@ -12,7 +12,12 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
@@ -57,6 +62,17 @@ public class MetadataGeneratorHelper {
 	 */
 	public static final String TYPE_ECLIPSE_SOURCE = "source"; //$NON-NLS-1$
 
+	/**
+	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * representing localized manifest properties
+	 * @see RequiredCapability#getName()
+	 */
+	public static final String TYPE_ECLIPSE_MANIFEST_LOCALIZATION = "manifest.localization"; //$NON-NLS-1$
+
+	// Only certain properties in the bundle manifest are assumed to be localized.
+	public static final String[] BUNDLE_LOCALIZED_PROPERTIES = {Constants.BUNDLE_NAME, Constants.BUNDLE_DESCRIPTION, Constants.BUNDLE_VENDOR, Constants.BUNDLE_CONTACTADDRESS, Constants.BUNDLE_DOCURL, Constants.BUNDLE_UPDATELOCATION};
+	public static final int BUNDLE_LOCALIZATION_INDEX = BUNDLE_LOCALIZED_PROPERTIES.length;
+
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL};
 
 	private static final String CAPABILITY_NS_JAVA_PACKAGE = "java.package"; //$NON-NLS-1$
@@ -90,6 +106,14 @@ public class MetadataGeneratorHelper {
 	public static final ProvidedCapability BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new Version(1, 0, 0));
 	public static final ProvidedCapability FEATURE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, new Version(1, 0, 0));
 	public static final ProvidedCapability SOURCE_BUNDLE_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, new Version(1, 0, 0));
+	public static final ProvidedCapability MANIFEST_LOCALIZATION_CAPABILITY = MetadataFactory.createProvidedCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_MANIFEST_LOCALIZATION, new Version(1, 0, 0));
+
+	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
+	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
+	static final String MANIFEST_LOCALIZATIONS = "eclipse.p2.manifest.localizations"; //$NON-NLS-1$
+
+	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
+	static final Locale PSEUDO_LOCALE = new Locale("zz", "ZZ"); //$NON-NLS-1$//$NON-NLS-2$
 
 	public static IArtifactDescriptor createArtifactDescriptor(IArtifactKey key, File pathOnDisk, boolean asIs, boolean recur) {
 		//TODO this size calculation is bogus
@@ -149,6 +173,20 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Set localizationIUs) {
+		IInstallableUnit bundleIU = createBundleIU(bd, manifest, isFolderPlugin, key);
+
+		String bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
+		if (bundleLocalization == null) {
+			bundleLocalization = DEFAULT_BUNDLE_LOCALIZATION;
+		}
+		Map manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
+		if (manifestLocalizations != null) {
+			localizationIUs.addAll(createLocalizationFragmentsForBundle(bd, manifestLocalizations));
+		}
+		return bundleIU;
+	}
+
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
 		boolean isBinaryBundle = true;
 		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
@@ -175,7 +213,7 @@ public class MetadataGeneratorHelper {
 		for (int j = 0; j < requiredBundles.length; j++)
 			reqsDeps.add(MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, requiredBundles[j].getName(), requiredBundles[j].getVersionRange() == VersionRange.emptyRange ? null : requiredBundles[j].getVersionRange(), null, requiredBundles[j].isOptional(), false));
 
-		//Process the import package
+		// Process the import packages
 		ImportPackageSpecification osgiImports[] = bd.getImportPackages();
 		for (int i = 0; i < osgiImports.length; i++) {
 			// TODO we need to sort out how we want to handle wild-carded dynamic imports - for now we ignore them
@@ -191,12 +229,12 @@ public class MetadataGeneratorHelper {
 		}
 		iu.setRequiredCapabilities((RequiredCapability[]) reqsDeps.toArray(new RequiredCapability[reqsDeps.size()]));
 
-		// Create Set of provided capabilities
+		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
 		providedCapabilities.add(createSelfCapability(bd.getSymbolicName(), bd.getVersion()));
 		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_BUNDLE, bd.getSymbolicName(), bd.getVersion()));
 
-		//Process the export package
+		// Process the export package
 		ExportPackageDescription exports[] = bd.getExportPackages();
 		for (int i = 0; i < exports.length; i++) {
 			//TODO make sure that we support all the refinement on the exports
@@ -216,16 +254,16 @@ public class MetadataGeneratorHelper {
 
 		iu.setTouchpointType(TOUCHPOINT_OSGI);
 
-		// Set IU properties from the manifest header attributes
-		// TODO The values of the attributes may be localized. Metadata generation
-		//      should construct property files for the IU based on the bundle/plug-in
-		//		property files in whatever locales are provided.
+		// Set certain properties from the manifest header attributes as IU properties.
+		// The values of these attributes may be localized (strings starting with '%')
+		// with the translated values appearing in the localization IU fragments
+		// associated with the bundle IU.
 		if (manifest != null) {
 			int i = 0;
 			while (i < BUNDLE_IU_PROPERTY_MAP.length) {
 				if (manifest.containsKey(BUNDLE_IU_PROPERTY_MAP[i])) {
 					String value = (String) manifest.get(BUNDLE_IU_PROPERTY_MAP[i]);
-					if (value != null) {
+					if (value != null && value.length() > 0) {
 						iu.setProperty(BUNDLE_IU_PROPERTY_MAP[i + 1], value);
 					}
 				}
@@ -240,7 +278,108 @@ public class MetadataGeneratorHelper {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	private static List createLocalizationFragmentsForBundle(BundleDescription bd, Map manifestLocalizations) {
+		List localizationFragments = new ArrayList(manifestLocalizations.size());
+		for (Iterator iter = manifestLocalizations.keySet().iterator(); iter.hasNext();) {
+			Locale locale = (Locale) iter.next();
+			Properties localizedStrings = (Properties) manifestLocalizations.get(locale);
+			IInstallableUnitFragment nextLocaleFragment = createLocalizationFragmentOfBundle(bd, locale, localizedStrings);
+			localizationFragments.add(nextLocaleFragment);
+		}
+		return localizationFragments;
+	}
+
+	/*
+	 * @param bd
+	 * @param locale
+	 * @param localizedStrings
+	 * @return installableUnitFragment
+	 */
+	private static IInstallableUnitFragment createLocalizationFragmentOfBundle(BundleDescription bd, Locale locale, Properties localizedStrings) {
+		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
+		String fragmentId = makeLocalizationFragmentId(bd.getSymbolicName(), locale);
+		fragment.setId(fragmentId);
+		fragment.setVersion(bd.getVersion());
+
+		RequiredCapability[] hostReqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, bd.getSymbolicName(), new VersionRange(bd.getVersion(), true, bd.getVersion(), true), null, false, false)};
+		fragment.setHost(hostReqs);
+
+		fragment.setSingleton(true);
+
+		Enumeration propertyKeys = localizedStrings.propertyNames();
+		while (propertyKeys.hasMoreElements()) {
+			String nextKey = (String) propertyKeys.nextElement();
+			fragment.setProperty(nextKey, localizedStrings.getProperty(nextKey));
+		}
+		// TODO: do we need any capabilities?
+		// Create set of provided capabilities It's just a tag indicating a localization fragment.
+		ArrayList providedCapabilities = new ArrayList(1);
+		providedCapabilities.add(MANIFEST_LOCALIZATION_CAPABILITY);
+		fragment.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+
+		return MetadataFactory.createInstallableUnitFragment(fragment);
+	}
+
+	public static void createHostLocalizationFragments(BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
+		Map hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
+
+		for (Iterator iter = hostLocalizations.keySet().iterator(); iter.hasNext();) {
+			Locale locale = (Locale) iter.next();
+			Properties localizedStrings = (Properties) hostLocalizations.get(locale);
+			IInstallableUnitFragment nextLocaleFragment = createLocalizationFragmentOfHost(hostId, hostBundleManifestValues, bd, locale, localizedStrings);
+			localizationIUs.add(nextLocaleFragment);
+		}
+	}
+
+	/*
+	 * @param hostId
+	 * @param bd
+	 * @param locale
+	 * @param localizedStrings
+	 * @return installableUnitFragment
+	 */
+	private static IInstallableUnitFragment createLocalizationFragmentOfHost(String hostId, String[] hostManifestValues, BundleDescription bd, Locale locale, Properties localizedStrings) {
+		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
+		HostSpecification hostSpec = bd.getHost();
+		String fragmentId = makeLocalizationFragmentId(hostId, locale);
+		fragment.setId(fragmentId);
+		fragment.setVersion(bd.getVersion()); // TODO: is this a meaningful version?
+
+		RequiredCapability[] hostReqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, hostSpec.getName(), hostSpec.getVersionRange(), null, false, false)};
+		fragment.setHost(hostReqs);
+
+		fragment.setSingleton(true);
+
+		for (int i = 0; i < BUNDLE_LOCALIZED_PROPERTIES.length; i++) {
+			String nextKey = hostManifestValues[i];
+			String localizedValue = null;
+			if (nextKey != null && (localizedValue = localizedStrings.getProperty(nextKey)) != null) {
+				fragment.setProperty(nextKey, localizedValue);
+			}
+		}
+		// TODO: do we need any capabilities? It's just a tag indicating a localization fragment.
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList(1);
+		providedCapabilities.add(MANIFEST_LOCALIZATION_CAPABILITY);
+		fragment.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+
+		return MetadataFactory.createInstallableUnitFragment(fragment);
+	}
+
+	/**
+	 * @param id
+	 * @param locale
+	 * @return the id for the fragment contain the localized properties
+	 * 		   for the manifest of the bundle with the given id
+	 * 		   in the given locale.
+	 */
+	private static String makeLocalizationFragmentId(String id, Locale locale) {
+		String localeString = (!DEFAULT_LOCALE.equals(locale) ? '_' + locale.toString() : ""); //$NON-NLS-1$
+		return id + "_manifest" + localeString + "_properties"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -377,16 +516,41 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	// TODO: TEMPORARY - We should figure out if we want to expose something like InstallableUnitDescription
-	public static IInstallableUnit createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
-		InstallableUnit iu = (InstallableUnit) createBundleIU(bd, manifest, isFolderPlugin, key);
+	private static void addExtraProperties(IInstallableUnit iiu, Properties extraProperties) {
+		if (iiu instanceof InstallableUnit) {
+			InstallableUnit iu = (InstallableUnit) iiu;
 
-		Enumeration e = extraProperties.propertyNames();
-		while (e.hasMoreElements()) {
-			String name = (String) e.nextElement();
-			iu.setProperty(name, extraProperties.getProperty(name));
+			for (Enumeration e = extraProperties.propertyNames(); e.hasMoreElements();) {
+				String name = (String) e.nextElement();
+				iu.setProperty(name, extraProperties.getProperty(name));
+			}
 		}
-		return iu;
+	}
+
+	public static IInstallableUnit[] createEclipseIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Properties extraProperties) {
+		ArrayList iusCreated = new ArrayList(4);
+
+		IInstallableUnit iu = createBundleIU(bd, manifest, isFolderPlugin, key);
+		addExtraProperties(iu, extraProperties);
+		iusCreated.add(iu);
+
+		String bundleLocalization = null;
+		if (bd.getHost() == null) // not a fragment
+			bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
+		if (bundleLocalization == null)
+			bundleLocalization = DEFAULT_BUNDLE_LOCALIZATION;
+
+		Map manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
+
+		if (manifestLocalizations != null) {
+			List localizationFragments = createLocalizationFragmentsForBundle(bd, manifestLocalizations);
+			for (Iterator iter = localizationFragments.iterator(); iter.hasNext();) {
+				addExtraProperties((IInstallableUnit) iter.next(), extraProperties);
+			}
+			iusCreated.addAll(localizationFragments);
+		}
+
+		return (IInstallableUnit[]) (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
 	}
 
 	public static IArtifactKey createFeatureArtifactKey(String fsn, String version) {
@@ -775,6 +939,209 @@ public class MetadataGeneratorHelper {
 			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$
 		}
 		return result.toString();
+	}
+
+	// Return a map from locale to property set for the manifest localizations
+	// from the given bundle directory and given bundle localization path/name
+	// manifest property value.
+	private static Map getManifestLocalizations(Map manifest, File bundleLocation) {
+		Map localizations;
+		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
+		String[] bundleManifestValues = getManifestCachedValues(manifest);
+		String bundleLocalization = bundleManifestValues[BUNDLE_LOCALIZATION_INDEX];
+
+		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
+				bundleLocation.isFile()) {
+			localizations = getJarManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+		} else {
+			localizations = getDirManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+		}
+
+		return localizations;
+	}
+
+	public static String[] getManifestCachedValues(Map manifest) {
+		String[] cachedValues = new String[BUNDLE_LOCALIZED_PROPERTIES.length + 1];
+		for (int j = 0; j < MetadataGeneratorHelper.BUNDLE_LOCALIZED_PROPERTIES.length; j++) {
+			String value = (String) manifest.get(BUNDLE_LOCALIZED_PROPERTIES[j]);
+			if (value != null && value.length() > 1 && value.charAt(0) == '%') {
+				cachedValues[j] = value.substring(1);
+			}
+		}
+		String localizationFile = (String) manifest.get(org.osgi.framework.Constants.BUNDLE_LOCALIZATION);
+		cachedValues[BUNDLE_LOCALIZATION_INDEX] = (localizationFile != null ? localizationFile : DEFAULT_BUNDLE_LOCALIZATION);
+		return cachedValues;
+	}
+
+	// Return a map from locale to property set for the manifest localizations
+	// from the given bundle directory and given bundle localization path/name
+	// manifest property value.
+	public static Map getHostLocalizations(File bundleLocation, String[] hostBundleManifestValues) {
+		Map localizations;
+		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
+		String hostBundleLocalization = hostBundleManifestValues[BUNDLE_LOCALIZATION_INDEX];
+
+		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
+				bundleLocation.isFile()) {
+			localizations = getJarManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+		} else {
+			localizations = getDirManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+		}
+
+		return localizations;
+	}
+
+	private static Map getJarManifestLocalization(File bundleLocation, String bundleLocalization, Locale defaultLocale, String[] bundleManifestValues) {
+		ZipFile jarFile = null;
+		Map localizations = new HashMap(4);
+		try {
+			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
+			for (Enumeration entries = jarFile.entries(); entries.hasMoreElements();) {
+				ZipEntry nextEntry = (ZipEntry) entries.nextElement();
+				String nextName = nextEntry.getName();
+				String localeString = getLocaleString(nextName, bundleLocalization);
+
+				if (!nextEntry.isDirectory() && localeString != null) {
+					Locale nextLocale = getLocale(localeString);
+					InputStream stream = null;
+					try {
+						stream = jarFile.getInputStream(nextEntry);
+						Properties properties = new Properties();
+						properties.load(stream);
+						Properties localizedStrings = getLocalizedProperties(bundleManifestValues, properties);
+						if (localizedStrings.size() > 0) {
+							localizations.put(nextLocale, localizedStrings);
+							if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
+								localizations.put(nextLocale, localizedStrings);
+							}
+						}
+					} finally {
+						if (stream != null)
+							stream.close();
+					}
+				}
+			}
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		} finally {
+			if (jarFile != null) {
+				try {
+					jarFile.close();
+				} catch (IOException ioe) {
+					// do nothing
+				}
+			}
+		}
+
+		return localizations;
+	}
+
+	private static Map getDirManifestLocalization(File bundleLocation, String bundleLocalization, Locale defaultLocale, String[] hostBundleManifestValues) {
+		File localizationPath = new File(bundleLocation, bundleLocalization);
+		File localizationDir = localizationPath.getParentFile();
+		final String localizationFile = localizationPath.getName();
+		MetadataGeneratorHelper foo = new MetadataGeneratorHelper();
+		String[] localizationFiles = localizationDir.list(foo.new LocalizationFileFilter() {
+			public boolean accept(File directory, String filename) {
+				return (getLocaleString(filename, localizationFile) != null ? true : false);
+			}
+		});
+
+		HashMap localizations = null;
+
+		if (localizationFiles != null) {
+			localizations = new HashMap(localizationFiles.length);
+			for (int i = 0; i < localizationFiles.length; i++) {
+				String nextFile = localizationFiles[i];
+				Locale nextLocale = getLocale(getLocaleString(nextFile, localizationFile));
+
+				try {
+					Properties properties = loadProperties(bundleLocation, nextFile);
+					Properties localizedStrings = getLocalizedProperties(hostBundleManifestValues, properties);
+					if (localizedStrings.size() > 0) {
+						localizations.put(nextLocale, localizedStrings);
+						if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
+							localizations.put(nextLocale, localizedStrings);
+						}
+					}
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				}
+			}
+		}
+
+		return localizations;
+	}
+
+	private abstract class LocalizationFileFilter implements FilenameFilter {
+
+		public LocalizationFileFilter() {
+			// Nothing to do
+		}
+
+		/* (non-Javadoc)
+		 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
+		 */
+		public abstract boolean accept(File directory, String filename);
+	}
+
+	static public String getLocaleString(String filename, String filenamePrefix) {
+		String localeString = null;
+		if (filename.startsWith(filenamePrefix) && filename.endsWith(PROPERTIES_FILE_EXTENSION)) {
+			if (filename.length() > filenamePrefix.length() + PROPERTIES_FILE_EXTENSION.length()) {
+				localeString = filename.substring(filenamePrefix.length() + 1, filename.length() - PROPERTIES_FILE_EXTENSION.length());
+			} else {
+				localeString = ""; //$NON-NLS-1$
+			}
+		}
+		return localeString;
+	}
+
+	private static Properties loadProperties(File bundleLocation, String localizationFile) throws IOException {
+		Properties result = new Properties();
+		InputStream propertyStream = null;
+		try {
+			try {
+				if (bundleLocation.isDirectory())
+					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
+				else {
+					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection(); //$NON-NLS-1$ //$NON-NLS-2$
+					connection.setUseCaches(false);
+					propertyStream = connection.getInputStream();
+				}
+			} catch (FileNotFoundException e) {
+				// if there is no messages file then just return;
+				return result;
+			}
+			result.load(propertyStream);
+		} finally {
+			if (propertyStream != null)
+				propertyStream.close();
+		}
+		return result;
+	}
+
+	static private Locale getLocale(String localeString) {
+		Locale locale = DEFAULT_LOCALE;
+		if (localeString.length() == 5 && localeString.indexOf('_') == 2) {
+			locale = new Locale(localeString.substring(0, 2), localeString.substring(3, 5));
+		} else if (localeString.length() == 2) {
+			locale = new Locale(localeString.substring(0, 2));
+		}
+		return locale;
+	}
+
+	static private Properties getLocalizedProperties(String[] bundleManifestKeys, Properties properties) {
+		Properties localizedProperties = new Properties();
+		for (int i = 0; i < BUNDLE_LOCALIZED_PROPERTIES.length; i++) {
+			String key = bundleManifestKeys[i];
+			if (key != null) {
+				String localizedValue = properties.getProperty(key);
+				if (localizedValue != null)
+					localizedProperties.put(key, localizedValue);
+			}
+		}
+		return localizedProperties;
 	}
 
 }

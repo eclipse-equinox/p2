@@ -12,9 +12,11 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Locale;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -52,10 +54,12 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, iu.getProperty(IInstallableUnit.PROP_NAME));
+		//addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, iu.getProperty(IInstallableUnit.PROP_NAME));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.getDefault()));
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_IdentifierLabel, iu.getId());
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_VersionLabel, iu.getVersion().toString());
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, iu.getProperty(IInstallableUnit.PROP_PROVIDER));
+		//addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, iu.getProperty(IInstallableUnit.PROP_PROVIDER));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.getDefault()));
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ContactLabel, iu.getProperty(IInstallableUnit.PROP_CONTACT));
 
 	}

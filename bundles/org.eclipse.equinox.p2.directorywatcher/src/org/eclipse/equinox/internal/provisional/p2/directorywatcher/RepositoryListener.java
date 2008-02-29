@@ -306,9 +306,12 @@ public class RepositoryListener extends DirectoryChangeListener {
 				if (featureIUs != null)
 					ius.addAll(Arrays.asList(featureIUs));
 			} else {
-				IInstallableUnit bundleIU = generateBundleIU(candidate, props);
-				if (bundleIU != null)
-					ius.add(bundleIU);
+				IInstallableUnit[] bundleIUs = generateBundleIU(candidate, props);
+				if (bundleIUs != null) {
+					for (int i = 0; i < bundleIUs.length; i++) {
+						ius.add(bundleIUs[i]);
+					}
+				}
 			}
 		}
 		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
@@ -328,15 +331,15 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return new IInstallableUnit[] {featureIU, groupIU};
 	}
 
-	private IInstallableUnit generateBundleIU(File bundleFile, Properties props) {
+	private IInstallableUnit[] generateBundleIU(File bundleFile, Properties props) {
 
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundleFile);
 		if (bundleDescription == null)
 			return null;
 
 		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-		IInstallableUnit iu = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
-		return iu;
+		IInstallableUnit[] ius = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
+		return ius;
 	}
 
 	public IMetadataRepository getMetadataRepository() {
