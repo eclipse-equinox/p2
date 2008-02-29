@@ -283,7 +283,8 @@ class ConfigApplier {
 				continue;
 
 			try {
-				bundle.start();
+				if (!startLevelService.isBundlePersistentlyStarted(bundle))
+					bundle.start();
 				if (Activator.DEBUG)
 					System.out.println("started Bundle:" + bundle.getSymbolicName() + "(" + bundle.getLocation() + ":" + bundle.getBundleId() + ")");
 			} catch (BundleException e) {
