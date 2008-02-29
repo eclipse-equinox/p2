@@ -15,8 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -148,32 +147,72 @@ public class ProfileSynchronizer {
 	}
 
 	/*
-	 * Call the director to install the given list of IUs.
+	 * Install the given list of IUs.
 	 */
 	private IStatus addIUs(IInstallableUnit[] toAdd, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
-		IDirector director = (IDirector) context.getService(reference);
+
+		SubMonitor sub = SubMonitor.convert(monitor, 100);
+
+		ServiceReference reference = context.getServiceReference(IPlanner.class.getName());
+		IPlanner planner = (IPlanner) context.getService(reference);
+
 		try {
 			ProfileChangeRequest request = new ProfileChangeRequest(profile);
 			request.addInstallableUnits(toAdd);
-			return director.provision(request, new ProvisioningContext(new URL[0]), monitor);
+			// mark the roots as such
+			for (int i = 0; i < toAdd.length; i++) {
+				if (Boolean.valueOf(toAdd[i].getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
+					request.setInstallableUnitProfileProperty(toAdd[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
+			}
+
+			ProvisioningContext provisioningContext = new ProvisioningContext(new URL[0]);
+			ProvisioningPlan plan = planner.getProvisioningPlan(request, provisioningContext, sub.newChild(50));
+			if (!plan.getStatus().isOK())
+				return plan.getStatus();
+
+			return executePlan(plan, provisioningContext, sub.newChild(50));
+
 		} finally {
 			context.ungetService(reference);
 		}
 	}
 
 	/*
-	 * Call the director to uninstall the given list of IUs.
+	 * Uninstall the given list of IUs.
 	 */
 	private IStatus removeIUs(IInstallableUnit[] toRemove, IProgressMonitor monitor) {
 		BundleContext context = Activator.getContext();
-		ServiceReference reference = context.getServiceReference(IDirector.class.getName());
-		IDirector director = (IDirector) context.getService(reference);
+
+		SubMonitor sub = SubMonitor.convert(monitor, 100);
+
+		ServiceReference reference = context.getServiceReference(IPlanner.class.getName());
+		IPlanner planner = (IPlanner) context.getService(reference);
+
 		try {
 			ProfileChangeRequest request = new ProfileChangeRequest(profile);
 			request.removeInstallableUnits(toRemove);
-			return director.provision(request, new ProvisioningContext(new URL[0]), monitor);
+
+			ProvisioningContext provisioningContext = new ProvisioningContext(new URL[0]);
+			ProvisioningPlan plan = planner.getProvisioningPlan(request, provisioningContext, sub.newChild(50));
+			if (!plan.getStatus().isOK())
+				return plan.getStatus();
+
+			return executePlan(plan, provisioningContext, sub.newChild(50));
+
+		} finally {
+			context.ungetService(reference);
+		}
+	}
+
+	private IStatus executePlan(ProvisioningPlan plan, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
+		BundleContext context = Activator.getContext();
+		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
+		IEngine engine = (IEngine) context.getService(reference);
+		try {
+			PhaseSet phaseSet = new DefaultPhaseSet();
+			IStatus engineResult = engine.perform(profile, phaseSet, plan.getOperands(), provisioningContext, monitor);
+			return engineResult;
 		} finally {
 			context.ungetService(reference);
 		}
