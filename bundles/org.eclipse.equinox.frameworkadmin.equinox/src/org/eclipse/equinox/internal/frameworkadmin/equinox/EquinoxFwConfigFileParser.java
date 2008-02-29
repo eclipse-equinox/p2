@@ -378,13 +378,21 @@ public class EquinoxFwConfigFileParser {
 			return null;
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-startup") && i + 1 < args.length && args[i + 1].charAt(1) != '-') { //$NON-NLS-1$
-				IPath parentFolder = new Path(args[i + 1]).removeLastSegments(1);
-				if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
-					return parentFolder.removeLastSegments(1).toFile();
-				return parentFolder.toFile();
+				return fromOSGiJarToOSGiInstallArea(args[i + 1]);
 			}
 		}
-		return launcherData.getLauncher().getParentFile();
+		if (launcherData.getFwJar() != null)
+			return fromOSGiJarToOSGiInstallArea(launcherData.getFwJar().getAbsolutePath());
+		if (launcherData.getLauncher() != null)
+			return launcherData.getLauncher().getParentFile();
+		return null;
+	}
+
+	private static File fromOSGiJarToOSGiInstallArea(String path) {
+		IPath parentFolder = new Path(path).removeLastSegments(1);
+		if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
+			return parentFolder.removeLastSegments(1).toFile();
+		return parentFolder.toFile();
 	}
 
 	public void saveFwConfig(BundleInfo[] bInfos, Manipulator manipulator, boolean backup, boolean relative) throws IOException {//{
