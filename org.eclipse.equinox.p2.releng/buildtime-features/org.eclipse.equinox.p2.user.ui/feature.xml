@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.equinox.p2.user.ui.feature"
-      label="Equinox Provisioning User UI Feature"
-      version="1.0.0.qualifier">
+      id="org.eclipse.equinox.p2.user.ui"
+      label="%featureName"
+      version="1.0.0.qualifier"
+      provider-name="%providerName">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+   <description>
+      %description
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright>
+      %copyright
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license url="%licenseURL">
+      %license
    </license>
+
+   <url>
+      <update
+         url="http://update.eclipse.org/updates/3.4"
+         label="%updateSiteName">
+      </update>
+   </url>
 
    <plugin
          id="org.eclipse.equinox.p2.director"
@@ -109,13 +117,6 @@
 
    <plugin
          id="org.eclipse.equinox.frameworkadmin"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.equinox.simpleconfigurator"
          download-size="0"
          install-size="0"
          version="0.0.0"
