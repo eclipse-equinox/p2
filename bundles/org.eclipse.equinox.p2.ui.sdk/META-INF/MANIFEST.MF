@@ -33,7 +33,6 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
 Export-Package: org.eclipse.equinox.internal.p2.ui.sdk;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.prefs;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.updates;x-internal:=true
-Eclipse-PlatformFilter: (| (&(osgi.ws=gtk) (osgi.os=linux)) (osgi.os=win32) (osgi.os=macosx))
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Eclipse-LazyStart: true
