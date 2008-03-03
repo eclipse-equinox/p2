@@ -129,7 +129,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		group.setLayout(new GridLayout());
 		group.setLayoutData(new GridData(GridData.FILL_BOTH));
 		detailsArea = new Text(group, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
-		data = new GridData(SWT.FILL, SWT.FILL, true, false);
+		data = new GridData(SWT.FILL, SWT.FILL, true, true);
 		data.heightHint = convertHeightInCharsToPixels(DEFAULT_DESCRIPTION_HEIGHT);
 		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
 		detailsArea.setLayoutData(data);
