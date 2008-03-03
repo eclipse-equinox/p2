@@ -88,7 +88,7 @@ public class BundleInfo {
 				if (info.symbolicName.equals(symbolicName) && info.version.equals(version) && (info.location == null || location == null ? true : new Path(info.location).toFile().equals(new Path(location).toFile())))
 					return true;
 			} else {
-				return (info.location == null || location == null ? false : info.location.equals(location));
+				return (info.location == null || location == null ? false : new Path(info.location).toFile().equals(new Path(location).toFile()));
 			}
 		}
 		return false;
