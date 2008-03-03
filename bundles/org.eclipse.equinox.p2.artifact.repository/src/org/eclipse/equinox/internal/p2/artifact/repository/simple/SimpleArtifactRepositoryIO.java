@@ -105,7 +105,7 @@ public class SimpleArtifactRepositoryIO {
 		// Constants defining the structure of the XML for a SimpleArtifactRepository
 
 		// A format version number for simple artifact repository XML.
-		public static final Version CURRENT_VERSION = new Version(0, 0, 1);
+		public static final Version CURRENT_VERSION = new Version(1, 0, 0);
 		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
 
 		// Constants for processing instructions
@@ -246,11 +246,6 @@ public class SimpleArtifactRepositoryIO {
 			}
 		}
 
-		public void ProcessingInstruction(String target, String data) throws SAXException {
-			int j = 17;
-			j++;
-		}
-
 		public SimpleArtifactRepository getRepository() {
 			return theRepository;
 		}
@@ -265,12 +260,11 @@ public class SimpleArtifactRepositoryIO {
 				super(rootName, rootHandler);
 			}
 
-			public void ProcessingInstruction(String target, String data) throws SAXException {
+			public void processingInstruction(String target, String data) throws SAXException {
 				if (PI_REPOSITORY_TARGET.equals(target)) {
 					// TODO: should the root handler be constructed based on class
 					// 		 via an extension registry mechanism?
 					// String clazz = extractPIClass(data);
-					// and
 					// TODO: version tolerance by extension
 					Version repositoryVersion = extractPIVersion(target, data);
 					if (!XML_TOLERANCE.isIncluded(repositoryVersion)) {

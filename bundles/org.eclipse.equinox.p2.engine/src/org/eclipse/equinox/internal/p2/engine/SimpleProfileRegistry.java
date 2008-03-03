@@ -480,7 +480,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				super(rootName, rootHandler);
 			}
 
-			public void ProcessingInstruction(String target, String data) throws SAXException {
+			public void processingInstruction(String target, String data) throws SAXException {
 				if (ProfileXMLConstants.PROFILE_TARGET.equals(target)) {
 					Version repositoryVersion = extractPIVersion(target, data);
 					if (!ProfileXMLConstants.XML_TOLERANCE.isIncluded(repositoryVersion)) {

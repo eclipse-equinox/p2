@@ -93,7 +93,7 @@ public class MetadataRepositoryIO {
 		// Constants defining the structure of the XML for a MetadataRepository
 
 		// A format version number for metadata repository XML.
-		public static final String XML_VERSION = "0.0.1"; //$NON-NLS-1$
+		public static final String XML_VERSION = "1.0.0"; //$NON-NLS-1$
 		public static final Version CURRENT_VERSION = new Version(XML_VERSION);
 		public static final VersionRange XML_TOLERANCE = new VersionRange(CURRENT_VERSION, true, new Version(2, 0, 0), false);
 
