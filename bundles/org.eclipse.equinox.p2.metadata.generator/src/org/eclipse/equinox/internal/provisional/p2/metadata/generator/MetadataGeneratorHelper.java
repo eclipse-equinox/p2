@@ -176,13 +176,15 @@ public class MetadataGeneratorHelper {
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Set localizationIUs) {
 		IInstallableUnit bundleIU = createBundleIU(bd, manifest, isFolderPlugin, key);
 
-		String bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
-		if (bundleLocalization == null) {
-			bundleLocalization = DEFAULT_BUNDLE_LOCALIZATION;
-		}
-		Map manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
-		if (manifestLocalizations != null) {
-			localizationIUs.addAll(createLocalizationFragmentsForBundle(bd, manifestLocalizations));
+		if (manifest != null && bd.getLocation() != null) {
+			String bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
+			if (bundleLocalization == null) {
+				bundleLocalization = DEFAULT_BUNDLE_LOCALIZATION;
+			}
+			Map manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
+			if (manifestLocalizations != null) {
+				localizationIUs.addAll(createLocalizationFragmentsForBundle(bd, manifestLocalizations));
+			}
 		}
 		return bundleIU;
 	}
@@ -534,20 +536,22 @@ public class MetadataGeneratorHelper {
 		addExtraProperties(iu, extraProperties);
 		iusCreated.add(iu);
 
-		String bundleLocalization = null;
-		if (bd.getHost() == null) // not a fragment
-			bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
-		if (bundleLocalization == null)
-			bundleLocalization = DEFAULT_BUNDLE_LOCALIZATION;
+		if (manifest != null) {
+			String bundleLocalization = null;
+			if (bd.getHost() == null) // not a fragment
+				bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
+			if (bundleLocalization == null)
+				bundleLocalization = DEFAULT_BUNDLE_LOCALIZATION;
 
-		Map manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
+			Map manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
 
-		if (manifestLocalizations != null) {
-			List localizationFragments = createLocalizationFragmentsForBundle(bd, manifestLocalizations);
-			for (Iterator iter = localizationFragments.iterator(); iter.hasNext();) {
-				addExtraProperties((IInstallableUnit) iter.next(), extraProperties);
+			if (manifestLocalizations != null) {
+				List localizationFragments = createLocalizationFragmentsForBundle(bd, manifestLocalizations);
+				for (Iterator iter = localizationFragments.iterator(); iter.hasNext();) {
+					addExtraProperties((IInstallableUnit) iter.next(), extraProperties);
+				}
+				iusCreated.addAll(localizationFragments);
 			}
-			iusCreated.addAll(localizationFragments);
 		}
 
 		return (IInstallableUnit[]) (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
