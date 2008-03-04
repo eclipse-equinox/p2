@@ -179,4 +179,10 @@ public class GeneratorTask extends Task {
 	public void setMode(String mode) {
 		this.mode = mode;
 	}
+
+	public void setVersionAdvice(String advice) {
+		if (provider == null)
+			provider = new EclipseInstallGeneratorInfoProvider();
+		provider.setVersionAdvice(advice);
+	}
 }

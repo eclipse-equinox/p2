@@ -143,8 +143,8 @@ public class Generator {
 
 		GeneratorResult productContents = new GeneratorResult();
 
-		ProductQuery query = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs);
-		Collector collector = info.getMetadataRepository().query(query, new Collector(), null);
+		ProductQuery query = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
+		Collector collector = info.getMetadataRepository().query(query, query.getCollector(), null);
 		for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
 			productContents.rootIUs.add(iterator.next());
 		}

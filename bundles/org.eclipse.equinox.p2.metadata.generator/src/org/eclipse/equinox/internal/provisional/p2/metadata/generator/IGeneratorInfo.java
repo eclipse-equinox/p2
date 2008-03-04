@@ -88,6 +88,8 @@ public interface IGeneratorInfo {
 
 	public String getProductFile();
 
+	public String getVersionAdvice();
+
 	/**
 	 * Returns the location of the site.xml file, or <code>null</code> if not
 	 * generating for an update site.
@@ -114,6 +116,8 @@ public interface IGeneratorInfo {
 	public void setPublishArtifacts(boolean value);
 
 	public void setRootId(String value);
+
+	public void setVersionAdvice(String advice);
 
 	// TODO: This is kind of ugly. It's purpose is to allow us to craft CUs that we know about and need for our build
 	// We should try to replace this with something more generic prior to release

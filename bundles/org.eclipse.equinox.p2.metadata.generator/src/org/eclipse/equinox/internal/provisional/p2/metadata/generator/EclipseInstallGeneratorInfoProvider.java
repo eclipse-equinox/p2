@@ -90,6 +90,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private String rootVersion;
 	private String productFile = null;
 	private String launcherConfig;
+	private String versionAdvice;
 
 	private URL siteLocation;
 
@@ -501,5 +502,13 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			}
 		}
 		return false;
+	}
+
+	public String getVersionAdvice() {
+		return versionAdvice;
+	}
+
+	public void setVersionAdvice(String advice) {
+		this.versionAdvice = advice;
 	}
 }

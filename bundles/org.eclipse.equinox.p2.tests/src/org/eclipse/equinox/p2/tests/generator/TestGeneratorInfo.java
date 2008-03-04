@@ -178,4 +178,13 @@ public class TestGeneratorInfo implements IGeneratorInfo {
 		return Collections.EMPTY_LIST;
 	}
 
+	public String getVersionAdvice() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setVersionAdvice(String advice) {
+		// TODO Auto-generated method stub
+	}
+
 }
