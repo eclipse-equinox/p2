@@ -635,7 +635,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				File parent = outputFile.getParentFile();
 				parent.mkdirs();
 				if (!parent.isDirectory())
-					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, parent.toString()))); //$NON-NLS-1$
+					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, parent.toString()))); 
 				target = new FileOutputStream(file);
 			}
 

@@ -21,11 +21,11 @@ public class MetadataActivator implements BundleActivator {
 		return context;
 	}
 
-	public void start(BundleContext context) throws Exception {
-		MetadataActivator.context = context;
+	public void start(BundleContext aContext) throws Exception {
+		MetadataActivator.context = aContext;
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext aContext) throws Exception {
 		MetadataActivator.context = null;
 	}
 

@@ -198,7 +198,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		result.add(DEFAULT_SUFFIX);
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i].getName().equals(EL_FILTER)) {
-				String suffix = elements[i].getAttribute(ATTR_SUFFIX); //$NON-NLS-1$
+				String suffix = elements[i].getAttribute(ATTR_SUFFIX); 
 				if (!result.contains(suffix))
 					result.add(suffix);
 			}

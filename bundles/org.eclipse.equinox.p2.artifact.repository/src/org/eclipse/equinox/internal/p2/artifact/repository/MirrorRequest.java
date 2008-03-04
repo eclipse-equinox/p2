@@ -128,6 +128,6 @@ public class MirrorRequest extends ArtifactRequest {
 	}
 
 	public String toString() {
-		return Messages.mirroring + getArtifactKey() + " into " + target; //$NON-NLS-2$
+		return Messages.mirroring + getArtifactKey() + " into " + target; //$NON-NLS-1$
 	}
 }
