@@ -6,7 +6,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.installer.InstallerActivator
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.osgi,
  org.eclipse.equinox.app,
  org.eclipse.equinox.common,
