@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.List;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -33,14 +34,16 @@ import org.osgi.framework.BundleContext;
  */
 public class SimpleConfiguratorImpl implements Configurator {
 
-	BundleContext context;
+	private static URL configurationURL = null;
+	private static Object configurationLock = new Object();
 
-	ConfigApplier configApplier;
+	private BundleContext context;
+	private ConfigApplier configApplier;
+	private Bundle bundle;
 
-	private URL url = null;
-
-	SimpleConfiguratorImpl(BundleContext context) {
+	public SimpleConfiguratorImpl(BundleContext context, Bundle bundle) {
 		this.context = context;
+		this.bundle = bundle;
 	}
 
 	private URL getConfigurationURL() {
@@ -94,21 +97,23 @@ public class SimpleConfiguratorImpl implements Configurator {
 		return null;
 	}
 
-	public synchronized void applyConfiguration(URL url) throws IOException {
-		if (Activator.DEBUG)
-			System.out.println("applyConfiguration() URL=" + url);
-		if (url == null)
-			return;
-		this.url = url;
+	public void applyConfiguration(URL url) throws IOException {
+		synchronized (configurationLock) {
+			if (Activator.DEBUG)
+				System.out.println("applyConfiguration() URL=" + url);
+			if (url == null)
+				return;
+			configurationURL = url;
 
-		List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
-		if (Activator.DEBUG)
-			System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
-		if (bundleInfoList.size() == 0)
-			return;
-		if (this.configApplier == null)
-			configApplier = new ConfigApplier(context, this);
-		configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), url, isExclusiveInstallation());
+			List bundleInfoList = SimpleConfiguratorUtils.readConfiguration(url);
+			if (Activator.DEBUG)
+				System.out.println("applyConfiguration() bundleInfoList.size()=" + bundleInfoList.size());
+			if (bundleInfoList.size() == 0)
+				return;
+			if (this.configApplier == null)
+				configApplier = new ConfigApplier(context, bundle);
+			configApplier.install(Utils.getBundleInfosFromList(bundleInfoList), url, isExclusiveInstallation());
+		}
 	}
 
 	private boolean isExclusiveInstallation() {
@@ -118,14 +123,18 @@ public class SimpleConfiguratorImpl implements Configurator {
 		return Boolean.valueOf(value).booleanValue();
 	}
 
-	public synchronized void applyConfiguration() throws IOException {
-		if (url == null)
-			url = getConfigurationURL();
+	public void applyConfiguration() throws IOException {
+		synchronized (configurationLock) {
+			if (configurationURL == null)
+				configurationURL = getConfigurationURL();
 
-		applyConfiguration(url);
+			applyConfiguration(configurationURL);
+		}
 	}
 
-	public synchronized URL getUrlInUse() {
-		return url;
+	public URL getUrlInUse() {
+		synchronized (configurationLock) {
+			return configurationURL;
+		}
 	}
 }

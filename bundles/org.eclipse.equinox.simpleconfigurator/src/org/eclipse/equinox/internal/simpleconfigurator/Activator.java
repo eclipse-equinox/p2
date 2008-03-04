@@ -40,18 +40,18 @@ import org.osgi.framework.*;
  */
 public class Activator implements BundleActivator {
 	public final static boolean DEBUG = false;
-	private SimpleConfiguratorImpl bundleConfigurator;
 	private ServiceRegistration configuratorRegistration;
 	private ServiceRegistration commandRegistration;
 
 	public void start(BundleContext context) throws Exception {
-		bundleConfigurator = new SimpleConfiguratorImpl(context);
+		SimpleConfiguratorImpl bundleConfigurator = new SimpleConfiguratorImpl(context, context.getBundle());
 		bundleConfigurator.applyConfiguration();
 
 		Dictionary props = new Hashtable();
 		props.put(Constants.SERVICE_VENDOR, "Eclipse"); //$NON-NLS-1$
 		props.put(Constants.SERVICE_PID, SimpleConfiguratorConstants.TARGET_CONFIGURATOR_NAME);
-		configuratorRegistration = context.registerService(Configurator.class.getName(), bundleConfigurator, props);
+		ServiceFactory configurationFactory = new SimpleConfiguratorFactory(context);
+		configuratorRegistration = context.registerService(Configurator.class.getName(), configurationFactory, props);
 
 		try {
 			if (null != context.getBundle().loadClass("org.eclipse.osgi.framework.console.CommandProvider")) //$NON-NLS-1$
@@ -74,7 +74,5 @@ public class Activator implements BundleActivator {
 			commandRegistration.unregister();
 			commandRegistration = null;
 		}
-
-		this.bundleConfigurator = null;
 	}
 }

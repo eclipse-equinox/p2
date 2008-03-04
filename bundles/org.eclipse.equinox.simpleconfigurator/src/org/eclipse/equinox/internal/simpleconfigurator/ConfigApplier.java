@@ -27,8 +27,11 @@ class ConfigApplier {
 	private final boolean runningOnEquinox;
 	private boolean checkManifestBeforeInstall = false;
 
-	ConfigApplier(BundleContext context, SimpleConfiguratorImpl configurator) {
+	private Bundle callingBundle;
+
+	ConfigApplier(BundleContext context, Bundle callingBundle) {
 		this.manipulatingContext = context;
+		this.callingBundle = callingBundle;
 		//String vendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
 		//System.out.println("vendor=" + vendor);
 		this.runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
@@ -279,7 +282,7 @@ class ConfigApplier {
 	private void startBundles(Bundle[] bundles) {
 		for (int i = 0; i < bundles.length; i++) {
 			Bundle bundle = bundles[i];
-			if (bundle.getState() == Bundle.STARTING && (bundle == manipulatingContext.getBundle()))
+			if (bundle.getState() == Bundle.STARTING && (bundle == callingBundle || bundle == manipulatingContext.getBundle()))
 				continue;
 
 			try {
