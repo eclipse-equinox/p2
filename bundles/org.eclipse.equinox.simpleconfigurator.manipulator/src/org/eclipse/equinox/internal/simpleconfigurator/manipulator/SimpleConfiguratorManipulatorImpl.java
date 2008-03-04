@@ -465,6 +465,15 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 				}
 			}
 
+		Collections.sort(bundleInfoList, new Comparator() {
+			public int compare(Object o1, Object o2) {
+				if (o1 instanceof BundleInfo && o2 instanceof BundleInfo) {
+					return ((BundleInfo) o1).getSymbolicName().compareTo(((BundleInfo) o2).getSymbolicName());
+				}
+				return 0;
+			}
+		});
+
 		if (bundleInfoList.size() > 0) {
 			Utils.createParentDir(outputFile);
 			bw = new BufferedWriter(new FileWriter(outputFile));
