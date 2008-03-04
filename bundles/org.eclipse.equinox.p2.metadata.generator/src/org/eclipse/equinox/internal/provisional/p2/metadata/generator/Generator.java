@@ -466,10 +466,8 @@ public class Generator {
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
-				bundle.setSpecialConfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:false);" + //$NON-NLS-1$
-						"setProgramProperty(propName:org.eclipse.p2.update.compatibility, propValue:false);"); //$NON-NLS-1$
-				bundle.setSpecialUnconfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:);" + //$NON-NLS-1$
-						"setProgramProperty(propName:org.eclipse.p2.update.compatibility, propValue:);"); //$NON-NLS-1$
+				bundle.setSpecialConfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:false);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("setProgramProperty(propName:org.eclipse.update.reconcile, propValue:);"); //$NON-NLS-1$
 			} else if (bundle.getStartLevel() == BundleInfo.NO_LEVEL && !bundle.isMarkedAsStarted()) {
 				// this bundle does not require any particular configuration, the plug-in default IU will handle installing it
 				continue;
