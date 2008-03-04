@@ -22,8 +22,8 @@ import org.eclipse.osgi.service.debug.DebugOptions;
 import org.osgi.framework.*;
 
 public class GCActivator implements BundleActivator {
-	public static final String ID = "org.eclipse.equinox.internal.p2.garbagecollector"; //$NON-NLS-1$
-	public static final String DISABLE_GARBAGE_COLLECT = "gc_disabled"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.equinox.p2.garbagecollector"; //$NON-NLS-1$
+	public static final String GC_ENABLED = "gc_enabled"; //$NON-NLS-1$
 	private static final String DEBUG_STRING = GCActivator.ID + "/debug"; //$NON-NLS-1$
 	private static final boolean DEFAULT_DEBUG = false;
 
@@ -70,7 +70,7 @@ public class GCActivator implements BundleActivator {
 					if (uninstallEventOccurred == true) {
 						CommitOperationEvent event = (CommitOperationEvent) o;
 						IPreferencesService prefService = (IPreferencesService) getService(context, IPreferencesService.class.getName());
-						if (!(prefService.getBoolean(ID, DISABLE_GARBAGE_COLLECT, false, null))) {
+						if (!(prefService.getBoolean(ID, GC_ENABLED, false, null))) {
 							new GarbageCollector().runGC(event.getProfile());
 						}
 						uninstallEventOccurred = false;

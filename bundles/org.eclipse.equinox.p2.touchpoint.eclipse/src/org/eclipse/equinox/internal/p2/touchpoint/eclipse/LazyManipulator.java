@@ -58,22 +58,27 @@ public class LazyManipulator implements Manipulator {
 		manipulator.getConfigData().setFwDependentProp("eclipse.p2.data.area", Util.computeRelativeAgentLocation(profile)); //$NON-NLS-1$
 	}
 
-	private Manipulator getFrameworkManipulator() {
+	public static FrameworkAdmin getFrameworkAdmin() {
 		ServiceTracker fwAdminTracker = null;
 		try {
 			Filter filter = Activator.getContext().createFilter(filterFwAdmin);
 			fwAdminTracker = new ServiceTracker(Activator.getContext(), filter, null);
 			fwAdminTracker.open();
 			FrameworkAdmin fwAdmin = (FrameworkAdmin) fwAdminTracker.getService();
-			if (fwAdmin != null)
-				return fwAdmin.getManipulator();
+			return fwAdmin;
 		} catch (InvalidSyntaxException e) {
-			// should not happen
-			e.printStackTrace();
+			//Can't happen we are writing the filter ourselves
+			return null;
 		} finally {
 			if (fwAdminTracker != null)
 				fwAdminTracker.close();
 		}
+	}
+
+	private Manipulator getFrameworkManipulator() {
+		FrameworkAdmin fwAdmin = getFrameworkAdmin();
+		if (fwAdmin != null)
+			return fwAdmin.getManipulator();
 		return null;
 	}
 
