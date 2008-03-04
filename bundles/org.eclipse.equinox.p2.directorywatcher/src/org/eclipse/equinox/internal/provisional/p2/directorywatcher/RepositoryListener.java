@@ -325,9 +325,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, props);
 		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU, props);
 
-		if (!Boolean.getBoolean("org.eclipse.p2.update.compatibility")) //$NON-NLS-1$
-			return new IInstallableUnit[] {groupIU};
-
 		return new IInstallableUnit[] {featureIU, groupIU};
 	}
 
