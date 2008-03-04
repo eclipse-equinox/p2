@@ -57,9 +57,7 @@ public class Activator implements BundleActivator {
 		watchDropins(profile);
 
 		// create watchers for the sites specified in the platform.xml
-		// TODO
-		if (Boolean.getBoolean("org.eclipse.p2.update.compatibility")) //$NON-NLS-1$
-			watchConfiguration();
+		watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
 	}
