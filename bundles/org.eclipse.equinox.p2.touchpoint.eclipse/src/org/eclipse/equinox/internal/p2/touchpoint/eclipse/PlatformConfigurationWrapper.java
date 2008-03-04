@@ -30,10 +30,11 @@ public class PlatformConfigurationWrapper {
 	private Site poolSite = null;
 	private File configFile;
 	private URL poolURL;
+	private String osgiInstallArea;
 
 	private static String FEATURES = "features/"; //$NON-NLS-1$
 
-	public PlatformConfigurationWrapper(URL configDir, URL featurePool) {
+	public PlatformConfigurationWrapper(URL configDir, URL featurePool, URL osgiInstallArea) {
 		this.configuration = null;
 		this.configFile = new File(configDir.getFile(), "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		this.poolURL = featurePool;
@@ -45,7 +46,7 @@ public class PlatformConfigurationWrapper {
 
 		try {
 			if (configFile.exists()) {
-				configuration = Configuration.load(configFile);
+				configuration = Configuration.load(configFile, osgiInstallArea);
 			} else {
 				configuration = new Configuration();
 			}
@@ -104,10 +105,10 @@ public class PlatformConfigurationWrapper {
 	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#save()
 	 */
-	public void save() throws ProvisionException {
+	public void save(URL newOsgiInstallArea) throws ProvisionException {
 		if (configuration != null) {
 			configFile.getParentFile().mkdirs();
-			configuration.save(configFile);
+			configuration.save(configFile, newOsgiInstallArea);
 		}
 	}
 

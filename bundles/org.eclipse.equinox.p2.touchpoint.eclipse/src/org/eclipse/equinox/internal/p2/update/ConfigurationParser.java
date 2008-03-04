@@ -23,13 +23,18 @@ import org.xml.sax.SAXException;
  * @since 1.0
  */
 public class ConfigurationParser implements ConfigurationConstants {
+	private String osgiInstallArea;
 
 	/*
 	 * Parse the given file handle which points to a platform.xml file and a configuration object.
 	 * Returns null if the file doesn't exist.
 	 */
-	public static Configuration parse(File file) throws ProvisionException {
-		return new ConfigurationParser().internalParse(file);
+	public static Configuration parse(File file, String osgiInstallArea) throws ProvisionException {
+		return new ConfigurationParser(osgiInstallArea).internalParse(file);
+	}
+
+	private ConfigurationParser(String osgiInstallArea) {
+		this.osgiInstallArea = osgiInstallArea;
 	}
 
 	/*
@@ -83,8 +88,12 @@ public class ConfigurationParser implements ConfigurationConstants {
 		if (updateable != null)
 			result.setUpdateable(Boolean.valueOf(updateable).booleanValue());
 		String url = getAttribute(node, ATTRIBUTE_URL);
-		if (url != null)
-			result.setUrl(url);
+		if (url != null) {
+			if (osgiInstallArea == null)
+				result.setUrl(url);
+			else
+				result.setUrl(Utils.makeAbsolute(url, osgiInstallArea));
+		}
 		String linkFile = getAttribute(node, ATTRIBUTE_LINKFILE);
 		if (linkFile != null)
 			result.setLinkFile(linkFile);

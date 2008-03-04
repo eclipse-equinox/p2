@@ -145,7 +145,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		if (INSTALL_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
 			PlatformConfigurationWrapper configuration = (PlatformConfigurationWrapper) touchpointParameters.get(PARM_PLATFORM_CONFIGURATION);
 			try {
-				configuration.save();
+				configuration.save(getOSGiInstallArea(manipulator));
 			} catch (ProvisionException pe) {
 				return createError("Error saving platform configuration.", pe);
 			}
@@ -733,17 +733,48 @@ public class EclipseTouchpoint extends Touchpoint {
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
 		touchpointParameters.put(PARM_INSTALL_FOLDER, Util.getInstallFolder(profile));
-		touchpointParameters.put(PARM_MANIPULATOR, new LazyManipulator(profile));
+		LazyManipulator manipulator = new LazyManipulator(profile);
+		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
 		try {
 			URL configURL = getConfigurationURL(profile);
 			URL poolURL = Util.getBundlePoolLocation(profile);
-			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configURL, poolURL));
+			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configURL, poolURL, getOSGiInstallArea(manipulator)));
 		} catch (CoreException ce) {
-			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(null, null));
+			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(null, null, null));
 			return createError("Error constructing platform configuration url.", ce);
 		}
 		return null;
+	}
+
+	private static URL getOSGiInstallArea(Manipulator manipulator) {
+		final String OSGI = "org.eclipse.osgi"; //$NON-NLS-1$
+		BundleInfo[] bis = manipulator.getConfigData().getBundles();
+		String searchFor = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
+		for (int i = 0; i < bis.length; i++) {
+			if (bis[i].getSymbolicName().equals(searchFor)) {
+				if (bis[i].getLocation() != null) {
+					try {
+						if (bis[i].getLocation().startsWith("file:")) //$NON-NLS-1$
+							return fromOSGiJarToOSGiInstallArea(bis[i].getLocation().substring(5)).toURL();
+					} catch (MalformedURLException e) {
+						//do nothing
+					}
+				}
+				if (searchFor.equals(OSGI))
+					return null;
+				searchFor = OSGI;
+				i = -1;
+			}
+		}
+		return null;
+	}
+
+	private static File fromOSGiJarToOSGiInstallArea(String path) {
+		IPath parentFolder = new Path(path).removeLastSegments(1);
+		if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
+			return parentFolder.removeLastSegments(1).toFile();
+		return parentFolder.toFile();
 	}
 
 	IStatus installBundle(Map parameters) {

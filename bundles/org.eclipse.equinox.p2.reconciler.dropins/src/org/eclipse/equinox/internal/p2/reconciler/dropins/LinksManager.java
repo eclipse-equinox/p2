@@ -56,7 +56,7 @@ public class LinksManager {
 			return;
 
 		// read the existing configuration from disk
-		configuration = ConfigurationParser.parse(configurationFile);
+		configuration = ConfigurationParser.parse(configurationFile, null);
 		if (configuration == null)
 			return;
 
@@ -71,7 +71,7 @@ public class LinksManager {
 
 		// write out a new file if there were any changes.
 		if (dirty)
-			ConfigurationWriter.save(configuration, configurationFile);
+			ConfigurationWriter.save(configuration, configurationFile, null);
 		dirty = false;
 	}
 

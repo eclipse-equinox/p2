@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -26,16 +27,16 @@ public class Configuration {
 	String version;
 	String shared_ur;
 
-	public static Configuration load(File location) throws ProvisionException {
-		return ConfigurationParser.parse(location);
+	public static Configuration load(File location, String osgiInstallArea) throws ProvisionException {
+		return ConfigurationParser.parse(location, osgiInstallArea);
 	}
 
 	public Configuration() {
 		super();
 	}
 
-	public void save(File location) throws ProvisionException {
-		ConfigurationWriter.save(this, location);
+	public void save(File location, URL osgiInstallArea) throws ProvisionException {
+		ConfigurationWriter.save(this, location, osgiInstallArea);
 	}
 
 	public String getSharedUR() {

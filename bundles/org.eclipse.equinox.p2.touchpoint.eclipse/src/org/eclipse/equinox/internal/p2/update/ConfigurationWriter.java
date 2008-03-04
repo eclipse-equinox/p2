@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
@@ -22,7 +23,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	/*
 	 * Save the given configuration to the specified location.
 	 */
-	public static void save(Configuration configuration, File location) throws ProvisionException {
+	public static void save(Configuration configuration, File location, URL osgiInstallArea) throws ProvisionException {
 		XMLWriter writer = null;
 		try {
 			OutputStream output = new BufferedOutputStream(new FileOutputStream(location));
@@ -47,7 +48,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 
 			for (Iterator iter = configuration.getSites().iterator(); iter.hasNext();) {
 				Site site = (Site) iter.next();
-				write(writer, site);
+				write(writer, site, osgiInstallArea);
 			}
 
 			writer.endTag(ELEMENT_CONFIG);
@@ -66,7 +67,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	/*
 	 * Write out the given site.
 	 */
-	private static void write(XMLWriter writer, Site site) {
+	private static void write(XMLWriter writer, Site site, URL osgiInstallArea) {
 		Map args = new HashMap();
 
 		String value = site.getLinkFile();
@@ -78,8 +79,12 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			args.put(ATTRIBUTE_POLICY, value);
 
 		value = site.getUrl();
-		if (value != null)
-			args.put(ATTRIBUTE_URL, value);
+		if (value != null) {
+			if (osgiInstallArea == null)
+				args.put(ATTRIBUTE_URL, value);
+			else
+				args.put(ATTRIBUTE_URL, Utils.makeRelative(value, osgiInstallArea));
+		}
 
 		value = toString(site.getList());
 		if (value != null)
