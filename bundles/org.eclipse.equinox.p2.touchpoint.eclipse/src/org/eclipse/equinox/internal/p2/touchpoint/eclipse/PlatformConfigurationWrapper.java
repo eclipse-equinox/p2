@@ -14,8 +14,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
@@ -30,7 +29,7 @@ public class PlatformConfigurationWrapper {
 	private Site poolSite = null;
 	private File configFile;
 	private URL poolURL;
-	private String osgiInstallArea;
+	private URL osgiInstallArea;
 
 	private static String FEATURES = "features/"; //$NON-NLS-1$
 
@@ -38,6 +37,7 @@ public class PlatformConfigurationWrapper {
 		this.configuration = null;
 		this.configFile = new File(configDir.getFile(), "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		this.poolURL = featurePool;
+		this.osgiInstallArea = osgiInstallArea;
 	}
 
 	private void loadDelegate() {
@@ -59,7 +59,7 @@ public class PlatformConfigurationWrapper {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site nextSite = (Site) iter.next();
 			String nextURL = nextSite.getUrl();
-			if (nextURL.equals(poolURL.toExternalForm())) {
+			if (new Path(nextURL).equals(new Path(poolURL.toExternalForm()))) {
 				poolSite = nextSite;
 				break;
 			}

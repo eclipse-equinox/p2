@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
+import java.net.URL;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -23,17 +24,17 @@ import org.xml.sax.SAXException;
  * @since 1.0
  */
 public class ConfigurationParser implements ConfigurationConstants {
-	private String osgiInstallArea;
+	private URL osgiInstallArea;
 
 	/*
 	 * Parse the given file handle which points to a platform.xml file and a configuration object.
 	 * Returns null if the file doesn't exist.
 	 */
-	public static Configuration parse(File file, String osgiInstallArea) throws ProvisionException {
+	public static Configuration parse(File file, URL osgiInstallArea) throws ProvisionException {
 		return new ConfigurationParser(osgiInstallArea).internalParse(file);
 	}
 
-	private ConfigurationParser(String osgiInstallArea) {
+	private ConfigurationParser(URL osgiInstallArea) {
 		this.osgiInstallArea = osgiInstallArea;
 	}
 

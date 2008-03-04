@@ -27,7 +27,7 @@ public class Configuration {
 	String version;
 	String shared_ur;
 
-	public static Configuration load(File location, String osgiInstallArea) throws ProvisionException {
+	public static Configuration load(File location, URL osgiInstallArea) throws ProvisionException {
 		return ConfigurationParser.parse(location, osgiInstallArea);
 	}
 
