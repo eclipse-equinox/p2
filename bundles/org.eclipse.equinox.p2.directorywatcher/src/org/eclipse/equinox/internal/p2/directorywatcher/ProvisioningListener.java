@@ -134,8 +134,9 @@ public class ProvisioningListener extends DirectoryChangeListener {
 	}
 
 	private void generate() {
-		File directory = watcher.getDirectory();
-		IGeneratorInfo info = getProvider(new File[] {directory}, directory);
+		File[] directories = watcher.getDirectories();
+		// TODO this prob isn't right.
+		IGeneratorInfo info = getProvider(directories, directories[0]);
 		new Generator(info).generate();
 	}
 
