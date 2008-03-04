@@ -147,7 +147,7 @@ public class InstallApplication implements IApplication {
 				//just exit after a successful update
 				if (!operation.isFirstInstall())
 					return IApplication.EXIT_OK;
-				if (description.isAutoStart() && advisor.promptForLaunch(description))
+				if (canAutoStart(description))
 					launchProduct(description);
 				else {
 					//notify user that the product was installed
@@ -165,6 +165,19 @@ public class InstallApplication implements IApplication {
 		} finally {
 			advisor.stop();
 		}
+	}
+
+	/**
+	 * Returns whether the configuration described by the given install
+	 * description can be started automatically.
+	 */
+	private boolean canAutoStart(InstallDescription description) {
+		if (!description.isAutoStart())
+			return false;
+		//can't start if we don't know launcher name and path
+		if (description.getLauncherName() == null || description.getInstallLocation() == null)
+			return false;
+		return advisor.promptForLaunch(description);
 	}
 
 	/**
