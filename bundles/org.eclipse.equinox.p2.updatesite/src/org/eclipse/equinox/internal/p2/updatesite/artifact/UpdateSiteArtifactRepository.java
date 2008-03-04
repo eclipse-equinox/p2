@@ -15,11 +15,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.zip.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
+import org.eclipse.equinox.internal.p2.updatesite.Messages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -27,14 +27,18 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.xml.sax.SAXException;
 
 public class UpdateSiteArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
+	private static final String SITE_FILE = "site.xml"; //$NON-NLS-1$
+	private static final String DIR_SEPARATOR = "/"; //$NON-NLS-1$
+
 	private final IArtifactRepository artifactRepository;
 
-	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) {
+	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		super("update site: " + location.toExternalForm(), null, null, location, null, null);
 		BundleContext context = Activator.getBundleContext();
 
@@ -49,11 +53,12 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			e.printStackTrace();
 		}
 		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
+		InputStream is = getSiteInputStream(location);
 		try {
 
 			DefaultSiteParser siteParser = new DefaultSiteParser();
 			Checksum checksum = new CRC32();
-			InputStream is = new CheckedInputStream(new BufferedInputStream(location.openStream()), checksum);
+			is = new CheckedInputStream(new BufferedInputStream(is), checksum);
 			SiteModel siteModel = siteParser.parse(is);
 
 			String savedChecksum = (String) artifactRepository.getProperties().get("site.checksum");
@@ -95,18 +100,75 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 			IArtifactDescriptor[] descriptors = (IArtifactDescriptor[]) allSiteArtifacts.toArray(new IArtifactDescriptor[allSiteArtifacts.size()]);
 			artifactRepository.addDescriptors(descriptors);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String msg = NLS.bind(Messages.UpdateSiteArtifactRepository_ErrorParsingUpdateSite, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+		} catch (IOException e) {
+			String msg = NLS.bind(Messages.UpdateSiteArtifactRepository_ErrorReadingUpdateSite, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+		} finally {
+			safeClose(is);
 		}
 	}
 
-	private Feature[] loadFeaturesFromDigest(URL location, SiteModel siteModel) {
+	public static void validate(URL url, IProgressMonitor monitor) throws ProvisionException {
+		InputStream is = null;
 		try {
-			URL digestURL = new URL(location, "digest.zip");
+			is = getSiteInputStream(url);
+		} finally {
+			safeClose(is);
+		}
+	}
+
+	private static InputStream getSiteInputStream(URL url) throws ProvisionException {
+		try {
+			URL siteURL = getSiteURL(url);
+			return siteURL.openStream();
+		} catch (MalformedURLException e) {
+			String msg = NLS.bind(Messages.UpdateSiteArtifactRepository_InvalidRepositoryLocation, url);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
+		} catch (IOException e) {
+			String msg = NLS.bind(Messages.UpdateSiteArtifactRepository_ErrorReadingSite, url);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
+		}
+	}
+
+	private static void safeClose(InputStream stream) {
+		if (stream == null)
+			return;
+		try {
+			stream.close();
+		} catch (IOException e) {
+			//ignore
+		}
+	}
+
+	public static URL getSiteURL(URL url) throws MalformedURLException {
+		if (url.getPath().endsWith(SITE_FILE))
+			return url;
+
+		if (url.getPath().endsWith(DIR_SEPARATOR))
+			return new URL(url.toExternalForm() + SITE_FILE);
+
+		return new URL(url.toExternalForm() + DIR_SEPARATOR + SITE_FILE);
+	}
+
+	public static URL getFileURL(URL url, String fileName) throws MalformedURLException {
+		if (url.getPath().endsWith(fileName))
+			return url;
+
+		if (url.getPath().endsWith(SITE_FILE))
+			return new URL(url, fileName);
+
+		if (url.getPath().endsWith(DIR_SEPARATOR))
+			return new URL(url.toExternalForm() + fileName);
+
+		return new URL(url.toExternalForm() + DIR_SEPARATOR + fileName);
+	}
+
+	private Feature[] loadFeaturesFromDigest(URL url, SiteModel siteModel) {
+		try {
+			URL digestURL = getFileURL(url, "digest.zip");
 			File digestFile = File.createTempFile("digest", ".zip");
 			try {
 				FileUtils.copyStream(digestURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
@@ -133,7 +195,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 				continue;
 
 			try {
-				URL featureURL = new URL(location, siteFeature.getURLString());
+				URL featureURL = getFileURL(location, siteFeature.getURLString());
 				Feature feature = parseFeature(featureParser, featureURL);
 				featuresMap.put(key, feature);
 				loadIncludedFeatures(feature, featureParser, featuresMap);
@@ -160,7 +222,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 				continue;
 
 			try {
-				URL featureURL = new URL(location, "features/" + entry.getId() + "_" + entry.getVersion() + ".jar");
+				URL featureURL = getFileURL(location, "features/" + entry.getId() + "_" + entry.getVersion() + ".jar");
 				Feature includedFeature = parseFeature(featureParser, featureURL);
 				featuresMap.put(key, includedFeature);
 				loadIncludedFeatures(includedFeature, featureParser, featuresMap);

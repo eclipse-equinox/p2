@@ -38,6 +38,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		SoftReference repository;
 	}
 
+	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
+	private static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
 	private static final String FACTORY = "factory"; //$NON-NLS-1$
 
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
@@ -48,6 +50,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
+
+	private static final String DEFAULT_SUFFIX = "content.xml"; //$NON-NLS-1$
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
@@ -199,9 +203,14 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private String[] getAllSuffixes() {
 		IConfigurationElement[] elements = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
 		ArrayList result = new ArrayList(elements.length);
-		for (int i = 0; i < elements.length; i++)
-			if (elements[i].getName().equals("filter")) //$NON-NLS-1$
-				result.add(elements[i].getAttribute("suffix")); //$NON-NLS-1$
+		result.add(DEFAULT_SUFFIX);
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i].getName().equals(EL_FILTER)) {
+				String suffix = elements[i].getAttribute(ATTR_SUFFIX);
+				if (!result.contains(suffix))
+					result.add(suffix);
+			}
+		}
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 

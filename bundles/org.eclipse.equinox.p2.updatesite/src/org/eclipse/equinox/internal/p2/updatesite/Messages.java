@@ -19,11 +19,16 @@ import org.eclipse.osgi.util.NLS;
  */
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.updatesite.messages"; //$NON-NLS-1$
+
 	public static String UpdateSiteMetadataRepository_ErrorParsingUpdateSite;
 	public static String UpdateSiteMetadataRepository_ErrorReadingUpdateSite;
 	public static String UpdateSiteMetadataRepository_PlatformAdminNotRegistered;
-	public static String UpdateSiteMetadataRepositoryFactory_ErrorReadingSite;
-	public static String UpdateSiteMetadataRepositoryFactory_InvalidRepositoryLocation;
+	public static String UpdateSiteMetadataRepository_ErrorReadingSite;
+	public static String UpdateSiteMetadataRepository_InvalidRepositoryLocation;
+	public static String UpdateSiteArtifactRepository_InvalidRepositoryLocation;
+	public static String UpdateSiteArtifactRepository_ErrorReadingSite;
+	public static String UpdateSiteArtifactRepository_ErrorParsingUpdateSite;
+	public static String UpdateSiteArtifactRepository_ErrorReadingUpdateSite;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

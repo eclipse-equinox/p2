@@ -14,7 +14,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.zip.Checksum;
+import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
@@ -44,14 +44,30 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 	private static final String FEATURE_DIR = "features/"; //$NON-NLS-1$
 	private static final String FEATURE_TEMP_FILE = "feature"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
+	private static final String SITE_FILE = "site.xml"; //$NON-NLS-1$
+	private static final String DIR_SEPARATOR = "/"; //$NON-NLS-1$
 
-	public UpdateSiteMetadataRepository(URL location, URL localRepositoryURL, InputStream is, Checksum checksum) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), null, null, location, null, null);
+	public UpdateSiteMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		super("update site: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
 		BundleContext context = Activator.getBundleContext();
-
-		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
-
+		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
+		File bundleData = context.getDataFile(null);
+		File stateDir = new File(bundleData, stateDirName);
+		URL localRepositoryURL;
 		try {
+			localRepositoryURL = stateDir.toURL();
+		} catch (MalformedURLException e) {
+			// unexpected
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Failed to create local repository", e)); //$NON-NLS-1$
+		}
+
+		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm()); //$NON-NLS-1$
+
+		InputStream is = getSiteInputStream(location);
+		try {
+			Checksum checksum = new CRC32();
+			is = new CheckedInputStream(new BufferedInputStream(is), checksum);
+
 			DefaultSiteParser siteParser = new DefaultSiteParser();
 			SiteModel siteModel = siteParser.parse(is);
 
@@ -93,10 +109,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 					FeatureEntry entry = featureEntries[j];
 					if (entry.isPlugin() && !entry.isRequires()) {
 						Dictionary mockManifest = new Properties();
-						mockManifest.put("Manifest-Version", "1.0");
-						mockManifest.put("Bundle-ManifestVersion", "2");
-						mockManifest.put("Bundle-SymbolicName", entry.getId());
-						mockManifest.put("Bundle-Version", entry.getVersion());
+						mockManifest.put("Manifest-Version", "1.0"); //$NON-NLS-1$ //$NON-NLS-2$
+						mockManifest.put("Bundle-ManifestVersion", "2"); //$NON-NLS-1$ //$NON-NLS-2$
+						mockManifest.put("Bundle-SymbolicName", entry.getId()); //$NON-NLS-1$
+						mockManifest.put("Bundle-Version", entry.getVersion()); //$NON-NLS-1$
 						BundleDescription bundleDescription = bundleDesciptionFactory.getBundleDescription(mockManifest, null);
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
 						IInstallableUnit[] bundleIUs = MetadataGeneratorHelper.createEclipseIU(bundleDescription, null, entry.isUnpack(), key, extraProperties);
@@ -139,13 +155,70 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		} catch (IOException e) {
 			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_ErrorReadingUpdateSite, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+		} finally {
+			safeClose(is);
 		}
 	}
 
-	private Feature[] loadFeaturesFromDigest(URL location, SiteModel siteModel) {
+	public static void validate(URL url, IProgressMonitor monitor) throws ProvisionException {
+		InputStream is = null;
 		try {
-			URL digestURL = new URL(location, "digest.zip");
-			File digestFile = File.createTempFile("digest", ".zip");
+			is = getSiteInputStream(url);
+		} finally {
+			safeClose(is);
+		}
+	}
+
+	private static InputStream getSiteInputStream(URL url) throws ProvisionException {
+		try {
+			URL siteURL = getSiteURL(url);
+			return siteURL.openStream();
+		} catch (MalformedURLException e) {
+			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_InvalidRepositoryLocation, url);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
+		} catch (IOException e) {
+			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_ErrorReadingSite, url);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
+		}
+	}
+
+	private static void safeClose(InputStream stream) {
+		if (stream == null)
+			return;
+		try {
+			stream.close();
+		} catch (IOException e) {
+			//ignore
+		}
+	}
+
+	private static URL getSiteURL(URL url) throws MalformedURLException {
+		if (url.getPath().endsWith(SITE_FILE))
+			return url;
+
+		if (url.getPath().endsWith(DIR_SEPARATOR))
+			return new URL(url.toExternalForm() + SITE_FILE);
+
+		return new URL(url.toExternalForm() + DIR_SEPARATOR + SITE_FILE);
+	}
+
+	private static URL getFileURL(URL url, String fileName) throws MalformedURLException {
+		if (url.getPath().endsWith(fileName))
+			return url;
+
+		if (url.getPath().endsWith(SITE_FILE))
+			return new URL(url, fileName);
+
+		if (url.getPath().endsWith(DIR_SEPARATOR))
+			return new URL(url.toExternalForm() + fileName);
+
+		return new URL(url.toExternalForm() + DIR_SEPARATOR + fileName);
+	}
+
+	private Feature[] loadFeaturesFromDigest(URL url, SiteModel siteModel) {
+		try {
+			URL digestURL = getFileURL(url, "digest.zip"); //$NON-NLS-1$
+			File digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 			try {
 				FileUtils.copyStream(digestURL.openStream(), false, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
 				Feature[] features = new DigestParser().parse(digestFile);
@@ -161,7 +234,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		return null;
 	}
 
-	private Feature[] loadFeaturesFromSiteFeatures(URL location, SiteFeature[] siteFeatures) {
+	private Feature[] loadFeaturesFromSiteFeatures(URL url, SiteFeature[] siteFeatures) {
 		FeatureParser featureParser = new FeatureParser();
 		Map featuresMap = new HashMap();
 		for (int i = 0; i < siteFeatures.length; i++) {
@@ -171,7 +244,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 				continue;
 
 			try {
-				URL featureURL = new URL(location, siteFeature.getURLString());
+				URL featureURL = getFileURL(url, siteFeature.getURLString());
 				Feature feature = parseFeature(featureParser, featureURL);
 				featuresMap.put(key, feature);
 				loadIncludedFeatures(feature, featureParser, featuresMap);

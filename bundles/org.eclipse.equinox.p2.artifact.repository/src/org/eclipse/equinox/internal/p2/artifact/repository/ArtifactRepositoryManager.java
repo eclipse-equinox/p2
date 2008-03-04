@@ -39,7 +39,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		SoftReference repository;
 	}
 
-	private static final String ATTR_FILTER = "filter"; //$NON-NLS-1$
+	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
 	private static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
 	private static final String EL_FACTORY = "factory"; //$NON-NLS-1$
 
@@ -51,6 +51,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
+	private static final String DEFAULT_SUFFIX = "artifacts.xml"; //$NON-NLS-1$
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
@@ -173,7 +174,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		IConfigurationElement[] elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
 		int count = 0;
 		for (int i = 0; i < elt.length; i++) {
-			if (ATTR_FILTER.equals(elt[i].getName())) {
+			if (EL_FILTER.equals(elt[i].getName())) {
 				if (!suffix.equals(elt[i].getAttribute(ATTR_SUFFIX))) {
 					elt[i] = null;
 				} else {
@@ -194,9 +195,14 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	private String[] getAllSuffixes() {
 		IConfigurationElement[] elements = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
 		ArrayList result = new ArrayList(elements.length);
-		for (int i = 0; i < elements.length; i++)
-			if (elements[i].getName().equals(ATTR_FILTER))
-				result.add(elements[i].getAttribute(ATTR_SUFFIX));
+		result.add(DEFAULT_SUFFIX);
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i].getName().equals(EL_FILTER)) {
+				String suffix = elements[i].getAttribute(ATTR_SUFFIX); //$NON-NLS-1$
+				if (!result.contains(suffix))
+					result.add(suffix);
+			}
+		}
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
