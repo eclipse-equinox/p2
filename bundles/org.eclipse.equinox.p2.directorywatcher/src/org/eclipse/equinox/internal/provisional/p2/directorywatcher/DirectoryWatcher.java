@@ -57,7 +57,7 @@ public class DirectoryWatcher {
 		System.err.println(string + ": " + e);
 	}
 
-	final File directory;
+	final File[] directories;
 
 	long poll = 2000;
 	private Set listeners = new HashSet();
@@ -73,14 +73,20 @@ public class DirectoryWatcher {
 
 		File targetDirectory = new File(dir);
 		targetDirectory.mkdirs();
-		directory = targetDirectory;
+		directories = new File[] {targetDirectory};
 	}
 
 	public DirectoryWatcher(File directory) {
 		if (directory == null)
 			throw new IllegalArgumentException("Folder must not be null");
 
-		this.directory = directory;
+		this.directories = new File[] {directory};
+	}
+
+	public DirectoryWatcher(File[] directories) {
+		if (directories == null)
+			throw new IllegalArgumentException("Folder must not be null");
+		this.directories = directories;
 	}
 
 	public synchronized void addListener(DirectoryChangeListener listener) {
@@ -117,8 +123,8 @@ public class DirectoryWatcher {
 		watcher = null;
 	}
 
-	public File getDirectory() {
-		return directory;
+	public File[] getDirectories() {
+		return directories;
 	}
 
 	private void startPoll() {
@@ -130,25 +136,28 @@ public class DirectoryWatcher {
 	}
 
 	private void scanDirectories() {
-		File list[] = directory.listFiles();
-		if (list == null)
-			return;
-		for (int i = 0; i < list.length; i++) {
-			File file = list[i];
-			// if this is a deletion marker then add to the list of pending deletions.
-			if (list[i].getPath().endsWith(".del")) {
-				File target = new File(file.getPath().substring(0, file.getPath().length() - 4));
-				removals.add(target);
-				pendingDeletions.add(target);
-			} else {
-				// else remember that we saw the file and remove it from this list of files to be 
-				// removed at the end.  Then notify all the listeners as needed.
-				scannedFiles.add(file);
-				removals.remove(file);
-				for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
-					DirectoryChangeListener listener = (DirectoryChangeListener) iterator.next();
-					if (isInterested(listener, file))
-						processFile(file, listener);
+		for (int index = 0; index < directories.length; index++) {
+			File directory = directories[index];
+			File list[] = directory.listFiles();
+			if (list == null)
+				return;
+			for (int i = 0; i < list.length; i++) {
+				File file = list[i];
+				// if this is a deletion marker then add to the list of pending deletions.
+				if (list[i].getPath().endsWith(".del")) {
+					File target = new File(file.getPath().substring(0, file.getPath().length() - 4));
+					removals.add(target);
+					pendingDeletions.add(target);
+				} else {
+					// else remember that we saw the file and remove it from this list of files to be 
+					// removed at the end.  Then notify all the listeners as needed.
+					scannedFiles.add(file);
+					removals.remove(file);
+					for (Iterator iterator = listeners.iterator(); iterator.hasNext();) {
+						DirectoryChangeListener listener = (DirectoryChangeListener) iterator.next();
+						if (isInterested(listener, file))
+							processFile(file, listener);
+					}
 				}
 			}
 		}

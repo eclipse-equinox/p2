@@ -120,23 +120,18 @@ public class Activator implements BundleActivator {
 		RepositoryListener listener = new RepositoryListener(Activator.getContext(), Integer.toString(folder.hashCode()));
 		listener.getArtifactRepository().setProperty(PROFILE_EXTENSION, profile.getProfileId());
 
-		DirectoryWatcher watcher = new DirectoryWatcher(folder);
+		List folders = new ArrayList();
+		folders.add(folder);
+		File eclipseFeatures = new File(folder, "eclipse/features");
+		if (eclipseFeatures.isDirectory())
+			folders.add(eclipseFeatures);
+		File eclipsePlugins = new File(folder, "eclipse/plugins");
+		if (eclipsePlugins.isDirectory())
+			folders.add(eclipsePlugins);
+
+		DirectoryWatcher watcher = new DirectoryWatcher((File[]) folders.toArray(new File[folders.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
-
-		File eclipseFeatures = new File(folder, "eclipse/features");
-		if (eclipseFeatures.isDirectory()) {
-			DirectoryWatcher eclipsePluginsWatcher = new DirectoryWatcher(eclipseFeatures);
-			eclipsePluginsWatcher.addListener(listener);
-			eclipsePluginsWatcher.poll();
-		}
-
-		File eclipsePlugins = new File(folder, "eclipse/plugins");
-		if (eclipsePlugins.isDirectory()) {
-			DirectoryWatcher eclipsePluginsWatcher = new DirectoryWatcher(eclipsePlugins);
-			eclipsePluginsWatcher.addListener(listener);
-			eclipsePluginsWatcher.poll();
-		}
 
 		dropinRepository = listener.getMetadataRepository();
 	}

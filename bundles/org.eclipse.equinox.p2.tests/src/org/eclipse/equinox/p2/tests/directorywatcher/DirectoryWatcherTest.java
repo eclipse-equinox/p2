@@ -27,7 +27,7 @@ public class DirectoryWatcherTest extends AbstractProvisioningTest {
 
 	public void testCreateDirectoryWatcherNullDirectory() throws Exception {
 		try {
-			new DirectoryWatcher(null);
+			new DirectoryWatcher((File) null);
 		} catch (IllegalArgumentException e) {
 			return;
 		}
