@@ -23,6 +23,9 @@ public class Messages extends NLS {
 	public static String FileDownloadError;
 	public static String io_failedRead;
 	public static String io_incompatibleVersion;
+	public static String SignatureVerification_failedRead;
+	public static String SignatureVerification_invalidContent;
+	public static String SignatureVerification_invalidFileContent;
 	public static String io_parseError;
 	public static String mirroring;
 	public static String repoMan_exists;

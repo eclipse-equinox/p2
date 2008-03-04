@@ -12,13 +12,13 @@
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.osgi.internal.provisional.verifier.CertificateVerifier;
-import org.eclipse.osgi.internal.provisional.verifier.CertificateVerifierFactory;
+import org.eclipse.osgi.signedcontent.*;
 
 /**
  * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.   
@@ -39,7 +39,7 @@ public class SignatureVerifier extends ProcessingStep {
 		if (tempStream != null)
 			return tempStream;
 		// store input stream in temporary file
-		inputFile = File.createTempFile("signatureFile", ".jar");
+		inputFile = File.createTempFile("signatureFile", ".jar"); //$NON-NLS-1$ //$NON-NLS-2$
 		tempStream = new BufferedOutputStream(new FileOutputStream(inputFile));
 		return tempStream;
 	}
@@ -52,11 +52,8 @@ public class SignatureVerifier extends ProcessingStep {
 				return;
 			// Ok, so there is content, close the tempStream
 			tempStream.close();
+			setStatus(verifyContent());
 
-			CertificateVerifierFactory verifierFactory = (CertificateVerifierFactory) ServiceHelper.getService(Activator.getContext(), CertificateVerifierFactory.class.getName());
-			CertificateVerifier verifier = verifierFactory.getVerifier(inputFile);
-			if (verifier.verifyContent().length > 0)
-				setStatus(new Status(IStatus.ERROR, Activator.ID, "signature verification failure"));
 			// now write the  content to the final destination
 			resultStream = new BufferedInputStream(new FileInputStream(inputFile));
 			FileUtils.copyStream(resultStream, true, getDestination(), false);
@@ -67,6 +64,27 @@ public class SignatureVerifier extends ProcessingStep {
 			if (resultStream != null)
 				resultStream.close();
 		}
+	}
+
+	private IStatus verifyContent() throws IOException {
+		SignedContentFactory verifierFactory = (SignedContentFactory) ServiceHelper.getService(Activator.getContext(), SignedContentFactory.class.getName());
+		SignedContent signedContent;
+		try {
+			signedContent = verifierFactory.getSignedContent(inputFile);
+		} catch (GeneralSecurityException e) {
+			return new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerification_failedRead + inputFile, e);
+		}
+		ArrayList allStatus = new ArrayList(0);
+		SignedContentEntry[] entries = signedContent.getSignedEntries();
+		for (int i = 0; i < entries.length; i++)
+			try {
+				entries[i].verify();
+			} catch (InvalidContentException e) {
+				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerification_invalidContent + entries[i].getName(), e));
+			}
+		if (allStatus.size() > 0)
+			return new MultiStatus(Activator.ID, IStatus.ERROR, (IStatus[]) allStatus.toArray(new IStatus[allStatus.size()]), Messages.SignatureVerification_invalidFileContent + inputFile, null);
+		return Status.OK_STATUS;
 	}
 
 	public void close() throws IOException {

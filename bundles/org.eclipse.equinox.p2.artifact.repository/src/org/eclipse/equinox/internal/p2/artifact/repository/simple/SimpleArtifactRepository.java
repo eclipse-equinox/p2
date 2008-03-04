@@ -266,8 +266,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private synchronized OutputStream addPostSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList steps = new ArrayList();
-		if (signatureVerification)
-			steps.add(new SignatureVerifier());
+		steps.add(new SignatureVerifier());
 		//		if (md5Verification)
 		//			steps.add(new MD5Verifier(descriptor.getProperty(IArtifactDescriptor.ARTIFACT_MD5)));
 		if (steps.isEmpty())
