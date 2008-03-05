@@ -176,6 +176,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		} catch (MalformedURLException e) {
 			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_InvalidRepositoryLocation, url);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
+		} catch (IllegalArgumentException e) {
+			//see bug 221600 - URL.openStream can throw IllegalArgumentException
+			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_InvalidRepositoryLocation, url);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
 		} catch (IOException e) {
 			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_ErrorReadingSite, url);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));

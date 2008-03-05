@@ -188,7 +188,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 						}
 					});
 				} catch (InvocationTargetException e) {
-					return ProvUI.handleException(e, ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW);
+					return ProvUI.handleException(e, ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW | StatusManager.LOG);
 				} catch (InterruptedException e) {
 					// ignore
 				}
