@@ -128,7 +128,7 @@ public abstract class Phase {
 	 */
 	protected static void mergeStatus(MultiStatus multi, IStatus status) {
 		if (status != null && !status.isOK())
-			multi.add(status);
+			multi.merge(status);
 	}
 
 	void postPerform(MultiStatus status, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) {
