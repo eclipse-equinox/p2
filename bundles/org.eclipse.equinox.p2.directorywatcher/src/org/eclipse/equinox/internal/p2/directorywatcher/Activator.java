@@ -14,7 +14,8 @@ package org.eclipse.equinox.internal.p2.directorywatcher;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.osgi.framework.*;
-import org.osgi.service.cm.*;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -34,23 +35,23 @@ public class Activator implements BundleActivator, ManagedServiceFactory {
 		return context;
 	}
 
-	public void start(BundleContext context) throws Exception {
-		this.context = context;
+	public void start(BundleContext aContext) throws Exception {
+		Activator.context = aContext;
 		watchers = new HashMap();
 		Hashtable props = new Hashtable();
 		props.put(Constants.SERVICE_PID, getName());
-		context.registerService(ManagedServiceFactory.class.getName(), this, props);
+		aContext.registerService(ManagedServiceFactory.class.getName(), this, props);
 
-		packageAdminTracker = new ServiceTracker(context, PackageAdmin.class.getName(), null);
+		packageAdminTracker = new ServiceTracker(aContext, PackageAdmin.class.getName(), null);
 		packageAdminTracker.open();
-		configAdminTracker = new ServiceTracker(context, ConfigurationAdmin.class.getName(), null);
+		configAdminTracker = new ServiceTracker(aContext, ConfigurationAdmin.class.getName(), null);
 		configAdminTracker.open();
 
 		// Created the initial configuration
 		Hashtable properties = new Hashtable();
 		set(properties, DirectoryWatcher.POLL);
 		set(properties, DirectoryWatcher.DIR);
-		updated("initial", properties);
+		updated("initial", properties); //$NON-NLS-1$
 	}
 
 	private void set(Hashtable properties, String key) {
@@ -60,7 +61,7 @@ public class Activator implements BundleActivator, ManagedServiceFactory {
 		properties.put(key, o);
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext aContext) throws Exception {
 		if (watchers == null)
 			return;
 		for (Iterator i = watchers.values().iterator(); i.hasNext();)
@@ -82,10 +83,10 @@ public class Activator implements BundleActivator, ManagedServiceFactory {
 	}
 
 	public String getName() {
-		return "equinox.p2.directorywatcher";
+		return "equinox.p2.directorywatcher"; //$NON-NLS-1$
 	}
 
-	public void updated(String pid, Dictionary properties) throws ConfigurationException {
+	public void updated(String pid, Dictionary properties) {
 		deleted(pid);
 		DirectoryWatcher watcher = new DirectoryWatcher(properties, context);
 		watchers.put(pid, watcher);

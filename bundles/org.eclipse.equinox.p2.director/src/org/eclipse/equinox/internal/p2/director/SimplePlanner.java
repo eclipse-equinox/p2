@@ -341,7 +341,7 @@ public class SimplePlanner implements IPlanner {
 			URL[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			IInstallableUnit[] allUnits = gatherAvailableInstallableUnits(alreadyInstalled, metadataRepositories, sub.newChild(ExpandWork / 3));
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
-			String newFlavor = profileChangeRequest.getProfileProperty(IProfile.PROP_FLAVOR);
+			//			String newFlavor = profileChangeRequest.getProfileProperty(IProfile.PROP_FLAVOR);
 
 			NewDependencyExpander finalExpander = new NewDependencyExpander(profileChangeRequest.getAddedInstallableUnits(), (IInstallableUnit[]) remainingIUs.toArray(new IInstallableUnit[remainingIUs.size()]), allUnits, newSelectionContext, true);
 			IStatus finalExpanderResult = finalExpander.expand(sub.newChild(ExpandWork / 3));

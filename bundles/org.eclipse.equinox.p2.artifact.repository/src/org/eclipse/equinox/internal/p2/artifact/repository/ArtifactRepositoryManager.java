@@ -55,7 +55,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
-	 * obtained vai getKey(URL).
+	 * obtained via getKey(URL).
 	 */
 	private Map repositories = null;
 	//lock object to be held when referring to the repositories field
@@ -198,7 +198,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		result.add(DEFAULT_SUFFIX);
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i].getName().equals(EL_FILTER)) {
-				String suffix = elements[i].getAttribute(ATTR_SUFFIX); 
+				String suffix = elements[i].getAttribute(ATTR_SUFFIX);
 				if (!result.contains(suffix))
 					result.add(suffix);
 			}
@@ -469,7 +469,6 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			String locationString = child.get(KEY_URL, null);
 			if (locationString == null)
 				continue;
-			String type = child.get(KEY_TYPE, null);
 			try {
 				RepositoryInfo info = new RepositoryInfo();
 				info.location = new URL(locationString);
