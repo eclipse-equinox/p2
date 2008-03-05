@@ -123,9 +123,9 @@ public class ECFTransport extends Transport {
 		try {
 			retrievalContainer.sendRetrieveRequest(FileIDFactory.getDefault().createFileID(retrievalContainer.getRetrieveNamespace(), toDownload), listener, null);
 		} catch (IncomingFileTransferException e) {
-			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, "error during transfer", e));
+			return statusOn(target, e.getStatus());
 		} catch (FileCreateException e) {
-			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, "error during transfer - could not create file", e));
+			return statusOn(target, e.getStatus());
 		}
 		synchronized (result) {
 			while (result[0] == null) {

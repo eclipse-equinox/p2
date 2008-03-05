@@ -159,9 +159,9 @@ public class ECFMetadataTransport {
 		try {
 			retrievalContainer.sendRetrieveRequest(FileIDFactory.getDefault().createFileID(retrievalContainer.getRetrieveNamespace(), toDownload), listener, null);
 		} catch (IncomingFileTransferException e) {
-			return new Status(IStatus.ERROR, Activator.ID, "error during transfer", e);
+			return e.getStatus();
 		} catch (FileCreateException e) {
-			return new Status(IStatus.ERROR, Activator.ID, "error during transfer - could not create file", e);
+			return e.getStatus();
 		}
 		synchronized (result) {
 			while (result[0] == null) {
