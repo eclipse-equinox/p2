@@ -209,7 +209,7 @@ public class NativeTouchpoint extends Touchpoint {
 		for (int i = 0; i < unzippedFiles.length; i++)
 			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append("|");
 
-		String unzipped = profile.setInstallableUnitProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
+		profile.setInstallableUnitProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
 
 		return Status.OK_STATUS;
 	}

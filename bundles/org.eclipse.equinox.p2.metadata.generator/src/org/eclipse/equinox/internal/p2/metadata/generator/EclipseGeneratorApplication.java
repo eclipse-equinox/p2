@@ -68,7 +68,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private File getExecutableName(String base, EclipseInstallGeneratorInfoProvider provider) {
 		File location = provider.getExecutableLocation();
 		if (location == null)
-			return new File(base, EclipseInstallGeneratorInfoProvider.getDefaultExecutableName());
+			return new File(base, EclipseInstallGeneratorInfoProvider.getDefaultExecutableName(null));
 		if (location.isAbsolute())
 			return location;
 		return new File(base, location.getPath());

@@ -48,13 +48,15 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	 */
 	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
 
-	private static String os;
+	private String os;
 
 	/**
 	 * Returns a default name for the executable.
+	 * @param providedOS The operating system to return the executable for. If null,
+	 * the operating system is determined from the current runtime environment.
 	 */
-	public static String getDefaultExecutableName() {
-		String theOS = os;
+	public static String getDefaultExecutableName(String providedOS) {
+		String theOS = providedOS;
 		if (theOS == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			theOS = info.getOS();
@@ -62,7 +64,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		if (theOS.equalsIgnoreCase("win32")) //$NON-NLS-1$
 			return "eclipse.exe"; //$NON-NLS-1$
 		if (theOS.equalsIgnoreCase("macosx")) //$NON-NLS-1$
-			return "Eclispse.app"; //$NON-NLS-1$
+			return "Eclipse.app"; //$NON-NLS-1$
 		//FIXME Is this a reasonable default for all non-Windows platforms?
 		return "eclipse"; //$NON-NLS-1$
 	}
@@ -358,7 +360,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public void initialize(File base) {
-		initialize(base, new File(base, "configuration"), new File(base, getDefaultExecutableName()), new File[] {new File(base, "plugins")}, new File(base, "features")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		initialize(base, new File(base, "configuration"), new File(base, getDefaultExecutableName(os)), new File[] {new File(base, "plugins")}, new File(base, "features")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public void initialize(File base, File config, File executable, File[] bundleLocations, File features) {
