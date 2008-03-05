@@ -313,10 +313,6 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	/**
 	 * This method is copied from SimpleConfiguratorUtils class.
-	 * 
-	 * @param url
-	 * @return
-	 * @throws IOException
 	 */
 	public static List readConfiguration(URL url, File base) throws IOException {
 		List bundles = new ArrayList();
@@ -430,7 +426,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		if (!configuratorConfigUrl.getProtocol().equals("file"))
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
 		File outputFile = new File(configuratorConfigUrl.getFile());
-		this.saveConfiguration(setToSimpleConfig, outputFile, getOSGiInstallArea(manipulator.getLauncherData()), backup);
+		saveConfiguration(setToSimpleConfig, outputFile, getOSGiInstallArea(manipulator.getLauncherData()), backup);
 		configData.setFwIndependentProp(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
@@ -515,12 +511,12 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		if (i == 0) {
 			return toRel.toOSString();
 		}
-		String result = "";
+		String result = ""; //$NON-NLS-1$
 		for (int j = 0; j < (base.segmentCount() - i); j++) {
-			result += ".." + Path.SEPARATOR;
+			result += ".." + IPath.SEPARATOR; //$NON-NLS-1$
 		}
 		if (i == toRel.segmentCount())
-			return ".";
+			return "."; //$NON-NLS-1$
 		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
 		return result;
 	}
@@ -587,23 +583,6 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			return urlString;
 
 		return urlString.substring(0, index - 5) + makeAbsolute(urlString.substring(index), rootURL.toExternalForm());
-	}
-
-	/*
-	 * Look at the given strings and return the index of the first character which isn't the same.
-	 * 
-	 * Method similar to one from SimpleConfigurationManipulatorImpl.
-	 */
-	private static int commonPrefixEnd(String path, String root, int startIndex, int rootStart) {
-		if (startIndex > path.length() || rootStart > root.length())
-			return 0;
-		int index = startIndex;
-		int rootIndex = rootStart;
-		while (index < path.length() + startIndex && rootIndex < root.length() && path.charAt(index) == root.charAt(rootIndex)) {
-			index++;
-			rootIndex++;
-		}
-		return rootIndex == root.length() ? index : 0;
 	}
 
 	void setPrerequisiteBundles(BundleInfo configuratorBundleInfo, BundlesState state, LocationInfo info) {
