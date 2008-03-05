@@ -53,6 +53,9 @@ public class Utils {
 			// normalize to not have leading / so we can check the form
 			File file = new File(path);
 			path = file.toString().replace('\\', '/');
+			// handle URLs that don't have a path
+			if (path.length() == 0)
+				return url;
 			if (Character.isUpperCase(path.charAt(0))) {
 				char[] chars = path.toCharArray();
 				chars[0] = Character.toLowerCase(chars[0]);
