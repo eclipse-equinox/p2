@@ -80,6 +80,7 @@ public class FormerState {
 		}
 		try {
 			IMetadataRepository repository = manager.createRepository(location, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
+			manager.addRepository(repository.getLocation());
 			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
 		} catch (ProvisionException e) {

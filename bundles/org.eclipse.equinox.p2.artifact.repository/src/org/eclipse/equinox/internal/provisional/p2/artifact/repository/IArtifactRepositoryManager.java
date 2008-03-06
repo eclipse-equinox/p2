@@ -19,8 +19,11 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 public interface IArtifactRepositoryManager {
+	public static final IArtifactRequest[] NO_ARTIFACT_REQUEST = new IArtifactRequest[0];
+
 	/**
 	 * Constant used to indicate that all repositories are of interest.
+	 * @see #getKnownRepositories(int)
 	 */
 	public static final int REPOSITORIES_ALL = 0;
 
@@ -48,8 +51,6 @@ public interface IArtifactRepositoryManager {
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
-
-	public static final IArtifactRequest[] NO_ARTIFACT_REQUEST = new IArtifactRequest[0];
 
 	/**
 	 * Adds a repository to the list of artifact repositories tracked by the repository
@@ -88,6 +89,12 @@ public interface IArtifactRepositoryManager {
 	/**
 	 * Creates and returns a new empty artifact repository of the given type at 
 	 * the given location.
+	 * <p>
+	 * The resulting repository is <b>not</b> added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #addRepository(URL)}
+	 * if they want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
 	 * 
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
@@ -152,6 +159,12 @@ public interface IArtifactRepositoryManager {
 	 * Loads the repository at the given location.  The location is expected to contain 
 	 * data that describes a valid artifact repository of a known type.  If this manager
 	 * already knows a repository at the given location then that repository is returned.
+	 * <p>
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URL)}
+	 * if they do not want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
 	 * 
 	 * @param location the location in which to look for a repository description
 	 * @param monitor a progress monitor, or <code>null</code> if progress

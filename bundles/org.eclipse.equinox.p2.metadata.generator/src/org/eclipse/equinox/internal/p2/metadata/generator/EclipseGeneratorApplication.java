@@ -169,6 +169,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		// TODO for now create a random repo by default.
 		String repositoryName = metadataRepoName == null ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
 		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(result.getLocation());
 		if (result != null) {
 			result.setProperty(IRepository.PROP_COMPRESSED, compress);
 			if (metadataRepoName != null)

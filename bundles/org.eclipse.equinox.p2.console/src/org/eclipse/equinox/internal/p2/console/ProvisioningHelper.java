@@ -45,7 +45,9 @@ public class ProvisioningHelper {
 		// for convenience create and add a repository here
 		String repositoryName = location + " - metadata"; //$NON-NLS-1$
 		try {
-			return manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			IMetadataRepository repository = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			manager.addRepository(repository.getLocation());
+			return repository;
 		} catch (ProvisionException e) {
 			return null;
 		}

@@ -51,6 +51,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testCompressedRepository() throws MalformedURLException, ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(repo.getLocation());
 		repo.setProperty(IRepository.PROP_COMPRESSED, "true");
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setMetadataRepository(repo);
@@ -96,6 +97,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testSetProperty() throws MalformedURLException, ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(repo.getLocation());
 		Map properties = repo.getProperties();
 		assertTrue("1.0", !properties.containsKey(TEST_KEY));
 		repo.setProperty(TEST_KEY, TEST_VALUE);
@@ -119,6 +121,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	public void testUncompressedRepository() throws MalformedURLException, ProvisionException {
 		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(repo.getLocation());
 		repo.setProperty(IRepository.PROP_COMPRESSED, "false");
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setMetadataRepository(repo);

@@ -59,6 +59,12 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	/**
 	 * Creates and returns a new empty metadata repository of the given type at 
 	 * the given location.
+	 * <p>
+	 * The resulting repository is <b>not</b> added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #addRepository(URL)}
+	 * if they want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
 	 * 
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
@@ -98,57 +104,6 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	public URL[] getKnownRepositories(int flags);
 
 	/**
-	 * Loads a repository corresponding to the given URL.
-	 * 
-	 * @param location The location of the repository to load
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
-	 * @return The loaded metadata repository
-	 * @throws ProvisionException if the repository could not be created.  Reasons include:
-	 * <ul>
-	 * <li>There is no existing repository at that location.</li>
-	 * <li>The repository at that location could not be read.</li>
-	 * </ul>
-	 */
-	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
-
-	/**
-	 * Validates a given URL and returns a status indicating whether a valid repository is likely
-	 * to be found at the given URL.  Callers must assume that the validity of a 
-	 * repository location cannot be completely determined until an attempt to load 
-	 * the repository is made.  Implementors should make all attempts to validate
-	 * the URL without actually loading the repository.  The computation for this 
-	 * method must be signficantly faster than that of loading the repository.
-	 * Early detectable error conditions, such as the inexistence of the location,
-	 * or an inability to read the location, should be determined in this method.
-	 * 
-	 * @param location The location of the repository to validate
-	 * @param monitor a progress monitor, or <code>null</code> if progress
-	 *    reporting is not desired
-	 * @return A status indicating whether a valid repository is likely located at the
-	 * location.  A status with severity <code>OK</code> indicates that the repository is
-	 * likely to be loadable, or that as much validation as could be done was done.
-	 * Reasons for a non-OK status include:
-	 * <ul>
-	 * <li>The specified location is not a valid repository location.</li>
-	 * <li>There is no existing repository at that location.</li>
-	 * <li>The repository at that location could not be read.</li>
-	 * </ul>
-	 */
-	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor);
-
-	/**
-	 * Removes the metadata repository at the given location from the list of
-	 * metadata repositories tracked by the repository manager.  The underlying
-	 * repository is not deleted.
-	 * 
-	 * @param location The location of the repository to remove
-	 * @return <code>true</code> if a repository was removed, and 
-	 * <code>false</code> otherwise.
-	 */
-	public boolean removeRepository(URL location);
-
-	/**
 	 * Returns the property associated with the repository at the given URL, 
 	 * without loading the repository.
 	 * <p>
@@ -172,4 +127,61 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * 
 	 */
 	public String getRepositoryProperty(URL location, String key);
+
+	/**
+	 * Loads a repository corresponding to the given URL.
+	 * <p>
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URL)}
+	 * if they do not want the repository manager to remember the repository for subsequent
+	 * load attempts.
+	 * </p>
+	 * 
+	 * @param location The location of the repository to load
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The loaded metadata repository
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 */
+	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Removes the metadata repository at the given location from the list of
+	 * metadata repositories tracked by the repository manager.  The underlying
+	 * repository is not deleted.
+	 * 
+	 * @param location The location of the repository to remove
+	 * @return <code>true</code> if a repository was removed, and 
+	 * <code>false</code> otherwise.
+	 */
+	public boolean removeRepository(URL location);
+
+	/**
+	 * Validates a given URL and returns a status indicating whether a valid repository is likely
+	 * to be found at the given URL.  Callers must assume that the validity of a 
+	 * repository location cannot be completely determined until an attempt to load 
+	 * the repository is made.  Implementors should make all attempts to validate
+	 * the URL without actually loading the repository.  The computation for this 
+	 * method must be significantly faster than that of loading the repository.
+	 * Early detectable error conditions, such as the non-existence of the location,
+	 * or an inability to read the location, should be determined in this method.
+	 * 
+	 * @param location The location of the repository to validate
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return A status indicating whether a valid repository is likely located at the
+	 * location.  A status with severity <code>OK</code> indicates that the repository is
+	 * likely to be loadable, or that as much validation as could be done was successful.
+	 * Reasons for a non-OK status include:
+	 * <ul>
+	 * <li>The specified location is not a valid repository location.</li>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 */
+	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor);
 }

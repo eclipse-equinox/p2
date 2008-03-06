@@ -113,6 +113,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				IArtifactRepository repository;
 				if (hidden) {
 					repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+					manager.addRepository(repository.getLocation());
 					repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				} else {
 					repository = manager.createRepository(stateDirURL, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);

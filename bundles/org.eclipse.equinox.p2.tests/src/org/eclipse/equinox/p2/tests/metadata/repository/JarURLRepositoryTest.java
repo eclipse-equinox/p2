@@ -67,7 +67,9 @@ public class JarURLRepositoryTest extends TestCase {
 		deleteDirectory(testRepo);
 		testRepo.mkdir();
 		provider.setFlavor("jartest");
-		provider.setMetadataRepository(manager.createRepository(testRepo.toURL(), "testRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY));
+		IMetadataRepository repository = manager.createRepository(testRepo.toURL(), "testRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(repository.getLocation());
+		provider.setMetadataRepository(repository);
 		IStatus result = new Generator(provider).generate();
 		FileUtils.zip(new File[] {testRepo}, new File(tempDir, "testRepo.jar"));
 		testRepoJar = new File(tempDir, "testRepo.jar");

@@ -16,7 +16,8 @@ import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -49,6 +50,7 @@ public class MetadataCache {
 		}
 		try {
 			IMetadataRepository repository = manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			manager.addRepository(repository.getLocation());
 			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
 		} catch (ProvisionException e) {

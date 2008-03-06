@@ -146,7 +146,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		IMetadataRepository result = factory.create(location, name, type);
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		addRepository(result);
+		clearNotFound(location);
 		return result;
 	}
 
@@ -333,6 +333,20 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		if (badRepos == null)
 			return false;
 		return badRepos.contains(location);
+	}
+
+	/**
+	 * Clear the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void clearNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.remove(location);
+				return;
+			}
+		}
 	}
 
 	/**

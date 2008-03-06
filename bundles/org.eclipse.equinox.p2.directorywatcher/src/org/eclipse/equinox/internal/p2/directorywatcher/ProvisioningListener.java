@@ -186,6 +186,7 @@ public class ProvisioningListener extends DirectoryChangeListener {
 		try {
 			String repositoryName = location + " - metadata"; //$NON-NLS-1$
 			IMetadataRepository repository = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			manager.addRepository(repository.getLocation());
 			provider.setMetadataRepository(repository);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
