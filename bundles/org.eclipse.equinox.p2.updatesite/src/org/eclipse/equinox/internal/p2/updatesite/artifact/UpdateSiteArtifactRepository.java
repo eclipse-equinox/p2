@@ -81,7 +81,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 				Feature feature = features[i];
 				IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 				ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
-				URL featureURL = new URL(location, "features/" + feature.getId() + "_" + feature.getVersion() + ".jar");
+				URL featureURL = getFileURL(location, "features/" + feature.getId() + "_" + feature.getVersion() + ".jar");
 				featureArtifactDescriptor.setRepositoryProperty("artifact.reference", featureURL.toExternalForm());
 				allSiteArtifacts.add(featureArtifactDescriptor);
 
@@ -91,7 +91,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 					if (entry.isPlugin() && !entry.isRequires()) {
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(entry.getId(), entry.getVersion());
 						ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
-						URL pluginURL = new URL(location, "plugins/" + entry.getId() + "_" + entry.getVersion() + ".jar");
+						URL pluginURL = getFileURL(location, "plugins/" + entry.getId() + "_" + entry.getVersion() + ".jar");
 						artifactDescriptor.setRepositoryProperty("artifact.reference", pluginURL.toExternalForm());
 						allSiteArtifacts.add(artifactDescriptor);
 					}
@@ -126,6 +126,10 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			return siteURL.openStream();
 		} catch (MalformedURLException e) {
 			String msg = NLS.bind(Messages.UpdateSiteArtifactRepository_InvalidRepositoryLocation, url);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
+		} catch (IllegalArgumentException e) {
+			//see bug 221600 - URL.openStream can throw IllegalArgumentException
+			String msg = NLS.bind(Messages.UpdateSiteMetadataRepository_InvalidRepositoryLocation, url);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
 		} catch (IOException e) {
 			String msg = NLS.bind(Messages.UpdateSiteArtifactRepository_ErrorReadingSite, url);

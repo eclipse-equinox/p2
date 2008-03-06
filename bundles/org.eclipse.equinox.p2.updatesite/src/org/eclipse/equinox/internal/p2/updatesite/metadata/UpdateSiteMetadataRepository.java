@@ -275,7 +275,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 				continue;
 
 			try {
-				URL featureURL = new URL(location, FEATURE_DIR + entry.getId() + FEATURE_VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
+				URL featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + FEATURE_VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
 				Feature includedFeature = parseFeature(featureParser, featureURL);
 				featuresMap.put(key, includedFeature);
 				loadIncludedFeatures(includedFeature, featureParser, featuresMap);
