@@ -37,14 +37,30 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private final BundleDescriptionFactory bundleDescriptionFactory;
 	private final Map currentFiles = new HashMap();
 	private final String repositoryName;
+	private final boolean hidden;
 	private long lastModifed;
 
-	public RepositoryListener(BundleContext context, String repositoryName) {
+	/**
+	 * Create a repository listener that watches the specified folder and generates repositories
+	 * for its content.
+	 * @param context the bundle context
+	 * @param repositoryName the repository name to use for the repository
+	 * @param repositoryFolder the target folder for the repository, or <code>null</code> if a folder based on the
+	 * bundle's data location should be used.
+	 * @param hidden <code>true</code> if the repository should be hidden, <code>false</code> if not.
+	 */
+	public RepositoryListener(BundleContext context, String repositoryName, File repositoryFolder, boolean hidden) {
 
 		this.repositoryName = repositoryName;
-		String stateDirName = "listener_" + repositoryName;
-		File stateDir = context.getDataFile(stateDirName);
-		stateDir.mkdirs();
+		this.hidden = hidden;
+		File stateDir;
+		if (repositoryFolder == null) {
+			String stateDirName = "listener_" + repositoryName;
+			stateDir = context.getDataFile(stateDirName);
+			stateDir.mkdirs();
+		} else {
+			stateDir = repositoryFolder;
+		}
 
 		URL stateDirURL;
 		try {
@@ -56,6 +72,10 @@ public class RepositoryListener extends DirectoryChangeListener {
 		metadataRepository = initializeMetadataRepository(context, stateDirURL);
 		artifactRepository = initializeArtifactRepository(context, stateDirURL);
 		bundleDescriptionFactory = initializeBundleDescriptionFactory(context);
+	}
+
+	public RepositoryListener(BundleContext context, String string) {
+		this(context, string, null, false);
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
@@ -90,12 +110,17 @@ public class RepositoryListener extends DirectoryChangeListener {
 				//fall through and create a new repository
 			}
 			try {
-				IArtifactRepository repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				IArtifactRepository repository;
+				if (hidden) {
+					repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+					repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				} else {
+					repository = manager.createRepository(stateDirURL, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+				}
 				return repository;
 			} catch (ProvisionException e) {
 				LogHelper.log(e);
-				throw new IllegalStateException("Couldn't create listener artifact repository for: " + stateDirURL);
+				throw new IllegalStateException("Couldn't create artifact repository for: " + stateDirURL);
 			}
 		} finally {
 			context.ungetService(reference);
@@ -116,12 +141,17 @@ public class RepositoryListener extends DirectoryChangeListener {
 			} catch (ProvisionException e) {
 				//fall through and create new repository
 			}
-			IMetadataRepository repository = manager.createRepository(stateDirURL, "Metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			IMetadataRepository repository;
+			if (hidden) {
+				repository = manager.createRepository(stateDirURL, "Metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			} else {
+				repository = manager.createRepository(stateDirURL, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			}
 			return repository;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
-			throw new IllegalStateException("Couldn't create listener metadata repository for: " + stateDirURL);
+			throw new IllegalStateException("Couldn't create metadata repository for: " + stateDirURL);
 		} finally {
 			context.ungetService(reference);
 		}
