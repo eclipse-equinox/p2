@@ -161,6 +161,7 @@ public class ProvisioningListener extends DirectoryChangeListener {
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
 		try {
 			IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			manager.addRepository(result.getLocation());
 			provider.setArtifactRepository(result);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);

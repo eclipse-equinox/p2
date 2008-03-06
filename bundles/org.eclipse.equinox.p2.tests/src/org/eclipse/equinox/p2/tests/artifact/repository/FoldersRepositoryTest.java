@@ -54,6 +54,7 @@ public class FoldersRepositoryTest extends TestCase {
 
 		manager.removeRepository(testRepo.toURL());
 		IArtifactRepository repo = manager.createRepository(testRepo.toURL(), "testRepo", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(repo.getLocation());
 		File pluginsFolder = new File(testRepo, "plugins");
 		pluginsFolder.mkdir();
 

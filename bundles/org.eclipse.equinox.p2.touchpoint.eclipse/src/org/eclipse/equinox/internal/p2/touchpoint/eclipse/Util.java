@@ -76,6 +76,7 @@ public class Util {
 		try {
 			String repositoryName = location + Messages.BundlePool;
 			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
+			manager.addRepository(bundlePool.getLocation());
 			bundlePool.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
 			return (IFileArtifactRepository) bundlePool;
 		} catch (ProvisionException e) {

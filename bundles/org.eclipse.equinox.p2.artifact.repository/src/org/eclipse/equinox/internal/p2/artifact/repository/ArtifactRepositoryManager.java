@@ -166,7 +166,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		IArtifactRepository result = factory.create(location, name, type);
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		addRepository(result);
+		clearNotFound(result.getLocation());
 		return result;
 	}
 
@@ -324,6 +324,20 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	}
 
 	/**
+	 * Clear the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void clearNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.remove(location);
+				return;
+			}
+		}
+	}
+
+	/**
 	 * Cache the fact that we tried to load a repository at this location and did not find anything.
 	 */
 	private void rememberNotFound(URL location) {
@@ -445,6 +459,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 			return;
 		try {
 			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
+			addRepository(cache);
 			cache.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		} catch (ProvisionException e) {
 			LogHelper.log(e);

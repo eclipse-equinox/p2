@@ -153,6 +153,7 @@ public class NativeTouchpoint extends Touchpoint {
 			// the download cache doesn't exist or couldn't be read. Create new cache.
 			String repositoryName = location + " - Agent download cache"; //$NON-NLS-1$
 			repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			manager.addRepository(repository.getLocation());
 			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		}
 

@@ -84,7 +84,9 @@ public class ProvisioningHelper {
 		// could not load a repo at that location so create one as a convenience
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
 		try {
-			return manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			IArtifactRepository repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			manager.addRepository(repository.getLocation());
+			return repository;
 		} catch (ProvisionException e) {
 			return null;
 		}

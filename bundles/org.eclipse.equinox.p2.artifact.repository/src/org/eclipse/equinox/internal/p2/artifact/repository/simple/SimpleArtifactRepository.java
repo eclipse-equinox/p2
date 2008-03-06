@@ -635,7 +635,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				File parent = outputFile.getParentFile();
 				parent.mkdirs();
 				if (!parent.isDirectory())
-					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, parent.toString()))); 
+					throw failedWrite(new IOException(NLS.bind(Messages.sar_failedMkdir, parent.toString())));
 				target = new FileOutputStream(file);
 			}
 
@@ -817,12 +817,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		save();
 		//force repository manager to reload this repository because it caches properties
 		ArtifactRepositoryManager manager = (ArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		try {
-			if (manager.getRepository(location) != null)
-				manager.loadRepository(location, null);
-		} catch (ProvisionException e) {
-			//ignore
-		}
+		if (manager.removeRepository(getLocation()))
+			manager.addRepository(this);
 		return oldValue;
 	}
 

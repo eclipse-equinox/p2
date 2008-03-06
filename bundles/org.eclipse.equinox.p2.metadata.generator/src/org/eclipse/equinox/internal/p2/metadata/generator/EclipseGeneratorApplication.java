@@ -119,6 +119,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		// TODO for now create a Simple repo by default.
 		String repositoryName = artifactRepoName != null ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
 		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(result.getLocation());
 		provider.setArtifactRepository(result);
 		result.setProperty(IRepository.PROP_COMPRESSED, compress);
 		if (provider.reuseExistingPack200Files())

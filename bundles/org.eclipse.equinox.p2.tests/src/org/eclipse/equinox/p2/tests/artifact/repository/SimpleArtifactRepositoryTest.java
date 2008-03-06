@@ -65,6 +65,7 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repoLocation.toURL(), "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		artifactRepositoryManager.addRepository(repo.getLocation());
 		repo.setProperty(IRepository.PROP_COMPRESSED, "true");
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setArtifactRepository(repo);
@@ -96,6 +97,7 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repoLocation.toURL(), "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		artifactRepositoryManager.addRepository(repo.getLocation());
 		repo.setProperty(IRepository.PROP_COMPRESSED, "false");
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setArtifactRepository(repo);
