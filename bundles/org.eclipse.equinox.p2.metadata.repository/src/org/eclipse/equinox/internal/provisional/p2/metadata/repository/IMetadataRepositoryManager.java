@@ -164,11 +164,7 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * Validates a given URL and returns a status indicating whether a valid repository is likely
 	 * to be found at the given URL.  Callers must assume that the validity of a 
 	 * repository location cannot be completely determined until an attempt to load 
-	 * the repository is made.  Implementors should make all attempts to validate
-	 * the URL without actually loading the repository.  The computation for this 
-	 * method must be significantly faster than that of loading the repository.
-	 * Early detectable error conditions, such as the non-existence of the location,
-	 * or an inability to read the location, should be determined in this method.
+	 * the repository is made.  
 	 * 
 	 * @param location The location of the repository to validate
 	 * @param monitor a progress monitor, or <code>null</code> if progress
