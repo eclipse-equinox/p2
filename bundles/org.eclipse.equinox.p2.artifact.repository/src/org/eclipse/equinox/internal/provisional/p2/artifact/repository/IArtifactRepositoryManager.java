@@ -18,6 +18,14 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
+/**
+ * The metadata repository manager is used to create, access, and manipulate
+ * {@link IArtifactRepository} instances. The manager keeps track of a 
+ * set of known repositories, and provides caching of these known repositories
+ * to avoid unnecessary loading of repositories from the disk or network.
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
+ */
 public interface IArtifactRepositoryManager {
 	public static final IArtifactRequest[] NO_ARTIFACT_REQUEST = new IArtifactRequest[0];
 
@@ -177,6 +185,25 @@ public interface IArtifactRepositoryManager {
 	 * </ul>
 	 */
 	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
+
+	/**
+	 * Refreshes the repository corresponding to the given URL. This method discards
+	 * any cached state held by the repository manager and reloads the repository
+	 * contents. The provided repository location must already be known to the repository
+	 * manager.
+	 * 
+	 * @param location The location of the repository to refresh
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting is not desired
+	 * @return The refreshed metadata repository
+	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * <ul>
+	 * <li>The location is not known to the repository manager.</li>
+	 * <li>There is no existing repository at that location.</li>
+	 * <li>The repository at that location could not be read.</li>
+	 * </ul>
+	 */
+	public IArtifactRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException;
 
 	/**
 	 * Remove the given repository from this manager.  Do nothing if the repository

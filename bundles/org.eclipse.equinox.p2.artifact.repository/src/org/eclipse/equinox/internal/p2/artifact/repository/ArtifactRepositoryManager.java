@@ -27,9 +27,11 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
-// TODO Need to react to repository going away 
-// TODO the current assumption that the "location" is the dir/root limits us to 
-// having just one repository in a given URL..  
+/**
+ * Default implementation of {@link IArtifactRepositoryManager}.
+ * TODO the current assumption that the "location" is the dir/root limits us to 
+ * having just one repository in a given URL..  
+ */
 public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	static class RepositoryInfo {
 		String description;
@@ -39,10 +41,11 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		SoftReference repository;
 	}
 
-	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
 	private static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
+	private static final String DEFAULT_SUFFIX = "artifacts.xml"; //$NON-NLS-1$
 	private static final String EL_FACTORY = "factory"; //$NON-NLS-1$
 
+	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String KEY_NAME = "name"; //$NON-NLS-1$
 	private static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
@@ -51,7 +54,6 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
 	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
-	private static final String DEFAULT_SUFFIX = "artifacts.xml"; //$NON-NLS-1$
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
@@ -101,6 +103,34 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		remember(info);
 	}
 
+	/**
+	 * Check if we recently attempted to load the given location and failed
+	 * to find anything. Returns <code>true</code> if the repository was not
+	 * found, and <code>false</code> otherwise.
+	 */
+	private boolean checkNotFound(URL location) {
+		if (unavailableRepositories == null)
+			return false;
+		List badRepos = (List) unavailableRepositories.get();
+		if (badRepos == null)
+			return false;
+		return badRepos.contains(location);
+	}
+
+	/**
+	 * Clear the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void clearNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.remove(location);
+				return;
+			}
+		}
+	}
+
 	public IArtifactRequest createDownloadRequest(IArtifactKey key, IPath destination) {
 		return new FileDownloadRequest(key, destination);
 	}
@@ -129,6 +159,26 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
+	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException {
+		try {
+			loadRepository(location, (IProgressMonitor) null);
+			fail(location, ProvisionException.REPOSITORY_EXISTS);
+		} catch (ProvisionException e) {
+			//expected - fall through and create a new repository
+		}
+		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
+		if (extension == null)
+			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
+		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+		if (factory == null)
+			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+		IArtifactRepository result = factory.create(location, name, type);
+		if (result == null)
+			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+		clearNotFound(result.getLocation());
+		return result;
+	}
+
 	private void fail(URL location, int code) throws ProvisionException {
 		String msg = null;
 		switch (code) {
@@ -148,26 +198,6 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		if (msg == null)
 			msg = Messages.repoMan_internalError;
 		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, null));
-	}
-
-	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException {
-		try {
-			loadRepository(location, (IProgressMonitor) null);
-			fail(location, ProvisionException.REPOSITORY_EXISTS);
-		} catch (ProvisionException e) {
-			//expected - fall through and create a new repository
-		}
-		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
-		if (extension == null)
-			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
-		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
-		if (factory == null)
-			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		IArtifactRepository result = factory.create(location, name, type);
-		if (result == null)
-			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		clearNotFound(result.getLocation());
-		return result;
 	}
 
 	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
@@ -309,51 +339,6 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return null;
 	}
 
-	/**
-	 * Check if we recently attempted to load the given location and failed
-	 * to find anything. Returns <code>true</code> if the repository was not
-	 * found, and <code>false</code> otherwise.
-	 */
-	private boolean checkNotFound(URL location) {
-		if (unavailableRepositories == null)
-			return false;
-		List badRepos = (List) unavailableRepositories.get();
-		if (badRepos == null)
-			return false;
-		return badRepos.contains(location);
-	}
-
-	/**
-	 * Clear the fact that we tried to load a repository at this location and did not find anything.
-	 */
-	private void clearNotFound(URL location) {
-		List badRepos;
-		if (unavailableRepositories != null) {
-			badRepos = (List) unavailableRepositories.get();
-			if (badRepos != null) {
-				badRepos.remove(location);
-				return;
-			}
-		}
-	}
-
-	/**
-	 * Cache the fact that we tried to load a repository at this location and did not find anything.
-	 */
-	private void rememberNotFound(URL location) {
-		List badRepos;
-		if (unavailableRepositories != null) {
-			badRepos = (List) unavailableRepositories.get();
-			if (badRepos != null) {
-				badRepos.add(location);
-				return;
-			}
-		}
-		badRepos = new ArrayList();
-		badRepos.add(location);
-		unavailableRepositories = new SoftReference(badRepos);
-	}
-
 	private IArtifactRepository loadRepository(URL location, String suffix, SubMonitor monitor) {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
 		// Loop over the candidates and return the first one that successfully loads
@@ -401,6 +386,13 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		return true;
 	}
 
+	public IArtifactRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		clearNotFound(location);
+		if (!removeRepository(location))
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		return loadRepository(location, monitor);
+	}
+
 	/*
 	 * Add the given repository object to the preferences and save.
 	 */
@@ -430,6 +422,23 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		changed |= putValue(node, KEY_NAME, info.name);
 		if (changed)
 			saveToPreferences();
+	}
+
+	/**
+	 * Cache the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void rememberNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.add(location);
+				return;
+			}
+		}
+		badRepos = new ArrayList();
+		badRepos.add(location);
+		unavailableRepositories = new SoftReference(badRepos);
 	}
 
 	public boolean removeRepository(URL toRemove) {

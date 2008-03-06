@@ -29,6 +29,9 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
+/**
+ * Default implementation of {@link IMetadataRepositoryManager}.
+ */
 public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	static class RepositoryInfo {
 		String description;
@@ -38,10 +41,11 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		SoftReference repository;
 	}
 
-	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
 	private static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
-	private static final String FACTORY = "factory"; //$NON-NLS-1$
+	private static final String DEFAULT_SUFFIX = "content.xml"; //$NON-NLS-1$
+	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
 
+	private static final String FACTORY = "factory"; //$NON-NLS-1$
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String KEY_NAME = "name"; //$NON-NLS-1$
 	private static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
@@ -49,13 +53,12 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
 	private static final String KEY_VERSION = "version"; //$NON-NLS-1$
-	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
-	private static final String DEFAULT_SUFFIX = "content.xml"; //$NON-NLS-1$
+	private static final String NODE_REPOSITORIES = "repositories"; //$NON-NLS-1$
 
 	/**
 	 * Map of String->RepositoryInfo, where String is the repository key
-	 * obtained vai getKey(URL).
+	 * obtained via getKey(URL).
 	 */
 	private Map repositories = null;
 
@@ -100,6 +103,34 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 		// save the given repository in the preferences.
 		remember(info);
+	}
+
+	/**
+	 * Check if we recently attempted to load the given location and failed
+	 * to find anything. Returns <code>true</code> if the repository was not
+	 * found, and <code>false</code> otherwise.
+	 */
+	private boolean checkNotFound(URL location) {
+		if (unavailableRepositories == null)
+			return false;
+		List badRepos = (List) unavailableRepositories.get();
+		if (badRepos == null)
+			return false;
+		return badRepos.contains(location);
+	}
+
+	/**
+	 * Clear the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void clearNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.remove(location);
+				return;
+			}
+		}
 	}
 
 	/**
@@ -322,80 +353,6 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	}
 
 	/**
-	 * Check if we recently attempted to load the given location and failed
-	 * to find anything. Returns <code>true</code> if the repository was not
-	 * found, and <code>false</code> otherwise.
-	 */
-	private boolean checkNotFound(URL location) {
-		if (unavailableRepositories == null)
-			return false;
-		List badRepos = (List) unavailableRepositories.get();
-		if (badRepos == null)
-			return false;
-		return badRepos.contains(location);
-	}
-
-	/**
-	 * Clear the fact that we tried to load a repository at this location and did not find anything.
-	 */
-	private void clearNotFound(URL location) {
-		List badRepos;
-		if (unavailableRepositories != null) {
-			badRepos = (List) unavailableRepositories.get();
-			if (badRepos != null) {
-				badRepos.remove(location);
-				return;
-			}
-		}
-	}
-
-	/**
-	 * Cache the fact that we tried to load a repository at this location and did not find anything.
-	 */
-	private void rememberNotFound(URL location) {
-		List badRepos;
-		if (unavailableRepositories != null) {
-			badRepos = (List) unavailableRepositories.get();
-			if (badRepos != null) {
-				badRepos.add(location);
-				return;
-			}
-		}
-		badRepos = new ArrayList();
-		badRepos.add(location);
-		unavailableRepositories = new SoftReference(badRepos);
-	}
-
-	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor) {
-		Assert.isNotNull(location);
-		IMetadataRepository result = getRepository(location);
-		if (result != null)
-			return Status.OK_STATUS;
-		String[] suffixes = getAllSuffixes();
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPO_LOADING, suffixes.length * 100);
-		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
-		for (int i = 0; i < suffixes.length; i++) {
-			SubMonitor loopMonitor = sub.newChild(100);
-			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i]);
-			// Loop over the candidates and return the first one that successfully loads
-			monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
-			for (int j = 0; j < providers.length; j++) {
-				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[j], FACTORY);
-				if (factory != null) {
-					status = factory.validate(location, loopMonitor.newChild(10));
-					if (status.isOK()) {
-						sub.done();
-						return status;
-					}
-				}
-			}
-
-		}
-		sub.done();
-		return status;
-	}
-
-	/**
 	 * Try to load a pre-existing repo at the given location
 	 */
 	private IMetadataRepository loadRepository(URL location, String suffix, SubMonitor monitor, MultiStatus failures) {
@@ -481,6 +438,13 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		return collector;
 	}
 
+	public IMetadataRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		clearNotFound(location);
+		if (!removeRepository(location))
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		return loadRepository(location, monitor);
+	}
+
 	/*
 	 * Save the list of repositories in the preference store.
 	 */
@@ -510,6 +474,23 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		changed |= putValue(node, KEY_NAME, info.name);
 		if (changed)
 			saveToPreferences();
+	}
+
+	/**
+	 * Cache the fact that we tried to load a repository at this location and did not find anything.
+	 */
+	private void rememberNotFound(URL location) {
+		List badRepos;
+		if (unavailableRepositories != null) {
+			badRepos = (List) unavailableRepositories.get();
+			if (badRepos != null) {
+				badRepos.add(location);
+				return;
+			}
+		}
+		badRepos = new ArrayList();
+		badRepos.add(location);
+		unavailableRepositories = new SoftReference(badRepos);
 	}
 
 	public boolean removeRepository(URL toRemove) {
@@ -602,5 +583,34 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
 		}
+	}
+
+	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor) {
+		Assert.isNotNull(location);
+		IMetadataRepository result = getRepository(location);
+		if (result != null)
+			return Status.OK_STATUS;
+		String[] suffixes = getAllSuffixes();
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPO_LOADING, suffixes.length * 100);
+		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
+		for (int i = 0; i < suffixes.length; i++) {
+			SubMonitor loopMonitor = sub.newChild(100);
+			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i]);
+			// Loop over the candidates and return the first one that successfully loads
+			monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
+			for (int j = 0; j < providers.length; j++) {
+				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[j], FACTORY);
+				if (factory != null) {
+					status = factory.validate(location, loopMonitor.newChild(10));
+					if (status.isOK()) {
+						sub.done();
+						return status;
+					}
+				}
+			}
+
+		}
+		sub.done();
+		return status;
 	}
 }
