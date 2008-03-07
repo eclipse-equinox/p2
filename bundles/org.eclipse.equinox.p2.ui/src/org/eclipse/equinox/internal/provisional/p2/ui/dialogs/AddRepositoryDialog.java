@@ -45,6 +45,11 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	Button okButton;
 	Text url;
 	URL[] knownRepositories;
+	protected static final int NON_REPO_ERROR = 0;
+	protected static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
+	protected static final String FILE_PROTOCOL_PREFIX = "file:"; //$NON-NLS-1$
+	protected static final String JAR_PATH_PREFIX = "jar:";//$NON-NLS-1$
+	protected static final String JAR_PATH_SUFFIX = "!/"; //$NON-NLS-1$
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
@@ -103,7 +108,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText("file:" + path); //$NON-NLS-1$
+					url.setText(FILE_PROTOCOL_PREFIX + path);
 					validateRepositoryURL(true);
 				}
 			}
@@ -120,7 +125,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastArchiveLocation = path;
-					url.setText("jar:file:" + path + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+					url.setText(FILE_PROTOCOL_PREFIX + JAR_PATH_PREFIX + path + JAR_PATH_SUFFIX);
 					validateRepositoryURL(true);
 				}
 			}
@@ -137,7 +142,13 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	}
 
-	private URL getUserURL() {
+	/**
+	 * Get the URL as currently typed in by the user.  Return null if there
+	 * is a problem with the URL.
+	 * 
+	 * @return the URL currently typed in by the user.
+	 */
+	protected URL getUserURL() {
 		URL userURL;
 		try {
 			userURL = new URL(url.getText().trim());
@@ -170,13 +181,13 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		status[0] = Status.OK_STATUS;
 		final URL userURL = getUserURL();
 		if (url.getText().length() == 0)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.RepositoryGroup_URLRequired, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NON_REPO_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);
 		else if (userURL == null)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NON_REPO_ERROR, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 		else {
 			for (int i = 0; i < knownRepositories.length; i++) {
 				if (knownRepositories[i].toExternalForm().equalsIgnoreCase(userURL.toExternalForm())) {
-					status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatus.OK, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
+					status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NON_REPO_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
 					break;
 				}
 			}
@@ -188,15 +199,49 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 						}
 					});
 				} catch (InvocationTargetException e) {
-					return ProvUI.handleException(e, ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW | StatusManager.LOG);
+					return ProvUI.handleException(e.getCause(), ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW | StatusManager.LOG);
 				} catch (InterruptedException e) {
 					// ignore
 				}
 		}
+		// If the repositories themselves didn't know what to do with this
+		// URL, consult subclasses.  There may be additional work that could
+		// be done to make the location valid.
+		if (!status[0].isOK() && status[0].getCode() != NON_REPO_ERROR)
+			status[0] = handleInvalidRepositoryURL(userURL, status[0]);
+
+		// At this point the subclasses may have decided to opt out of
+		// this dialog.
+		if (status[0].getSeverity() == IStatus.CANCEL) {
+			cancelPressed();
+		}
+
 		setOkEnablement(status[0].isOK());
 		updateStatus(status[0]);
 		return status[0];
 
+	}
+
+	/**
+	 * The repository manager has failed in validating a URL.
+	 * Perform any additional handling of the URL and return a status
+	 * indicating whether the repository URL is still invalid.  Subclasses
+	 * may override when there is additional work, such as repository
+	 * generation, repository authenticatoin, or repository repair that may
+	 * be appropriate for a given URL.
+	 * 
+	 * @param url the URL describing the invalid repository
+	 * @param status the status returned by the repository manager.
+	 * 
+	 * @return a status indicating the current status of the repository.
+	 * Callers may return the original status.  A status with severity
+	 * <code>OK</code> indicates that the caller can proceed with adding
+	 * the repository.  A status with severity <code>CANCEL</code> indicates
+	 * that the dialog should be cancelled.  Any other severity should be 
+	 * reported to the user and indicates an invalid URL.
+	 */
+	protected IStatus handleInvalidRepositoryURL(URL userURL, IStatus status) {
+		return status;
 	}
 
 	protected void updateButtonsEnableState(IStatus status) {

@@ -39,6 +39,12 @@ public class ProvisioningUtil {
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		manager.addRepository(location);
+		notifyRepositoryAdded();
+	}
+
+	// TODO temporary
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=199806
+	public static void notifyRepositoryAdded() {
 		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
 		ProvUIActivator.getDefault().notifyListeners(event);
 	}
@@ -92,8 +98,7 @@ public class ProvisioningUtil {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
 		manager.addRepository(location);
-		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
-		ProvUIActivator.getDefault().notifyListeners(event);
+		notifyRepositoryAdded();
 	}
 
 	public static String getArtifactRepositoryProperty(URL location, String key) throws ProvisionException {
