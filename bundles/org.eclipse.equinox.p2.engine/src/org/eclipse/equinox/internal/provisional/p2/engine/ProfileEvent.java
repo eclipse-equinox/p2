@@ -12,12 +12,15 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.EventObject;
 
+/**
+ * @noextend This class is not intended to be subclassed by clients.
+ */
 public class ProfileEvent extends EventObject {
 	private static final long serialVersionUID = 3082402920617281765L;
 
-	public static byte ADDED = 0;
-	public static byte REMOVED = 1;
-	public static byte CHANGED = 2;
+	public static final byte ADDED = 0;
+	public static final byte REMOVED = 1;
+	public static final byte CHANGED = 2;
 
 	private byte reason;
 
