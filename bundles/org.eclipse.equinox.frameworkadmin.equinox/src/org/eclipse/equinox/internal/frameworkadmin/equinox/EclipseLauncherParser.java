@@ -271,6 +271,14 @@ public class EclipseLauncherParser {
 					resolveNextLine = null;
 				} else {
 					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
+					//We don't write -configuration when it is the default value
+					if (resolveNextLine != null && EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(lines[i])) {
+						if ("configuration".equals(EquinoxManipulatorImpl.makeRelative(lines[i + 1], resolveNextLine))) { //$NON-NLS-1$
+							i++;
+							resolveNextLine = null;
+							continue;
+						}
+					}
 				}
 				bw.write(lines[i]);
 				bw.newLine();
