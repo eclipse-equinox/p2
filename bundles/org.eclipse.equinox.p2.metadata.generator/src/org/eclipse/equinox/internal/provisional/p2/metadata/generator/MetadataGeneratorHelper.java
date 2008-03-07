@@ -200,7 +200,7 @@ public class MetadataGeneratorHelper {
 		iu.setVersion(bd.getVersion());
 		iu.setFilter(bd.getPlatformFilter());
 
-		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(new Version(0, 0, 0), true, bd.getVersion(), false), IUpdateDescriptor.NORMAL, null)); 
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(new Version(0, 0, 0), true, bd.getVersion(), false), IUpdateDescriptor.NORMAL, null));
 
 		boolean isFragment = bd.getHost() != null;
 		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
@@ -826,7 +826,7 @@ public class MetadataGeneratorHelper {
 			ProvidedCapability[] exportedPackageAsCapabilities = new ProvidedCapability[jrePackages.length + 1];
 			exportedPackageAsCapabilities[0] = createSelfCapability(installableUnitId, installableUnitVersion);
 			for (int i = 1; i <= jrePackages.length; i++) {
-				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, jrePackages[i - 1].getValue(), null); 
+				exportedPackageAsCapabilities[i] = MetadataFactory.createProvidedCapability(CAPABILITY_NS_JAVA_PACKAGE, jrePackages[i - 1].getValue(), null);
 			}
 			return exportedPackageAsCapabilities;
 		} catch (IOException e) {
@@ -940,6 +940,8 @@ public class MetadataGeneratorHelper {
 		StringBuffer result = new StringBuffer();
 		for (Iterator iterator = properties.iterator(); iterator.hasNext();) {
 			Map.Entry aProperty = (Map.Entry) iterator.next();
+			if (aProperty.getKey().equals(BundleDescriptionFactory.BUNDLE_FILE_KEY))
+				continue;
 			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$
 		}
 		return result.toString();
