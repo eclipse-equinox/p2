@@ -41,6 +41,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 */
 	public static final String PROP_MAX_THREADS = "eclipse.p2.max.threads"; //$NON-NLS-1$
 
+	/**
+	 * Allows override of whether threading should be used.
+	 */
+	public static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
+
 	public class ArtifactOutputStream extends OutputStream implements IStateful {
 		private boolean closed;
 		private long count = 0;
@@ -401,7 +406,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * @return the Location of the artifact in this repository, or an equivalent mirror
 	 */
 	private synchronized String getMirror(String baseLocation) {
-		if (!MIRRORS_ENABLED || isLocal())
+		if (!MIRRORS_ENABLED || (!isForceThreading() && isLocal()))
 			return baseLocation;
 		if (mirrors == null)
 			mirrors = new MirrorSelector(this);
@@ -470,7 +475,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		LinkedList requestsPending = new LinkedList(Arrays.asList(requests));
 
 		int numberOfJobs = Math.min(requests.length, getMaximumThreads());
-		if (isLocal() || numberOfJobs <= 1) {
+		if (numberOfJobs <= 1 || (!isForceThreading() && isLocal())) {
 			SubMonitor subMonitor = SubMonitor.convert(monitor, requests.length);
 			try {
 				for (int i = 0; i < requests.length; i++) {
@@ -688,6 +693,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 		//TODO: refactor this when the artifact folder property is consistently set in repository properties
 		return Boolean.valueOf(descriptor.getProperty(ARTIFACT_FOLDER)).booleanValue();
+	}
+
+	private boolean isForceThreading() {
+		return "true".equals(getProperties().get(PROP_FORCE_THREADING)); //$NON-NLS-1$
 	}
 
 	private boolean isLocal() {

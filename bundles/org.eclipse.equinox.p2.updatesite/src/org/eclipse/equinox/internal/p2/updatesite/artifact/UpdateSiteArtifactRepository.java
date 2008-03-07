@@ -33,6 +33,7 @@ import org.xml.sax.SAXException;
 
 public class UpdateSiteArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
+	private static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
 	private static final String SITE_FILE = "site.xml"; //$NON-NLS-1$
 	private static final String DIR_SEPARATOR = "/"; //$NON-NLS-1$
 
@@ -66,6 +67,8 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			if (savedChecksum != null && savedChecksum.equals(checksumString))
 				return;
 
+			if (!location.getProtocol().equals("file"))
+				artifactRepository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
 			artifactRepository.setProperty("site.checksum", checksumString);
 			artifactRepository.removeAll();
 
