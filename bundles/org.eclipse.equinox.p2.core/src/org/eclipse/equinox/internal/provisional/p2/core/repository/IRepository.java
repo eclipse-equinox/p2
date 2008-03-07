@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.IAdaptable;
 /**
  * Base interface that defines common properties that may be provided by 
  * various kinds of repositories.
- * <p>
- * This interface is not intended to be implemented by clients.
+ * 
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IRepository extends IAdaptable {
 	/** 
@@ -26,7 +26,7 @@ public interface IRepository extends IAdaptable {
 	 * is a system repository.  System repositories are implementation details
 	 * that are not subject to general access, hidden from the typical user, etc.
 	 */
-	static public String PROP_SYSTEM = "p2.system"; //$NON-NLS-1$
+	public static final String PROP_SYSTEM = "p2.system"; //$NON-NLS-1$
 
 	/**
 	 * The key for a boolean property indicating that repository metadata is
@@ -51,6 +51,16 @@ public interface IRepository extends IAdaptable {
 	 * repository.
 	 */
 	public static final String PROP_MIRRORS_URL = "p2.mirrorsURL"; //$NON-NLS-1$
+
+	/**
+	 * A repository type constant (value 0) representing a metadata repository.
+	 */
+	public static final int TYPE_METADATA = 0;
+
+	/**
+	 * A repository type constant (value 1) representing an artifact repository.
+	 */
+	public static final int TYPE_ARTIFACT = 1;
 
 	/**
 	 * Returns the URL of the repository.

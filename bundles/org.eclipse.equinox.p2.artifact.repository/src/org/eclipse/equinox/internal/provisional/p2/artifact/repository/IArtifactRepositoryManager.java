@@ -16,13 +16,16 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 /**
  * The metadata repository manager is used to create, access, and manipulate
  * {@link IArtifactRepository} instances. The manager keeps track of a 
  * set of known repositories, and provides caching of these known repositories
- * to avoid unnecessary loading of repositories from the disk or network.
+ * to avoid unnecessary loading of repositories from the disk or network.  The
+ * manager fires {@link RepositoryEvent}s when the set of known repositories
+ * changes.
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  */

@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 import org.eclipse.osgi.util.NLS;
@@ -32,7 +33,7 @@ import org.osgi.service.prefs.Preferences;
  * TODO the current assumption that the "location" is the dir/root limits us to 
  * having just one repository in a given URL..  
  */
-public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
+public class ArtifactRepositoryManager extends AbstractRepositoryManager implements IArtifactRepositoryManager {
 	static class RepositoryInfo {
 		String description;
 		boolean isSystem = false;
@@ -88,6 +89,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		}
 		// save the given repository in the preferences.
 		remember(repository);
+		broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
 	}
 
 	public void addRepository(URL location) {
@@ -101,6 +103,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		}
 		// save the given repository in the preferences.
 		remember(info);
+		broadcastChangeEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
 	}
 
 	/**
@@ -457,6 +460,7 @@ public class ArtifactRepositoryManager implements IArtifactRepositoryManager {
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
+		broadcastChangeEvent(toRemove, IRepository.TYPE_ARTIFACT, RepositoryEvent.REMOVED);
 		return true;
 	}
 

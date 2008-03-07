@@ -16,10 +16,11 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -90,6 +91,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 		// save the given repository in the preferences.
 		remember(repository);
+		broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
 	}
 
 	public void addRepository(URL location) {
@@ -103,6 +105,14 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		}
 		// save the given repository in the preferences.
 		remember(info);
+		broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
+	}
+
+	/**
+	 * TODO Eliminate duplication with ArtifactRepositoryManager.
+	 */
+	protected void broadcastChangeEvent(URL location, int repositoryType, int kind) {
+		((IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName())).publishEvent(new RepositoryEvent(location, repositoryType, kind));
 	}
 
 	/**
@@ -509,6 +519,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
+		broadcastChangeEvent(toRemove, IRepository.TYPE_METADATA, RepositoryEvent.REMOVED);
 		return true;
 	}
 
