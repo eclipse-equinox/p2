@@ -1,8 +1,0 @@
-<plugin>
-	<extension point="org.eclipse.equinox.p2.engine.touchpoints" id="native" name="Native Touchpoint">
-		<touchpoint 
-			type="org.eclipse.equinox.p2.native" 
-			class="org.eclipse.equinox.internal.p2.touchpoint.natives.NativeTouchpoint"
-			version="1.0.0"/>
-	</extension>
-</plugin>
