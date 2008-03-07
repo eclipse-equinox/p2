@@ -23,11 +23,6 @@ public abstract class ConfirmWithPathDetailsDialog extends MessageDialogWithTogg
 	Text location;
 	String pathLocationText;
 
-	/**
-	 * 
-	 * @param parentShell
-	 * @param file
-	 */
 	public ConfirmWithPathDetailsDialog(Shell parentShell, File targetRepoLocation, String message, IPreferenceStore prefStore, String prefKey) {
 		super(parentShell, ProvSDKMessages.ProvSDKUIActivator_Question, null, message, NONE, new String[] {IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL, IDialogConstants.SHOW_DETAILS_LABEL}, 0, null, false);
 		this.targetLocation = targetRepoLocation;

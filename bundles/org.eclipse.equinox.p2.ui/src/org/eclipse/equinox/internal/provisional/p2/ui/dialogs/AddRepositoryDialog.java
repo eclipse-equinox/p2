@@ -227,17 +227,17 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	 * Perform any additional handling of the URL and return a status
 	 * indicating whether the repository URL is still invalid.  Subclasses
 	 * may override when there is additional work, such as repository
-	 * generation, repository authenticatoin, or repository repair that may
+	 * generation, repository authentication, or repository repair that may
 	 * be appropriate for a given URL.
 	 * 
-	 * @param url the URL describing the invalid repository
+	 * @param userURL the URL describing the invalid repository
 	 * @param status the status returned by the repository manager.
 	 * 
 	 * @return a status indicating the current status of the repository.
 	 * Callers may return the original status.  A status with severity
 	 * <code>OK</code> indicates that the caller can proceed with adding
 	 * the repository.  A status with severity <code>CANCEL</code> indicates
-	 * that the dialog should be cancelled.  Any other severity should be 
+	 * that the dialog should be canceled.  Any other severity should be 
 	 * reported to the user and indicates an invalid URL.
 	 */
 	protected IStatus handleInvalidRepositoryURL(URL userURL, IStatus status) {
