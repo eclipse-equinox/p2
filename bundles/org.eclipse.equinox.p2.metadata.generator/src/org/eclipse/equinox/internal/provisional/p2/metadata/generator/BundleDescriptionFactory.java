@@ -151,12 +151,12 @@ public class BundleDescriptionFactory {
 			manifest = convertPluginManifest(bundleLocation, true);
 		}
 
+		if (manifest == null)
+			return null;
+
 		//Deal with the pre-3.0 plug-in shape who have a default jar manifest.mf
 		if (manifest.get(org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME) == null)
 			manifest = convertPluginManifest(bundleLocation, true);
-
-		if (manifest == null)
-			return null;
 
 		manifest.put(BUNDLE_FILE_KEY, bundleLocation.isDirectory() ? DIR : JAR);
 		getManifestLocalizations(manifest, bundleLocation);

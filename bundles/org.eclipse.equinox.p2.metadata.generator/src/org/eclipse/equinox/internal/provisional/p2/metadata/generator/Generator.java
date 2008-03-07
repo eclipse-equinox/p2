@@ -676,14 +676,21 @@ public class Generator {
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		if (Constants.OS_MACOSX.equals(os)) {
-			//navigate down to Contents/MacOs
-			File[] launcherFiles = root.listFiles()[0].listFiles()[0].listFiles();
-			for (int i = 0; i < launcherFiles.length; i++) {
-				if (launcherFiles[i].isDirectory()) {
-					launcherFiles = launcherFiles[i].listFiles();
+			File[] appFolders = root.listFiles(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.substring(name.length() - 4, name.length()).equalsIgnoreCase(".app"); //$NON-NLS-1$
 				}
-				configurationData += " chmod(targetDir:${installFolder}/" + root.listFiles()[0].getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				MetadataGeneratorHelper.generateLauncherSetter(new Path(launcherFiles[i].getName()).lastSegment().toString(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+			});
+			for (int i = 0; appFolders != null && i < appFolders.length; i++) {
+				File macOSFolder = new File(appFolders[i], "Contents/MacOS"); //$NON-NLS-1$
+				if (macOSFolder.exists()) {
+					File[] launcherFiles = macOSFolder.listFiles();
+					for (int j = 0; j < launcherFiles.length; j++) {
+						configurationData += " chmod(targetDir:${installFolder}/" + appFolders[i].getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[j].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (new Path(launcherFiles[j].getName()).getFileExtension() == null)
+							MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+					}
+				}
 			}
 		}
 		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
