@@ -328,12 +328,13 @@ public class MetadataGeneratorHelper {
 
 	public static void createHostLocalizationFragments(BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
 		Map hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
-
-		for (Iterator iter = hostLocalizations.keySet().iterator(); iter.hasNext();) {
-			Locale locale = (Locale) iter.next();
-			Properties localizedStrings = (Properties) hostLocalizations.get(locale);
-			IInstallableUnitFragment nextLocaleFragment = createLocalizationFragmentOfHost(hostId, hostBundleManifestValues, bd, locale, localizedStrings);
-			localizationIUs.add(nextLocaleFragment);
+		if (hostLocalizations != null) {
+			for (Iterator iter = hostLocalizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties localizedStrings = (Properties) hostLocalizations.get(locale);
+				IInstallableUnitFragment nextLocaleFragment = createLocalizationFragmentOfHost(hostId, hostBundleManifestValues, bd, locale, localizedStrings);
+				localizationIUs.add(nextLocaleFragment);
+			}
 		}
 	}
 
