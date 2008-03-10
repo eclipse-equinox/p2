@@ -28,7 +28,8 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 public class SimplePlanner implements IPlanner {
-	static final int ExpandWork = 12;
+	private static final int ExpandWork = 12;
+	private static final String PLANNER_MARKER = "private.org.eclipse.equinox.p2.planner.installed"; //$NON-NLS-1$
 
 	private IInstallableUnit[] getInstallableUnits(IProfile profile) {
 		return (IInstallableUnit[]) profile.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
@@ -312,51 +313,66 @@ public class SimplePlanner implements IPlanner {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
-			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Install_Problems, null);
-			//find the things being updated in the profile
 			IProfile profile = profileChangeRequest.getProfile();
 
-			IInstallableUnit[] alreadyInstalled = getInstallableUnits(profile);
-			IInstallableUnit[] uninstallRoots = profileChangeRequest.getRemovedInstallableUnits();
+			IInstallableUnit[] allIUs = updatePlannerInfo(profileChangeRequest);
 
-			Dictionary currentSelectionContext = createSelectionContext(profile.getProperties());
-			//compute the transitive closure and remove them.
-			ResolutionHelper oldStateHelper = new ResolutionHelper(currentSelectionContext, null);
-			Collection oldState = oldStateHelper.attachCUs(Arrays.asList(alreadyInstalled));
-
-			NewDependencyExpander expander = new NewDependencyExpander(uninstallRoots, new IInstallableUnit[0], alreadyInstalled, currentSelectionContext, true);
-			IStatus expanderResult = expander.expand(sub.newChild(ExpandWork / 3));
-			if (!expanderResult.isOK()) {
-				result.merge(expanderResult);
-				return new ProvisioningPlan(result);
-			}
-			Collection toUninstallClosure = new ResolutionHelper(currentSelectionContext, null).attachCUs(expander.getAllInstallableUnits());
-
-			//add the new set.
-			Collection remainingIUs = new HashSet(oldState);
-			remainingIUs.removeAll(toUninstallClosure);
-			//		for (int i = 0; i < updateRoots.length; i++) {
-			//			remainingIUs.add(updateRoots[i]);
-			//		}
 			URL[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
-			IInstallableUnit[] allUnits = gatherAvailableInstallableUnits(alreadyInstalled, metadataRepositories, sub.newChild(ExpandWork / 3));
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
-			//			String newFlavor = profileChangeRequest.getProfileProperty(IProfile.PROP_FLAVOR);
-
-			NewDependencyExpander finalExpander = new NewDependencyExpander(profileChangeRequest.getAddedInstallableUnits(), (IInstallableUnit[]) remainingIUs.toArray(new IInstallableUnit[remainingIUs.size()]), allUnits, newSelectionContext, true);
-			IStatus finalExpanderResult = finalExpander.expand(sub.newChild(ExpandWork / 3));
-			if (!finalExpanderResult.isOK()) {
-				result.merge(finalExpanderResult);
-				return new ProvisioningPlan(result);
+			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(null, metadataRepositories, sub.newChild(ExpandWork / 4));
+			PBProjector pb = new PBProjector(new Picker(availableIUs, null), newSelectionContext);
+			pb.encode(allIUs, sub.newChild(ExpandWork / 4));
+			IStatus s = pb.invokeSolver(sub.newChild(ExpandWork / 4));
+			if (!s.isOK()) {
+				//We invoke the old resolver to get explanations for now
+				return new ProvisioningPlan(new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4)));
 			}
+			Collection newState = pb.extractSolution();
 
 			ResolutionHelper newStateHelper = new ResolutionHelper(newSelectionContext, null);
-			Collection newState = newStateHelper.attachCUs(finalExpander.getAllInstallableUnits());
+			newState = newStateHelper.attachCUs(newState);
+
+			ResolutionHelper oldStateHelper = new ResolutionHelper(createSelectionContext(profile.getProperties()), null);
+			Collection oldState = oldStateHelper.attachCUs(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
 			return generateProvisioningPlan(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted(), profileChangeRequest);
 		} finally {
 			sub.done();
 		}
+	}
+
+	//The planner uses installable unit properties to keep track of what it has been asked to install. This updates this information
+	private IInstallableUnit[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest) {
+		Collector alreadyInstalled = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), PLANNER_MARKER, Boolean.toString(true)), new Collector(), null);
+
+		IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
+		IInstallableUnit[] removed = profileChangeRequest.getRemovedInstallableUnits();
+		IInstallableUnit[] allIUs = new IInstallableUnit[alreadyInstalled.size() + added.length + removed.length];
+
+		int count = 0;
+		for (Iterator iterator = alreadyInstalled.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			boolean found = false;
+			for (int i = 0; i < removed.length; i++) {
+				if (iu.equals(removed[i])) {
+					profileChangeRequest.removeInstallableUnitProfileProperty(removed[i], PLANNER_MARKER);
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				allIUs[count++] = iu;
+		}
+		for (int i = 0; i < added.length; i++) {
+			allIUs[count++] = added[i];
+			profileChangeRequest.setInstallableUnitProfileProperty(added[i], PLANNER_MARKER, "true"); //$NON-NLS-1$
+		}
+		if (allIUs.length > count) {
+			IInstallableUnit[] result = new IInstallableUnit[count];
+			System.arraycopy(allIUs, 0, result, 0, count);
+			allIUs = result;
+		}
+		return allIUs;
 	}
 
 	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
