@@ -14,26 +14,22 @@ package org.eclipse.equinox.internal.p2.updatesite;
 import org.eclipse.osgi.util.NLS;
 
 /**
- * @since 3.4
- *
+ * @since 1.0
  */
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.updatesite.messages"; //$NON-NLS-1$
 
-	public static String UpdateSiteMetadataRepository_ErrorParsingUpdateSite;
-	public static String UpdateSiteMetadataRepository_ErrorReadingUpdateSite;
-	public static String UpdateSiteMetadataRepository_PlatformAdminNotRegistered;
-	public static String UpdateSiteMetadataRepository_ErrorReadingSite;
-	public static String UpdateSiteMetadataRepository_InvalidRepositoryLocation;
-	public static String UpdateSiteArtifactRepository_InvalidRepositoryLocation;
-	public static String UpdateSiteArtifactRepository_ErrorReadingSite;
-	public static String UpdateSiteArtifactRepository_ErrorParsingUpdateSite;
-	public static String UpdateSiteArtifactRepository_ErrorReadingUpdateSite;
+	public static String ErrorReadingSite;
+	public static String InvalidRepositoryLocation;
+	public static String MalformedArchiveURL;
+	public static String PlatformAdminNotRegistered;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
 	private Messages() {
+		// prevent instantiation
 	}
 }
