@@ -608,7 +608,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			SubMonitor loopMonitor = sub.newChild(100);
 			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i]);
 			// Loop over the candidates and return the first one that successfully loads
-			monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
+			loopMonitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 			for (int j = 0; j < providers.length; j++) {
 				IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(providers[j], FACTORY);
 				if (factory != null) {
