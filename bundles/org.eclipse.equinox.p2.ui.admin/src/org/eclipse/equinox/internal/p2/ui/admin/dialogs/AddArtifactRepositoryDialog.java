@@ -25,8 +25,8 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 
-	public AddArtifactRepositoryDialog(Shell parentShell, URL[] knownRepositories) {
-		super(parentShell, knownRepositories);
+	public AddArtifactRepositoryDialog(Shell parentShell, int repoFlags) {
+		super(parentShell, repoFlags);
 	}
 
 	protected ProvisioningOperation getOperation(URL url) {

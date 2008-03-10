@@ -28,6 +28,7 @@ import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
@@ -45,6 +46,7 @@ public class UpdateAndInstallGroup {
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
+	static final int INDEX_AVAILABLE = 1;
 	TabFolder tabFolder;
 	AvailableIUGroup availableIUGroup;
 	InstalledIUGroup installedIUGroup;
@@ -87,6 +89,8 @@ public class UpdateAndInstallGroup {
 		TabItem availableTab = new TabItem(tabFolder, SWT.NONE);
 		availableTab.setText(availableString);
 		availableTab.setControl(createAvailableIUsPage(tabFolder, policies.getQueryProvider()));
+
+		setDropTarget(tabFolder);
 	}
 
 	public TabFolder getTabFolder() {
@@ -98,6 +102,7 @@ public class UpdateAndInstallGroup {
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.widthHint = convertHorizontalDLUsToPixels(DEFAULT_WIDTH);
 		composite.setLayoutData(gd);
+		setDropTarget(composite);
 
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -119,6 +124,8 @@ public class UpdateAndInstallGroup {
 				validateAvailableIUButtons(event.getSelection());
 			}
 		});
+
+		setDropTarget(availableIUGroup.getStructuredViewer().getControl());
 
 		validateAvailableIUButtons(availableIUGroup.getStructuredViewer().getSelection());
 		return composite;
@@ -338,5 +345,26 @@ public class UpdateAndInstallGroup {
 
 	public InstalledIUGroup getInstalledIUGroup() {
 		return installedIUGroup;
+	}
+
+	private void setDropTarget(final Control control) {
+		// Don't bother hooking drag/drop if we won't know
+		// what to do with it.
+		if (repositoryManipulator == null)
+			return;
+
+		DropTarget target = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
+		target.setTransfer(new Transfer[] {URLTransfer.getInstance()});
+		target.addDropListener(new RepositoryManipulatorDropTarget(repositoryManipulator, control) {
+			protected boolean dropTargetIsValid(DropTargetEvent event) {
+				// If we are on available features page, all drops are good.
+				if (tabFolder.getSelectionIndex() == UpdateAndInstallGroup.INDEX_AVAILABLE)
+					return true;
+				if (tabFolder.getItem(INDEX_AVAILABLE) == event.item)
+					return true;
+				return false;
+			}
+		});
+
 	}
 }

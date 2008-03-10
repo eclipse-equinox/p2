@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
@@ -64,7 +63,7 @@ abstract class RepositoriesView extends ProvView {
 			for (int i = 0; i < elements.length; i++)
 				if (elements[i] instanceof RepositoryElement)
 					urls.add(((RepositoryElement) elements[i]).getLocation());
-			openAddRepositoryDialog(getShell(), (URL[]) urls.toArray(new URL[urls.size()]));
+			openAddRepositoryDialog(getShell());
 		}
 	}
 
@@ -166,7 +165,7 @@ abstract class RepositoriesView extends ProvView {
 
 	}
 
-	protected abstract int openAddRepositoryDialog(Shell shell, URL[] knownRepos);
+	protected abstract int openAddRepositoryDialog(Shell shell);
 
 	protected abstract ProvisioningOperation getRemoveOperation(Object[] elements);
 

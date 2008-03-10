@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.policy;
 
+
 /**
  * Abstract class for a set of policies provided by applications that
  * are used for decision making during provisioning operations.

@@ -15,7 +15,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddMetadataRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
+import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
@@ -66,8 +68,8 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		return ProvAdminUIMessages.MetadataRepositoriesView_RemoveRepositoryTooltip;
 	}
 
-	protected int openAddRepositoryDialog(Shell shell, URL[] knownRepos) {
-		return new AddMetadataRepositoryDialog(shell, knownRepos).open();
+	protected int openAddRepositoryDialog(Shell shell) {
+		return new AddMetadataRepositoryDialog(shell, getRepoFlags()).open();
 	}
 
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
@@ -139,6 +141,12 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		// Add drag support for IU's
 		Transfer[] transfers = new Transfer[] {org.eclipse.jface.util.LocalSelectionTransfer.getTransfer(), PluginTransfer.getInstance(), TextTransfer.getInstance(),};
 		treeViewer.addDragSupport(DND.DROP_COPY, transfers, new IUDragAdapter(treeViewer));
+	}
+
+	protected int getRepoFlags() {
+		if (ProvAdminUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS))
+			return IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM;
+		return IMetadataRepositoryManager.REPOSITORIES_ALL;
 	}
 
 }

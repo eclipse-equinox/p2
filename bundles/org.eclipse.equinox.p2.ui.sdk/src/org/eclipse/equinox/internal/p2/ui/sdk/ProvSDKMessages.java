@@ -26,6 +26,7 @@ public class ProvSDKMessages extends NLS {
 	}
 	public static String AddColocatedRepositoryDialog_InvalidURL;
 	public static String AddColocatedRepositoryDialog_MissingProfile;
+	public static String AddColocatedRepositoryDialog_Title;
 	public static String ConfirmRepoGenerationDialog_FileDescription;
 	public static String ConfirmRepoGenerationDialog_Message;
 	public static String ConfirmRepoGenerationFromArchiveDialog_FileDescription;
@@ -57,11 +58,13 @@ public class ProvSDKMessages extends NLS {
 	public static String RepositoryManipulationDialog_RemoveButton;
 	public static String RepositoryManipulationDialog_RemoveOperationLabel;
 	public static String RepositoryManipulationDialog_UpdateSitesDialogTitle;
+	public static String UpdateAndInstallDialog_AddSiteOperationlabel;
 	public static String UpdateAndInstallDialog_AvailableFeatures;
 	public static String UpdateAndInstallDialog_InstalledFeatures;
 	public static String UpdateAndInstallDialog_ManageSites;
 	public static String UpdateAndInstallDialog_AlertCheckbox;
 	public static String UpdateAndInstallDialog_PrefLink;
+	public static String UpdateAndInstallDialog_RemoveSiteOperationLabel;
 	public static String UpdateAndInstallDialog_RevertActionLabel;
 	public static String UpdateAndInstallDialog_Title;
 	public static String UpdateHandler_NoProfilesDefined;

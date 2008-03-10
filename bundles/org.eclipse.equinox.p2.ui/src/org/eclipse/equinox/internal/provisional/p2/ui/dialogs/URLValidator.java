@@ -12,8 +12,10 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.URL;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * 
@@ -34,5 +36,9 @@ public abstract class URLValidator {
 	public static final int REPO_AUTO_GENERATED = 3001;
 	public static final int ALTERNATE_ACTION_TAKEN = 3002;
 
-	protected abstract IStatus validateRepositoryURL(URL url, boolean contactRepositories, IStatus originalStatus, IProgressMonitor monitor);
+	public static Status getInvalidURLStatus(String urlText) {
+		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, NLS.bind(ProvUIMessages.URLValidator_UnrecognizedURL, urlText), null);
+	}
+
+	protected abstract IStatus validateRepositoryURL(URL url, boolean contactRepositories, IProgressMonitor monitor);
 }

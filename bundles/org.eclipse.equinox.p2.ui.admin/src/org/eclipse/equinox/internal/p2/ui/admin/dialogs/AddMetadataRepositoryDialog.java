@@ -25,8 +25,8 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class AddMetadataRepositoryDialog extends AddRepositoryDialog {
 
-	public AddMetadataRepositoryDialog(Shell parentShell, URL[] knownRepositories) {
-		super(parentShell, knownRepositories);
+	public AddMetadataRepositoryDialog(Shell parentShell, int repoFlags) {
+		super(parentShell, repoFlags);
 	}
 
 	protected ProvisioningOperation getOperation(URL url) {

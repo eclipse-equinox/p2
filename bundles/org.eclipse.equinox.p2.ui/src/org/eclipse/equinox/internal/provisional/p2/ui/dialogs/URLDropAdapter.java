@@ -20,6 +20,10 @@ import org.eclipse.swt.dnd.*;
  */
 public abstract class URLDropAdapter extends DropTargetAdapter {
 	public void dragEnter(DropTargetEvent e) {
+		if (!dropTargetIsValid(e)) {
+			e.detail = DND.DROP_NONE;
+			return;
+		}
 		if (e.detail == DND.DROP_NONE)
 			e.detail = DND.DROP_LINK;
 	}
@@ -34,8 +38,12 @@ public abstract class URLDropAdapter extends DropTargetAdapter {
 			event.detail = DND.DROP_NONE;
 			return;
 		}
-		handleURLString((String) event.data);
+		handleURLString((String) event.data, event);
 	}
 
-	protected abstract void handleURLString(String urlText);
+	protected boolean dropTargetIsValid(DropTargetEvent event) {
+		return true;
+	}
+
+	protected abstract void handleURLString(String urlText, DropTargetEvent event);
 }

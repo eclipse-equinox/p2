@@ -13,13 +13,11 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulatorDropTarget;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryElement;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveColocatedRepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
@@ -30,6 +28,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Point;
@@ -37,7 +36,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Dialog that allows users to update, add, or remove repositories.
@@ -52,13 +50,15 @@ public class RepositoryManipulationDialog extends TrayDialog {
 
 	StructuredViewerProvisioningListener listener;
 	TableViewer repositoryViewer;
+	IRepositoryManipulator manipulator;
 
 	/**
 	 * Create an instance of this Dialog.
 	 * 
 	 */
-	public RepositoryManipulationDialog(Shell shell) {
+	public RepositoryManipulationDialog(Shell shell, IRepositoryManipulator manipulator) {
 		super(shell);
+		this.manipulator = manipulator;
 	}
 
 	protected void configureShell(Shell shell) {
@@ -83,6 +83,10 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		repositoryViewer.setContentProvider(new RepositoryContentProvider(ProvSDKUIActivator.getDefault().getQueryProvider()));
 		repositoryViewer.setInput(new MetadataRepositories());
 		repositoryViewer.setLabelProvider(new ProvElementLabelProvider());
+
+		DropTarget target = new DropTarget(repositoryViewer.getControl(), DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
+		target.setTransfer(new Transfer[] {URLTransfer.getInstance()});
+		target.addDropListener(new RepositoryManipulatorDropTarget(manipulator, repositoryViewer.getControl()));
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.grabExcessHorizontalSpace = true;
@@ -186,11 +190,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		button = createVerticalButton(composite, ProvSDKMessages.RepositoryManipulationDialog_AddButton, false);
 		button.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
-				try {
-					new AddColocatedRepositoryDialog(getShell(), ProvisioningUtil.getMetadataRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM)).open();
-				} catch (ProvisionException e) {
-					ProvUI.handleException(e, ProvSDKMessages.RepositoryManipulationDialog_ErrorRetrievingSites, StatusManager.BLOCK | StatusManager.LOG);
-				}
+				new AddColocatedRepositoryDialog(getShell(), IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM).open();
 			}
 		});
 		button = createVerticalButton(composite, ProvSDKMessages.RepositoryManipulationDialog_RemoveButton, false);

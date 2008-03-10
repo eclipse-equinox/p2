@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.net.URL;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
+import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveArtifactRepositoryOperation;
@@ -48,8 +50,8 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		return ProvAdminUIMessages.ArtifactRepositoriesView_RemoveRepositoryTooltip;
 	}
 
-	protected int openAddRepositoryDialog(Shell shell, URL[] knownRepos) {
-		return new AddArtifactRepositoryDialog(shell, knownRepos).open();
+	protected int openAddRepositoryDialog(Shell shell) {
+		return new AddArtifactRepositoryDialog(shell, getRepoFlags()).open();
 	}
 
 	protected ProvisioningOperation getRemoveOperation(Object[] elements) {
@@ -63,6 +65,12 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 
 	protected boolean isRepository(Object element) {
 		return element instanceof ArtifactRepositoryElement;
+	}
+
+	protected int getRepoFlags() {
+		if (ProvAdminUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS))
+			return IArtifactRepositoryManager.REPOSITORIES_NON_SYSTEM;
+		return IArtifactRepositoryManager.REPOSITORIES_ALL;
 	}
 
 }

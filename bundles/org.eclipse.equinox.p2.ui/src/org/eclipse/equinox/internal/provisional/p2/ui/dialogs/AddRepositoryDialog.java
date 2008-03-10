@@ -10,26 +10,23 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Abstract dialog class for adding repositories of different types. This class
@@ -44,15 +41,16 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	Button okButton;
 	Text url;
-	URLValidator urlValidator;
+	DefaultURLValidator urlValidator;
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
 
-	public AddRepositoryDialog(Shell parentShell, URL[] knownRepositories) {
+	public AddRepositoryDialog(Shell parentShell, int repoFlag) {
 
 		super(parentShell);
-		urlValidator = createURLValidator(knownRepositories);
+		urlValidator = createURLValidator();
+		urlValidator.setKnownRepositoriesFlag(repoFlag);
 		setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 	}
 
@@ -78,7 +76,13 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		url.setLayoutData(data);
 		DropTarget target = new DropTarget(url, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance()});
-		target.addDropListener(new TextURLDropAdapter(url));
+		target.addDropListener(new TextURLDropAdapter(url) {
+			protected void handleURLString(String urlText, DropTargetEvent event) {
+				super.handleURLString(urlText, event);
+				// validate the URL with remote checking since drop is more heavyweight than typing text
+				validateRepositoryURL(true);
+			}
+		});
 		url.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				validateRepositoryURL(false);
@@ -133,8 +137,8 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		return comp;
 	}
 
-	protected URLValidator createURLValidator(URL[] knownRepositories) {
-		return new DefaultURLValidator(knownRepositories);
+	protected DefaultURLValidator createURLValidator() {
+		return new DefaultURLValidator();
 	}
 
 	protected URLValidator getURLValidator() {
@@ -184,24 +188,19 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		if (url == null || url.isDisposed())
 			return Status.OK_STATUS;
 		final IStatus[] status = new IStatus[1];
-		status[0] = Status.OK_STATUS;
+		status[0] = URLValidator.getInvalidURLStatus(url.getText().trim());
 		final URL userURL = getUserURL();
 		if (url.getText().length() == 0)
 			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, URLValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);
 		else if (userURL == null)
 			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, URLValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 		else {
-			try {
-				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) {
-						status[0] = getURLValidator().validateRepositoryURL(userURL, contactRepositories, status[0], monitor);
-					}
-				});
-			} catch (InvocationTargetException e) {
-				return ProvUI.handleException(e.getCause(), ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW | StatusManager.LOG);
-			} catch (InterruptedException e) {
-				// ignore
-			}
+			BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+				public void run() {
+					status[0] = getURLValidator().validateRepositoryURL(userURL, contactRepositories, null);
+				}
+			});
+
 		}
 
 		// At this point the subclasses may have decided to opt out of

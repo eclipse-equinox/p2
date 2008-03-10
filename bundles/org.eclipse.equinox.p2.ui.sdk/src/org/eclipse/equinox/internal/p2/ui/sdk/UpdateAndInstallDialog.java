@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
+import java.net.URL;
+import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.MetadataGeneratingURLValidator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.IRepositoryManipulator;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RevertWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateAndInstallGroup;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -135,10 +139,31 @@ public class UpdateAndInstallDialog extends TrayDialog {
 			}
 
 			public boolean manipulateRepositories(Shell shell) {
-				new RepositoryManipulationDialog(shell).open();
+				new RepositoryManipulationDialog(shell, this).open();
 				return true;
 			}
 
+			public ProvisioningOperation getAddOperation(URL repoURL) {
+				return new AddColocatedRepositoryOperation(ProvSDKMessages.UpdateAndInstallDialog_AddSiteOperationlabel, repoURL);
+			}
+
+			public URL[] getKnownRepositories() {
+				try {
+					return ProvisioningUtil.getMetadataRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+				} catch (ProvisionException e) {
+					return new URL[0];
+				}
+			}
+
+			public ProvisioningOperation getRemoveOperation(URL[] reposToRemove) {
+				return new RemoveColocatedRepositoryOperation(ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteOperationLabel, reposToRemove);
+			}
+
+			public URLValidator getURLValidator(Shell shell) {
+				MetadataGeneratingURLValidator validator = new MetadataGeneratingURLValidator();
+				validator.setShell(shell);
+				return validator;
+			}
 		};
 	}
 

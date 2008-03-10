@@ -15,6 +15,8 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 
 /**
@@ -23,25 +25,38 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUti
  */
 public class DefaultURLValidator extends URLValidator {
 
-	URL[] knownRepositories;
+	int repoFlag;
 
-	public DefaultURLValidator(URL[] knownRepositories) {
-		this.knownRepositories = knownRepositories;
+	public DefaultURLValidator() {
+		repoFlag = IMetadataRepositoryManager.REPOSITORIES_ALL;
+	}
+
+	public void setKnownRepositoriesFlag(int flag) {
+		repoFlag = flag;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator#validateRepositoryURL(boolean)
 	 */
-	protected IStatus validateRepositoryURL(URL location, boolean contactRepositories, IStatus originalStatus, IProgressMonitor monitor) {
-		IStatus status = originalStatus;
+	protected IStatus validateRepositoryURL(URL location, boolean contactRepositories, IProgressMonitor monitor) {
+		IStatus duplicateStatus = Status.OK_STATUS;
+		URL[] knownRepositories;
+		try {
+			knownRepositories = ProvisioningUtil.getMetadataRepositories(repoFlag);
+		} catch (ProvisionException e) {
+			knownRepositories = new URL[0];
+		}
 		for (int i = 0; i < knownRepositories.length; i++) {
 			if (knownRepositories[i].toExternalForm().equalsIgnoreCase(location.toExternalForm())) {
-				status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
+				duplicateStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
 				break;
 			}
 		}
-		if (status.isOK() && contactRepositories)
-			status = ProvisioningUtil.validateMetadataRepositoryLocation(location, monitor);
-		return status;
+		if (!duplicateStatus.isOK())
+			return duplicateStatus;
+
+		if (contactRepositories)
+			return ProvisioningUtil.validateMetadataRepositoryLocation(location, monitor);
+		return duplicateStatus;
 	}
 }

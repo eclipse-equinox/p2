@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
+import java.net.URL;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -35,4 +38,22 @@ public interface IRepositoryManipulator {
 	 */
 	public String getLabel();
 
+	/**
+	 * Return an array of URLs containing the repositories already known.
+	 */
+	public URL[] getKnownRepositories();
+
+	/**
+	 * Return an operation that could be used to add the specified URL as
+	 * a repository.
+	 */
+	public ProvisioningOperation getAddOperation(URL repoURL);
+
+	/**
+	 * Return an operation that could be used to remove the specified URL as
+	 * a repositories.
+	 */
+	public ProvisioningOperation getRemoveOperation(URL[] repoURLs);
+
+	public URLValidator getURLValidator(Shell shell);
 }
