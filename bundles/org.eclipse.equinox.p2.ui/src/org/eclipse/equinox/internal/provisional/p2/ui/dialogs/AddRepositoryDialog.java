@@ -19,11 +19,11 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -44,12 +44,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	Button okButton;
 	Text url;
-	URL[] knownRepositories;
-	protected static final int NON_REPO_ERROR = 0;
-	protected static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
-	protected static final String FILE_PROTOCOL_PREFIX = "file:"; //$NON-NLS-1$
-	protected static final String JAR_PATH_PREFIX = "jar:";//$NON-NLS-1$
-	protected static final String JAR_PATH_SUFFIX = "!/"; //$NON-NLS-1$
+	URLValidator urlValidator;
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
@@ -57,7 +52,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	public AddRepositoryDialog(Shell parentShell, URL[] knownRepositories) {
 
 		super(parentShell);
-		this.knownRepositories = knownRepositories;
+		urlValidator = createURLValidator(knownRepositories);
 		setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 	}
 
@@ -81,6 +76,9 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		url.setLayoutData(data);
+		DropTarget target = new DropTarget(url, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
+		target.setTransfer(new Transfer[] {URLTransfer.getInstance()});
+		target.addDropListener(new TextURLDropAdapter(url));
 		url.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				validateRepositoryURL(false);
@@ -108,7 +106,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText(FILE_PROTOCOL_PREFIX + path);
+					url.setText(URLValidator.FILE_PROTOCOL_PREFIX + path);
 					validateRepositoryURL(true);
 				}
 			}
@@ -125,7 +123,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastArchiveLocation = path;
-					url.setText(FILE_PROTOCOL_PREFIX + JAR_PATH_PREFIX + path + JAR_PATH_SUFFIX);
+					url.setText(URLValidator.FILE_PROTOCOL_PREFIX + URLValidator.JAR_PATH_PREFIX + path + URLValidator.JAR_PATH_SUFFIX);
 					validateRepositoryURL(true);
 				}
 			}
@@ -133,6 +131,14 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		setButtonLayoutData(locationButton);
 		Dialog.applyDialogFont(comp);
 		return comp;
+	}
+
+	protected URLValidator createURLValidator(URL[] knownRepositories) {
+		return new DefaultURLValidator(knownRepositories);
+	}
+
+	protected URLValidator getURLValidator() {
+		return urlValidator;
 	}
 
 	protected void okPressed() {
@@ -174,41 +180,29 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	 * should be consulted for validating the URL.  For example, it is not 
 	 * appropriate to contact the repositories on every keystroke.
 	 */
-	protected IStatus validateRepositoryURL(boolean contactRepositories) {
+	protected IStatus validateRepositoryURL(final boolean contactRepositories) {
 		if (url == null || url.isDisposed())
 			return Status.OK_STATUS;
 		final IStatus[] status = new IStatus[1];
 		status[0] = Status.OK_STATUS;
 		final URL userURL = getUserURL();
 		if (url.getText().length() == 0)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NON_REPO_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, URLValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.RepositoryGroup_URLRequired, null);
 		else if (userURL == null)
-			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NON_REPO_ERROR, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
+			status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, URLValidator.LOCAL_VALIDATION_ERROR, ProvUIMessages.AddRepositoryDialog_InvalidURL, null);
 		else {
-			for (int i = 0; i < knownRepositories.length; i++) {
-				if (knownRepositories[i].toExternalForm().equalsIgnoreCase(userURL.toExternalForm())) {
-					status[0] = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, NON_REPO_ERROR, ProvUIMessages.AddRepositoryDialog_DuplicateURL, null);
-					break;
-				}
+			try {
+				PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
+					public void run(IProgressMonitor monitor) {
+						status[0] = getURLValidator().validateRepositoryURL(userURL, contactRepositories, status[0], monitor);
+					}
+				});
+			} catch (InvocationTargetException e) {
+				return ProvUI.handleException(e.getCause(), ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW | StatusManager.LOG);
+			} catch (InterruptedException e) {
+				// ignore
 			}
-			if (status[0].isOK() && contactRepositories)
-				try {
-					PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-						public void run(IProgressMonitor monitor) {
-							status[0] = ProvisioningUtil.validateMetadataRepositoryLocation(userURL, monitor);
-						}
-					});
-				} catch (InvocationTargetException e) {
-					return ProvUI.handleException(e.getCause(), ProvUIMessages.AddRepositoryDialog_URLValidationError, StatusManager.SHOW | StatusManager.LOG);
-				} catch (InterruptedException e) {
-					// ignore
-				}
 		}
-		// If the repositories themselves didn't know what to do with this
-		// URL, consult subclasses.  There may be additional work that could
-		// be done to make the location valid.
-		if (!status[0].isOK() && status[0].getCode() != NON_REPO_ERROR)
-			status[0] = handleInvalidRepositoryURL(userURL, status[0]);
 
 		// At this point the subclasses may have decided to opt out of
 		// this dialog.

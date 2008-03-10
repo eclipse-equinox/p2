@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import java.io.File;
 import java.net.URL;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.ExternalFileHandler;
+import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.MetadataGeneratingURLValidator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -41,25 +39,8 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 		return new AddColocatedRepositoryOperation(getShell().getText(), url);
 	}
 
-	protected IStatus handleInvalidRepositoryURL(URL url, final IStatus status) {
-		// If it was set up with jar protocol, now convert it back to file.
-
-		if (!FILE_PROTOCOL.equalsIgnoreCase(url.getProtocol()))
-			return status;
-		String path = url.getPath();
-		if (path.startsWith(JAR_PATH_PREFIX))
-			path = path.substring(JAR_PATH_PREFIX.length());
-		if (path.endsWith(JAR_PATH_SUFFIX))
-			path = path.substring(0, path.length() - JAR_PATH_SUFFIX.length());
-		final File file = new File(path);
-
-		IStatus externalFileStatus = new ExternalFileHandler(getProfile(), file, getShell()).processFile(status);
-		if (externalFileStatus.getCode() == ExternalFileHandler.REPO_GENERATED || externalFileStatus.getCode() == ExternalFileHandler.BUNDLE_INSTALLED) {
-			// TODO workaround for bug #199806
-			ProvisioningUtil.notifyRepositoryAdded();
-			return Status.CANCEL_STATUS;
-		}
-		return externalFileStatus;
+	protected URLValidator createURLValidator(URL[] knownRepositories) {
+		return new MetadataGeneratingURLValidator(knownRepositories, getShell(), getProfile());
 	}
 
 	private IProfile getProfile() {
