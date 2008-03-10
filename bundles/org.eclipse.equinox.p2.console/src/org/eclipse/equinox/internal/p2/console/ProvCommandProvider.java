@@ -162,8 +162,9 @@ public class ProvCommandProvider implements CommandProvider {
 		String version = processArgument(interpreter.nextArgument());
 		if (urlString == null) {
 			URL[] repositories = ProvisioningHelper.getMetadataRepositories();
-			for (int i = 0; i < repositories.length; i++)
-				interpreter.println(repositories[i]);
+			if (repositories != null)
+				for (int i = 0; i < repositories.length; i++)
+					interpreter.println(repositories[i]);
 			return;
 		}
 		URL repoURL = toURL(interpreter, urlString);

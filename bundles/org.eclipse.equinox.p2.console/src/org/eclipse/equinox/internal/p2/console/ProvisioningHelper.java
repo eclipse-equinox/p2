@@ -190,8 +190,10 @@ public class ProvisioningHelper {
 			error.append("Installable unit not found: " + unitId + ' ' + version + '\n');
 			error.append("Repositories searched:\n");
 			URL[] repos = getMetadataRepositories();
-			for (int i = 0; i < repos.length; i++)
-				error.append(repos[i] + "\n");
+			if (repos != null) {
+				for (int i = 0; i < repos.length; i++)
+					error.append(repos[i] + "\n");
+			}
 			throw new ProvisionException(error.toString());
 		}
 
