@@ -56,8 +56,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 	public UpdateAndInstallDialog(Shell shell, String profileId) {
 		super(shell);
 		this.profileId = profileId;
-		setShellStyle(SWT.DIALOG_TRIM | SWT.MODELESS | SWT.MAX | SWT.RESIZE | getDefaultOrientation());
-		setBlockOnOpen(false);
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MAX | SWT.RESIZE | getDefaultOrientation());
 	}
 
 	protected void configureShell(Shell shell) {
