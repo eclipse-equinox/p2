@@ -70,7 +70,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 * Parse the platform.xml file and return the list of sites.
 	 */
 	private List parseConfiguration() throws ProvisionException {
-		Configuration cfg = ConfigurationParser.parse(root, null);
+		Configuration cfg = ConfigurationParser.parse(root, (URL) null);
 		return cfg == null ? new ArrayList(0) : cfg.getSites();
 	}
 
