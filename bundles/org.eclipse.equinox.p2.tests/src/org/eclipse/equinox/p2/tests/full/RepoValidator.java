@@ -21,6 +21,7 @@ import org.osgi.framework.ServiceReference;
 
 public class RepoValidator extends AbstractProvisioningTest {
 	public void testValidate() throws ProvisionException, MalformedURLException {
+		URL repoLoc = new URL("file:d:/ganymedeM5");
 		ServiceReference sr = TestActivator.context.getServiceReference(IPlanner.class.getName());
 		if (sr == null) {
 			throw new RuntimeException("Planner service not available");
@@ -35,7 +36,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 		if (mgr == null) {
 			throw new RuntimeException("Repository manager could not be loaded");
 		}
-		IMetadataRepository validatedRepo = mgr.loadRepository(new URL("file:d:/ganymedeM4"), null);
+		IMetadataRepository validatedRepo = mgr.loadRepository(repoLoc, null);
 
 		Map properties = new HashMap();
 		properties.put(IInstallableUnit.NAMESPACE_FLAVOR, "tooling");
@@ -58,7 +59,7 @@ public class RepoValidator extends AbstractProvisioningTest {
 		q = InstallableUnitQuery.ANY;
 		Collector iusToTest = validatedRepo.query(q, new Collector(), null);
 
-		ProvisioningContext pc = new ProvisioningContext(new URL[] {new URL("file:d:/ganymedeM4")});
+		ProvisioningContext pc = new ProvisioningContext(new URL[] {repoLoc});
 		for (Iterator iterator = iusToTest.iterator(); iterator.hasNext();) {
 			try {
 				IInstallableUnit isInstallable = (IInstallableUnit) iterator.next();
