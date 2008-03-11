@@ -40,7 +40,7 @@ public class MarkSetProvider implements IMarkSetProvider {
 		artifactKeyList = new HashSet();
 		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(inProfile);
 		addArtifactKeys(inProfile);
-		if (inProfile.equals(getCurrentProfile())) {
+		if (inProfile.getProfileId().equals(getCurrentProfile().getProfileId())) {
 			addRunningBundles(repositoryToGC);
 			addRunningFeatures(inProfile, repositoryToGC);
 		}
