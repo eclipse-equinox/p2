@@ -403,7 +403,11 @@ public class Generator {
 		if (result.configData.containsKey(info.getLauncherConfig()))
 			return; //been here, done this
 
-		File fwConfigFile = new File(info.getLauncherData().getFwConfigLocation(), EquinoxConstants.CONFIG_INI);
+		LauncherData launcherData = info.getLauncherData();
+		if (launcherData == null)
+			return;
+
+		File fwConfigFile = new File(launcherData.getFwConfigLocation(), EquinoxConstants.CONFIG_INI);
 		if (fwConfigFile.exists()) {
 			if (info instanceof EclipseInstallGeneratorInfoProvider) {
 				((EclipseInstallGeneratorInfoProvider) info).loadConfigData(fwConfigFile);
