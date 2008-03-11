@@ -11,23 +11,21 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 /*
  * Internal class contains information about watchers and sites. Used for caching.
  */
 public class SiteInfo {
-	private DirectoryWatcher watcher;
-	private SiteListener listener;
+	private IMetadataRepository repository;
 	private Site site;
 	private String url;
 
-	public SiteInfo(Site site, DirectoryWatcher watcher, SiteListener listener) {
+	public SiteInfo(Site site, IMetadataRepository repository) {
 		super();
 		this.site = site;
 		this.url = site.getUrl();
-		this.watcher = watcher;
-		this.listener = listener;
+		this.repository = repository;
 	}
 
 	public Site getSite() {
@@ -38,12 +36,8 @@ public class SiteInfo {
 		return url;
 	}
 
-	public DirectoryWatcher getWatcher() {
-		return watcher;
-	}
-
-	public SiteListener getListener() {
-		return listener;
+	public IMetadataRepository getRepository() {
+		return repository;
 	}
 
 	/* (non-Javadoc)

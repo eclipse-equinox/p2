@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
@@ -55,38 +56,90 @@ public class PlatformConfigurationWrapper {
 			throw new IllegalStateException("Error parsing platform configuration."); //$NON-NLS-1$;
 		}
 
-		List sites = configuration.getSites();
-		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			Site nextSite = (Site) iter.next();
-			String nextURL = nextSite.getUrl();
-			if (new Path(nextURL).equals(new Path(poolURL.toExternalForm()))) {
-				poolSite = nextSite;
-				break;
-			}
-		}
-
+		poolSite = getSite(poolURL);
 		if (poolSite == null) {
-			poolSite = new Site();
-			poolSite.setUrl(poolURL.toExternalForm());
-			poolSite.setPolicy(Site.POLICY_MANAGED_ONLY);
-			poolSite.setEnabled(true);
+			poolSite = createSite(poolURL);
 			configuration.add(poolSite);
 		}
 	}
 
 	/*
+	 * Create and return a site object based on the given location.
+	 */
+	private Site createSite(URL location) {
+		Site result = new Site();
+		result.setUrl(location.toExternalForm());
+		result.setPolicy(Site.POLICY_MANAGED_ONLY);
+		result.setEnabled(true);
+		return result;
+	}
+
+	/*
+	 * Look in the configuration and return the site object whose location matches
+	 * the given URL. Return null if there is no match.
+	 */
+	private Site getSite(URL url) {
+		List sites = configuration.getSites();
+		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+			Site nextSite = (Site) iter.next();
+			String nextURL = nextSite.getUrl();
+			if (new Path(nextURL).equals(new Path(url.toExternalForm()))) {
+				return nextSite;
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * Look in the configuration and return the site which contains the feature
+	 * with the given identifier and version. Return null if there is none.
+	 */
+	private Site getSite(String id, String version) {
+		List sites = configuration.getSites();
+		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+			Site site = (Site) iter.next();
+			Feature[] features = site.getFeatures();
+			for (int i = 0; i < features.length; i++) {
+				if (id.equals(features[i].getId()) && version.equals(features[i].getVersion()))
+					return site;
+			}
+		}
+		return null;
+	}
+
+	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#createFeatureEntry(java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, java.net.URL[])
 	 */
-	public IStatus addFeatureEntry(String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root) {
+	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root) {
 		loadDelegate();
 		if (configuration == null)
 			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
 
-		Feature addedFeature = new Feature(poolSite);
+		URL fileURL = null;
+		try {
+			File featureDir = file.getParentFile();
+			if (featureDir == null || featureDir.getName().equals("features"))
+				return new Status(IStatus.ERROR, Activator.ID, "Parent directory should be \"features\": " + file.getAbsolutePath(), null);
+			File locationDir = featureDir.getParentFile();
+			if (locationDir == null)
+				return new Status(IStatus.ERROR, Activator.ID, "Unable to calculate extension location for: " + file.getAbsolutePath(), null);
+
+			fileURL = locationDir.toURL();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return new Status(IStatus.ERROR, Activator.ID, "Unable to create URL from file: " + file.getAbsolutePath(), null);
+		}
+		Site site = getSite(fileURL);
+		if (site == null) {
+			site = createSite(fileURL);
+			configuration.add(site);
+		}
+		Feature addedFeature = new Feature(site);
 		addedFeature.setId(id);
 		addedFeature.setVersion(version);
 		addedFeature.setUrl(makeFeatureURL(id, version));
-		poolSite.addFeature(addedFeature);
+		site.addFeature(addedFeature);
 		return Status.OK_STATUS;
 	}
 
@@ -98,7 +151,10 @@ public class PlatformConfigurationWrapper {
 		if (configuration == null)
 			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
 
-		Feature removedFeature = poolSite.removeFeature(makeFeatureURL(id, version));
+		Site site = getSite(id, version);
+		if (site == null)
+			site = poolSite;
+		Feature removedFeature = site.removeFeature(makeFeatureURL(id, version));
 		return (removedFeature != null ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, "A feature with the specified id was not found.", null)); //$NON-NLS-1$
 	}
 

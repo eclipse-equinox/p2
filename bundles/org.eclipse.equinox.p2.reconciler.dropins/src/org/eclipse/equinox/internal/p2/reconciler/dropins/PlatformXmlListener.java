@@ -20,7 +20,7 @@ import org.eclipse.equinox.internal.p2.reconciler.dropins.SiteDelta.Change;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 /**
  * @since 1.0
@@ -101,7 +101,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		added(delta.added());
 		removed(delta.removed());
 		changed(delta.changed());
-		Activator.synchronize(getMetadataRepositories(), null); // TODO proper progress monitoring?
+		//Activator.synchronize(getMetadataRepositories(), null); // TODO proper progress monitoring?
 	}
 
 	// iterate over the site listeners and collect the metadata repositories
@@ -109,7 +109,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		List result = new ArrayList();
 		for (Iterator iter = sites.values().iterator(); iter.hasNext();) {
 			SiteInfo info = (SiteInfo) iter.next();
-			result.add(info.getListener().getMetadataRepository());
+			result.add(info.getRepository());
 		}
 		return result;
 	}
@@ -133,12 +133,11 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				} catch (IOException e) {
 					throw new ProvisionException(Messages.errorProcessingConfg, e);
 				}
-				File file = new File(url.getPath(), "plugins"); //$NON-NLS-1$
-				DirectoryWatcher watcher = new DirectoryWatcher(file);
-				SiteListener listener = new SiteListener(site);
-				watcher.addListener(listener);
-				watcher.poll();
-				sites.put(site.getUrl(), new SiteInfo(site, watcher, listener));
+				IMetadataRepository repo = Activator.loadMetadataRepository(url);
+				if (repo == null) {
+					// todo
+				} else
+					sites.put(site.getUrl(), new SiteInfo(site, repo));
 			} catch (MalformedURLException e) {
 				throw new ProvisionException(Messages.errorProcessingConfg, e);
 			}
@@ -159,7 +158,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			if (info == null) {
 				// 
 			}
-			info.getWatcher().stop();
+
 			sites.remove(site.getUrl());
 		}
 	}

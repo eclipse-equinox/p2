@@ -891,7 +891,12 @@ public class EclipseTouchpoint extends Touchpoint {
 			featureVersion = artifactKey.getVersion().toString();
 		}
 
-		return configuration.addFeatureEntry(featureId, featureVersion, artifactKey.getId(), artifactKey.getVersion().toString(), /*primary*/false, /*application*/null, /*root*/null);
+		IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
+		File file = Util.getBundleFile(artifactKey, profile);
+		if (file == null || !file.exists()) {
+			// todo
+		}
+		return configuration.addFeatureEntry(file, featureId, featureVersion, artifactKey.getId(), artifactKey.getVersion().toString(), /*primary*/false, /*application*/null, /*root*/null);
 	}
 
 	protected IStatus uninstallFeature(Map parameters) {

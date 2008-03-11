@@ -21,10 +21,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
@@ -32,13 +30,14 @@ import org.osgi.framework.ServiceReference;
 
 public class RepositoryListener extends DirectoryChangeListener {
 
+	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
+	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
+	private static final String FILE_LAST_MODIFIED = "file.lastModified"; //$NON-NLS-1$
+	private static final String FILE_NAME = "file.name"; //$NON-NLS-1$
 	private final IMetadataRepository metadataRepository;
 	private final IArtifactRepository artifactRepository;
 	private final BundleDescriptionFactory bundleDescriptionFactory;
 	private final Map currentFiles = new HashMap();
-	private final String repositoryName;
-	private final boolean hidden;
-	private long lastModifed;
 
 	/**
 	 * Create a repository listener that watches the specified folder and generates repositories
@@ -51,11 +50,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 */
 	public RepositoryListener(BundleContext context, String repositoryName, File repositoryFolder, boolean hidden) {
 
-		this.repositoryName = repositoryName;
-		this.hidden = hidden;
 		File stateDir;
 		if (repositoryFolder == null) {
-			String stateDirName = "listener_" + repositoryName;
+			String stateDirName = "listener_" + repositoryName.hashCode();
 			stateDir = context.getDataFile(stateDirName);
 			stateDir.mkdirs();
 		} else {
@@ -69,13 +66,19 @@ public class RepositoryListener extends DirectoryChangeListener {
 			throw new IllegalStateException(e.getMessage());
 		}
 
-		metadataRepository = initializeMetadataRepository(context, stateDirURL);
-		artifactRepository = initializeArtifactRepository(context, stateDirURL);
+		metadataRepository = initializeMetadataRepository(context, repositoryName, stateDirURL, hidden);
+		artifactRepository = initializeArtifactRepository(context, repositoryName, stateDirURL, hidden);
 		bundleDescriptionFactory = initializeBundleDescriptionFactory(context);
 	}
 
-	public RepositoryListener(BundleContext context, String string) {
-		this(context, string, null, false);
+	public RepositoryListener(BundleContext context, String repositoryName) {
+		this(context, repositoryName, null, false);
+	}
+
+	public RepositoryListener(BundleContext context, IMetadataRepository metadataRepository, IArtifactRepository artifactRepository) {
+		this.artifactRepository = artifactRepository;
+		this.metadataRepository = metadataRepository;
+		bundleDescriptionFactory = initializeBundleDescriptionFactory(context);
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
@@ -95,7 +98,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 	}
 
-	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL) {
+	private IArtifactRepository initializeArtifactRepository(BundleContext context, String repositoryName, URL stateDirURL, boolean hidden) {
 		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
 		IArtifactRepositoryManager manager = null;
 		if (reference != null)
@@ -129,7 +132,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		}
 	}
 
-	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL) {
+	private IMetadataRepository initializeMetadataRepository(BundleContext context, String repositoryName, URL stateDirURL, boolean hidden) {
 		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
 		IMetadataRepositoryManager manager = null;
 		if (reference != null)
@@ -150,6 +153,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			} else {
 				repository = manager.createRepository(stateDirURL, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 			}
+			manager.addRepository(stateDirURL);
 			return repository;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
@@ -163,8 +167,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#added(java.io.File)
 	 */
 	public boolean added(File file) {
-		if (isInteresting(file))
-			currentFiles.put(file, new Long(file.lastModified()));
+		currentFiles.put(file, new Long(file.lastModified()));
 		return true;
 	}
 
@@ -172,8 +175,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#changed(java.io.File)
 	 */
 	public boolean changed(File file) {
-		if (isInteresting(file))
-			currentFiles.put(file, new Long(file.lastModified()));
+		currentFiles.put(file, new Long(file.lastModified()));
 		return true;
 	}
 
@@ -187,19 +189,23 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return true;
 	}
 
-	/*
-	 * Return a boolean value indicating whether or not we are interested in
-	 * processing the given file. Currently we handle JAR files and directories.
-	 */
-	private boolean isInteresting(File file) {
-		return file.isDirectory() || file.getAbsolutePath().endsWith(".jar");
+	private boolean isBundle(File file) {
+		if (file.isDirectory() || file.getName().endsWith(".jar")) {
+			BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(file);
+			return bundleDescription != null;
+		}
+		return false;
+	}
+
+	private boolean isFeature(File file) {
+		return file.isDirectory() && new File(file, "feature.xml").exists();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
 	 */
 	public boolean isInterested(File file) {
-		return true;
+		return isFeature(file) || isBundle(file);
 	}
 
 	/* (non-Javadoc)
@@ -220,93 +226,89 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#stopPoll()
 	 */
 	public void stopPoll() {
-		synchronizeMetadataRepository();
-		synchronizeArtifactRepository();
+		if (metadataRepository != null)
+			synchronizeMetadataRepository();
+
+		if (artifactRepository != null)
+			synchronizeArtifactRepository();
 	}
 
 	private void synchronizeMetadataRepository() {
-		boolean modified = false;
 		final Map snapshot = new HashMap(currentFiles);
 		Query removeQuery = new Query() {
 			public boolean isMatch(Object candidate) {
 				if (!(candidate instanceof IInstallableUnit))
 					return false;
 				IInstallableUnit iu = (IInstallableUnit) candidate;
-				File iuFile = new File(iu.getProperty("file.name")); //$NON-NLS-1$
-				Long iuLastModified = new Long(iu.getProperty("file.lastModified")); //$NON-NLS-1$
+				File iuFile = new File(iu.getProperty(FILE_NAME));
+				Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
 				Long snapshotLastModified = (Long) snapshot.get(iuFile);
 				if (snapshotLastModified == null || !snapshotLastModified.equals(iuLastModified))
 					return true;
+
+				// match found. Remove from snapshot to prevent it from being added.
 				snapshot.remove(iuFile);
 				return false;
 			}
 		};
-		if (metadataRepository.removeInstallableUnits(removeQuery, null))
-			modified = true;
+		metadataRepository.removeInstallableUnits(removeQuery, null);
 
 		if (!snapshot.isEmpty()) {
-			modified = true;
-			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet(), metadataRepository.getLocation().toExternalForm());
+			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
 			metadataRepository.addInstallableUnits(iusToAdd);
 		}
-		if (modified)
-			lastModifed = System.currentTimeMillis();
 	}
 
 	private void synchronizeArtifactRepository() {
-		final boolean[] modified = {false};
-		final List snapshot = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
-		Collector collector = new Collector() {
-			public boolean accept(Object object) {
-				IInstallableUnit iu = (IInstallableUnit) object;
-				IArtifactKey[] artifacts = iu.getArtifacts();
-				if (artifacts == null || artifacts.length == 0)
-					return true;
-				IArtifactKey artifact = artifacts[0];
-				if (!snapshot.remove(artifact)) {
-					File iuFile = new File(iu.getProperty("file.name"));
-					IArtifactDescriptor descriptor = generateArtifactDescriptor(iuFile);
-					if (descriptor != null) {
-						artifactRepository.addDescriptor(descriptor);
-						modified[0] = true;
-					}
-				}
-				return true;
-			}
-		};
-		metadataRepository.query(InstallableUnitQuery.ANY, collector, null);
+		final Map snapshot = new HashMap(currentFiles);
+		final List keys = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
 
-		for (Iterator it = snapshot.iterator(); it.hasNext();) {
+		for (Iterator it = keys.iterator(); it.hasNext();) {
 			IArtifactKey key = (IArtifactKey) it.next();
-			artifactRepository.removeDescriptor(key);
-			modified[0] = true;
+			IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
+			for (int i = 0; i < descriptors.length; i++) {
+				ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[i];
+				File artifactFile = new File(descriptor.getRepositoryProperty(FILE_NAME));
+				Long artifactLastModified = new Long(descriptor.getRepositoryProperty(FILE_LAST_MODIFIED));
+				Long snapshotLastModified = (Long) snapshot.get(artifactFile);
+				if (snapshotLastModified == null || !snapshotLastModified.equals(artifactLastModified))
+					artifactRepository.removeDescriptor(descriptor);
+				else
+					snapshot.remove(key);
+			}
 		}
 
-		if (modified[0])
-			lastModifed = System.currentTimeMillis();
+		for (Iterator it = snapshot.keySet().iterator(); it.hasNext();) {
+			File file = (File) it.next();
+			IArtifactDescriptor descriptor = generateArtifactDescriptor(file);
+			if (descriptor != null)
+				artifactRepository.addDescriptor(descriptor);
+		}
 	}
 
-	IArtifactDescriptor generateArtifactDescriptor(File candidate) {
+	protected IArtifactDescriptor generateArtifactDescriptor(File candidate) {
 
 		IArtifactDescriptor basicDescriptor = generateBasicDescriptor(candidate);
 		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
 		try {
-			pathDescriptor.setRepositoryProperty("artifact.reference", candidate.toURL().toExternalForm());
+			pathDescriptor.setRepositoryProperty(ARTIFACT_REFERENCE, candidate.toURL().toExternalForm());
 		} catch (MalformedURLException e) {
 			// unexpected
 			e.printStackTrace();
 			return null;
 		}
 		if (candidate.isDirectory())
-			pathDescriptor.setRepositoryProperty("artifact.folder", "true");
+			pathDescriptor.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
+
+		pathDescriptor.setRepositoryProperty(FILE_NAME, candidate.getAbsolutePath());
+		pathDescriptor.setRepositoryProperty(FILE_LAST_MODIFIED, Long.toString(candidate.lastModified()));
 
 		return pathDescriptor;
 	}
 
 	private IArtifactDescriptor generateBasicDescriptor(File candidate) {
-		// feature check
-		File parent = candidate.getParentFile();
-		if (parent != null && parent.getName().equals("features")) {
+
+		if (isFeature(candidate)) {
 			FeatureParser parser = new FeatureParser();
 			Feature feature = parser.parse(candidate);
 			IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
@@ -318,22 +320,16 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return MetadataGeneratorHelper.createArtifactDescriptor(key, candidate, true, false);
 	}
 
-	private IInstallableUnit[] generateIUs(Collection files, String repositoryId) {
+	private IInstallableUnit[] generateIUs(Collection files) {
 		List ius = new ArrayList();
 		for (Iterator it = files.iterator(); it.hasNext();) {
 			File candidate = (File) it.next();
 
 			Properties props = new Properties();
-			props.setProperty("repository.id", repositoryId);
-			props.setProperty("file.name", candidate.getAbsolutePath());
-			props.setProperty("file.lastModified", Long.toString(candidate.lastModified()));
+			props.setProperty(FILE_NAME, candidate.getAbsolutePath());
+			props.setProperty(FILE_LAST_MODIFIED, Long.toString(candidate.lastModified()));
 
-			if (candidate.isDirectory() && candidate.getName().equals("eclipse"))
-				continue;
-
-			// feature check
-			File parent = candidate.getParentFile();
-			if (parent != null && parent.getName().equals("features")) {
+			if (isFeature(candidate)) {
 				IInstallableUnit[] featureIUs = generateFeatureIUs(candidate, props);
 				if (featureIUs != null)
 					ius.addAll(Arrays.asList(featureIUs));
@@ -377,9 +373,5 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	public IArtifactRepository getArtifactRepository() {
 		return artifactRepository;
-	}
-
-	public long getLastModified() {
-		return lastModifed;
 	}
 }

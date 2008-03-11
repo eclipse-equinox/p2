@@ -40,7 +40,8 @@ public class Util {
 	 */
 	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
 	private static final String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
-	private static final Object PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
+	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
+	private static final String PIPE = "|"; //$NON-NLS-1$
 
 	static AgentLocation getAgentLocation() {
 		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
@@ -90,18 +91,34 @@ public class Util {
 		bundleRepositories.add(Util.getBundlePoolRepository(profile));
 
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		URL[] knownRepositories = manager.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
-		for (int i = 0; i < knownRepositories.length; i++) {
+		List extensions = getListProfileProperty(profile, CACHE_EXTENSIONS);
+		for (Iterator iterator = extensions.iterator(); iterator.hasNext();) {
 			try {
-				IArtifactRepository repository = manager.loadRepository(knownRepositories[i], null);
-				String profileExtension = (String) repository.getProperties().get(PROFILE_EXTENSION);
-				if (profileExtension != null && profileExtension.equals(profile.getProfileId()))
+				String extension = (String) iterator.next();
+				URL extensionURL = new URL(extension);
+				IArtifactRepository repository = manager.loadRepository(extensionURL, null);
+				if (repository != null)
 					bundleRepositories.add(repository);
 			} catch (ProvisionException e) {
 				//skip repositories that could not be read
+			} catch (MalformedURLException e) {
+				// unexpected, URLs should be pre-checked
+				e.printStackTrace();
 			}
 		}
 		return new AggregatedBundleRepository(bundleRepositories);
+	}
+
+	private static List getListProfileProperty(IProfile profile, String key) {
+		List listProperty = new ArrayList();
+		String dropinRepositories = profile.getProperty(key);
+		if (dropinRepositories != null) {
+			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);
+			while (tokenizer.hasMoreTokens()) {
+				listProperty.add(tokenizer.nextToken());
+			}
+		}
+		return listProperty;
 	}
 
 	static BundleInfo createBundleInfo(File bundleFile, String manifest) {

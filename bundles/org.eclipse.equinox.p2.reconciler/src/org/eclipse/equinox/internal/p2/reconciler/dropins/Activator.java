@@ -14,26 +14,75 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 public class Activator implements BundleActivator {
 
+	public static final String ID = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String OSGI_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
-	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
+	//	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
 	private List watchers = new ArrayList();
-	private static IMetadataRepository dropinRepository;
+	private static IMetadataRepository[] dropinRepositories;
+	private static IMetadataRepository[] configurationRepositories;
+	private static IMetadataRepository[] linksRepositories;
+
+	/**
+	 * Helper method to load a metadata repository from the specified URL.
+	 * This method never returns <code>null</code>.
+	 * 
+	 * @throws IllegalStateException
+	 * @throws ProvisionException 
+	 */
+	public static IMetadataRepository loadMetadataRepository(URL repoURL) throws ProvisionException {
+		BundleContext context = getContext();
+		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = null;
+		if (reference != null)
+			manager = (IMetadataRepositoryManager) context.getService(reference);
+		if (manager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered.");
+		try {
+			return manager.loadRepository(repoURL, null);
+		} finally {
+			context.ungetService(reference);
+		}
+	}
+
+	/**
+	 * Helper method to load an artifact repository from the given URL.
+	 * This method never returns <code>null</code>.
+	 * 
+	 * @throws IllegalStateException
+	 * @throws ProvisionException
+	 */
+	public static IArtifactRepository loadArtifactRepository(URL repoURL) throws ProvisionException {
+		BundleContext context = getContext();
+		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = null;
+		if (reference != null)
+			manager = (IArtifactRepositoryManager) context.getService(reference);
+		if (manager == null)
+			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
+		try {
+			return manager.loadRepository(repoURL, null);
+		} finally {
+			context.ungetService(reference);
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
@@ -55,9 +104,9 @@ public class Activator implements BundleActivator {
 
 		// create the watcher for the "drop-ins" folder
 		watchDropins(profile);
-
-		// create watchers for the sites specified in the platform.xml
-		watchConfiguration();
+		// keep an eye on the platform.xml
+		if (false)
+			watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
 	}
@@ -73,14 +122,21 @@ public class Activator implements BundleActivator {
 	/*
 	 * Synchronize the profile.
 	 */
-	public static void synchronize(List extraRepositories, IProgressMonitor monitor) {
+	public static synchronized void synchronize(List extraRepositories, IProgressMonitor monitor) {
 		IProfile profile = getCurrentProfile(bundleContext);
 		if (profile == null)
 			return;
 		// create the profile synchronizer on all available repositories
-		List repositories = new ArrayList(extraRepositories);
-		if (dropinRepository != null)
-			repositories.add(dropinRepository);
+		Set repositories = new HashSet(extraRepositories);
+		if (dropinRepositories != null)
+			repositories.addAll(Arrays.asList(dropinRepositories));
+
+		if (configurationRepositories != null)
+			repositories.addAll(Arrays.asList(configurationRepositories));
+
+		if (linksRepositories != null)
+			repositories.addAll(Arrays.asList(linksRepositories));
+
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
 		synchronizer.synchronize(monitor);
 	}
@@ -88,50 +144,43 @@ public class Activator implements BundleActivator {
 	/*
 	 * Watch the platform.xml file.
 	 */
-	private void watchConfiguration() throws ProvisionException {
+	private void watchConfiguration() {
 		File configFile = new File("configuration/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
 		try {
 			PlatformXmlListener listener = new PlatformXmlListener(configFile);
 			watcher.addListener(listener);
+			watcher.poll();
+			List repositories = listener.getMetadataRepositories();
+			if (repositories != null)
+				configurationRepositories = (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[0]);
 		} catch (ProvisionException e) {
 			// TODO proper logging
 			e.printStackTrace();
 		}
-		watchers.add(watcher);
-		watcher.start();
-
-		// pay attention to the links/ folder too. this is only needed on startup though since
-		// any other changes during execution will be reflected in the platform.xml file
-		LinksManager manager = new LinksManager();
-		manager.synchronize(configFile, new File("links"));
 	}
 
 	/*
 	 * Create a new directory watcher with a repository listener on the drop-ins folder. 
 	 */
 	private void watchDropins(IProfile profile) {
-		File folder = getWatchedDirectory(bundleContext);
-		if (folder == null)
+		List directories = new ArrayList();
+		File dropinsDirectory = getDropinsDirectory();
+		if (dropinsDirectory != null)
+			directories.add(dropinsDirectory);
+		File linksDirectory = getLinksDirectory();
+		if (linksDirectory != null)
+			directories.add(linksDirectory);
+		if (directories.isEmpty())
 			return;
 
-		RepositoryListener listener = new RepositoryListener(Activator.getContext(), Integer.toString(folder.hashCode()));
-		listener.getArtifactRepository().setProperty(PROFILE_EXTENSION, profile.getProfileId());
-
-		List folders = new ArrayList();
-		folders.add(folder);
-		File eclipseFeatures = new File(folder, "eclipse/features");
-		if (eclipseFeatures.isDirectory())
-			folders.add(eclipseFeatures);
-		File eclipsePlugins = new File(folder, "eclipse/plugins");
-		if (eclipsePlugins.isDirectory())
-			folders.add(eclipsePlugins);
-
-		DirectoryWatcher watcher = new DirectoryWatcher((File[]) folders.toArray(new File[folders.size()]));
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), "dropins:" + dropinsDirectory.getAbsolutePath());
+		//		listener.getArtifactRepository().setProperty(PROFILE_EXTENSION, profile.getProfileId());
+		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
 
-		dropinRepository = listener.getMetadataRepository();
+		dropinRepositories = listener.getMetadataRepositories();
 	}
 
 	/* (non-Javadoc)
@@ -154,15 +203,27 @@ public class Activator implements BundleActivator {
 		return bundleContext;
 	}
 
-	public static File getWatchedDirectory(BundleContext context) {
-		String watchedDirectoryProperty = context.getProperty(DROPINS_DIRECTORY);
+	private static File getLinksDirectory() {
+		try {
+			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
+			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
+			URL folderURL = new URL(baseURL, "../links"); //$NON-NLS-1$
+			return new File(folderURL.getPath());
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static File getDropinsDirectory() {
+		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null) {
 			File folder = new File(watchedDirectoryProperty);
 			return folder;
 		}
 		try {
 			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
-			URL baseURL = new URL(context.getProperty(OSGI_CONFIGURATION_AREA));
+			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
 			URL folderURL = new URL(baseURL, "../" + DROPINS); //$NON-NLS-1$
 			File folder = new File(folderURL.getPath());
 			return folder;
