@@ -45,7 +45,7 @@ public class Bug207319 extends AbstractProvisioningTest {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.addInstallableUnits(new IInstallableUnit[] {c});
 		assertEquals(IStatus.OK, director.provision(req2, null, null).getSeverity());
-		assertProfileContainsAll("B is missing", profile, new IInstallableUnit[] {b, c});
+		assertProfileContainsAll("B and C are missing", profile, new IInstallableUnit[] {b, c});
 		assertNotIUs(new IInstallableUnit[] {a}, profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator());
 
 	}
