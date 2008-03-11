@@ -169,6 +169,10 @@ public class PBProjector {
 			w.write("*"); //$NON-NLS-1$
 			w.newLine();
 
+			if (variableCount == 0 && clauseCount == 0) {
+				w.close();
+				return;
+			}
 			w.write(objective);
 			w.newLine();
 			w.newLine();
