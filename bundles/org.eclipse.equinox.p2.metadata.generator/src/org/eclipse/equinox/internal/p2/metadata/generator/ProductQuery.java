@@ -12,10 +12,8 @@ package org.eclipse.equinox.internal.p2.metadata.generator;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -24,7 +22,7 @@ import org.osgi.framework.Version;
 public class ProductQuery extends Query {
 	private static final String EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
 
-	private final ProductFile product;
+	private final IProductDescriptor product;
 	private final String flavor;
 	private final Map children = new HashMap();
 	private final String versionAdvice;
@@ -48,7 +46,7 @@ public class ProductQuery extends Query {
 		}
 	};
 
-	public ProductQuery(ProductFile product, String flavor, Map configIUs, String versionAdvice) {
+	public ProductQuery(IProductDescriptor product, String flavor, Map configIUs, String versionAdvice) {
 		this.product = product;
 		this.flavor = flavor;
 		this.versionAdvice = versionAdvice;
@@ -133,8 +131,8 @@ public class ProductQuery extends Query {
 		}
 
 		// feature based product, individual bundle config CUs are under CONFIGURATION_CUS for convenience
-		if (features && configIUs.containsKey(GeneratorResult.CONFIGURATION_CUS)) {
-			for (Iterator ius = ((Set) configIUs.get(GeneratorResult.CONFIGURATION_CUS)).iterator(); ius.hasNext();) {
+		if (features && configIUs.containsKey(IPublisherResult.CONFIGURATION_CUS)) {
+			for (Iterator ius = ((Set) configIUs.get(IPublisherResult.CONFIGURATION_CUS)).iterator(); ius.hasNext();) {
 				IInstallableUnit object = (IInstallableUnit) ius.next();
 				children.put(object.getId(), new VersionRange(object.getVersion(), true, object.getVersion(), true));
 			}

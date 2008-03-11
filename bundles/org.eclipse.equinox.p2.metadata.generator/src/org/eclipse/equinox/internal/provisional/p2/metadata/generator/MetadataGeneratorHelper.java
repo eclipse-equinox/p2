@@ -145,6 +145,22 @@ public class MetadataGeneratorHelper {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
 	}
 
+	public static IInstallableUnit createIUFragment(String id, String version, String flavor, String configSpec, Map touchpointData) {
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String resultId = flavor + Generator.createIdString(configSpec) + id;
+		cu.setId(resultId);
+		Version resultVersion = new Version(version);
+		cu.setVersion(resultVersion);
+
+		cu.setFilter(Generator.createFilterSpec(configSpec));
+		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(resultVersion, true, resultVersion, true), null, false, false)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(resultId, resultVersion)});
+
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		return MetadataFactory.createInstallableUnit(cu);
+	}
+
 	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
 		if (configInfo == null)
 			return null;
@@ -484,7 +500,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		// Create a required capability on features
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, false, true)};
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_FEATURE, VersionRange.emptyRange, null, true, true)};
 		cu.setHost(reqs);
 
 		cu.setFilter(INSTALL_FEATURES_FILTER);
@@ -508,7 +524,7 @@ public class MetadataGeneratorHelper {
 		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, configUnitVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		// Create a required capability on source providers
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, false, true)};
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_SOURCE, VersionRange.emptyRange, null, true, true)};
 		cu.setHost(reqs);
 		Map touchpointData = new HashMap();
 
@@ -562,10 +578,10 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded) {
-		return createFeatureJarIU(feature, isExploded, null);
+		return createFeatureJarIU(feature, null, isExploded, null);
 	}
 
-	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded, Properties extraProperties) {
+	public static IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, boolean isExploded, Properties extraProperties) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
@@ -596,6 +612,17 @@ public class MetadataGeneratorHelper {
 
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
+
+		// link in all the children (if any) as requirements.
+		// TODO consider if these should be linked as exact version numbers.  Should be ok but may be brittle.
+		if (childIUs != null) {
+			RequiredCapability[] required = new RequiredCapability[childIUs.size()];
+			for (int i = 0; i < childIUs.size(); i++) {
+				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
+				required[i] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
+			}
+			iu.setRequiredCapabilities(required);
+		}
 
 		if (isExploded) {
 			// Define the immutable metadata for this IU. In this case immutable means
@@ -664,7 +691,7 @@ public class MetadataGeneratorHelper {
 	 * to the given set, and the resulting artifact descriptor, if any, is returned.
 	 * If the jreLocation is <code>null</code>, default information is generated.
 	 */
-	public static IArtifactDescriptor createJREData(File jreLocation, Set resultantIUs) {
+	public static IArtifactDescriptor createJREData(File jreLocation, IPublisherResult results) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(false);
 		String id = "a.jre"; //$NON-NLS-1$
@@ -687,11 +714,11 @@ public class MetadataGeneratorHelper {
 			//set some reasonable defaults
 			iu.setVersion(version);
 			iu.setCapabilities(generateJRECapability(id, version, null));
-			resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
+			results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
 			touchpointData.put("install", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-			resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
+			results.addIU(MetadataFactory.createInstallableUnit(cu), IPublisherResult.ROOT);
 			return null;
 		}
 		generateJREIUData(iu, id, version, jreLocation);
@@ -699,7 +726,7 @@ public class MetadataGeneratorHelper {
 		//Generate artifact for JRE
 		IArtifactKey key = new ArtifactKey(BINARY_ARTIFACT_CLASSIFIER, id, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
-		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
+		results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
 		//Create config info for the CU
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -707,7 +734,7 @@ public class MetadataGeneratorHelper {
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		resultantIUs.add(MetadataFactory.createInstallableUnit(cu));
+		results.addIU(MetadataFactory.createInstallableUnit(cu), IPublisherResult.ROOT);
 
 		//Create the artifact descriptor
 		return createArtifactDescriptor(key, jreLocation, false, true);
@@ -721,7 +748,7 @@ public class MetadataGeneratorHelper {
 	 * Creates IUs and artifacts for the Launcher executable. The resulting IUs are added
 	 * to the given set, and the resulting artifact descriptor is returned.
 	 */
-	public static IArtifactDescriptor createLauncherIU(File launcher, String configurationFlavor, Set resultantIUs) {
+	public static IArtifactDescriptor createLauncherIU(File launcher, String configurationFlavor, IPublisherResult resultantIUs) {
 		if (launcher == null || !launcher.exists())
 			return null;
 
@@ -736,7 +763,7 @@ public class MetadataGeneratorHelper {
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(launcherId, LAUNCHER_VERSION)});
 		iu.setTouchpointType(TOUCHPOINT_NATIVE);
-		resultantIUs.add(MetadataFactory.createInstallableUnit(iu));
+		resultantIUs.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
 		//Create the CU
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
@@ -753,39 +780,40 @@ public class MetadataGeneratorHelper {
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
 			if (info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 				configurationData += " chmod(targetDir:${installFolder}/Eclipse.app/Contents/MacOS, targetFile:eclipse, permissions:755);"; //$NON-NLS-1$
-				generateLauncherSetter("Eclipse", launcherId, LAUNCHER_VERSION, "macosx", null, null, resultantIUs);
+				String config = Generator.createConfigSpec(null, "macosx", null);
+				generateLauncherSetter("Eclipse", launcherId, LAUNCHER_VERSION, config, resultantIUs);
 			} else
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			generateLauncherSetter("eclipse", launcherId, LAUNCHER_VERSION, "win32", null, null, resultantIUs);
+			String config = Generator.createConfigSpec(null, "win32", null);
+			generateLauncherSetter("eclipse", launcherId, LAUNCHER_VERSION, config, resultantIUs);
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		resultantIUs.add(MetadataFactory.createInstallableUnitFragment(cu));
+		resultantIUs.addIU(MetadataFactory.createInstallableUnitFragment(cu), IPublisherResult.ROOT);
 
 		//Create the artifact descriptor
 		return createArtifactDescriptor(key, launcher, false, true);
 	}
 
-	public static void generateLauncherSetter(String launcherName, String iuId, Version version, String os, String ws, String arch, Set result) {
+	public static void generateLauncherSetter(String launcherName, String iuId, Version version, String configSpec, IPublisherResult result) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-		iud.setId(iuId + '.' + launcherName);
+		String id = iuId + '.' + launcherName;
+		iud.setId(id);
 		iud.setVersion(version);
 		iud.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
+		iud.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(id, version)});
 
-		if (os != null || ws != null || arch != null) {
-			String filterOs = os != null ? "(os=" + os + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterWs = ws != null ? "(ws=" + ws + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterArch = arch != null ? "(arch=" + arch + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			iud.setFilter("(& " + filterOs + filterWs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		String filter = Generator.createFilterSpec(configSpec);
+		if (filter.length() > 0)
+			iud.setFilter(filter);
 		Map touchpointData = new HashMap();
 		touchpointData.put("configure", "setLauncherName(name:" + launcherName + ")");
 		touchpointData.put("unconfigure", "setLauncherName()");
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		result.add(MetadataFactory.createInstallableUnit(iud));
+		result.addIU(MetadataFactory.createInstallableUnit(iud), IPublisherResult.ROOT);
 	}
 
 	public static ProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
@@ -1148,6 +1176,81 @@ public class MetadataGeneratorHelper {
 			}
 		}
 		return localizedProperties;
+	}
+
+	public static Object[] createFeatureRootFileIU(Feature base, File location, FileSetDescriptor descriptor) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setSingleton(true);
+		String id = base.getId() + '_' + descriptor.getKey();
+		iu.setId(id);
+		Version version = new Version(base.getVersion());
+		iu.setVersion(version);
+		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+		iu.setTouchpointType(TOUCHPOINT_NATIVE);
+		String configSpec = descriptor.getConfigSpec();
+		if (configSpec != null)
+			iu.setFilter(Generator.createFilterSpec(configSpec));
+		File[] fileResult = setupRootFiles(iu, descriptor, location);
+		setupLinks(iu, descriptor);
+		setupPermissions(iu, descriptor);
+
+		IInstallableUnit iuResult = MetadataFactory.createInstallableUnit(iu);
+		// need to return both the iu and any files.
+		return new Object[] {iuResult, fileResult};
+	}
+
+	private static File[] setupRootFiles(InstallableUnitDescription iu, FileSetDescriptor descriptor, File location) {
+		String fileList = descriptor.getFiles();
+		String[] fileSpecs = getArrayFromString(fileList, ","); //$NON-NLS-1$
+		File[] files = new File[fileSpecs.length];
+		if (fileSpecs.length > 0) {
+			for (int i = 0; i < fileSpecs.length; i++) {
+				String spec = fileSpecs[i];
+				if (spec.startsWith("file:"))
+					spec = spec.substring(5);
+				files[i] = new File(location, spec);
+			}
+		}
+		// add touchpoint actions to unzip and cleanup as needed
+		// TODO need to support fancy root file location specs
+		Map touchpointData = new HashMap(2);
+		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
+		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+
+		// prime the IU with an artifact key that will correspond to the zipped up root files.
+		IArtifactKey key = createLauncherArtifactKey(iu.getId(), iu.getVersion());
+		iu.setArtifacts(new IArtifactKey[] {key});
+		return files;
+	}
+
+	private static void setupPermissions(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
+		Map touchpointData = new HashMap();
+		String[][] permsList = descriptor.getPermissions();
+		for (int i = 0; i < permsList.length; i++) {
+			String[] permSpec = permsList[i];
+			String configurationData = " chmod(targetDir:${installFolder}, targetFile:" + permSpec[1] + ", permissions:" + permSpec[0] + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			touchpointData.put("install", configurationData); //$NON-NLS-1$
+			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		}
+	}
+
+	private static void setupLinks(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
+		// TODO setup the link support.
+	}
+
+	public static String[] getArrayFromString(String list, String separator) {
+		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+			return new String[0];
+		List result = new ArrayList();
+		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
+			String token = tokens.nextToken().trim();
+			if (!token.equals("")) //$NON-NLS-1$
+				result.add(token);
+		}
+		return (String[]) result.toArray(new String[result.size()]);
 	}
 
 }

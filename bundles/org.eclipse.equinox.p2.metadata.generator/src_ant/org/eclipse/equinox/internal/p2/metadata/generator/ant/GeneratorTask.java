@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.generator.ant;
 
+import java.io.File;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.equinox.internal.p2.metadata.generator.EclipseGeneratorApplication;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 
 /**
  * An Ant task to call the p2 Metadata Generator application.
@@ -26,7 +26,7 @@ public class GeneratorTask extends Task {
 	protected EclipseInstallGeneratorInfoProvider provider = null;
 	protected EclipseGeneratorApplication generator = null;
 
-	static private GeneratorResult result;
+	static private IPublisherResult result;
 	private String mode;
 
 	/* (non-Javadoc)
@@ -36,7 +36,7 @@ public class GeneratorTask extends Task {
 		try {
 			if ("incremental".equals(mode)) { //$NON-NLS-1$
 				if (result == null)
-					result = new GeneratorResult();
+					result = new PublisherResult();
 				generator.setIncrementalResult(result);
 				generator.setGeneratorRootIU(false);
 			} else if ("final".equals(mode) && result != null) { //$NON-NLS-1$
@@ -56,124 +56,96 @@ public class GeneratorTask extends Task {
 		}
 	}
 
-	public void setAppend(String value) {
+	private EclipseInstallGeneratorInfoProvider getProvider() {
 		if (provider == null)
 			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setAppend(Boolean.valueOf(value).booleanValue());
+		return provider;
+	}
+
+	private EclipseGeneratorApplication getGenerator() {
+		if (generator == null)
+			generator = new EclipseGeneratorApplication();
+		return generator;
+	}
+
+	public void setAppend(String value) {
+		getProvider().setAppend(Boolean.valueOf(value).booleanValue());
 	}
 
 	public void setArtifactRepository(String location) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setArtifactLocation(location);
+		getGenerator().setArtifactLocation(location);
 	}
 
 	public void setBase(String value) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setBase(value);
+		getGenerator().setBase(value);
 	}
 
 	public void setBundles(String value) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setBundles(value);
+		getProvider().setBundleLocations(new File[] {new File(value)});
 	}
 
 	public void setConfig(String value) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setOperation("-config", value); //$NON-NLS-1$
+		getGenerator().setOperation("-config", value); //$NON-NLS-1$
 	}
 
 	public void setInplace(String value) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setOperation("-inplace", value); //$NON-NLS-1$
+		getGenerator().setOperation("-inplace", value); //$NON-NLS-1$
 	}
 
 	public void setSource(String location) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setOperation("-source", location); //$NON-NLS-1$
+		getGenerator().setOperation("-source", location); //$NON-NLS-1$
 	}
 
 	public void setUpdateSite(String value) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setOperation("-update", value); //$NON-NLS-1$
+		getGenerator().setOperation("-update", value); //$NON-NLS-1$
 	}
 
 	public void setExe(String value) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setExecutableLocation(value);
+		getProvider().setExecutableLocation(value);
 	}
 
 	public void setFeatures(String value) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setFeatures(value);
+		getProvider().setFeaturesLocation(new File(value));
 	}
 
 	public void setFlavor(String flavor) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setFlavor(flavor);
+		getProvider().setFlavor(flavor);
 	}
 
 	public void setLauncherConfig(String launcherConfig) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setLauncherConfig(launcherConfig);
+		getProvider().setLauncherConfig(launcherConfig);
 	}
 
 	public void setMetadataRepository(String location) {
-		if (generator == null)
-			generator = new EclipseGeneratorApplication();
-		generator.setMetadataLocation(location);
+		getGenerator().setMetadataLocation(location);
 	}
 
 	public void setNoDefaultIUs(String value) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setAddDefaultIUs(!Boolean.valueOf(value).booleanValue());
+		getProvider().setAddDefaultIUs(!Boolean.valueOf(value).booleanValue());
 	}
 
 	public void setP2OS(String value) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setOS(value);
+		getProvider().setOS(value);
 	}
 
 	public void setProductFile(String file) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setProductFile(file);
+		getProvider().setProductFile(file);
 	}
 
 	public void setPublishArtifactRepository(String value) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setPublishArtifactRepository(Boolean.valueOf(value).booleanValue());
+		getProvider().setPublishArtifactRepository(Boolean.valueOf(value).booleanValue());
 	}
 
 	public void setPublishArtifacts(String value) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setPublishArtifacts(Boolean.valueOf(value).booleanValue());
+		getProvider().setPublishArtifacts(Boolean.valueOf(value).booleanValue());
 	}
 
 	public void setRoot(String root) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setRootId(root);
+		getProvider().setRootId(root);
 	}
 
 	public void setRootVersion(String rootVersion) {
-		if (provider == null)
-			provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setRootVersion(rootVersion);
+		getProvider().setRootVersion(rootVersion);
 	}
 
 	public void setMode(String mode) {

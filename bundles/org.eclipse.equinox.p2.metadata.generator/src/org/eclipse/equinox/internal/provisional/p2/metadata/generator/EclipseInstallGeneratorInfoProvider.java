@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFilePa
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -48,7 +49,14 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	 */
 	private static final String UPDATE_COMPATIBILITY = "eclipse.p2.update.compatibility"; //$NON-NLS-1$
 
-	private String os;
+	// The mapping rules for in-place generation need to construct paths into the structure
+	// of an eclipse installation; in the future the default artifact mapping declared in
+	// SimpleArtifactRepository may change, for example, to not have a 'bundles' directory
+	// instead of a 'plugins' directory, so a separate constant is defined and used here.
+	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}, //$NON-NLS-1$//$NON-NLS-2$
+			{"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}}; //$NON-NLS-1$//$NON-NLS-2$
 
 	/**
 	 * Returns a default name for the executable.
@@ -70,7 +78,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	private boolean addDefaultIUs = true;
-
+	private String os;
 	private boolean append = false;
 	private IArtifactRepository artifactRepository;
 	private File baseLocation;
@@ -82,6 +90,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private File featuresLocation;
 	private String flavor;
 	private ServiceTracker frameworkAdminTracker;
+	private boolean inplaceMappings = false;
 	private Manipulator manipulator;
 	private String[][] mappingRules;
 	private IMetadataRepository metadataRepository;
@@ -90,12 +99,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private boolean updateCompatibility = Boolean.valueOf(System.getProperty(UPDATE_COMPATIBILITY, "false")).booleanValue(); //$NON-NLS-1$
 	private String rootId;
 	private String rootVersion;
-	private String productFile = null;
+	private IProductDescriptor product = null;
 	private String launcherConfig;
 	private String versionAdvice;
-
 	private URL siteLocation;
-
 	private boolean reuseExistingPack200Files = false;
 
 	public EclipseInstallGeneratorInfoProvider() {
@@ -133,7 +140,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	 * Obtains the framework manipulator instance. Throws an exception
 	 * if it could not be created.
 	 */
-	private void createFrameworkManipulator() {
+	protected void createFrameworkManipulator() {
 		FrameworkAdmin admin = getFrameworkAdmin();
 		if (admin == null)
 			throw new RuntimeException("Framework admin service not found"); //$NON-NLS-1$
@@ -152,7 +159,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
-	private Collection createLauncherBundleInfo(Set ius) {
+	private Collection createLauncherBundleInfo(Collection ius) {
 		Collection result = new HashSet();
 		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher."); //$NON-NLS-1$
 		for (Iterator iterator = launchers.iterator(); iterator.hasNext();) {
@@ -241,7 +248,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return configLocation;
 	}
 
-	public ArrayList getDefaultIUs(Set ius) {
+	public ArrayList getDefaultIUs(Collection ius) {
 		if (defaultIUs != null)
 			return defaultIUs;
 		defaultIUs = new ArrayList(5);
@@ -308,7 +315,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return updateCompatibility;
 	}
 
-	private Collection getIUs(Set ius, String prefix) {
+	private Collection getIUs(Collection ius, String prefix) {
 		Set result = new HashSet();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit tmp = (IInstallableUnit) iterator.next();
@@ -351,8 +358,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return rootVersion;
 	}
 
-	public String getProductFile() {
-		return productFile;
+	public IProductDescriptor getProduct() {
+		return product;
 	}
 
 	public URL getSiteLocation() {
@@ -360,11 +367,16 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public void initialize(File base) {
-		initialize(base, new File(base, "configuration"), new File(base, getDefaultExecutableName(os)), new File[] {new File(base, "plugins")}, new File(base, "features")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		// if the various locations are set in self, use them.  Otherwise compute defaults
+		File[] bundles = bundleLocations == null ? new File[] {new File(base, "plugins")} : bundleLocations; //$NON-NLS-1$
+		File features = featuresLocation == null ? new File(base, "features") : featuresLocation; //$NON-NLS-1$
+		File executable = executableLocation == null ? new File(base, getDefaultExecutableName(os)) : executableLocation;
+		File configuration = configLocation == null ? new File(base, "configuration") : configLocation; //$NON-NLS-1$
+
+		initialize(base, configuration, executable, bundles, features);
 	}
 
-	public void initialize(File base, File config, File executable, File[] bundleLocations, File features) {
-		// TODO
+	public void initialize(File base, File config, File executable, File[] bundles, File features) {
 		if (base == null || !base.exists())
 			throw new RuntimeException(NLS.bind(Messages.exception_sourceDirectoryInvalid, base.getAbsolutePath()));
 		this.baseLocation = base;
@@ -372,10 +384,13 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			this.configLocation = config;
 		if (executable == null || executable.exists())
 			this.executableLocation = executable;
-		this.bundleLocations = bundleLocations;
-		this.featuresLocation = features;
-
+		if (bundles != null)
+			bundleLocations = bundles;
+		if (features != null)
+			featuresLocation = features;
 		expandBundleLocations();
+		if (inplaceMappings)
+			setMappingRules(INPLACE_MAPPING_RULES);
 
 		// if the config or exe are not set then we cannot be generating any data related to the config so 
 		// don't bother setting up the manipulator.  In fact, the manipulator will likely be invalid without
@@ -383,11 +398,15 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		if (configLocation == null || executableLocation == null)
 			return;
 
+		initializeFrameworkManipulator(configLocation, executableLocation);
+	}
+
+	public void initializeFrameworkManipulator(File config, File executable) {
 		createFrameworkManipulator();
 
 		LauncherData launcherData = manipulator.getLauncherData();
-		launcherData.setFwPersistentDataLocation(configLocation, true);
-		launcherData.setLauncher(executableLocation);
+		launcherData.setFwPersistentDataLocation(config, true);
+		launcherData.setLauncher(executable);
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e2) {
@@ -428,6 +447,14 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	public void setArtifactRepository(IArtifactRepository value) {
 		artifactRepository = value;
+	}
+
+	public void setBundleLocations(File[] value) {
+		bundleLocations = value;
+	}
+
+	public void setFeaturesLocation(File value) {
+		featuresLocation = value;
 	}
 
 	public void setExecutableLocation(String value) {
@@ -474,8 +501,18 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		rootVersion = value;
 	}
 
-	public void setProductFile(String file) {
-		productFile = file;
+	public void setProduct(IProductDescriptor value) {
+		product = value;
+	}
+
+	public void setProductFile(String location) {
+		if (product == null)
+			return;
+		try {
+			product = new ProductFile(location, null);
+		} catch (Exception e) {
+			//TODO
+		}
 	}
 
 	/**
@@ -504,6 +541,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			}
 		}
 		return false;
+	}
+
+	public void inplaceMappings(boolean value) {
+		inplaceMappings = value;
 	}
 
 	public String getVersionAdvice() {

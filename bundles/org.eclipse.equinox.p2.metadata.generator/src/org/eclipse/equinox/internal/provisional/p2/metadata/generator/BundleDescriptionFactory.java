@@ -51,11 +51,11 @@ public class BundleDescriptionFactory {
 		//TODO find a state and a factory when not provided
 	}
 
-	private PluginConverter acquirePluginConverter() {
+	private static PluginConverter acquirePluginConverter() {
 		return (PluginConverter) ServiceHelper.getService(Activator.getContext(), PluginConverter.class.getName());
 	}
 
-	private Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
+	private static Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
 		PluginConverter converter;
 		try {
 			converter = acquirePluginConverter();
@@ -111,7 +111,7 @@ public class BundleDescriptionFactory {
 		return null;
 	}
 
-	public Dictionary loadManifest(File bundleLocation) {
+	public static Dictionary loadManifest(File bundleLocation) {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
 		try {
@@ -190,7 +190,7 @@ public class BundleDescriptionFactory {
 
 	// Collect the manifest localizations from the bundle directory
 	// and store them in the manifest.
-	private void getManifestLocalizations(Dictionary manifest, File bundleLocation) {
+	private static void getManifestLocalizations(Dictionary manifest, File bundleLocation) {
 		//		Map localizations;
 		//		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
 		//		String bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
@@ -343,7 +343,7 @@ public class BundleDescriptionFactory {
 	//		return localizedProperties;
 	//	}
 
-	private Properties manifestToProperties(Attributes attributes) {
+	private static Properties manifestToProperties(Attributes attributes) {
 		Properties result = new Properties();
 		for (Iterator i = attributes.keySet().iterator(); i.hasNext();) {
 			Attributes.Name key = (Attributes.Name) i.next();

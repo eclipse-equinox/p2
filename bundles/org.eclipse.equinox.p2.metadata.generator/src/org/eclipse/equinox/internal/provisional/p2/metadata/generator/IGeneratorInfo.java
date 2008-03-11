@@ -12,7 +12,8 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -58,7 +59,7 @@ public interface IGeneratorInfo {
 
 	public File getConfigurationLocation();
 
-	public ArrayList getDefaultIUs(Set ius);
+	public ArrayList getDefaultIUs(Collection ius);
 
 	public File getExecutableLocation();
 
@@ -86,7 +87,7 @@ public interface IGeneratorInfo {
 
 	public String getRootVersion();
 
-	public String getProductFile();
+	public IProductDescriptor getProduct();
 
 	public String getVersionAdvice();
 

@@ -37,68 +37,17 @@ public class Generator {
 	/**
 	 * Captures the output of an execution of the generator.
 	 */
-	public static class GeneratorResult {
-		public static final String CONFIGURATION_CUS = "CONFIGURATION_CUS"; //$NON-NLS-1$
-
-		/**
-		 * The set of generated IUs that will be children of the root IU
-		 */
-		final Set rootIUs = new HashSet();
-		/**
-		 * The set of generated IUs that will not be children of the root IU
-		 */
-		final Set nonRootIUs = new HashSet();
-
-		/**
-		 * Map of symbolic name to a set of generated CUs for that IU
-		 */
-		final Map configurationIUs = new HashMap();
-
-		/**
-		 * Map launcherConfig to config.ini ConfigData
-		 */
-		final Map configData = new HashMap();
-
-		/**
-		 * Returns all IUs generated during this execution of the generator.
-		 */
-		Set allGeneratedIUs() {
-			HashSet all = new HashSet();
-			all.addAll(rootIUs);
-			all.addAll(nonRootIUs);
-			return all;
-		}
-
-		/**
-		 * Returns the IU in this result with the given id.
-		 */
-		IInstallableUnit getInstallableUnit(String id) {
-			for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
-				IInstallableUnit tmp = (IInstallableUnit) iterator.next();
-				if (tmp.getId().equals(id))
-					return tmp;
-			}
-			for (Iterator iterator = nonRootIUs.iterator(); iterator.hasNext();) {
-				IInstallableUnit tmp = (IInstallableUnit) iterator.next();
-				if (tmp.getId().equals(id))
-					return tmp;
-			}
-			return null;
-
-		}
-
-	}
-
-	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
+	protected static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
+	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
+	protected static final String ORG_ECLIPSE_EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
+	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
 	private final IGeneratorInfo info;
 
-	private GeneratorResult incrementalResult = null;
-	private ProductFile productFile = null;
+	private IPublisherResult incrementalResult = null;
+	private final IProductDescriptor product = null;
 	private boolean generateRootIU = true;
 
 	/**
@@ -125,6 +74,58 @@ public class Generator {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
+	/**
+	 * Returns a string array of { ws, os, arch } as parsed from the given string
+	 * @param configSpec the string to parse
+	 * @return the ws, os, arch form of the given string
+	 */
+	public static String[] parseConfigSpec(String configSpec) {
+		String[] result = Generator.getArrayFromString(configSpec, CONFIG_SEGMENT_SEPARATOR);
+		return result;
+	}
+
+	/**
+	 * Returns the LDAP filter form that matches the given config spec.  Returns
+	 * an empty String if the spec does not identify an ws, os or arch.
+	 * @param configSpec a config spec to filter
+	 * @return the LDAP filter for the given spec.  
+	 */
+	public static String createFilterSpec(String configSpec) {
+		String[] config = Generator.parseConfigSpec(configSpec);
+		if (config[0] != null || config[1] != null || config[2] != null) {
+			String filterWs = config[0] != null ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterOs = config[1] != null ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterArch = config[2] != null ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * Returns the normalized string form of the given config spec.  This is useful for putting
+	 * in IU ids etc. Note that the result is not intended to be machine readable (i.e., parseConfigSpec
+	 * may not work on the result).
+	 * @param configSpec the config spec to format
+	 * @return the readable format of the given config spec
+	 */
+	public static String createIdString(String configSpec) {
+		String[] config = Generator.parseConfigSpec(configSpec);
+		return config[0] + '.' + config[1] + '.' + config[2];
+	}
+
+	/**
+	 * Returns the canonical form of config spec with the given ws, os and arch.
+	 * Note that the result is intended to be machine readable (i.e., parseConfigSpec
+	 * will parse the the result).
+	 * @param ws the window system
+	 * @param os the operating system
+	 * @param arch the machine architecture
+	 * @return the machine readable format of the given config spec
+	 */
+	public static String createConfigSpec(String ws, String os, String arch) {
+		return ws + '.' + os + '.' + arch;
+	}
+
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
 		// TODO need to figure a better way of configuring the generator...
@@ -134,54 +135,54 @@ public class Generator {
 		}
 	}
 
-	public void setIncrementalResult(GeneratorResult result) {
+	public void setIncrementalResult(IPublisherResult result) {
 		this.incrementalResult = result;
 	}
 
-	protected IInstallableUnit createProductIU(GeneratorResult result) {
+	protected IInstallableUnit createProductIU(IPublisherResult result) {
 		generateProductConfigCUs(result);
 
-		GeneratorResult productContents = new GeneratorResult();
+		IPublisherResult productContents = new PublisherResult();
 
-		ProductQuery query = new ProductQuery(productFile, info.getFlavor(), result.configurationIUs, info.getVersionAdvice());
+		ProductQuery query = new ProductQuery(product, info.getFlavor(), result.getFragmentMap(), info.getVersionAdvice());
 		Collector collector = info.getMetadataRepository().query(query, query.getCollector(), null);
 		for (Iterator iterator = collector.iterator(); iterator.hasNext();) {
-			productContents.rootIUs.add(iterator.next());
+			productContents.addIU((IInstallableUnit) iterator.next(), IPublisherResult.ROOT);
 		}
 
-		String version = productFile.getVersion();
+		String version = product.getVersion();
 		if (version.equals("0.0.0") && info.getRootVersion() != null) //$NON-NLS-1$
 			version = info.getRootVersion();
 		ArrayList requires = new ArrayList(1);
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, true)); //$NON-NLS-1$
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".ini", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".config", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + product.getId(), product.getId() + ".launcher", VersionRange.emptyRange, null, false, true)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + product.getId(), product.getId() + ".ini", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + product.getId(), product.getId() + ".config", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
 
 		//default CUs		
 		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, null, false, false));
 		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId("source", info.getFlavor()), VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
-		if (productFile.useFeatures())
+		if (product.useFeatures())
 			requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.ECLIPSE_FEATURE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, MetadataGeneratorHelper.INSTALL_FEATURES_FILTER, true, false));
 
-		InstallableUnitDescription root = createTopLevelIUDescription(productContents, productFile.getId(), version, productFile.getProductName(), requires, false);
+		InstallableUnitDescription root = createTopLevelIUDescription(productContents.getIUs(null, IPublisherResult.ROOT), product.getId(), version, product.getProductName(), requires, false);
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
-	protected IInstallableUnit createTopLevelIU(GeneratorResult result, String configurationIdentification, String configurationVersion) {
+	protected IInstallableUnit createTopLevelIU(IPublisherResult result, String configurationIdentification, String configurationVersion) {
 		// TODO, bit of a hack but for now set the name of the IU to the ID.
-		InstallableUnitDescription root = createTopLevelIUDescription(result, configurationIdentification, configurationVersion, configurationIdentification, null, true);
+		InstallableUnitDescription root = createTopLevelIUDescription(result.getIUs(null, IPublisherResult.ROOT), configurationIdentification, configurationVersion, configurationIdentification, null, true);
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
-	protected InstallableUnitDescription createTopLevelIUDescription(GeneratorResult result, String configurationIdentification, String configurationVersion, String configurationName, List requires, boolean configureLauncherData) {
+	protected InstallableUnitDescription createTopLevelIUDescription(Collection children, String configurationIdentification, String configurationVersion, String configurationName, List requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(configurationIdentification);
 		root.setVersion(new Version(configurationVersion));
 		root.setProperty(IInstallableUnit.PROP_NAME, configurationName);
 
-		ArrayList reqsConfigurationUnits = new ArrayList(result.rootIUs.size());
-		for (Iterator iterator = result.rootIUs.iterator(); iterator.hasNext();) {
+		ArrayList reqsConfigurationUnits = new ArrayList(children.size());
+		for (Iterator iterator = children.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
 			//			boolean isOptional = checkOptionalRootDependency(iu);
@@ -224,7 +225,7 @@ public class Generator {
 		return root;
 	}
 
-	private String[] getConfigurationStrings(ConfigData configData) {
+	protected String[] getConfigurationStrings(ConfigData configData) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 		for (Iterator iterator = configData.getFwDependentProps().entrySet().iterator(); iterator.hasNext();) {
@@ -247,7 +248,7 @@ public class Generator {
 		return new String[] {configurationData, unconfigurationData};
 	}
 
-	private String[] getLauncherConfigStrings(final String[] jvmArgs, final String[] programArgs) {
+	protected String[] getLauncherConfigStrings(final String[] jvmArgs, final String[] programArgs) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 
@@ -267,15 +268,7 @@ public class Generator {
 	}
 
 	public IStatus generate() {
-		GeneratorResult result = incrementalResult != null ? incrementalResult : new GeneratorResult();
-
-		if (info.getProductFile() != null) {
-			try {
-				productFile = new ProductFile(info.getProductFile(), null);
-			} catch (Exception e) {
-				//TODO
-			}
-		}
+		IPublisherResult result = incrementalResult != null ? incrementalResult : new PublisherResult();
 
 		Feature[] features = getFeatures(info.getFeaturesLocation());
 		generateFeatureIUs(features, result, info.getArtifactRepository());
@@ -288,7 +281,7 @@ public class Generator {
 		generateConfigIUs(result);
 
 		if (info.addDefaultIUs())
-			generateDefaultConfigIU(result.rootIUs);
+			generateDefaultConfigIU(result);
 
 		if (generateRootIU)
 			generateRootIU(result, info.getRootId(), info.getRootVersion());
@@ -299,14 +292,14 @@ public class Generator {
 		//		}
 		IMetadataRepository metadataRepository = info.getMetadataRepository();
 		if (metadataRepository != null) {
-			Set allGeneratedUnits = result.allGeneratedIUs();
+			Collection allGeneratedUnits = result.getIUs(null, null);
 			metadataRepository.addInstallableUnits((IInstallableUnit[]) allGeneratedUnits.toArray(new IInstallableUnit[allGeneratedUnits.size()]));
 		}
 
 		return Status.OK_STATUS;
 	}
 
-	protected void generateBundleIUs(BundleDescription[] bundles, GeneratorResult result, IArtifactRepository destination) {
+	protected void generateBundleIUs(BundleDescription[] bundles, IPublisherResult result, IArtifactRepository destination) {
 		// Computing the path for localized property files in a NL fragment bundle
 		// requires the BUNDLE_LOCALIZATION property from the manifest of the host bundle,
 		// so a first pass is done over all the bundles to cache this value as well as the tags
@@ -336,14 +329,14 @@ public class Generator {
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
 						if (isDir)
-							publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
+							publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false, true);
 						else
-							publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
+							publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true, true);
 						if (info.reuseExistingPack200Files() && !info.publishArtifacts()) {
 							File packFile = new Path(bd.getLocation()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 							if (packFile.exists()) {
 								IArtifactDescriptor ad200 = MetadataGeneratorHelper.createPack200ArtifactDescriptor(key, packFile, ad.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-								publishArtifact(ad200, new File[] {packFile}, destination, true);
+								publishArtifact(ad200, new File[] {packFile}, destination, true, true);
 							}
 						}
 
@@ -361,8 +354,8 @@ public class Generator {
 							}
 						}
 
-						result.rootIUs.add(bundleIU);
-						result.nonRootIUs.addAll(localizationIUs);
+						result.addIU(bundleIU, IPublisherResult.ROOT);
+						result.addIUs(localizationIUs, IPublisherResult.NON_ROOT);
 						localizationIUs.clear();
 					}
 				}
@@ -392,15 +385,15 @@ public class Generator {
 	 * @param categoriesToFeatures Map of SiteCategory ->Set (Feature IUs in that category).
 	 * @param result The generator result being built
 	 */
-	protected void generateCategoryIUs(Map categoriesToFeatures, GeneratorResult result) {
+	protected void generateCategoryIUs(Map categoriesToFeatures, IPublisherResult result) {
 		for (Iterator it = categoriesToFeatures.keySet().iterator(); it.hasNext();) {
 			SiteCategory category = (SiteCategory) it.next();
-			result.nonRootIUs.add(MetadataGeneratorHelper.createCategoryIU(category, (Set) categoriesToFeatures.get(category), null));
+			result.addIU(MetadataGeneratorHelper.createCategoryIU(category, (Set) categoriesToFeatures.get(category), null), IPublisherResult.NON_ROOT);
 		}
 	}
 
-	private void storeConfigData(GeneratorResult result) {
-		if (result.configData.containsKey(info.getLauncherConfig()))
+	protected void storeConfigData(IPublisherResult result, String configuration) {
+		if (result.getConfigData().containsKey(configuration))
 			return; //been here, done this
 
 		File fwConfigFile = new File(info.getLauncherData().getFwConfigLocation(), EquinoxConstants.CONFIG_INI);
@@ -408,19 +401,19 @@ public class Generator {
 			if (info instanceof EclipseInstallGeneratorInfoProvider) {
 				((EclipseInstallGeneratorInfoProvider) info).loadConfigData(fwConfigFile);
 				ConfigData data = info.getConfigData();
-				result.configData.put(info.getLauncherConfig(), data);
+				result.getConfigData().put(configuration, data);
 			}
 		}
 	}
 
-	protected GeneratorBundleInfo createGeneratorBundleInfo(BundleInfo bundleInfo, GeneratorResult result) {
+	protected GeneratorBundleInfo createGeneratorBundleInfo(BundleInfo bundleInfo, IPublisherResult result) {
 		if (bundleInfo.getLocation() != null)
 			return new GeneratorBundleInfo(bundleInfo);
 
 		String name = bundleInfo.getSymbolicName();
 
 		//easy case: do we have a matching IU?
-		IInstallableUnit iu = result.getInstallableUnit(name);
+		IInstallableUnit iu = result.getIU(name, null);
 		if (iu != null) {
 			bundleInfo.setVersion(iu.getVersion().toString());
 			return new GeneratorBundleInfo(bundleInfo);
@@ -444,18 +437,15 @@ public class Generator {
 		return null;
 	}
 
-	protected void generateBundleConfigIUs(BundleInfo[] infos, GeneratorResult result, String launcherConfig) {
+	protected void generateBundleConfigIUs(BundleInfo[] infos, IPublisherResult result, String launcherConfig) {
 		if (infos == null)
 			return;
 
 		String cuIdPrefix = ""; //$NON-NLS-1$
 		String filter = null;
 		if (launcherConfig != null) {
-			//launcher config is os_ws_arch, we want suffix ws.os.arch
-			String[] config = getArrayFromString(launcherConfig, "_"); //$NON-NLS-1$
-			cuIdPrefix = config[1] + '.' + config[0] + '.' + config[2];
-
-			filter = "(& (osgi.ws=" + config[1] + ") (osgi.os=" + config[0] + ") (osgi.arch=" + config[2] + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			cuIdPrefix = createIdString(launcherConfig);
+			filter = createFilterSpec(launcherConfig);
 		}
 
 		for (int i = 0; i < infos.length; i++) {
@@ -480,48 +470,42 @@ public class Generator {
 				if (metadataRepository != null) {
 					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
 				}
-				result.rootIUs.add(cu);
-				String key = (productFile != null && productFile.useFeatures()) ? GeneratorResult.CONFIGURATION_CUS : bundle.getSymbolicName();
-				if (result.configurationIUs.containsKey(key)) {
-					((Set) result.configurationIUs.get(key)).add(cu);
-				} else {
-					Set set = new HashSet();
-					set.add(cu);
-					result.configurationIUs.put(key, set);
-				}
+				result.addIU(cu, IPublisherResult.ROOT);
+				String key = (product != null && product.useFeatures()) ? IPublisherResult.CONFIGURATION_CUS : bundle.getSymbolicName();
+				result.addFragment(key, cu);
 			}
 		}
 
 	}
 
-	protected void generateConfigIUs(GeneratorResult result) {
+	protected void generateConfigIUs(IPublisherResult result) {
 		ConfigData data = info.getConfigData();
 		if ((data == null || data.getBundles().length == 0) && info.getLauncherConfig() != null) {
 			//We have the config.ini but not necessarily all the needed bundle IUs, remember for later
-			storeConfigData(result);
+			storeConfigData(result, info.getLauncherConfig());
 		} else if (data != null) {
 			// generation against an eclipse install (config.ini + bundles)
 			generateBundleConfigIUs(data.getBundles(), result, info.getLauncherConfig());
-		} else if (result.configData.size() > 0 && generateRootIU) {
+		} else if (result.getConfigData().size() > 0 && generateRootIU) {
 			// generation from remembered config.ini's
 			// we have N platforms, generate a CU for each
 			// TODO try and find common properties across platforms
-			for (Iterator iterator = result.configData.keySet().iterator(); iterator.hasNext();) {
+			for (Iterator iterator = result.getConfigData().keySet().iterator(); iterator.hasNext();) {
 				String launcherConfig = (String) iterator.next();
-				data = (ConfigData) result.configData.get(launcherConfig);
+				data = (ConfigData) result.getConfigData().get(launcherConfig);
 				generateBundleConfigIUs(data.getBundles(), result, launcherConfig);
 			}
 		}
 
 		List bundleInfoList = new ArrayList();
 		if (info.addDefaultIUs())
-			bundleInfoList.addAll(info.getDefaultIUs(result.rootIUs));
+			bundleInfoList.addAll(info.getDefaultIUs(result.getIUs(null, IPublisherResult.ROOT)));
 
 		bundleInfoList.addAll(info.getOtherIUs());
 
 		for (Iterator iterator = bundleInfoList.iterator(); iterator.hasNext();) {
 			GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
-			IInstallableUnit configuredIU = result.getInstallableUnit(bundle.getSymbolicName());
+			IInstallableUnit configuredIU = result.getIU(bundle.getSymbolicName(), null);
 			if (configuredIU == null)
 				continue;
 			bundle.setVersion(configuredIU.getVersion().toString());
@@ -529,16 +513,9 @@ public class Generator {
 			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
 			//the configuration unit should share the same platform filter as the IU being configured.
 			if (cu != null)
-				result.rootIUs.add(cu);
-			if (bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.')) {
-				if (result.configurationIUs.containsKey(ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
-					((Set) result.configurationIUs.get(ORG_ECLIPSE_EQUINOX_LAUNCHER)).add(cu);
-				} else {
-					Set set = new HashSet();
-					set.add(cu);
-					result.configurationIUs.put(ORG_ECLIPSE_EQUINOX_LAUNCHER, set);
-				}
-			}
+				result.addIU(cu, IPublisherResult.ROOT);
+			if (bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.'))
+				result.addFragment(ORG_ECLIPSE_EQUINOX_LAUNCHER, cu);
 		}
 	}
 
@@ -546,8 +523,8 @@ public class Generator {
 	 * Short term fix to ensure IUs that have no corresponding category are not lost.
 	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
 	 */
-	private IInstallableUnit generateDefaultCategory(IInstallableUnit rootIU) {
-		rootCategory.add(rootIU);
+	protected IInstallableUnit generateDefaultCategory(IInstallableUnit rootIU, Collection defaultCategory) {
+		defaultCategory.add(rootIU);
 
 		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
 		cat.setSingleton(true);
@@ -557,8 +534,8 @@ public class Generator {
 		cat.setProperty(IInstallableUnit.PROP_NAME, rootIU.getProperty(IInstallableUnit.PROP_NAME));
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, rootIU.getProperty(IInstallableUnit.PROP_DESCRIPTION));
 
-		ArrayList required = new ArrayList(rootCategory.size());
-		for (Iterator iterator = rootCategory.iterator(); iterator.hasNext();) {
+		ArrayList required = new ArrayList(defaultCategory.size());
+		for (Iterator iterator = defaultCategory.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
 		}
@@ -569,16 +546,16 @@ public class Generator {
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 
-	private void generateDefaultConfigIU(Set ius) {
+	protected void generateDefaultConfigIU(IPublisherResult result) {
 		//		TODO this is a bit of a hack.  We need to have the default IU fragment generated with code that configures
 		//		and unconfigures.  The Generator should be decoupled from any particular provider but it is not clear
 		//		that we should add the create* methods to IGeneratorInfo...
 		//		MockBundleDescription bd1 = new MockBundleDescription("defaultConfigure");
 		//		MockBundleDescription bd2 = new MockBundleDescription("defaultUnconfigure");
 		EclipseInstallGeneratorInfoProvider provider = (EclipseInstallGeneratorInfoProvider) info;
-		ius.add(MetadataGeneratorHelper.createDefaultBundleConfigurationUnit(provider.createDefaultConfigurationBundleInfo(), provider.createDefaultUnconfigurationBundleInfo(), info.getFlavor()));
-		ius.add(MetadataGeneratorHelper.createDefaultFeatureConfigurationUnit(info.getFlavor()));
-		ius.add(MetadataGeneratorHelper.createDefaultConfigurationUnitForSourceBundles(info.getFlavor()));
+		result.addIU(MetadataGeneratorHelper.createDefaultBundleConfigurationUnit(provider.createDefaultConfigurationBundleInfo(), provider.createDefaultUnconfigurationBundleInfo(), info.getFlavor()), IPublisherResult.ROOT);
+		result.addIU(MetadataGeneratorHelper.createDefaultFeatureConfigurationUnit(info.getFlavor()), IPublisherResult.ROOT);
+		result.addIU(MetadataGeneratorHelper.createDefaultConfigurationUnitForSourceBundles(info.getFlavor()), IPublisherResult.ROOT);
 	}
 
 	/**
@@ -586,7 +563,7 @@ public class Generator {
 	 * @return <code>true</code> if the executable feature was processed successfully,
 	 * and <code>false</code> otherwise.
 	 */
-	private boolean generateExecutableFeatureIUs(GeneratorResult result, IArtifactRepository destination) {
+	private boolean generateExecutableFeatureIUs(IPublisherResult result, IArtifactRepository destination) {
 		File parentDir = info.getFeaturesLocation();
 		if (parentDir == null || !parentDir.exists())
 			return false;
@@ -623,7 +600,7 @@ public class Generator {
 					continue;
 				for (int archIndex = 0; archIndex < archDirs.length; archIndex++) {
 					String arch = archDirs[archIndex].getName();
-					generateExecutableIUs(ws, os, arch, versionString, archDirs[archIndex], result, destination);
+					generateExecutableIUs(createConfigSpec(ws, os, arch), versionString, archDirs[archIndex], result, destination);
 				}
 			}
 		}
@@ -634,17 +611,17 @@ public class Generator {
 	 * Generates IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
 	 */
-	private void generateExecutableIUs(String ws, String os, final String arch, String version, File root, GeneratorResult result, IArtifactRepository destination) {
+	protected void generateExecutableIUs(String configSpec, String version, File root, IPublisherResult result, IArtifactRepository destination) {
 		//Create the IU
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
-		String productNamespace = (productFile != null) ? productFile.getId() : "org.eclipse"; //$NON-NLS-1$
+		String productNamespace = (product != null) ? product.getId() : "org.eclipse"; //$NON-NLS-1$
 		String launcherIdPrefix = productNamespace + ".launcher"; //$NON-NLS-1$
-		String launcherId = launcherIdPrefix + '.' + ws + '.' + os + '.' + arch;
+		String launcherId = launcherIdPrefix + '.' + createIdString(configSpec);
 		iu.setId(launcherId);
 		Version launcherVersion = new Version(version);
 		iu.setVersion(launcherVersion);
-		String filter = "(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 
 		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(launcherId, launcherVersion);
@@ -653,11 +630,16 @@ public class Generator {
 		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productNamespace, launcherIdPrefix, new Version("1.0.0")); //$NON-NLS-1$
 		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(launcherId, launcherVersion), launcherCapability});
 
+		// setup a requirement between the executable and the launcher fragment that has the shared library
+		String[] config = parseConfigSpec(configSpec);
+		String ws = config[0];
+		String os = config[1];
+		String arch = config[2];
 		String launcherFragment = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
 		if (!Constants.OS_MACOSX.equals(os))
 			launcherFragment += '.' + arch;
 		iu.setRequiredCapabilities(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
-		result.rootIUs.add(MetadataFactory.createInstallableUnit(iu));
+		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
 		//Create the CU
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
@@ -688,7 +670,7 @@ public class Generator {
 					for (int j = 0; j < launcherFiles.length; j++) {
 						configurationData += " chmod(targetDir:${installFolder}/" + appFolders[i].getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[j].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if (new Path(launcherFiles[j].getName()).getFileExtension() == null)
-							MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+							MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, configSpec, result);
 					}
 				}
 			}
@@ -697,8 +679,8 @@ public class Generator {
 			File[] launcherFiles = root.listFiles();
 			for (int i = 0; i < launcherFiles.length; i++) {
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
-				if (new Path(launcherFiles[i].getName()).getFileExtension() == null)
-					MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+				if (launcherFiles[i].isFile() && new Path(launcherFiles[i].getName()).getFileExtension() == null)
+					MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, configSpec, result);
 			}
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
@@ -706,42 +688,31 @@ public class Generator {
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
-		result.rootIUs.add(unit);
+		result.addIU(unit, IPublisherResult.ROOT);
 		//The Product Query will need to include the launcher CU fragments as a workaround to bug 218890
-		if (result.configurationIUs.containsKey(launcherIdPrefix)) {
-			((Set) result.configurationIUs.get(launcherIdPrefix)).add(unit);
-		} else {
-			Set set = new HashSet();
-			set.add(unit);
-			result.configurationIUs.put(launcherIdPrefix, set);
-		}
+		result.addFragment(launcherIdPrefix, unit);
 
 		//Create the artifact descriptor
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, root, false, true);
-		publishArtifact(descriptor, root.listFiles(), destination, false);
+		publishArtifact(descriptor, root.listFiles(), destination, false, true);
 	}
 
 	/*
 	 * For each platform, generate a CU containing the information for the config.ini
 	 */
-	private void generateProductConfigCUs(GeneratorResult result) {
-		for (Iterator iterator = result.configData.keySet().iterator(); iterator.hasNext();) {
+	protected void generateProductConfigCUs(IPublisherResult result) {
+		for (Iterator iterator = result.getConfigData().keySet().iterator(); iterator.hasNext();) {
 			String launcherConfig = (String) iterator.next();
-			String[] config = getArrayFromString(launcherConfig, "_"); //$NON-NLS-1$
-			String ws = config[1];
-			String os = config[0];
-			String arch = config[2];
-
-			ConfigData data = (ConfigData) result.configData.get(launcherConfig);
+			ConfigData data = (ConfigData) result.getConfigData().get(launcherConfig);
 
 			InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
-			String configUnitId = info.getFlavor() + productFile.getId() + ".config." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
-			Version cuVersion = new Version(productFile.getVersion());
+			String configUnitId = info.getFlavor() + product.getId() + ".config." + createIdString(launcherConfig); //$NON-NLS-1$
+			Version cuVersion = new Version(product.getVersion());
 			cu.setId(configUnitId);
 			cu.setVersion(cuVersion);
-			cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			cu.setFilter(createFilterSpec(launcherConfig));
 
-			ProvidedCapability productConfigCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".config", Version.emptyVersion); //$NON-NLS-1$
+			ProvidedCapability productConfigCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + product.getId(), product.getId() + ".config", Version.emptyVersion); //$NON-NLS-1$
 			ProvidedCapability selfCapability = MetadataGeneratorHelper.createSelfCapability(configUnitId, cuVersion);
 			cu.setCapabilities(new ProvidedCapability[] {selfCapability, productConfigCapability});
 
@@ -752,15 +723,15 @@ public class Generator {
 			touchpointData.put("unconfigure", dataStrings[1]); //$NON-NLS-1$
 			cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
-			result.rootIUs.add(MetadataFactory.createInstallableUnit(cu));
+			result.addIU(MetadataFactory.createInstallableUnit(cu), IPublisherResult.ROOT);
 		}
 	}
 
 	/* 
 	 * For the given platform (ws, os, arch) generate the CU that will populate the product.ini file 
 	 */
-	private void generateProductIniCU(String ws, String os, String arch, String version, GeneratorResult result) {
-		if (productFile == null)
+	protected void generateProductIniCU(String configSpec, String version, IPublisherResult result) {
+		if (product == null)
 			return;
 
 		//attempt to merge arguments from the launcher data and the product file
@@ -771,8 +742,9 @@ public class Generator {
 			jvmArgs.addAll(Arrays.asList(launcherData.getJvmArgs()));
 			progArgs.addAll(Arrays.asList(launcherData.getProgramArgs()));
 		}
-		progArgs.addAll(Arrays.asList(getArrayFromString(productFile.getProgramArguments(os), " "))); //$NON-NLS-1$
-		jvmArgs.addAll(Arrays.asList(getArrayFromString(productFile.getVMArguments(os), " "))); //$NON-NLS-1$
+		String[] config = parseConfigSpec(configSpec);
+		progArgs.addAll(Arrays.asList(getArrayFromString(product.getProgramArguments(config[1]), " "))); //$NON-NLS-1$
+		jvmArgs.addAll(Arrays.asList(getArrayFromString(product.getVMArguments(config[1]), " "))); //$NON-NLS-1$
 
 		String[] dataStrings = getLauncherConfigStrings((String[]) jvmArgs.toArray(new String[jvmArgs.size()]), (String[]) progArgs.toArray(new String[progArgs.size()]));
 		String configurationData = dataStrings[0];
@@ -782,13 +754,13 @@ public class Generator {
 			return;
 
 		InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
-		String configUnitId = info.getFlavor() + productFile.getId() + ".ini." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
+		String configUnitId = info.getFlavor() + product.getId() + ".ini." + createIdString(configSpec); //$NON-NLS-1$
 		Version cuVersion = new Version(version);
 		cu.setId(configUnitId);
 		cu.setVersion(cuVersion);
-		cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		cu.setFilter(createFilterSpec(configSpec));
 
-		ProvidedCapability productIniCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".ini", Version.emptyVersion); //$NON-NLS-1$
+		ProvidedCapability productIniCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + product.getId(), product.getId() + ".ini", Version.emptyVersion); //$NON-NLS-1$
 		ProvidedCapability selfCapability = MetadataGeneratorHelper.createSelfCapability(configUnitId, cuVersion);
 		cu.setCapabilities(new ProvidedCapability[] {selfCapability, productIniCapability});
 
@@ -798,30 +770,38 @@ public class Generator {
 		touchpointData.put("unconfigure", unconfigurationData); //$NON-NLS-1$
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
-		result.rootIUs.add(MetadataFactory.createInstallableUnit(cu));
+		result.addIU(MetadataFactory.createInstallableUnit(cu), IPublisherResult.ROOT);
 
 	}
 
-	protected void generateFeatureIUs(Feature[] features, GeneratorResult result, IArtifactRepository destination) {
+	protected void generateFeatureIUs(Feature[] features, IPublisherResult result, IArtifactRepository destination) {
 		Map categoriesToFeatureIUs = new HashMap();
-		Map featuresToCategories = getFeatureToCategoryMappings();
+		Map featuresToCategories = getFeatureToCategoryMappings(info.getSiteLocation());
 		//Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
+
+			// create the basic feature IU with all the children
 			String location = feature.getLocation();
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
-			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, isExploded);
+			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, null, isExploded, null);
+
+			// add all the artifacts associated with the feature
 			IArtifactKey[] artifacts = featureIU.getArtifacts();
 			for (int arti = 0; arti < artifacts.length; arti++) {
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
 				if (isExploded)
-					publishArtifact(ad, new File(location).listFiles(), destination, false);
+					publishArtifact(ad, new File(location).listFiles(), destination, false, true);
 				else
-					publishArtifact(ad, new File[] {new File(location)}, destination, true);
+					publishArtifact(ad, new File[] {new File(location)}, destination, true, true);
 			}
+
+			// create the associated group and register the feature and group in the result.
 			IInstallableUnit generated = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
-			result.rootIUs.add(generated);
-			result.rootIUs.add(featureIU);
+			result.addIU(generated, IPublisherResult.ROOT);
+			result.addIU(featureIU, IPublisherResult.ROOT);
+
+			// Assign the feature to categories if applicable.  otherwise add it to the root category
 			Set categories = getCategories(feature, featuresToCategories);
 			if (categories != null) {
 				for (Iterator it = categories.iterator(); it.hasNext();) {
@@ -840,19 +820,19 @@ public class Generator {
 		generateCategoryIUs(categoriesToFeatureIUs, result);
 	}
 
-	protected void generateNativeIUs(File executableLocation, GeneratorResult result, IArtifactRepository destination) {
+	protected void generateNativeIUs(File executableLocation, IPublisherResult result, IArtifactRepository destination) {
 		//generate data for JRE
 		File jreLocation = info.getJRELocation();
-		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, result.rootIUs);
-		publishArtifact(artifact, new File[] {jreLocation}, destination, false);
+		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(jreLocation, result);
+		publishArtifact(artifact, new File[] {jreLocation}, destination, false, true);
 
 		if (info.getLauncherConfig() != null) {
-			String[] config = getArrayFromString(info.getLauncherConfig(), "_"); //$NON-NLS-1$
+			String configSpec = info.getLauncherConfig();
 			String version = "1.0.0"; //$NON-NLS-1$
-			if (productFile != null && !productFile.getVersion().equals("0.0.0")) //$NON-NLS-1$
-				version = productFile.getVersion();
-			generateExecutableIUs(config[1], config[0], config[2], version, executableLocation.getParentFile(), result, destination);
-			generateProductIniCU(config[1], config[0], config[2], version, result);
+			if (product != null && !product.getVersion().equals("0.0.0")) //$NON-NLS-1$
+				version = product.getVersion();
+			generateExecutableIUs(configSpec, version, executableLocation.getParentFile(), result, destination);
+			generateProductIniCU(configSpec, version, result);
 			return;
 		}
 
@@ -861,7 +841,7 @@ public class Generator {
 			return;
 
 		//generate data for executable launcher
-		artifact = MetadataGeneratorHelper.createLauncherIU(executableLocation, info.getFlavor(), result.rootIUs);
+		artifact = MetadataGeneratorHelper.createLauncherIU(executableLocation, info.getFlavor(), result);
 		File[] launcherFiles = null;
 		//hard-coded name is ok, since console launcher is not branded, and appears on Windows only
 		File consoleLauncher = new File(executableLocation.getParentFile(), "eclipsec.exe"); //$NON-NLS-1$
@@ -869,13 +849,13 @@ public class Generator {
 			launcherFiles = new File[] {executableLocation, consoleLauncher};
 		else
 			launcherFiles = new File[] {executableLocation};
-		publishArtifact(artifact, launcherFiles, destination, false);
+		publishArtifact(artifact, launcherFiles, destination, false, true);
 	}
 
-	protected void generateRootIU(GeneratorResult result, String rootIUId, String rootIUVersion) {
+	protected void generateRootIU(IPublisherResult result, String rootIUId, String rootIUVersion) {
 		IInstallableUnit rootIU = null;
 
-		if (info.getProductFile() != null)
+		if (info.getProduct() != null)
 			rootIU = createProductIU(result);
 		else if (rootIUId != null)
 			rootIU = createTopLevelIU(result, rootIUId, rootIUVersion);
@@ -883,8 +863,8 @@ public class Generator {
 		if (rootIU == null)
 			return;
 
-		result.nonRootIUs.add(rootIU);
-		result.nonRootIUs.add(generateDefaultCategory(rootIU));
+		result.addIU(rootIU, IPublisherResult.NON_ROOT);
+		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
 	}
 
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
@@ -931,7 +911,7 @@ public class Generator {
 	 * @param featuresToCategories A map of SiteFeature->Set<SiteCategory>
 	 * @return A Set<SiteCategory> of the categories corresponding to the feature, or <code>null</code>
 	 */
-	private Set getCategories(Feature feature, Map featuresToCategories) {
+	protected Set getCategories(Feature feature, Map featuresToCategories) {
 		//find the SiteFeature corresponding to the given feature
 		for (Iterator it = featuresToCategories.keySet().iterator(); it.hasNext();) {
 			SiteFeature siteFeature = (SiteFeature) it.next();
@@ -941,10 +921,7 @@ public class Generator {
 		return null;
 	}
 
-	private Feature[] getFeatures(File folder) {
-		if (folder == null || !folder.exists())
-			return new Feature[0];
-		File[] locations = folder.listFiles();
+	protected Feature[] getFeatures(File[] locations) {
 		ArrayList result = new ArrayList(locations.length);
 		for (int i = 0; i < locations.length; i++) {
 			Feature feature = new FeatureParser().parse(locations[i]);
@@ -956,14 +933,20 @@ public class Generator {
 		return (Feature[]) result.toArray(new Feature[result.size()]);
 	}
 
+	private Feature[] getFeatures(File folder) {
+		if (folder == null || !folder.exists())
+			return new Feature[0];
+		File[] locations = folder.listFiles();
+		return getFeatures(locations);
+	}
+
 	/**
 	 * Computes the mapping of features to categories as defined in the site.xml,
 	 * if available. Returns an empty map if there is not site.xml, or no categories.
 	 * @return A map of SiteFeature -> Set<SiteCategory>.
 	 */
-	protected Map getFeatureToCategoryMappings() {
+	protected Map getFeatureToCategoryMappings(URL siteLocation) {
 		HashMap mappings = new HashMap();
-		URL siteLocation = info.getSiteLocation();
 		if (siteLocation == null)
 			return mappings;
 		InputStream input;
@@ -1034,7 +1017,7 @@ public class Generator {
 	}
 
 	// Put the artifact on the server
-	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs, boolean includeRoot) {
 		if (descriptor == null || destination == null)
 			return;
 		if (!info.publishArtifacts()) {
@@ -1056,7 +1039,7 @@ public class Generator {
 			File tempFile = null;
 			try {
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				FileUtils.zip(files, tempFile);
+				FileUtils.zip(files, tempFile, includeRoot);
 				if (!destination.contains(descriptor)) {
 					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);

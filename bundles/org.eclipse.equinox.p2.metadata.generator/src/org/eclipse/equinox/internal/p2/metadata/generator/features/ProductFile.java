@@ -15,6 +15,7 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IProductDescriptor;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
@@ -23,7 +24,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  * @since 3.1
  */
-public class ProductFile extends DefaultHandler {
+public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 
 	private static final String PROGRAM_ARGS = "programArgs"; //$NON-NLS-1$

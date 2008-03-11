@@ -25,23 +25,13 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceRegistration;
 
 public class EclipseGeneratorApplication implements IApplication {
-
-	// The mapping rules for in-place generation need to construct paths into the structure
-	// of an eclipse installation; in the future the default artifact mapping declared in
-	// SimpleArtifactRepository may change, for example, to not have a 'bundles' directory
-	// instead of a 'plugins' directory, so a separate constant is defined and used here.
-	static final private String[][] INPLACE_MAPPING_RULES = { {"(& (classifier=osgi.bundle) (format=packed)", "${repoUrl}/features/${id}_${version}.jar.pack.gz"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}_${version}.jar"}, //$NON-NLS-1$//$NON-NLS-2$
-			{"(& (classifier=binary))", "${repoUrl}/binary/${id}_${version}"}}; //$NON-NLS-1$//$NON-NLS-2$
 
 	static final public String PUBLISH_PACK_FILES_AS_SIBLINGS = "publishPackFilesAsSiblings"; //$NON-NLS-1$
 
@@ -51,7 +41,7 @@ public class EclipseGeneratorApplication implements IApplication {
 	private ServiceRegistration registrationDefaultMetadataManager;
 	private IProvisioningEventBus bus;
 	private ServiceRegistration registrationBus;
-	private Generator.GeneratorResult incrementalResult = null;
+	private IPublisherResult incrementalResult = null;
 	private boolean generateRootIU = true;
 	private String metadataLocation;
 	private String metadataRepoName;
@@ -59,8 +49,6 @@ public class EclipseGeneratorApplication implements IApplication {
 	private String artifactRepoName;
 	private String operation;
 	private String argument;
-	private String features;
-	private String bundles;
 	private String base;
 	//whether repository xml files should be compressed
 	private String compress = "false"; //$NON-NLS-1$
@@ -87,8 +75,10 @@ public class EclipseGeneratorApplication implements IApplication {
 			provider.initialize(new File(argument), null, null, new File[] {new File(argument, "plugins")}, new File(argument, "features")); //$NON-NLS-1$ //$NON-NLS-2$
 			initializeForInplace(provider);
 		} else {
-			if (base != null && bundles != null && features != null)
-				provider.initialize(new File(base), null, null, new File[] {new File(bundles)}, new File(features));
+			// base is set but we expect everything else to have been set using 
+			// explicit args
+			if (base != null)
+				provider.initialize(new File(base), null, null, null, null);
 		}
 		initializeRepositories(provider);
 	}
@@ -140,7 +130,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		provider.setPublishArtifactRepository(true);
 		provider.setPublishArtifacts(false);
-		provider.setMappingRules(INPLACE_MAPPING_RULES);
+		provider.inplaceMappings(true);
 	}
 
 	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
@@ -208,6 +198,9 @@ public class EclipseGeneratorApplication implements IApplication {
 			if (args[i].equalsIgnoreCase("-reusePack200Files")) //$NON-NLS-1$
 				provider.reuseExistingPack200Files(true);
 
+			if (args[i].equalsIgnoreCase("-inplaceMappings")) //$NON-NLS-1$
+				provider.inplaceMappings(true);
+
 			// check for args with parameters. If we are at the last argument or if the next one
 			// has a '-' as the first character, then we can't have an arg with a parm so continue.
 			if (i == args.length - 1 || args[i + 1].startsWith("-")) //$NON-NLS-1$
@@ -258,10 +251,10 @@ public class EclipseGeneratorApplication implements IApplication {
 				provider.setProductFile(arg);
 
 			if (args[i - 1].equalsIgnoreCase("-features")) //$NON-NLS-1$
-				features = arg;
+				provider.setFeaturesLocation(new File(arg));
 
 			if (args[i - 1].equalsIgnoreCase("-bundles")) //$NON-NLS-1$
-				bundles = arg;
+				provider.setBundleLocations(new File[] {new File(arg)});
 
 			if (args[i - 1].equalsIgnoreCase("-base")) //$NON-NLS-1$
 				base = arg;
@@ -317,7 +310,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		registerDefaultArtifactRepoManager();
 		initialize(provider);
 
-		if (provider.getBaseLocation() == null && provider.getProductFile() == null) {
+		if (provider.getBaseLocation() == null && provider.getProduct() == null) {
 			System.out.println(Messages.exception_baseLocationNotSpecified);
 			return new Integer(-1);
 		}
@@ -369,25 +362,17 @@ public class EclipseGeneratorApplication implements IApplication {
 		this.artifactLocation = location;
 	}
 
-	public void setBundles(String bundles) {
-		this.bundles = bundles;
-	}
-
 	public void setOperation(String operation, String argument) {
 		this.operation = operation;
 		this.argument = argument;
-	}
-
-	public void setFeatures(String features) {
-		this.features = features;
 	}
 
 	public void setMetadataLocation(String location) {
 		this.metadataLocation = location;
 	}
 
-	public void setIncrementalResult(Generator.GeneratorResult ius) {
-		this.incrementalResult = ius;
+	public void setIncrementalResult(IPublisherResult value) {
+		incrementalResult = value;
 	}
 
 	public void setGeneratorRootIU(boolean b) {
