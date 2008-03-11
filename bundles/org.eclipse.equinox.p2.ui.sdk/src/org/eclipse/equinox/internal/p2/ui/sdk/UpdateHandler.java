@@ -10,11 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import org.eclipse.core.commands.*;
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -23,8 +22,6 @@ import org.eclipse.swt.widgets.Shell;
  * @since 3.4
  */
 public class UpdateHandler extends AbstractHandler {
-
-	UpdateAndInstallDialog dialog;
 
 	/**
 	 * The constructor.
@@ -36,15 +33,10 @@ public class UpdateHandler extends AbstractHandler {
 	/**
 	 * Execute the update command.
 	 */
-	public Object execute(ExecutionEvent event) throws ExecutionException {
+	public Object execute(ExecutionEvent event) {
 		String profileId;
 		String message = null;
 
-		// If the dialog is already open, we've already done all this.
-		if (dialog != null) {
-			dialog.getShell().setFocus();
-			return null;
-		}
 		// Need to figure out the profile we are using and open a dialog
 		try {
 			profileId = ProvSDKUIActivator.getProfileId();
@@ -63,17 +55,7 @@ public class UpdateHandler extends AbstractHandler {
 	}
 
 	protected void openDialog(Shell shell, String profileId) {
-		if (dialog == null) {
-			dialog = new UpdateAndInstallDialog(shell, profileId);
-			dialog.open();
-			dialog.getShell().addDisposeListener(new DisposeListener() {
-				public void widgetDisposed(DisposeEvent e) {
-					dialog = null;
-				}
-
-			});
-		} else {
-			dialog.getShell().setFocus();
-		}
+		UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(shell, profileId);
+		dialog.open();
 	}
 }
