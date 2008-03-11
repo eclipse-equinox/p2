@@ -325,7 +325,10 @@ public class SimplePlanner implements IPlanner {
 			IStatus s = pb.invokeSolver(sub.newChild(ExpandWork / 4));
 			if (!s.isOK()) {
 				//We invoke the old resolver to get explanations for now
-				return new ProvisioningPlan(new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4)));
+				IStatus newStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
+				if (newStatus.isOK())
+					return new ProvisioningPlan(s);
+				return new ProvisioningPlan(newStatus);
 			}
 			Collection newState = pb.extractSolution();
 
