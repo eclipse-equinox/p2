@@ -1,15 +1,4 @@
 <plugin>
-   <extension id="YoxosPublisher" point="org.eclipse.core.runtime.applications">
-      <application
-            cardinality="1"
-            thread="main"
-            visible="true">
-         <run
-               class="org.eclipse.equinox.internal.p2.publisher.YoxosPublisher">
-         </run>
-      </application>
-   </extension>
-
    <extension id="InstallPublisher" point="org.eclipse.core.runtime.applications">
       <application
             cardinality="1"
