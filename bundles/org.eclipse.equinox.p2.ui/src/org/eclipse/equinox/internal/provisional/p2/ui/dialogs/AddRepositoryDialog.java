@@ -41,16 +41,17 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 
 	Button okButton;
 	Text url;
-	DefaultURLValidator urlValidator;
+	URLValidator urlValidator;
 	static final String[] ARCHIVE_EXTENSIONS = new String[] {"*.jar;*.zip"}; //$NON-NLS-1$ 
 	static String lastLocalLocation = null;
 	static String lastArchiveLocation = null;
+	protected int repoFlag;
 
 	public AddRepositoryDialog(Shell parentShell, int repoFlag) {
 
 		super(parentShell);
+		this.repoFlag = repoFlag;
 		urlValidator = createURLValidator();
-		urlValidator.setKnownRepositoriesFlag(repoFlag);
 		setTitle(ProvUIMessages.AddRepositoryDialog_Title);
 	}
 
@@ -137,8 +138,10 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		return comp;
 	}
 
-	protected DefaultURLValidator createURLValidator() {
-		return new DefaultURLValidator();
+	protected URLValidator createURLValidator() {
+		DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
+		validator.setKnownRepositoriesFlag(repoFlag);
+		return validator;
 	}
 
 	protected URLValidator getURLValidator() {

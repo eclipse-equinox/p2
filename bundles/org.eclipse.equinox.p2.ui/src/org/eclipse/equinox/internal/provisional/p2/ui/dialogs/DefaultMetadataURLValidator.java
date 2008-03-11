@@ -23,11 +23,11 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUti
  * @since 3.4
  *
  */
-public class DefaultURLValidator extends URLValidator {
+public class DefaultMetadataURLValidator extends URLValidator {
 
 	protected int repoFlag;
 
-	public DefaultURLValidator() {
+	public DefaultMetadataURLValidator() {
 		repoFlag = IMetadataRepositoryManager.REPOSITORIES_ALL;
 	}
 

@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.DefaultURLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -40,8 +40,9 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 		return new AddColocatedRepositoryOperation(getShell().getText(), url);
 	}
 
-	protected DefaultURLValidator createURLValidator() {
+	protected URLValidator createURLValidator() {
 		MetadataGeneratingURLValidator validator = new MetadataGeneratingURLValidator();
+		validator.setKnownRepositoriesFlag(repoFlag);
 		validator.setProfile(getProfile());
 		validator.setShell(getShell());
 		return validator;

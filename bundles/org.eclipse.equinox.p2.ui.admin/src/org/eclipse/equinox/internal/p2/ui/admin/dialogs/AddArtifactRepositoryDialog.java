@@ -16,7 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIActivator;
 import org.eclipse.equinox.internal.p2.ui.admin.ProvAdminUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.DefaultURLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.swt.widgets.Shell;
 
@@ -36,8 +36,8 @@ public class AddArtifactRepositoryDialog extends AddRepositoryDialog {
 		return new AddArtifactRepositoryOperation(ProvAdminUIMessages.AddArtifactRepositoryDialog_OperationLabel, url);
 	}
 
-	protected DefaultURLValidator createURLValidator() {
-		return new DefaultURLValidator() {
+	protected URLValidator createURLValidator() {
+		return new URLValidator() {
 			protected IStatus validateRepositoryURL(URL location, boolean contactRepositories, IProgressMonitor monitor) {
 				IStatus duplicateStatus = Status.OK_STATUS;
 				URL[] knownRepositories;

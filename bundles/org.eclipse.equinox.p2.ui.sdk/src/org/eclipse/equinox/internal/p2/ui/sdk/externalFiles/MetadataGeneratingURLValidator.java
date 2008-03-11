@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.DefaultURLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.DefaultMetadataURLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.swt.widgets.Shell;
@@ -27,7 +27,7 @@ import org.eclipse.ui.PlatformUI;
  * @since 3.4
  *
  */
-public class MetadataGeneratingURLValidator extends DefaultURLValidator {
+public class MetadataGeneratingURLValidator extends DefaultMetadataURLValidator {
 
 	Shell shell;
 	IProfile profile;
