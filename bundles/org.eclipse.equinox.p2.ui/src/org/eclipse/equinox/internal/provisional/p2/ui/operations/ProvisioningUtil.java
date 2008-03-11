@@ -169,6 +169,14 @@ public class ProvisioningUtil {
 		return manager.getKnownRepositories(flags);
 	}
 
+	public static URL[] getArtifactRepositories(int flags) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		}
+		return manager.getKnownRepositories(flags);
+	}
+
 	/*
 	 * Get the plan for the specified install operation
 	 */

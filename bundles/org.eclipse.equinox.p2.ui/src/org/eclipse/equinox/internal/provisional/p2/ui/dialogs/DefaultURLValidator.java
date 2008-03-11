@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUti
  */
 public class DefaultURLValidator extends URLValidator {
 
-	int repoFlag;
+	protected int repoFlag;
 
 	public DefaultURLValidator() {
 		repoFlag = IMetadataRepositoryManager.REPOSITORIES_ALL;
