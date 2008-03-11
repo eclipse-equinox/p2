@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -205,8 +204,7 @@ public class RevertProfileWizardPage extends WizardPage {
 			if (plan[0] != null) {
 				if (plan[0].getStatus().isOK()) {
 					ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
-					Job job = ProvisioningOperationRunner.schedule(op, getShell());
-					job.join();
+					ProvisioningOperationRunner.run(op, getShell());
 					return true;
 				}
 				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG);
