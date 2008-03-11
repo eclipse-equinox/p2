@@ -37,7 +37,7 @@ public interface IArtifactRepository extends IRepository {
 	public void addDescriptor(IArtifactDescriptor descriptor);
 
 	/**
-	 * Add the given arifact descriptors to this repository
+	 * Add the given artifact descriptors to this repository
 	 * @param descriptors the artifact descriptors to add
 	 */
 	public void addDescriptors(IArtifactDescriptor[] descriptors);
