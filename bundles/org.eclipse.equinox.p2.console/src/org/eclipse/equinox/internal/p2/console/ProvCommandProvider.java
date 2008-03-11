@@ -5,6 +5,7 @@
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: IBM Corporation - initial API and implementation
+ * 	Band XI - add more commands
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.console;
 
@@ -71,6 +72,19 @@ public class ProvCommandProvider implements CommandProvider {
 			interpreter.println("Unable to add repository: " + repoURL);
 	}
 
+	public void _provdelrepo(CommandInterpreter interpreter) {
+		String urlString = interpreter.nextArgument();
+		if (urlString == null) {
+			interpreter.print("Repository location must be provided");
+			interpreter.println();
+			return;
+		}
+		URL repoURL = toURL(interpreter, urlString);
+		if (repoURL == null)
+			return;
+		ProvisioningHelper.removeMetadataRepository(repoURL);
+	}
+
 	public void _provaddartifactrepo(CommandInterpreter interpreter) {
 		String urlString = interpreter.nextArgument();
 		if (urlString == null) {
@@ -83,6 +97,19 @@ public class ProvCommandProvider implements CommandProvider {
 			return;
 		if (ProvisioningHelper.addArtifactRepository(repoURL) == null)
 			interpreter.println("Unable to add repository: " + repoURL);
+	}
+
+	public void _provdelartifactrepo(CommandInterpreter interpreter) {
+		String urlString = interpreter.nextArgument();
+		if (urlString == null) {
+			interpreter.print("Repository location must be provided");
+			interpreter.println();
+			return;
+		}
+		URL repoURL = toURL(interpreter, urlString);
+		if (repoURL == null)
+			return;
+		ProvisioningHelper.removeArtifactRepository(repoURL);
 	}
 
 	/**
@@ -131,6 +158,18 @@ public class ProvCommandProvider implements CommandProvider {
 			props.setProperty(IProfile.PROP_ENVIRONMENTS, environments);
 
 		ProvisioningHelper.addProfile(profileId, props);
+	}
+
+	/**
+	 * Deletes a profile given an id, location, and flavor
+	 */
+	public void _provdelprofile(CommandInterpreter interpreter) {
+		String profileId = interpreter.nextArgument();
+		if (profileId == null) {
+			interpreter.println("Id must be provided");
+			return;
+		}
+		ProvisioningHelper.removeProfile(profileId);
 	}
 
 	/**
