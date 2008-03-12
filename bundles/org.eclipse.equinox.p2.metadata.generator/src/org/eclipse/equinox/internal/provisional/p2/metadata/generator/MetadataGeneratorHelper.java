@@ -583,7 +583,7 @@ public class MetadataGeneratorHelper {
 		iu.setFilter(INSTALL_FEATURES_FILTER);
 		iu.setSingleton(true);
 
-		if (feature.getInstallHandler() != null) {
+		if (feature.getInstallHandler() != null && feature.getInstallHandler().trim().length() > 0) {
 			String installHandlerProperty = "handler=" + feature.getInstallHandler(); //$NON-NLS-1$
 
 			if (feature.getInstallHandlerLibrary() != null)
