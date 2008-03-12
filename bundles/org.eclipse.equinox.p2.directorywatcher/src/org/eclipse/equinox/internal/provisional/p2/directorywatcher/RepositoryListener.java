@@ -197,7 +197,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return false;
 	}
 
-	private boolean isFeature(File file) {
+	boolean isFeature(File file) {
 		return file.isDirectory() && new File(file, "feature.xml").exists();
 	}
 
@@ -235,19 +235,28 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 	private void synchronizeMetadataRepository() {
 		final Map snapshot = new HashMap(currentFiles);
+		final List featureFiles = new ArrayList();
 		Query removeQuery = new Query() {
 			public boolean isMatch(Object candidate) {
 				if (!(candidate instanceof IInstallableUnit))
 					return false;
 				IInstallableUnit iu = (IInstallableUnit) candidate;
 				File iuFile = new File(iu.getProperty(FILE_NAME));
+				// feature files generate two ius (group, jar)
+				// check if feature file already matched 
+				if (featureFiles.contains(iuFile))
+					return false;
 				Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
 				Long snapshotLastModified = (Long) snapshot.get(iuFile);
 				if (snapshotLastModified == null || !snapshotLastModified.equals(iuLastModified))
 					return true;
 
-				// match found. Remove from snapshot to prevent it from being added.
+				// file found. Remove from snapshot to prevent it from being re-added.
 				snapshot.remove(iuFile);
+
+				if (isFeature(iuFile))
+					featureFiles.add(iuFile);
+
 				return false;
 			}
 		};
