@@ -69,7 +69,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public static File getBaseDirectory(URL url) throws ProvisionException {
-		if (url.getProtocol() != FILE)
+		if (!FILE.equals(url.getProtocol()))
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location must use file protocol", null));
 
 		File base = new File(url.getPath());

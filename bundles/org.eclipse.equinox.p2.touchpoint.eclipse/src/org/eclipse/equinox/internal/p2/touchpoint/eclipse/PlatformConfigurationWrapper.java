@@ -118,7 +118,7 @@ public class PlatformConfigurationWrapper {
 		URL fileURL = null;
 		try {
 			File featureDir = file.getParentFile();
-			if (featureDir == null || featureDir.getName().equals("features"))
+			if (featureDir == null || !featureDir.getName().equals("features"))
 				return new Status(IStatus.ERROR, Activator.ID, "Parent directory should be \"features\": " + file.getAbsolutePath(), null);
 			File locationDir = featureDir.getParentFile();
 			if (locationDir == null)
