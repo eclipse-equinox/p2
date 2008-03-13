@@ -123,7 +123,7 @@
       <activityPatternBinding
             activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
             isEqualityPattern="false"
-            pattern=".*org\.eclipse\.update\.ui.*">
+            pattern=".*org\.eclipse\.update\.internal.*">
       </activityPatternBinding>
       <activityPatternBinding
             activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
