@@ -12,8 +12,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import java.util.EventObject;
-import org.eclipse.equinox.internal.p2.ui.IProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
@@ -26,7 +26,7 @@ import org.eclipse.swt.widgets.Display;
  * 
  * @since 3.4
  */
-public class StructuredViewerProvisioningListener implements SynchronousProvisioningListener, IProvisioningListener {
+public class StructuredViewerProvisioningListener implements SynchronousProvisioningListener {
 
 	public static final int PROV_EVENT_REPOSITORY = 0x0001;
 	public static final int PROV_EVENT_IU = 0x0002;
@@ -69,9 +69,9 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 					}
 				});
 			}
-		} else if ((o.getSource() instanceof String) && (eventTypes & PROV_EVENT_REPOSITORY) == PROV_EVENT_REPOSITORY) {
-			String name = (String) o.getSource();
-			if (name.equals(IProvisioningListener.REPO_ADDED) || (name.equals(IProvisioningListener.REPO_REMOVED))) {
+		} else if (o instanceof RepositoryEvent && (eventTypes & PROV_EVENT_REPOSITORY) == PROV_EVENT_REPOSITORY) {
+			RepositoryEvent event = (RepositoryEvent) o;
+			if (event.getKind() == RepositoryEvent.ADDED || event.getKind() == RepositoryEvent.REMOVED) {
 				display.asyncExec(new Runnable() {
 					public void run() {
 						refreshAll();

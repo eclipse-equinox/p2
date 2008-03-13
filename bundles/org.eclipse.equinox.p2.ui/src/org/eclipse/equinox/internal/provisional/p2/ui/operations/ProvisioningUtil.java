@@ -12,10 +12,12 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.operations;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.ui.*;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -39,14 +41,6 @@ public class ProvisioningUtil {
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		manager.addRepository(location);
-		notifyRepositoryAdded();
-	}
-
-	// TODO temporary
-	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=199806
-	public static void notifyRepositoryAdded() {
-		EventObject event = new EventObject(IProvisioningListener.REPO_ADDED);
-		ProvUIActivator.getDefault().notifyListeners(event);
 	}
 
 	public static String getMetadataRepositoryProperty(URL location, String key) throws ProvisionException {
@@ -87,9 +81,7 @@ public class ProvisioningUtil {
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		if (manager.removeRepository(location))
-			ProvUIActivator.getDefault().notifyListeners(new EventObject(IProvisioningListener.REPO_REMOVED));
-
+		manager.removeRepository(location);
 	}
 
 	public static void addArtifactRepository(URL location) throws ProvisionException {
@@ -98,7 +90,6 @@ public class ProvisioningUtil {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
 		manager.addRepository(location);
-		notifyRepositoryAdded();
 	}
 
 	public static String getArtifactRepositoryProperty(URL location, String key) throws ProvisionException {
@@ -125,8 +116,7 @@ public class ProvisioningUtil {
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
-		if (manager.removeRepository(location))
-			ProvUIActivator.getDefault().notifyListeners(new EventObject(IProvisioningListener.REPO_REMOVED));
+		manager.removeRepository(location);
 	}
 
 	public static IProfile addProfile(String profileId, Map properties, IProgressMonitor monitor) throws ProvisionException {

@@ -40,7 +40,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	private static ServiceReference packageAdminRef = null;
 	private static ProvUIActivator plugin;
 	private ProvisioningListener profileChangeListener;
-	private ProvisioningEventManager eventManager = new ProvisioningEventManager();
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 
@@ -148,13 +147,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	}
 
 	public void addProvisioningListener(StructuredViewerProvisioningListener listener) {
-		// Check to see if these are core-level events or events that
-		// the UI manufactures.
-		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
-			eventManager.addListener(listener);
-		} else {
-			getProvisioningEventBus().addListener(listener);
-		}
+		getProvisioningEventBus().addListener(listener);
 	}
 
 	private IProvisioningEventBus getProvisioningEventBus() {
@@ -164,19 +157,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		return (IProvisioningEventBus) context.getService(busReference);
 	}
 
-	public void notifyListeners(EventObject event) {
-		eventManager.notifyListeners(event);
-	}
-
 	public void removeProvisioningListener(StructuredViewerProvisioningListener listener) {
-		// Check to see whether this is an event we trigger or one registered with core.
-		if ((listener.getEventTypes() & StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) == StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY) {
-			eventManager.removeListener(listener);
-		} else {
-			ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
-			IProvisioningEventBus bus = (IProvisioningEventBus) context.getService(busReference);
-			bus.removeListener(listener);
-		}
+		getProvisioningEventBus().removeListener(listener);
 	}
 
 	private void initializeImages() {
