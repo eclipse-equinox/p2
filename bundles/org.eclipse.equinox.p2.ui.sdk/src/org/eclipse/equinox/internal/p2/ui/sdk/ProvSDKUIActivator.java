@@ -37,6 +37,7 @@ import org.osgi.framework.ServiceReference;
  */
 public class ProvSDKUIActivator extends AbstractUIPlugin {
 
+	public static final boolean ANY_PROFILE = false;
 	private static final String DEFAULT_PROFILE_ID = "DefaultProfile"; //$NON-NLS-1$
 	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
@@ -155,20 +156,23 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Get the id of the profile for the running system.  If not available, get
-	 * any available profile.  Getting any profile allows testing of the
-	 * UI even when the system is not self hosting.  Error reporting is
-	 * left to the client, who must check for a null return.
+	 * Get the id of the profile for the running system.  Throw a ProvisionException
+	 * if no self profile is available, unless configured to answer any
+	 * profile.  Getting any profile allows testing of the
+	 * UI even when the system is not self hosting.  
 	 */
-	public static String getProfileId() throws ProvisionException {
+	public static String getSelfProfileId() throws ProvisionException {
 		// Get the profile of the running system.
 		IProfile profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 		if (profile == null) {
-			ProvUI.reportStatus(getNoSelfProfileStatus(), StatusManager.LOG);
-			IProfile[] profiles = ProvisioningUtil.getProfiles();
-			if (profiles.length > 0)
-				return profiles[0].getProfileId();
-			return ProfileFactory.makeProfile(DEFAULT_PROFILE_ID).getProfileId();
+			if (ANY_PROFILE) {
+				ProvUI.reportStatus(getNoSelfProfileStatus(), StatusManager.LOG);
+				IProfile[] profiles = ProvisioningUtil.getProfiles();
+				if (profiles.length > 0)
+					return profiles[0].getProfileId();
+				return ProfileFactory.makeProfile(DEFAULT_PROFILE_ID).getProfileId();
+			}
+			throw new ProvisionException(getNoSelfProfileStatus());
 		}
 		return profile.getProfileId();
 	}

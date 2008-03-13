@@ -12,14 +12,11 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.MetadataGeneratingURLValidator;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddColocatedRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Dialog that allows colocated metadata and artifact repositories
@@ -43,17 +40,7 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 	protected URLValidator createURLValidator() {
 		MetadataGeneratingURLValidator validator = new MetadataGeneratingURLValidator();
 		validator.setKnownRepositoriesFlag(repoFlag);
-		validator.setProfile(getProfile());
 		validator.setShell(getShell());
 		return validator;
-	}
-
-	private IProfile getProfile() {
-		try {
-			return ProvisioningUtil.getProfile(ProvSDKUIActivator.getProfileId());
-		} catch (ProvisionException e) {
-			ProvUI.handleException(e, ProvSDKMessages.AddColocatedRepositoryDialog_MissingProfile, StatusManager.LOG);
-			return null;
-		}
 	}
 }

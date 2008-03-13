@@ -56,11 +56,10 @@ public class AutomaticUpdateScheduler implements IStartup {
 			return;
 		}
 		try {
-			profileId = ProvSDKUIActivator.getProfileId();
+			profileId = ProvSDKUIActivator.getSelfProfileId();
 		} catch (ProvisionException e) {
 			profileId = null;
-			IStatus status = new Status(IStatus.ERROR, ProvSDKUIActivator.PLUGIN_ID, ProvSDKMessages.UpdateHandler_NoProfilesDefined, e);
-			ProvUI.reportStatus(status, StatusManager.LOG);
+			ProvUI.handleException(e, null, StatusManager.LOG);
 			return;
 		}
 
@@ -88,6 +87,9 @@ public class AutomaticUpdateScheduler implements IStartup {
 	}
 
 	private void scheduleUpdate() {
+		// Nothing to do if we don't know what profile we are checking
+		if (profileId == null)
+			return;
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
 		// See if automatic search is enabled at all
 		if (pref.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED) == false)

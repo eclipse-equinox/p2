@@ -14,12 +14,8 @@ package org.eclipse.equinox.internal.p2.ui.sdk.externalFiles;
 import java.io.File;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.DefaultMetadataURLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -30,14 +26,9 @@ import org.eclipse.ui.PlatformUI;
 public class MetadataGeneratingURLValidator extends DefaultMetadataURLValidator {
 
 	Shell shell;
-	IProfile profile;
 
 	public void setShell(Shell shell) {
 		this.shell = shell;
-	}
-
-	public void setProfile(IProfile profile) {
-		this.profile = profile;
 	}
 
 	protected IStatus validateRepositoryURL(URL location, boolean contactRepositories, IProgressMonitor monitor) {
@@ -50,15 +41,6 @@ public class MetadataGeneratingURLValidator extends DefaultMetadataURLValidator 
 		if (shell == null)
 			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
-		if (profile == null) {
-			try {
-				profile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
-			} catch (ProvisionException e) {
-				return status;
-			}
-
-		}
-
 		// If it was set up with jar protocol, now convert it back to file.
 		if (!FILE_PROTOCOL.equalsIgnoreCase(location.getProtocol()))
 			return status;
@@ -69,7 +51,7 @@ public class MetadataGeneratingURLValidator extends DefaultMetadataURLValidator 
 			path = path.substring(0, path.length() - JAR_PATH_SUFFIX.length());
 		final File file = new File(path);
 
-		IStatus externalFileStatus = new ExternalFileHandler(profile, file, shell).processFile(status);
+		IStatus externalFileStatus = new ExternalFileHandler(file, shell).processFile(status);
 		if (externalFileStatus.getCode() == REPO_AUTO_GENERATED || externalFileStatus.getCode() == ALTERNATE_ACTION_TAKEN) {
 			return Status.CANCEL_STATUS;
 		}

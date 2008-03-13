@@ -22,7 +22,6 @@ import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.BundleDescriptionFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -52,7 +51,6 @@ public class ExternalFileHandler {
 	private static final String FILE = "file"; //$NON-NLS-1$
 	File file;
 	Shell shell;
-	IProfile profile;
 
 	// TODO
 	// copied from reconciler activator until there is API
@@ -61,10 +59,9 @@ public class ExternalFileHandler {
 	private static final String OSGI_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 
-	public ExternalFileHandler(IProfile profile, File file, Shell shell) {
+	public ExternalFileHandler(File file, Shell shell) {
 		this.file = file;
 		this.shell = shell;
-		this.profile = profile;
 	}
 
 	public IStatus processFile(IStatus originalStatus) {

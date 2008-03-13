@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
+import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.activities.IMutableActivityManager;
@@ -23,6 +25,15 @@ public class ClassicUpdateInitializer extends AbstractPreferenceInitializer {
 	private static final String ACTIVITY_ID = "org.eclipse.equinox.p2.ui.sdk.classicUpdate"; //$NON-NLS-1$
 
 	public void initializeDefaultPreferences() {
+		try {
+			ProvSDKUIActivator.getSelfProfileId();
+			disableClassicUpdate();
+		} catch (ProvisionException e) {
+			// do not disable classic update if the self profile is not found
+		}
+	}
+
+	public void disableClassicUpdate() {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		if (workbench == null) {
 			return;
@@ -32,6 +43,24 @@ public class ClassicUpdateInitializer extends AbstractPreferenceInitializer {
 		Set activityIds = createWorkingCopy.getEnabledActivityIds();
 		final Set enabledActivityIds = new HashSet(activityIds);
 		enabledActivityIds.remove(ACTIVITY_ID);
+		workbench.getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				//activity change listeners may touch widgets
+				activitySupport.setEnabledActivityIds(enabledActivityIds);
+			}
+		});
+	}
+
+	public void enableClassicUpdate() {
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		if (workbench == null) {
+			return;
+		}
+		final IWorkbenchActivitySupport activitySupport = workbench.getActivitySupport();
+		IMutableActivityManager createWorkingCopy = activitySupport.createWorkingCopy();
+		Set activityIds = createWorkingCopy.getEnabledActivityIds();
+		final Set enabledActivityIds = new HashSet(activityIds);
+		enabledActivityIds.add(ACTIVITY_ID);
 		workbench.getDisplay().asyncExec(new Runnable() {
 			public void run() {
 				//activity change listeners may touch widgets

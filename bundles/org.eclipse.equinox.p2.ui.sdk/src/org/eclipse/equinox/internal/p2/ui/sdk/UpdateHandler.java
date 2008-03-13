@@ -13,8 +13,10 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.UpdateManagerCompatibility;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.*;
 
 /**
  * UpdateHandler invokes the main update/install UI.
@@ -35,21 +37,27 @@ public class UpdateHandler extends AbstractHandler {
 	 */
 	public Object execute(ExecutionEvent event) {
 		String profileId;
-		String message = null;
 
 		// Need to figure out the profile we are using and open a dialog
 		try {
-			profileId = ProvSDKUIActivator.getProfileId();
+			profileId = ProvSDKUIActivator.getSelfProfileId();
 		} catch (ProvisionException e) {
 			profileId = null;
-			message = ProvSDKMessages.UpdateHandler_NoProfilesDefined;
 		}
 		if (profileId != null) {
 			openDialog(null, profileId);
 		} else {
-			if (message == null)
-				message = ProvSDKMessages.UpdateHandler_NoProfileInstanceDefined;
-			MessageDialog.openInformation(null, ProvSDKMessages.UpdateHandler_SDKUpdateUIMessageTitle, message);
+			IWorkbench workbench = PlatformUI.getWorkbench();
+			if (workbench != null) {
+				IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+				if (window != null) {
+					BusyIndicator.showWhile(window.getShell().getDisplay(), new Runnable() {
+						public void run() {
+							UpdateManagerCompatibility.openInstaller();
+						}
+					});
+				}
+			}
 		}
 		return null;
 	}
