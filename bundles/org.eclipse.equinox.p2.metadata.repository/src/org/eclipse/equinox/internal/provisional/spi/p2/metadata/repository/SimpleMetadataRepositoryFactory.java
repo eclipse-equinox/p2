@@ -136,9 +136,8 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 					while (jarEntry != null && (!entryName.equals(jarEntry.getName()))) {
 						jarEntry = jarStream.getNextJarEntry();
 					}
-					if (jarEntry == null) {
-						throw new FileNotFoundException("Repository not found in compressed file."); //$NON-NLS-1$
-					}
+					if (jarEntry == null)
+						throw new FileNotFoundException(NLS.bind(Messages.repoMan_invalidLocation, location));
 				}
 				//parse the repository descriptor file
 				sub.setWorkRemaining(100);
