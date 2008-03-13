@@ -52,7 +52,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		File stateDir;
 		if (repositoryFolder == null) {
-			String stateDirName = "listener_" + repositoryName.hashCode();
+			String stateDirName = "listener_" + repositoryName.hashCode(); //$NON-NLS-1$
 			stateDir = context.getDataFile(stateDirName);
 			stateDir.mkdirs();
 		} else {
@@ -85,10 +85,10 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
 		if (reference == null)
-			throw new IllegalStateException("PlatformAdmin not registered.");
+			throw new IllegalStateException("PlatformAdmin not registered."); //$NON-NLS-1$
 		PlatformAdmin platformAdmin = (PlatformAdmin) context.getService(reference);
 		if (platformAdmin == null)
-			throw new IllegalStateException("PlatformAdmin not registered.");
+			throw new IllegalStateException("PlatformAdmin not registered."); //$NON-NLS-1$
 
 		try {
 			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();
@@ -115,7 +115,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			try {
 				IArtifactRepository repository;
 				if (hidden) {
-					repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+					repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
 					manager.addRepository(repository.getLocation());
 					repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				} else {
@@ -125,7 +125,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				return repository;
 			} catch (ProvisionException e) {
 				LogHelper.log(e);
-				throw new IllegalStateException("Couldn't create artifact repository for: " + stateDirURL);
+				throw new IllegalStateException("Couldn't create artifact repository for: " + stateDirURL); //$NON-NLS-1$
 			}
 		} finally {
 			context.ungetService(reference);
@@ -138,7 +138,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (reference != null)
 			manager = (IMetadataRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 
 		try {
 			try {
@@ -148,7 +148,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			}
 			IMetadataRepository repository;
 			if (hidden) {
-				repository = manager.createRepository(stateDirURL, "Metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+				repository = manager.createRepository(stateDirURL, "Metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
 				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			} else {
 				repository = manager.createRepository(stateDirURL, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
@@ -157,7 +157,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			return repository;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
-			throw new IllegalStateException("Couldn't create metadata repository for: " + stateDirURL);
+			throw new IllegalStateException("Couldn't create metadata repository for: " + stateDirURL); //$NON-NLS-1$
 		} finally {
 			context.ungetService(reference);
 		}
@@ -190,7 +190,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private boolean isBundle(File file) {
-		if (file.isDirectory() || file.getName().endsWith(".jar")) {
+		if (file.isDirectory() || file.getName().endsWith(".jar")) { //$NON-NLS-1$
 			BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(file);
 			return bundleDescription != null;
 		}
@@ -198,7 +198,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	boolean isFeature(File file) {
-		return file.isDirectory() && new File(file, "feature.xml").exists();
+		return file.isDirectory() && new File(file, "feature.xml").exists(); //$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)
@@ -373,7 +373,18 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		IInstallableUnit[] ius = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
-		return ius;
+
+		// see bug 222370		
+		// we only want to return the bundle IU
+		// exclude all fragment IUs
+		if (ius.length == 0)
+			return ius;
+
+		for (int i = 0; i < ius.length; i++) {
+			if (!ius[i].isFragment())
+				return new IInstallableUnit[] {ius[i]};
+		}
+		throw new IllegalStateException("There should be exactly one Bundle IU"); //$NON-NLS-1$
 	}
 
 	public IMetadataRepository getMetadataRepository() {
