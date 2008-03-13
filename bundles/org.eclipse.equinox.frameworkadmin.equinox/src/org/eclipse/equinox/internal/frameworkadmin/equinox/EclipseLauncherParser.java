@@ -229,9 +229,10 @@ public class EclipseLauncherParser {
 		return null;
 	}
 
+	//Return the base against which the path needs to be resolved, if resolution is needed.
 	private String needsPathResolution(String entry, String osgiInstallArea, String launcherFolder) {
 		if (EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(entry))
-			return launcherFolder;
+			return osgiInstallArea;
 		if ("--launcher.library".equalsIgnoreCase(entry))
 			return launcherFolder;
 		if (EquinoxConstants.OPTION_STARTUP.equalsIgnoreCase(entry))
@@ -270,10 +271,9 @@ public class EclipseLauncherParser {
 					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], resolveNextLine);
 					resolveNextLine = null;
 				} else {
-					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
 					//We don't write -configuration when it is the default value
-					if (resolveNextLine != null && EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(lines[i])) {
-						if ("configuration".equals(EquinoxManipulatorImpl.makeRelative(lines[i + 1], resolveNextLine))) { //$NON-NLS-1$
+					if (EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(lines[i])) {
+						if (new Path(lines[i + 1]).removeLastSegments(1).equals(new Path(osgiInstallArea))) {
 							i++;
 							resolveNextLine = null;
 							continue;
