@@ -154,7 +154,7 @@ public class UpdateAndInstallGroup {
 		installButton = createVerticalButton(composite, ProvUIMessages.InstallIUCommandLabel, false);
 		installButton.setData(BUTTONACTION, new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, policies, parent.getShell()));
 		if (repositoryManipulator != null) {
-			Button repoButton = createVerticalButton(composite, repositoryManipulator.getLabel(), false);
+			Button repoButton = createVerticalButton(composite, repositoryManipulator.getManipulatorLabel(), false);
 			repoButton.setData(BUTTONACTION, new Action() {
 				public void runWithEvent(Event event) {
 					repositoryManipulator.manipulateRepositories(getTabFolder().getShell());

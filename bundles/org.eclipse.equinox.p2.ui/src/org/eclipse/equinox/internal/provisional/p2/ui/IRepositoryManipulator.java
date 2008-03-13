@@ -36,7 +36,7 @@ public interface IRepositoryManipulator {
 	 * the manager is a dialog that lets you manipulate repositories, the label
 	 * could be used in the button that launches the dialog.
 	 */
-	public String getLabel();
+	public String getManipulatorLabel();
 
 	/**
 	 * Return an array of URLs containing the repositories already known.
@@ -50,10 +50,30 @@ public interface IRepositoryManipulator {
 	public ProvisioningOperation getAddOperation(URL repoURL);
 
 	/**
+	 * Return a String describing a possible add operation.  This is used 
+	 * when prompting or reporting errors involving a possible add operation.
+	 */
+	public String getAddOperationLabel();
+
+	/**
 	 * Return an operation that could be used to remove the specified URL as
 	 * a repositories.
 	 */
 	public ProvisioningOperation getRemoveOperation(URL[] repoURLs);
+
+	/**
+	 * Return a String describing a possible remove operation.  This is used 
+	 * when prompting or reporting errors involving a possible remove operation.
+	 */
+	public String getRemoveOperationLabel();
+
+	/**
+	 * Get a URL validator that could be used to validate URLs supplied
+	 * by the user.
+	 * 
+	 * @param shell the shell used by the validator to report any problems.
+	 * @return the validator to be used.
+	 */
 
 	public URLValidator getURLValidator(Shell shell);
 }

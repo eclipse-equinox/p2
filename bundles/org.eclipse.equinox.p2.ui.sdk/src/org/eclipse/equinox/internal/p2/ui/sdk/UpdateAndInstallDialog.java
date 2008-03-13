@@ -131,7 +131,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 
 	private IRepositoryManipulator getRepositoryManipulator() {
 		return new IRepositoryManipulator() {
-			public String getLabel() {
+			public String getManipulatorLabel() {
 				return ProvSDKMessages.UpdateAndInstallDialog_ManageSites;
 
 			}
@@ -142,7 +142,11 @@ public class UpdateAndInstallDialog extends TrayDialog {
 			}
 
 			public ProvisioningOperation getAddOperation(URL repoURL) {
-				return new AddColocatedRepositoryOperation(ProvSDKMessages.UpdateAndInstallDialog_AddSiteOperationlabel, repoURL);
+				return new AddColocatedRepositoryOperation(getAddOperationLabel(), repoURL);
+			}
+
+			public String getAddOperationLabel() {
+				return ProvSDKMessages.UpdateAndInstallDialog_AddSiteOperationlabel;
 			}
 
 			public URL[] getKnownRepositories() {
@@ -154,7 +158,11 @@ public class UpdateAndInstallDialog extends TrayDialog {
 			}
 
 			public ProvisioningOperation getRemoveOperation(URL[] reposToRemove) {
-				return new RemoveColocatedRepositoryOperation(ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteOperationLabel, reposToRemove);
+				return new RemoveColocatedRepositoryOperation(getRemoveOperationLabel(), reposToRemove);
+			}
+
+			public String getRemoveOperationLabel() {
+				return ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteOperationLabel;
 			}
 
 			public URLValidator getURLValidator(Shell shell) {
