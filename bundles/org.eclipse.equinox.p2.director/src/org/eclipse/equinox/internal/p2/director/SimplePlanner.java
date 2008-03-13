@@ -319,7 +319,12 @@ public class SimplePlanner implements IPlanner {
 
 			URL[] metadataRepositories = (context != null) ? context.getMetadataRepositories() : null;
 			Dictionary newSelectionContext = createSelectionContext(profileChangeRequest.getProfileProperties());
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) profileChangeRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class), metadataRepositories, sub.newChild(ExpandWork / 4));
+
+			List extraIUs = new ArrayList(Arrays.asList(profileChangeRequest.getAddedInstallableUnits()));
+			extraIUs.addAll(Arrays.asList(profileChangeRequest.getRemovedInstallableUnits()));
+			extraIUs.addAll(profileChangeRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+
+			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, sub.newChild(ExpandWork / 4));
 			PBProjector pb = new PBProjector(new Picker(availableIUs, null), newSelectionContext);
 			pb.encode(allIUs, sub.newChild(ExpandWork / 4));
 			IStatus s = pb.invokeSolver(sub.newChild(ExpandWork / 4));
