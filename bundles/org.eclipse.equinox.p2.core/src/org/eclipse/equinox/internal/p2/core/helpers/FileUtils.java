@@ -160,11 +160,15 @@ public class FileUtils {
 	}
 
 	public static void zip(File[] sourceFiles, File destinationArchive) throws IOException {
+		zip(sourceFiles, destinationArchive, true);
+	}
+
+	public static void zip(File[] sourceFiles, File destinationArchive, boolean includeRoot) throws IOException {
 		ZipOutputStream output = new ZipOutputStream(new FileOutputStream(destinationArchive));
 		try {
 			for (int i = 0; i < sourceFiles.length; i++)
 				if (sourceFiles[i].isDirectory())
-					zipDir(output, sourceFiles[i], new Path(sourceFiles[i].getName()));
+					zipDir(output, sourceFiles[i], includeRoot ? new Path(sourceFiles[i].getName()) : new Path("")); //$NON-NLS-1$
 				else
 					zipFile(output, sourceFiles[i], new Path(""));//$NON-NLS-1$
 		} finally {
