@@ -129,9 +129,6 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesJob_Updates;
 	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
 	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
-	public static String ConfirmWithPathDetails_Browse;
-	public static String ConfirmWithPathDetails_SaveIn;
-	public static String ConfirmWithPathDetails_SelectDirectory;
 	public static String ProvisioningPreferencePage_AlwaysOpenWizard;
 	public static String ProvisioningPreferencePage_BrowsingPrefsGroup;
 	public static String ProvisioningPreferencePage_ShowLatestVersions;

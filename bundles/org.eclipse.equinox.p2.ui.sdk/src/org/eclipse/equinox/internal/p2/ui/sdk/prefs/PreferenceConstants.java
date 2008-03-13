@@ -25,7 +25,6 @@ public class PreferenceConstants {
 	public static final String PREF_REMIND_ELAPSED = "remindElapsedTime";//$NON-NLS-1$
 	public static final String PREF_SHOW_LATEST_VERSION = "showLatestVersion"; //$NON-NLS-1$
 	public static final String PREF_OPEN_WIZARD_ON_NONOK_PLAN = "allowNonOKPlan"; //$NON-NLS-1$
-	public static final String PREF_GENERATE_REPOFOLDER = "generateReposForFolder"; //$NON-NLS-1$
 	public static final String PREF_GENERATE_ARCHIVEREPOFOLDER = "generateReposForArchive"; //$NON-NLS-1$
 	public static final String PREF_AUTO_INSTALL_BUNDLES = "autoInstallBundles"; //$NON-NLS-1$
 }
