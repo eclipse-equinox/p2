@@ -342,11 +342,10 @@ public class PBProjector {
 				}
 				backToIU(problem);
 				return Status.OK_STATUS;
-			} else {
-				if (DEBUG)
-					System.out.println("Unsatisfiable !"); //$NON-NLS-1$
-				return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", null); //$NON-NLS-1$
 			}
+			if (DEBUG)
+				System.out.println("Unsatisfiable !"); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", null); //$NON-NLS-1$
 		} catch (FileNotFoundException e) {
 			//Ignore we are producing the input file
 			if (DEBUG)
@@ -355,10 +354,8 @@ public class PBProjector {
 			//Ignore we are producing the input file
 			if (DEBUG)
 				e.printStackTrace();
-		} catch (IOException e) {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", e); //$NON-NLS-1$
 		} catch (ContradictionException e) {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because of a trivial contradiction", null); //$NON-NLS-1$
+			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because of a trivial contradiction", e); //$NON-NLS-1$
 		} catch (TimeoutException e) {
 			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found.", e); //$NON-NLS-1$
 		} catch (Exception e) {
