@@ -59,10 +59,13 @@ public class BundleDescriptionFactory {
 		PluginConverter converter;
 		try {
 			converter = acquirePluginConverter();
-			if (converter == null)
+			if (converter == null) {
+				new RuntimeException("Unable to aquire PluginConverter service during generation for: " + bundleLocation).printStackTrace(); //$NON-NLS-1$
 				return null;
+			}
 			return converter.convertManifest(bundleLocation, false, null, true, null);
 		} catch (PluginConversionException convertException) {
+			// only log the exception if we had a plugin.xml or fragment.xml and we failed conversion
 			if (bundleLocation.getName().equals(FEATURE_FILENAME_DESCRIPTOR))
 				return null;
 			if (!new File(bundleLocation, PLUGIN_FILENAME_DESCRIPTOR).exists() && !new File(bundleLocation, FRAGMENT_FILENAME_DESCRIPTOR).exists())
@@ -157,6 +160,9 @@ public class BundleDescriptionFactory {
 		//Deal with the pre-3.0 plug-in shape who have a default jar manifest.mf
 		if (manifest.get(org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME) == null)
 			manifest = convertPluginManifest(bundleLocation, true);
+
+		if (manifest == null)
+			return null;
 
 		manifest.put(BUNDLE_FILE_KEY, bundleLocation.isDirectory() ? DIR : JAR);
 		getManifestLocalizations(manifest, bundleLocation);
