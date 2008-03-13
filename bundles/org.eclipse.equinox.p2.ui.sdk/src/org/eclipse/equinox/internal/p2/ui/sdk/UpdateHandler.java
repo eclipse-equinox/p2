@@ -13,10 +13,8 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.ui.UpdateManagerCompatibility;
-import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.*;
 
 /**
  * UpdateHandler invokes the main update/install UI.
@@ -47,17 +45,7 @@ public class UpdateHandler extends AbstractHandler {
 		if (profileId != null) {
 			openDialog(null, profileId);
 		} else {
-			IWorkbench workbench = PlatformUI.getWorkbench();
-			if (workbench != null) {
-				IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-				if (window != null) {
-					BusyIndicator.showWhile(window.getShell().getDisplay(), new Runnable() {
-						public void run() {
-							UpdateManagerCompatibility.openInstaller();
-						}
-					});
-				}
-			}
+			MessageDialog.openInformation(null, ProvSDKMessages.UpdateHandler_SDKUpdateUIMessageTitle, ProvSDKMessages.UpdateHandler_CannotLaunchUI);
 		}
 		return null;
 	}

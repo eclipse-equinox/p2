@@ -59,7 +59,10 @@ public class AutomaticUpdateScheduler implements IStartup {
 			profileId = ProvSDKUIActivator.getSelfProfileId();
 		} catch (ProvisionException e) {
 			profileId = null;
-			ProvUI.handleException(e, null, StatusManager.LOG);
+			if (e.getStatus() != null)
+				ProvUI.reportStatus(e.getStatus(), StatusManager.LOG);
+			else
+				ProvUI.handleException(e, null, StatusManager.LOG);
 			return;
 		}
 

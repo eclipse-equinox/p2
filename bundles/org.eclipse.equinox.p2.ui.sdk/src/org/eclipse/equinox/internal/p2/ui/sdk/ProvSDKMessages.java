@@ -65,6 +65,7 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateAndInstallDialog_RemoveSiteOperationLabel;
 	public static String UpdateAndInstallDialog_RevertActionLabel;
 	public static String UpdateAndInstallDialog_Title;
+	public static String UpdateHandler_CannotLaunchUI;
 	public static String UpdateHandler_SDKUpdateUIMessageTitle;
 	public static String SchedulerStartup_day;
 	public static String SchedulerStartup_Monday;
