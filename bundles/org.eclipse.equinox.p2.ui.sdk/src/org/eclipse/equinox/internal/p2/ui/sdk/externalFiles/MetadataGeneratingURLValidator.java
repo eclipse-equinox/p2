@@ -71,8 +71,6 @@ public class MetadataGeneratingURLValidator extends DefaultMetadataURLValidator 
 
 		IStatus externalFileStatus = new ExternalFileHandler(profile, file, shell).processFile(status);
 		if (externalFileStatus.getCode() == REPO_AUTO_GENERATED || externalFileStatus.getCode() == ALTERNATE_ACTION_TAKEN) {
-			// TODO workaround for bug #199806
-			ProvisioningUtil.notifyRepositoryAdded();
 			return Status.CANCEL_STATUS;
 		}
 		return externalFileStatus;

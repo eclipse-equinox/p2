@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.actions.PropertyDialogAction;
@@ -46,7 +48,8 @@ public class UpdateAndInstallGroup {
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
-	static final int INDEX_AVAILABLE = 1;
+	private static final int INDEX_INSTALLED = 0;
+	private static final int INDEX_AVAILABLE = 1;
 	TabFolder tabFolder;
 	AvailableIUGroup availableIUGroup;
 	InstalledIUGroup installedIUGroup;
@@ -196,6 +199,8 @@ public class UpdateAndInstallGroup {
 				validateInstalledIUButtons(event.getSelection());
 			}
 		});
+
+		setDropTarget(installedIUGroup.getStructuredViewer().getControl());
 
 		validateInstalledIUButtons(installedIUGroup.getStructuredViewer().getSelection());
 		return composite;
@@ -354,17 +359,33 @@ public class UpdateAndInstallGroup {
 			return;
 
 		DropTarget target = new DropTarget(control, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-		target.setTransfer(new Transfer[] {URLTransfer.getInstance()});
+		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 		target.addDropListener(new RepositoryManipulatorDropTarget(repositoryManipulator, control) {
 			protected boolean dropTargetIsValid(DropTargetEvent event) {
-				// If we are on available features page, all drops are good.
-				if (tabFolder.getSelectionIndex() == UpdateAndInstallGroup.INDEX_AVAILABLE)
-					return true;
-				if (tabFolder.getItem(INDEX_AVAILABLE) == event.item)
-					return true;
-				return false;
+				if (URLTransfer.getInstance().isSupportedType(event.currentDataType)) {
+					// If we are on available features page or tab, all drops are good.
+					if (tabFolder.getSelectionIndex() == UpdateAndInstallGroup.INDEX_AVAILABLE)
+						return super.dropTargetIsValid(event);
+					// This is not working
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=222120
+					if (tabFolder.getItem(INDEX_AVAILABLE) == event.item)
+						return super.dropTargetIsValid(event);
+					if (tabFolder.getSelectionIndex() == UpdateAndInstallGroup.INDEX_INSTALLED) {
+						String path = (String) URLTransfer.getInstance().nativeToJava(event.currentDataType);
+						if (path != null) {
+							URL url = null;
+							try {
+								url = new URL(path);
+							} catch (MalformedURLException e) {
+								return false;
+							}
+							if (url != null && URLValidator.isFileURL(url))
+								return true;
+						}
+					}
+				}
+				return super.dropTargetIsValid(event);
 			}
 		});
-
 	}
 }

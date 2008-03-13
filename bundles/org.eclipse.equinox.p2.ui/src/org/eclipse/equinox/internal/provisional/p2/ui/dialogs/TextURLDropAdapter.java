@@ -23,14 +23,15 @@ public class TextURLDropAdapter extends URLDropAdapter {
 
 	Text text;
 
-	public TextURLDropAdapter(Text text) {
+	public TextURLDropAdapter(Text text, boolean convertFileToURL) {
+		super(convertFileToURL);
 		this.text = text;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLDropAdapter#handleURLString(java.lang.String, org.eclipse.swt.dnd.DropTargetEvent)
 	 */
-	protected void handleURLString(String urlText, DropTargetEvent event) {
+	protected void handleDrop(String urlText, DropTargetEvent event) {
 		text.setText(urlText);
 		event.detail = DND.DROP_LINK;
 	}

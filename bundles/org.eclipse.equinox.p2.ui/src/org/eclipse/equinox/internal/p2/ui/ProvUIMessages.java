@@ -126,6 +126,8 @@ public class ProvUIMessages extends NLS {
 	public static String RepositoryGroup_RepositoryFile;
 	public static String RepositoryGroup_SelectRepositoryDirectory;
 	public static String RepositoryGroup_URLRequired;
+	public static String RepositoryManipulatorDropTarget_DragAndDropJobLabel;
+	public static String RepositoryManipulatorDropTarget_DragSourceNotValid;
 
 	// Dialogs
 	public static String AddRepositoryDialog_DuplicateURL;

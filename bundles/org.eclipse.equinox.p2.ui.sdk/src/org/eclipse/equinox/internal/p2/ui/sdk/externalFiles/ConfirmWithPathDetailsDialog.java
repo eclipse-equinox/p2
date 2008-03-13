@@ -24,7 +24,7 @@ public abstract class ConfirmWithPathDetailsDialog extends MessageDialogWithTogg
 	String pathLocationText;
 
 	public ConfirmWithPathDetailsDialog(Shell parentShell, File targetRepoLocation, String message, IPreferenceStore prefStore, String prefKey) {
-		super(parentShell, ProvSDKMessages.ProvSDKUIActivator_Question, null, message, NONE, new String[] {IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL, IDialogConstants.SHOW_DETAILS_LABEL}, 0, null, false);
+		super(parentShell, ProvSDKMessages.ProvSDKUIActivator_Question, null, message, NONE, new String[] {IDialogConstants.YES_LABEL, IDialogConstants.NO_LABEL, IDialogConstants.CANCEL_LABEL, IDialogConstants.SHOW_DETAILS_LABEL}, 2, null, false);
 		this.targetLocation = targetRepoLocation;
 		pathLocationText = targetRepoLocation.getAbsolutePath();
 		setPrefStore(prefStore);
@@ -34,7 +34,9 @@ public abstract class ConfirmWithPathDetailsDialog extends MessageDialogWithTogg
 	protected Composite createDetailsArea(final Composite parent) {
 		Composite composite = new Composite(parent, SWT.BORDER);
 		GridLayout layout = new GridLayout();
-		layout.marginLeft = layout.marginRight = layout.marginTop = layout.marginBottom = 0;
+		initializeDialogUnits(composite);
+		layout.marginLeft = layout.marginRight = layout.marginBottom = 0;
+		layout.marginTop = convertHeightInCharsToPixels(1);
 		layout.numColumns = 3;
 		composite.setLayout(layout);
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);

@@ -31,6 +31,8 @@ public abstract class URLValidator {
 	public static final String FILE_PROTOCOL_PREFIX = "file:"; //$NON-NLS-1$
 	public static final String JAR_PATH_PREFIX = "jar:";//$NON-NLS-1$
 	public static final String JAR_PATH_SUFFIX = "!/"; //$NON-NLS-1$
+	public static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
+	public static final String ZIP_EXTENSION = ".zip"; //$NON-NLS-1$
 
 	public static final int LOCAL_VALIDATION_ERROR = 3000;
 	public static final int REPO_AUTO_GENERATED = 3001;
@@ -38,6 +40,20 @@ public abstract class URLValidator {
 
 	public static Status getInvalidURLStatus(String urlText) {
 		return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, LOCAL_VALIDATION_ERROR, NLS.bind(ProvUIMessages.URLValidator_UnrecognizedURL, urlText), null);
+	}
+
+	public static boolean isFileURL(URL url) {
+		return url.getProtocol().equals(FILE_PROTOCOL);
+	}
+
+	public static String makeJarURLString(String path) {
+		if (path.toLowerCase().endsWith(JAR_EXTENSION))
+			return FILE_PROTOCOL_PREFIX + JAR_PATH_PREFIX + path + JAR_PATH_SUFFIX;
+		return makeFileURLString(path);
+	}
+
+	public static String makeFileURLString(String path) {
+		return FILE_PROTOCOL_PREFIX + path;
 	}
 
 	protected abstract IStatus validateRepositoryURL(URL url, boolean contactRepositories, IProgressMonitor monitor);

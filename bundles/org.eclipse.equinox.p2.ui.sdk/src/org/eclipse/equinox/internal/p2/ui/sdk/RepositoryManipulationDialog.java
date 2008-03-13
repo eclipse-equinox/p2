@@ -85,7 +85,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		repositoryViewer.setLabelProvider(new ProvElementLabelProvider());
 
 		DropTarget target = new DropTarget(repositoryViewer.getControl(), DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-		target.setTransfer(new Transfer[] {URLTransfer.getInstance()});
+		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 		target.addDropListener(new RepositoryManipulatorDropTarget(manipulator, repositoryViewer.getControl()));
 
 		GridData data = new GridData(GridData.FILL_BOTH);

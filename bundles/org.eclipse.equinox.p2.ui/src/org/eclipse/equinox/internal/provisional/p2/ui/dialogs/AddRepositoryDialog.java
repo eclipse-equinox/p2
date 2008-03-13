@@ -76,14 +76,8 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 		data.widthHint = convertHorizontalDLUsToPixels(IDialogConstants.ENTRY_FIELD_WIDTH);
 		url.setLayoutData(data);
 		DropTarget target = new DropTarget(url, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
-		target.setTransfer(new Transfer[] {URLTransfer.getInstance()});
-		target.addDropListener(new TextURLDropAdapter(url) {
-			protected void handleURLString(String urlText, DropTargetEvent event) {
-				super.handleURLString(urlText, event);
-				// validate the URL with remote checking since drop is more heavyweight than typing text
-				validateRepositoryURL(true);
-			}
-		});
+		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
+		target.addDropListener(new TextURLDropAdapter(url, true));
 		url.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				validateRepositoryURL(false);
@@ -111,7 +105,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastLocalLocation = path;
-					url.setText(URLValidator.FILE_PROTOCOL_PREFIX + path);
+					url.setText(URLValidator.makeFileURLString(path));
 					validateRepositoryURL(true);
 				}
 			}
@@ -128,7 +122,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				String path = dialog.open();
 				if (path != null) {
 					lastArchiveLocation = path;
-					url.setText(URLValidator.FILE_PROTOCOL_PREFIX + URLValidator.JAR_PATH_PREFIX + path + URLValidator.JAR_PATH_SUFFIX);
+					url.setText(URLValidator.makeJarURLString(path));
 					validateRepositoryURL(true);
 				}
 			}

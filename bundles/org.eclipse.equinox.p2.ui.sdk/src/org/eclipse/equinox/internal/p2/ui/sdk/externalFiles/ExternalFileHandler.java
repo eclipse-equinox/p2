@@ -12,27 +12,30 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.externalFiles;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.BundleDescriptionFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.PlatformAdmin;
 import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.ServiceReference;
 
@@ -46,12 +49,17 @@ import org.osgi.framework.ServiceReference;
  */
 public class ExternalFileHandler {
 
-	public static final int REPO_GENERATED = 3000;
-	public static final int BUNDLE_INSTALLED = 3001;
 	private static final String FILE = "file"; //$NON-NLS-1$
 	File file;
 	Shell shell;
 	IProfile profile;
+
+	// TODO
+	// copied from reconciler activator until there is API
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=222456
+	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
+	private static final String OSGI_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
+	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 
 	public ExternalFileHandler(IProfile profile, File file, Shell shell) {
 		this.file = file;
@@ -60,40 +68,13 @@ public class ExternalFileHandler {
 	}
 
 	public IStatus processFile(IStatus originalStatus) {
-		/*	if (file == null)
-					return originalStatus;
-
-				if (file.isDirectory()) {
-					return generateRepoFromDirectory(originalStatus);
-				}
-				if (isBundle()) {
-					return autoInstallBundle(originalStatus);
-				}
-				if (isArchive()) {
-					return generateRepoFromArchive(originalStatus);
-				}
-		*/
-		return originalStatus;
-	}
-
-	IStatus generateRepoFromDirectory(IStatus originalStatus) {
-		String generateRepo = ProvSDKUIActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.PREF_GENERATE_REPOFOLDER);
-		if (MessageDialogWithToggle.NEVER.equals(generateRepo))
+		if (file == null)
 			return originalStatus;
-		if (MessageDialogWithToggle.ALWAYS.equals(generateRepo)) {
-			IMetadataRepository repository = generateRepository(file, file, false);
-			if (repository != null)
-				return generateOKStatus();
-			return originalStatus;
+		if (isBundle()) {
+			return autoInstallBundle(originalStatus);
 		}
-		final ConfirmRepoGenerationDialog dialog = new ConfirmRepoGenerationDialog(shell, file, file);
-		dialog.open();
-
-		// Any answer but yes means report an error
-		if (dialog.getReturnCode() == IDialogConstants.YES_ID) {
-			IMetadataRepository repository = generateRepository(file, dialog.getTargetLocation(), false);
-			if (repository != null)
-				return generateOKStatus();
+		if (isArchive()) {
+			return generateRepoFromArchive(originalStatus);
 		}
 		return originalStatus;
 	}
@@ -102,25 +83,34 @@ public class ExternalFileHandler {
 		String generateRepoFromArchive = ProvSDKUIActivator.getDefault().getPreferenceStore().getString(PreferenceConstants.PREF_GENERATE_ARCHIVEREPOFOLDER);
 		if (MessageDialogWithToggle.NEVER.equals(generateRepoFromArchive))
 			return originalStatus;
-		File targetLocation = getDefaultUnzipFolder();
+		final File targetLocation = getDefaultUnzipFolder();
 		if (targetLocation == null)
 			return originalStatus;
 		if (MessageDialogWithToggle.ALWAYS.equals(generateRepoFromArchive)) {
-			IMetadataRepository repository = generateRepository(file, targetLocation, true);
-			if (repository != null)
+			final IMetadataRepository[] repository = new IMetadataRepository[1];
+			BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+				public void run() {
+					repository[0] = unzipAndGenerateRepository(file, targetLocation, null);
+				}
+			});
+			if (repository[0] != null)
 				return generateOKStatus();
 			return originalStatus;
 		}
+		MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, NLS.bind(ProvSDKMessages.ExternalFileHandler_PromptForUnzip, file.getAbsolutePath()), null, false, ProvSDKUIActivator.getDefault().getPreferenceStore(), PreferenceConstants.PREF_GENERATE_ARCHIVEREPOFOLDER);
 
-		ConfirmRepoGenerationFromArchiveDialog dialog = new ConfirmRepoGenerationFromArchiveDialog(shell, file, targetLocation);
-		dialog.open();
-
-		// Any answer but yes means report an original status
 		if (dialog.getReturnCode() == IDialogConstants.YES_ID) {
-			IMetadataRepository repository = generateRepository(file, dialog.getTargetLocation(), true);
-			if (repository != null)
+			final IMetadataRepository[] repository = new IMetadataRepository[1];
+			BusyIndicator.showWhile(shell.getDisplay(), new Runnable() {
+				public void run() {
+					repository[0] = unzipAndGenerateRepository(file, targetLocation, null);
+				}
+			});
+			if (repository[0] != null)
 				return generateOKStatus();
 			return originalStatus;
+		} else if (dialog.getReturnCode() == IDialogConstants.CANCEL_ID) {
+			return Status.CANCEL_STATUS;
 		}
 		return originalStatus;
 	}
@@ -135,11 +125,12 @@ public class ExternalFileHandler {
 					return installOKStatus();
 				return originalStatus;
 			}
-			MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, NLS.bind(ProvSDKMessages.ExternalFileHandler_PromptForInstallBundle, file.getAbsolutePath()), null, false, ProvSDKUIActivator.getDefault().getPreferenceStore(), PreferenceConstants.PREF_AUTO_INSTALL_BUNDLES);
-			// Any answer but yes means report original status
+			MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, NLS.bind(ProvSDKMessages.ExternalFileHandler_PromptForInstallBundle, file.getAbsolutePath()), null, false, ProvSDKUIActivator.getDefault().getPreferenceStore(), PreferenceConstants.PREF_AUTO_INSTALL_BUNDLES);
 			if (dialog.getReturnCode() == IDialogConstants.YES_ID) {
 				if (copyToDropins(file))
 					return installOKStatus();
+			} else if (dialog.getReturnCode() == IDialogConstants.CANCEL_ID) {
+				return Status.CANCEL_STATUS;
 			}
 		} catch (FileNotFoundException e) {
 			// Shouldn't happen, but maybe user deleted it just after selecting it?
@@ -152,44 +143,31 @@ public class ExternalFileHandler {
 
 	boolean copyToDropins(File source) throws IOException {
 		boolean success = false;
-		/*		File dropinsFolder = ReconcilerHelper.getDropInsDirectory();
-				if (!dropinsFolder.exists())
-					dropinsFolder.mkdirs();
-				File copiedBundle = new File(dropinsFolder, source.getName());
-				if (!copiedBundle.exists())
-					copiedBundle.createNewFile();
-				success = FileUtils.copyStream(new FileInputStream(file), true, new FileOutputStream(copiedBundle), true) > 0;
-				if (success)
-					ProvUI.requestRestart(true, shell);
-		*/
+		File dropinsFolder = getDropInsDirectory();
+		if (!dropinsFolder.exists())
+			dropinsFolder.mkdirs();
+		File copiedBundle = new File(dropinsFolder, source.getName());
+		if (!copiedBundle.exists())
+			copiedBundle.createNewFile();
+		success = FileUtils.copyStream(new FileInputStream(file), true, new FileOutputStream(copiedBundle), true) > 0;
+		if (success)
+			ProvUI.requestRestart(true, shell);
+
 		return success;
 	}
 
-	IMetadataRepository generateRepository(final File source, final File targetLocation, final boolean unzipSource) {
-		final IMetadataRepository[] repository = new IMetadataRepository[1];
-		/*		runBackground(new IRunnableWithProgress() {
-					public void run(IProgressMonitor monitor) {
-						try {
-							File src = source;
-							if (unzipSource) {
-								FileUtils.unzipFile(source, targetLocation);
-								src = targetLocation;
-							}
-							repository[0] = ReconcilerHelper.generateRepository(profile, src, targetLocation, makeRepositoryName(src), false);
-						} catch (IOException e) {
-							ProvUI.handleException(e, NLS.bind(ProvSDKMessages.ExternalFileHandler_ErrorExpandingArchive, source.getAbsolutePath()), StatusManager.SHOW | StatusManager.LOG);
-						}
-					}
-				});
-		*/
-		return repository[0];
-	}
-
-	// TODO we may want to allow the user to name a generated repo.
-	// For now we create a name.
-	String makeRepositoryName(File targetLocation) {
-		return NLS.bind(ProvSDKMessages.ExternalFileHandler_UserGeneratedRepoName, targetLocation.getAbsolutePath());
-
+	IMetadataRepository unzipAndGenerateRepository(final File source, final File targetLocation, IProgressMonitor monitor) {
+		IMetadataRepository repository = null;
+		try {
+			FileUtils.unzipFile(source, targetLocation);
+			URL repoLocation = new URL(URLValidator.makeFileURLString(targetLocation.getAbsolutePath()));
+			repository = ProvisioningUtil.loadMetadataRepository(repoLocation, monitor);
+		} catch (IOException e) {
+			ProvUI.handleException(e, NLS.bind(ProvSDKMessages.ExternalFileHandler_ErrorExpandingArchive, source.getAbsolutePath()), StatusManager.SHOW | StatusManager.LOG);
+		} catch (ProvisionException e) {
+			ProvUI.handleException(e, NLS.bind(ProvSDKMessages.ExternalFileHandler_ErrorLoadingFromZipDirectory, targetLocation.getAbsolutePath()), StatusManager.SHOW | StatusManager.LOG);
+		}
+		return repository;
 	}
 
 	boolean isBundle() {
@@ -255,16 +233,14 @@ public class ExternalFileHandler {
 
 	File getDefaultUnzipFolder() {
 		File unzipFolder;
-		// Make an auto-generated repo location a peer to the drop-ins directory
-		/*
-				String dropInsParent = ReconcilerHelper.getDropInsDirectory().getParent();
-				if (dropInsParent != null) {
-					unzipFolder = new File(dropInsParent, file.getName());
-					unzipFolder = makeUnusedFolder(unzipFolder);
-					if (unzipFolder != null)
-						return unzipFolder;
-				}
-		*/
+		// Unzip content in a peer to the drop-ins directory
+		String dropInsParent = getDropInsDirectory().getParent();
+		if (dropInsParent != null) {
+			unzipFolder = new File(dropInsParent, file.getName());
+			unzipFolder = makeUnusedFolder(unzipFolder);
+			if (unzipFolder != null)
+				return unzipFolder;
+		}
 		// For some reason we had a failure with the drop-ins directory
 		Location location = Platform.getConfigurationLocation();
 		if (location != null) {
@@ -294,31 +270,33 @@ public class ExternalFileHandler {
 		return null;
 	}
 
-	void runBackground(final IRunnableWithProgress runnable) {
-		try {
-			PlatformUI.getWorkbench().getProgressService().busyCursorWhile(new IRunnableWithProgress() {
-
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					runnable.run(monitor);
-				}
-
-			});
-		} catch (InvocationTargetException e) {
-			ProvUI.handleException(e.getCause(), NLS.bind(ProvSDKMessages.ExternalFileHandler_UnexpectedError, file.getAbsoluteFile()), StatusManager.SHOW | StatusManager.LOG);
-
-		} catch (InterruptedException e) {
-			// Nothing to report
-		}
-	}
-
 	IStatus generateOKStatus() {
-		return new Status(IStatus.OK, ProvSDKUIActivator.PLUGIN_ID, REPO_GENERATED, NLS.bind(ProvSDKMessages.ExternalFileHandler_RepositoryGeneratedOK, file.getAbsolutePath()), null);
+		return new Status(IStatus.OK, ProvSDKUIActivator.PLUGIN_ID, URLValidator.REPO_AUTO_GENERATED, NLS.bind(ProvSDKMessages.ExternalFileHandler_RepositoryGeneratedOK, file.getAbsolutePath()), null);
 	}
 
 	IStatus installOKStatus() {
-		// temp
-		return Status.OK_STATUS;
-		//		return new Status(IStatus.OK, ProvSDKUIActivator.PLUGIN_ID, BUNDLE_INSTALLED, NLS.bind(ProvSDKMessages.ExternalFileHandler_BundleInstalledOK, ReconcilerHelper.getDropInsDirectory().getAbsolutePath()), null);
+		return new Status(IStatus.OK, ProvSDKUIActivator.PLUGIN_ID, URLValidator.ALTERNATE_ACTION_TAKEN, NLS.bind(ProvSDKMessages.ExternalFileHandler_BundleInstalledOK, getDropInsDirectory().getAbsolutePath()), null);
 	}
 
+	// TODO
+	// copied from reconciler activator
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=222456
+	File getDropInsDirectory() {
+
+		String watchedDirectoryProperty = ProvSDKUIActivator.getContext().getProperty(DROPINS_DIRECTORY);
+		if (watchedDirectoryProperty != null) {
+			File folder = new File(watchedDirectoryProperty);
+			return folder;
+		}
+		try {
+			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
+			URL baseURL = new URL(ProvSDKUIActivator.getContext().getProperty(OSGI_CONFIGURATION_AREA));
+			URL folderURL = new URL(baseURL, "../" + DROPINS); //$NON-NLS-1$
+			File folder = new File(folderURL.getPath());
+			return folder;
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
