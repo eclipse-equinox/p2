@@ -95,14 +95,14 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 			assertTrue("2.3", repo.getArtifactFile(keys[i]).toString().startsWith(folder.getAbsolutePath().toString()));
 		}
 
-		assertEquals("3.0", 4, getInstallableUnits(listener).length);
+		assertEquals("3.0", 2, getInstallableUnits(listener).length);
 		assertEquals("3.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
 		watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
 		watcher.start();
 
-		assertEquals("4.0", 4, getInstallableUnits(listener).length);
+		assertEquals("4.0", 2, getInstallableUnits(listener).length);
 		assertEquals("4.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
 		try {
