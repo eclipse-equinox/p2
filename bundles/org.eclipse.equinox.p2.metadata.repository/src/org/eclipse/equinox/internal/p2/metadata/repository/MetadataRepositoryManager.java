@@ -90,8 +90,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			repositories.put(getKey(repository), info);
 		}
 		// save the given repository in the preferences.
-		remember(repository);
-		broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
+		if (remember(repository))
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
 	}
 
 	public void addRepository(URL location) {
@@ -104,8 +104,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 			repositories.put(getKey(location), info);
 		}
 		// save the given repository in the preferences.
-		remember(info);
-		broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
+		if (remember(info))
+			broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
 	}
 
 	/**
@@ -458,7 +458,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	/*
 	 * Save the list of repositories in the preference store.
 	 */
-	private void remember(IMetadataRepository repository) {
+	private boolean remember(IMetadataRepository repository) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(repository));
 		changed |= putValue(node, KEY_URL, repository.getLocation().toExternalForm());
@@ -470,12 +470,13 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
 		if (changed)
 			saveToPreferences();
+		return changed;
 	}
 
 	/*
 	 * Save the list of repositories in the preference store.
 	 */
-	private void remember(RepositoryInfo info) {
+	private boolean remember(RepositoryInfo info) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(info.location));
 		changed |= putValue(node, KEY_URL, info.location.toExternalForm());
@@ -484,6 +485,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		changed |= putValue(node, KEY_NAME, info.name);
 		if (changed)
 			saveToPreferences();
+		return changed;
 	}
 
 	/**
