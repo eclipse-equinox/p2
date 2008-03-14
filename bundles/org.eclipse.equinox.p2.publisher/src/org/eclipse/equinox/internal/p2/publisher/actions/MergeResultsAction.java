@@ -11,17 +11,14 @@ package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
+import org.eclipse.equinox.internal.p2.publisher.*;
 
-public class MergeResultsAction extends Generator implements IPublishingAction {
+public class MergeResultsAction extends AbstractPublishingAction {
 
 	private IPublishingAction[] actions;
 	private int mode;
 
 	public MergeResultsAction(IPublishingAction[] actions, int mode) {
-		super(null);
 		this.actions = actions;
 		this.mode = mode;
 	}

@@ -1,10 +1,8 @@
-/************************************************import com.code9.ubiquity.publisher.IPublisherInfo;
-import com.code9.ubiquity.publisher.IPublishingAction;
-import java.io.File;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
-.eclipse.org/legal/epl-v10.html
+/*******************************************************************************
+ * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
@@ -15,17 +13,15 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class RootFilesAction extends Generator implements IPublishingAction {
+public class RootFilesAction extends AbstractPublishingAction {
 
 	private String configSpec;
 	private String idBase;
@@ -35,7 +31,6 @@ public class RootFilesAction extends Generator implements IPublishingAction {
 	private String flavor;
 
 	public RootFilesAction(IPublisherInfo info, File root, File[] exclusions, String configSpec, String idBase, String version, String flavor) {
-		super(createGeneratorInfo(info, flavor));
 		this.root = root;
 		this.exclusions = exclusions;
 		this.configSpec = configSpec;
@@ -44,16 +39,6 @@ public class RootFilesAction extends Generator implements IPublishingAction {
 		if (version != null && !version.equals("0.0.0")) //$NON-NLS-1$
 			this.versionSpec = version;
 		this.flavor = flavor;
-	}
-
-	private static IGeneratorInfo createGeneratorInfo(IPublisherInfo info, String flavor) {
-		EclipseInstallGeneratorInfoProvider result = new EclipseInstallGeneratorInfoProvider();
-		result.setArtifactRepository(info.getArtifactRepository());
-		result.setMetadataRepository(info.getMetadataRepository());
-		result.setPublishArtifactRepository(info.publishArtifactRepository());
-		result.setPublishArtifacts(info.publishArtifacts());
-		result.setFlavor(flavor);
-		return result;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
@@ -109,7 +94,7 @@ public class RootFilesAction extends Generator implements IPublishingAction {
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null, false, true);
-		publishArtifact(descriptor, excludeFiles(root, exclusions), info.getArtifactRepository(), false, true);
+		publishArtifact(descriptor, null, excludeFiles(root, exclusions), info, INCLUDE_ROOT);
 	}
 
 	private File[] excludeFiles(File base, File[] exclusions) {

@@ -11,30 +11,18 @@ package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.osgi.framework.Version;
 
-public class FragmentIUsAction extends Generator implements IPublishingAction {
+public class FragmentIUsAction extends AbstractPublishingAction {
 
 	protected GeneratorBundleInfo[] bundles;
 	private String flavor;
 
 	public FragmentIUsAction(IPublisherInfo info, GeneratorBundleInfo[] bundles, String flavor) {
-		super(createGeneratorInfo(info));
 		this.bundles = bundles;
 		this.flavor = flavor;
-	}
-
-	private static IGeneratorInfo createGeneratorInfo(IPublisherInfo info) {
-		EclipseInstallGeneratorInfoProvider result = new EclipseInstallGeneratorInfoProvider();
-		result.setArtifactRepository(info.getArtifactRepository());
-		result.setMetadataRepository(info.getMetadataRepository());
-		result.setPublishArtifactRepository(info.publishArtifactRepository());
-		result.setPublishArtifacts(info.publishArtifacts());
-		return result;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {

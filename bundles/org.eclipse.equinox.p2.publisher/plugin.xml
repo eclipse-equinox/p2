@@ -5,7 +5,7 @@
             thread="main"
             visible="true">
          <run
-               class="org.eclipse.equinox.internal.p2.publisher.InstallPublisher">
+               class="org.eclipse.equinox.internal.p2.publisher.InstallPublisherApplication">
          </run>
       </application>
    </extension>

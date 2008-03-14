@@ -11,19 +11,16 @@ package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.GeneratorBundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IPublisherResult;
 
 /**
  * Create fragments for all Equinox launcher IUs (not fragments) such that the corresponding
  * host IU is configured as the launch.library.  
  */
-public class EquinoxLauncherCUAction extends FragmentIUsAction implements IPublishingAction {
+public class EquinoxLauncherCUAction extends FragmentIUsAction {
 
-	private static final String ORG_ECLIPSE_EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
+	public static final String ORG_ECLIPSE_EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
 
 	public EquinoxLauncherCUAction(IPublisherInfo info, GeneratorBundleInfo[] bundles, String flavor) {
 		super(info, null, flavor);

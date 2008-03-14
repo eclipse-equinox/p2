@@ -12,8 +12,6 @@ package org.eclipse.equinox.internal.p2.publisher;
 import java.util.Collection;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IPublisherResult;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.PublisherResult;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 public class Publisher {

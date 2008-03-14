@@ -9,10 +9,28 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher;
 
+import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 public interface IPublisherInfo {
+
+	/**
+	 * A bitwise flag to say whether or not the index for the artifact repository should
+	 * be updated.
+	 */
+	public static final int A_INDEX = 1;
+
+	/**
+	 * A bitwise flag to say whether or the artifacts themselves should be published.
+	 */
+	public static final int A_PUBLISH = 2;
+
+	/**
+	 * A bitwise flag to say whether or not to overwrite disk content discovered
+	 * in the repository when publishing an artifact
+	 */
+	public static final int A_OVERWRITE = 4;
 
 	/**
 	 * Returns the artifact repository into which any publishable artifacts are published
@@ -29,16 +47,16 @@ public interface IPublisherInfo {
 	public IMetadataRepository getMetadataRepository();
 
 	/**
-	 * Returns whether or not the artifact repo itself should be published.
-	 * @return <code>true</code> if the artifact repository should be published.  
-	 * <code>false</code> otherwise.
-	 */
-	public boolean publishArtifactRepository();
-
-	/**
 	 * Returns whether or not artifacts themselves should be published.
 	 * @return <code>true</code> if artifacts should be published.  
 	 * <code>false</code> otherwise.
 	 */
-	public boolean publishArtifacts();
+	public int getArtifactOptions();
+
+	public IPublishingAdvice getAdvice(String id);
+
+	public void setAdvice(String id, IPublishingAdvice value);
+
+	public Collection getAdviceIds();
+
 }

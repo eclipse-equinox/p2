@@ -15,18 +15,15 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
-import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
-import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
+import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.Messages;
+import org.eclipse.equinox.internal.p2.publisher.features.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
-public class UpdateSiteAction extends Generator implements IPublishingAction {
+public class UpdateSiteAction extends AbstractPublishingAction {
 
 	private URL location;
 	private IPublisherInfo info;
@@ -34,7 +31,6 @@ public class UpdateSiteAction extends Generator implements IPublishingAction {
 	private HashSet defaultCategorySet;
 
 	public UpdateSiteAction(URL location, IPublisherInfo info) {
-		super(createGeneratorInfo(info));
 		this.location = location;
 		this.info = info;
 		initialize();
@@ -47,15 +43,6 @@ public class UpdateSiteAction extends Generator implements IPublishingAction {
 		defaultCategory.setName("Default"); //$NON-NLS-1$
 		defaultCategorySet = new HashSet(1);
 		defaultCategorySet.add(defaultCategory);
-	}
-
-	private static IGeneratorInfo createGeneratorInfo(IPublisherInfo info) {
-		EclipseInstallGeneratorInfoProvider result = new EclipseInstallGeneratorInfoProvider();
-		result.setArtifactRepository(info.getArtifactRepository());
-		result.setMetadataRepository(info.getMetadataRepository());
-		result.setPublishArtifactRepository(info.publishArtifactRepository());
-		result.setPublishArtifacts(info.publishArtifacts());
-		return result;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
@@ -144,5 +131,17 @@ public class UpdateSiteAction extends Generator implements IPublishingAction {
 			}
 		}
 		return mappings;
+	}
+
+	/**
+	 * Generates IUs corresponding to update site categories.
+	 * @param categoriesToFeatures Map of SiteCategory ->Set (Feature IUs in that category).
+	 * @param result The generator result being built
+	 */
+	protected void generateCategoryIUs(Map categoriesToFeatures, IPublisherResult result) {
+		for (Iterator it = categoriesToFeatures.keySet().iterator(); it.hasNext();) {
+			SiteCategory category = (SiteCategory) it.next();
+			result.addIU(MetadataGeneratorHelper.createCategoryIU(category, (Set) categoriesToFeatures.get(category), null), IPublisherResult.NON_ROOT);
+		}
 	}
 }

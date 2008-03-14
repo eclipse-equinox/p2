@@ -13,26 +13,24 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IPublisherResult;
+import org.eclipse.equinox.internal.p2.publisher.*;
 
 public class EclipseInstallAction implements IPublishingAction {
-
+	protected String source;
 	protected String id;
 	protected String version = "1.0.0"; //$NON-NLS-1$
+	protected String name;
 	protected String flavor;
 	protected String[] topLevel;
 	protected IPublisherInfo info;
 	protected String[] configurations;
-	protected String source;
 	protected String[] nonRootFiles;
 
-	public EclipseInstallAction(String source, String id, String version, String flavor, String[] topLevel, String[] configurations, String[] nonRootFiles) {
+	public EclipseInstallAction(String source, String id, String version, String name, String flavor, String[] topLevel, String[] configurations, String[] nonRootFiles) {
 		this.source = source;
 		this.id = id;
 		this.version = version;
+		this.name = name == null ? id : name;
 		this.flavor = flavor;
 		this.topLevel = topLevel;
 		this.configurations = configurations;
@@ -50,7 +48,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	protected IPublishingAction[] createActions() {
 		ArrayList result = new ArrayList();
 		// create an action that just publishes the raw bundles and features
-		IPublishingAction action = new MergeResultsAction(new IPublishingAction[] {createBundlesAction(), createFeaturesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
+		IPublishingAction action = new MergeResultsAction(new IPublishingAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
 		result.add(action);
 		result.addAll(createEquinoxExecutableActions(configurations));
 		result.addAll(createRootFilesActions(configurations));
@@ -68,7 +66,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected IPublishingAction createRootIUAction() {
-		return new RootIUAction(id, version, topLevel, info);
+		return new RootIUAction(id, version, name, topLevel, info);
 	}
 
 	protected IPublishingAction createJREAction() {
@@ -84,8 +82,7 @@ public class EclipseInstallAction implements IPublishingAction {
 		Collection result = new ArrayList(configs.length);
 		for (int i = 0; i < configs.length; i++) {
 			File configuration = computeConfigurationLocation(configs[i]);
-			File[] executables = computeExecutables(configs[i]);
-			File executable = executables[0];
+			File executable = computeExecutables(configs[i])[0];
 			IPublishingAction action = new AccumulateConfigDataAction(info, configs[i], configuration, executable);
 			result.add(action);
 		}
@@ -137,7 +134,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected File[] computeExecutables(String configSpec) {
-		String os = Generator.parseConfigSpec(configSpec)[1];
+		String os = AbstractPublishingAction.parseConfigSpec(configSpec)[1];
 		return EquinoxExecutableAction.findExecutables(computeExecutableLocation(configSpec), os, "eclipse");
 	}
 
@@ -154,7 +151,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected IPublishingAction createBundlesAction() {
-		return new BundlesAction(new File[] {new File(source, "plugins")}, info); //$NON-NLS-1$
+		return new BundlesAction(new File[] {new File(source, "plugins")}); //$NON-NLS-1$
 	}
 
 }

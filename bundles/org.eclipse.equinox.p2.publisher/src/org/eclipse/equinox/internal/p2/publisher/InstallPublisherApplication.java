@@ -11,17 +11,17 @@ package org.eclipse.equinox.internal.p2.publisher;
 
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.publisher.actions.EclipseInstallAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 
-public class InstallPublisher extends AbstractGeneratorApplication {
+public class InstallPublisherApplication extends AbstractPublisherApplication {
 
 	protected String id;
 	protected String version = "1.0.0"; //$NON-NLS-1$
+	protected String name;
 	protected String flavor;
 	protected String[] topLevel;
 	protected String[] configurations;
 
-	public InstallPublisher() {
+	public InstallPublisherApplication() {
 	}
 
 	protected void processParameter(String arg, String parameter, PublisherInfo info) {
@@ -33,14 +33,17 @@ public class InstallPublisher extends AbstractGeneratorApplication {
 		if (arg.equalsIgnoreCase("-version")) //$NON-NLS-1$
 			version = parameter;
 
+		if (arg.equalsIgnoreCase("-name")) //$NON-NLS-1$
+			name = parameter;
+
 		if (arg.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 			flavor = parameter;
 
 		if (arg.equalsIgnoreCase("-top")) //$NON-NLS-1$
-			topLevel = Generator.getArrayFromString(parameter, ",");
+			topLevel = AbstractPublishingAction.getArrayFromString(parameter, ",");
 
 		if (arg.equalsIgnoreCase("-configs")) //$NON-NLS-1$
-			configurations = Generator.getArrayFromString(parameter, ",");
+			configurations = AbstractPublishingAction.getArrayFromString(parameter, ",");
 	}
 
 	protected IPublishingAction[] createActions() {
@@ -51,6 +54,6 @@ public class InstallPublisher extends AbstractGeneratorApplication {
 
 	private IPublishingAction createEclipseInstallAction() {
 		String[] exclusions = {"plugins", "features", "configuration"};
-		return new EclipseInstallAction(source, id, version, flavor, topLevel, configurations, exclusions);
+		return new EclipseInstallAction(source, id, version, name, flavor, topLevel, configurations, exclusions);
 	}
 }

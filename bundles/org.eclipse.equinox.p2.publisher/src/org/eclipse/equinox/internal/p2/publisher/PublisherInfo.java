@@ -9,15 +9,28 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher;
 
+import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 
 public class PublisherInfo implements IPublisherInfo {
 
-	private boolean publishArtifacts = false;
-	private boolean publishArtifactRepository = false;
+	private int artifactOptions = 0;
 	private IMetadataRepository metadataRepository;
 	private IArtifactRepository artifactRepository;
+	private Map adviceMap = new HashMap(11);
+
+	public IPublishingAdvice getAdvice(String id) {
+		return (IPublishingAdvice) adviceMap.get(id);
+	}
+
+	public void setAdvice(String id, IPublishingAdvice value) {
+		adviceMap.put(id, value);
+	}
+
+	public Collection getAdviceIds() {
+		return adviceMap.keySet();
+	}
 
 	public IArtifactRepository getArtifactRepository() {
 		return artifactRepository;
@@ -27,12 +40,8 @@ public class PublisherInfo implements IPublisherInfo {
 		return metadataRepository;
 	}
 
-	public boolean publishArtifactRepository() {
-		return publishArtifactRepository;
-	}
-
-	public boolean publishArtifacts() {
-		return publishArtifacts;
+	public int getArtifactOptions() {
+		return artifactOptions;
 	}
 
 	public void setArtifactRepository(IArtifactRepository value) {
@@ -43,12 +52,8 @@ public class PublisherInfo implements IPublisherInfo {
 		metadataRepository = value;
 	}
 
-	public void setPublishArtifactRepository(boolean value) {
-		publishArtifactRepository = value;
-	}
-
-	public void setPublishArtifacts(boolean value) {
-		publishArtifacts = value;
+	public void setArtifactOptions(int value) {
+		artifactOptions = value;
 	}
 
 	public String getSummary() {

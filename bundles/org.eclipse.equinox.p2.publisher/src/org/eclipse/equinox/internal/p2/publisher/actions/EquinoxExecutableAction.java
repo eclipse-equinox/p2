@@ -13,18 +13,16 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
+import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class EquinoxExecutableAction extends Generator implements IPublishingAction {
+public class EquinoxExecutableAction extends AbstractPublishingAction {
 
 	private String configSpec;
 	private String idBase;
@@ -45,7 +43,7 @@ public class EquinoxExecutableAction extends Generator implements IPublishingAct
 		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
 			ArrayList result = new ArrayList();
 			File[] files = root.listFiles();
-			for (int i = 0; i < files.length; i++) {
+			for (int i = 0; files != null && i < files.length; i++) {
 				String extension = new Path(files[i].getName()).getFileExtension();
 				if (files[i].isFile() && (extension == null || extension.equals("so")))
 					result.add(files[i]);
@@ -64,7 +62,6 @@ public class EquinoxExecutableAction extends Generator implements IPublishingAct
 	}
 
 	public EquinoxExecutableAction(IPublisherInfo info, File[] executables, String configSpec, String idBase, String version, String flavor) {
-		super(createGeneratorInfo(info, flavor));
 		this.executables = executables;
 		this.configSpec = configSpec;
 		this.idBase = idBase == null ? "org.eclipse" : idBase; //$NON-NLS-1$
@@ -72,16 +69,6 @@ public class EquinoxExecutableAction extends Generator implements IPublishingAct
 		if (version != null && !version.equals("0.0.0")) //$NON-NLS-1$
 			this.versionSpec = version;
 		this.flavor = flavor;
-	}
-
-	private static IGeneratorInfo createGeneratorInfo(IPublisherInfo info, String flavor) {
-		EclipseInstallGeneratorInfoProvider result = new EclipseInstallGeneratorInfoProvider();
-		result.setArtifactRepository(info.getArtifactRepository());
-		result.setMetadataRepository(info.getMetadataRepository());
-		result.setPublishArtifactRepository(info.publishArtifactRepository());
-		result.setPublishArtifacts(info.publishArtifacts());
-		result.setFlavor(flavor);
-		return result;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
@@ -115,7 +102,7 @@ public class EquinoxExecutableAction extends Generator implements IPublishingAct
 		String ws = config[0];
 		String os = config[1];
 		String arch = config[2];
-		String launcherFragment = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
+		String launcherFragment = EquinoxLauncherCUAction.ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
 		if (!Constants.OS_MACOSX.equals(os))
 			launcherFragment += '.' + arch;
 		iu.setRequiredCapabilities(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
@@ -170,7 +157,7 @@ public class EquinoxExecutableAction extends Generator implements IPublishingAct
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null, false, true);
-		publishArtifact(descriptor, executables, info.getArtifactRepository(), false, true);
+		publishArtifact(descriptor, null, executables, info, INCLUDE_ROOT);
 	}
 
 	private void mungeLauncherFileNames(File[] files) {

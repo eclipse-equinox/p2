@@ -9,40 +9,31 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
-import java.util.Collection;
+import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.publisher.IPublisherInfo;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 /**
  * Create a top level IU that lists all the current roots as well as any explicitly identified
  * top level IUs.
  */
-public class RootIUAction extends Generator implements IPublishingAction {
+public class RootIUAction extends AbstractPublishingAction {
 
 	private String version;
 	private String id;
 	private String[] topLevel;
+	private String name;
 
-	public RootIUAction(String id, String version, String[] topLevel, IPublisherInfo info) {
-		super(createGeneratorInfo(info));
+	public RootIUAction(String id, String version, String name, String[] topLevel, IPublisherInfo info) {
 		this.id = id;
 		this.version = version;
+		this.name = name;
 		this.topLevel = topLevel;
-	}
-
-	private static IGeneratorInfo createGeneratorInfo(IPublisherInfo info) {
-		EclipseInstallGeneratorInfoProvider result = new EclipseInstallGeneratorInfoProvider();
-		result.setArtifactRepository(info.getArtifactRepository());
-		result.setMetadataRepository(info.getMetadataRepository());
-		result.setPublishArtifactRepository(info.publishArtifactRepository());
-		result.setPublishArtifacts(info.publishArtifacts());
-		return result;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
@@ -58,13 +49,41 @@ public class RootIUAction extends Generator implements IPublishingAction {
 			if (iu != null)
 				children.add(iu);
 		}
-		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, /* name */id, null, false);
+		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, name, null, false);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null)
 			return;
 		result.addIU(rootIU, IPublisherResult.NON_ROOT);
 
 		// TODO why do we create a category here?
-		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
+		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
 	}
+
+	protected InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, String version, String name, Collection requires, boolean configureLauncherData) {
+		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
+		root.setSingleton(true);
+		root.setId(id);
+		root.setVersion(new Version(version));
+		root.setProperty(IInstallableUnit.PROP_NAME, name);
+
+		ArrayList requiredCapabilities = new ArrayList(children.size());
+		for (Iterator iterator = children.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+			//			boolean isOptional = checkOptionalRootDependency(iu);
+			requiredCapabilities.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
+		}
+		if (requires != null)
+			requiredCapabilities.addAll(requires);
+		root.setRequiredCapabilities((RequiredCapability[]) requiredCapabilities.toArray(new RequiredCapability[requiredCapabilities.size()]));
+		root.setArtifacts(new IArtifactKey[0]);
+
+		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
+		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(id, new Version(version))});
+		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
+		return root;
+	}
+
 }

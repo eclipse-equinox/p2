@@ -10,7 +10,6 @@
 package org.eclipse.equinox.internal.p2.publisher;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IPublisherResult;
 
 public interface IPublishingAction {
 

@@ -30,7 +30,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceRegistration;
 
-public abstract class AbstractGeneratorApplication implements IApplication {
+public abstract class AbstractPublisherApplication implements IApplication {
 
 	// The mapping rules for in-place generation need to construct paths into the structure
 	// of an eclipse installation; in the future the default artifact mapping declared in
@@ -62,6 +62,8 @@ public abstract class AbstractGeneratorApplication implements IApplication {
 	protected boolean reusePackedFiles = false;
 
 	protected void initialize(PublisherInfo info) throws ProvisionException {
+		if (inplace)
+			initializeForInplace(info);
 		initializeRepositories(info);
 	}
 
@@ -113,8 +115,8 @@ public abstract class AbstractGeneratorApplication implements IApplication {
 		} catch (MalformedURLException e) {
 			// ought not happen...
 		}
-		info.setPublishArtifactRepository(true);
-		info.setPublishArtifacts(false);
+		info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX);
+		info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
 	}
 
 	protected void initializeMetadataRepository(PublisherInfo info) throws ProvisionException {
@@ -192,10 +194,13 @@ public abstract class AbstractGeneratorApplication implements IApplication {
 
 	protected void processFlag(String arg, PublisherInfo info) {
 		if (arg.equalsIgnoreCase("-publishArtifacts") || arg.equalsIgnoreCase("-pa")) //$NON-NLS-1$ //$NON-NLS-2$
-			info.setPublishArtifacts(true);
+			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
 
 		if (arg.equalsIgnoreCase("-publishArtifactRepository") || arg.equalsIgnoreCase("-par")) //$NON-NLS-1$ //$NON-NLS-2$
-			info.setPublishArtifactRepository(true);
+			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX);
+
+		if (arg.equalsIgnoreCase("-overwriteArtifacts")) //$NON-NLS-1$ 
+			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_OVERWRITE);
 
 		if (arg.equalsIgnoreCase("-append")) //$NON-NLS-1$
 			append = true;
