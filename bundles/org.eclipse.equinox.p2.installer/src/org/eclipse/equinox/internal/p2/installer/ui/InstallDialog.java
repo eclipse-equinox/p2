@@ -401,11 +401,12 @@ public class InstallDialog {
 		Path location = new Path(settingsLocation.getText());
 		description.setInstallLocation(location);
 		if (settingsStandalone.getSelection()) {
+			//force everything to be co-located regardless of what values were set in the install description
 			description.setAgentLocation(location.append("p2")); //$NON-NLS-1$
 			description.setBundleLocation(location);
 		} else {
-			String home = System.getProperty("user.home"); //$NON-NLS-1$
-			description.setAgentLocation(new Path(home).append(".p2/")); //$NON-NLS-1$
+			if (description.getAgentLocation() == null)
+				description.setAgentLocation(new Path(System.getProperty("user.home")).append(".p2/")); //$NON-NLS-1$ //$NON-NLS-2$
 			//use bundle pool location specified in install description
 			//by default this will be null, causing the bundle pool to be nested in the agent location
 		}
