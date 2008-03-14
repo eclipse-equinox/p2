@@ -271,11 +271,12 @@ public class EclipseLauncherParser {
 					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], resolveNextLine);
 					resolveNextLine = null;
 				} else {
+					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
 					//We don't write -configuration when it is the default value
 					if (EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(lines[i])) {
+						resolveNextLine = null;
 						if (new Path(lines[i + 1]).removeLastSegments(1).equals(new Path(osgiInstallArea))) {
 							i++;
-							resolveNextLine = null;
 							continue;
 						}
 					}
