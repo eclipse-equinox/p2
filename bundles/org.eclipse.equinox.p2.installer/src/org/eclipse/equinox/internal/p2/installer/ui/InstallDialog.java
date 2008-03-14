@@ -406,8 +406,8 @@ public class InstallDialog {
 		} else {
 			String home = System.getProperty("user.home"); //$NON-NLS-1$
 			description.setAgentLocation(new Path(home).append(".p2/")); //$NON-NLS-1$
-			//setting bundle location to null will cause it to use default bundle location under agent location
-			description.setBundleLocation(null);
+			//use bundle pool location specified in install description
+			//by default this will be null, causing the bundle pool to be nested in the agent location
 		}
 		okButton.setVisible(false);
 	}
