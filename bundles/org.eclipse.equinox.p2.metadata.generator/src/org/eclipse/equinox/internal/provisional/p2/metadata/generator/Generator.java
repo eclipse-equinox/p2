@@ -313,7 +313,6 @@ public class Generator {
 		// from the manifest for the localizable properties.
 		final int CACHE_PHASE = 0;
 		final int GENERATE_PHASE = 1;
-		final int BUNDLE_LOCALIZATION_INDEX = MetadataGeneratorHelper.BUNDLE_LOCALIZATION_INDEX;
 		Map bundleLocalizationMap = new HashMap(bundles.length);
 		Set localizationIUs = new HashSet(32);
 		for (int phase = CACHE_PHASE; phase <= GENERATE_PHASE; phase++) {

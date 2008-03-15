@@ -99,6 +99,8 @@ public class ProcessingStepHandler {
 	}
 
 	protected static final class ProcessingStepHandlerException extends Exception {
+		private static final long serialVersionUID = 1L;
+
 		public ProcessingStepHandlerException(String message) {
 			super(message);
 		}
