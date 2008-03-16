@@ -20,7 +20,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEve
  */
 public class AbstractRepositoryManager {
 	protected void broadcastChangeEvent(URL location, int repositoryType, int kind) {
-		((IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName())).publishEvent(new RepositoryEvent(location, repositoryType, kind));
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
+		if (bus != null)
+			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind));
 	}
 
 }
