@@ -358,7 +358,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	 * descriptor existed in the repository, and was successfully removed.
 	 */
 	private boolean doRemoveArtifact(IArtifactDescriptor descriptor) {
-		if (descriptor.getProperty(ARTIFACT_REFERENCE) == null) {
+		if (((ArtifactDescriptor) descriptor).getRepositoryProperty(ARTIFACT_REFERENCE) == null) {
 			File file = getArtifactFile(descriptor);
 			if (file == null)
 				return false;
@@ -559,12 +559,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			if (artifactReference != null)
 				return artifactReference;
 		}
-
-		// TODO: remove this when we are consistently using repository properties
-		// if the artifact is just a reference then return the reference location
-		String artifactReference = descriptor.getProperty(ARTIFACT_REFERENCE);
-		if (artifactReference != null)
-			return artifactReference;
 
 		// if the descriptor is complete then use the mapping rules...
 		if (descriptor.getProcessingSteps().length == 0) {
