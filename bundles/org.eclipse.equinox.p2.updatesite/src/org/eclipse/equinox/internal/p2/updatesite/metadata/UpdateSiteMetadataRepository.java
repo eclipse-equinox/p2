@@ -40,6 +40,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 	public UpdateSiteMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		super("update site: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
+		// todo progress monitoring
+		// loading validates before we create repositories
+		UpdateSite updateSite = UpdateSite.load(location, null);
+
 		BundleContext context = Activator.getBundleContext();
 		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
 		File bundleData = context.getDataFile(null);
@@ -54,8 +58,6 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm()); //$NON-NLS-1$
 
-		// todo progress monitoring
-		UpdateSite updateSite = UpdateSite.load(location, null);
 		String savedChecksum = (String) metadataRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;

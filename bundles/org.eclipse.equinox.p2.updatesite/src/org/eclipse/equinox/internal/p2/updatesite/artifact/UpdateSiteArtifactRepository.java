@@ -39,8 +39,12 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		super("update site: " + location.toExternalForm(), null, null, location, null, null);
-		BundleContext context = Activator.getBundleContext();
 
+		// todo progress monitoring
+		// loading validates before we create repositories
+		UpdateSite updateSite = UpdateSite.load(location, null);
+
+		BundleContext context = Activator.getBundleContext();
 		URL localRepositoryURL = null;
 		try {
 			String stateDirName = Integer.toString(location.toExternalForm().hashCode());
@@ -52,8 +56,6 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			e.printStackTrace();
 		}
 		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
-		// todo progress monitoring
-		UpdateSite updateSite = UpdateSite.load(location, null);
 
 		String savedChecksum = (String) artifactRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
