@@ -3,7 +3,8 @@
       id="org.eclipse.equinox.p2.user.ui"
       label="%featureName"
       version="1.0.0.qualifier"
-      provider-name="%providerName">
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
 
    <description>
       %description
