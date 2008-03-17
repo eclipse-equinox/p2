@@ -748,7 +748,12 @@ public class EquinoxBundlesState implements BundlesState {
 		if (id != DEFAULT_TIMESTAMP) {
 
 			try {
-				BundleDescription bundleDescription = soFactory.createBundleDescription(state, Utils.getOSGiManifest(bInfo.getLocation()), bInfo.getLocation(), id);
+				Dictionary manifest = Utils.getOSGiManifest(bInfo.getLocation());
+				if (manifest == null) {
+					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", "Unable to get bundle manifest for: " + bInfo.getLocation());
+					return;
+				}
+				BundleDescription bundleDescription = soFactory.createBundleDescription(state, manifest, bInfo.getLocation(), id);
 				state.removeBundle(bundleDescription);
 				manipulator.getConfigData().removeBundle(bInfo);
 			} catch (BundleException e) {

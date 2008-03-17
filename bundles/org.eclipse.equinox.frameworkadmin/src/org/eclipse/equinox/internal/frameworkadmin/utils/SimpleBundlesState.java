@@ -11,10 +11,8 @@
 package org.eclipse.equinox.internal.frameworkadmin.utils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
-
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.Constants;
 
@@ -244,6 +242,10 @@ public class SimpleBundlesState implements BundlesState {
 
 		String newLocation = bInfo.getLocation();
 		Dictionary newManifest = Utils.getOSGiManifest(newLocation);
+		if (newManifest == null) {
+			// TODO log something here
+			return;
+		}
 		String newSymbolicName = (String) newManifest.get(Constants.BUNDLE_SYMBOLICNAME);
 		String newVersion = (String) newManifest.get(Constants.BUNDLE_VERSION);
 		//System.out.println("> currentInstalledBundles.length=" + currentInstalledBundles.length);
