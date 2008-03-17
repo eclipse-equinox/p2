@@ -42,14 +42,14 @@ public class MetadataGeneratingURLValidator extends DefaultMetadataURLValidator 
 			shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 
 		// If it was set up with jar protocol, now convert it back to file.
-		if (!FILE_PROTOCOL.equalsIgnoreCase(location.getProtocol()))
-			return status;
-		String path = location.getPath();
+		String path = location.toExternalForm();
 		if (path.startsWith(JAR_PATH_PREFIX))
 			path = path.substring(JAR_PATH_PREFIX.length());
 		if (path.endsWith(JAR_PATH_SUFFIX))
 			path = path.substring(0, path.length() - JAR_PATH_SUFFIX.length());
-		final File file = new File(path);
+		if (!path.startsWith(FILE_PROTOCOL_PREFIX))
+			return status;
+		final File file = new File(path.substring(FILE_PROTOCOL_PREFIX.length()));
 
 		IStatus externalFileStatus = new ExternalFileHandler(file, shell).processFile(status);
 		if (externalFileStatus.getCode() == REPO_AUTO_GENERATED || externalFileStatus.getCode() == ALTERNATE_ACTION_TAKEN) {

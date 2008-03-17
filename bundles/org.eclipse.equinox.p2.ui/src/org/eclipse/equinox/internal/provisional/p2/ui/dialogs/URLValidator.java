@@ -47,8 +47,9 @@ public abstract class URLValidator {
 	}
 
 	public static String makeJarURLString(String path) {
-		if (path.toLowerCase().endsWith(JAR_EXTENSION))
-			return FILE_PROTOCOL_PREFIX + JAR_PATH_PREFIX + path + JAR_PATH_SUFFIX;
+		String lowerCase = path.toLowerCase();
+		if (lowerCase.endsWith(JAR_EXTENSION) || lowerCase.endsWith(ZIP_EXTENSION))
+			return JAR_PATH_PREFIX + FILE_PROTOCOL_PREFIX + path + JAR_PATH_SUFFIX;
 		return makeFileURLString(path);
 	}
 
