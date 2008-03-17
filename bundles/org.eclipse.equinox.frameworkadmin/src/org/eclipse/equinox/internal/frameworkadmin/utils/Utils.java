@@ -17,12 +17,20 @@ import java.util.*;
 import java.util.jar.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
+import org.eclipse.osgi.service.pluginconversion.PluginConverter;
+import org.osgi.framework.Constants;
 
 public class Utils {
-	private final static String PATH_SEP = "/";
+	private static final String PATH_SEP = "/"; //$NON-NLS-1$
 	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
+	private static final String FRAGMENT_MANIFEST = "fragment.xml"; //$NON-NLS-1$
+	private static final String PLUGIN_MANIFEST = "plugin.xml"; //$NON-NLS-1$
 
 	/**
 	 * Overwrite all properties of from to the properties of to. Return the result of to.
@@ -52,45 +60,54 @@ public class Utils {
 		InputStream manifestStream = null;
 		ZipFile jarFile = null;
 		try {
-			String fileExtention = bundleLocation.getName();
-			fileExtention = fileExtention.substring(fileExtention.lastIndexOf('.') + 1);
-			if ("jar".equalsIgnoreCase(fileExtention) && bundleLocation.isFile()) { //$NON-NLS-1$
-				jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-				ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
-				if (manifestEntry != null) {
-					manifestStream = jarFile.getInputStream(manifestEntry);
+			try {
+				String fileExtention = bundleLocation.getName();
+				fileExtention = fileExtention.substring(fileExtention.lastIndexOf('.') + 1);
+				// Handle a JAR'd bundle
+				if ("jar".equalsIgnoreCase(fileExtention) && bundleLocation.isFile()) { //$NON-NLS-1$
+					jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
+					ZipEntry manifestEntry = jarFile.getEntry(JarFile.MANIFEST_NAME);
+					if (manifestEntry != null) {
+						manifestStream = jarFile.getInputStream(manifestEntry);
+					}
+				} else {
+					// we have a directory-based bundle
+					File bundleManifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
+					if (bundleManifestFile.exists())
+						manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
 				}
-			} else {
-				manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
+			} catch (IOException e) {
+				//ignore
 			}
-		} catch (IOException e) {
-			//ignore
-		}
-		Dictionary manifest = null;
+			// we were unable to get an OSGi manifest file so try and convert an old-style manifest
+			if (manifestStream == null)
+				return convertPluginManifest(bundleLocation, true);
 
-		//It is not a manifest, but a plugin or a fragment
-
-		if (manifestStream != null) {
+			// It is not a manifest, but a plugin or a fragment
 			try {
 				Manifest m = new Manifest(manifestStream);
-				manifest = manifestToProperties(m.getMainAttributes());
+				Dictionary manifest = manifestToProperties(m.getMainAttributes());
+				// add this check to handle the case were we read a non-OSGi manifest
+				if (manifest.get(Constants.BUNDLE_SYMBOLICNAME) == null)
+					return convertPluginManifest(bundleLocation, true);
+				return manifest;
 			} catch (IOException ioe) {
 				return null;
-			} finally {
-				try {
+			}
+		} finally {
+			try {
+				if (manifestStream != null)
 					manifestStream.close();
-				} catch (IOException e1) {
-					//Ignore
-				}
-				try {
-					if (jarFile != null)
-						jarFile.close();
-				} catch (IOException e2) {
-					//Ignore
-				}
+			} catch (IOException e1) {
+				//Ignore
+			}
+			try {
+				if (jarFile != null)
+					jarFile.close();
+			} catch (IOException e2) {
+				//Ignore
 			}
 		}
-		return manifest;
 	}
 
 	public static void checkAbsoluteDir(File file, String dirName) throws IllegalArgumentException {
@@ -237,22 +254,46 @@ public class Utils {
 	public static Dictionary getOSGiManifest(String location) {
 		if (location == null)
 			return null;
+		// if we have a file-based URL that doesn't end in ".jar" then...
 		if (location.startsWith(FILE_PROTOCOL) && !location.endsWith(".jar"))
 			return basicLoadManifest(new File(location.substring(FILE_PROTOCOL.length())));
 
 		try {
 			JarFile jar = null;
+			File file = null;
 			if (location.startsWith(FILE_PROTOCOL)) {
-				jar = new JarFile(location.substring(FILE_PROTOCOL.length()));
+				file = new File(location.substring(FILE_PROTOCOL.length()));
+				jar = new JarFile(file);
 			} else {
 				URL url = new URL("jar:" + location + "!/");
 				JarURLConnection jarConnection = (JarURLConnection) url.openConnection();
 				jar = jarConnection.getJarFile();
+				// todo should set this var if possible
+				// file = ;
 			}
 			try {
 				Manifest manifest = jar.getManifest();
-				Dictionary result = new Hashtable();
+				// we might have an old-style plug-in so look for an old plug-in manifest
+				if (manifest == null) {
+					if (file == null)
+						return null;
+					// make sure we have something to convert
+					JarEntry entry = jar.getJarEntry(PLUGIN_MANIFEST);
+					if (entry == null)
+						entry = jar.getJarEntry(FRAGMENT_MANIFEST);
+					if (entry == null)
+						return null;
+					return convertPluginManifest(file, true);
+				}
 				Attributes attributes = manifest.getMainAttributes();
+				// if we have a JAR'd bundle that has a non-OSGi manifest file (like
+				// the ones produced by Ant, then try and convert the plugin.xml
+				if (attributes.getValue(Constants.BUNDLE_SYMBOLICNAME) == null) {
+					if (file == null)
+						return null;
+					return convertPluginManifest(file, true);
+				}
+				Dictionary result = new Hashtable();
 				for (Iterator iter = attributes.keySet().iterator(); iter.hasNext();) {
 					String key = iter.next().toString();
 					result.put(key, attributes.getValue(key));
@@ -268,6 +309,33 @@ public class Utils {
 			}
 		}
 		return null;
+	}
+
+	/*
+	 * Copied from BundleDescriptionFactory in the metadata generator.
+	 */
+	private static Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
+		PluginConverter converter;
+		try {
+			converter = org.eclipse.equinox.internal.frameworkadmin.utils.Activator.acquirePluginConverter();
+			if (converter == null) {
+				new RuntimeException("Unable to aquire PluginConverter service during generation for: " + bundleLocation).printStackTrace(); //$NON-NLS-1$
+				return null;
+			}
+			return converter.convertManifest(bundleLocation, false, null, true, null);
+		} catch (PluginConversionException convertException) {
+			// only log the exception if we had a plugin.xml or fragment.xml and we failed conversion
+			if (bundleLocation.getName().equals(FEATURE_MANIFEST))
+				return null;
+			if (!new File(bundleLocation, PLUGIN_MANIFEST).exists() && !new File(bundleLocation, FRAGMENT_MANIFEST).exists())
+				return null;
+			if (logConversionException) {
+				IStatus status = new Status(IStatus.WARNING, "org.eclipse.equinox.frameworkadmin", 0, "Error converting bundle manifest.", convertException);
+				System.out.println(status);
+				//TODO Need to find a way to get a logging service to log
+			}
+			return null;
+		}
 	}
 
 	public static String getPathFromClause(String clause) {
