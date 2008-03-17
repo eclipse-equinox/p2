@@ -76,7 +76,7 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 
 		DirectoryWatcher watcher = new DirectoryWatcher(props, TestActivator.getContext());
 		watcher.addListener(listener);
-		watcher.start();
+		//		watcher.start();
 
 		assertEquals("2.0", 0, getInstallableUnits(listener).length);
 		assertEquals("2.1", 0, listener.getArtifactRepository().getArtifactKeys().length);
@@ -87,7 +87,6 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 			fail("2.2", e);
 		}
 		watcher.poll();
-		watcher.stop();
 
 		IFileArtifactRepository repo = (IFileArtifactRepository) listener.getArtifactRepository();
 		IArtifactKey[] keys = repo.getArtifactKeys();
@@ -98,13 +97,6 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		assertEquals("3.0", 2, getInstallableUnits(listener).length);
 		assertEquals("3.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
 
-		watcher = new DirectoryWatcher(props, TestActivator.getContext());
-		watcher.addListener(listener);
-		watcher.start();
-
-		assertEquals("4.0", 2, getInstallableUnits(listener).length);
-		assertEquals("4.1", 2, listener.getArtifactRepository().getArtifactKeys().length);
-
 		try {
 			copy(baseFolder2, folder);
 		} catch (IOException e) {
@@ -112,14 +104,8 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		}
 		watcher.poll();
 
-		assertEquals("5.0", 5, getInstallableUnits(listener).length);
+		assertEquals("5.0", 3, getInstallableUnits(listener).length);
 		assertEquals("5.1", 3, listener.getArtifactRepository().getArtifactKeys().length);
-
-		watcher.stop();
-
-		watcher = new DirectoryWatcher(props, TestActivator.getContext());
-		watcher.addListener(listener);
-		watcher.start();
 
 		try {
 			removeContents(baseFolder, folder);
@@ -130,8 +116,6 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 
 		assertEquals("6.0", 1, getInstallableUnits(listener).length);
 		assertEquals("6.1", 1, listener.getArtifactRepository().getArtifactKeys().length);
-
-		watcher.stop();
 
 		delete(folder);
 	}

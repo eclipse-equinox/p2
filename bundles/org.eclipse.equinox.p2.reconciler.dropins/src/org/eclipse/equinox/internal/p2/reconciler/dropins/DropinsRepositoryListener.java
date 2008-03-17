@@ -16,6 +16,10 @@ import org.osgi.framework.ServiceReference;
 
 public class DropinsRepositoryListener extends RepositoryListener {
 
+	private static final String JAR = ".jar"; //$NON-NLS-1$
+	private static final String LINK = ".link"; //$NON-NLS-1$
+	private static final String ZIP = ".zip"; //$NON-NLS-1$
+	private static final String LINKS_PATH = "path"; //$NON-NLS-1$
 	private static final String DROPIN_ARTIFACT_REPOSITORIES = "dropin.artifactRepositories"; //$NON-NLS-1$
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
@@ -33,12 +37,12 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			return true;
 
 		String name = file.getName();
-		return name.endsWith(".jar") || name.endsWith(".zip") || name.endsWith(".link");
+		return name.endsWith(JAR) || name.endsWith(ZIP) || name.endsWith(LINK);
 	}
 
 	public boolean added(File file) {
-		if (super.isInterested(file))
-			return super.added(file);
+		if (super.added(file))
+			return true;
 
 		URL repositoryURL = createRepositoryURL(file);
 		if (repositoryURL != null) {
@@ -49,8 +53,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public boolean changed(File file) {
-		if (super.isInterested(file))
-			return super.added(file);
+		if (super.changed(file))
+			return true;
 
 		URL repositoryURL = createRepositoryURL(file);
 		if (repositoryURL != null) {
@@ -72,7 +76,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		} catch (IOException e) {
 			// ignore
 		}
-		String path = links.getProperty("path");
+		String path = links.getProperty(LINKS_PATH);
 		if (path == null) {
 			// log
 			return null;
@@ -91,19 +95,24 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private URL createRepositoryURL(File file) {
 		try {
-			if (file.getName().endsWith(".link")) {
-				String path = getLinkPath(file);
+			if (file.getName().endsWith(LINK)) {
+				File linkFile = file;
+				String path = getLinkPath(linkFile);
 				// todo log
 				if (path == null)
 					return null;
 				file = new File(path);
-				if (!file.isAbsolute())
-					file = new File(file, path).getCanonicalFile();
+				if (!file.isAbsolute()) {
+					// link support is relative to the install root
+					// For now we will use the parent of dropins folder
+					file = new File(Activator.getDropinsDirectory().getParentFile(), path);
+				}
 			}
 
-			URL repositoryURL = file.toURL();
-			if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
-				repositoryURL = new URL("jar:" + repositoryURL.toString() + "!/");
+			File canonicalFile = file.getCanonicalFile();
+			URL repositoryURL = canonicalFile.toURL();
+			if (canonicalFile.getName().endsWith(ZIP) || canonicalFile.getName().endsWith(JAR)) {
+				repositoryURL = new URL("jar:" + repositoryURL.toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return repositoryURL;
 		} catch (IOException e) {

@@ -140,7 +140,7 @@ public class DirectoryWatcher {
 			File directory = directories[index];
 			File list[] = directory.listFiles();
 			if (list == null)
-				return;
+				continue;
 			for (int i = 0; i < list.length; i++) {
 				File file = list[i];
 				// if this is a deletion marker then add to the list of pending deletions.

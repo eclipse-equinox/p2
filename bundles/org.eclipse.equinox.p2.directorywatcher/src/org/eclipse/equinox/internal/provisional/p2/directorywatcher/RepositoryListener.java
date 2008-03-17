@@ -167,16 +167,22 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#added(java.io.File)
 	 */
 	public boolean added(File file) {
-		currentFiles.put(file, new Long(file.lastModified()));
-		return true;
+		if (isFeature(file) || isBundle(file)) {
+			currentFiles.put(file, new Long(file.lastModified()));
+			return true;
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#changed(java.io.File)
 	 */
 	public boolean changed(File file) {
-		currentFiles.put(file, new Long(file.lastModified()));
-		return true;
+		if (isFeature(file) || isBundle(file)) {
+			currentFiles.put(file, new Long(file.lastModified()));
+			return true;
+		}
+		return false;
 	}
 
 	/* (non-Javadoc)
@@ -205,7 +211,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
 	 */
 	public boolean isInterested(File file) {
-		return isFeature(file) || isBundle(file);
+		return true;
 	}
 
 	/* (non-Javadoc)
