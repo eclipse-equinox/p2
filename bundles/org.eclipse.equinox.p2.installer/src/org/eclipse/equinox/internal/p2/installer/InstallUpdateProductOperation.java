@@ -79,7 +79,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
 			properties.putAll(installDescription.getProfileProperties());
-			profile = profileRegistry.addProfile(installDescription.getProductName(), properties);
+			profile = profileRegistry.addProfile(getProfileId(), properties);
 		}
 		return profile;
 	}
@@ -154,7 +154,17 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Returns the profile being installed into.
 	 */
 	private IProfile getProfile() {
-		return profileRegistry.getProfile(installDescription.getProductName());
+		return profileRegistry.getProfile(getProfileId());
+	}
+
+	/**
+	 * Returns the id of the profile to use for install/update based on this operation's install description.
+	 */
+	private String getProfileId() {
+		IPath location = installDescription.getInstallLocation();
+		if (location != null)
+			return location.toString();
+		return installDescription.getProductName();
 	}
 
 	/**
