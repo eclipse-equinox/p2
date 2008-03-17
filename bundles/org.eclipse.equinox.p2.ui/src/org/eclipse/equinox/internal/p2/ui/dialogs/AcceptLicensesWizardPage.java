@@ -176,6 +176,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	private void setTableColumns(Table table) {
+		table.setHeaderVisible(true);
 		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
 		initializeDialogUnits(table);
 		for (int i = 0; i < columns.length; i++) {

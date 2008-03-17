@@ -89,9 +89,14 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 					return name;
 				return BLANK;
 			case IUColumnConfig.COLUMN_VERSION :
-				if (element instanceof IUElement && ((IUElement) element).shouldShowVersion())
-					return iu.getVersion().toString();
-				return BLANK;
+				// If it's an element, determine if version should be shown
+				if (element instanceof IUElement) {
+					if (((IUElement) element).shouldShowVersion())
+						return iu.getVersion().toString();
+					return BLANK;
+				}
+				// It's a raw IU, return the version
+				return iu.getVersion().toString();
 
 			case IUColumnConfig.COLUMN_SIZE :
 				if (element instanceof IUElement && ((IUElement) element).shouldShowSize())
