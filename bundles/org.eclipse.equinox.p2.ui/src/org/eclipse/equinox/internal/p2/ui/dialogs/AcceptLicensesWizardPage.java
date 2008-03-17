@@ -42,7 +42,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	Button declineButton;
 	private IInstallableUnit[] ius;
 	private LicenseManager licenseManager;
-	private static final int DEFAULT_COLUMN_WIDTH = 100;
+	private static final int DEFAULT_COLUMN_WIDTH = 40;
 
 	public AcceptLicensesWizardPage(IInstallableUnit[] ius, LicenseManager licenseManager) {
 		super("AcceptLicenses"); //$NON-NLS-1$
@@ -86,6 +86,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.AcceptLicensesWizardPage_ItemsLabel);
 		iuViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		setTableColumns(iuViewer.getTable());
 		iuViewer.setContentProvider(new StaticContentProvider(new Object[0]));
 		iuViewer.setInput(ius);
 		iuViewer.setLabelProvider(new IUDetailsLabelProvider());
@@ -101,7 +102,6 @@ public class AcceptLicensesWizardPage extends WizardPage {
 			}
 
 		});
-		setTableColumns(iuViewer.getTable());
 		gd = new GridData(GridData.FILL_BOTH);
 		iuViewer.getControl().setLayoutData(gd);
 	}
@@ -177,12 +177,12 @@ public class AcceptLicensesWizardPage extends WizardPage {
 
 	private void setTableColumns(Table table) {
 		IUColumnConfig[] columns = ProvUI.getIUColumnConfig();
-
+		initializeDialogUnits(table);
 		for (int i = 0; i < columns.length; i++) {
 			TableColumn tc = new TableColumn(table, SWT.NONE, i);
 			tc.setResizable(true);
 			tc.setText(columns[i].columnTitle);
-			tc.setWidth(convertHorizontalDLUsToPixels(DEFAULT_COLUMN_WIDTH));
+			tc.setWidth(convertWidthInCharsToPixels(DEFAULT_COLUMN_WIDTH));
 		}
 	}
 
