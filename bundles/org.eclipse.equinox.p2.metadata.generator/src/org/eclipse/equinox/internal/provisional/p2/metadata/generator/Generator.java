@@ -125,6 +125,15 @@ public class Generator {
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 
+	public static String[] parseConfigSpec(String config) {
+		String[] parsed = getArrayFromString(config, "_"); //$NON-NLS-1$
+		if (parsed.length > 3) {
+			String[] adjusted = new String[] {parsed[0], parsed[1], parsed[2] + '_' + parsed[3]};
+			return adjusted;
+		}
+		return parsed;
+	}
+
 	public Generator(IGeneratorInfo infoProvider) {
 		this.info = infoProvider;
 		// TODO need to figure a better way of configuring the generator...
@@ -455,7 +464,7 @@ public class Generator {
 		String filter = null;
 		if (launcherConfig != null) {
 			//launcher config is os_ws_arch, we want suffix ws.os.arch
-			String[] config = getArrayFromString(launcherConfig, "_"); //$NON-NLS-1$
+			String[] config = parseConfigSpec(launcherConfig);
 			cuIdPrefix = config[1] + '.' + config[0] + '.' + config[2];
 
 			filter = "(& (osgi.ws=" + config[1] + ") (osgi.os=" + config[0] + ") (osgi.arch=" + config[2] + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -730,7 +739,7 @@ public class Generator {
 	private void generateProductConfigCUs(GeneratorResult result) {
 		for (Iterator iterator = result.configData.keySet().iterator(); iterator.hasNext();) {
 			String launcherConfig = (String) iterator.next();
-			String[] config = getArrayFromString(launcherConfig, "_"); //$NON-NLS-1$
+			String[] config = parseConfigSpec(launcherConfig);
 			String ws = config[1];
 			String os = config[0];
 			String arch = config[2];
@@ -850,7 +859,7 @@ public class Generator {
 		publishArtifact(artifact, new File[] {jreLocation}, destination, false);
 
 		if (info.getLauncherConfig() != null) {
-			String[] config = getArrayFromString(info.getLauncherConfig(), "_"); //$NON-NLS-1$
+			String[] config = parseConfigSpec(info.getLauncherConfig());
 			String version = "1.0.0"; //$NON-NLS-1$
 			if (productFile != null && !productFile.getVersion().equals("0.0.0")) //$NON-NLS-1$
 				version = productFile.getVersion();
