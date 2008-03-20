@@ -14,6 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -138,7 +140,10 @@ public class Activator implements BundleActivator {
 			repositories.addAll(Arrays.asList(linksRepositories));
 
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
-		synchronizer.synchronize(monitor);
+		IStatus result = synchronizer.synchronize(monitor);
+		if (!result.isOK())
+			LogHelper.log(result);
+
 	}
 
 	/*

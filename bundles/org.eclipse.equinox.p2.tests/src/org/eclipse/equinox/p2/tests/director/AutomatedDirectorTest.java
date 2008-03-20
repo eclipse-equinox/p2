@@ -153,6 +153,33 @@ public class AutomatedDirectorTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * Tests installing an IU that has an unsatisfied platform filter
+	 */
+	public void testInstallPlatformFilterUnsatisfied() {
+		//The IU to install
+		IInstallableUnit toInstallIU = createIU("toInstall." + getName(), createFilter("osgi.os", "blort"), NO_PROVIDES);
+		IInstallableUnit[] allUnits = new IInstallableUnit[] {toInstallIU};
+		IInstallableUnit[] toInstallArray = new IInstallableUnit[] {toInstallIU};
+		createTestMetdataRepository(allUnits);
+
+		IProfile profile = createProfile("TestProfile." + getName());
+		IDirector director = createDirector();
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		request.addInstallableUnits(toInstallArray);
+		IStatus result = director.provision(request, null, null);
+		assertTrue("1.0", !result.isOK());
+
+		//try again with the filter satisfied
+		Map properties = new HashMap();
+		properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=blort");
+		IProfile profile2 = createProfile("TestProfile2." + getName(), null, properties);
+		request = new ProfileChangeRequest(profile2);
+		request.addInstallableUnits(toInstallArray);
+		result = director.provision(request, null, null);
+		assertTrue("2.0", result.isOK());
+	}
+
+	/**
 	 * Simple test of installing an IU that has a required capability, and ensuring
 	 * that the IU providing the capability is installed.
 	 */

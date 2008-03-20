@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
@@ -42,7 +43,7 @@ public class SimplePlanner implements IPlanner {
 		return profileRegistry.getProfile(profileId);
 	}
 
-	private ProvisioningPlan generateProvisioningPlan(Collection fromState, Collection toState, List fromStateOrder, List newStateOrder, ProfileChangeRequest changeRequest) {
+	private ProvisioningPlan generateProvisioningPlan(IStatus status, Collection fromState, Collection toState, List fromStateOrder, List newStateOrder, ProfileChangeRequest changeRequest) {
 		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState, fromStateOrder, newStateOrder);
 		PropertyOperand[] propertyOperands = generatePropertyOperations(changeRequest);
 
@@ -50,7 +51,9 @@ public class SimplePlanner implements IPlanner {
 		System.arraycopy(iuOperands, 0, operands, 0, iuOperands.length);
 		System.arraycopy(propertyOperands, 0, operands, iuOperands.length, propertyOperands.length);
 
-		return new ProvisioningPlan(Status.OK_STATUS, operands);
+		if (status == null)
+			status = Status.OK_STATUS;
+		return new ProvisioningPlan(status, operands);
 	}
 
 	private PropertyOperand[] generatePropertyOperations(ProfileChangeRequest profileChangeRequest) {
@@ -182,7 +185,7 @@ public class SimplePlanner implements IPlanner {
 			ResolutionHelper oldStateHelper = new ResolutionHelper(oldSelectionContext, null);
 			Collection oldState = oldStateHelper.attachCUs(oldIUs);
 			ProfileChangeRequest profileChangeRequest = generateChangeRequest(profile, profileSnapshot, newState);
-			return generateProvisioningPlan(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted(), profileChangeRequest);
+			return generateProvisioningPlan(null, oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted(), profileChangeRequest);
 		} finally {
 			sub.done();
 		}
@@ -328,11 +331,13 @@ public class SimplePlanner implements IPlanner {
 			PBProjector pb = new PBProjector(new Picker(availableIUs, null), newSelectionContext);
 			pb.encode(allIUs, sub.newChild(ExpandWork / 4));
 			IStatus s = pb.invokeSolver(sub.newChild(ExpandWork / 4));
-			if (!s.isOK()) {
+			if (s.getSeverity() == IStatus.ERROR) {
 				//We invoke the old resolver to get explanations for now
 				IStatus newStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
 				if (newStatus.isOK())
 					return new ProvisioningPlan(s);
+				//log the error from the new solver so it is not lost
+				LogHelper.log(s);
 				return new ProvisioningPlan(newStatus);
 			}
 			Collection newState = pb.extractSolution();
@@ -343,7 +348,7 @@ public class SimplePlanner implements IPlanner {
 			ResolutionHelper oldStateHelper = new ResolutionHelper(createSelectionContext(profile.getProperties()), null);
 			Collection oldState = oldStateHelper.attachCUs(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
-			return generateProvisioningPlan(oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted(), profileChangeRequest);
+			return generateProvisioningPlan(s, oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted(), profileChangeRequest);
 		} finally {
 			sub.done();
 		}

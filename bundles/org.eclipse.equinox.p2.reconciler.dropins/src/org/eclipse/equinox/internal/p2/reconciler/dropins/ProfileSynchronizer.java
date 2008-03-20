@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
@@ -69,23 +70,24 @@ public class ProfileSynchronizer {
 			return Status.OK_STATUS;
 
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
-		ProvisioningContext provisioningContext = new ProvisioningContext(new URL[0]);
+		try {
+			//create the provisioning plan
+			ProvisioningContext context = new ProvisioningContext(new URL[0]);
+			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
+			status = plan.getStatus();
+			if (status.getSeverity() == IStatus.ERROR || plan.getOperands().length == 0)
+				return status;
 
-		ProvisioningPlan plan = createProvisioningPlan(request, provisioningContext, sub.newChild(50));
-		if (!plan.getStatus().isOK())
-			return plan.getStatus();
+			//invoke the engine to perform installs/uninstalls
+			IStatus engineResult = executePlan(plan, context, sub.newChild(50));
+			if (!engineResult.isOK())
+				return engineResult;
 
-		if (plan.getOperands().length == 0) {
-			sub.done();
-			return Status.OK_STATUS;
-		}
-
-		status = executePlan(plan, provisioningContext, sub.newChild(50));
-		if (!status.isOK())
+			applyConfiguration();
 			return status;
-
-		applyConfiguration();
-		return Status.OK_STATUS;
+		} finally {
+			sub.done();
+		}
 	}
 
 	private IStatus synchronizeCacheExtensions() {
@@ -237,8 +239,7 @@ public class ProfileSynchronizer {
 		try {
 			configurator.applyConfiguration();
 		} catch (IOException e) {
-			// TODO unexpected -- log
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unexpected failure applying configuration", e)); //$NON-NLS-1$
 		} finally {
 			context.ungetService(reference);
 		}

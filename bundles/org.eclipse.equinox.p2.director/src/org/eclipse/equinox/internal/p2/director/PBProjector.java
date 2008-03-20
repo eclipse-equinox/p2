@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others. All rights reserved. This
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved. This
  * program and the accompanying materials are made available under the terms of
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
@@ -23,6 +24,11 @@ import org.sat4j.pb.reader.OPBEclipseReader2007;
 import org.sat4j.reader.ParseFormatException;
 import org.sat4j.specs.*;
 
+/**
+ * This class is the interface between SAT4J and the planner. It produces a
+ * boolean satisfiability problem, invokes the solver, and converts the solver result
+ * back into information understandable by the planner.
+ */
 public class PBProjector {
 	private static boolean DEBUG = false;
 	private Picker picker;
@@ -42,7 +48,7 @@ public class PBProjector {
 	private String objective;
 
 	private Collection solution;
-	private boolean incompleteProjection = false;
+	private MultiStatus result;
 
 	private File problemFile;
 
@@ -55,10 +61,7 @@ public class PBProjector {
 		dependencies = new ArrayList();
 		selectionContext = context;
 		nonGreedyRequirements = new ArrayList();
-	}
-
-	public PBProjector(IInstallableUnit[] installRoots, IInstallableUnit[] gatherAvailableInstallableUnits, Dictionary selectionContext) {
-		this(new Picker(gatherAvailableInstallableUnits, null), selectionContext);
+		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, "Problems resolving provisioning plan.", null);
 	}
 
 	public void encode(IInstallableUnit[] ius, IProgressMonitor monitor) {
@@ -69,7 +72,8 @@ public class PBProjector {
 				System.out.println("Start slicing: " + start); //$NON-NLS-1$
 			}
 
-			validateInput(ius);
+			ius = validateInput(ius);
+
 			toConsider = new ArrayList();
 			toConsider.addAll(Arrays.asList(ius));
 			for (int i = 0; i < toConsider.size(); i++) {
@@ -88,18 +92,46 @@ public class PBProjector {
 				System.out.println("Slicing complete: " + (stop - start)); //$NON-NLS-1$
 			}
 		} catch (IllegalStateException e) {
-			// TODO Marking incomplete is good, but we need to track what caused the failure
-			System.err.println(e.getMessage());
-			incompleteProjection = true;
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
 		}
 	}
 
-	//This is a shortcut to simplify the error reporting when the filter of the ius we are being asked to install does not pass 
-	private void validateInput(IInstallableUnit[] ius) {
+	/**
+	 * Filter out IUs that are not applicable to the environment, and create warnings
+	 * for each non-applicable IU.
+	 */
+	private IInstallableUnit[] validateInput(IInstallableUnit[] ius) {
+		Map versions = new HashMap();
+		List toRemove = new ArrayList();
+		ArrayList applicable = new ArrayList(ius.length);
 		for (int i = 0; i < ius.length; i++) {
-			if (!isApplicable(ius[i]))
-				throw new IllegalStateException("The IU " + ius[i] + " can't be installed in this environment because its filter does not match."); //$NON-NLS-1$//$NON-NLS-2$
+			IInstallableUnit iu = ius[i];
+			if (isApplicable(iu.getFilter())) {
+				applicable.add(iu);
+				// if we have a singleton bundle, only try to install the highest version
+				if (iu.isSingleton()) {
+					String id = iu.getId();
+					IInstallableUnit oldIU = (IInstallableUnit) versions.get(id);
+					if (oldIU == null) {
+						versions.put(id, iu);
+					} else {
+						IInstallableUnit removed = iu;
+						if (iu.getVersion().compareTo(oldIU.getVersion()) > 0) {
+							versions.put(id, iu);
+							removed = oldIU;
+						}
+						toRemove.add(removed);
+						String msg = NLS.bind("{0} version {1} cannot be installed because it is marked as a singleton and a higher version has been found.", id, removed.getVersion()); //$NON-NLS-1$
+						result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, msg, null));
+					}
+				}
+			} else {
+				String msg = NLS.bind("{0} cannot be installed because its filter is not satisfied in this environment.", ius[i].getId()); //$NON-NLS-1$
+				result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, msg, null));
+			}
 		}
+		applicable.removeAll(toRemove);
+		return (IInstallableUnit[]) applicable.toArray(new IInstallableUnit[applicable.size()]);
 	}
 
 	private void processNonGreedyRequirements() {
@@ -142,18 +174,6 @@ public class PBProjector {
 
 	private void createNegation(IInstallableUnit iu) {
 		tautologies.add(" +1" + getVariable(iu) + " = 0;"); //$NON-NLS-1$//$NON-NLS-2$
-	}
-
-	// Check whether the requirement is applicable
-	private boolean isApplicable(RequiredCapability req) {
-		String filter = req.getFilter();
-		if (filter == null)
-			return true;
-		try {
-			return DirectorActivator.context.createFilter(filter).match(selectionContext);
-		} catch (InvalidSyntaxException e) {
-			return false;
-		}
 	}
 
 	//Write the problem generated into a temporary file
@@ -199,12 +219,11 @@ public class PBProjector {
 		}
 	}
 
-	private boolean isApplicable(IInstallableUnit iu) {
-		String enablementFilter = iu.getFilter();
-		if (enablementFilter == null)
+	private boolean isApplicable(String filter) {
+		if (filter == null)
 			return true;
 		try {
-			return DirectorActivator.context.createFilter(enablementFilter).match(selectionContext);
+			return DirectorActivator.context.createFilter(filter).match(selectionContext);
 		} catch (InvalidSyntaxException e) {
 			return false;
 		}
@@ -215,7 +234,7 @@ public class PBProjector {
 	private void processIU(IInstallableUnit iu) {
 		slice.put(iu.getId(), iu.getVersion(), iu);
 		explanation += " " + getVariable(iu);
-		if (!isApplicable(iu)) {
+		if (!isApplicable(iu.getFilter())) {
 			createNegation(iu);
 			return;
 		}
@@ -225,7 +244,7 @@ public class PBProjector {
 			return;
 		}
 		for (int i = 0; i < reqs.length; i++) {
-			if (!isApplicable(reqs[i]) || reqs[i].isOptional())
+			if (!isApplicable(reqs[i].getFilter()) || reqs[i].isOptional())
 				continue;
 
 			if (!reqs[i].isGreedy()) {
@@ -249,7 +268,7 @@ public class PBProjector {
 		for (int j = 0; j < found.length; j++) {
 			for (Iterator iterator = found[j].iterator(); iterator.hasNext();) {
 				IInstallableUnit match = (IInstallableUnit) iterator.next();
-				if (!isApplicable(match))
+				if (!isApplicable(match.getFilter()))
 					continue;
 				countMatches++;
 				expression += " +1 " + getVariable(match); //$NON-NLS-1$
@@ -319,8 +338,8 @@ public class PBProjector {
 	}
 
 	public IStatus invokeSolver(IProgressMonitor monitor) {
-		if (incompleteProjection)
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "Projection incomplete", null); //$NON-NLS-1$
+		if (result.getSeverity() == IStatus.ERROR)
+			return result;
 		IPBSolver solver = SolverFactory.newEclipseP2();
 		solver.setTimeout(60);
 		OPBEclipseReader2007 reader = new OPBEclipseReader2007(solver);
@@ -341,11 +360,14 @@ public class PBProjector {
 					System.out.println(reader.decode(problem.model()));
 				}
 				backToIU(problem);
-				return Status.OK_STATUS;
+				long stop = System.currentTimeMillis();
+				if (DEBUG)
+					System.out.println("Solver solution found: " + (stop - start)); //$NON-NLS-1$
+			} else {
+				if (DEBUG)
+					System.out.println("Unsatisfiable !"); //$NON-NLS-1$
+				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", null));
 			}
-			if (DEBUG)
-				System.out.println("Unsatisfiable !"); //$NON-NLS-1$
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", null); //$NON-NLS-1$
 		} catch (FileNotFoundException e) {
 			//Ignore we are producing the input file
 			if (DEBUG)
@@ -355,9 +377,9 @@ public class PBProjector {
 			if (DEBUG)
 				e.printStackTrace();
 		} catch (ContradictionException e) {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because of a trivial contradiction", e); //$NON-NLS-1$
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because of a trivial contradiction", e));
 		} catch (TimeoutException e) {
-			return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found.", e); //$NON-NLS-1$
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found.", e));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -367,12 +389,9 @@ public class PBProjector {
 			} catch (IOException e) {
 				//ignore
 			}
+			problemFile.delete();
 		}
-		long stop = System.currentTimeMillis();
-		if (DEBUG)
-			System.out.println("Solver solution found: " + (stop - start)); //$NON-NLS-1$
-		problemFile.delete();
-		return new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", null); //$NON-NLS-1$
+		return result;
 	}
 
 	private void backToIU(IProblem problem) {
@@ -399,4 +418,5 @@ public class PBProjector {
 			printSolution(solution);
 		return solution;
 	}
+
 }
