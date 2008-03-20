@@ -30,6 +30,9 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+/**
+ * Synchronizes a profile with a set of repositories.
+ */
 public class ProfileSynchronizer {
 
 	public class ListCollector extends Collector {
@@ -42,6 +45,7 @@ public class ProfileSynchronizer {
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	final IProfile profile;
+
 	final Map repositoryMap;
 
 	/*
@@ -144,21 +148,25 @@ public class ProfileSynchronizer {
 			Iterator repositoryIterator = repository.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 			while (repositoryIterator.hasNext()) {
 				IInstallableUnit iu = (IInstallableUnit) repositoryIterator.next();
+				//the IU is present in the profile and in the repository, so it's in sync
 				if (profileIUs.contains(iu))
 					continue;
-
 				if (toRemove.contains(iu)) {
+					//the IU has been removed from one repository, but it exists in another repository
 					toRemove.remove(iu);
 				} else {
+					//the IU exists in the repository, but not in the profile, so it needs to be added
 					request.addInstallableUnits(new IInstallableUnit[] {iu});
 					if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
 						request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 				}
+				//always set this property because the IU may move to another repository
 				request.setInstallableUnitProfileProperty(iu, SYNCH_REPOSITORY_ID, repositoryId);
 				profileIUs.add(iu);
 				modified = true;
 			}
 		}
+		//the remaining IUs in toRemove don't exist in any repository, so remove from profile
 		if (!toRemove.isEmpty()) {
 			request.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[0]));
 			modified = true;
@@ -170,6 +178,10 @@ public class ProfileSynchronizer {
 		return request;
 	}
 
+	/**
+	 * Returns all IUs that are no longer in the repository they were in last
+	 * time we synchronized.
+	 */
 	private Collection getStaleIUs() {
 		Query removeQuery = new Query() {
 			public boolean isMatch(Object object) {
@@ -183,18 +195,18 @@ public class ProfileSynchronizer {
 				return (repo == null || repo.query(iuQuery, new Collector(), null).isEmpty());
 			}
 		};
-
 		ListCollector listCollector = new ListCollector();
 		profile.query(removeQuery, listCollector, null);
-
 		List result = listCollector.getList();
 		return (result != null) ? result : Collections.EMPTY_LIST;
 	}
 
+	/**
+	 * Returns all the IUs that are currently in the profile
+	 */
 	private List getProfileIUs() {
 		ListCollector listCollector = new ListCollector();
 		profile.query(InstallableUnitQuery.ANY, listCollector, null);
-
 		List result = listCollector.getList();
 		return (result != null) ? result : Collections.EMPTY_LIST;
 	}
