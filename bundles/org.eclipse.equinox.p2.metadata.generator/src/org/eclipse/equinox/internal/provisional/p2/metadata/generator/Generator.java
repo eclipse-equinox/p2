@@ -542,14 +542,19 @@ public class Generator {
 			//the configuration unit should share the same platform filter as the IU being configured.
 			if (cu != null)
 				result.rootIUs.add(cu);
-			if (bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.')) {
-				if (result.configurationIUs.containsKey(ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
-					((Set) result.configurationIUs.get(ORG_ECLIPSE_EQUINOX_LAUNCHER)).add(cu);
-				} else {
-					Set set = new HashSet();
-					set.add(cu);
-					result.configurationIUs.put(ORG_ECLIPSE_EQUINOX_LAUNCHER, set);
-				}
+			String key = null;
+			if (productFile != null && productFile.useFeatures())
+				key = GeneratorResult.CONFIGURATION_CUS;
+			else if (bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.'))
+				key = ORG_ECLIPSE_EQUINOX_LAUNCHER;
+			else
+				key = bundle.getSymbolicName();
+			if (result.configurationIUs.containsKey(key)) {
+				((Set) result.configurationIUs.get(key)).add(cu);
+			} else {
+				Set set = new HashSet();
+				set.add(cu);
+				result.configurationIUs.put(key, set);
 			}
 		}
 	}
