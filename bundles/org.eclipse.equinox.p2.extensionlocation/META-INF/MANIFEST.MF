@@ -20,4 +20,5 @@ Import-Package: org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository,
  org.osgi.framework
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"
+Bundle-ActivationPolicy: lazy
 
