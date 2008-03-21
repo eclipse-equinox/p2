@@ -254,7 +254,7 @@ public class FeatureParser extends DefaultHandler {
 
 	private void processIncludes(Attributes attributes) {
 		FeatureEntry entry = new FeatureEntry(attributes.getValue("id"), attributes.getValue("version"), false); //$NON-NLS-1$ //$NON-NLS-2$
-		String flag = attributes.getValue("unpack"); //$NON-NLS-1$
+		String flag = attributes.getValue("optional"); //$NON-NLS-1$
 		if (flag != null)
 			entry.setOptional(Boolean.valueOf(flag).booleanValue());
 		setEnvironment(attributes, entry);
