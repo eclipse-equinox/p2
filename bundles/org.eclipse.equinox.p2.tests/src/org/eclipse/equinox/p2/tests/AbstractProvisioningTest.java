@@ -130,7 +130,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * - if we have a file, then copy the file
 	 * - if we have a directory then merge
 	 */
-	public static void copy(File source, File target) throws IOException {
+	public static void copy(String message, File source, File target) {
 		if (!source.exists())
 			return;
 		if (source.isDirectory()) {
@@ -140,7 +140,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				target.mkdirs();
 			File[] children = source.listFiles();
 			for (int i = 0; i < children.length; i++)
-				copy(children[i], new File(target, children[i].getName()));
+				copy(message, children[i], new File(target, children[i].getName()));
 			return;
 		}
 		InputStream input = null;
@@ -153,6 +153,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			int bytesRead = 0;
 			while ((bytesRead = input.read(buffer)) != -1)
 				output.write(buffer, 0, bytesRead);
+		} catch (IOException e) {
+			fail(message, e);
 		} finally {
 			if (input != null) {
 				try {
@@ -602,8 +604,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		metadataRepos.add(repo);
 	}
 
-	public String getUniqueString() {
+	public static String getUniqueString() {
 		return System.currentTimeMillis() + "-" + Math.random();
+	}
+
+	public static File getTempFolder() {
+		String tempDir = System.getProperty("java.io.tmpdir");
+		File folder = new File(tempDir, getUniqueString());
+		delete(folder);
+		folder.mkdirs();
+		return folder;
 	}
 
 	/* (non-Javadoc)

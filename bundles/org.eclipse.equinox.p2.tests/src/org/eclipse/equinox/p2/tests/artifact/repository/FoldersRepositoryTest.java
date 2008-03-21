@@ -61,7 +61,7 @@ public class FoldersRepositoryTest extends TestCase {
 		URL sourceBase = TestActivator.getContext().getBundle().getEntry("/testData/directorywatcher1");
 		File sourceFolder = new File(FileLocator.toFileURL(sourceBase).getPath());
 
-		AbstractProvisioningTest.copy(sourceFolder, pluginsFolder);
+		AbstractProvisioningTest.copy("0.99", sourceFolder, pluginsFolder);
 		FileFilter filter = new FileFilter() {
 
 			public boolean accept(File pathname) {
