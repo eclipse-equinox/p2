@@ -15,8 +15,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
-import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
+import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -661,4 +660,28 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return null;
 	}
 
+	protected void assertInstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+		Operand[] ops = plan.getOperands();
+		for (int i = 0; i < ops.length; i++) {
+			if (ops[i] instanceof InstallableUnitOperand) {
+				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
+				if (iuOp.second().equals(iu))
+					return;
+			}
+		}
+		fail("Can't find " + iu + " in the plan");
+	}
+
+	protected void assertNoOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+		Operand[] ops = plan.getOperands();
+		for (int i = 0; i < ops.length; i++) {
+			if (ops[i] instanceof InstallableUnitOperand) {
+				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
+				if (iuOp.second() != null && iuOp.second().equals(iu))
+					fail(iu + " should not be present in this plan.");
+				if (iuOp.first() != null && iuOp.first().equals(iu))
+					fail(iu + " should not be present in this plan.");
+			}
+		}
+	}
 }
