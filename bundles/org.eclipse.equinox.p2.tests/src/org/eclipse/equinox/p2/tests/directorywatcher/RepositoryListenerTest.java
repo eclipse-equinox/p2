@@ -11,85 +11,11 @@
 package org.eclipse.equinox.p2.tests.directorywatcher;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.BundleContext;
 
-public class RepositoryListenerTest extends AbstractProvisioningTest {
-
-	/*
-	 * Helper class for testing directory watchers with repository listeners. Allows easy access to the
-	 * information known by the metadata and artifact repositories.
-	 */
-	static class TestRepositoryWatcher extends DirectoryWatcher {
-
-		private RepositoryListener listener;
-
-		/*
-		 * Create and return a new test directory watcher class which will listen on the given folder.
-		 */
-		public static TestRepositoryWatcher createWatcher(File folder) {
-			RepositoryListener listener = new RepositoryListener(TestActivator.getContext(), AbstractProvisioningTest.getUniqueString());
-			Dictionary props = new Hashtable();
-			props.put(DirectoryWatcher.DIR, folder.getAbsolutePath());
-			props.put(DirectoryWatcher.POLL, "500");
-			TestRepositoryWatcher result = new TestRepositoryWatcher(props, TestActivator.getContext());
-			result.addListener(listener);
-			return result;
-		}
-
-		/*
-		 * Constructor for the class.
-		 */
-		private TestRepositoryWatcher(Dictionary props, BundleContext context) {
-			super(props, context);
-		}
-
-		/* (non-Javadoc)
-		 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher#addListener(org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener)
-		 */
-		public synchronized void addListener(RepositoryListener repoListener) {
-			super.addListener(repoListener);
-			this.listener = repoListener;
-		}
-
-		/*
-		 * Return the list of all the IUs known to the metadata repository this watcher's listener.
-		 */
-		public IInstallableUnit[] getInstallableUnits() {
-			return (IInstallableUnit[]) listener.getMetadataRepository().query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
-		}
-
-		/*
-		 * Return the list of artifact keys known to this listener's repository.
-		 */
-		public IArtifactKey[] getArtifactKeys() {
-			return listener.getArtifactRepository().getArtifactKeys();
-		}
-
-		/*
-		 * Return the file associated with the given artifact key.
-		 */
-		public File getArtifactFile(IArtifactKey key) {
-			return ((IFileArtifactRepository) listener.getArtifactRepository()).getArtifactFile(key);
-		}
-	}
-
-	// list of File objects to remove later during teardown
-	private Set toRemove = new HashSet();
+public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 
 	/*
 	 * Constructor for the class.
@@ -105,16 +31,6 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 		return new TestSuite(RepositoryListenerTest.class);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.p2.tests.AbstractProvisioningTest#tearDown()
-	 */
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		for (Iterator iter = toRemove.iterator(); iter.hasNext();)
-			delete((File) iter.next());
-		toRemove = new HashSet();
-	}
-
 	/*
 	 * Remove the files from the target, if they exist in the source.
 	 */
@@ -125,20 +41,6 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 				if (files[i] != null)
 					delete(new File(target, files[i].getName()));
 		}
-	}
-
-	/*
-	 * Look up and return a file handle to the given entry in the bundle.
-	 */
-	private File getTestData(String message, String entry) {
-		URL base = TestActivator.getContext().getBundle().getEntry(entry);
-		try {
-			return new File(FileLocator.toFileURL(base).getPath());
-		} catch (IOException e) {
-			fail(message, e);
-		}
-		// avoid compile error... should never reach this code
-		return null;
 	}
 
 	public void testDirectoryWatcherListener() {
@@ -185,13 +87,32 @@ public class RepositoryListenerTest extends AbstractProvisioningTest {
 	 * proper OSGi manifest files so the bundle can be installed
 	 */
 	public void testPluginXMLConversion() {
-		// TODO test plugin.xml in a JAR'd bundle
+		// test plugin.xml in a JAR'd bundle
+		File oldBundleJAR = getTestData("0.1", "/testData/repositoryListener/oldBundleJAR.jar");
+		// test plugin.xml in a directory-based bundle
+		File oldBundleDirectory = getTestData("0.2", "/testData/repositoryListener/oldBundleDirectory");
+		// test plugin.xml in the presence of an Ant Manifest file in a JAR'd bundle
+		File oldBundleJARTwo = getTestData("0.3", "/testData/repositoryListener/oldBundleJARTwo.jar");
+		// test plugin.xml in the presence of an Ant Manifest file in a directory-based bundle
+		File oldBundleDirectoryTwo = getTestData("0.4", "/testData/repositoryListener/oldBundleDirectoryTwo");
 
-		// TODO test plugin.xml in a directory-based bundle
+		// copy the test bundles over to where we will be watching in the repo listener
+		File folder = getTempFolder();
+		toRemove.add(folder);
+		copy("1.0", oldBundleJAR, new File(folder, oldBundleJAR.getName()));
+		copy("1.1", oldBundleJARTwo, new File(folder, oldBundleJARTwo.getName()));
+		copy("1.2", oldBundleDirectory, new File(folder, oldBundleDirectory.getName()));
+		copy("1.3", oldBundleDirectoryTwo, new File(folder, oldBundleDirectoryTwo.getName()));
 
-		// TODO test plugin.xml in the presence of an Ant Manifest file in a JAR'd bundle
+		// We should have an empty repository because we haven't done anything yet
+		TestRepositoryWatcher watcher = TestRepositoryWatcher.createWatcher(folder);
+		assertEquals("2.0", 0, watcher.getInstallableUnits().length);
+		assertEquals("2.1", 0, watcher.getArtifactKeys().length);
 
-		// TODO test plugin.xml in the presence of an Ant Manifest file in a directory-based bundle
-
+		watcher.poll();
+		// the repo should have added all 4 bundles
+		assertEquals("3.0", 4, watcher.getInstallableUnits().length);
+		assertEquals("3.1", 4, watcher.getArtifactKeys().length);
 	}
+
 }

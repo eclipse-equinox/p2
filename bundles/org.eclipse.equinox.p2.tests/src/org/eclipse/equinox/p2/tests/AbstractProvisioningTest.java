@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.tests;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
@@ -641,4 +642,23 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		//		IMetadataRepository cache = MetadataCache.getCacheInstance((MetadataRepositoryManager) repoMan);
 		//		cache.removeAll();
 	}
+
+	/*
+	 * Look up and return a file handle to the given entry in the bundle.
+	 */
+	protected File getTestData(String message, String entry) {
+		if (entry == null)
+			fail(message + " entry is null.");
+		URL base = TestActivator.getContext().getBundle().getEntry(entry);
+		if (base == null)
+			fail(message + " entry not found in bundle: " + entry);
+		try {
+			return new File(FileLocator.toFileURL(base).getPath());
+		} catch (IOException e) {
+			fail(message, e);
+		}
+		// avoid compile error... should never reach this code
+		return null;
+	}
+
 }
