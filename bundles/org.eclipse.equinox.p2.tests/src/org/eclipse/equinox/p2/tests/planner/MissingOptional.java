@@ -10,7 +10,7 @@ package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
@@ -39,32 +39,8 @@ public class MissingOptional extends AbstractProvisioningTest {
 		planner = createPlanner();
 	}
 
-	private void assertInstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iuOp.second().equals(iu))
-					return;
-			}
-		}
-		fail("Can't find " + iu + " in the plan");
-	}
-
-	private void assertNoOperand(ProvisioningPlan plan, IInstallableUnit iu) {
-		Operand[] ops = plan.getOperands();
-		for (int i = 0; i < ops.length; i++) {
-			if (ops[i] instanceof InstallableUnitOperand) {
-				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iuOp.second() != null && iuOp.second().equals(iu))
-					fail(iu + " should not be present in this plan.");
-				if (iuOp.first() != null && iuOp.first().equals(iu))
-					fail(iu + " should not be present in this plan.");
-			}
-		}
-	}
-
 	public void testInstallation() {
+		//Ensure that D's installation does not fail because of C's absence
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {d});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
