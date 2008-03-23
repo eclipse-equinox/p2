@@ -637,9 +637,11 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		for (int i = 0; i < jvmArgs.length; i++)
 			if (jvmArgs[i].startsWith("-D")) {
 				int index = jvmArgs[i].indexOf("=");
-				String key = jvmArgs[i].substring("-D".length(), index);
-				String value = jvmArgs[i].substring(index + 1);
-				properties.setProperty(key, value);
+				if (index > 0) {
+					String key = jvmArgs[i].substring("-D".length(), index);
+					String value = jvmArgs[i].substring(index + 1);
+					properties.setProperty(key, value);
+				}
 			}
 
 		Utils.appendProperties(properties, manipulator.getConfigData().getFwIndependentProps());
