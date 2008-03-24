@@ -9,13 +9,16 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.net.URL;
+import java.util.Properties;
 
 public class ProvisioningContext {
 	private URL[] metadataRepositories;
+	private Properties properties;
 
 	public ProvisioningContext() {
 		// null repos means look at them all
 		metadataRepositories = null;
+		properties = new Properties();
 	}
 
 	public ProvisioningContext(URL[] metadataRepositories) {
@@ -24,5 +27,13 @@ public class ProvisioningContext {
 
 	public URL[] getMetadataRepositories() {
 		return metadataRepositories;
+	}
+
+	public String getProperty(String key) {
+		return properties.getProperty(key);
+	}
+
+	public void setProperty(String key, String value) {
+		properties.setProperty(key, value);
 	}
 }
