@@ -254,7 +254,6 @@ public class PBProjector {
 			try {
 				expandRequirement(iu, reqs[i], picker);
 			} catch (IllegalStateException ise) {
-				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, ise.getMessage(), ise));
 				createNegation(iu);
 				return;
 			}
