@@ -85,7 +85,9 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 					IMetadataRepository repo = manager.loadRepository(repoURLs[i], sub.newChild(1));
 					repo.query(query, result, sub.newChild(1));
 				} catch (ProvisionException e) {
-					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs[i]), StatusManager.LOG);
+					//ignore unavailable repositories
+					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs[i]), StatusManager.LOG);
 				}
 			}
 		}
