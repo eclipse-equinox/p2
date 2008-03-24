@@ -168,7 +168,7 @@ public class Generator {
 
 		//default CUs		
 		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, null, false, false));
-		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId("source", info.getFlavor()), VersionRange.emptyRange, null, true, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId("source", info.getFlavor()), VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
 		if (productFile.useFeatures())
 			requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.ECLIPSE_FEATURE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, MetadataGeneratorHelper.INSTALL_FEATURES_FILTER, true, false));
 
