@@ -13,12 +13,11 @@ import java.util.Properties;
 
 public class ProvisioningContext {
 	private URL[] metadataRepositories;
-	private Properties properties;
+	private Properties properties = new Properties();
 
 	public ProvisioningContext() {
 		// null repos means look at them all
 		metadataRepositories = null;
-		properties = new Properties();
 	}
 
 	public ProvisioningContext(URL[] metadataRepositories) {
