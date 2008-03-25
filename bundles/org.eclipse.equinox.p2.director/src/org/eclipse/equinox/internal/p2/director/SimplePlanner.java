@@ -281,10 +281,12 @@ public class SimplePlanner implements IPlanner {
 				resultsMap.put(key, additionalSource[i]);
 			}
 		}
-		for (Iterator iter = context.getExtraIUs().iterator(); iter.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			String key = iu.getId() + '_' + iu.getVersion().toString();
-			resultsMap.put(key, iu);
+		if (context != null) {
+			for (Iterator iter = context.getExtraIUs().iterator(); iter.hasNext();) {
+				IInstallableUnit iu = (IInstallableUnit) iter.next();
+				String key = iu.getId() + '_' + iu.getVersion().toString();
+				resultsMap.put(key, iu);
+			}
 		}
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
