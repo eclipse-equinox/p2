@@ -9,11 +9,12 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.net.URL;
-import java.util.Properties;
+import java.util.*;
 
 public class ProvisioningContext {
 	private URL[] metadataRepositories;
 	private Properties properties = new Properties();
+	private List extraIUs = new ArrayList();
 
 	public ProvisioningContext() {
 		// null repos means look at them all
@@ -34,5 +35,13 @@ public class ProvisioningContext {
 
 	public void setProperty(String key, String value) {
 		properties.setProperty(key, value);
+	}
+
+	public List getExtraIUs() {
+		return extraIUs;
+	}
+
+	public void setExtraIUs(List extraIUs) {
+		this.extraIUs = extraIUs;
 	}
 }

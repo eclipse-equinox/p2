@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
@@ -169,7 +170,7 @@ public class SimplePlanner implements IPlanner {
 			//We need to get all the ius that were part of the profile and give that to be what to become
 
 			Dictionary snapshotSelectionContext = createSelectionContext(getSnapshotProperties(profileSnapshot));
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(new IInstallableUnit[] {profileSnapshot}, context.getMetadataRepositories(), sub.newChild(ExpandWork / 2));
+			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(new IInstallableUnit[] {profileSnapshot}, context.getMetadataRepositories(), context, sub.newChild(ExpandWork / 2));
 			NewDependencyExpander toExpander = new NewDependencyExpander(new IInstallableUnit[] {profileSnapshot}, null, availableIUs, snapshotSelectionContext, true);
 			toExpander.expand(sub.newChild(ExpandWork / 2));
 			ResolutionHelper newStateHelper = new ResolutionHelper(snapshotSelectionContext, toExpander.getRecommendations());
@@ -272,13 +273,18 @@ public class SimplePlanner implements IPlanner {
 		return request;
 	}
 
-	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories, IProgressMonitor monitor) {
+	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
 		Map resultsMap = new HashMap();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
 				String key = additionalSource[i].getId() + "_" + additionalSource[i].getVersion().toString(); //$NON-NLS-1$
 				resultsMap.put(key, additionalSource[i]);
 			}
+		}
+		for (Iterator iter = context.getExtraIUs().iterator(); iter.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			String key = iu.getId() + '_' + iu.getVersion().toString();
+			resultsMap.put(key, iu);
 		}
 
 		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(DirectorActivator.context, IMetadataRepositoryManager.class.getName());
@@ -327,20 +333,28 @@ public class SimplePlanner implements IPlanner {
 			extraIUs.addAll(Arrays.asList(profileChangeRequest.getRemovedInstallableUnits()));
 			extraIUs.addAll(profileChangeRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, sub.newChild(ExpandWork / 4));
-			PBProjector pb = new PBProjector(new Picker(availableIUs, null), newSelectionContext);
-			pb.encode(allIUs, sub.newChild(ExpandWork / 4));
-			IStatus s = pb.invokeSolver(sub.newChild(ExpandWork / 4));
+			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
+
+			Slicer slicer = new Slicer(allIUs, availableIUs, newSelectionContext);
+			IQueryable slice = slicer.slice(allIUs, monitor);
+			if (slice == null)
+				return new ProvisioningPlan(slicer.getStatus());
+			Projector projector = new Projector(slice, newSelectionContext);
+			projector.encode(allIUs, sub.newChild(ExpandWork / 4));
+			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
+
 			if (s.getSeverity() == IStatus.ERROR) {
-				//We invoke the old resolver to get explanations for now
-				IStatus newStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
-				if (newStatus.isOK())
-					return new ProvisioningPlan(s);
 				//log the error from the new solver so it is not lost
 				LogHelper.log(s);
-				return new ProvisioningPlan(newStatus);
+				if (!"true".equalsIgnoreCase(context == null ? null : context.getProperty("org.eclipse.equinox.p2.disable.error.reporting"))) {
+					//We invoke the old resolver to get explanations for now
+					IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, newSelectionContext, false).expand(sub.newChild(ExpandWork / 4));
+					if (!oldResolverStatus.isOK())
+						s = oldResolverStatus;
+				}
+				return new ProvisioningPlan(s);
 			}
-			Collection newState = pb.extractSolution();
+			Collection newState = projector.extractSolution();
 
 			ResolutionHelper newStateHelper = new ResolutionHelper(newSelectionContext, null);
 			newState = newStateHelper.attachCUs(newState);

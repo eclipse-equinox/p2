@@ -22,13 +22,13 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArti
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
 /**
  * Synchronizes a profile with a set of repositories.
@@ -69,14 +69,14 @@ public class ProfileSynchronizer {
 		if (!status.isOK())
 			return status;
 
-		ProfileChangeRequest request = createProfileChangeRequest();
+		ProvisioningContext context = getContext();
+		ProfileChangeRequest request = createProfileChangeRequest(context);
 		if (request == null)
 			return Status.OK_STATUS;
 
 		SubMonitor sub = SubMonitor.convert(monitor, 100);
 		try {
 			//create the provisioning plan
-			ProvisioningContext context = new ProvisioningContext(new URL[0]);
 			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
 			status = plan.getStatus();
 			if (status.getSeverity() == IStatus.ERROR || plan.getOperands().length == 0)
@@ -92,6 +92,18 @@ public class ProfileSynchronizer {
 		} finally {
 			sub.done();
 		}
+	}
+
+	private ProvisioningContext getContext() {
+		ArrayList repoURLs = new ArrayList();
+		for (Iterator iterator = repositoryMap.keySet().iterator(); iterator.hasNext();) {
+			try {
+				repoURLs.add(new URL((String) iterator.next()));
+			} catch (MalformedURLException e) {
+				//ignore
+			}
+		}
+		return new ProvisioningContext((URL[]) repoURLs.toArray(new URL[repoURLs.size()]));
 	}
 
 	private IStatus synchronizeCacheExtensions() {
@@ -134,13 +146,29 @@ public class ProfileSynchronizer {
 		return executeOperands(new ProvisioningContext(new URL[0]), new Operand[] {operand}, null);
 	}
 
-	private ProfileChangeRequest createProfileChangeRequest() {
+	private IInstallableUnit createRootIU(List children) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setId("org.eclipse.equinox.p2.dropins");
+		iu.setVersion(new Version("1.0.0.v" + System.currentTimeMillis()));
+		List required = new ArrayList();
+		for (Iterator iter = children.iterator(); iter.hasNext();) {
+			IInstallableUnit next = (IInstallableUnit) iter.next();
+			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), null, null, false /* optional */, false, true));
+		}
+		if (required.size() > 0)
+			iu.setRequiredCapabilities((RequiredCapability[]) required.toArray(new RequiredCapability[required.size()]));
+		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	private ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
 		boolean modified = false;
 		Collection profileIUs = getProfileIUs();
 		Collection toRemove = getStaleIUs();
 		profileIUs.removeAll(toRemove);
 
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		List toAdd = new ArrayList();
+		List defaults = new ArrayList();
 		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
 			Entry entry = (Entry) it.next();
 			String repositoryId = (String) entry.getKey();
@@ -156,7 +184,8 @@ public class ProfileSynchronizer {
 					toRemove.remove(iu);
 				} else {
 					//the IU exists in the repository, but not in the profile, so it needs to be added
-					request.addInstallableUnits(new IInstallableUnit[] {iu});
+					defaults.add(createDefaultIU(iu));
+					toAdd.add(createIncludedIU(iu));
 					if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
 						request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 				}
@@ -166,6 +195,15 @@ public class ProfileSynchronizer {
 				modified = true;
 			}
 		}
+
+		List extra = new ArrayList();
+		extra.addAll(defaults);
+		extra.addAll(toAdd);
+		context.setExtraIUs(extra);
+		// only add one IU to the request. it will contain all the other IUs we want to install
+		IInstallableUnit rootIU = createRootIU(toAdd);
+		request.addInstallableUnits(new IInstallableUnit[] {rootIU});
+
 		//the remaining IUs in toRemove don't exist in any repository, so remove from profile
 		if (!toRemove.isEmpty()) {
 			request.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[0]));
@@ -176,6 +214,23 @@ public class ProfileSynchronizer {
 			return null;
 
 		return request;
+	}
+
+	private IInstallableUnit createIncludedIU(IInstallableUnit iu) {
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		iud.setId(iu.getId());
+		iud.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
+		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), null, null, false, false, true)};
+		iud.setRequiredCapabilities(reqs);
+		return MetadataFactory.createInstallableUnit(iud);
+	}
+
+	private IInstallableUnit createDefaultIU(IInstallableUnit iu) {
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		iud.setId(iu.getId());
+		iud.setVersion(new Version(0, 0, 0));
+		iud.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new Version(0, 0, 0))});
+		return MetadataFactory.createInstallableUnit(iud);
 	}
 
 	/**
