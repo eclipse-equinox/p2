@@ -100,8 +100,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private String productName = null;
 	private String application = null;
 	private String version = null;
-
 	private Properties launcherArgs = new Properties();
+	private final Map platformSpecificConfigPaths = new HashMap();
 
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
@@ -137,11 +137,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		return launcherName;
 	}
 
-	public List getPlugins() {
-		return getPlugins(true);
-	}
-
-	public List getPlugins(boolean includeFragments) {
+	public List getBundles(boolean includeFragments) {
 		List p = plugins != null ? plugins : Collections.EMPTY_LIST;
 		if (!includeFragments)
 			return p;
@@ -189,6 +185,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		icons = new String[i];
 		System.arraycopy(temp, 0, icons, 0, i);
 		return icons;
+	}
+
+	public String getConfigIniPath(String os) {
+		String specific = (String) platformSpecificConfigPaths.get(os);
+		return specific == null ? configPath : specific;
 	}
 
 	public String getConfigIniPath() {
@@ -456,8 +457,17 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	}
 
 	private void processConfigIni(Attributes attributes) {
-		if (attributes.getValue("use").equals("custom")) { //$NON-NLS-1$//$NON-NLS-2$
-			configPath = attributes.getValue("path"); //$NON-NLS-1$
+		String path = null;
+		if ("custom".equals(attributes.getValue("use"))) { //$NON-NLS-1$//$NON-NLS-2$
+			path = attributes.getValue("path"); //$NON-NLS-1$
+		}
+		String os = attributes.getValue("os"); //$NON-NLS-1$
+		if (os != null && os.length() > 0) {
+			// TODO should we allow a platform-specific default to over-ride a custom generic path?
+			if (path != null)
+				platformSpecificConfigPaths.put(os, path);
+		} else {
+			configPath = path;
 		}
 	}
 

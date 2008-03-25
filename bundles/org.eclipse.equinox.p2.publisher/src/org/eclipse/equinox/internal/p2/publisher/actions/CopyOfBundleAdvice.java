@@ -3,7 +3,7 @@ package org.eclipse.equinox.internal.p2.publisher.actions;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.publisher.IPublishingAdvice;
 
-public class BundleAdvice implements IBundleAdvice {
+public class CopyOfBundleAdvice implements IBundleAdvice {
 
 	Map shapes = new HashMap(11);
 
@@ -36,9 +36,9 @@ public class BundleAdvice implements IBundleAdvice {
 	}
 
 	public IPublishingAdvice merge(IPublishingAdvice advice) {
-		if (!(advice instanceof BundleAdvice))
+		if (!(advice instanceof CopyOfBundleAdvice))
 			return this;
-		BundleAdvice source = (BundleAdvice) advice;
+		CopyOfBundleAdvice source = (CopyOfBundleAdvice) advice;
 		for (Iterator i = source.shapes.keySet().iterator(); i.hasNext();) {
 			String id = (String) i.next();
 			Object[] myValues = (Object[]) shapes.get(id);

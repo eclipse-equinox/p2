@@ -30,6 +30,20 @@ public class EquinoxExecutableAction extends AbstractPublishingAction {
 	private File[] executables;
 	private String flavor;
 
+	public static File findExecutable(File root, String os, String baseName) {
+		// TODO this may need to get more intelligent
+		// if MacOS its going to be baseName.app/Contents/MacOS/baseName
+		if (Constants.OS_MACOSX.equals(os)) {
+			return new File(root, baseName + ".app/Contents/MacOS/" + baseName);
+		}
+		// if it is a UNIX flavor
+		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
+			return new File(root, baseName);
+		}
+		// otherwise we are left with windows
+		return new File(root, baseName + ".exe");
+	}
+
 	public static File[] findExecutables(File root, String os, String baseName) {
 		// if MacOS
 		if (Constants.OS_MACOSX.equals(os)) {
@@ -152,8 +166,6 @@ public class EquinoxExecutableAction extends AbstractPublishingAction {
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
-		//The Product Query will need to include the launcher CU fragments as a workaround to bug 218890
-		result.addFragment(idPrefix, unit);
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null, false, true);

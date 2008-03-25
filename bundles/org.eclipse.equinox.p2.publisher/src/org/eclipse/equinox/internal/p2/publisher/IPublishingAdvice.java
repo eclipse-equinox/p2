@@ -1,12 +1,9 @@
 package org.eclipse.equinox.internal.p2.publisher;
 
+import org.osgi.framework.Version;
+
 public interface IPublishingAdvice {
 
-	/**
-	 * Merge the given advice together with this advice.  <code>null</code> is returned 
-	 * if the advice is incompatible.  
-	 * @param advice the advice to merge
-	 * @return the merged advice or <code>null</code>
-	 */
-	public IPublishingAdvice merge(IPublishingAdvice advice);
+	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version);
+
 }

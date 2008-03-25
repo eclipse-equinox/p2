@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -92,12 +93,11 @@ public class BundlesAction extends AbstractPublishingAction {
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
 						IArtifactRepository destination = info.getArtifactRepository();
 						// don't consider any advice here as we want to know about the real form on disk
-						if (isDir(bd, null))
+						boolean isDir = isDir(bd, info);
+						if (isDir)
 							publishArtifact(ad, new File(bd.getLocation()), new File(bd.getLocation()).listFiles(), info, INCLUDE_ROOT);
 						else
 							publishArtifact(ad, new File(bd.getLocation()), new File[] {new File(bd.getLocation())}, info, AS_IS | INCLUDE_ROOT);
-
-						boolean isDir = isDir(bd, (IBundleAdvice) info.getAdvice(IBundleAdvice.ID));
 						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key, localizationIUs);
 
 						if (isFragment(bd)) {
@@ -121,10 +121,12 @@ public class BundlesAction extends AbstractPublishingAction {
 		}
 	}
 
-	private boolean isDir(BundleDescription bundle, IBundleAdvice advice) {
+	private boolean isDir(BundleDescription bundle, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, true, bundle.getSymbolicName(), bundle.getVersion(), IBundleShapeAdvice.class);
 		// if the advice has a shape, use it
-		if (advice != null) {
-			String shape = advice.getShape(bundle.getSymbolicName(), bundle.getVersion().toString());
+		if (advice != null && !advice.isEmpty()) {
+			// we know there is some advice but if there is more than one, take the first.
+			String shape = ((IBundleShapeAdvice) advice.iterator().next()).getShape();
 			if (shape != null)
 				return shape.equals(IBundleAdvice.DIR);
 		}
@@ -173,10 +175,15 @@ public class BundlesAction extends AbstractPublishingAction {
 			result[i] = factory.getBundleDescription(bundleLocations[i]);
 		}
 		if (addSimpleConfigurator) {
-			//Add simple configurator to the list of bundles
+			// Add simple configurator to the list of bundles
 			try {
-				File location = new File(FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar")).getFile()); //$NON-NLS-1$
-				result[result.length - 1] = factory.getBundleDescription(location);
+				URL configuratorURL = FileLocator.toFileURL(Activator.getContext().getBundle().getEntry(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR + ".jar"));
+				if (configuratorURL == null)
+					System.out.println("Could not find simpleconfigurator bundle");
+				else {
+					File location = new File(configuratorURL.getFile()); //$NON-NLS-1$
+					result[result.length - 1] = factory.getBundleDescription(location);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

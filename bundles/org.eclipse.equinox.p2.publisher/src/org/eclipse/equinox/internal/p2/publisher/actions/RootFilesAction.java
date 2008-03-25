@@ -89,8 +89,6 @@ public class RootFilesAction extends AbstractPublishingAction {
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
-		//The Product Query will need to include the launcher CU fragments as a workaround to bug 218890
-		result.addFragment(idPrefix, unit);
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null, false, true);

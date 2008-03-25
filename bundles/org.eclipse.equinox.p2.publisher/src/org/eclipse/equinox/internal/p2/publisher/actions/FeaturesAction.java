@@ -207,16 +207,11 @@ public class FeaturesAction extends AbstractPublishingAction {
 	 * @param info the publishing info to update
 	 */
 	public void gatherAdvice(Feature feature, IPublisherInfo info) {
-		IBundleAdvice advice = (IBundleAdvice) info.getAdvice(IBundleAdvice.ID);
-		if (advice == null) {
-			advice = new BundleAdvice();
-			info.setAdvice(IBundleAdvice.ID, advice);
-		}
 		FeatureEntry entries[] = feature.getEntries();
 		for (int i = 0; i < entries.length; i++) {
 			FeatureEntry entry = entries[i];
 			if (entry.isUnpack())
-				advice.setShape(entry.getId(), entry.getVersion(), IBundleAdvice.DIR);
+				info.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleAdvice.DIR));
 		}
 	}
 

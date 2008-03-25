@@ -6,30 +6,24 @@ public interface IProductDescriptor {
 
 	public String getLauncherName();
 
-	public List getPlugins();
-
-	public List getPlugins(boolean includeFragments);
+	/**
+	 * Returns the list of all bundles in this product.
+	 * @param includeFragments whether or not to include the fragments in the return value
+	 * @return the list of bundles in this product
+	 */
+	public List getBundles(boolean includeFragments);
 
 	public List getFragments();
 
 	public List getFeatures();
 
-	public boolean containsPlugin(String plugin);
-
-	/**
-	 * Parses the specified url and constructs a feature
-	 */
-	public String[] getIcons();
-
-	public String getConfigIniPath();
+	public String getConfigIniPath(String os);
 
 	public String getId();
 
 	public String getSplashLocation();
 
 	public String getProductName();
-
-	public String getApplication();
 
 	public boolean useFeatures();
 

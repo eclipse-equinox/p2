@@ -19,9 +19,13 @@ import org.eclipse.equinox.internal.p2.publisher.*;
 public class DefaultCUsAction extends AbstractPublishingAction {
 
 	private String flavor;
+	private int startLevel;
+	private boolean start;
 
-	public DefaultCUsAction(IPublisherInfo info, String flavor) {
+	public DefaultCUsAction(IPublisherInfo info, String flavor, int startLevel, boolean start) {
 		this.flavor = flavor;
+		this.startLevel = startLevel;
+		this.start = start;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
@@ -44,7 +48,8 @@ public class DefaultCUsAction extends AbstractPublishingAction {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("defaultConfigure"); //$NON-NLS-1$
 		result.setVersion("1.0.0"); //$NON-NLS-1$
-		result.setStartLevel(4);
+		result.setStartLevel(startLevel);
+		result.setMarkedAsStarted(start);
 		// These should just be in the install section now
 		//		result.setSpecialConfigCommands("installBundle(bundle:${artifact});");
 		return result;

@@ -11,7 +11,7 @@ package org.eclipse.equinox.internal.p2.publisher;
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.generator.messages";//$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.publisher.messages";//$NON-NLS-1$
 
 	public static String exception_errorConverting;
 	public static String exception_outputStream;

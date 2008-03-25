@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.util.ManifestElement;
@@ -32,18 +31,12 @@ import org.osgi.framework.*;
 public class ConfigCUsAction extends AbstractPublishingAction {
 
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
+	protected String version;
+	protected String id;
+	protected String flavor;
 
-	public static final int NO_INI = 0;
-	public static final int CONFIG_INI = 1;
-	public static final int LAUNCHER_INI = 2;
-	private String version;
-	private String id;
-	private String flavor;
-	int mode;
-
-	public ConfigCUsAction(IPublisherInfo info, String flavor, String id, String version, int mode) {
+	public ConfigCUsAction(IPublisherInfo info, String flavor, String id, String version) {
 		this.flavor = flavor;
-		this.mode = mode;
 		this.id = id;
 		this.version = version;
 	}
@@ -52,71 +45,73 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 		// generation from remembered config.ini's
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
-		for (Iterator iterator = results.getConfigData().keySet().iterator(); iterator.hasNext();) {
-			String configSpec = (String) iterator.next();
-			ConfigData data = (ConfigData) results.getConfigData().get(configSpec);
-			BundleInfo[] bundles = fillInBundles(data.getBundles(), results);
+		String[] configSpecs = info.getConfigurations();
+		for (int i = 0; i < configSpecs.length; i++) {
+			String configSpec = configSpecs[i];
+			Collection configAdvice = info.getAdvice(configSpec, false, null, null, IConfigAdvice.class);
+			BundleInfo[] bundles = fillInBundles(configAdvice, results);
 			generateBundleConfigIUs(info, bundles, configSpec, results);
-			publishIniIUs(data, results, configSpec);
+
+			Collection launchingAdvice = info.getAdvice(configSpec, false, null, null, ILaunchingAdvice.class);
+			publishIniIUs(configAdvice, launchingAdvice, results, configSpec);
 		}
 		return Status.OK_STATUS;
 	}
 
 	// there seem to be cases where the bundle infos are not filled in with symbolic name and version.
 	// fill in the missing data.
-	private BundleInfo[] fillInBundles(BundleInfo[] bundles, IPublisherResult results) {
-		BundleInfo[] result = new BundleInfo[bundles.length];
-		for (int i = 0; i < bundles.length; i++) {
-			BundleInfo bundleInfo = bundles[i];
-			// prime the result with the current info.  This will be replaced if there is more info...
-			result[i] = bundleInfo;
-			if (bundleInfo.getSymbolicName() != null && bundleInfo.getVersion() != null)
-				continue;
-			if (bundleInfo.getLocation() == null)
-				continue;
-			// read the manifest to get some more info.
-			try {
-				File location = new File(new URL(bundleInfo.getLocation()).getPath());
-				Dictionary manifest = BundleDescriptionFactory.loadManifest(location);
-				if (manifest == null)
-					continue;
-				GeneratorBundleInfo newInfo = new GeneratorBundleInfo(bundleInfo);
-				ManifestElement[] element = ManifestElement.parseHeader("dummy-bsn", (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
-				newInfo.setSymbolicName(element[0].getValue());
-				newInfo.setVersion((String) manifest.get(Constants.BUNDLE_VERSION));
-				result[i] = newInfo;
-			} catch (BundleException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	private BundleInfo[] fillInBundles(Collection configAdvice, IPublisherResult results) {
+		ArrayList result = new ArrayList();
+		for (Iterator j = configAdvice.iterator(); j.hasNext();) {
+			IConfigAdvice advice = (IConfigAdvice) j.next();
+			BundleInfo[] bundles = advice.getBundles();
+			for (int i = 0; i < bundles.length; i++) {
+				BundleInfo bundleInfo = bundles[i];
+				// prime the result with the current info.  This will be replaced if there is more info...
+				if ((bundleInfo.getSymbolicName() != null && bundleInfo.getVersion() != null) || bundleInfo.getLocation() == null)
+					result.add(bundles[i]);
+				else {
+					try {
+						File location = new File(new URL(bundleInfo.getLocation()).getPath());
+						Dictionary manifest = BundleDescriptionFactory.loadManifest(location);
+						if (manifest == null)
+							continue;
+						GeneratorBundleInfo newInfo = new GeneratorBundleInfo(bundleInfo);
+						ManifestElement[] element = ManifestElement.parseHeader("dummy-bsn", (String) manifest.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
+						newInfo.setSymbolicName(element[0].getValue());
+						newInfo.setVersion((String) manifest.get(Constants.BUNDLE_VERSION));
+						result.add(newInfo);
+					} catch (BundleException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		}
-		return result;
+		return (BundleInfo[]) result.toArray(new BundleInfo[result.size()]);
 	}
 
-	private void publishIniIUs(ConfigData configData, IPublisherResult results, String configuration) {
-		if (mode == NO_INI)
+	private void publishIniIUs(Collection configAdvice, Collection launchingAdvice, IPublisherResult results, String configSpec) {
+		if (configAdvice.isEmpty() && launchingAdvice.isEmpty())
 			return;
 
 		String configureData = ""; //$NON-NLS-1$
 		String unconfigureData = ""; //$NON-NLS-1$
 
-		if ((mode & CONFIG_INI) > 0 && configData != null) {
-			String[] dataStrings = getConfigurationStrings(configData);
+		if (!configAdvice.isEmpty()) {
+			String[] dataStrings = getConfigurationStrings(configAdvice);
 			configureData += dataStrings[0];
 			unconfigureData += dataStrings[1];
 		}
 
-		//		if ((mode & LAUNCHER_INI) > 0) {
-		//			LauncherData launcherData = info.getLauncherData();
-		//			if (launcherData != null) {
-		//				String[] dataStrings = getLauncherConfigStrings(launcherData.getJvmArgs(), launcherData.getProgramArgs());
-		//				configureData += dataStrings[0];
-		//				unconfigureData += dataStrings[1];
-		//			}
-		//		}
+		if (!launchingAdvice.isEmpty()) {
+			String[] dataStrings = getLauncherConfigStrings(launchingAdvice);
+			configureData += dataStrings[0];
+			unconfigureData += dataStrings[1];
+		}
 
 		// if there is nothing to configure or unconfigure, then don't even bother generating this IU
 		if (configureData.length() == 0 && unconfigureData.length() == 0)
@@ -125,48 +120,46 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 		Map touchpointData = new HashMap();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigureData); //$NON-NLS-1$
-		IInstallableUnit cu = MetadataGeneratorHelper.createIUFragment(id, version, flavor, configuration, touchpointData);
+		IInstallableUnit cu = MetadataGeneratorHelper.createIUFragment(id, version, flavor, configSpec, touchpointData);
 		results.addIU(cu, IPublisherResult.ROOT);
 	}
 
-	protected String[] getConfigurationStrings(ConfigData configData) {
+	protected String[] getConfigurationStrings(Collection configAdvice) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
-		for (Iterator iterator = configData.getFwDependentProps().entrySet().iterator(); iterator.hasNext();) {
-			Entry aProperty = (Entry) iterator.next();
-			String key = ((String) aProperty.getKey());
-			if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				continue;
-			configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
+		for (Iterator i = configAdvice.iterator(); i.hasNext();) {
+			IConfigAdvice advice = (IConfigAdvice) i.next();
+			for (Iterator iterator = advice.getProperties().entrySet().iterator(); iterator.hasNext();) {
+				Entry aProperty = (Entry) iterator.next();
+				String key = ((String) aProperty.getKey());
+				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					continue;
+				configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
-		for (Iterator iterator = configData.getFwIndependentProps().entrySet().iterator(); iterator.hasNext();) {
-			Entry aProperty = (Entry) iterator.next();
-			String key = ((String) aProperty.getKey());
-			if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				continue;
-			configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
 		return new String[] {configurationData, unconfigurationData};
 	}
 
-	protected String[] getLauncherConfigStrings(final String[] jvmArgs, final String[] programArgs) {
+	protected String[] getLauncherConfigStrings(Collection launchingAdvice) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 
-		for (int i = 0; i < jvmArgs.length; i++) {
-			configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-			unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		for (int i = 0; i < programArgs.length; i++) {
-			String programArg = programArgs[i];
-			if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				i++;
-			configurationData += "addProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-			unconfigurationData += "removeProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+		for (Iterator j = launchingAdvice.iterator(); j.hasNext();) {
+			ILaunchingAdvice advice = (ILaunchingAdvice) j.next();
+			String[] jvmArgs = advice.getVMArguments();
+			for (int i = 0; i < jvmArgs.length; i++) {
+				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			String[] programArgs = advice.getProgramArguments();
+			for (int i = 0; i < programArgs.length; i++) {
+				String programArg = programArgs[i];
+				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					i++;
+				configurationData += "addProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 		return new String[] {configurationData, unconfigurationData};
 	}
@@ -205,9 +198,6 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
 				}
 				result.addIU(cu, IPublisherResult.ROOT);
-				//				String key = (product != null && product.useFeatures()) ? IPublisherResult.CONFIGURATION_CUS : bundle.getSymbolicName();
-				String key = bundle.getSymbolicName();
-				result.addFragment(key, cu);
 			}
 		}
 	}

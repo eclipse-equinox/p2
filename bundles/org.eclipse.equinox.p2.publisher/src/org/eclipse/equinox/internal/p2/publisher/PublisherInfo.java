@@ -12,24 +12,28 @@ package org.eclipse.equinox.internal.p2.publisher;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.osgi.framework.Version;
 
 public class PublisherInfo implements IPublisherInfo {
 
 	private int artifactOptions = 0;
 	private IMetadataRepository metadataRepository;
 	private IArtifactRepository artifactRepository;
-	private Map adviceMap = new HashMap(11);
+	private String[] configurations;
+	private List adviceList = new ArrayList(11);
 
-	public IPublishingAdvice getAdvice(String id) {
-		return (IPublishingAdvice) adviceMap.get(id);
+	public void addAdvice(IPublishingAdvice advice) {
+		adviceList.add(advice);
 	}
 
-	public void setAdvice(String id, IPublishingAdvice value) {
-		adviceMap.put(id, value);
-	}
-
-	public Collection getAdviceIds() {
-		return adviceMap.keySet();
+	public Collection getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class type) {
+		ArrayList result = new ArrayList();
+		for (Iterator i = adviceList.iterator(); i.hasNext();) {
+			Object object = i.next();
+			if (type.isInstance(object) && ((IPublishingAdvice) object).isApplicable(configSpec, includeDefault, id, version))
+				result.add(object);
+		}
+		return result;
 	}
 
 	public IArtifactRepository getArtifactRepository() {
@@ -54,6 +58,14 @@ public class PublisherInfo implements IPublisherInfo {
 
 	public void setArtifactOptions(int value) {
 		artifactOptions = value;
+	}
+
+	public String[] getConfigurations() {
+		return configurations;
+	}
+
+	public void setConfigurations(String[] value) {
+		configurations = value;
 	}
 
 	public String getSummary() {

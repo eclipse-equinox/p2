@@ -43,7 +43,7 @@ public class RootIUAction extends AbstractPublishingAction {
 
 	protected void generateRootIU(IPublisherResult result) {
 		Collection children = result.getIUs(null, IPublisherResult.ROOT);
-		for (int i = 0; i < topLevel.length; i++) {
+		for (int i = 0; topLevel != null && i < topLevel.length; i++) {
 			String iuSpec = topLevel[i];
 			IInstallableUnit iu = result.getIU(iuSpec, null);
 			if (iu != null)
@@ -59,7 +59,7 @@ public class RootIUAction extends AbstractPublishingAction {
 		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
 	}
 
-	protected InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, String version, String name, Collection requires, boolean configureLauncherData) {
+	protected static InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, String version, String name, Collection requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(id);

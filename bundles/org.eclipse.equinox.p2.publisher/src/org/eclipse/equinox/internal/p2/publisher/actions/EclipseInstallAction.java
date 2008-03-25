@@ -23,37 +23,37 @@ public class EclipseInstallAction implements IPublishingAction {
 	protected String flavor;
 	protected String[] topLevel;
 	protected IPublisherInfo info;
-	protected String[] configurations;
 	protected String[] nonRootFiles;
+	protected boolean start;
 
-	public EclipseInstallAction(String source, String id, String version, String name, String flavor, String[] topLevel, String[] configurations, String[] nonRootFiles) {
+	public EclipseInstallAction(String source, String id, String version, String name, String flavor, String[] topLevel, String[] nonRootFiles, boolean start) {
 		this.source = source;
 		this.id = id;
 		this.version = version;
 		this.name = name == null ? id : name;
 		this.flavor = flavor;
 		this.topLevel = topLevel;
-		this.configurations = configurations;
 		this.nonRootFiles = nonRootFiles;
+		this.start = start;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
 		this.info = info;
-		IPublishingAction[] actions = createActions();
+		IPublishingAction[] actions = createActions(info);
 		for (int i = 0; i < actions.length; i++)
 			actions[i].perform(info, results);
 		return Status.OK_STATUS;
 	}
 
-	protected IPublishingAction[] createActions() {
+	protected IPublishingAction[] createActions(IPublisherInfo info) {
 		ArrayList result = new ArrayList();
 		// create an action that just publishes the raw bundles and features
 		IPublishingAction action = new MergeResultsAction(new IPublishingAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
 		result.add(action);
-		result.addAll(createEquinoxExecutableActions(configurations));
-		result.addAll(createRootFilesActions(configurations));
+		result.addAll(createEquinoxExecutableActions(info.getConfigurations()));
+		result.addAll(createRootFilesActions(info.getConfigurations()));
 		result.add(createEquinoxLauncherFragmentsAction());
-		result.addAll(createAccumulateConfigDataActions(configurations));
+		result.addAll(createAccumulateConfigDataActions(info.getConfigurations()));
 		result.add(createJREAction());
 		result.add(createConfigIUsAction());
 		result.add(createDefaultIUsAction());
@@ -62,7 +62,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected IPublishingAction createDefaultIUsAction() {
-		return new DefaultCUsAction(info, flavor);
+		return new DefaultCUsAction(info, flavor, 4, start);
 	}
 
 	protected IPublishingAction createRootIUAction() {
@@ -81,16 +81,18 @@ public class EclipseInstallAction implements IPublishingAction {
 	protected Collection createAccumulateConfigDataActions(String[] configs) {
 		Collection result = new ArrayList(configs.length);
 		for (int i = 0; i < configs.length; i++) {
-			File configuration = computeConfigurationLocation(configs[i]);
-			File executable = computeExecutables(configs[i])[0];
-			IPublishingAction action = new AccumulateConfigDataAction(info, configs[i], configuration, executable);
+			String configSpec = configs[i];
+			File configuration = computeConfigurationLocation(configSpec);
+			String os = AbstractPublishingAction.parseConfigSpec(configSpec)[1];
+			File executable = EquinoxExecutableAction.findExecutable(computeExecutableLocation(configSpec), os, "eclipse");
+			IPublishingAction action = new AccumulateConfigDataAction(info, configSpec, configuration, executable);
 			result.add(action);
 		}
 		return result;
 	}
 
 	protected IPublishingAction createConfigIUsAction() {
-		return new ConfigCUsAction(info, flavor, id, version, ConfigCUsAction.CONFIG_INI);
+		return new ConfigCUsAction(info, flavor, id, version);
 	}
 
 	protected IPublishingAction createFeaturesAction() {
@@ -147,7 +149,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected File computeConfigurationLocation(String configSpec) {
-		return new File(source, "configuration"); //$NON-NLS-1$
+		return new File(source, "configuration/config.ini"); //$NON-NLS-1$
 	}
 
 	protected IPublishingAction createBundlesAction() {

@@ -31,13 +31,6 @@ public class EquinoxLauncherCUAction extends FragmentIUsAction {
 		return super.perform(info, results);
 	}
 
-	protected IInstallableUnit createFragment(GeneratorBundleInfo bundle, IPublisherResult results) {
-		IInstallableUnit cu = super.createFragment(bundle, results);
-		if (cu != null && bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.'))
-			results.addFragment(ORG_ECLIPSE_EQUINOX_LAUNCHER, cu);
-		return cu;
-	}
-
 	/**
 	 * Returns the set of all known IUs in the result that are part of the Equinox launcher. 
 	 * @param results the resutls to scan

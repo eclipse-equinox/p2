@@ -60,10 +60,13 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected boolean inplace = false;
 	protected boolean append = false;
 	protected boolean reusePackedFiles = false;
+	protected String[] configurations;
 
 	protected void initialize(PublisherInfo info) throws ProvisionException {
 		if (inplace)
 			initializeForInplace(info);
+		else
+			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_OVERWRITE);
 		initializeRepositories(info);
 	}
 
@@ -115,8 +118,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 		} catch (MalformedURLException e) {
 			// ought not happen...
 		}
-		info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX);
-		info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_PUBLISH);
+		info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
 	}
 
 	protected void initializeMetadataRepository(PublisherInfo info) throws ProvisionException {
@@ -190,6 +192,9 @@ public abstract class AbstractPublisherApplication implements IApplication {
 
 		if (arg.equalsIgnoreCase("-artifactRepositoryName")) //$NON-NLS-1$
 			artifactRepoName = parameter;
+
+		if (arg.equalsIgnoreCase("-configs")) //$NON-NLS-1$
+			info.setConfigurations(AbstractPublishingAction.getArrayFromString(parameter, ",")); //$NON-NLS-1$
 	}
 
 	protected void processFlag(String arg, PublisherInfo info) {

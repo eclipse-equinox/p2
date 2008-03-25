@@ -19,9 +19,17 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected String name;
 	protected String flavor;
 	protected String[] topLevel;
-	protected String[] configurations;
+	protected boolean start;
+	private String[] rootExclusions;
 
 	public InstallPublisherApplication() {
+	}
+
+	protected void processFlag(String arg, PublisherInfo info) {
+		super.processFlag(arg, info);
+
+		if (arg.equalsIgnoreCase("-startAll")) //$NON-NLS-1$
+			start = true;
 	}
 
 	protected void processParameter(String arg, String parameter, PublisherInfo info) {
@@ -42,8 +50,8 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 		if (arg.equalsIgnoreCase("-top")) //$NON-NLS-1$
 			topLevel = AbstractPublishingAction.getArrayFromString(parameter, ",");
 
-		if (arg.equalsIgnoreCase("-configs")) //$NON-NLS-1$
-			configurations = AbstractPublishingAction.getArrayFromString(parameter, ",");
+		if (arg.equalsIgnoreCase("-rootExclusions")) //$NON-NLS-1$
+			rootExclusions = AbstractPublishingAction.getArrayFromString(parameter, ",");
 	}
 
 	protected IPublishingAction[] createActions() {
@@ -53,7 +61,17 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	}
 
 	private IPublishingAction createEclipseInstallAction() {
-		String[] exclusions = {"plugins", "features", "configuration"};
-		return new EclipseInstallAction(source, id, version, name, flavor, topLevel, configurations, exclusions);
+		String[] exclusions = getBaseExclusions();
+		if (rootExclusions != null) {
+			String[] result = new String[exclusions.length + rootExclusions.length];
+			System.arraycopy(exclusions, 0, result, 0, exclusions.length);
+			System.arraycopy(rootExclusions, 0, result, exclusions.length, rootExclusions.length);
+			exclusions = result;
+		}
+		return new EclipseInstallAction(source, id, version, name, flavor, topLevel, exclusions, start);
+	}
+
+	protected String[] getBaseExclusions() {
+		return new String[] {"plugins", "features", "configuration"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }

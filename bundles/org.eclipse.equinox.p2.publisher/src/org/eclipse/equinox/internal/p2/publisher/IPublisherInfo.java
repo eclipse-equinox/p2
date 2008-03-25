@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.publisher;
 import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.osgi.framework.Version;
 
 public interface IPublisherInfo {
 
@@ -53,10 +54,23 @@ public interface IPublisherInfo {
 	 */
 	public int getArtifactOptions();
 
-	public IPublishingAdvice getAdvice(String id);
+	/**
+	 * Returns the registered advice for the given configuration of WS, OS and ARCH where the
+	 * advice is of the given type.  If mergeDefault is <code>true</code> then the advice for
+	 * the default configuration is merged into the result.
+	 * @param configSpec the configuration to query.  Note that the given configuration
+	 * must specify values for WS, OS and ARCH.
+	 * @param type the type of advice to look for
+	 * @param mergeDefault whether or not to merge in the advice common to all configurations
+	 * @return the set of advice of the given type for the given configuration
+	 */
+	public Collection getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class type);
 
-	public void setAdvice(String id, IPublishingAdvice value);
+	/**
+	 * Add the given advice to the set of publishing advices.  
+	 * @param advice the advice to retain
+	 */
+	public void addAdvice(IPublishingAdvice advice);
 
-	public Collection getAdviceIds();
-
+	public String[] getConfigurations();
 }
