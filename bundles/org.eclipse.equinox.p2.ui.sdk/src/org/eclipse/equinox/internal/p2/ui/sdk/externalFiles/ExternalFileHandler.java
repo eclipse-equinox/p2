@@ -158,7 +158,15 @@ public class ExternalFileHandler {
 		try {
 			FileUtils.unzipFile(source, targetLocation);
 			URL repoLocation = new URL(URLValidator.makeFileURLString(targetLocation.getAbsolutePath()));
+			// Loading this location should generate metadata for an extension location if the
+			// location is valid.  It's a bit too much magic...
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=222251
 			repository = ProvisioningUtil.loadMetadataRepository(repoLocation, monitor);
+			// If we got a metadata repo, then also add a colocated artifact repo.
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=223981
+			if (repository != null) {
+				ProvisioningUtil.addArtifactRepository(repoLocation);
+			}
 		} catch (IOException e) {
 			ProvUI.handleException(e, NLS.bind(ProvSDKMessages.ExternalFileHandler_ErrorExpandingArchive, source.getAbsolutePath()), StatusManager.SHOW | StatusManager.LOG);
 		} catch (ProvisionException e) {
