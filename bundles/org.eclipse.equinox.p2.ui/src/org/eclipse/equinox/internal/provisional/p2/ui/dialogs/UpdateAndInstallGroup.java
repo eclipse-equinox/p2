@@ -255,9 +255,15 @@ public class UpdateAndInstallGroup {
 			profileButton.setData(BUTTONACTION, new Action() {
 				public void runWithEvent(Event event) {
 					String chosenProfileId = profileChooser.getProfileId(tabFolder.getShell());
-					if (chosenProfileId != null) {
+					// A client resetting the profile may cause a shutdown of the running
+					// system.  Guard for this case by checking whether the viewer is still
+					// alive.
+					if (chosenProfileId != null && chosenProfileId != profileId) {
 						profileId = chosenProfileId;
-						installedIUGroup.getStructuredViewer().setInput(new ProfileElement(profileId));
+						Control control = installedIUGroup.getStructuredViewer().getControl();
+						if (control != null && !control.isDisposed()) {
+							installedIUGroup.getStructuredViewer().setInput(new ProfileElement(profileId));
+						}
 					}
 				}
 			});

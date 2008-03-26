@@ -18,7 +18,10 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * ProvisioningListener which updates a structured viewer based on
@@ -74,7 +77,12 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 			if (event.getKind() == RepositoryEvent.ADDED || event.getKind() == RepositoryEvent.REMOVED) {
 				display.asyncExec(new Runnable() {
 					public void run() {
-						refreshAll();
+						IWorkbench workbench = PlatformUI.getWorkbench();
+						if (workbench.isClosing())
+							return;
+						Control control = viewer.getControl();
+						if (control != null && !control.isDisposed())
+							refreshAll();
 					}
 				});
 			}
