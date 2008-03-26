@@ -17,7 +17,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.IRepositoryManipulator;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UpdateAndInstallGroup;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -26,8 +27,6 @@ import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.window.Window;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -174,6 +173,10 @@ public class UpdateAndInstallDialog extends TrayDialog {
 	}
 
 	private IProfileChooser getProfileChooser() {
+		// temporarily disabled.
+		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224180
+		return null;
+		/*
 		return new IProfileChooser() {
 			public String getLabel() {
 				return ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel;
@@ -190,6 +193,7 @@ public class UpdateAndInstallDialog extends TrayDialog {
 				return null;
 			}
 		};
+		*/
 	}
 
 	private void readDialogSettings() {
