@@ -27,13 +27,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.osgi.framework.*;
 
 /**
  * Synchronizes a profile with a set of repositories.
  */
 public class ProfileSynchronizer {
+	private static final String SUPER_IU = "org.eclipse.equinox.p2.dropins"; //$NON-NLS-1$
 
 	public class ListCollector extends Collector {
 		public List getList() {
@@ -41,7 +41,6 @@ public class ProfileSynchronizer {
 		}
 	}
 
-	private static final String SYNCH_REPOSITORY_ID = "synch.repository.id"; //$NON-NLS-1$
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 	final IProfile profile;
@@ -148,7 +147,7 @@ public class ProfileSynchronizer {
 
 	private IInstallableUnit createRootIU(List children) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		iu.setId("org.eclipse.equinox.p2.dropins");
+		iu.setId(SUPER_IU);
 		iu.setVersion(new Version("1.0.0.v" + System.currentTimeMillis()));
 		List required = new ArrayList();
 		for (Iterator iter = children.iterator(); iter.hasNext();) {
@@ -161,59 +160,56 @@ public class ProfileSynchronizer {
 	}
 
 	private ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
-		boolean modified = false;
-		Collection profileIUs = getProfileIUs();
-		Collection toRemove = getStaleIUs();
-		profileIUs.removeAll(toRemove);
-
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		List toAdd = new ArrayList();
 		List defaults = new ArrayList();
-		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String repositoryId = (String) entry.getKey();
-			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
-			Iterator repositoryIterator = repository.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
-			while (repositoryIterator.hasNext()) {
-				IInstallableUnit iu = (IInstallableUnit) repositoryIterator.next();
-				//the IU is present in the profile and in the repository, so it's in sync
-				if (profileIUs.contains(iu))
-					continue;
-				if (toRemove.contains(iu)) {
-					//the IU has been removed from one repository, but it exists in another repository
-					toRemove.remove(iu);
-				} else {
-					//the IU exists in the repository, but not in the profile, so it needs to be added
-					defaults.add(createDefaultIU(iu));
-					toAdd.add(createIncludedIU(iu));
-					if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
-						request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
-				}
-				//always set this property because the IU may move to another repository
-				request.setInstallableUnitProfileProperty(iu, SYNCH_REPOSITORY_ID, repositoryId);
-				profileIUs.add(iu);
-				modified = true;
-			}
+
+		Collector allIUs = getAllIUsFromRepos();
+
+		//Nothing has changed
+		IInstallableUnit previous = getIU(SUPER_IU);
+		//Empty repo
+
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		if (allIUs.size() == 0) {
+			if (previous == null)
+				return null;
+
+			//Request the removal of the super IU
+			request.removeInstallableUnits(new IInstallableUnit[] {previous});
+			return request;
+		}
+
+		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			defaults.add(createDefaultIU(iu));
+			toAdd.add(createIncludedIU(iu));
+			if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
+				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
 
 		List extra = new ArrayList();
 		extra.addAll(defaults);
 		extra.addAll(toAdd);
 		context.setExtraIUs(extra);
+
 		// only add one IU to the request. it will contain all the other IUs we want to install
 		IInstallableUnit rootIU = createRootIU(toAdd);
 		request.addInstallableUnits(new IInstallableUnit[] {rootIU});
 
-		//the remaining IUs in toRemove don't exist in any repository, so remove from profile
-		if (!toRemove.isEmpty()) {
-			request.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[0]));
-			modified = true;
-		}
-
-		if (!modified)
-			return null;
-
+		//Request the removal of the previous super IU
+		if (previous != null)
+			request.removeInstallableUnits(new IInstallableUnit[] {previous});
 		return request;
+	}
+
+	private Collector getAllIUsFromRepos() {
+		Collector allRepos = new Collector();
+		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
+			repository.query(InstallableUnitQuery.ANY, allRepos, null).iterator();
+		}
+		return allRepos;
 	}
 
 	private IInstallableUnit createIncludedIU(IInstallableUnit iu) {
@@ -233,37 +229,12 @@ public class ProfileSynchronizer {
 		return MetadataFactory.createInstallableUnit(iud);
 	}
 
-	/**
-	 * Returns all IUs that are no longer in the repository they were in last
-	 * time we synchronized.
-	 */
-	private Collection getStaleIUs() {
-		Query removeQuery = new Query() {
-			public boolean isMatch(Object object) {
-				IInstallableUnit iu = (IInstallableUnit) object;
-				String repositoryId = profile.getInstallableUnitProperty(iu, SYNCH_REPOSITORY_ID);
-				if (repositoryId == null)
-					return false;
-
-				IMetadataRepository repo = (IMetadataRepository) repositoryMap.get(repositoryId);
-				Query iuQuery = new InstallableUnitQuery(iu.getId(), iu.getVersion());
-				return (repo == null || repo.query(iuQuery, new Collector(), null).isEmpty());
-			}
-		};
-		ListCollector listCollector = new ListCollector();
-		profile.query(removeQuery, listCollector, null);
-		List result = listCollector.getList();
-		return (result != null) ? result : Collections.EMPTY_LIST;
-	}
-
-	/**
-	 * Returns all the IUs that are currently in the profile
-	 */
-	private List getProfileIUs() {
-		ListCollector listCollector = new ListCollector();
-		profile.query(InstallableUnitQuery.ANY, listCollector, null);
-		List result = listCollector.getList();
-		return (result != null) ? result : Collections.EMPTY_LIST;
+	private IInstallableUnit getIU(String iuId) {
+		ListCollector collector = new ListCollector();
+		profile.query(new InstallableUnitQuery(iuId), collector, null);
+		if (collector.size() > 0)
+			return (IInstallableUnit) collector.iterator().next();
+		return null;
 	}
 
 	private ProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
