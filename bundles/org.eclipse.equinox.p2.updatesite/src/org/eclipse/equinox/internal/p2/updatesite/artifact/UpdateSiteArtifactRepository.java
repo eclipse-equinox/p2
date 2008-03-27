@@ -76,7 +76,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			Feature feature = features[i];
 			IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 			ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
-			URL featureURL = updateSite.getFeatureURL(feature.getId(), feature.getVersion());
+			URL featureURL = updateSite.getFeatureURL(null, feature.getId(), feature.getVersion());
 			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toExternalForm());
 			allSiteArtifacts.add(featureArtifactDescriptor);
 

@@ -188,23 +188,28 @@ public class UpdateSite {
 	/*
 	 * Return a URL which represents the location of the given feature.
 	 */
-	public URL getFeatureURL(String id, String version) {
+	public URL getFeatureURL(SiteFeature siteFeature, String id, String version) {
 		URL base = site.getLocationURL();
 		if (base == null)
 			base = location;
-		SiteFeature[] entries = site.getFeatures();
-		for (int i = 0; i < entries.length; i++) {
-			if (id.equals(entries[i].getFeatureIdentifier())) {
-				URL url = entries[i].getURL();
-				if (url != null)
-					return url;
-				url = getArchiveURL(base, id);
-				if (url != null)
-					return url;
-				// fall through to default URL
-				break;
+		if (siteFeature == null) {
+			SiteFeature[] entries = site.getFeatures();
+			for (int i = 0; i < entries.length; i++) {
+				if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
+					siteFeature = entries[i];
+					break;
+				}
 			}
 		}
+		if (siteFeature != null) {
+			URL url = siteFeature.getURL();
+			if (url != null)
+				return url;
+			url = getArchiveURL(base, id);
+			if (url != null)
+				return url;
+		}
+		// fall through to default URL
 		try {
 			return getFileURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 		} catch (MalformedURLException e) {
@@ -322,7 +327,7 @@ public class UpdateSite {
 			if (featureCache.containsKey(key))
 				continue;
 			try {
-				URL featureURL = getFeatureURL(siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
+				URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
 				Feature feature = parseFeature(featureParser, featureURL);
 				featureCache.put(key, feature);
 				loadIncludedFeatures(feature, featureParser);
