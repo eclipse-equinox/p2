@@ -114,6 +114,14 @@ public class Activator implements BundleActivator {
 			watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
+
+		// we should probably be  holding on to these repos by URL
+		// see Bug 223422
+		// for now explicitly nulling out these repos to allow GC to occur
+		dropinRepositories = null;
+		configurationRepositories = null;
+		linksRepositories = null;
+		eclipseProductRepository = null;
 	}
 
 	private void watchEclipseProduct() {
