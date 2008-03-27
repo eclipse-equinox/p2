@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.update.*;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**	
@@ -30,15 +32,45 @@ public class PlatformConfigurationWrapper {
 	private Site poolSite = null;
 	private File configFile;
 	private URL poolURL;
-	private URL osgiInstallArea;
+	private Manipulator manipulator;
 
 	private static String FEATURES = "features/"; //$NON-NLS-1$
 
-	public PlatformConfigurationWrapper(URL configDir, URL featurePool, URL osgiInstallArea) {
+	private static URL getOSGiInstallArea(Manipulator manipulator) {
+		final String OSGI = "org.eclipse.osgi"; //$NON-NLS-1$
+		BundleInfo[] bis = manipulator.getConfigData().getBundles();
+		String searchFor = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
+		for (int i = 0; i < bis.length; i++) {
+			if (bis[i].getSymbolicName().equals(searchFor)) {
+				if (bis[i].getLocation() != null) {
+					try {
+						if (bis[i].getLocation().startsWith("file:")) //$NON-NLS-1$
+							return fromOSGiJarToOSGiInstallArea(bis[i].getLocation().substring(5)).toURL();
+					} catch (MalformedURLException e) {
+						//do nothing
+					}
+				}
+				if (searchFor.equals(OSGI))
+					return null;
+				searchFor = OSGI;
+				i = -1;
+			}
+		}
+		return null;
+	}
+
+	private static File fromOSGiJarToOSGiInstallArea(String path) {
+		IPath parentFolder = new Path(path).removeLastSegments(1);
+		if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
+			return parentFolder.removeLastSegments(1).toFile();
+		return parentFolder.toFile();
+	}
+
+	public PlatformConfigurationWrapper(URL configDir, URL featurePool, Manipulator manipulator) {
 		this.configuration = null;
 		this.configFile = new File(configDir.getFile(), "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		this.poolURL = featurePool;
-		this.osgiInstallArea = osgiInstallArea;
+		this.manipulator = manipulator;
 	}
 
 	private void loadDelegate() {
@@ -47,7 +79,7 @@ public class PlatformConfigurationWrapper {
 
 		try {
 			if (configFile.exists()) {
-				configuration = Configuration.load(configFile, osgiInstallArea);
+				configuration = Configuration.load(configFile, getOSGiInstallArea(manipulator));
 			} else {
 				configuration = new Configuration();
 			}
@@ -161,10 +193,10 @@ public class PlatformConfigurationWrapper {
 	/*
 	 * @see org.eclipse.update.configurator.IPlatformConfiguration#save()
 	 */
-	public void save(URL newOsgiInstallArea) throws ProvisionException {
+	public void save() throws ProvisionException {
 		if (configuration != null) {
 			configFile.getParentFile().mkdirs();
-			configuration.save(configFile, newOsgiInstallArea);
+			configuration.save(configFile, getOSGiInstallArea(manipulator));
 		}
 	}
 
