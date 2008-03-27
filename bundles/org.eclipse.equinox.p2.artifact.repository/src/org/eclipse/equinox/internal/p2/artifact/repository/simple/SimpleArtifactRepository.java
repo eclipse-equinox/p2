@@ -24,6 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.AbstractArtifactRepository;
 import org.eclipse.osgi.util.NLS;
@@ -790,6 +791,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					jOs.putNextEntry(new JarEntry(new Path(actualLocation.getFile()).lastSegment()));
 					os = jOs;
 				}
+				super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
 				new SimpleArtifactRepositoryIO().write(this, os);
 			} catch (IOException e) {
 				// TODO proper exception handling

@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -33,6 +34,10 @@ import org.osgi.framework.*;
  * Synchronizes a profile with a set of repositories.
  */
 public class ProfileSynchronizer {
+	private static final String TIMESTAMPS_FILE_PREFIX = "timestamps"; //$NON-NLS-1$
+	private static final String PROFILE_TIMESTAMP = "PROFILE"; //$NON-NLS-1$
+	private static final String NO_TIMESTAMP = "-1"; //$NON-NLS-1$
+
 	private static final String SUPER_IU = "org.eclipse.equinox.p2.dropins"; //$NON-NLS-1$
 
 	public class ListCollector extends Collector {
@@ -46,6 +51,7 @@ public class ProfileSynchronizer {
 	final IProfile profile;
 
 	final Map repositoryMap;
+	private Properties timestamps;
 
 	/*
 	 * Constructor for the class.
@@ -63,6 +69,9 @@ public class ProfileSynchronizer {
 	 * Synchronize the profile with the list of metadata repositories.
 	 */
 	public IStatus synchronize(IProgressMonitor monitor) {
+		readTimestamps();
+		if (isUpToDate())
+			return Status.OK_STATUS;
 
 		IStatus status = synchronizeCacheExtensions();
 		if (!status.isOK())
@@ -70,6 +79,7 @@ public class ProfileSynchronizer {
 
 		ProvisioningContext context = getContext();
 		ProfileChangeRequest request = createProfileChangeRequest(context);
+
 		if (request == null)
 			return Status.OK_STATUS;
 
@@ -77,19 +87,109 @@ public class ProfileSynchronizer {
 		try {
 			//create the provisioning plan
 			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
+
 			status = plan.getStatus();
 			if (status.getSeverity() == IStatus.ERROR || plan.getOperands().length == 0)
 				return status;
 
 			//invoke the engine to perform installs/uninstalls
 			IStatus engineResult = executePlan(plan, context, sub.newChild(50));
+
 			if (!engineResult.isOK())
 				return engineResult;
+			writeTimestamps();
 
 			applyConfiguration();
+
 			return status;
 		} finally {
 			sub.done();
+		}
+	}
+
+	private void writeTimestamps() {
+		timestamps.clear();
+		timestamps.put(PROFILE_TIMESTAMP, Long.toString(profile.getTimestamp()));
+		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
+			Map props = repository.getProperties();
+			String timestamp = null;
+			if (props != null)
+				timestamp = (String) props.get(IRepository.PROP_TIMESTAMP);
+
+			if (timestamp == null)
+				timestamp = NO_TIMESTAMP;
+
+			timestamps.put(entry.getKey(), timestamp);
+		}
+
+		try {
+			File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
+			OutputStream os = new BufferedOutputStream(new FileOutputStream(file));
+			try {
+				timestamps.save(os, "Timestamps for " + profile.getProfileId()); //$NON-NLS-1$
+			} finally {
+				if (os != null)
+					os.close();
+			}
+		} catch (FileNotFoundException e) {
+			//Ignore
+		} catch (IOException e) {
+			//Ignore
+		}
+	}
+
+	private boolean isUpToDate() {
+		String lastKnownProfileTimeStamp = (String) timestamps.remove(PROFILE_TIMESTAMP);
+		if (lastKnownProfileTimeStamp == null)
+			return false;
+		if (!lastKnownProfileTimeStamp.equals(Long.toString(profile.getTimestamp())))
+			return false;
+
+		//When we get here the timestamps map only contains information related to repos
+		for (Iterator it = repositoryMap.entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			IMetadataRepository repository = (IMetadataRepository) entry.getValue();
+
+			Map props = repository.getProperties();
+			String currentTimestamp = null;
+			if (props != null)
+				currentTimestamp = (String) props.get(IRepository.PROP_TIMESTAMP);
+
+			if (currentTimestamp == null)
+				currentTimestamp = NO_TIMESTAMP;
+
+			String lastKnownTimestamp = (String) timestamps.remove(entry.getKey());
+			//A repo has been added 
+			if (lastKnownTimestamp == null)
+				return false;
+			if (!lastKnownTimestamp.equals(currentTimestamp)) {
+				return false;
+			}
+		}
+		//A repo has been removed
+		if (timestamps.size() != 0)
+			return false;
+
+		return true;
+	}
+
+	private void readTimestamps() {
+		File file = Activator.getContext().getDataFile(TIMESTAMPS_FILE_PREFIX + profile.getProfileId().hashCode());
+		timestamps = new Properties();
+		try {
+			InputStream is = new BufferedInputStream(new FileInputStream(file));
+			try {
+				timestamps.load(is);
+			} finally {
+				if (is != null)
+					is.close();
+			}
+		} catch (FileNotFoundException e) {
+			//Ignore
+		} catch (IOException e) {
+			//Ignore
 		}
 	}
 

@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -76,6 +77,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
+		if (installableUnits == null || installableUnits.length == 0)
+			return;
 		units.addAll(Arrays.asList(installableUnits));
 		save();
 	}
@@ -110,12 +113,15 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
-		int sizeBefore = units.size();
+		boolean changed = false;
 		for (Iterator it = units.iterator(); it.hasNext();)
-			if (query.isMatch(it.next()))
+			if (query.isMatch(it.next())) {
 				it.remove();
-		save();
-		return units.size() != sizeBefore;
+				changed = true;
+			}
+		if (changed)
+			save();
+		return changed;
 	}
 
 	public void revertToBackup(LocalMetadataRepository backup) {
@@ -159,6 +165,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 				jOutput.putNextEntry(jarEntry);
 				output = jOutput;
 			}
+			super.setProperty(IRepository.PROP_TIMESTAMP, Long.toString(System.currentTimeMillis()));
 			new MetadataRepositoryIO().write(this, output);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_WRITE, "Error saving metadata repository: " + location, e)); //$NON-NLS-1$

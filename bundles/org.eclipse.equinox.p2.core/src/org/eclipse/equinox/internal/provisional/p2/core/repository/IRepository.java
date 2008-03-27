@@ -53,6 +53,11 @@ public interface IRepository extends IAdaptable {
 	public static final String PROP_MIRRORS_URL = "p2.mirrorsURL"; //$NON-NLS-1$
 
 	/**
+	 * The key for a string property containing the time when the repository was last modified.
+	 */
+	public static final String PROP_TIMESTAMP = "p2.timestamp"; //$NON-NLS-1$
+
+	/**
 	 * A repository type constant (value 0) representing a metadata repository.
 	 */
 	public static final int TYPE_METADATA = 0;
