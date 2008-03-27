@@ -16,24 +16,33 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class MissingOptional extends AbstractProvisioningTest {
+public class MissingOptionalWithDependencies3 extends AbstractProvisioningTest {
 	private IInstallableUnit a1;
 	private IInstallableUnit b1;
+	private IInstallableUnit c1;
+	private IInstallableUnit c2;
 	private IInstallableUnit d;
 	private IProfile profile;
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
 		a1 = createIU("A", new Version("1.0.0"), true);
-		b1 = createIU("B", new Version("1.0.0"), true);
+		c1 = createIU("C", new Version("1.0.0"), true);
+		c2 = createIU("C", new Version("2.0.0"), true);
+
+		//B's dependency on C can not be satisfied
+		RequiredCapability[] reqB = new RequiredCapability[2];
+		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[1.0.0, 1.0.0]"), null, true, false, true);
+		reqB[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
+		b1 = createIU("B", new Version("1.0.0"), reqB);
 
 		RequiredCapability[] req = new RequiredCapability[3];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
 		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
+		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", new VersionRange("[2.0.0, 2.0.0]"), null, false, false, true);
 		d = createIU("D", req);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, d});
+		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, c2, d});
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();
@@ -46,7 +55,11 @@ public class MissingOptional extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
-		assertInstallOperand(plan, b1); //THIS May not be in
+		assertInstallOperand(plan, b1);
 		assertInstallOperand(plan, d);
+		assertInstallOperand(plan, c2);
+		for (int i = 0; i < plan.getOperands().length; i++) {
+			System.out.println(plan.getOperands()[i]);
+		}
 	}
 }

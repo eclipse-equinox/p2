@@ -16,7 +16,7 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class MissingOptional extends AbstractProvisioningTest {
+public class MissingOptionalWithDependencies extends AbstractProvisioningTest {
 	private IInstallableUnit a1;
 	private IInstallableUnit b1;
 	private IInstallableUnit d;
@@ -25,12 +25,16 @@ public class MissingOptional extends AbstractProvisioningTest {
 
 	protected void setUp() throws Exception {
 		a1 = createIU("A", new Version("1.0.0"), true);
-		b1 = createIU("B", new Version("1.0.0"), true);
 
-		RequiredCapability[] req = new RequiredCapability[3];
+		//B's dependency is missing
+		RequiredCapability[] reqB = new RequiredCapability[2];
+		reqB[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
+		reqB[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
+		b1 = createIU("B", new Version("1.0.0"), reqB);
+
+		RequiredCapability[] req = new RequiredCapability[2];
 		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
-		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
+		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
 		d = createIU("D", req);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, d});
@@ -46,7 +50,7 @@ public class MissingOptional extends AbstractProvisioningTest {
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
-		assertInstallOperand(plan, b1); //THIS May not be in
+		assertInstallOperand(plan, b1);
 		assertInstallOperand(plan, d);
 	}
 }

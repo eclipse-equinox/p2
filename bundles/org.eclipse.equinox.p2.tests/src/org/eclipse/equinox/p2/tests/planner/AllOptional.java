@@ -16,37 +16,45 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class MissingOptional extends AbstractProvisioningTest {
+public class AllOptional extends AbstractProvisioningTest {
 	private IInstallableUnit a1;
 	private IInstallableUnit b1;
-	private IInstallableUnit d;
+	private IInstallableUnit c1;
+	private IInstallableUnit d1;
+	private IInstallableUnit e1;
 	private IProfile profile;
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
-		a1 = createIU("A", new Version("1.0.0"), true);
+		RequiredCapability[] reqA = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true)};
+		a1 = createIU("A", new Version("1.0.0"), reqA);
 		b1 = createIU("B", new Version("1.0.0"), true);
 
-		RequiredCapability[] req = new RequiredCapability[3];
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
-		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
-		d = createIU("D", req);
+		RequiredCapability[] reqC = new RequiredCapability[2];
+		reqC[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "D", VersionRange.emptyRange, null, true, false, true);
+		reqC[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "E", VersionRange.emptyRange, null, true, false, true);
+		c1 = createIU("C", new Version("1.0.0"), reqC);
+		d1 = createIU("D", new Version("1.0.0"), true);
+		e1 = createIU("E", new Version("1.0.0"), true);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, d});
+		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, c1, d1, e1});
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();
 	}
 
 	public void testInstallation() {
-		//Ensure that D's installation does not fail because of C's absence
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {d});
+		req.addInstallableUnits(new IInstallableUnit[] {a1, c1});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
 		assertInstallOperand(plan, a1);
-		assertInstallOperand(plan, b1); //THIS May not be in
-		assertInstallOperand(plan, d);
+		assertInstallOperand(plan, b1);
+		assertInstallOperand(plan, c1);
+		assertInstallOperand(plan, d1);
+		assertInstallOperand(plan, e1);
+		for (int i = 0; i < plan.getOperands().length; i++) {
+			System.out.println(plan.getOperands()[i]);
+		}
 	}
 }

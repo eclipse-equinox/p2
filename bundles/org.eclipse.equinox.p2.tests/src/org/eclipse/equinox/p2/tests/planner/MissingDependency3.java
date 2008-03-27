@@ -16,37 +16,33 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
-public class MissingOptional extends AbstractProvisioningTest {
-	private IInstallableUnit a1;
-	private IInstallableUnit b1;
-	private IInstallableUnit d;
+public class MissingDependency3 extends AbstractProvisioningTest {
+	IInstallableUnit a1;
+	IInstallableUnit b1;
 	private IProfile profile;
 	private IPlanner planner;
 
+	//This tests that A can still be resolved and installed
 	protected void setUp() throws Exception {
-		a1 = createIU("A", new Version("1.0.0"), true);
-		b1 = createIU("B", new Version("1.0.0"), true);
+		RequiredCapability[] reqA = new RequiredCapability[1];
+		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
+		a1 = createIU("A", new Version("1.0.0"), reqA);
 
-		RequiredCapability[] req = new RequiredCapability[3];
-		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false, true);
-		req[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
-		req[2] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, true, false, true);
-		d = createIU("D", req);
+		//Missing dependency
+		RequiredCapability[] req = new RequiredCapability[1];
+		req[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
+		b1 = createIU("B", new Version("1.0.0"), req);
 
-		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, d});
+		createTestMetdataRepository(new IInstallableUnit[] {a1, b1});
 
 		profile = createProfile("TestProfile." + getName());
 		planner = createPlanner();
 	}
 
-	public void testInstallation() {
-		//Ensure that D's installation does not fail because of C's absence
+	public void testContradiction() {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
-		req.addInstallableUnits(new IInstallableUnit[] {d});
+		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
-		assertInstallOperand(plan, a1);
-		assertInstallOperand(plan, b1); //THIS May not be in
-		assertInstallOperand(plan, d);
 	}
 }
