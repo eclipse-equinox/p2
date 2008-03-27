@@ -41,6 +41,7 @@ public class Activator implements BundleActivator {
 	private static IMetadataRepository[] dropinRepositories;
 	private static IMetadataRepository[] configurationRepositories;
 	private static IMetadataRepository[] linksRepositories;
+	private static IMetadataRepository eclipseProductRepository;
 
 	/**
 	 * Helper method to load a metadata repository from the specified URL.
@@ -104,6 +105,8 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 
+		// create a watcher for the main plugins and features directories
+		watchEclipseProduct();
 		// create the watcher for the "drop-ins" folder
 		watchDropins(profile);
 		// keep an eye on the platform.xml
@@ -111,6 +114,24 @@ public class Activator implements BundleActivator {
 			watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
+	}
+
+	private void watchEclipseProduct() {
+
+		URL baseURL;
+		try {
+			baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
+			URL pooledURL = new URL(baseURL, "../.pooled"); //$NON-NLS-1$
+			loadArtifactRepository(pooledURL);
+			eclipseProductRepository = loadMetadataRepository(pooledURL);
+		} catch (MalformedURLException e) {
+			// TODO proper logging
+			e.printStackTrace();
+		} catch (ProvisionException e) {
+			// TODO proper logging
+			e.printStackTrace();
+		}
+
 	}
 
 	private boolean startEarly(String bundleName) throws BundleException {
@@ -138,6 +159,9 @@ public class Activator implements BundleActivator {
 
 		if (linksRepositories != null)
 			repositories.addAll(Arrays.asList(linksRepositories));
+
+		if (eclipseProductRepository != null)
+			repositories.add(eclipseProductRepository);
 
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
@@ -284,7 +308,7 @@ public class Activator implements BundleActivator {
 	//		}
 	//	}
 
-	private static IProfile getCurrentProfile(BundleContext context) {
+	public static IProfile getCurrentProfile(BundleContext context) {
 		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
 		if (reference == null)
 			return null;

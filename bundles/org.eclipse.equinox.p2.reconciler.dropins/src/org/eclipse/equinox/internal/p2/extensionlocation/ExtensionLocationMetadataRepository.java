@@ -6,8 +6,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -18,6 +17,7 @@ import org.osgi.framework.BundleContext;
 
 public class ExtensionLocationMetadataRepository extends AbstractRepository implements IMetadataRepository {
 
+	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
@@ -46,7 +46,10 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 		metadataRepository = initializeMetadataRepository(localRepositoryURL, "extension location implementation - " + location.toExternalForm()); //$NON-NLS-1$
 
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		RepositoryListener listener = new RepositoryListener(context, metadataRepository, null);
+		DirectoryChangeListener listener = new RepositoryListener(context, metadataRepository, null);
+		if (location.getPath().endsWith(POOLED))
+			listener = new BundlePoolFilteredListener(context, listener);
+
 		watcher.addListener(listener);
 		watcher.poll();
 	}
@@ -85,7 +88,12 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 		if (!FILE.equals(url.getProtocol()))
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location must use file protocol", null));
 
-		File base = new File(url.getPath());
+		String path = url.getPath();
+		File base = new File(path);
+		if (path.endsWith(POOLED)) {
+			base = base.getParentFile();
+		}
+
 		if (!base.isDirectory())
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location not a directory", null));
 

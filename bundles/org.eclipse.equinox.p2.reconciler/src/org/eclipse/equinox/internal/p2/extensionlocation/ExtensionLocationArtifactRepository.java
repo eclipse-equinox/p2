@@ -8,8 +8,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
@@ -17,6 +16,7 @@ import org.osgi.framework.BundleContext;
 
 public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository {
 
+	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	//private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
@@ -46,7 +46,10 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		artifactRepository = (IFileArtifactRepository) initializeArtifactRepository(localRepositoryURL, "extension location implementation - " + location.toExternalForm()); //$NON-NLS-1$
 
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		RepositoryListener listener = new RepositoryListener(context, null, artifactRepository);
+		DirectoryChangeListener listener = new RepositoryListener(context, null, artifactRepository);
+		if (location.getPath().endsWith(POOLED))
+			listener = new BundlePoolFilteredListener(context, listener);
+
 		watcher.addListener(listener);
 		watcher.poll();
 	}
@@ -72,7 +75,12 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		if (!FILE.equals(url.getProtocol()))
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location must use file protocol", null));
 
-		File base = new File(url.getPath());
+		String path = url.getPath();
+		File base = new File(path);
+		if (path.endsWith(POOLED)) {
+			base = base.getParentFile();
+		}
+
 		if (!base.isDirectory())
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location not a directory", null));
 
