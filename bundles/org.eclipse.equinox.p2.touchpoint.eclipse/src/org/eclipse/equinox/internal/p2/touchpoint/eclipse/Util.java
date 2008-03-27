@@ -66,7 +66,7 @@ public class Util {
 		return location.getDataArea(Activator.ID);
 	}
 
-	static IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
+	static public IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
 		URL location = getBundlePoolLocation(profile);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		try {

@@ -289,7 +289,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				if (snapshotLastModified == null || !snapshotLastModified.equals(artifactLastModified))
 					artifactRepository.removeDescriptor(descriptor);
 				else
-					snapshot.remove(key);
+					snapshot.remove(artifactFile);
 			}
 		}
 
