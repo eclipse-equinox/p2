@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
 import java.util.*;
-import java.util.jar.*;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
@@ -134,15 +134,15 @@ public class BundleDescriptionFactory {
 		Dictionary manifest = null;
 		if (manifestStream != null) {
 			try {
-				manifest = manifestToProperties(new Manifest(manifestStream).getMainAttributes());
+				Map manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
+				// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
+				// real answer is to have people expect a Map but that is a wider change.
+				manifest = new Hashtable(manifestMap);
 			} catch (IOException ioe) {
 				return null;
+			} catch (BundleException e) {
+				return null;
 			} finally {
-				try {
-					manifestStream.close();
-				} catch (IOException e1) {
-					//Ignore
-				}
 				try {
 					if (jarFile != null)
 						jarFile.close();
@@ -349,12 +349,4 @@ public class BundleDescriptionFactory {
 	//		return localizedProperties;
 	//	}
 
-	private Properties manifestToProperties(Attributes attributes) {
-		Properties result = new Properties();
-		for (Iterator i = attributes.keySet().iterator(); i.hasNext();) {
-			Attributes.Name key = (Attributes.Name) i.next();
-			result.put(key.toString(), attributes.get(key));
-		}
-		return result;
-	}
 }
