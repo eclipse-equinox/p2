@@ -119,6 +119,13 @@
             description="Enables classic update functionality"
             id="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
             name="Classic Update">
+         <enabledWhen>
+            <not>
+               <reference
+                     definitionId="org.eclipse.equinox.p2.ui.sdk.profileExists">
+               </reference>
+            </not>
+         </enabledWhen>
       </activity>
       <activityPatternBinding
             activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
@@ -130,21 +137,39 @@
             isEqualityPattern="false"
             pattern=".*org\.eclipse\.ui\.update.*">
       </activityPatternBinding>
-      <category
-            description="Enables classic update functionality"
-            id="org.eclipse.equinox.p2.ui.sdk.category.classicUpdate"
-            name="Classic Update">
-      </category>
-      <categoryActivityBinding
-            activityId="org.eclipse.equinox.p2.ui.sdk.classicUpdate"
-            categoryId="org.eclipse.equinox.p2.ui.sdk.category.classicUpdate">
-      </categoryActivityBinding>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.ClassicUpdateInitializer">
-      </initializer>
+         point="org.eclipse.ui.activities">
+      <activity
+            description="Enables p2 update functionality"
+            id="org.eclipse.equinox.p2.ui.sdk.p2SoftwareUpdates"
+            name="p2 Software Updates">
+         <enabledWhen>
+            <reference
+                  definitionId="org.eclipse.equinox.p2.ui.sdk.profileExists">
+            </reference>
+         </enabledWhen>
+      </activity>
+      <activityPatternBinding
+            activityId="org.eclipse.equinox.p2.ui.sdk.p2SoftwareUpdates"
+            isEqualityPattern="false"
+            pattern=".*org\.eclipse\.equinox\.p2\.ui\.sdk.*">
+      </activityPatternBinding>
+      <activityPatternBinding
+            activityId="org.eclipse.equinox.p2.ui.sdk.p2SoftwareUpdates"
+            isEqualityPattern="false"
+            pattern=".*org\.eclipse\.equinox\.internal\.p2\.ui\.sdk.*">
+      </activityPatternBinding>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.eclipse.equinox.p2.ui.sdk.profileExists">
+         <systemTest
+               property="org.eclipse.update.reconcile"
+               value="false">
+         </systemTest>
+      </definition>
    </extension>
 
 </plugin>
