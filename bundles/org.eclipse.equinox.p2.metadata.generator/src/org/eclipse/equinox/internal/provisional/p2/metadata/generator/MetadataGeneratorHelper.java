@@ -895,8 +895,11 @@ public class MetadataGeneratorHelper {
 			// TODO should really be returning VersionRange.emptyRange here...
 			return null;
 		Version version = new Version(versionSpec);
-		if (!entry.isRequires())
+		if (!entry.isRequires()) {
+			if ("0.0.0".equals(entry.getVersion())) //$NON-NLS-1$
+				return VersionRange.emptyRange;
 			return new VersionRange(version, true, version, true);
+		}
 		String match = entry.getMatch();
 		if (match == null)
 			// TODO should really be returning VersionRange.emptyRange here...
