@@ -154,7 +154,8 @@ public class EclipseGeneratorApplication implements IApplication {
 		try {
 			IMetadataRepository repository = manager.loadRepository(location, null);
 			if (repository != null) {
-				repository.setProperty(IRepository.PROP_COMPRESSED, compress);
+				// don't set the compress flag here because we don't want to change the format
+				// of an already existing repository
 				if (!repository.isModifiable())
 					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
 				provider.setMetadataRepository(repository);
@@ -182,6 +183,11 @@ public class EclipseGeneratorApplication implements IApplication {
 	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
 		initializeArtifactRepository(provider);
 		initializeMetadataRepository(provider);
+	}
+
+	public void setCompress(String value) {
+		if (Boolean.valueOf(value).booleanValue())
+			compress = "true";
 	}
 
 	public void processCommandLineArguments(String[] args, EclipseInstallGeneratorInfoProvider provider) throws Exception {

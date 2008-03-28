@@ -80,6 +80,12 @@ public class GeneratorTask extends Task {
 		generator.setBundles(value);
 	}
 
+	public void setCompress(String value) {
+		if (generator == null)
+			generator = new EclipseGeneratorApplication();
+		generator.setCompress(value);
+	}
+
 	public void setConfig(String value) {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
