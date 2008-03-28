@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
@@ -329,8 +330,12 @@ public class UpdateSite {
 			try {
 				URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
 				Feature feature = parseFeature(featureParser, featureURL);
-				featureCache.put(key, feature);
-				loadIncludedFeatures(feature, featureParser);
+				if (feature == null) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing feature at: " + featureURL.toString())); //$NON-NLS-1$
+				} else {
+					featureCache.put(key, feature);
+					loadIncludedFeatures(feature, featureParser);
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -354,8 +359,12 @@ public class UpdateSite {
 			try {
 				URL featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
 				Feature includedFeature = parseFeature(featureParser, featureURL);
-				featureCache.put(key, includedFeature);
-				loadIncludedFeatures(includedFeature, featureParser);
+				if (feature == null) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing feature at: " + featureURL.toString())); //$NON-NLS-1$
+				} else {
+					featureCache.put(key, includedFeature);
+					loadIncludedFeatures(includedFeature, featureParser);
+				}
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
