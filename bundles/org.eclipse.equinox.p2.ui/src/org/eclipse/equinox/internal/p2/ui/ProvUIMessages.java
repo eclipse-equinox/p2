@@ -138,6 +138,8 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUContentProvider_JobName;
 	public static String AvailableIUContentProvider_PlaceholderLabel;
 	public static String AvailableIUElement_ProfileNotFound;
+	public static String Label_Profiles;
+	public static String Label_Repositories;
 	public static String MetadataRepositoryElement_RepositoryLoadError;
 	public static String UpdateAction_ExceptionDuringUpdateCheck;
 	public static String UpdateAction_UpdateInformationTitle;

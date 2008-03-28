@@ -82,28 +82,32 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		info.location = repository.getLocation();
 		String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
 		info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			repositories.put(getKey(repository), info);
+			added = repositories.put(getKey(repository), info) == null;
 		}
 		// save the given repository in the preferences.
 		remember(repository);
-		broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
+		if (added)
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
 	}
 
 	public void addRepository(URL location) {
 		Assert.isNotNull(location);
 		RepositoryInfo info = new RepositoryInfo();
 		info.location = location;
+		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			repositories.put(getKey(location), info);
+			added = repositories.put(getKey(location), info) == null;
 		}
 		// save the given repository in the preferences.
 		remember(info);
-		broadcastChangeEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
+		if (added)
+			broadcastChangeEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.model;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
@@ -30,7 +31,15 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 	}
 
 	public void fetchDeferredChildren(Object o, IElementCollector collector, IProgressMonitor monitor) {
-		collector.add(fetchChildren(o, monitor), monitor);
+		try {
+			Object[] children = fetchChildren(o, monitor);
+			if (!monitor.isCanceled()) {
+				collector.add(children, monitor);
+			}
+		} catch (OperationCanceledException e) {
+			// Nothing to do
+		}
+		collector.done();
 
 	}
 
@@ -42,7 +51,7 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 		if (getQueryProvider() == null)
 			return new Object[0];
 		ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this, getQueryType());
-		if (queryDescriptor == null || !queryDescriptor.isComplete())
+		if (queryDescriptor == null || !isSufficientForQuery(queryDescriptor))
 			return new Object[0];
 		queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, monitor);
 		return queryDescriptor.collector.toArray(Object.class);
@@ -54,5 +63,16 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 
 	public boolean isContainer() {
 		return true;
+	}
+
+	/**
+	 * Return whether the query descriptor is sufficient for this element to complete the query.
+	 * The default implementation requires the descriptor to be complete.  Subclasses may override.
+	 * 
+	 * @param queryDescriptor the query descriptor in question
+	 * @return <code>true</code> if the descriptor is sufficient, <code>false</code> if it is not.
+	 */
+	protected boolean isSufficientForQuery(ElementQueryDescriptor queryDescriptor) {
+		return queryDescriptor.isComplete();
 	}
 }

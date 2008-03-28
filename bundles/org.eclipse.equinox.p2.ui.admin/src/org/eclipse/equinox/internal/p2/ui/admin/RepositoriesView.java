@@ -81,13 +81,7 @@ abstract class RepositoriesView extends ProvView {
 
 	protected void addListeners() {
 		super.addListeners();
-		listener = new StructuredViewerProvisioningListener(viewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, ProvAdminUIActivator.getDefault().getQueryProvider()) {
-			protected void refreshAll() {
-				// The content provider maintains the same deferred content manager
-				// unless input changes, so a viewer.refresh() is not enough.
-				RepositoriesView.this.refreshAll();
-			}
-		};
+		listener = new StructuredViewerProvisioningListener(viewer, getListenerEventTypes(), ProvAdminUIActivator.getDefault().getQueryProvider());
 		ProvUI.addProvisioningListener(listener);
 	}
 
@@ -180,6 +174,8 @@ abstract class RepositoriesView extends ProvView {
 	protected abstract String getRemoveCommandTooltip();
 
 	protected abstract boolean isRepository(Object element);
+
+	protected abstract int getListenerEventTypes();
 
 	protected List getVisualProperties() {
 		List list = super.getVisualProperties();

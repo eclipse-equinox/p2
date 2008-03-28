@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveArtifactRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -35,7 +36,9 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		return new ArtifactRepositories();
+		ArtifactRepositories input = new ArtifactRepositories();
+		input.setQueryProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
+		return input;
 	}
 
 	protected String getAddCommandLabel() {
@@ -71,6 +74,14 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 		if (ProvAdminUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS))
 			return IArtifactRepositoryManager.REPOSITORIES_NON_SYSTEM;
 		return IArtifactRepositoryManager.REPOSITORIES_ALL;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getListenerEventTypes()
+	 */
+	protected int getListenerEventTypes() {
+		return StructuredViewerProvisioningListener.PROV_EVENT_ARTIFACT_REPOSITORY;
 	}
 
 }

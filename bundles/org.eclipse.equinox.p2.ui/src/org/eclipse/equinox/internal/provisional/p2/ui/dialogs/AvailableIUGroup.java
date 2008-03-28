@@ -62,19 +62,17 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		availableIUViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
 		availableIUViewer.setComparer(new ProvElementComparer());
 
-		// Now the content.
+		// Now the content provider.
 		availableIUViewer.setContentProvider(new DeferredQueryContentProvider(getQueryProvider()));
-		availableIUViewer.setInput(getInput());
 
 		// Now the presentation, columns before label provider.
 		setTreeColumns(availableIUViewer.getTree());
 		availableIUViewer.setLabelProvider(labelProvider);
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, getQueryProvider()) {
-			protected void refreshAll() {
-				AvailableIUGroup.this.refreshAll();
-			}
-		};
+		// Input last.
+		availableIUViewer.setInput(getInput());
+
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, getQueryProvider());
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 
 		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
@@ -100,12 +98,11 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	Object getInput() {
 		MetadataRepositories input = new MetadataRepositories(getProvisioningContext().getMetadataRepositories());
 		input.setQueryType(IQueryProvider.AVAILABLE_IUS);
+		input.setQueryProvider(getQueryProvider());
 		return input;
 	}
 
-	public void refreshAll() {
-		// The content provider caches the children unless input changes,
-		// so a viewer.refresh() is not enough.
-		getStructuredViewer().setInput(getInput());
+	public StructuredViewer getStructuredViewer() {
+		return super.getStructuredViewer();
 	}
 }

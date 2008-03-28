@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import java.util.EventObject;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
@@ -31,9 +32,10 @@ import org.eclipse.ui.PlatformUI;
  */
 public class StructuredViewerProvisioningListener implements SynchronousProvisioningListener {
 
-	public static final int PROV_EVENT_REPOSITORY = 0x0001;
+	public static final int PROV_EVENT_METADATA_REPOSITORY = 0x0001;
 	public static final int PROV_EVENT_IU = 0x0002;
 	public static final int PROV_EVENT_PROFILE = 0x0004;
+	public static final int PROV_EVENT_ARTIFACT_REPOSITORY = 0x0008;
 
 	int eventTypes = 0;
 	StructuredViewer viewer;
@@ -72,19 +74,22 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 					}
 				});
 			}
-		} else if (o instanceof RepositoryEvent && (eventTypes & PROV_EVENT_REPOSITORY) == PROV_EVENT_REPOSITORY) {
+		} else if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
-			if (event.getKind() == RepositoryEvent.ADDED || event.getKind() == RepositoryEvent.REMOVED) {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						IWorkbench workbench = PlatformUI.getWorkbench();
-						if (workbench.isClosing())
-							return;
-						Control control = viewer.getControl();
-						if (control != null && !control.isDisposed())
-							refreshAll();
-					}
-				});
+			// Do not refresh unless this is the type of repo that we are interested in
+			if ((event.getRepositoryType() == IRepository.TYPE_METADATA && (eventTypes & PROV_EVENT_METADATA_REPOSITORY) == PROV_EVENT_METADATA_REPOSITORY) || (event.getRepositoryType() == IRepository.TYPE_ARTIFACT && (eventTypes & PROV_EVENT_ARTIFACT_REPOSITORY) == PROV_EVENT_ARTIFACT_REPOSITORY)) {
+				if (event.getKind() == RepositoryEvent.ADDED || event.getKind() == RepositoryEvent.REMOVED) {
+					display.asyncExec(new Runnable() {
+						public void run() {
+							IWorkbench workbench = PlatformUI.getWorkbench();
+							if (workbench.isClosing())
+								return;
+							Control control = viewer.getControl();
+							if (control != null && !control.isDisposed())
+								refreshAll();
+						}
+					});
+				}
 			}
 		}
 
@@ -92,7 +97,7 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 
 	/**
 	 * Refresh the entire structure of the viewer.  Subclasses may
-	 * override to ensure that any caching of content providers or
+	 * override to ensure that any caching done in content providers or
 	 * model elements is refreshed before the viewer is refreshed.
 	 */
 	protected void refreshAll() {

@@ -11,8 +11,10 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import java.net.URL;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 
 /**
  * Element class that represents some collection of metadata repositories.
@@ -24,7 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
  * @since 3.4
  *
  */
-public class MetadataRepositories extends QueriedElement {
+public class MetadataRepositories extends RemoteQueriedElement {
 
 	private URL[] metadataRepositories = null;
 	private int queryType = IQueryProvider.METADATA_REPOS;
@@ -58,6 +60,25 @@ public class MetadataRepositories extends QueriedElement {
 	 */
 	public URL[] getMetadataRepositories() {
 		return metadataRepositories;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
+	 */
+	public String getLabel(Object o) {
+		return ProvUIMessages.Label_Repositories;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * Overridden because we know that the queryable metadata repo manager can handle a null query
+	 * @see org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement#isSufficientForQuery(org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor)
+	 */
+	// TODO this is not ideal
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224504
+	protected boolean isSufficientForQuery(ElementQueryDescriptor queryDescriptor) {
+		return queryDescriptor.collector != null && queryDescriptor.queryable != null;
 	}
 
 }

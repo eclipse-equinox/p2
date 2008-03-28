@@ -66,17 +66,15 @@ public class InstalledIUGroup extends StructuredIUGroup {
 
 		// Now the content.
 		installedIUViewer.setContentProvider(new DeferredQueryContentProvider(getQueryProvider()));
-		installedIUViewer.setInput(getInput());
 
 		// Now the visuals, columns before labels.
 		setTableColumns(installedIUViewer.getTable());
 		installedIUViewer.setLabelProvider(new IUDetailsLabelProvider());
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, getQueryProvider()) {
-			protected void refreshAll() {
-				InstalledIUGroup.this.refreshAll();
-			}
-		};
+		// Input last.
+		installedIUViewer.setInput(getInput());
+
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(installedIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_IU | StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, getQueryProvider());
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 		installedIUViewer.getControl().addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
@@ -99,12 +97,8 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	}
 
 	Object getInput() {
-		return new ProfileElement(profileId);
-	}
-
-	public void refreshAll() {
-		// The content provider caches the children unless input changes,
-		// so a viewer.refresh() is not enough.
-		getStructuredViewer().setInput(getInput());
+		ProfileElement element = new ProfileElement(profileId);
+		element.setQueryProvider(getQueryProvider());
+		return element;
 	}
 }

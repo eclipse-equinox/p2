@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.actions.RevertAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveMetadataRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
@@ -53,7 +54,10 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	}
 
 	protected Object getInput() {
-		return new MetadataRepositories();
+		MetadataRepositories input = new MetadataRepositories();
+		input.setQueryProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
+		input.setQueryType(IQueryProvider.METADATA_REPOS);
+		return input;
 	}
 
 	protected String getAddCommandLabel() {
@@ -147,6 +151,14 @@ public class MetadataRepositoriesView extends RepositoriesView {
 		if (ProvAdminUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_HIDE_SYSTEM_REPOS))
 			return IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM;
 		return IMetadataRepositoryManager.REPOSITORIES_ALL;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.admin.RepositoriesView#getListenerEventTypes()
+	 */
+	protected int getListenerEventTypes() {
+		return StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY;
 	}
 
 }

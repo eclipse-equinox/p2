@@ -59,11 +59,13 @@ abstract class ProvView extends ViewPart {
 		// Do this after setting up sorters, filters, etc.
 		// Otherwise it will retrieve content on each change.
 		viewer.setContentProvider(getContentProvider());
-		viewer.setInput(getInput());
 
 		// Now set up the visuals, columns before labels.
 		setTreeColumns(viewer.getTree());
 		viewer.setLabelProvider(getLabelProvider());
+
+		// Input is last
+		viewer.setInput(getInput());
 
 		addListeners();
 		makeActions();

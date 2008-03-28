@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipula
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveColocatedRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -81,8 +82,10 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		repositoryViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		setTableColumns(repositoryViewer.getTable());
 		repositoryViewer.setContentProvider(new RepositoryContentProvider(ProvSDKUIActivator.getDefault().getQueryProvider()));
-		repositoryViewer.setInput(new MetadataRepositories());
 		repositoryViewer.setLabelProvider(new ProvElementLabelProvider());
+
+		// Input last
+		repositoryViewer.setInput(getInput());
 
 		DropTarget target = new DropTarget(repositoryViewer.getControl(), DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
@@ -99,7 +102,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		Composite verticalButtonBar = (Composite) createVerticalButtonBar(composite);
 		data = new GridData(GridData.FILL_VERTICAL);
 		verticalButtonBar.setLayoutData(data);
-		listener = new StructuredViewerProvisioningListener(repositoryViewer, StructuredViewerProvisioningListener.PROV_EVENT_REPOSITORY, ProvSDKUIActivator.getDefault().getQueryProvider());
+		listener = new StructuredViewerProvisioningListener(repositoryViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, ProvSDKUIActivator.getDefault().getQueryProvider());
 		ProvUI.addProvisioningListener(listener);
 		composite.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent event) {
@@ -209,5 +212,12 @@ public class RepositoryManipulationDialog extends TrayDialog {
 			}
 		});
 		return composite;
+	}
+
+	private Object getInput() {
+		MetadataRepositories input = new MetadataRepositories();
+		input.setQueryProvider(ProvSDKUIActivator.getDefault().getQueryProvider());
+		input.setQueryType(IQueryProvider.METADATA_REPOS);
+		return input;
 	}
 }

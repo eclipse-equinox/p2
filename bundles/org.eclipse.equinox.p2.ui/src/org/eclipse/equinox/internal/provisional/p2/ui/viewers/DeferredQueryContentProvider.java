@@ -35,6 +35,8 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 	}
 
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+		if (manager != null)
+			manager.cancel(oldInput);
 		if (v instanceof AbstractTreeViewer) {
 			manager = new DeferredTreeContentManager((AbstractTreeViewer) v);
 		}
@@ -44,7 +46,7 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 		if (input instanceof QueriedElement) {
 			QueriedElement element = (QueriedElement) input;
 			element.setQueryProvider(queryProvider);
-			return element.getChildren(null);
+			return getChildren(element);
 		}
 		return null;
 	}

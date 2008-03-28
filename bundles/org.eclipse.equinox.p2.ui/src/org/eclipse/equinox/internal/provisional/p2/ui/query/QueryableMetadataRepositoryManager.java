@@ -76,7 +76,11 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			repoURLs = manager.getKnownRepositories(flags);
 		}
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.length * 2);
+		if (sub.isCanceled())
+			return result;
 		for (int i = 0; i < repoURLs.length; i++) {
+			if (sub.isCanceled())
+				return result;
 			if (query == null) {
 				result.accept(repoURLs[i]);
 				sub.worked(2);
