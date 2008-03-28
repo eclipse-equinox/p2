@@ -20,6 +20,8 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 public class IUPropertyUtils {
 
+	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
+
 	public static String getIUProperty(IInstallableUnit iu, String propertyKey, Locale locale) {
 		String value = iu.getProperty(propertyKey);
 		if (value == null || value.length() <= 1 || value.charAt(0) != '%')
@@ -43,11 +45,15 @@ public class IUPropertyUtils {
 			}
 		}
 
+		String defaultKey = DEFAULT_LOCALE.toString() + '.' + actualKey;
+		String defaultValue = iu.getProperty(defaultKey);
+		if (defaultValue != null)
+			return defaultValue;
+
 		return value;
 	}
 
-	private static final String MANIFEST_NAME = "_manifest"; //$NON-NLS-1$
-	private static final String PROPERTIES_NAME = "_properties"; //$NON-NLS-1$
+	private static final String TRANSLATED_PROPERTIES_NAME = "_translated_properties"; //$NON-NLS-1$
 
 	/**
 	 */
@@ -57,14 +63,14 @@ public class IUPropertyUtils {
 		ArrayList result = new ArrayList(4);
 		int lastSeparator;
 		while (true) {
-			result.add(id + MANIFEST_NAME + '_' + nl + PROPERTIES_NAME);
+			result.add(id + '_' + nl + TRANSLATED_PROPERTIES_NAME);
 			lastSeparator = nl.lastIndexOf('_');
 			if (lastSeparator == -1)
 				break;
 			nl = nl.substring(0, lastSeparator);
 		}
-		//add the empty suffix last (most general)
-		result.add(id + MANIFEST_NAME + PROPERTIES_NAME);
+		// Add the empty suffix last (most general)
+		result.add(id + TRANSLATED_PROPERTIES_NAME);
 		return (String[]) result.toArray(new String[result.size()]);
 	}
 

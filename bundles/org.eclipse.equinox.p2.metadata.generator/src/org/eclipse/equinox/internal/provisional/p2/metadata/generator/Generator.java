@@ -355,7 +355,7 @@ public class Generator {
 							}
 						}
 
-						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key, localizationIUs);
+						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key);
 
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling
@@ -365,7 +365,7 @@ public class Generator {
 							String[] cachedValues = (String[]) bundleLocalizationMap.get(hostKey);
 
 							if (cachedValues != null) {
-								MetadataGeneratorHelper.createHostLocalizationFragments(bd, hostId, cachedValues, localizationIUs);
+								MetadataGeneratorHelper.createHostLocalizationFragment(bundleIU, bd, hostId, cachedValues, localizationIUs);
 							}
 						}
 
