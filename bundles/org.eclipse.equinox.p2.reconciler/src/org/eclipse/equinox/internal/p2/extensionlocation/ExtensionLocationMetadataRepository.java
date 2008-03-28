@@ -3,6 +3,7 @@ package org.eclipse.equinox.internal.p2.extensionlocation;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.reconciler.dropins.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -112,5 +113,15 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 		File features = new File(base, FEATURES);
 
 		return plugins.isDirectory() || features.isDirectory();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository#getProperties()
+	 */
+	public Map getProperties() {
+		if (metadataRepository == null)
+			return super.getProperties();
+		else
+			return metadataRepository.getProperties();
 	}
 }
