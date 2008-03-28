@@ -293,11 +293,16 @@ public class RepositoryListener extends DirectoryChangeListener {
 			}
 		}
 
-		for (Iterator it = snapshot.keySet().iterator(); it.hasNext();) {
-			File file = (File) it.next();
-			IArtifactDescriptor descriptor = generateArtifactDescriptor(file);
-			if (descriptor != null)
-				artifactRepository.addDescriptor(descriptor);
+		if (!snapshot.isEmpty()) {
+			List descriptorsToAdd = new ArrayList();
+			for (Iterator it = snapshot.keySet().iterator(); it.hasNext();) {
+				File file = (File) it.next();
+				IArtifactDescriptor descriptor = generateArtifactDescriptor(file);
+				if (descriptor != null)
+					descriptorsToAdd.add(descriptor);
+			}
+			if (!descriptorsToAdd.isEmpty())
+				artifactRepository.addDescriptors((IArtifactDescriptor[]) descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
 		}
 	}
 
