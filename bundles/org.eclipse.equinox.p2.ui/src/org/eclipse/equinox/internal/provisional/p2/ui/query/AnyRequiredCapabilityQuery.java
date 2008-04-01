@@ -15,8 +15,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 /**
  * A query that searches a repository for all {@link IInstallableUnit} instances that 
- * meet any one of the given iu's capabilities.  This is used, for example, when
- * collecting all of the IU's mentioned by another IU, such as a category or group IU.
+ * meet any one of the given capabilities.  
  */
 public class AnyRequiredCapabilityQuery extends Query {
 	private RequiredCapability[] requirements;
@@ -24,8 +23,8 @@ public class AnyRequiredCapabilityQuery extends Query {
 	/**
 	 * Creates a new query for the capabilities of the given IU.
 	 */
-	public AnyRequiredCapabilityQuery(IInstallableUnit iu) {
-		this.requirements = iu.getRequiredCapabilities();
+	public AnyRequiredCapabilityQuery(RequiredCapability[] requirements) {
+		this.requirements = requirements;
 	}
 
 	/* (non-Javadoc)

@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
+import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
@@ -23,10 +25,10 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  */
 public class CategoryElement extends RemoteQueriedElement implements IUElement {
 
-	private IInstallableUnit iu;
+	private ArrayList ius = new ArrayList(1);
 
 	public CategoryElement(IInstallableUnit iu) {
-		this.iu = iu;
+		ius.add(iu);
 	}
 
 	/*
@@ -39,12 +41,15 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 	}
 
 	public String getLabel(Object o) {
-		return iu.getId();
+		IInstallableUnit iu = getIU();
+		if (iu != null)
+			return iu.getId();
+		return null;
 	}
 
 	public Object getAdapter(Class adapter) {
 		if (adapter == IInstallableUnit.class)
-			return iu;
+			return getIU();
 		return super.getAdapter(adapter);
 	}
 
@@ -53,7 +58,9 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 	}
 
 	public IInstallableUnit getIU() {
-		return iu;
+		if (ius == null || ius.isEmpty())
+			return null;
+		return (IInstallableUnit) ius.get(0);
 	}
 
 	public long getSize() {
@@ -70,6 +77,24 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 
 	public boolean shouldShowVersion() {
 		return false;
+	}
+
+	public void mergeIU(IInstallableUnit iu) {
+		ius.add(iu);
+	}
+
+	public RequiredCapability[] getRequirements() {
+		if (ius == null || ius.isEmpty())
+			return new RequiredCapability[0];
+		if (ius.size() == 1)
+			return getIU().getRequiredCapabilities();
+		ArrayList capabilities = new ArrayList();
+		Iterator iter = ius.iterator();
+		while (iter.hasNext()) {
+			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			capabilities.addAll(Arrays.asList(iu.getRequiredCapabilities()));
+		}
+		return (RequiredCapability[]) capabilities.toArray(new RequiredCapability[capabilities.size()]);
 	}
 
 }

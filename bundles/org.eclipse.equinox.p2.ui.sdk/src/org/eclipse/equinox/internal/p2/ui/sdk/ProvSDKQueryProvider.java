@@ -86,7 +86,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 
 				}
 				if (element instanceof CategoryElement) {
-					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getIU());
+					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getRequirements());
 					Collector collector;
 					if (showLatest)
 						collector = new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), true);

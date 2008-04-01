@@ -120,7 +120,7 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 
 				}
 				if (element instanceof CategoryElement) {
-					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getIU());
+					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getRequirements());
 					if (showGroupsOnly)
 						// Query all groups and use the query result to optionally select the latest version only
 						return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), showLatest ? new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), true) : new AvailableIUCollector(this, ((CategoryElement) element).getQueryable(), true));

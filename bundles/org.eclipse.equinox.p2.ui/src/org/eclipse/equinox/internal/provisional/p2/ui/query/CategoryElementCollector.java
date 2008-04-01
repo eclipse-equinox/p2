@@ -57,8 +57,10 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		// Don't add the same category IU twice
 		while (iter.hasNext()) {
 			CategoryElement element = (CategoryElement) iter.next();
-			if (element.getIU().getId().equals(iu.getId()))
+			if (element.getIU().getId().equals(iu.getId())) {
+				element.mergeIU(iu);
 				return true;
+			}
 		}
 		return super.accept(new CategoryElement(iu));
 	}
