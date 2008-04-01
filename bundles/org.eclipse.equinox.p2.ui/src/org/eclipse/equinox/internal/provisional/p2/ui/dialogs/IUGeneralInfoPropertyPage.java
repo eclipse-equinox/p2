@@ -54,18 +54,18 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		//addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, iu.getProperty(IInstallableUnit.PROP_NAME));
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, Locale.getDefault()));
+		Locale currentLocale = Locale.getDefault();
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, currentLocale));
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_IdentifierLabel, iu.getId());
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_VersionLabel, iu.getVersion().toString());
-		//addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, iu.getProperty(IInstallableUnit.PROP_PROVIDER));
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, Locale.getDefault()));
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ContactLabel, iu.getProperty(IInstallableUnit.PROP_CONTACT));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, currentLocale));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ContactLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_CONTACT, currentLocale));
 
 	}
 
 	private void createDescriptionSection(Composite parent, IInstallableUnit iu) {
-		String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION);
+		Locale currentLocale = Locale.getDefault();
+		String description = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, currentLocale);
 		if (description != null && description.length() > 0) {
 			Group group = new Group(parent, SWT.NONE);
 			group.setText(ProvUIMessages.IUGeneralInfoPropertyPage_DescriptionLabel);

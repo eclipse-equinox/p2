@@ -69,6 +69,7 @@ public class MetadataGeneratorHelper {
 	 * of strings from a specified IU in a specified locale
 	 * @see RequiredCapability#getNamespace()
 	 * @see ProvidedCapability#getNamespace()
+	 * TODO: this should be in API, probably in IInstallableUnit
 	 */
 	public static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
 
@@ -293,37 +294,6 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	/*
-	 * @param bd
-	 * @param manifestLocalizations	map from locale to translated properties
-	 * @return installableUnitFragment
-	 */
-	//	private static IInstallableUnitFragment createLocalizationFragmentOfBundle(BundleDescription bd, Map manifestLocalizations) {
-	//		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
-	//		String fragmentId = makeBundleLocalizationFragmentId(bd.getSymbolicName());
-	//		fragment.setId(fragmentId);
-	//		fragment.setVersion(bd.getVersion());
-	//
-	//		RequiredCapability[] hostReqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, bd.getSymbolicName(), new VersionRange(bd.getVersion(), true, bd.getVersion(), true), null, false, false, false)};
-	//		fragment.setHost(hostReqs);
-	//
-	//		fragment.setSingleton(true);
-	//
-	//		ArrayList providedCapabilities = new ArrayList(manifestLocalizations.size());
-	//		for (Iterator iter = manifestLocalizations.keySet().iterator(); iter.hasNext();) {
-	//			Locale locale = (Locale) iter.next();
-	//			Properties translatedStrings = (Properties) manifestLocalizations.get(locale);
-	//			Enumeration propertyKeys = translatedStrings.propertyNames();
-	//			while (propertyKeys.hasMoreElements()) {
-	//				String nextKey = (String) propertyKeys.nextElement();
-	//				fragment.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
-	//			}
-	//			providedCapabilities.add(makeTranslationCapability(bd.getSymbolicName(), locale));
-	//		}
-	//		fragment.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
-	//
-	//		return MetadataFactory.createInstallableUnitFragment(fragment);
-	//	}
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
 		Map hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
 		if (hostLocalizations != null) {
