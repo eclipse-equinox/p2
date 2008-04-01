@@ -168,7 +168,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	protected IStatus addRepository() {
 		IStatus status = validateRepositoryURL(true);
 		if (status.isOK()) {
-			ProvisioningOperationRunner.run(getOperation(getUserURL()), getShell());
+			ProvisioningOperationRunner.schedule(getOperation(getUserURL()), getShell());
 		}
 		return status;
 	}

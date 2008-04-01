@@ -43,4 +43,12 @@ abstract class RepositoryOperation extends UndoableProvisioningOperation {
 		return urls;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation#runInBackground()
+	 */
+	public boolean runInBackground() {
+		return true;
+	}
+
 }
