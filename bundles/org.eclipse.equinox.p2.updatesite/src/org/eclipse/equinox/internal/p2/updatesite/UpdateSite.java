@@ -308,9 +308,9 @@ public class UpdateSite {
 				digestFile.delete();
 			}
 		} catch (MalformedURLException e) {
-			e.printStackTrace(); // unexpected
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading digest file from: " + location, e)); //$NON-NLS-1$
 		} catch (IOException e) {
-			// TODO log this
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading digest file from: " + location, e)); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -327,8 +327,8 @@ public class UpdateSite {
 			String key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
 			if (featureCache.containsKey(key))
 				continue;
+			URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
 			try {
-				URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
 				Feature feature = parseFeature(featureParser, featureURL);
 				if (feature == null) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing feature at: " + featureURL.toString())); //$NON-NLS-1$
@@ -337,8 +337,7 @@ public class UpdateSite {
 					loadIncludedFeatures(feature, featureParser);
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred parsing feature at: " + featureURL, e)); //$NON-NLS-1$
 			}
 		}
 		return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
@@ -356,8 +355,9 @@ public class UpdateSite {
 			String key = entry.getId() + VERSION_SEPARATOR + entry.getVersion();
 			if (featureCache.containsKey(key))
 				continue;
+			URL featureURL = null;
 			try {
-				URL featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
+				featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
 				Feature includedFeature = parseFeature(featureParser, featureURL);
 				if (feature == null) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing feature at: " + featureURL.toString())); //$NON-NLS-1$
@@ -366,11 +366,9 @@ public class UpdateSite {
 					loadIncludedFeatures(includedFeature, featureParser);
 				}
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating location for feature: " + entry.getId(), e)); //$NON-NLS-1$
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while parsing feature at: " + featureURL, e)); //$NON-NLS-1$
 			}
 		}
 	}

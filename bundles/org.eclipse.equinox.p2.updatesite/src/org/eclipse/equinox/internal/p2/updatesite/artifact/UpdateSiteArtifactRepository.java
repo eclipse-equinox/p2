@@ -15,8 +15,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -52,8 +51,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			File stateDir = new File(bundleData, stateDirName);
 			localRepositoryURL = stateDir.toURL();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Error occurred while initializing artifact repository.", e));
 		}
 		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
 
