@@ -25,7 +25,6 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -191,10 +190,6 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 	protected IUColumnConfig[] getColumnConfig() {
 		return ProvUI.getIUColumnConfig();
-	}
-
-	protected long getSize(IInstallableUnit iu, IProgressMonitor monitor) {
-		return IUElement.SIZE_UNKNOWN;
 	}
 
 	protected void checkedIUsChanged() {
