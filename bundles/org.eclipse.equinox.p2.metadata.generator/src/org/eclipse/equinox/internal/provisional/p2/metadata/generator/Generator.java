@@ -26,8 +26,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.environment.Constants;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.NLS;
@@ -453,6 +455,22 @@ public class Generator {
 			}
 		}
 
+		//Query the repo
+		Query query = new InstallableUnitQuery(name);
+		Collector collector = new Collector();
+		Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
+		//pick the newest match
+		IInstallableUnit newest = null;
+		while (matches.hasNext()) {
+			IInstallableUnit candidate = (IInstallableUnit) matches.next();
+			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
+				newest = candidate;
+		}
+		if (newest != null) {
+			bundleInfo.setVersion(newest.getVersion().toString());
+			return new GeneratorBundleInfo(bundleInfo);
+		}
+
 		return null;
 	}
 
@@ -534,8 +552,25 @@ public class Generator {
 		for (Iterator iterator = bundleInfoList.iterator(); iterator.hasNext();) {
 			GeneratorBundleInfo bundle = (GeneratorBundleInfo) iterator.next();
 			IInstallableUnit configuredIU = result.getInstallableUnit(bundle.getSymbolicName());
-			if (configuredIU == null)
-				continue;
+			if (configuredIU == null) {
+				if (!generateRootIU)
+					continue;
+				Query query = new InstallableUnitQuery(bundle.getSymbolicName());
+				Collector collector = new Collector();
+				Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
+				//pick the newest match
+				IInstallableUnit newest = null;
+				while (matches.hasNext()) {
+					IInstallableUnit candidate = (IInstallableUnit) matches.next();
+					if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
+						newest = candidate;
+				}
+				if (newest != null) {
+					configuredIU = newest;
+				} else {
+					continue;
+				}
+			}
 			bundle.setVersion(configuredIU.getVersion().toString());
 			String filter = configuredIU == null ? null : configuredIU.getFilter();
 			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor(), filter);
@@ -923,7 +958,9 @@ public class Generator {
 		BundleDescription[] result = new BundleDescription[bundleLocations.length + (addSimpleConfigurator ? 1 : 0)];
 		BundleDescriptionFactory factory = getBundleFactory();
 		for (int i = 0; i < bundleLocations.length; i++) {
-			result[i] = factory.getBundleDescription(bundleLocations[i]);
+			BundleDescription desc = factory.getBundleDescription(bundleLocations[i]);
+			if (desc != null)
+				result[i] = desc;
 		}
 		if (addSimpleConfigurator) {
 			//Add simple configurator to the list of bundles

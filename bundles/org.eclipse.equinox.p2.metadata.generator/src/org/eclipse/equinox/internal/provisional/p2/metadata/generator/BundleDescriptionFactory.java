@@ -16,9 +16,10 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
-import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.service.resolver.*;
@@ -60,7 +61,7 @@ public class BundleDescriptionFactory {
 		try {
 			converter = acquirePluginConverter();
 			if (converter == null) {
-				new RuntimeException("Unable to aquire PluginConverter service during generation for: " + bundleLocation).printStackTrace(); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to aquire PluginConverter service during generation for: " + bundleLocation));
 				return null;
 			}
 			return converter.convertManifest(bundleLocation, false, null, true, null);
@@ -72,8 +73,7 @@ public class BundleDescriptionFactory {
 				return null;
 			if (logConversionException) {
 				IStatus status = new Status(IStatus.WARNING, Activator.ID, 0, NLS.bind(Messages.exception_errorConverting, bundleLocation.getAbsolutePath()), convertException);
-				System.out.println(status);
-				//TODO Need to find a way to get a logging service to log
+				LogHelper.log(status);
 			}
 			return null;
 		}
@@ -85,9 +85,9 @@ public class BundleDescriptionFactory {
 			descriptor.setUserObject(enhancedManifest);
 			return descriptor;
 		} catch (BundleException e) {
-			//			IStatus status = new Status(IStatus.WARNING, IPDEBuildConstants.PI_PDEBUILD, EXCEPTION_STATE_PROBLEM, NLS.bind(Messages.exception_stateAddition, enhancedManifest.get(Constants.BUNDLE_NAME)), e);
-			//			BundleHelper.getDefault().getLog().log(status);
-			System.err.println(NLS.bind(Messages.exception_stateAddition, bundleLocation != null ? bundleLocation.getAbsoluteFile() : null));
+			String message = NLS.bind(Messages.exception_stateAddition, bundleLocation == null ? null : bundleLocation.getAbsoluteFile());
+			IStatus status = new Status(IStatus.WARNING, Activator.ID, message, e);
+			LogHelper.log(status);
 			return null;
 		}
 	}
@@ -105,11 +105,13 @@ public class BundleDescriptionFactory {
 			ManifestElement.parseBundleManifest(manifestStream, entries);
 			return getBundleDescription(entries, bundleLocation);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String message = "An error occurred while reading the bundle description.";
+			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
+			LogHelper.log(status);
 		} catch (BundleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String message = "An error occurred while reading the bundle description.";
+			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
+			LogHelper.log(status);
 		}
 		return null;
 	}
@@ -128,7 +130,8 @@ public class BundleDescriptionFactory {
 				manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
 			}
 		} catch (IOException e) {
-			//ignore
+			//ignore but log
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "An error occurred while loading the bundle manifest.", e));
 		}
 
 		Dictionary manifest = null;
@@ -138,9 +141,11 @@ public class BundleDescriptionFactory {
 				// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
 				// real answer is to have people expect a Map but that is a wider change.
 				manifest = new Hashtable(manifestMap);
-			} catch (IOException ioe) {
+			} catch (IOException e) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest.", e));
 				return null;
 			} catch (BundleException e) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest.", e));
 				return null;
 			} finally {
 				try {
