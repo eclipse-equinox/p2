@@ -19,6 +19,9 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.updatesite.messages"; //$NON-NLS-1$
 
+	public static String ErrorCreatingRepository;
+	public static String ErrorReadingDigest;
+	public static String ErrorReadingFeature;
 	public static String ErrorReadingSite;
 	public static String InvalidRepositoryLocation;
 	public static String MalformedArchiveURL;

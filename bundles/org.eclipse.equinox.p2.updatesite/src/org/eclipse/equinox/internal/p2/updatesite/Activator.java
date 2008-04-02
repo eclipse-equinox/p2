@@ -18,10 +18,16 @@ public class Activator implements BundleActivator {
 	public static String ID = "org.eclipse.equinox.p2.updatesite"; //$NON-NLS-1$
 	private static BundleContext bundleContext;
 
+	/* (non-Javadoc)
+	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
+	 */
 	public void start(BundleContext context) throws Exception {
 		setBundleContext(context);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+	 */
 	public void stop(BundleContext context) throws Exception {
 		setBundleContext(null);
 	}

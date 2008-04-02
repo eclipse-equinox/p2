@@ -53,7 +53,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			localRepositoryURL = stateDir.toURL();
 		} catch (MalformedURLException e) {
 			// unexpected
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Failed to create local repository", e)); //$NON-NLS-1$
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.ErrorCreatingRepository, e));
 		}
 
 		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm()); //$NON-NLS-1$

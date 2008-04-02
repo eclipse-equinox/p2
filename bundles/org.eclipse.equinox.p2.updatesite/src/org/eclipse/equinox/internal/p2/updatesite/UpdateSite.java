@@ -308,9 +308,9 @@ public class UpdateSite {
 				digestFile.delete();
 			}
 		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading digest file from: " + location, e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading digest file from: " + location, e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		}
 		return null;
 	}
@@ -331,13 +331,13 @@ public class UpdateSite {
 			try {
 				Feature feature = parseFeature(featureParser, featureURL);
 				if (feature == null) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing feature at: " + featureURL.toString())); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
 				} else {
 					featureCache.put(key, feature);
 					loadIncludedFeatures(feature, featureParser);
 				}
 			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred parsing feature at: " + featureURL, e)); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e));
 			}
 		}
 		return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
@@ -360,15 +360,15 @@ public class UpdateSite {
 				featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
 				Feature includedFeature = parseFeature(featureParser, featureURL);
 				if (feature == null) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error parsing feature at: " + featureURL.toString())); //$NON-NLS-1$
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
 				} else {
 					featureCache.put(key, includedFeature);
 					loadIncludedFeatures(includedFeature, featureParser);
 				}
 			} catch (MalformedURLException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating location for feature: " + entry.getId(), e)); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, entry.getId()), e));
 			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while parsing feature at: " + featureURL, e)); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e));
 			}
 		}
 	}
