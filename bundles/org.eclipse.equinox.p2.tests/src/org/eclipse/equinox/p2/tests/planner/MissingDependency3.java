@@ -43,6 +43,7 @@ public class MissingDependency3 extends AbstractProvisioningTest {
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		assertEquals(IStatus.OK, plan.getStatus().getSeverity());
+		assertEquals(IStatus.WARNING, plan.getStatus().getSeverity());
+		assertInstallOperand(plan, a1);
 	}
 }
