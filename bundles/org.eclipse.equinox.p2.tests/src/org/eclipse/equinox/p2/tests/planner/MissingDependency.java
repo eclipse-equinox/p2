@@ -23,6 +23,7 @@ public class MissingDependency extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), true);
 
 		//Missing non optional dependency

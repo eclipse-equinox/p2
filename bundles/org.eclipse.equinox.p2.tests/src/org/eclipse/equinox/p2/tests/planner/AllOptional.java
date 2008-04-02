@@ -26,6 +26,7 @@ public class AllOptional extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		RequiredCapability[] reqA = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true)};
 		a1 = createIU("A", new Version("1.0.0"), reqA);
 		b1 = createIU("B", new Version("1.0.0"), true);

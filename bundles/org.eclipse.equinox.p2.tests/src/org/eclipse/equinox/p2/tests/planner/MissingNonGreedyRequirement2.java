@@ -23,6 +23,7 @@ public class MissingNonGreedyRequirement2 extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		c1 = createIU("C", new Version("1.0.0"), true);
 
 		RequiredCapability[] reqB = new RequiredCapability[2];

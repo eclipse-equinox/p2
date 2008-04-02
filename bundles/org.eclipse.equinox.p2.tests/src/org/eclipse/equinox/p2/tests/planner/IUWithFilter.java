@@ -17,6 +17,7 @@ public class IUWithFilter extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		MetadataFactory.InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId("A");
 		iud.setVersion(new Version("1.0.0"));

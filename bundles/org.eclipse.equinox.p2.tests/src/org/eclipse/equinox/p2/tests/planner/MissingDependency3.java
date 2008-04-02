@@ -24,6 +24,7 @@ public class MissingDependency3 extends AbstractProvisioningTest {
 
 	//This tests that A can still be resolved and installed
 	protected void setUp() throws Exception {
+		super.setUp();
 		RequiredCapability[] reqA = new RequiredCapability[1];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
 		a1 = createIU("A", new Version("1.0.0"), reqA);

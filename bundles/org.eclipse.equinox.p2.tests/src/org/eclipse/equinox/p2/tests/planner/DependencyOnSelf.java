@@ -16,6 +16,7 @@ public class DependencyOnSelf extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null));
 		createTestMetdataRepository(new IInstallableUnit[] {a1});
 		profile = createProfile(DependencyOnSelf.class.getName());

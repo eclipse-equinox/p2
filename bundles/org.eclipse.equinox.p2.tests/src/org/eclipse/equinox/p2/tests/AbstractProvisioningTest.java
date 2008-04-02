@@ -684,4 +684,13 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 		}
 	}
+
+	protected void setUp() throws Exception {
+		super.setUp();
+		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		URL[] repos = repoMan.getKnownRepositories(MetadataRepositoryManager.REPOSITORIES_ALL);
+		for (int i = 0; i < repos.length; i++) {
+			repoMan.removeRepository(repos[i]);
+		}
+	}
 }

@@ -27,6 +27,7 @@ public class DropinsScenario extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), true);
 
 		b1 = createIU("B", new Version("1.0.0"), true);

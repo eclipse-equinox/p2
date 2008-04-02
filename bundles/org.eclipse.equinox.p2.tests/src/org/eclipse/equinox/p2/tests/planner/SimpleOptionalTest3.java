@@ -17,9 +17,6 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class SimpleOptionalTest3 extends AbstractProvisioningTest {
-	//A dep B op, C, D op 
-	//X dep B
-
 	private IInstallableUnit a1;
 	private IInstallableUnit b1;
 	private IInstallableUnit b2;
@@ -34,6 +31,7 @@ public class SimpleOptionalTest3 extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		b1 = createIU("B", new Version("1.0.0"), true);
 		b2 = createIU("B", new Version("2.0.0"), true);
 		b3 = createIU("B", new Version("3.0.0"), true);

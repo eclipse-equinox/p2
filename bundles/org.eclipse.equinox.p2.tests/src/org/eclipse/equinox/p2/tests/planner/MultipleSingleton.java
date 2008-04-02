@@ -28,6 +28,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), true);
 
 		a2 = createIU("A", new Version("2.0.0"), true);
@@ -57,7 +58,7 @@ public class MultipleSingleton extends AbstractProvisioningTest {
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, a2, a3, a4, w, x, y, z});
 
-		profile = createProfile("TestProfile." + getName());
+		profile = createProfile("TestProfile.MultipleSingleton" + getName());
 		planner = createPlanner();
 
 	}

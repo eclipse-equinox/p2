@@ -27,6 +27,7 @@ public class SimpleOptionalTest extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		b1 = createIU("B", new Version("1.0.0"), true);
 
 		//B's dependency is missing

@@ -29,6 +29,7 @@ public class MultipleProvider extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "B1", new VersionRange("[1.0.0, 2.0.0)"), null));
 
 		b1 = createIU("B1", new Version("1.0.0"), true);

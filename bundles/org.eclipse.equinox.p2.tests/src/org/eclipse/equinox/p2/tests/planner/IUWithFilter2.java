@@ -17,6 +17,7 @@ public class IUWithFilter2 extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		RequiredCapability[] reqs = new RequiredCapability[1];
 		reqs[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.0.0]"), null, false, false);
 		a1 = createIU("A", reqs);

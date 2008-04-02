@@ -28,6 +28,7 @@ public class SimpleSingleton extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), true);
 
 		a2 = createIU("A", new Version("2.0.0"), true);

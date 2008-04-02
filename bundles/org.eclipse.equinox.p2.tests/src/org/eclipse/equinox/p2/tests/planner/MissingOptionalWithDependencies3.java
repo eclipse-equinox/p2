@@ -26,6 +26,7 @@ public class MissingOptionalWithDependencies3 extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a1 = createIU("A", new Version("1.0.0"), true);
 		c1 = createIU("C", new Version("1.0.0"), true);
 		c2 = createIU("C", new Version("2.0.0"), true);

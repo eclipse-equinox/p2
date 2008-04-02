@@ -26,6 +26,7 @@ public class Bug207319 extends AbstractProvisioningTest {
 	IProfile profile;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		a = createIU("A", new Version("1.0.0"));
 		b = createIU("B", new Version("1.0.0"), new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", new Version("1.0.0"))});
 		c = createIU("C", new Version("1.0.0"), createRequiredCapabilities(IInstallableUnit.NAMESPACE_IU_ID, "A", new VersionRange("[1.0.0, 1.0.0]"), null));

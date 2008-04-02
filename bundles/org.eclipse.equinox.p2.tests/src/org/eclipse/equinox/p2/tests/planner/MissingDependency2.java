@@ -23,6 +23,7 @@ public class MissingDependency2 extends AbstractProvisioningTest {
 	private IPlanner planner;
 
 	protected void setUp() throws Exception {
+		super.setUp();
 		RequiredCapability[] reqA = new RequiredCapability[1];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, true);
 		a1 = createIU("A", new Version("1.0.0"), reqA);
