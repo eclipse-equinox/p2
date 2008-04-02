@@ -110,7 +110,7 @@ public class Projector {
 			Map.Entry entry = (Map.Entry) iterator.next();
 			HashMap conflictingEntries = (HashMap) entry.getValue();
 			if (conflictingEntries.size() <= 1) {
-				objective += " 1 " + getVariable((IInstallableUnit) conflictingEntries.values().iterator().next()); //$NON-NLS-1$
+				objective += " -1 " + getVariable((IInstallableUnit) conflictingEntries.values().iterator().next()); //$NON-NLS-1$
 				continue;
 			}
 			List toSort = new ArrayList(conflictingEntries.values());
@@ -165,7 +165,7 @@ public class Projector {
 			w.write("*"); //$NON-NLS-1$
 			w.newLine();
 
-			if (varCount == 0 && clauseCount == 0) {
+			if (clauseCount == 0) {
 				w.close();
 				return;
 			}
