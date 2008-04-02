@@ -103,32 +103,25 @@ public class Projector {
 
 		//Add the abstract variables
 		for (Iterator iterator = abstractVariables.iterator(); iterator.hasNext();) {
-			objective += " -1 " + (String) iterator.next(); //$NON-NLS-1$
+			objective += " -2 " + (String) iterator.next(); //$NON-NLS-1$
 		}
 
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
 			HashMap conflictingEntries = (HashMap) entry.getValue();
 			if (conflictingEntries.size() <= 1) {
-				objective += " -1 " + getVariable((IInstallableUnit) conflictingEntries.values().iterator().next()); //$NON-NLS-1$
+				objective += " 1 " + getVariable((IInstallableUnit) conflictingEntries.values().iterator().next()); //$NON-NLS-1$
 				continue;
 			}
 			List toSort = new ArrayList(conflictingEntries.values());
 			Collections.sort(toSort);
-			double weight = Math.pow(10, toSort.size()); //TODO We could start at toSort -1, but be careful
+			double weight = Math.pow(10, toSort.size() - 1); //TODO We could start at toSort -1, but be careful
 			int count = toSort.size();
 			for (Iterator iterator2 = toSort.iterator(); iterator2.hasNext();) {
-				if (count == 1) {
-					weight = -1;
-				}
 				count--;
 				objective += " " + (int) weight + " " + getVariable((IInstallableUnit) iterator2.next()); //$NON-NLS-1$//$NON-NLS-2$
 				weight = weight / 10;
 			}
-		}
-		for (Iterator iterator = noopVariables.entrySet().iterator(); iterator.hasNext();) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			objective += " -1 " + getVariable((IInstallableUnit) entry.getKey()); //$NON-NLS-1$
 		}
 		objective += " ;"; //$NON-NLS-1$
 	}
@@ -389,7 +382,7 @@ public class Projector {
 			} else {
 				if (DEBUG)
 					System.out.println("Unsatisfiable !"); //$NON-NLS-1$
-				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", null));
+				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because the problem is unsatisfiable", null)); //$NON-NLS-1$
 			}
 		} catch (FileNotFoundException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "Missing problem file:" + problemFile, e)); //$NON-NLS-1$
