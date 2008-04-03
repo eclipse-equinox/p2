@@ -30,6 +30,7 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.generator.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.repository.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.planner.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.sar.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.directorywatcher.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.simpleconfigurator.SimpleConfiguratorTests.suite());
