@@ -10,15 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -103,7 +100,7 @@ public class Util {
 				//skip repositories that could not be read
 			} catch (MalformedURLException e) {
 				// unexpected, URLs should be pre-checked
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 			}
 		}
 		return new AggregatedBundleRepository(bundleRepositories);
@@ -127,17 +124,25 @@ public class Util {
 			if (bundleFile != null)
 				bundleInfo.setLocation(bundleFile.toURL().toExternalForm());
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			//Ignore since we are creating the URL from the file
 		}
 
 		bundleInfo.setManifest(manifest);
 		try {
 			Headers headers = Headers.parseManifest(new ByteArrayInputStream(manifest.getBytes()));
 			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
+			if (element == null || element.length == 0)
+				return null;
 			bundleInfo.setSymbolicName(element[0].getValue());
-			bundleInfo.setVersion((String) headers.get(Constants.BUNDLE_VERSION));
+
+			String version = (String) headers.get(Constants.BUNDLE_VERSION);
+			if (version == null)
+				return null;
+			bundleInfo.setVersion(version);
 		} catch (BundleException e) {
-			e.printStackTrace();
+			// unexpected
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+			return null;
 		}
 		return bundleInfo;
 	}
@@ -199,68 +204,13 @@ public class Util {
 		return null;
 	}
 
-	static String getManifest(TouchpointData[] data, File bundleFile) {
+	static String getManifest(TouchpointData[] data) {
 		for (int i = 0; i < data.length; i++) {
 			String manifest = data[i].getInstructions("manifest"); //$NON-NLS-1$
 			if (manifest != null && manifest.length() > 0)
 				return manifest;
 		}
-		if (bundleFile == null)
-			return null;
-
-		if (bundleFile.isDirectory()) {
-			File manifestFile = new File(bundleFile, JarFile.MANIFEST_NAME);
-			byte[] buffer = new byte[(int) manifestFile.length()];
-			InputStream fis = null;
-			try {
-				fis = new FileInputStream(manifestFile);
-				fis.read(buffer);
-				return new String(buffer);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			} finally {
-				if (fis != null)
-					try {
-						fis.close();
-					} catch (IOException e) {
-						// ignore
-					}
-			}
-		}
-
-		ZipFile bundleJar = null;
-		try {
-			bundleJar = new ZipFile(bundleFile);
-			ZipEntry manifestEntry = bundleJar.getEntry(JarFile.MANIFEST_NAME);
-			byte[] buffer = new byte[(int) manifestEntry.getSize()];
-			bundleJar.getInputStream(manifestEntry).read(buffer);
-			return new String(buffer);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} finally {
-			if (bundleJar != null)
-				try {
-					bundleJar.close();
-				} catch (IOException e) {
-					// ignore
-				}
-		}
-	}
-
-	public static void initFromManifest(String manifest, BundleInfo bInfo) {
-		try {
-			bInfo.setManifest(manifest);
-			Headers headers = Headers.parseManifest(new ByteArrayInputStream(manifest.getBytes()));
-			ManifestElement[] element = ManifestElement.parseHeader("bsn", (String) headers.get(Constants.BUNDLE_SYMBOLICNAME)); //$NON-NLS-1$
-			bInfo.setSymbolicName(element[0].getValue());
-			bInfo.setVersion((String) headers.get(Constants.BUNDLE_VERSION));
-		} catch (BundleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		return null;
 	}
 
 	/**

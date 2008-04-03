@@ -137,9 +137,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			manipulator.save(false);
 		} catch (RuntimeException e) {
-			return createError("Error saving manipulator", e);
+			return createError("Error saving manipulator", e); //$NON-NLS-1$
 		} catch (IOException e) {
-			return createError("Error saving manipulator", e);
+			return createError("Error saving manipulator", e); //$NON-NLS-1$
 		}
 
 		if (INSTALL_PHASE_ID.equals(phaseId) || UNINSTALL_PHASE_ID.equals(phaseId)) {
@@ -147,7 +147,7 @@ public class EclipseTouchpoint extends Touchpoint {
 			try {
 				configuration.save();
 			} catch (ProvisionException pe) {
-				return createError("Error saving platform configuration.", pe);
+				return createError("Error saving platform configuration.", pe); //$NON-NLS-1$
 			}
 		}
 
@@ -155,7 +155,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			m.save();
 		} catch (IOException e) {
-			return createError("Error saving source bundles list", e);
+			return createError("Error saving source bundles list", e); //$NON-NLS-1$
 		}
 
 		return Status.OK_STATUS;
@@ -167,9 +167,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			configURL = configDir.toURI().toURL();
 		} catch (IllegalArgumentException iae) {
-			throw new CoreException(createError("Configuration directory is not absolute.", iae));
+			throw new CoreException(createError("Configuration directory is not absolute.", iae)); //$NON-NLS-1$
 		} catch (MalformedURLException mue) {
-			throw new CoreException(createError("No URL protocol handler.", mue));
+			throw new CoreException(createError("No URL protocol handler.", mue)); //$NON-NLS-1$
 		}
 		return configURL;
 	}
@@ -305,7 +305,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
 					if (programArg == null)
-						return createError("The \"programArg\" parameter was not set in the \"add program args\" action.");
+						return createError("The \"programArg\" parameter was not set in the \"add program args\" action."); //$NON-NLS-1$
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
@@ -313,13 +313,13 @@ public class EclipseTouchpoint extends Touchpoint {
 
 						IArtifactKey[] artifacts = iu.getArtifacts();
 						if (artifacts == null || artifacts.length == 0)
-							return createError("Installable unit contains no artifacts");
+							return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
-							return createError("The file is not available" + fileLocation.getAbsolutePath());
+							return createError("The file is not available" + fileLocation.getAbsolutePath()); //$NON-NLS-1$
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -331,20 +331,20 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
 					if (programArg == null)
-						return createError("The \"programArg\" parameter was not set in the \"add program args\" action.");
+						return createError("The \"programArg\" parameter was not set in the \"add program args\" action."); //$NON-NLS-1$
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 						IArtifactKey[] artifacts = iu.getArtifacts();
 						if (artifacts == null || artifacts.length == 0)
-							return createError("Installable unit contains no artifacts");
+							return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
-							return createError("The file is not available" + fileLocation.getAbsolutePath());
+							return createError("The file is not available" + fileLocation.getAbsolutePath()); //$NON-NLS-1$
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -360,20 +360,20 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
 					if (programArg == null)
-						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action.");
+						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action."); //$NON-NLS-1$
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 						IArtifactKey[] artifacts = iu.getArtifacts();
 						if (artifacts == null || artifacts.length == 0)
-							return createError("Installable unit contains no artifacts");
+							return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
-							return createError("The artifact for " + artifactKey + " is not available");
+							return createError("The artifact for " + artifactKey + " is not available"); //$NON-NLS-1$ //$NON-NLS-2$
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -385,20 +385,20 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String programArg = (String) parameters.get(PARM_PROGRAM_ARG);
 					if (programArg == null)
-						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action.");
+						return createError("The \"programArg\" parameter was not set in the \"remove program args\" action."); //$NON-NLS-1$
 
 					if (programArg.equals(PARM_ARTIFACT)) {
 						IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 						IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 						IArtifactKey[] artifacts = iu.getArtifacts();
 						if (artifacts == null || artifacts.length == 0)
-							return createError("Installable unit contains no artifacts");
+							return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 						IArtifactKey artifactKey = artifacts[0];
 
 						File fileLocation = Util.getBundleFile(artifactKey, profile);
 						if (fileLocation == null || !fileLocation.exists())
-							return createError("The artifact for " + artifactKey + " is not available");
+							return createError("The artifact for " + artifactKey + " is not available"); //$NON-NLS-1$ //$NON-NLS-2$
 						programArg = fileLocation.getAbsolutePath();
 					}
 
@@ -416,22 +416,24 @@ public class EclipseTouchpoint extends Touchpoint {
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String startLevel = (String) parameters.get(PARM_START_LEVEL);
 					if (startLevel == null)
-						return createError("The \"startLevel\" parameter was not set in the \"set start level\" action.");
+						return createError("The \"startLevel\" parameter was not set in the \"set start level\" action."); //$NON-NLS-1$
 
 					IArtifactKey[] artifacts = iu.getArtifacts();
 					if (artifacts == null || artifacts.length == 0)
-						return createError("Installable unit contains no artifacts");
+						return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 					IArtifactKey artifactKey = artifacts[0];
 					File bundleFile = Util.getBundleFile(artifactKey, profile);
 					if (bundleFile == null || !bundleFile.exists())
-						return createError("The artifact " + artifactKey.toString() + " was not found.");
+						return createError("The artifact " + artifactKey.toString() + " was not found."); //$NON-NLS-1$ //$NON-NLS-2$
 
-					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					String manifest = Util.getManifest(iu.getTouchpointData());
 					if (manifest == null)
-						return createError("The manifest is missing for: " + iu);
+						return createError("The manifest is missing for: " + iu); //$NON-NLS-1$
 
 					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+					if (bundleInfo == null)
+						return createError("Failed to create bundleInfo for: " + iu); //$NON-NLS-1$
 
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
@@ -440,7 +442,7 @@ public class EclipseTouchpoint extends Touchpoint {
 							try {
 								bundles[i].setStartLevel(Integer.parseInt(startLevel));
 							} catch (NumberFormatException e) {
-								return createError("Error parsing start level: " + startLevel + " for bundle: " + bundles[i].getSymbolicName(), e);
+								return createError("Error parsing start level: " + startLevel + " for bundle: " + bundles[i].getSymbolicName(), e); //$NON-NLS-1$ //$NON-NLS-2$
 							}
 							break;
 						}
@@ -455,18 +457,20 @@ public class EclipseTouchpoint extends Touchpoint {
 
 					IArtifactKey[] artifacts = iu.getArtifacts();
 					if (artifacts == null || artifacts.length == 0)
-						return createError("Installable unit contains no artifacts");
+						return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 					IArtifactKey artifactKey = artifacts[0];
 					File bundleFile = Util.getBundleFile(artifactKey, profile);
 					if (bundleFile == null || !bundleFile.exists())
-						return createError("The artifact " + artifactKey.toString() + " was not found.");
+						return createError("The artifact " + artifactKey.toString() + " was not found."); //$NON-NLS-1$ //$NON-NLS-2$
 
-					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					String manifest = Util.getManifest(iu.getTouchpointData());
 					if (manifest == null)
-						return createError("The manifest is missing for: " + iu);
+						return createError("The manifest is missing for: " + iu); //$NON-NLS-1$
 
 					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+					if (bundleInfo == null)
+						return createError("Failed to create bundleInfo for: " + iu); //$NON-NLS-1$
 
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
@@ -490,22 +494,24 @@ public class EclipseTouchpoint extends Touchpoint {
 					IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
 					String started = (String) parameters.get(PARM_STARTED);
 					if (started == null)
-						return createError("The \"started\" parameter was not set in the \"mark started\" action.");
+						return createError("The \"started\" parameter was not set in the \"mark started\" action."); //$NON-NLS-1$
 
 					IArtifactKey[] artifacts = iu.getArtifacts();
 					if (artifacts == null || artifacts.length == 0)
-						return createError("Installable unit contains no artifacts");
+						return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 					IArtifactKey artifactKey = artifacts[0];
 					File bundleFile = Util.getBundleFile(artifactKey, profile);
 					if (bundleFile == null || !bundleFile.exists())
-						return createError("The artifact " + artifactKey.toString() + " was not found.");
+						return createError("The artifact " + artifactKey.toString() + " was not found."); //$NON-NLS-1$ //$NON-NLS-2$
 
-					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					String manifest = Util.getManifest(iu.getTouchpointData());
 					if (manifest == null)
-						return createError("The manifest is missing for: " + iu);
+						return createError("The manifest is missing for: " + iu); //$NON-NLS-1$
 
 					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+					if (bundleInfo == null)
+						return createError("Failed to create bundleInfo for: " + iu); //$NON-NLS-1$
 
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
@@ -525,18 +531,20 @@ public class EclipseTouchpoint extends Touchpoint {
 
 					IArtifactKey[] artifacts = iu.getArtifacts();
 					if (artifacts == null || artifacts.length == 0)
-						return createError("Installable unit contains no artifacts");
+						return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 					IArtifactKey artifactKey = artifacts[0];
 					File bundleFile = Util.getBundleFile(artifactKey, profile);
 					if (bundleFile == null || !bundleFile.exists())
-						return createError("The artifact " + artifactKey.toString() + " was not found.");
+						return createError("The artifact " + artifactKey.toString() + " was not found."); //$NON-NLS-1$ //$NON-NLS-2$
 
-					String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+					String manifest = Util.getManifest(iu.getTouchpointData());
 					if (manifest == null)
-						return createError("The manifest is missing for: " + iu);
+						return createError("The manifest is missing for: " + iu); //$NON-NLS-1$
 
 					BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+					if (bundleInfo == null)
+						return createError("Failed to create bundleInfo for: " + iu); //$NON-NLS-1$
 
 					BundleInfo[] bundles = manipulator.getConfigData().getBundles();
 					for (int i = 0; i < bundles.length; i++) {
@@ -558,10 +566,10 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
 					if (propName == null)
-						return createError("The \"propName\" parameter was not set in the \"set framework dependent properties\" action.");
+						return createError("The \"propName\" parameter was not set in the \"set framework dependent properties\" action."); //$NON-NLS-1$
 					String propValue = (String) parameters.get(PARM_PROP_VALUE);
 					if (propValue == null)
-						return createError("The \"propValue\" parameter was not set in the \"set framework dependent properties\" action.");
+						return createError("The \"propValue\" parameter was not set in the \"set framework dependent properties\" action."); //$NON-NLS-1$
 					getMemento().put(PARM_PREVIOUS_VALUE, manipulator.getConfigData().getFwDependentProp(propName));
 					manipulator.getConfigData().setFwDependentProp(propName, propValue);
 					return Status.OK_STATUS;
@@ -571,10 +579,10 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
 					if (propName == null)
-						return createError("The \"propName\" parameter was not set in the \"set framework dependent properties\" action.");
+						return createError("The \"propName\" parameter was not set in the \"set framework dependent properties\" action."); //$NON-NLS-1$
 					String previousValue = (String) getMemento().get(PARM_PREVIOUS_VALUE);
 					if (previousValue == null)
-						return createError("The \"propValue\" parameter was not set in the \"set framework dependent properties\" action.");
+						return createError("The \"propValue\" parameter was not set in the \"set framework dependent properties\" action."); //$NON-NLS-1$
 					manipulator.getConfigData().setFwDependentProp(propName, previousValue);
 					return Status.OK_STATUS;
 				}
@@ -587,10 +595,10 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
 					if (propName == null)
-						return createError("The \"propName\" parameter was not set in the \"set framework independent properties\" action.");
+						return createError("The \"propName\" parameter was not set in the \"set framework independent properties\" action."); //$NON-NLS-1$
 					String propValue = (String) parameters.get(PARM_PROP_VALUE);
 					if (propValue == null)
-						return createError("The \"propValue\" parameter was not set in the \"set framework independent properties\" action.");
+						return createError("The \"propValue\" parameter was not set in the \"set framework independent properties\" action."); //$NON-NLS-1$
 					getMemento().put(PARM_PREVIOUS_VALUE, manipulator.getConfigData().getFwDependentProp(propName));
 					manipulator.getConfigData().setFwIndependentProp(propName, propValue);
 					return Status.OK_STATUS;
@@ -600,10 +608,10 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String propName = (String) parameters.get(PARM_PROP_NAME);
 					if (propName == null)
-						return createError("The \"propName\" parameter was not set in the \"set framework independent properties\" action.");
+						return createError("The \"propName\" parameter was not set in the \"set framework independent properties\" action."); //$NON-NLS-1$
 					String previousValue = (String) getMemento().get(PARM_PREVIOUS_VALUE);
 					if (previousValue == null)
-						return createError("The \"propValue\" parameter was not set in the \"set framework independent properties\" action.");
+						return createError("The \"propValue\" parameter was not set in the \"set framework independent properties\" action."); //$NON-NLS-1$
 					manipulator.getConfigData().setFwIndependentProp(propName, previousValue);
 					return Status.OK_STATUS;
 				}
@@ -645,7 +653,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
 					if (jvmArg == null)
-						return createError("The \"jvmArg\" parameter was not set in the \"add jvm args\" action.");
+						return createError("The \"jvmArg\" parameter was not set in the \"add jvm args\" action."); //$NON-NLS-1$
 					manipulator.getLauncherData().addJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -654,7 +662,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
 					if (jvmArg == null)
-						return createError("The \"jvmArg\" parameter was not set in the \"add jvm args\" action.");
+						return createError("The \"jvmArg\" parameter was not set in the \"add jvm args\" action."); //$NON-NLS-1$
 					manipulator.getLauncherData().removeJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -667,7 +675,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
 					if (jvmArg == null)
-						return createError("The \"jvmArg\" parameter was not set in the \"remove jvm args\" action.");
+						return createError("The \"jvmArg\" parameter was not set in the \"remove jvm args\" action."); //$NON-NLS-1$
 					manipulator.getLauncherData().removeJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -676,7 +684,7 @@ public class EclipseTouchpoint extends Touchpoint {
 					Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 					String jvmArg = (String) parameters.get(PARM_JVM_ARG);
 					if (jvmArg == null)
-						return createError("The \"jvmArg\" parameter was not set in the \"remove jvm args\" action.");
+						return createError("The \"jvmArg\" parameter was not set in the \"remove jvm args\" action."); //$NON-NLS-1$
 					manipulator.getLauncherData().addJvmArg(jvmArg);
 					return Status.OK_STATUS;
 				}
@@ -688,7 +696,7 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					String path = (String) parameters.get(PARM_PATH);
 					if (path == null)
-						return createError("The \"path\" parameter was not set in the \"mkdir\" action.");
+						return createError("The \"path\" parameter was not set in the \"mkdir\" action."); //$NON-NLS-1$
 					new File(path).mkdir();
 					return Status.OK_STATUS;
 				}
@@ -696,7 +704,7 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					String path = (String) parameters.get(PARM_PATH);
 					if (path == null)
-						return createError("The \"path\" parameter was not set in the \"mkdir\" action.");
+						return createError("The \"path\" parameter was not set in the \"mkdir\" action."); //$NON-NLS-1$
 					new File(path).delete();
 					return Status.OK_STATUS;
 				}
@@ -708,7 +716,7 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus execute(Map parameters) {
 					String path = (String) parameters.get(PARM_PATH);
 					if (path == null)
-						return createError("The \"path\" parameter was not set in the \"rmdir\" action.");
+						return createError("The \"path\" parameter was not set in the \"rmdir\" action."); //$NON-NLS-1$
 					new File(path).delete();
 					return Status.OK_STATUS;
 				}
@@ -716,7 +724,7 @@ public class EclipseTouchpoint extends Touchpoint {
 				public IStatus undo(Map parameters) {
 					String path = (String) parameters.get(PARM_PATH);
 					if (path == null)
-						return createError("The \"path\" parameter was not set in the \"rmdir\" action.");
+						return createError("The \"path\" parameter was not set in the \"rmdir\" action."); //$NON-NLS-1$
 					new File(path).mkdir();
 					return Status.OK_STATUS;
 				}
@@ -742,8 +750,16 @@ public class EclipseTouchpoint extends Touchpoint {
 			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configURL, poolURL, manipulator));
 		} catch (CoreException ce) {
 			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(null, null, null));
-			return createError("Error constructing platform configuration url.", ce);
+			return createError("Error constructing platform configuration url.", ce); //$NON-NLS-1$
 		}
+		return null;
+	}
+
+	public IStatus initializeOperand(IProfile profile, String phaseId, InstallableUnitOperand operand, Map parameters) {
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		if (iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
+			parameters.put(PARM_IU, prepareIU(iu, profile));
+
 		return null;
 	}
 
@@ -753,17 +769,17 @@ public class EclipseTouchpoint extends Touchpoint {
 		Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
 		if (bundleId == null)
-			return createError("The \"bundleId\" parameter is missing from the \"install bundle\" action");
+			return createError("The \"bundleId\" parameter is missing from the \"install bundle\" action"); //$NON-NLS-1$
 
 		//TODO: eventually remove this. What is a fragment doing here??
 		if (iu.isFragment()) {
-			System.out.println("What is a fragment doing here!!! -- " + iu);
+			System.out.println("What is a fragment doing here!!! -- " + iu); //$NON-NLS-1$
 			return Status.OK_STATUS;
 		}
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.length == 0)
-			return createError("Installable unit contains no artifacts");
+			return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
@@ -773,18 +789,20 @@ public class EclipseTouchpoint extends Touchpoint {
 			}
 		}
 		if (artifactKey == null)
-			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
+			throw new IllegalArgumentException("No artifact found that matches: " + bundleId); //$NON-NLS-1$
 
 		File bundleFile = Util.getBundleFile(artifactKey, profile);
 		if (bundleFile == null || !bundleFile.exists())
-			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
+			return createError("The artifact " + artifactKey.toString() + " to install was not found."); //$NON-NLS-1$ //$NON-NLS-2$
 
-		// TODO: do we really need the manifest here or just the bsn and version?
-		String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+		//By now we always have the manifest in the touchpoint data
+		String manifest = Util.getManifest(iu.getTouchpointData());
 		if (manifest == null)
-			return createError("The manifest is missing for: " + iu);
+			return createError("The manifest is missing for: " + iu); //$NON-NLS-1$
 
 		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+		if (bundleInfo == null)
+			return createError("Failed to create bundleInfo for: " + iu); //$NON-NLS-1$
 		manipulator.getConfigData().addBundle(bundleInfo);
 
 		return Status.OK_STATUS;
@@ -796,17 +814,17 @@ public class EclipseTouchpoint extends Touchpoint {
 		Manipulator manipulator = (Manipulator) parameters.get(PARM_MANIPULATOR);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
 		if (bundleId == null)
-			return createError("The \"bundleId\" parameter is missing from the \"uninstall bundle\" action.");
+			return createError("The \"bundleId\" parameter is missing from the \"uninstall bundle\" action."); //$NON-NLS-1$
 
 		//TODO: eventually remove this. What is a fragment doing here??
 		if (iu.isFragment()) {
-			System.out.println("What is a fragment doing here!!! -- " + iu);
+			System.out.println("What is a fragment doing here!!! -- " + iu); //$NON-NLS-1$
 			return Status.OK_STATUS;
 		}
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.length == 0)
-			return createError("Installable unit contains no artifacts");
+			return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
@@ -816,15 +834,17 @@ public class EclipseTouchpoint extends Touchpoint {
 			}
 		}
 		if (artifactKey == null)
-			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
+			throw new IllegalArgumentException("No artifact found that matches: " + bundleId); //$NON-NLS-1$
 
 		File bundleFile = Util.getBundleFile(artifactKey, profile);
 		// TODO: do we really need the manifest here or just the bsn and version?
-		String manifest = Util.getManifest(iu.getTouchpointData(), bundleFile);
+		String manifest = Util.getManifest(iu.getTouchpointData());
 		if (manifest == null)
-			return createError("The manifest is missing for: " + iu.getTouchpointData());
+			return createError("The manifest is missing for: " + iu); //$NON-NLS-1$
 
 		BundleInfo bundleInfo = Util.createBundleInfo(bundleFile, manifest);
+		if (bundleInfo == null)
+			return createError("Failed to create bundleInfo for: " + iu); //$NON-NLS-1$
 		manipulator.getConfigData().removeBundle(bundleInfo);
 
 		return Status.OK_STATUS;
@@ -839,7 +859,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.length == 0)
-			return createError("Installable unit for eclipse feature contains no artifacts");
+			return createError("Installable unit for eclipse feature contains no artifacts"); //$NON-NLS-1$
 
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
@@ -878,7 +898,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.length == 0)
-			return createError("Installable unit for eclipse feature contains no artifacts");
+			return createError("Installable unit for eclipse feature contains no artifacts"); //$NON-NLS-1$
 
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
@@ -903,10 +923,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		return configuration.removeFeatureEntry(featureId, featureVersion);
 	}
 
-	public IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
-
-		if (!Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
-			return iu;
+	private IInstallableUnit prepareIU(IInstallableUnit iu, IProfile profile) {
 
 		Class c = null;
 		try {
@@ -931,7 +948,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 
 		// should not occur
-		throw new IllegalStateException("Unexpected");
+		throw new IllegalStateException("Unexpected Exception: prepareIU"); //$NON-NLS-1$
 	}
 
 	IStatus addSourceBundle(Map parameters) {
@@ -940,11 +957,11 @@ public class EclipseTouchpoint extends Touchpoint {
 		SourceManipulator manipulator = (SourceManipulator) parameters.get(PARM_SOURCE_BUNDLES);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
 		if (bundleId == null)
-			return createError("The \"bundleId\" parameter is missing from the \"add source bundle\" action");
+			return createError("The \"bundleId\" parameter is missing from the \"add source bundle\" action"); //$NON-NLS-1$
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.length == 0)
-			return createError("Installable unit contains no artifacts");
+			return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
@@ -954,16 +971,16 @@ public class EclipseTouchpoint extends Touchpoint {
 			}
 		}
 		if (artifactKey == null)
-			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
+			throw new IllegalArgumentException("No artifact found that matches: " + bundleId); //$NON-NLS-1$
 
 		File bundleFile = Util.getBundleFile(artifactKey, profile);
 		if (bundleFile == null || !bundleFile.exists())
-			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
+			return createError("The artifact " + artifactKey.toString() + " to install was not found."); //$NON-NLS-1$ //$NON-NLS-2$
 
 		try {
 			manipulator.addBundle(bundleFile, artifactKey.getId(), artifactKey.getVersion());
 		} catch (IOException e) {
-			createError("Can't configure " + artifactKey.toString() + " as a source bundle.", e);
+			createError("Can't configure " + artifactKey.toString() + " as a source bundle.", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return Status.OK_STATUS;
 	}
@@ -974,11 +991,11 @@ public class EclipseTouchpoint extends Touchpoint {
 		SourceManipulator manipulator = (SourceManipulator) parameters.get(PARM_SOURCE_BUNDLES);
 		String bundleId = (String) parameters.get(PARM_BUNDLE);
 		if (bundleId == null)
-			return createError("The \"bundleId\" parameter is missing from the \"remove source bundle\" action");
+			return createError("The \"bundleId\" parameter is missing from the \"remove source bundle\" action"); //$NON-NLS-1$
 
 		IArtifactKey[] artifacts = iu.getArtifacts();
 		if (artifacts == null || artifacts.length == 0)
-			return createError("Installable unit contains no artifacts");
+			return createError("Installable unit contains no artifacts"); //$NON-NLS-1$
 
 		IArtifactKey artifactKey = null;
 		for (int i = 0; i < artifacts.length; i++) {
@@ -988,16 +1005,16 @@ public class EclipseTouchpoint extends Touchpoint {
 			}
 		}
 		if (artifactKey == null)
-			throw new IllegalArgumentException("No artifact found that matches: " + bundleId);
+			throw new IllegalArgumentException("No artifact found that matches: " + bundleId); //$NON-NLS-1$
 
 		File bundleFile = Util.getBundleFile(artifactKey, profile);
 		if (bundleFile == null || !bundleFile.exists())
-			return createError("The artifact " + artifactKey.toString() + " to install was not found.");
+			return createError("The artifact " + artifactKey.toString() + " to install was not found."); //$NON-NLS-1$ //$NON-NLS-2$
 
 		try {
 			manipulator.removeBundle(bundleFile);
 		} catch (IOException e) {
-			createError("Can't configure " + artifactKey.toString() + " as a source bundle.", e);
+			createError("Can't configure " + artifactKey.toString() + " as a source bundle.", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return Status.OK_STATUS;
 	}

@@ -53,8 +53,7 @@ public class Install extends InstallableUnitPhase {
 			Touchpoint touchpoint = (Touchpoint) parameters.get(PARM_TOUCHPOINT);
 			InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 			IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
-			IInstallableUnit preparedIU = touchpoint.prepareIU(iu, profile);
-			profile.addInstallableUnit(preparedIU);
+			profile.addInstallableUnit(iu);
 			((IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.SERVICE_NAME)).publishEvent(new InstallableUnitEvent(phaseId, false, profile, operand, InstallableUnitEvent.INSTALL, touchpoint));
 			return null;
 		}
