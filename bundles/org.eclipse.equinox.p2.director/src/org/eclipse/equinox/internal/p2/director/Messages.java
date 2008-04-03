@@ -32,7 +32,7 @@ public class Messages extends NLS {
 	public static String Director_Already_Installed;
 
 	public static String Director_Replace_Problems;
-	public static String Director_Become_Problems;
+	public static String Director_Revert_Problems;
 	public static String Director_Unexpected_IU;
 	public static String Director_Task_Installing;
 	public static String Director_Task_Uninstalling;

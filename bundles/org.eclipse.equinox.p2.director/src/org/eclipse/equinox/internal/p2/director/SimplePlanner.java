@@ -153,7 +153,7 @@ public class SimplePlanner implements IPlanner {
 		SubMonitor sub = SubMonitor.convert(monitor, ExpandWork);
 		sub.setTaskName(Messages.Director_Task_Resolving_Dependencies);
 		try {
-			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Become_Problems, null);
+			MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Revert_Problems, null);
 
 			if (!Boolean.valueOf(profileSnapshot.getProperty(IInstallableUnit.PROP_TYPE_PROFILE)).booleanValue()) {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
