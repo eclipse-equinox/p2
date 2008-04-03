@@ -611,10 +611,12 @@ public class EquinoxBundlesState implements BundlesState {
 				break;
 			}
 			String symbolicName = currentInstalledBundles[i].getSymbolicName();
-			String version = currentInstalledBundles[i].getVersion().toString();
-			if (newSymbolicName.equals(symbolicName) && newVersion.equals(version)) {
-				found = true;
-				break;
+			if (newSymbolicName.equals(symbolicName)) {
+				String version = currentInstalledBundles[i].getVersion().toString();
+				if (newVersion.equals(version)) {
+					found = true;
+					break;
+				}
 			}
 		}
 
