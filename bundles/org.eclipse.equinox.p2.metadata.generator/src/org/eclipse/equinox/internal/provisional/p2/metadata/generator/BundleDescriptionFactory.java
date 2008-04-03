@@ -127,7 +127,9 @@ public class BundleDescriptionFactory {
 					manifestStream = jarFile.getInputStream(manifestEntry);
 				}
 			} else {
-				manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
+				File manifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
+				if (manifestFile.exists())
+					manifestStream = new BufferedInputStream(new FileInputStream(manifestFile));
 			}
 		} catch (IOException e) {
 			//ignore but log
