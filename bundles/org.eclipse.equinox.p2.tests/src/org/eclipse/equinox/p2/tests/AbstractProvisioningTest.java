@@ -579,6 +579,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return profileRegistry.addProfile(name, properties, parentId);
 	}
 
+	protected IProgressMonitor getMonitor() {
+		return new NullProgressMonitor();
+	}
+
 	protected IProfile getProfile(String profileId) {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
