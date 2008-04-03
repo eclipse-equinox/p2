@@ -557,7 +557,10 @@ public class Generator {
 					continue;
 				Query query = new InstallableUnitQuery(bundle.getSymbolicName());
 				Collector collector = new Collector();
-				Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
+				IMetadataRepository metadataRepository = info.getMetadataRepository();
+				if (metadataRepository == null)
+					continue;
+				Iterator matches = metadataRepository.query(query, collector, null).iterator();
 				//pick the newest match
 				IInstallableUnit newest = null;
 				while (matches.hasNext()) {
