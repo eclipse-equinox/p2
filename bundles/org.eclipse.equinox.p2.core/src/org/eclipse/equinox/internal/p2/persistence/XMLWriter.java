@@ -111,11 +111,11 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	public static String escape(String txt) {
-		// Traverse the string from right to left as the length
-		// may increase as result of processing
-		for (int i = txt.length() - 1; i >= 0; i -= 1) {
+		StringBuffer buffer = null;
+		for (int i = 0; i < txt.length(); ++i) {
 			String replace;
-			switch (txt.charAt(i)) {
+			char c = txt.charAt(i);
+			switch (c) {
 				case '<' :
 					replace = "&lt;"; //$NON-NLS-1$
 					break;
@@ -132,11 +132,21 @@ public class XMLWriter implements XMLConstants {
 					replace = "&amp;"; //$NON-NLS-1$
 					break;
 				default :
+					if (buffer != null)
+						buffer.append(c);
 					continue;
 			}
-			txt = txt.substring(0, i) + replace + txt.substring(i + 1);
+			if (buffer == null) {
+				buffer = new StringBuffer(txt.length() + 16);
+				buffer.append(txt.substring(0, i));
+			}
+			buffer.append(replace);
 		}
-		return txt;
+
+		if (buffer == null)
+			return txt;
+
+		return buffer.toString();
 	}
 
 	// write a boolean attribute if it doesn't have the default value
