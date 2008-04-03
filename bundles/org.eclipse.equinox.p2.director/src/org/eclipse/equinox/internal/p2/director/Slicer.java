@@ -22,7 +22,8 @@ public class Slicer {
 	private static boolean DEBUG = false;
 	private IQueryable possibilites;
 
-	private List toConsider; //IUs to add to the slice
+	private LinkedList toProcess;
+	private Set considered; //IUs to add to the slice
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
 	private Dictionary selectionContext;
@@ -48,11 +49,11 @@ public class Slicer {
 			}
 
 			validateInput(ius);
-			toConsider = new ArrayList();
-			toConsider.addAll(Arrays.asList(ius));
-			for (int i = 0; i < toConsider.size(); i++) {
-				processIU((IInstallableUnit) toConsider.get(i));
-			}
+			considered = new HashSet(Arrays.asList(ius));
+			toProcess = new LinkedList(considered);
+			while (!toProcess.isEmpty())
+				processIU((IInstallableUnit) toProcess.removeFirst());
+
 			if (DEBUG) {
 				long stop = System.currentTimeMillis();
 				System.out.println("Slicing complete: " + (stop - start)); //$NON-NLS-1$
@@ -64,7 +65,7 @@ public class Slicer {
 			LogHelper.log(result);
 		if (result.getSeverity() == IStatus.ERROR)
 			return null;
-		return new QueryableArray((IInstallableUnit[]) toConsider.toArray(new IInstallableUnit[toConsider.size()]));
+		return new QueryableArray((IInstallableUnit[]) considered.toArray(new IInstallableUnit[considered.size()]));
 	}
 
 	public MultiStatus getStatus() {
@@ -134,8 +135,7 @@ public class Slicer {
 				continue;
 			validMatches++;
 			if (!slice.containsKey(match.getId(), match.getVersion()))
-				if (!toConsider.contains(match))
-					toConsider.add(match);
+				consider(match);
 		}
 
 		if (validMatches == 0) {
@@ -146,5 +146,10 @@ public class Slicer {
 				result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, "No IU found to satisfy dependency of " + iu + " on req " + req)); //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
+	}
+
+	private void consider(IInstallableUnit match) {
+		if (considered.add(match))
+			toProcess.addLast(match);
 	}
 }

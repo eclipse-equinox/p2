@@ -97,23 +97,24 @@ public class Projector {
 
 	//Create an optimization function favoring the highest version of each IU  
 	private void createOptimizationFunction() {
-		objective = "min:"; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer("min:");//$NON-NLS-1$
 		Set s = slice.entrySet();
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
 			HashMap conflictingEntries = (HashMap) entry.getValue();
 			if (conflictingEntries.size() <= 1) {
-				objective += " 1 " + getVariable((IInstallableUnit) conflictingEntries.values().iterator().next()); //$NON-NLS-1$
+				buffer.append(" 1 ").append(getVariable((IInstallableUnit) conflictingEntries.values().iterator().next())); //$NON-NLS-1$
 				continue;
 			}
 			List toSort = new ArrayList(conflictingEntries.values());
 			Collections.sort(toSort);
 			int weight = toSort.size();
 			for (Iterator iterator2 = toSort.iterator(); iterator2.hasNext();) {
-				objective += " " + weight-- + " " + getVariable((IInstallableUnit) iterator2.next()); //$NON-NLS-1$//$NON-NLS-2$
+				buffer.append(" ").append(weight--).append(" ").append(getVariable((IInstallableUnit) iterator2.next())); //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
-		objective += " ;"; //$NON-NLS-1$
+		buffer.append(" ;"); //$NON-NLS-1$
+		objective = buffer.toString();
 	}
 
 	private void createMustHaves(IInstallableUnit iu) {
@@ -157,7 +158,7 @@ public class Projector {
 			w.newLine();
 			w.newLine();
 
-			w.write(explanation + " ;"); //$NON-NLS-1$
+			w.write(explanation.toString() + " ;"); //$NON-NLS-1$
 			w.newLine();
 			w.newLine();
 
@@ -190,11 +191,11 @@ public class Projector {
 		}
 	}
 
-	String explanation = "explain: "; //$NON-NLS-1$
+	StringBuffer explanation = new StringBuffer("explain: "); //$NON-NLS-1$
 
 	public void processIU(IInstallableUnit iu, boolean expandOptionalRequirements) {
 		slice.put(iu.getId(), iu.getVersion(), iu);
-		explanation += " " + getVariable(iu); //$NON-NLS-1$
+		explanation.append(" ").append(getVariable(iu)); //$NON-NLS-1$
 		if (!isApplicable(iu)) {
 			createNegation(iu);
 			return;
@@ -227,7 +228,7 @@ public class Projector {
 		List combinationsOfRequirements = new ArrayList();
 		getCombinations(list[CORE], list[OPT], combinationsOfRequirements);
 		combinationsOfRequirements.add(list[CORE]);
-		String expression = "-1 " + getVariable(iu); //$NON-NLS-1$
+		StringBuffer expression = new StringBuffer("-1 ").append(getVariable(iu)); //$NON-NLS-1$
 		int count = combinationsOfRequirements.size();
 		String generatedIUId = iu.getId() + '-' + System.currentTimeMillis();
 		for (Iterator iterator = combinationsOfRequirements.iterator(); iterator.hasNext();) {
@@ -241,11 +242,11 @@ public class Projector {
 			IInstallableUnit generated = MetadataFactory.createInstallableUnit(iud);
 
 			processIU(generated, false);
-			expression += " +1 " + getVariable(generated); //$NON-NLS-1$
+			expression.append(" +1 ").append(getVariable(generated)); //$NON-NLS-1$
 			variableForSyntheticIUs.put(generated, getVariable(generated));
 		}
-		expression += ">= 0;"; //$NON-NLS-1$
-		dependencies.add(expression);
+		expression.append(">= 0;"); //$NON-NLS-1$
+		dependencies.add(expression.toString());
 	}
 
 	private void getCombinations(List seed, List elts, List solutions) {
@@ -322,13 +323,13 @@ public class Projector {
 				continue;
 
 			Collection conflictingVersions = conflictingEntries.values();
-			String singletonRule = ""; //$NON-NLS-1$
+			StringBuffer singletonRule = new StringBuffer();
 			ArrayList nonSingleton = new ArrayList();
 			int countSingleton = 0;
 			for (Iterator conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
 				IInstallableUnit conflictElt = (IInstallableUnit) conflictIterator.next();
 				if (conflictElt.isSingleton()) {
-					singletonRule += " -1 " + getVariable(conflictElt); //$NON-NLS-1$
+					singletonRule.append(" -1 ").append(getVariable(conflictElt)); //$NON-NLS-1$
 					countSingleton++;
 				} else {
 					nonSingleton.add(conflictElt);
@@ -338,10 +339,10 @@ public class Projector {
 				continue;
 
 			for (Iterator iterator2 = nonSingleton.iterator(); iterator2.hasNext();) {
-				constraints.add(singletonRule + " -1 " + getVariable((IInstallableUnit) iterator2.next()) + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$
+				constraints.add(singletonRule.toString() + " -1 " + getVariable((IInstallableUnit) iterator2.next()) + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			singletonRule += " >= -1;"; //$NON-NLS-1$
-			constraints.add(singletonRule);
+			singletonRule.append(" >= -1;"); //$NON-NLS-1$
+			constraints.add(singletonRule.toString());
 		}
 	}
 
