@@ -763,6 +763,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public void save(boolean compress) {
+		assertModifiable();
 		OutputStream os = null;
 		try {
 			try {
