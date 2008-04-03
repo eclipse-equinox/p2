@@ -109,8 +109,10 @@
             locationURI="menu:help?after=additions">
             <command
                   commandId="org.eclipse.equinox.p2.ui.sdk.update"
+            	  mnemonic="%Update.command.mnemonic"
                   id="org.eclipse.equinox.p2.ui.sdk.update">
             </command>
+                        
       </menuContribution>
    </extension>
    <extension
