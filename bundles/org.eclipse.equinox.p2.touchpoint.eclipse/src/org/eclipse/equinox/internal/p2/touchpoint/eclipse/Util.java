@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Red Hat Incorporated - fix for bug 225145
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
@@ -72,7 +73,7 @@ public class Util {
 			//the repository doesn't exist, so fall through and create a new one
 		}
 		try {
-			String repositoryName = location + Messages.BundlePool;
+			String repositoryName = Messages.BundlePool;
 			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
 			manager.addRepository(bundlePool.getLocation());
 			bundlePool.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
