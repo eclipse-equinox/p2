@@ -94,7 +94,6 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 		hourCombo = new Combo(updateScheduleGroup, SWT.READ_ONLY);
 		hourCombo.setItems(AutomaticUpdateScheduler.HOURS);
 		gd = new GridData();
-		gd.widthHint = 100;
 		hourCombo.setLayoutData(gd);
 
 		createSpacer(container, 1);
