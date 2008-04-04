@@ -706,6 +706,7 @@ public class Generator {
 		iu.setId(launcherId);
 		Version launcherVersion = new Version(version);
 		iu.setVersion(launcherVersion);
+		iu.setSingleton(true);
 		String filter = "(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		iu.setFilter(filter);
 
@@ -801,6 +802,7 @@ public class Generator {
 			Version cuVersion = new Version(productFile.getVersion());
 			cu.setId(configUnitId);
 			cu.setVersion(cuVersion);
+			cu.setSingleton(true);
 			cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 			ProvidedCapability productConfigCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_CONFIG_SUFFIX, cuVersion);
@@ -848,6 +850,7 @@ public class Generator {
 		Version cuVersion = new Version(version);
 		cu.setId(configUnitId);
 		cu.setVersion(cuVersion);
+		cu.setSingleton(true);
 		cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
 		ProvidedCapability productIniCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_INI_SUFFIX, cuVersion);
