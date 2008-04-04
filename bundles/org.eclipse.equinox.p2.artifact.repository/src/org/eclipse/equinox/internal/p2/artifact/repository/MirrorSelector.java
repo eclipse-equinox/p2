@@ -157,7 +157,8 @@ public class MirrorSelector {
 		try {
 			relativeLocation = baseURI.relativize(new URI(inputLocation));
 		} catch (URISyntaxException e) {
-			log("Unable to make location relative: " + inputLocation, e); //$NON-NLS-1$
+			if (Tracing.DEBUG_MIRRORS)
+				log("Unable to make location relative: " + inputLocation, e); //$NON-NLS-1$
 		}
 		//if we failed to relativize the location, we can't select a mirror
 		if (relativeLocation == null || relativeLocation.isAbsolute())
