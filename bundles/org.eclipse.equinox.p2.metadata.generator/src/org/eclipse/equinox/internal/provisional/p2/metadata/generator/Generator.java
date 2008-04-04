@@ -488,6 +488,7 @@ public class Generator {
 			filter = "(& (osgi.ws=" + config[1] + ") (osgi.os=" + config[0] + ") (osgi.arch=" + config[2] + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		}
 
+		List allCUs = new ArrayList();
 		for (int i = 0; i < infos.length; i++) {
 			GeneratorBundleInfo bundle = createGeneratorBundleInfo(infos[i], result);
 			if (bundle == null)
@@ -505,11 +506,7 @@ public class Generator {
 
 			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, info.getFlavor() + cuIdPrefix, filter);
 			if (cu != null) {
-				// Product Query will run against the repo, make sure these CUs are in before then
-				IMetadataRepository metadataRepository = info.getMetadataRepository();
-				if (metadataRepository != null) {
-					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
-				}
+				allCUs.add(cu);
 				result.rootIUs.add(cu);
 				String key = (productFile != null && productFile.useFeatures()) ? GeneratorResult.CONFIGURATION_CUS : bundle.getSymbolicName();
 				if (result.configurationIUs.containsKey(key)) {
@@ -520,6 +517,11 @@ public class Generator {
 					result.configurationIUs.put(key, set);
 				}
 			}
+		}
+		IMetadataRepository metadataRepository = info.getMetadataRepository();
+		if (metadataRepository != null && !allCUs.isEmpty()) {
+			// Product Query will run against the repo later in createProductIU, make sure these CUs are in before then
+			metadataRepository.addInstallableUnits((IInstallableUnit[]) allCUs.toArray(new IInstallableUnit[allCUs.size()]));
 		}
 
 	}
