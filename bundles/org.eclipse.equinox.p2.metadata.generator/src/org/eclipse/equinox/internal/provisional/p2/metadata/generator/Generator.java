@@ -95,6 +95,10 @@ public class Generator {
 	private static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
 
+	private static final String PRODUCT_CONFIG_SUFFIX = ".config"; //$NON-NLS-1$
+	private static final String PRODUCT_INI_SUFFIX = ".ini"; //$NON-NLS-1$
+	private static final String PRODUCT_LAUCHER_SUFFIX = ".launcher"; //$NON-NLS-1$
+
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 
 	private final IGeneratorInfo info;
@@ -163,10 +167,11 @@ public class Generator {
 		String version = productFile.getVersion();
 		if (version.equals("0.0.0") && info.getRootVersion() != null) //$NON-NLS-1$
 			version = info.getRootVersion();
+		VersionRange range = new VersionRange(new Version(version), true, new Version(version), true);
 		ArrayList requires = new ArrayList(1);
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".launcher", VersionRange.emptyRange, null, false, true)); //$NON-NLS-1$
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".ini", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
-		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".config", VersionRange.emptyRange, null, false, false)); //$NON-NLS-1$
+		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_LAUCHER_SUFFIX, range, null, false, true));
+		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_INI_SUFFIX, range, null, false, false));
+		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_CONFIG_SUFFIX, range, null, false, false));
 
 		//default CUs		
 		requires.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, MetadataGeneratorHelper.createDefaultConfigUnitId(MetadataGeneratorHelper.OSGI_BUNDLE_CLASSIFIER, info.getFlavor()), VersionRange.emptyRange, null, false, false));
@@ -696,7 +701,7 @@ public class Generator {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
 		String productNamespace = (productFile != null) ? productFile.getId() : "org.eclipse"; //$NON-NLS-1$
-		String launcherIdPrefix = productNamespace + ".launcher"; //$NON-NLS-1$
+		String launcherIdPrefix = productNamespace + PRODUCT_LAUCHER_SUFFIX;
 		String launcherId = launcherIdPrefix + '.' + ws + '.' + os + '.' + arch;
 		iu.setId(launcherId);
 		Version launcherVersion = new Version(version);
@@ -707,7 +712,7 @@ public class Generator {
 		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(launcherId, launcherVersion);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
-		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productNamespace, launcherIdPrefix, new Version("1.0.0")); //$NON-NLS-1$
+		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productNamespace, launcherIdPrefix, launcherVersion);
 		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(launcherId, launcherVersion), launcherCapability});
 
 		String launcherFragment = ORG_ECLIPSE_EQUINOX_LAUNCHER + '.' + ws + '.' + os;
@@ -798,7 +803,7 @@ public class Generator {
 			cu.setVersion(cuVersion);
 			cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-			ProvidedCapability productConfigCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".config", Version.emptyVersion); //$NON-NLS-1$
+			ProvidedCapability productConfigCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_CONFIG_SUFFIX, cuVersion);
 			ProvidedCapability selfCapability = MetadataGeneratorHelper.createSelfCapability(configUnitId, cuVersion);
 			cu.setCapabilities(new ProvidedCapability[] {selfCapability, productConfigCapability});
 
@@ -845,7 +850,7 @@ public class Generator {
 		cu.setVersion(cuVersion);
 		cu.setFilter("(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-		ProvidedCapability productIniCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + ".ini", Version.emptyVersion); //$NON-NLS-1$
+		ProvidedCapability productIniCapability = MetadataFactory.createProvidedCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_INI_SUFFIX, cuVersion);
 		ProvidedCapability selfCapability = MetadataGeneratorHelper.createSelfCapability(configUnitId, cuVersion);
 		cu.setCapabilities(new ProvidedCapability[] {selfCapability, productIniCapability});
 
