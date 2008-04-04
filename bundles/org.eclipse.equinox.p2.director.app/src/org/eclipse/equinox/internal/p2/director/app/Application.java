@@ -158,28 +158,32 @@ public class Application implements IApplication {
 		long time = -System.currentTimeMillis();
 		initializeFromArguments(args);
 
-		Properties props = new Properties();
-		props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination);
-		props.setProperty(IProfile.PROP_FLAVOR, flavor);
-		if (bundlePool != null)
-			if (bundlePool.equals(Messages.destination_commandline))
-				props.setProperty(IProfile.PROP_CACHE, destination);
-			else
-				props.setProperty(IProfile.PROP_CACHE, bundlePool);
-		if (roamingProfile)
-			props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
+		if (profileId == null)
+			profileId = IProfileRegistry.SELF;
+		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		if (profile == null) {
+			Properties props = new Properties();
+			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination);
+			props.setProperty(IProfile.PROP_FLAVOR, flavor);
+			if (bundlePool != null)
+				if (bundlePool.equals(Messages.destination_commandline))
+					props.setProperty(IProfile.PROP_CACHE, destination);
+				else
+					props.setProperty(IProfile.PROP_CACHE, bundlePool);
+			if (roamingProfile)
+				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
 
-		String env = getEnvironmentProperty();
-		if (env != null)
-			props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
-		if (profileProperties != null) {
-			putProperties(profileProperties, props);
+			String env = getEnvironmentProperty();
+			if (env != null)
+				props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
+			if (profileProperties != null) {
+				putProperties(profileProperties, props);
+			}
+			profile = ProvisioningHelper.addProfile(profileId, props);
+			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
+			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
+				throw new RuntimeException(Messages.Inconsistent_flavor);
 		}
-		IProfile profile = ProvisioningHelper.addProfile(profileId, props);
-		String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
-		if (currentFlavor != null && !currentFlavor.endsWith(flavor))
-			throw new RuntimeException(Messages.Inconsistent_flavor);
-
 		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
 		if (director == null)
 			throw new RuntimeException(Messages.Missing_director);
