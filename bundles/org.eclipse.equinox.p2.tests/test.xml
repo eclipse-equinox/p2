@@ -18,8 +18,6 @@
 	<!-- This target holds code to cleanup the testing environment after the tests -->
 	<!-- have been run. You can use this to delete temporary files that are created. -->
 	<target name="cleanup">
-		<delete dir="${runtime_location}" quiet="true" />
-		<delete dir="${resources_location}" quiet="true" />
 		<delete dir="${p2_location}" quiet="true" />
 	</target>
 
