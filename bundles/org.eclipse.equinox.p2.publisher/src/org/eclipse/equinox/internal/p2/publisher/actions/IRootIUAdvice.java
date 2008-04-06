@@ -9,15 +9,14 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
-import java.util.Properties;
-import org.eclipse.equinox.internal.p2.publisher.IPublishingAdvice;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
+import java.util.Collection;
 
-public interface IConfigAdvice extends IPublishingAdvice {
+public interface IRootIUAdvice {
 
-	public static final String ID = "config_advice"; //$NON-NLS-1$
-
-	public BundleInfo[] getBundles();
-
-	public Properties getProperties();
+	/**
+	 * Returns the list of children of the root for this publishing operation.
+	 * Returned elements are either the String id of the IUs or the IUs themselves.
+	 * @return the collection of children
+	 */
+	public Collection getChildren();
 }

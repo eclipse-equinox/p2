@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - Additional function and fixes
  *******************************************************************************/
 
 package org.eclipse.equinox.internal.p2.publisher.features;
@@ -62,7 +63,7 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String SPLASH = "splash"; //$NON-NLS-1$
-	private static final String P_USE_ICO = "useIco"; //$NON-NLS-1$
+	//	private static final String P_USE_ICO = "useIco"; //$NON-NLS-1$
 
 	//These constants form a small state machine to parse the .product file
 	private static final int STATE_START = 0;
@@ -84,12 +85,9 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	private int state = STATE_START;
 
-	private final SAXParser parser;
-	private String currentOS = null;
-	private boolean useIco = false;
-	private final ArrayList result = new ArrayList(6);
+	private SAXParser parser;
 	private String launcherName = null;
-	private String icons[] = null;
+	private Map icons = new HashMap(6);
 	private String configPath = null;
 	private String id = null;
 	private boolean useFeatures = false;
@@ -103,6 +101,8 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	private Properties launcherArgs = new Properties();
 	private final Map platformSpecificConfigPaths = new HashMap();
 
+	private File location;
+
 	private static String normalize(String text) {
 		if (text == null || text.trim().length() == 0)
 			return ""; //$NON-NLS-1$
@@ -114,14 +114,15 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Constructs a feature parser.
 	 */
-	public ProductFile(String location, String os) throws Exception {
+	public ProductFile(String location) throws Exception {
 		super();
-		this.currentOS = os;
+		this.location = new File(location);
 		//		try {
 		parserFactory.setNamespaceAware(true);
 		parser = parserFactory.newSAXParser();
 		InputStream in = new BufferedInputStream(new FileInputStream(location));
 		parser.parse(new InputSource(in), this);
+		parser = null;
 		//		} catch (ParserConfigurationException e) {
 		//			throw new CoreException(new Status(IStatus.ERROR, PI_PDEBUILD, EXCEPTION_PRODUCT_FORMAT, NLS.bind(Messages.exception_productParse, location), e));
 		//		} catch (SAXException e) {
@@ -135,6 +136,10 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 
 	public String getLauncherName() {
 		return launcherName;
+	}
+
+	public File getLocation() {
+		return location;
 	}
 
 	public List getBundles(boolean includeFragments) {
@@ -172,19 +177,11 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 	/**
 	 * Parses the specified url and constructs a feature
 	 */
-	public String[] getIcons() {
-		if (icons != null)
-			return icons;
-		String[] temp = new String[result.size()];
-		int i = 0;
-		for (Iterator iter = result.iterator(); iter.hasNext();) {
-			String element = (String) iter.next();
-			if (element != null)
-				temp[i++] = element;
-		}
-		icons = new String[i];
-		System.arraycopy(temp, 0, icons, 0, i);
-		return icons;
+	public String[] getIcons(String os) {
+		Collection result = (Collection) icons.get(os);
+		if (result == null)
+			return new String[0];
+		return (String[]) result.toArray(new String[result.size()]);
 	}
 
 	public String getConfigIniPath(String os) {
@@ -475,56 +472,49 @@ public class ProductFile extends DefaultHandler implements IProductDescriptor {
 		launcherName = attributes.getValue("name"); //$NON-NLS-1$
 	}
 
-	private boolean osMatch(String os) {
-		if (os == currentOS)
-			return true;
-		if (os == null)
-			return false;
-		return os.equals(currentOS);
+	private void addIcon(String os, String value) {
+		if (value == null)
+			return;
+		Collection list = (Collection) icons.get(os);
+		if (list == null) {
+			list = new ArrayList(6);
+			icons.put(os, list);
+		}
+		if (!new File(value).isAbsolute())
+			value = new File(location.getParentFile(), value).getAbsolutePath();
+		list.add(value);
 	}
 
 	private void processSolaris(Attributes attributes) {
-		if (!osMatch(OS_SOLARIS))
-			return;
-		result.add(attributes.getValue(SOLARIS_LARGE));
-		result.add(attributes.getValue(SOLARIS_MEDIUM));
-		result.add(attributes.getValue(SOLARIS_SMALL));
-		result.add(attributes.getValue(SOLARIS_TINY));
+		addIcon(OS_SOLARIS, attributes.getValue(SOLARIS_LARGE));
+		addIcon(OS_SOLARIS, attributes.getValue(SOLARIS_MEDIUM));
+		addIcon(OS_SOLARIS, attributes.getValue(SOLARIS_SMALL));
+		addIcon(OS_SOLARIS, attributes.getValue(SOLARIS_TINY));
 	}
 
 	private void processWin(Attributes attributes) {
-		if (!osMatch(OS_WIN32))
-			return;
-		useIco = Boolean.valueOf(attributes.getValue(P_USE_ICO)).booleanValue();
+		//		useIco = Boolean.valueOf(attributes.getValue(P_USE_ICO)).booleanValue();
 	}
 
 	private void processIco(Attributes attributes) {
-		if (!osMatch(OS_WIN32) || !useIco)
-			return;
-		result.add(attributes.getValue("path")); //$NON-NLS-1$
+		addIcon(OS_WIN32, attributes.getValue("path")); //$NON-NLS-1$
 	}
 
 	private void processBmp(Attributes attributes) {
-		if (!osMatch(OS_WIN32) || useIco)
-			return;
-		result.add(attributes.getValue(WIN32_16_HIGH));
-		result.add(attributes.getValue(WIN32_16_LOW));
-		result.add(attributes.getValue(WIN32_24_LOW));
-		result.add(attributes.getValue(WIN32_32_HIGH));
-		result.add(attributes.getValue(WIN32_32_LOW));
-		result.add(attributes.getValue(WIN32_48_HIGH));
-		result.add(attributes.getValue(WIN32_48_LOW));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_16_HIGH));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_16_LOW));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_24_LOW));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_32_HIGH));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_32_LOW));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_48_HIGH));
+		addIcon(OS_WIN32, attributes.getValue(WIN32_48_LOW));
 	}
 
 	private void processLinux(Attributes attributes) {
-		if (!osMatch(OS_LINUX))
-			return;
-		result.add(attributes.getValue("icon")); //$NON-NLS-1$
+		addIcon(OS_LINUX, attributes.getValue("icon")); //$NON-NLS-1$
 	}
 
 	private void processMac(Attributes attributes) {
-		if (!osMatch(OS_MACOSX))
-			return;
-		result.add(attributes.getValue("icon")); //$NON-NLS-1$
+		addIcon(OS_MACOSX, attributes.getValue("icon")); //$NON-NLS-1$
 	}
 }

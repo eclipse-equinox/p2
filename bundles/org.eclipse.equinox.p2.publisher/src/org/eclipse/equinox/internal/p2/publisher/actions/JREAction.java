@@ -25,7 +25,8 @@ public class JREAction extends AbstractPublishingAction {
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
 		IArtifactDescriptor artifact = MetadataGeneratorHelper.createJREData(location, results);
-		publishArtifact(artifact, null, new File[] {location}, info, INCLUDE_ROOT);
+		if (artifact != null)
+			publishArtifact(artifact, new File[] {location}, info, INCLUDE_ROOT);
 		return Status.OK_STATUS;
 	}
 

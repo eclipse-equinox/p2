@@ -9,5 +9,15 @@
          </run>
       </application>
    </extension>
+   <extension id="ProductPublisher" point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="1"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.equinox.internal.p2.publisher.ProductPublisherApplication">
+         </run>
+      </application>
+   </extension>
 
 </plugin>

@@ -22,18 +22,11 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class RootFilesAction extends AbstractPublishingAction {
-
-	private String configSpec;
 	private String idBase;
 	private String versionSpec = "1.0.0"; //$NON-NLS-1$
-	private File root;
-	private File[] exclusions;
 	private String flavor;
 
-	public RootFilesAction(IPublisherInfo info, File root, File[] exclusions, String configSpec, String idBase, String version, String flavor) {
-		this.root = root;
-		this.exclusions = exclusions;
-		this.configSpec = configSpec;
+	public RootFilesAction(IPublisherInfo info, String idBase, String version, String flavor) {
 		this.idBase = idBase == null ? "org.eclipse" : idBase; //$NON-NLS-1$
 		// if the given version is not the default "replace me" version then save it
 		if (version != null && !version.equals("0.0.0")) //$NON-NLS-1$
@@ -42,47 +35,49 @@ public class RootFilesAction extends AbstractPublishingAction {
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		generateExecutableIUs(info, results);
+		String[] configSpecs = info.getConfigurations();
+		for (int i = 0; i < configSpecs.length; i++)
+			generateRootFileIUs(configSpecs[i], info, results);
 		return Status.OK_STATUS;
 	}
 
 	/**
-	 * Generates IUs and CUs for the files that make up the launcher for a given
+	 * Generates IUs and CUs for the files that make up the root files for a given
 	 * ws/os/arch combination.
 	 */
-	protected void generateExecutableIUs(IPublisherInfo info, IPublisherResult result) {
+	protected void generateRootFileIUs(String configSpec, IPublisherInfo info, IPublisherResult result) {
 		// Create the IU for the executable
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
 		String idPrefix = idBase + ".rootfiles"; //$NON-NLS-1$
-		String executableId = idPrefix + '.' + createIdString(configSpec);
-		iu.setId(executableId);
+		String iuId = idPrefix + '.' + createIdString(configSpec);
+		iu.setId(iuId);
 		Version version = new Version(versionSpec);
 		iu.setVersion(version);
 		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
-		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(executableId, version);
+		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(iuId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
 		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); //$NON-NLS-1$
-		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(executableId, version), launcherCapability});
+		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(iuId, version), launcherCapability});
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
 		// Create the CU that installs/configures the executable
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configUnitId = flavor + executableId;
+		String configUnitId = flavor + iuId;
 		cu.setId(configUnitId);
 		cu.setVersion(version);
 		cu.setFilter(filter);
-		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, executableId, new VersionRange(version, true, version, true), null, false, false)});
+		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iuId, new VersionRange(version, true, version, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
 		cu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configUnitId, version)});
 
 		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
@@ -92,26 +87,49 @@ public class RootFilesAction extends AbstractPublishingAction {
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null, false, true);
-		publishArtifact(descriptor, null, excludeFiles(root, exclusions), info, INCLUDE_ROOT);
+		IRootFilesAdvice advice = getAdvice(configSpec, info);
+		publishArtifact(descriptor, filterRootFiles(advice, info), advice.getRoot(), info, INCLUDE_ROOT);
 	}
 
-	private File[] excludeFiles(File base, File[] exclusions) {
+	private File[] filterRootFiles(IRootFilesAdvice advice, IPublisherInfo info) {
+		File[] inclusions = advice.getIncludedFiles();
+		Set exclusions = new HashSet(Arrays.asList(advice.getExcludedFiles()));
 		ArrayList result = new ArrayList();
-		File[] list = base.listFiles();
-		for (int i = 0; i < list.length; i++) {
-			File file = list[i];
-			if (exclusions == null)
-				result.add(file);
-			else {
-				boolean found = false;
-				for (int j = 0; j < exclusions.length; j++)
-					if (file.equals(exclusions[j]))
-						found = true;
-				if (!found)
-					result.add(file);
-			}
-		}
+		for (int i = 0; i < inclusions.length; i++)
+			filterFile(inclusions[i], exclusions, result);
 		return (File[]) result.toArray(new File[result.size()]);
+	}
+
+	private void filterFile(File inclusion, Collection exclusions, ArrayList result) {
+		if (exclusions == null || !exclusions.contains(inclusion))
+			if (inclusion.isDirectory()) {
+				File[] list = inclusion.listFiles();
+				for (int i = 0; i < list.length; i++)
+					filterFile(list[i], exclusions, result);
+			} else
+				result.add(inclusion);
+	}
+
+	private IRootFilesAdvice getAdvice(String configSpec, IPublisherInfo info) {
+		Collection advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
+		ArrayList inclusions = new ArrayList();
+		ArrayList exclusions = new ArrayList();
+		File root = null;
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IRootFilesAdvice entry = (IRootFilesAdvice) i.next();
+			// TODO for now we simply get root from the first advice that has one
+			if (root == null)
+				root = entry.getRoot();
+			File[] list = entry.getIncludedFiles();
+			if (list != null)
+				inclusions.addAll(Arrays.asList(list));
+			list = entry.getExcludedFiles();
+			if (list != null)
+				exclusions.addAll(Arrays.asList(list));
+		}
+		File[] includeList = (File[]) inclusions.toArray(new File[inclusions.size()]);
+		File[] excludeList = (File[]) exclusions.toArray(new File[exclusions.size()]);
+		return new RootFilesAdvice(root, includeList, excludeList, configSpec);
 	}
 
 }

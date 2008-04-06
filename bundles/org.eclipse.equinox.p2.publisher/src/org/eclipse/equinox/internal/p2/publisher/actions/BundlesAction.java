@@ -128,7 +128,7 @@ public class BundlesAction extends AbstractPublishingAction {
 			// we know there is some advice but if there is more than one, take the first.
 			String shape = ((IBundleShapeAdvice) advice.iterator().next()).getShape();
 			if (shape != null)
-				return shape.equals(IBundleAdvice.DIR);
+				return shape.equals(IBundleShapeAdvice.DIR);
 		}
 		// otherwise go with whatever we figured out from the manifest or the shape on disk
 		Map manifest = (Map) bundle.getUserObject();

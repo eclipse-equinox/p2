@@ -9,15 +9,15 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
-import java.util.Properties;
+import java.io.File;
 import org.eclipse.equinox.internal.p2.publisher.IPublishingAdvice;
-import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 
-public interface IConfigAdvice extends IPublishingAdvice {
+public interface IRootFilesAdvice extends IPublishingAdvice {
 
-	public static final String ID = "config_advice"; //$NON-NLS-1$
+	public File getRoot();
 
-	public BundleInfo[] getBundles();
+	public File[] getIncludedFiles();
 
-	public Properties getProperties();
+	public File[] getExcludedFiles();
+
 }

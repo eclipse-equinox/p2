@@ -211,7 +211,7 @@ public class FeaturesAction extends AbstractPublishingAction {
 		for (int i = 0; i < entries.length; i++) {
 			FeatureEntry entry = entries[i];
 			if (entry.isUnpack())
-				info.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleAdvice.DIR));
+				info.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleShapeAdvice.DIR));
 		}
 	}
 
@@ -260,8 +260,13 @@ public class FeaturesAction extends AbstractPublishingAction {
 			// TODO should really be returning VersionRange.emptyRange here...
 			return null;
 		Version version = new Version(versionSpec);
-		if (!entry.isRequires())
+		// if this is an includes then return either a completely open range (if the verison is 0.0.0)
+		// or an exact range
+		if (!entry.isRequires()) {
+			if (version.equals(Version.emptyVersion))
+				return VersionRange.emptyRange;
 			return new VersionRange(version, true, version, true);
+		}
 		String match = entry.getMatch();
 		if (match == null)
 			// TODO should really be returning VersionRange.emptyRange here...

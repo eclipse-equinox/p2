@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: 
+ *   Code 9 - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher;
 
 import java.util.*;
@@ -7,19 +16,12 @@ public class PublisherResult implements IPublisherResult {
 	// type markers
 	public static final String ROOT = "root"; //$NON-NLS-1$
 	public static final String NON_ROOT = "non_root"; //$NON-NLS-1$
-	public static final String FRAGMENT = "fragment"; //$NON-NLS-1$
 
 	// The set of top level IUs
 	final Map rootIUs = new HashMap();
 
 	// The set of internal and leaf IUs
 	final Map nonRootIUs = new HashMap();
-
-	// Map of IU id to a set of fragments for that IU 
-	final Map fragmentMap = new HashMap();
-
-	// map of os, ws, arch to ConfigData objects
-	private final Map configData = new HashMap(11);
 
 	public void addIU(IInstallableUnit iu, String type) {
 		if (type == ROOT)
@@ -33,18 +35,6 @@ public class PublisherResult implements IPublisherResult {
 			IInstallableUnit iu = (IInstallableUnit) i.next();
 			addIU(iu, type);
 		}
-	}
-
-	public void addFragment(String hostId, IInstallableUnit iu) {
-		addIU(fragmentMap, hostId, iu);
-	}
-
-	public Map getFragmentMap() {
-		return fragmentMap;
-	}
-
-	public Collection getFragments(String hostId) {
-		return Arrays.asList((IInstallableUnit[]) fragmentMap.get(hostId));
 	}
 
 	private void addIU(Map map, String id, IInstallableUnit iu) {
@@ -120,15 +110,7 @@ public class PublisherResult implements IPublisherResult {
 		return result;
 	}
 
-	public Map getConfigData() {
-		return configData;
-	}
-
 	public void merge(IPublisherResult result, int mode) {
-		// merge non-conditional pieces
-		fragmentMap.putAll(result.getFragmentMap());
-		configData.putAll(result.getConfigData());
-		//		mergeAdvice(result);
 
 		if (mode == MERGE_MATCHING) {
 			addIUs(result.getIUs(null, ROOT), ROOT);
@@ -142,17 +124,4 @@ public class PublisherResult implements IPublisherResult {
 		}
 	}
 
-	//	private void mergeAdvice(IPublisherResult result) {
-	//		for (Iterator i = result.getAdviceIds().iterator(); i.hasNext();) {
-	//			String id = (String) i.next();
-	//			IPublishingAdvice advice = result.getAdvice(id);
-	//			if (advice == null)
-	//				continue;
-	//			IPublishingAdvice thisAdvice = getAdvice(id);
-	//			if (thisAdvice == null)
-	//				adviceMap.put(id, advice);
-	//			else
-	//				adviceMap.put(id, thisAdvice.merge(advice));
-	//		}
-	//	}
 }

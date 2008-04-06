@@ -10,9 +10,10 @@
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -24,58 +25,16 @@ import org.osgi.framework.Version;
 
 public class EquinoxExecutableAction extends AbstractPublishingAction {
 
-	private String configSpec;
-	private String idBase;
-	private String versionSpec = "1.0.0"; //$NON-NLS-1$
-	private File[] executables;
-	private String flavor;
+	protected String configSpec;
+	protected String idBase;
+	protected String versionSpec = "1.0.0"; //$NON-NLS-1$
+	protected ExecutablesDescriptor executables;
+	protected String flavor;
 
-	public static File findExecutable(File root, String os, String baseName) {
-		// TODO this may need to get more intelligent
-		// if MacOS its going to be baseName.app/Contents/MacOS/baseName
-		if (Constants.OS_MACOSX.equals(os)) {
-			return new File(root, baseName + ".app/Contents/MacOS/" + baseName);
-		}
-		// if it is a UNIX flavor
-		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
-			return new File(root, baseName);
-		}
-		// otherwise we are left with windows
-		return new File(root, baseName + ".exe");
+	protected EquinoxExecutableAction() {
 	}
 
-	public static File[] findExecutables(File root, String os, String baseName) {
-		// if MacOS
-		if (Constants.OS_MACOSX.equals(os)) {
-			return root.listFiles(new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return name.substring(name.length() - 4, name.length()).equalsIgnoreCase(".app"); //$NON-NLS-1$
-				}
-			});
-		}
-		// if it is a UNIX flavor
-		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
-			ArrayList result = new ArrayList();
-			File[] files = root.listFiles();
-			for (int i = 0; files != null && i < files.length; i++) {
-				String extension = new Path(files[i].getName()).getFileExtension();
-				if (files[i].isFile() && (extension == null || extension.equals("so")))
-					result.add(files[i]);
-			}
-			return (File[]) result.toArray(new File[result.size()]);
-		}
-		// otherwise we are left with windows
-		ArrayList result = new ArrayList();
-		File executable = new File(root, baseName + ".exe");
-		if (executable.isFile())
-			result.add(executable);
-		executable = new File(root, "eclipsec.exe");
-		if (executable.isFile())
-			result.add(executable);
-		return (File[]) result.toArray(new File[result.size()]);
-	}
-
-	public EquinoxExecutableAction(IPublisherInfo info, File[] executables, String configSpec, String idBase, String version, String flavor) {
+	public EquinoxExecutableAction(ExecutablesDescriptor executables, String configSpec, String idBase, String version, String flavor) {
 		this.executables = executables;
 		this.configSpec = configSpec;
 		this.idBase = idBase == null ? "org.eclipse" : idBase; //$NON-NLS-1$
@@ -134,14 +93,14 @@ public class EquinoxExecutableAction extends AbstractPublishingAction {
 		cu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(configUnitId, version)});
 
 		// TODO temporary measure for handling the Eclipse launcher feature files.
-		mungeLauncherFileNames(executables);
+		ExecutablesDescriptor files = brandExecutables(executables);
 
 		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		for (int i = 0; i < executables.length; i++) {
-			File file = executables[i];
-
+		File[] fileList = files.getFiles();
+		for (int i = 0; i < fileList.length; i++) {
+			File file = fileList[i];
 			if (Constants.OS_MACOSX.equals(os)) {
 				File macOSFolder = new File(file, "Contents/MacOS"); //$NON-NLS-1$
 				if (macOSFolder.exists()) {
@@ -169,12 +128,19 @@ public class EquinoxExecutableAction extends AbstractPublishingAction {
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null, false, true);
-		publishArtifact(descriptor, null, executables, info, INCLUDE_ROOT);
+		publishArtifact(descriptor, fileList, files.getLocation(), info, INCLUDE_ROOT);
+		if (files.isTemporary())
+			FileUtils.deleteAll(files.getLocation());
 	}
 
-	private void mungeLauncherFileNames(File[] files) {
-		for (int i = 0; i < files.length; i++)
-			mungeLauncherFileName(files[i]);
+	protected ExecutablesDescriptor brandExecutables(ExecutablesDescriptor descriptor) {
+		ExecutablesDescriptor result = new ExecutablesDescriptor(descriptor);
+		result.makeTemporaryCopy();
+		File[] list = descriptor.getFiles();
+		for (int i = 0; i < list.length; i++)
+			mungeLauncherFileName(list[i], descriptor);
+		result.setExecutableName("eclipse", true); //$NON-NLS-1$
+		return result;
 	}
 
 	/**
@@ -183,17 +149,16 @@ public class EquinoxExecutableAction extends AbstractPublishingAction {
 	 * metadata/artifacts for launchers, or alter the delta pack to contain eclipse-branded
 	 * launchers.
 	 */
-	private void mungeLauncherFileName(File file) {
-		if (file.isDirectory()) {
-			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++) {
-				mungeLauncherFileName(children[i]);
-			}
-		} else if (file.isFile()) {
-			if (file.getName().equals("launcher")) //$NON-NLS-1$
-				file.renameTo(new File(file.getParentFile(), "eclipse")); //$NON-NLS-1$
-			else if (file.getName().equals("launcher.exe")) //$NON-NLS-1$
-				file.renameTo(new File(file.getParentFile(), "eclipse.exe")); //$NON-NLS-1$
+	private void mungeLauncherFileName(File file, ExecutablesDescriptor descriptor) {
+		if (file.getName().equals("launcher")) { //$NON-NLS-1$
+			File newFile = new File(file.getParentFile(), "eclipse"); //$NON-NLS-1$
+			file.renameTo(newFile); //$NON-NLS-1$
+			descriptor.replace(file, newFile);
+		} else if (file.getName().equals("launcher.exe")) { //$NON-NLS-1$
+			File newFile = new File(file.getParentFile(), "eclipse.exe"); //$NON-NLS-1$
+			file.renameTo(newFile); //$NON-NLS-1$
+			descriptor.replace(file, newFile);
 		}
 	}
+
 }

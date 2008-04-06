@@ -10,11 +10,13 @@
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -26,29 +28,25 @@ public class RootIUAction extends AbstractPublishingAction {
 
 	private String version;
 	private String id;
-	private String[] topLevel;
 	private String name;
+	private IQueryable repositories;
+	private Collection versionAdvice;
+	private IPublisherInfo info;
 
-	public RootIUAction(String id, String version, String name, String[] topLevel, IPublisherInfo info) {
+	public RootIUAction(String id, String version, String name, IPublisherInfo info) {
 		this.id = id;
 		this.version = version;
 		this.name = name;
-		this.topLevel = topLevel;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+		this.info = info;
 		generateRootIU(results);
 		return Status.OK_STATUS;
 	}
 
 	protected void generateRootIU(IPublisherResult result) {
-		Collection children = result.getIUs(null, IPublisherResult.ROOT);
-		for (int i = 0; topLevel != null && i < topLevel.length; i++) {
-			String iuSpec = topLevel[i];
-			IInstallableUnit iu = result.getIU(iuSpec, null);
-			if (iu != null)
-				children.add(iu);
-		}
+		Collection children = getChildren(result);
 		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, name, null, false);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null)
@@ -57,6 +55,49 @@ public class RootIUAction extends AbstractPublishingAction {
 
 		// TODO why do we create a category here?
 		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
+	}
+
+	private Collection getChildren(IPublisherResult result) {
+		// get any roots that we have accummulated so far and search for
+		// children from the advice.
+		Collection children = result.getIUs(null, IPublisherResult.ROOT);
+		Collection rootAdvice = info.getAdvice(null, true, null, null, IRootIUAdvice.class);
+		for (Iterator i = rootAdvice.iterator(); i.hasNext();) {
+			IRootIUAdvice advice = (IRootIUAdvice) i.next();
+			Collection list = advice.getChildren();
+			if (list != null)
+				for (Iterator j = list.iterator(); j.hasNext();) {
+					Object object = j.next();
+					// if the advice is a string, look it up in the result.  if not there then 
+					// query the known metadata repos
+					if (object instanceof String) {
+						String childId = (String) object;
+						IInstallableUnit iu = result.getIU(childId, null);
+						if (iu == null)
+							iu = queryFor(childId);
+						if (iu != null)
+							children.add(iu);
+					} else if (object instanceof IInstallableUnit)
+						children.add(object);
+				}
+		}
+		return children;
+	}
+
+	/**
+	 * Loop over the known metadata repositories looking for the given IU.
+	 * Return the first IU found.
+	 * @param iuId  the id of the IU to look for
+	 * @return the first matching IU or <code>null</code> if none.
+	 */
+	private IInstallableUnit queryFor(String iuId) {
+		InstallableUnitQuery query = new InstallableUnitQuery(iuId, getVersionAdvice(iuId));
+		if (repositories == null)
+			return null;
+		Collector result = repositories.query(query, new Collector(), new NullProgressMonitor());
+		if (!result.isEmpty())
+			return (IInstallableUnit) result.iterator().next();
+		return null;
 	}
 
 	protected static InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, String version, String name, Collection requires, boolean configureLauncherData) {
@@ -86,4 +127,22 @@ public class RootIUAction extends AbstractPublishingAction {
 		return root;
 	}
 
+	private Version getVersionAdvice(String id) {
+		if (versionAdvice == null) {
+			versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
+			if (versionAdvice == null)
+				return null;
+		}
+		for (Iterator i = versionAdvice.iterator(); i.hasNext();) {
+			IVersionAdvice advice = (IVersionAdvice) i.next();
+			// TODO have to figure a way to know the namespace here.  for now just look everywhere
+			Version result = advice.getVersion(IVersionAdvice.NS_BUNDLE, id);
+			if (result != null)
+				return result;
+			result = advice.getVersion(IVersionAdvice.NS_FEATURE, id);
+			if (result != null)
+				return result;
+		}
+		return null;
+	}
 }

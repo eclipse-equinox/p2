@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2008 Code 9 and others. All rights reserved. This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: 
+ *   Code 9 - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher;
 
 import java.io.*;
@@ -84,14 +93,17 @@ public abstract class AbstractPublishingAction implements IPublishingAction {
 		return ws + '.' + os + '.' + arch;
 	}
 
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IPublisherInfo info, int mode) {
+		publishArtifact(descriptor, files, null, info, mode);
+	}
+
 	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] files, IPublisherInfo info, int mode) {
 		IArtifactRepository destination = info.getArtifactRepository();
-
 		if (descriptor == null || destination == null)
 			return;
 
 		// publish the given files
-		publishArtifact(descriptor, files, info, mode);
+		publishArtifact(descriptor, files, null, info, mode);
 
 		// if we are assimilating pack200 files then add the packed descriptor
 		// into the repo assuming it does not already exist.
@@ -100,12 +112,12 @@ public abstract class AbstractPublishingAction implements IPublishingAction {
 			File packFile = new Path(base.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 			if (packFile.exists()) {
 				IArtifactDescriptor ad200 = MetadataGeneratorHelper.createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-				publishArtifact(ad200, new File[] {packFile}, info, AS_IS | INCLUDE_ROOT);
+				publishArtifact(ad200, new File[] {packFile}, null, info, AS_IS | INCLUDE_ROOT);
 			}
 		}
 	}
 
-	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IPublisherInfo info, int mode) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, File root, IPublisherInfo info, int mode) {
 		IArtifactRepository destination = info.getArtifactRepository();
 
 		// if the destination already contains the descriptor, there is nothing to do.
@@ -140,7 +152,10 @@ public abstract class AbstractPublishingAction implements IPublishingAction {
 					return;
 				output = new BufferedOutputStream(output);
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				FileUtils.zip(files, tempFile, (mode & INCLUDE_ROOT) > 0);
+				if (root == null)
+					FileUtils.zip(files, tempFile, (mode & INCLUDE_ROOT) > 0);
+				else
+					FileUtils.zip(files, tempFile, root);
 				if (output != null)
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
 			} catch (ProvisionException e) {

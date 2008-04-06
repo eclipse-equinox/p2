@@ -24,7 +24,10 @@ public class EclipseInstallAction implements IPublishingAction {
 	protected String[] topLevel;
 	protected IPublisherInfo info;
 	protected String[] nonRootFiles;
-	protected boolean start;
+	protected boolean start = false;
+
+	protected EclipseInstallAction() {
+	}
 
 	public EclipseInstallAction(String source, String id, String version, String name, String flavor, String[] topLevel, String[] nonRootFiles, boolean start) {
 		this.source = source;
@@ -39,34 +42,48 @@ public class EclipseInstallAction implements IPublishingAction {
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
 		this.info = info;
-		IPublishingAction[] actions = createActions(info);
+		IPublishingAction[] actions = createActions();
 		for (int i = 0; i < actions.length; i++)
 			actions[i].perform(info, results);
 		return Status.OK_STATUS;
 	}
 
-	protected IPublishingAction[] createActions(IPublisherInfo info) {
+	protected IPublishingAction[] createActions() {
+		createAdvice();
 		ArrayList result = new ArrayList();
 		// create an action that just publishes the raw bundles and features
 		IPublishingAction action = new MergeResultsAction(new IPublishingAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
 		result.add(action);
-		result.addAll(createEquinoxExecutableActions(info.getConfigurations()));
-		result.addAll(createRootFilesActions(info.getConfigurations()));
+		result.addAll(createExecutablesActions(info.getConfigurations()));
+		result.add(createRootFilesAction());
 		result.add(createEquinoxLauncherFragmentsAction());
 		result.addAll(createAccumulateConfigDataActions(info.getConfigurations()));
 		result.add(createJREAction());
-		result.add(createConfigIUsAction());
-		result.add(createDefaultIUsAction());
+		result.add(createConfigCUsAction());
+		result.add(createDefaultCUsAction());
 		result.add(createRootIUAction());
 		return (IPublishingAction[]) result.toArray(new IPublishingAction[result.size()]);
 	}
 
-	protected IPublishingAction createDefaultIUsAction() {
+	private void createAdvice() {
+		createRootFilesAdvice();
+		createRootAdvice();
+	}
+
+	protected void createRootAdvice() {
+		info.addAdvice(new RootIUAdvice(getTopLevel()));
+	}
+
+	protected IPublishingAction createDefaultCUsAction() {
 		return new DefaultCUsAction(info, flavor, 4, start);
 	}
 
 	protected IPublishingAction createRootIUAction() {
-		return new RootIUAction(id, version, name, topLevel, info);
+		return new RootIUAction(id, version, name, info);
+	}
+
+	protected Collection getTopLevel() {
+		return Arrays.asList(topLevel);
 	}
 
 	protected IPublishingAction createJREAction() {
@@ -74,8 +91,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected IPublishingAction createEquinoxLauncherFragmentsAction() {
-		// TODO fillin real values here
-		return new EquinoxLauncherCUAction(info, null, flavor);
+		return new EquinoxLauncherCUAction(flavor);
 	}
 
 	protected Collection createAccumulateConfigDataActions(String[] configs) {
@@ -84,14 +100,14 @@ public class EclipseInstallAction implements IPublishingAction {
 			String configSpec = configs[i];
 			File configuration = computeConfigurationLocation(configSpec);
 			String os = AbstractPublishingAction.parseConfigSpec(configSpec)[1];
-			File executable = EquinoxExecutableAction.findExecutable(computeExecutableLocation(configSpec), os, "eclipse");
+			File executable = ExecutablesDescriptor.findExecutable(os, computeExecutableLocation(configSpec), "eclipse"); //$NON-NLS-1$
 			IPublishingAction action = new AccumulateConfigDataAction(info, configSpec, configuration, executable);
 			result.add(action);
 		}
 		return result;
 	}
 
-	protected IPublishingAction createConfigIUsAction() {
+	protected IPublishingAction createConfigCUsAction() {
 		return new ConfigCUsAction(info, flavor, id, version);
 	}
 
@@ -99,49 +115,66 @@ public class EclipseInstallAction implements IPublishingAction {
 		return new FeaturesAction(new File[] {new File(source, "features")}, info); //$NON-NLS-1$
 	}
 
-	protected Collection createEquinoxExecutableActions(String[] configs) {
-		Collection result = new ArrayList(configs.length);
-		for (int i = 0; i < configs.length; i++) {
-			File[] executables = computeExecutables(configs[i]);
-			IPublishingAction action = new EquinoxExecutableAction(info, executables, configs[i], id, version, flavor);
+	protected Collection createExecutablesActions(String[] configSpecs) {
+		Collection result = new ArrayList(configSpecs.length);
+		for (int i = 0; i < configSpecs.length; i++) {
+			ExecutablesDescriptor executables = computeExecutables(configSpecs[i]);
+			IPublishingAction action = new EquinoxExecutableAction(executables, configSpecs[i], id, version, flavor);
 			result.add(action);
 		}
 		return result;
 	}
 
-	protected Collection createRootFilesActions(String[] configs) {
-		Collection result = new ArrayList(configs.length);
-		for (int i = 0; i < configs.length; i++) {
-			File[] exclusions = computeRootFileExclusions(configs[i]);
-			IPublishingAction action = new RootFilesAction(info, computeRootFileLocation(configs[i]), exclusions, configs[i], id, version, flavor);
-			result.add(action);
-		}
-		return result;
+	protected IPublishingAction createRootFilesAction() {
+		return new RootFilesAction(info, id, version, flavor);
+	}
+
+	protected void createRootFilesAdvice() {
+		File[] baseExclusions = computeRootFileExclusions();
+		if (baseExclusions != null)
+			info.addAdvice(new RootFilesAdvice(null, null, baseExclusions, null));
+		String[] configs = info.getConfigurations();
+		for (int i = 0; i < configs.length; i++)
+			info.addAdvice(computeRootFileAdvice(configs[i]));
+	}
+
+	protected IPublishingAdvice computeRootFileAdvice(String configSpec) {
+		File root = computeRootFileRoot(configSpec);
+		File[] inclusions = computeRootFileInclusions(configSpec);
+		File[] exclusions = computeRootFileExclusions(configSpec);
+		return new RootFilesAdvice(root, inclusions, exclusions, configSpec);
 	}
 
 	protected File[] computeRootFileExclusions(String configSpec) {
+		return computeExecutables(configSpec).getFiles();
+	}
+
+	protected File[] computeRootFileExclusions() {
+		if (nonRootFiles == null || nonRootFiles.length == 0)
+			return null;
 		ArrayList result = new ArrayList();
-		result.addAll(Arrays.asList(computeExecutables(configSpec)));
-		if (nonRootFiles != null) {
-			for (int i = 0; i < nonRootFiles.length; i++) {
-				String filename = nonRootFiles[i];
-				File file = new File(filename);
-				if (file.isAbsolute())
-					result.add(file);
-				else
-					result.add(new File(source, filename));
-			}
+		for (int i = 0; i < nonRootFiles.length; i++) {
+			String filename = nonRootFiles[i];
+			File file = new File(filename);
+			if (file.isAbsolute())
+				result.add(file);
+			else
+				result.add(new File(source, filename));
 		}
 		return (File[]) result.toArray(new File[result.size()]);
 	}
 
-	protected File[] computeExecutables(String configSpec) {
+	protected ExecutablesDescriptor computeExecutables(String configSpec) {
 		String os = AbstractPublishingAction.parseConfigSpec(configSpec)[1];
-		return EquinoxExecutableAction.findExecutables(computeExecutableLocation(configSpec), os, "eclipse");
+		return ExecutablesDescriptor.createDescriptor(os, "eclipse", computeExecutableLocation(configSpec)); //$NON-NLS-1$
 	}
 
-	protected File computeRootFileLocation(String configSpec) {
+	protected File computeRootFileRoot(String configSpec) {
 		return new File(source);
+	}
+
+	protected File[] computeRootFileInclusions(String configSpec) {
+		return new File[] {new File(source)};
 	}
 
 	protected File computeExecutableLocation(String configSpec) {

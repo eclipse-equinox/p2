@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
+ *     Code 9 - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher;
 
@@ -160,23 +161,23 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
+	public static IInstallableUnit createBundleConfigurationUnit(String hostId, Version hostVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
 		if (configInfo == null)
 			return null;
 
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configUnitId = configurationFlavor + iuId;
+		String configUnitId = configurationFlavor + hostId;
 		cu.setId(configUnitId);
-		cu.setVersion(iuVersion);
+		cu.setVersion(hostVersion);
 
 		//Indicate the IU to which this CU apply
 		cu.setHost(new RequiredCapability[] { //
-				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, iuId, new VersionRange(iuVersion, true, versionMax, true), null, false, false), // 
+				MetadataFactory.createRequiredCapability(CAPABILITY_NS_OSGI_BUNDLE, hostId, new VersionRange(hostVersion, true, versionMax, true), null, false, false), // 
 						MetadataFactory.createRequiredCapability(NAMESPACE_ECLIPSE_TYPE, TYPE_ECLIPSE_BUNDLE, new VersionRange(new Version(1, 0, 0), true, new Version(2, 0, 0), false), null, false, false)});
 
 		//Adds capabilities for fragment, self, and describing the flavor supported
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, iuVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configUnitId, hostVersion), MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_FLAVOR, configurationFlavor, new Version(1, 0, 0))});
 
 		Map touchpointData = new HashMap();
 		touchpointData.put("install", "installBundle(bundle:${artifact})"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -701,25 +702,11 @@ public class MetadataGeneratorHelper {
 		iu.setVersion(version);
 		iu.setTouchpointType(TOUCHPOINT_NATIVE);
 
-		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configId = "config." + id;//$NON-NLS-1$
-		cu.setId(configId);
-		cu.setVersion(version);
-		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, versionMax, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configId, version)});
-		cu.setTouchpointType(TOUCHPOINT_NATIVE);
-		Map touchpointData = new HashMap();
-
 		if (jreLocation == null || !jreLocation.exists()) {
-			//set some reasonable defaults
+			// set some reasonable defaults
 			iu.setVersion(version);
 			iu.setCapabilities(generateJRECapability(id, version, null));
 			results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
-
-			touchpointData.put("install", ""); //$NON-NLS-1$ //$NON-NLS-2$
-			cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-			results.addIU(MetadataFactory.createInstallableUnit(cu), IPublisherResult.ROOT);
 			return null;
 		}
 		generateJREIUData(iu, id, version, jreLocation);
@@ -730,6 +717,15 @@ public class MetadataGeneratorHelper {
 		results.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
 
 		//Create config info for the CU
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String configId = "config." + id;//$NON-NLS-1$
+		cu.setId(configId);
+		cu.setVersion(version);
+		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, versionMax, true), null, false, false)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		cu.setCapabilities(new ProvidedCapability[] {createSelfCapability(configId, version)});
+		cu.setTouchpointType(TOUCHPOINT_NATIVE);
+		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
