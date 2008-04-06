@@ -31,8 +31,9 @@ Import-Package: javax.xml.parsers,
  org.w3c.dom,
  org.xml.sax
 Export-Package: org.eclipse.equinox.internal.p2.touchpoint.eclipse;x-friends:="org.eclipse.equinox.p2.reconciler.dropins",
+ org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;x-internal:=true,
  org.eclipse.equinox.internal.p2.update;x-friends:="org.eclipse.equinox.p2.reconciler.dropins"
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator

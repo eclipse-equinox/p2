@@ -8,21 +8,21 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
+package org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions;
 
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.messages"; //$NON-NLS-1$
-	public static String error_loading_manipulator;
-	public static String BundlePool;
-	public static String failed_prepareIU;
-	public static String error_saving_manipulator;
-	public static String error_saving_platform_configuration;
-	public static String error_saving_source_bundles_list;
-	public static String error_constructing_platform_configuration_url;
-	public static String generator_not_available;
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.messages"; //$NON-NLS-1$
 	public static String artifact_file_not_found;
+	public static String action_not_instantiated;
+	public static String parameter_not_set;
+	public static String iu_contains_no_arifacts;
+	public static String no_matching_artifact;
+	public static String missing_manifest;
+	public static String failed_bundleinfo;
+	public static String cannot_configure_source_bundle;
+	public static String error_parsing_startlevel;
 
 	static {
 		// load message values from bundle file and assign to fields below

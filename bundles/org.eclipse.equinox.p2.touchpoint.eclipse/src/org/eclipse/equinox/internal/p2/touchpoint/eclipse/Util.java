@@ -41,15 +41,15 @@ public class Util {
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 
-	static AgentLocation getAgentLocation() {
+	public static AgentLocation getAgentLocation() {
 		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 	}
 
-	static IArtifactRepositoryManager getArtifactRepositoryManager() {
+	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	static URL getBundlePoolLocation(IProfile profile) {
+	public static URL getBundlePoolLocation(IProfile profile) {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
 			try {
@@ -84,7 +84,7 @@ public class Util {
 		}
 	}
 
-	static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile) {
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile) {
 		Set bundleRepositories = new HashSet();
 		bundleRepositories.add(Util.getBundlePoolRepository(profile));
 
@@ -119,7 +119,7 @@ public class Util {
 		return listProperty;
 	}
 
-	static BundleInfo createBundleInfo(File bundleFile, String manifest) {
+	public static BundleInfo createBundleInfo(File bundleFile, String manifest) {
 		BundleInfo bundleInfo = new BundleInfo();
 		try {
 			if (bundleFile != null)
@@ -148,24 +148,24 @@ public class Util {
 		return bundleInfo;
 	}
 
-	static File getBundleFile(IArtifactKey artifactKey, IProfile profile) {
+	public static File getArtifactFile(IArtifactKey artifactKey, IProfile profile) {
 		IFileArtifactRepository aggregatedView = getAggregatedBundleRepository(profile);
 		File bundleJar = aggregatedView.getArtifactFile(artifactKey);
 		return bundleJar;
 	}
 
-	static File getConfigurationFolder(IProfile profile) {
+	public static File getConfigurationFolder(IProfile profile) {
 		String config = profile.getProperty(CONFIG_FOLDER);
 		if (config != null)
 			return new File(config);
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
 	}
 
-	static File getInstallFolder(IProfile profile) {
+	public static File getInstallFolder(IProfile profile) {
 		return new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
 	}
 
-	static File getLauncherPath(IProfile profile) {
+	public static File getLauncherPath(IProfile profile) {
 		return new File(getInstallFolder(profile), getLauncherName(profile));
 	}
 
@@ -205,7 +205,7 @@ public class Util {
 		return null;
 	}
 
-	static String getManifest(TouchpointData[] data) {
+	public static String getManifest(TouchpointData[] data) {
 		for (int i = 0; i < data.length; i++) {
 			String manifest = data[i].getInstructions("manifest"); //$NON-NLS-1$
 			if (manifest != null && manifest.length() > 0)
@@ -221,7 +221,7 @@ public class Util {
 	 * If the agent location is not a sub-directory of the configuration folder, this
 	 * method simply returns the absolute agent location expressed as a URL.
 	 */
-	static String computeRelativeAgentLocation(IProfile profile) {
+	public static String computeRelativeAgentLocation(IProfile profile) {
 		URL agentURL = Util.getAgentLocation().getURL();
 		//TODO handle proper path/url conversion
 		IPath agentPath = new Path(agentURL.getPath());
@@ -231,6 +231,14 @@ public class Util {
 		if (agentPath.removeLastSegments(1).equals(configPath.removeLastSegments(1)))
 			return "@config.dir/../" + agentPath.lastSegment(); //$NON-NLS-1$
 		return agentURL.toString();
+	}
+
+	public static IStatus createError(String message) {
+		return createError(message, null);
+	}
+
+	public static IStatus createError(String message, Exception e) {
+		return new Status(IStatus.ERROR, Activator.ID, message, e);
 	}
 
 }
