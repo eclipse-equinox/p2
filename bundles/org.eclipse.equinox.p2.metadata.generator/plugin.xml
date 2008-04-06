@@ -15,8 +15,12 @@
          id="product"
          point="org.eclipse.core.runtime.products">
       <product
-            application="org.eclipse.equinox.p2.metadata.generator.EclipseGenerator"
-            name="Equinox Provisioning Metadata Generator">
+            application="org.eclipse.pde.build.Build"
+            name="fds">
+         <property
+               name="appName"
+               value="fds">
+         </property>
       </product>
    </extension>
 

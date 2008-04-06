@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
 import java.util.*;
-import java.util.jar.*;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
@@ -27,13 +27,13 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleException;
 
 public class BundleDescriptionFactory {
-	static final String DIR = "dir"; //$NON-NLS-1$
-	static final String JAR = "jar"; //$NON-NLS-1$
+	public static final String DIR = "dir"; //$NON-NLS-1$
+	public static final String JAR = "jar"; //$NON-NLS-1$
 	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml"; //$NON-NLS-1$
 	private static final String PLUGIN_FILENAME_DESCRIPTOR = "plugin.xml"; //$NON-NLS-1$
 	private static final String FRAGMENT_FILENAME_DESCRIPTOR = "fragment.xml"; //$NON-NLS-1$
 
-	static String BUNDLE_FILE_KEY = "eclipse.p2.bundle.format"; //$NON-NLS-1$
+	public static String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
 
 	//	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 	//	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
@@ -131,8 +131,13 @@ public class BundleDescriptionFactory {
 		Dictionary manifest = null;
 		if (manifestStream != null) {
 			try {
-				manifest = manifestToProperties(new Manifest(manifestStream).getMainAttributes());
+				Map manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
+				// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
+				// real answer is to have people expect a Map but that is a wider change.
+				manifest = convertToDictionary(manifestMap);
 			} catch (IOException ioe) {
+				return null;
+			} catch (BundleException e) {
 				return null;
 			} finally {
 				try {
@@ -151,14 +156,16 @@ public class BundleDescriptionFactory {
 			manifest = convertPluginManifest(bundleLocation, true);
 		}
 
-		if (manifest == null)
+		if (manifest == null || manifest.isEmpty())
 			return null;
 
 		//Deal with the pre-3.0 plug-in shape who have a default jar manifest.mf
 		if (manifest.get(org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME) == null)
 			manifest = convertPluginManifest(bundleLocation, true);
 
-		manifest.put(BUNDLE_FILE_KEY, bundleLocation.isDirectory() ? DIR : JAR);
+		// if the bundle itself does not define its shape, infer the shape from the current form
+		if (manifest.get(BUNDLE_SHAPE) == null)
+			manifest.put(BUNDLE_SHAPE, bundleLocation.isDirectory() ? DIR : JAR);
 		getManifestLocalizations(manifest, bundleLocation);
 		// localizeManifest(manifest, bundleLocation);
 		return manifest;
@@ -343,11 +350,11 @@ public class BundleDescriptionFactory {
 	//		return localizedProperties;
 	//	}
 
-	private static Properties manifestToProperties(Attributes attributes) {
-		Properties result = new Properties();
-		for (Iterator i = attributes.keySet().iterator(); i.hasNext();) {
-			Attributes.Name key = (Attributes.Name) i.next();
-			result.put(key.toString(), attributes.get(key));
+	private static Dictionary convertToDictionary(Map original) {
+		Dictionary result = new Hashtable(original.size());
+		for (Iterator i = original.keySet().iterator(); i.hasNext();) {
+			Object key = i.next();
+			result.put(key, original.get(key));
 		}
 		return result;
 	}

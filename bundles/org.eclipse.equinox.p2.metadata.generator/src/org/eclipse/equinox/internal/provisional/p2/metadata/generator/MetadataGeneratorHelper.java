@@ -643,10 +643,12 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
+	// moved to FeaturesAction
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU) {
 		return createGroupIU(feature, featureIU, null);
 	}
 
+	// moved to FeaturesAction
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
@@ -905,6 +907,7 @@ public class MetadataGeneratorHelper {
 		}
 	}
 
+	//  moved to FeatureAction
 	public static String getFilter(FeatureEntry entry) {
 		StringBuffer result = new StringBuffer();
 		result.append("(&"); //$NON-NLS-1$
@@ -924,10 +927,12 @@ public class MetadataGeneratorHelper {
 		return result.toString();
 	}
 
+	// moved to FeatureAction
 	public static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
 		return (isPlugin ? original : original + (isGroup ? ".feature.group" : ".feature.jar")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	// moved to FeatureAction
 	public static VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
@@ -968,7 +973,7 @@ public class MetadataGeneratorHelper {
 		StringBuffer result = new StringBuffer();
 		for (Iterator iterator = properties.iterator(); iterator.hasNext();) {
 			Map.Entry aProperty = (Map.Entry) iterator.next();
-			if (aProperty.getKey().equals(BundleDescriptionFactory.BUNDLE_FILE_KEY))
+			if (aProperty.getKey().equals(BundleDescriptionFactory.BUNDLE_SHAPE))
 				continue;
 			result.append(aProperty.getKey()).append(": ").append(aProperty.getValue()).append('\n'); //$NON-NLS-1$
 		}
@@ -1178,19 +1183,19 @@ public class MetadataGeneratorHelper {
 		return localizedProperties;
 	}
 
-	public static Object[] createFeatureRootFileIU(Feature base, File location, FileSetDescriptor descriptor) {
+	public static Object[] createFeatureRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor descriptor) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
-		String id = base.getId() + '_' + descriptor.getKey();
+		String id = featureId + '_' + descriptor.getKey();
 		iu.setId(id);
-		Version version = new Version(base.getVersion());
+		Version version = new Version(featureVersion);
 		iu.setVersion(version);
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
 		iu.setTouchpointType(TOUCHPOINT_NATIVE);
 		String configSpec = descriptor.getConfigSpec();
 		if (configSpec != null)
 			iu.setFilter(Generator.createFilterSpec(configSpec));
-		File[] fileResult = setupRootFiles(iu, descriptor, location);
+		File[] fileResult = attachFiles(iu, descriptor, location);
 		setupLinks(iu, descriptor);
 		setupPermissions(iu, descriptor);
 
@@ -1199,7 +1204,9 @@ public class MetadataGeneratorHelper {
 		return new Object[] {iuResult, fileResult};
 	}
 
-	private static File[] setupRootFiles(InstallableUnitDescription iu, FileSetDescriptor descriptor, File location) {
+	// attach the described files from the given location to the given iu description.  Return
+	// the list of files identified.
+	private static File[] attachFiles(InstallableUnitDescription iu, FileSetDescriptor descriptor, File location) {
 		String fileList = descriptor.getFiles();
 		String[] fileSpecs = getArrayFromString(fileList, ","); //$NON-NLS-1$
 		File[] files = new File[fileSpecs.length];

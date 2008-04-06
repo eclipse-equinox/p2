@@ -37,6 +37,7 @@ public class Generator {
 	/**
 	 * Captures the output of an execution of the generator.
 	 */
+	// moved to BundlesAction
 	protected static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	protected static final String ORG_ECLIPSE_EQUINOX_LAUNCHER = "org.eclipse.equinox.launcher"; //$NON-NLS-1$
@@ -56,6 +57,7 @@ public class Generator {
 	 */
 	protected final Set rootCategory = new HashSet();
 
+	// moved to BundlesAction
 	private StateObjectFactory stateObjectFactory;
 
 	/**
@@ -174,6 +176,7 @@ public class Generator {
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
+	// Moved to RootIUAction
 	protected InstallableUnitDescription createTopLevelIUDescription(Collection children, String configurationIdentification, String configurationVersion, String configurationName, List requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
@@ -225,6 +228,7 @@ public class Generator {
 		return root;
 	}
 
+	// Moved to ConfigCUsAction
 	protected String[] getConfigurationStrings(ConfigData configData) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
@@ -248,6 +252,7 @@ public class Generator {
 		return new String[] {configurationData, unconfigurationData};
 	}
 
+	// Moved to ConfigCUsAction
 	protected String[] getLauncherConfigStrings(final String[] jvmArgs, final String[] programArgs) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
@@ -299,6 +304,7 @@ public class Generator {
 		return Status.OK_STATUS;
 	}
 
+	// moved to BundleAction
 	protected void generateBundleIUs(BundleDescription[] bundles, IPublisherResult result, IArtifactRepository destination) {
 		// Computing the path for localized property files in a NL fragment bundle
 		// requires the BUNDLE_LOCALIZATION property from the manifest of the host bundle,
@@ -323,7 +329,7 @@ public class Generator {
 							bundleLocalizationMap.put(makeSimpleKey(bd), cachedValues);
 						}
 					} else {
-						String format = (String) (bundleManifest).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
+						String format = (String) (bundleManifest).get(BundleDescriptionFactory.BUNDLE_SHAPE);
 						boolean isDir = (format != null && format.equals(BundleDescriptionFactory.DIR) ? true : false);
 
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
@@ -363,10 +369,12 @@ public class Generator {
 		}
 	}
 
+	// moved to BundlesAction
 	private static boolean isFragment(BundleDescription bd) {
 		return (bd.getHost() != null ? true : false);
 	}
 
+	// moved to BundlesAction
 	private static String makeSimpleKey(BundleDescription bd) {
 		// TODO: can't use the bundle version in the key for the BundleLocalization
 		//		 property map since the host specification for a fragment has a
@@ -376,6 +384,7 @@ public class Generator {
 		return makeSimpleKey(bd.getSymbolicName() /*, bd.getVersion() */);
 	}
 
+	// moved to BundlesAction
 	private static String makeSimpleKey(String id /*, Version version */) {
 		return id; // + '_' + version.toString();
 	}
@@ -385,6 +394,7 @@ public class Generator {
 	 * @param categoriesToFeatures Map of SiteCategory ->Set (Feature IUs in that category).
 	 * @param result The generator result being built
 	 */
+	// Moved to UpdateSiteAction
 	protected void generateCategoryIUs(Map categoriesToFeatures, IPublisherResult result) {
 		for (Iterator it = categoriesToFeatures.keySet().iterator(); it.hasNext();) {
 			SiteCategory category = (SiteCategory) it.next();
@@ -392,6 +402,7 @@ public class Generator {
 		}
 	}
 
+	// Moved to AccumulateConfigDataAction
 	protected void storeConfigData(IPublisherResult result, String configuration) {
 		if (result.getConfigData().containsKey(configuration))
 			return; //been here, done this
@@ -406,6 +417,7 @@ public class Generator {
 		}
 	}
 
+	// Moved to ConfigCUsAction
 	protected GeneratorBundleInfo createGeneratorBundleInfo(BundleInfo bundleInfo, IPublisherResult result) {
 		if (bundleInfo.getLocation() != null)
 			return new GeneratorBundleInfo(bundleInfo);
@@ -437,6 +449,7 @@ public class Generator {
 		return null;
 	}
 
+	// Moved to ConfigCUsAction
 	protected void generateBundleConfigIUs(BundleInfo[] infos, IPublisherResult result, String launcherConfig) {
 		if (infos == null)
 			return;
@@ -546,6 +559,7 @@ public class Generator {
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 
+	// moved to DefaultCUsAction
 	protected void generateDefaultConfigIU(IPublisherResult result) {
 		//		TODO this is a bit of a hack.  We need to have the default IU fragment generated with code that configures
 		//		and unconfigures.  The Generator should be decoupled from any particular provider but it is not clear
@@ -700,6 +714,7 @@ public class Generator {
 	/*
 	 * For each platform, generate a CU containing the information for the config.ini
 	 */
+	// Moved to ProductAction
 	protected void generateProductConfigCUs(IPublisherResult result) {
 		for (Iterator iterator = result.getConfigData().keySet().iterator(); iterator.hasNext();) {
 			String launcherConfig = (String) iterator.next();
@@ -730,6 +745,7 @@ public class Generator {
 	/* 
 	 * For the given platform (ws, os, arch) generate the CU that will populate the product.ini file 
 	 */
+	// moved to ProductAction
 	protected void generateProductIniCU(String configSpec, String version, IPublisherResult result) {
 		if (product == null)
 			return;
@@ -867,6 +883,7 @@ public class Generator {
 		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
 	}
 
+	// moved to BundlesAction
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
 		if (bundleLocations == null)
 			return new BundleDescription[0];
@@ -900,6 +917,7 @@ public class Generator {
 		return result;
 	}
 
+	// Moved to BundlesAction
 	protected BundleDescriptionFactory getBundleFactory() {
 		return new BundleDescriptionFactory(stateObjectFactory, null);
 	}
@@ -921,6 +939,7 @@ public class Generator {
 		return null;
 	}
 
+	// moved to FeaturesAction
 	protected Feature[] getFeatures(File[] locations) {
 		ArrayList result = new ArrayList(locations.length);
 		for (int i = 0; i < locations.length; i++) {
@@ -933,6 +952,7 @@ public class Generator {
 		return (Feature[]) result.toArray(new Feature[result.size()]);
 	}
 
+	// moved to FeaturesAction
 	private Feature[] getFeatures(File folder) {
 		if (folder == null || !folder.exists())
 			return new Feature[0];
@@ -1017,6 +1037,7 @@ public class Generator {
 	}
 
 	// Put the artifact on the server
+	// moved to AbstractPublishingAction
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs, boolean includeRoot) {
 		if (descriptor == null || destination == null)
 			return;

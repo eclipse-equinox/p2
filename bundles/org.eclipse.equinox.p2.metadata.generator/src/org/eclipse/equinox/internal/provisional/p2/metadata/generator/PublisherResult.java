@@ -128,6 +128,7 @@ public class PublisherResult implements IPublisherResult {
 		// merge non-conditional pieces
 		fragmentMap.putAll(result.getFragmentMap());
 		configData.putAll(result.getConfigData());
+		//		mergeAdvice(result);
 
 		if (mode == MERGE_MATCHING) {
 			addIUs(result.getIUs(null, ROOT), ROOT);
@@ -140,4 +141,18 @@ public class PublisherResult implements IPublisherResult {
 			addIUs(result.getIUs(null, NON_ROOT), NON_ROOT);
 		}
 	}
+
+	//	private void mergeAdvice(IPublisherResult result) {
+	//		for (Iterator i = result.getAdviceIds().iterator(); i.hasNext();) {
+	//			String id = (String) i.next();
+	//			IPublishingAdvice advice = result.getAdvice(id);
+	//			if (advice == null)
+	//				continue;
+	//			IPublishingAdvice thisAdvice = getAdvice(id);
+	//			if (thisAdvice == null)
+	//				adviceMap.put(id, advice);
+	//			else
+	//				adviceMap.put(id, thisAdvice.merge(advice));
+	//		}
+	//	}
 }

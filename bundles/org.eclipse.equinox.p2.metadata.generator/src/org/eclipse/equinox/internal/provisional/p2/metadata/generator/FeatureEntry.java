@@ -36,6 +36,8 @@ public class FeatureEntry {
 		FeatureEntry result = new FeatureEntry(id, version, isPlugin);
 		result.match = match;
 		result.isRequires = true;
+		// for requires we don't care what the form is so leave it as false (JAR'd)
+		result.unpack = false;
 		if (filter != null)
 			result.setFilter(filter);
 		return result;
