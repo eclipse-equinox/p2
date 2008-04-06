@@ -16,7 +16,12 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.xml.parsers.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
+import org.eclipse.osgi.util.NLS;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -74,13 +79,13 @@ public class DigestParser extends DefaultHandler {
 			parser.parse(new InputSource(is), this);
 			return (Feature[]) features.toArray(new Feature[features.size()]);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.DefaultSiteParser_ErrorReadingDigest, location), e));
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.DefaultSiteParser_ErrorReadingDigest, location), e));
 		} finally {
 			try {
-				is.close();
+				if (is != null)
+					is.close();
 			} catch (IOException e1) {
 				//
 			}
