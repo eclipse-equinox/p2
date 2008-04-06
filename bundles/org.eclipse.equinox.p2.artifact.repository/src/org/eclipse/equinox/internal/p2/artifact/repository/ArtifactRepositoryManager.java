@@ -19,6 +19,8 @@ import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifact
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
@@ -30,10 +32,11 @@ import org.osgi.service.prefs.Preferences;
 
 /**
  * Default implementation of {@link IArtifactRepositoryManager}.
+ * 
  * TODO the current assumption that the "location" is the dir/root limits us to 
  * having just one repository in a given URL..  
  */
-public class ArtifactRepositoryManager extends AbstractRepositoryManager implements IArtifactRepositoryManager {
+public class ArtifactRepositoryManager extends AbstractRepositoryManager implements IArtifactRepositoryManager, ProvisioningListener {
 	static class RepositoryInfo {
 		String description;
 		boolean isSystem = false;
@@ -71,6 +74,9 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	private SoftReference unavailableRepositories;
 
 	public ArtifactRepositoryManager() {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
+		if (bus != null)
+			bus.addListener(this);
 		//initialize repositories lazily
 	}
 
@@ -376,6 +382,17 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
 			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
 		return true;
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener#notify(java.util.EventObject)
+	 */
+	public void notify(EventObject o) {
+		if (o instanceof RepositoryEvent) {
+			RepositoryEvent event = (RepositoryEvent) o;
+			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == IRepository.TYPE_ARTIFACT)
+				addRepository(event.getRepositoryLocation());
+		}
 	}
 
 	/**

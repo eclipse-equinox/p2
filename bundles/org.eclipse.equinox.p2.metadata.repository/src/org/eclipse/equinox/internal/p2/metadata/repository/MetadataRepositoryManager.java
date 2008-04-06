@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -33,7 +34,7 @@ import org.osgi.service.prefs.Preferences;
 /**
  * Default implementation of {@link IMetadataRepositoryManager}.
  */
-public class MetadataRepositoryManager implements IMetadataRepositoryManager {
+public class MetadataRepositoryManager implements IMetadataRepositoryManager, ProvisioningListener {
 	static class RepositoryInfo {
 		String description;
 		boolean isSystem = false;
@@ -73,6 +74,9 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 	private SoftReference unavailableRepositories;
 
 	public MetadataRepositoryManager() {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
+		if (bus != null)
+			bus.addListener(this);
 		//initialize repositories lazily
 	}
 
@@ -405,6 +409,17 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		return true;
 	}
 
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener#notify(java.util.EventObject)
+	 */
+	public void notify(EventObject o) {
+		if (o instanceof RepositoryEvent) {
+			RepositoryEvent event = (RepositoryEvent) o;
+			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == IRepository.TYPE_METADATA)
+				addRepository(event.getRepositoryLocation());
+		}
+	}
+
 	/**
 	 * Sets a preference and returns <code>true</code> if the preference
 	 * was actually changed.
@@ -632,4 +647,5 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager {
 		sub.done();
 		return status;
 	}
+
 }
