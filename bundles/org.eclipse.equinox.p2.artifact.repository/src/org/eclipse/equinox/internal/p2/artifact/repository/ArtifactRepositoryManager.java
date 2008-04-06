@@ -148,7 +148,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return new FileDownloadRequest(key, destination);
 	}
 
-	private Object createExecutableExtension(IExtension extension, String element) throws ProvisionException {
+	private Object createExecutableExtension(IExtension extension, String element) {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
 		for (int i = 0; i < elements.length; i++) {
 			if (elements[i].getName().equals(element)) {
