@@ -11,15 +11,22 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
+import java.io.IOException;
+import java.util.HashSet;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.IUndoableOperation;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.*;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.dialogs.ApplyProfileChangesDialog;
+import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -33,6 +40,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * @since 3.4
  */
 public class ProvisioningOperationRunner {
+
+	static HashSet runningJobs = new HashSet();
+	static boolean restartRequested = false;
+	static boolean restartRequired = false;
 
 	/**
 	 * Run the provisioning operation synchronously, adding it to the undo history if it
@@ -109,7 +120,48 @@ public class ProvisioningOperationRunner {
 			job.setPriority(Job.SHORT);
 		}
 		job.setUser(op.isUser());
+		runningJobs.add(job);
+		job.addJobChangeListener(new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				runningJobs.remove(event.getJob());
+				if (restartRequested) {
+					requestRestart(restartRequired);
+				}
+			}
+		});
 		job.schedule();
 		return job;
+	}
+
+	public static void requestRestart(boolean force) {
+		if (isRunningOperations()) {
+			restartRequested = true;
+			restartRequired = restartRequired || force;
+			return;
+		}
+		PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				if (PlatformUI.getWorkbench().isClosing())
+					return;
+				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (window == null)
+					return;
+				int retCode = ApplyProfileChangesDialog.promptForRestart(window.getShell(), restartRequired);
+				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
+					Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
+					try {
+						configurator.applyConfiguration();
+					} catch (IOException e) {
+						ProvUI.handleException(e, ProvUIMessages.ProvUI_ErrorDuringApplyConfig, StatusManager.LOG | StatusManager.BLOCK);
+					}
+				} else if (retCode == ApplyProfileChangesDialog.PROFILE_RESTART) {
+					PlatformUI.getWorkbench().restart();
+				}
+			}
+		});
+	}
+
+	private static boolean isRunningOperations() {
+		return !runningJobs.isEmpty();
 	}
 }

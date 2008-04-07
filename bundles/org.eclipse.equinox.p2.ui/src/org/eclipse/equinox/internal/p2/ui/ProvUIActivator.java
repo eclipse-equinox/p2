@@ -18,12 +18,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.framework.*;
@@ -119,11 +117,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 							IProfile selfProfile = ProvisioningUtil.getProfile(IProfileRegistry.SELF);
 							if (selfProfile != null && (selfProfile.getProfileId().equals(event.getProfileId()))) {
 								if (event.getReason() == ProfileEvent.CHANGED)
-									PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-										public void run() {
-											ProvUI.requestRestart(false, null);
-										}
-									});
+									ProvisioningOperationRunner.requestRestart(false);
+
 							}
 						} catch (ProvisionException e) {
 							ProvUI.handleException(e, ProvUIMessages.ProvUIActivator_ExceptionDuringProfileChange, StatusManager.LOG);

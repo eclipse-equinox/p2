@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.BundleDescriptionFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -148,7 +149,7 @@ public class ExternalFileHandler {
 			copiedBundle.createNewFile();
 		success = FileUtils.copyStream(new FileInputStream(file), true, new FileOutputStream(copiedBundle), true) > 0;
 		if (success)
-			ProvUI.requestRestart(true, shell);
+			ProvisioningOperationRunner.requestRestart(true);
 
 		return success;
 	}
