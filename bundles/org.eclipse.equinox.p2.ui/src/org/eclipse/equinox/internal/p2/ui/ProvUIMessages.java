@@ -138,6 +138,7 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUContentProvider_JobName;
 	public static String AvailableIUContentProvider_PlaceholderLabel;
 	public static String AvailableIUElement_ProfileNotFound;
+	public static String AvailableIUGroup_ViewByToolTipText;
 	public static String Label_Profiles;
 	public static String Label_Repositories;
 	public static String MetadataRepositoryElement_RepositoryLoadError;
@@ -175,10 +176,8 @@ public class ProvUIMessages extends NLS {
 	public static String RevertProfileWizardPage_ErrorRetrievingHistory;
 
 	// Operations
-	public static String UpdateAndInstallGroup_Properties;
 	public static String UpdateAndInstallSelectionDialog_DeselectAllLabel;
 	public static String UpdateAndInstallSelectionDialog_SelectAllLabel;
-	public static String UpdateAndInstallGroup_Refresh;
 	public static String URLValidator_UnrecognizedURL;
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
 	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;

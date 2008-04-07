@@ -51,7 +51,7 @@ public class IUVersionsElement extends CachedQueryElement implements IUElement {
 		this.iu = iu;
 	}
 
-	protected int getQueryType() {
+	protected int getDefaultQueryType() {
 		return IQueryProvider.AVAILABLE_IUS;
 	}
 

@@ -29,7 +29,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescript
 public class MetadataRepositories extends RemoteQueriedElement {
 
 	private URL[] metadataRepositories = null;
-	private int queryType = IQueryProvider.METADATA_REPOS;
 
 	public MetadataRepositories() {
 		super();
@@ -39,16 +38,8 @@ public class MetadataRepositories extends RemoteQueriedElement {
 		this.metadataRepositories = metadataRepositories;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryType()
-	 */
-	protected int getQueryType() {
-		return queryType;
-	}
-
-	public void setQueryType(int queryType) {
-		this.queryType = queryType;
+	protected int getDefaultQueryType() {
+		return IQueryProvider.METADATA_REPOS;
 	}
 
 	/**
@@ -80,5 +71,4 @@ public class MetadataRepositories extends RemoteQueriedElement {
 	protected boolean isSufficientForQuery(ElementQueryDescriptor queryDescriptor) {
 		return queryDescriptor.collector != null && queryDescriptor.queryable != null;
 	}
-
 }

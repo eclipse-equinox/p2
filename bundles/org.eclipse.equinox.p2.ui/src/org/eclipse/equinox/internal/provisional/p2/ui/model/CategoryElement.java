@@ -53,7 +53,7 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 		return super.getAdapter(adapter);
 	}
 
-	protected int getQueryType() {
+	protected int getDefaultQueryType() {
 		return IQueryProvider.AVAILABLE_IUS;
 	}
 
@@ -96,5 +96,4 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 		}
 		return (RequiredCapability[]) capabilities.toArray(new RequiredCapability[capabilities.size()]);
 	}
-
 }

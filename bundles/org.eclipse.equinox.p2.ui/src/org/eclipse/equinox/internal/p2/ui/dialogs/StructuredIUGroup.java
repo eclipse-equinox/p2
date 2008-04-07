@@ -24,6 +24,7 @@ import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * A StructuredIUGroup is a reusable UI component that displays a
@@ -48,9 +49,8 @@ public abstract class StructuredIUGroup {
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
 	 * @param context the ProvisioningContext describing the context for provisioning.
-
 	 */
-	public StructuredIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context) {
+	protected StructuredIUGroup(Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context) {
 		this.queryProvider = queryProvider;
 		this.context = context;
 		// Set up a fontmetrics for calculations
@@ -80,15 +80,19 @@ public abstract class StructuredIUGroup {
 
 	protected abstract StructuredViewer createViewer(Composite parent);
 
-	public Composite getComposite() {
+	protected Composite getComposite() {
 		return composite;
 	}
 
-	public StructuredViewer getStructuredViewer() {
+	protected Shell getShell() {
+		return composite.getShell();
+	}
+
+	protected StructuredViewer getStructuredViewer() {
 		return viewer;
 	}
 
-	public IInstallableUnit[] getSelectedIUs() {
+	protected IInstallableUnit[] getSelectedIUs() {
 		List elements = ((IStructuredSelection) viewer.getSelection()).toList();
 		List iusList = new ArrayList(elements.size());
 

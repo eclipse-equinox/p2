@@ -25,6 +25,11 @@ public abstract class QueriedElement extends ProvElement {
 
 	IQueryProvider queryProvider;
 	protected IQueryable queryable;
+	protected QueryContext queryContext = null;
+
+	protected QueriedElement(QueryContext queryContext) {
+		this.queryContext = queryContext;
+	}
 
 	public Object[] getChildren(Object o) {
 		if (queryProvider == null)
@@ -52,7 +57,13 @@ public abstract class QueriedElement extends ProvElement {
 		return null;
 	}
 
-	protected abstract int getQueryType();
+	protected abstract int getDefaultQueryType();
+
+	protected int getQueryType() {
+		if (queryContext == null)
+			return getDefaultQueryType();
+		return queryContext.getQueryType();
+	}
 
 	public void setQueryProvider(IQueryProvider queryProvider) {
 		this.queryProvider = queryProvider;
@@ -64,6 +75,14 @@ public abstract class QueriedElement extends ProvElement {
 
 	public void setQueryable(IQueryable queryable) {
 		this.queryable = queryable;
+	}
+
+	public QueryContext getQueryContext() {
+		return queryContext;
+	}
+
+	public void setQueryContext(QueryContext context) {
+		queryContext = context;
 	}
 
 	public IQueryable getQueryable() {

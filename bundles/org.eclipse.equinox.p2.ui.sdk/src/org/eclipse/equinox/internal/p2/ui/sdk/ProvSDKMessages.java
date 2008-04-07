@@ -56,15 +56,27 @@ public class ProvSDKMessages extends NLS {
 	public static String RepositoryManipulationDialog_RemoveButton;
 	public static String RepositoryManipulationDialog_RemoveOperationLabel;
 	public static String RepositoryManipulationDialog_UpdateSitesDialogTitle;
+	public static String UpdateAndInstallDialog_AccessibilityFilterDescription;
+	public static String UpdateAndInstallDialog_AddSiteButtonText;
 	public static String UpdateAndInstallDialog_AddSiteOperationlabel;
-	public static String UpdateAndInstallDialog_AvailableFeatures;
-	public static String UpdateAndInstallDialog_InstalledFeatures;
+	public static String UpdateAndInstallDialog_AvailableSoftware;
+	public static String UpdateAndInstallDialog_InstalledSoftware;
+
 	public static String UpdateAndInstallDialog_ManageSites;
 	public static String UpdateAndInstallDialog_AlertCheckbox;
 	public static String UpdateAndInstallDialog_PrefLink;
+	public static String UpdateAndInstallDialog_RemoveSiteButtonText;
 	public static String UpdateAndInstallDialog_RemoveSiteOperationLabel;
 	public static String UpdateAndInstallDialog_RevertActionLabel;
 	public static String UpdateAndInstallDialog_Title;
+	public static String UpdateAndInstallDialog_TypeFilterText;
+	public static String UpdateAndInstallDialog_Properties;
+	public static String UpdateAndInstallDialog_Refresh;
+
+	public static String UpdateAndInstallDialog_ViewByCategory;
+	public static String UpdateAndInstallDialog_ViewByMenuToolTip;
+	public static String UpdateAndInstallDialog_ViewByName;
+	public static String UpdateAndInstallDialog_ViewBySite;
 	public static String UpdateHandler_CannotLaunchUI;
 	public static String UpdateHandler_SDKUpdateUIMessageTitle;
 	public static String SchedulerStartup_day;

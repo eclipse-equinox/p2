@@ -10,44 +10,29 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.model;
 
-import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 
 /**
  * Element wrapper class for an element who obtains its 
- * children via a query, but caches its results in order
- * to accurately report the presence of children.  Should be
- * used when accurate child reporting is more critical than the
- * space used by the cache.
+ * children via a query, but caches its results.  
  * 
  * @since 3.4
  */
-public abstract class CachedQueryElement extends RemoteQueriedElement {
+public abstract class CachedQueryElement extends QueriedElement {
 
 	Object[] cachedChildren;
 
+	protected CachedQueryElement() {
+		super(null);
+	}
+
 	/*
-	 * Overridden to cache the children so that we can more
-	 * quickly and accurately report whether other versions
-	 * are available.
-	 * 
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement#fetchChildren(java.lang.Object, org.eclipse.core.runtime.IProgressMonitor)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getChildren(java.lang.Object)
 	 */
-	protected Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+	public Object[] getChildren(Object parent) {
 		if (cachedChildren == null)
-			cachedChildren = super.fetchChildren(o, monitor);
+			cachedChildren = super.getChildren(parent);
 		return cachedChildren;
 	}
-
-	/*
-	 * Overridden to give a more accurate answer since often there
-	 * are no children.
-	 * 
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement#isContainer()
-	 */
-	public boolean isContainer() {
-		return fetchChildren(this, null).length > 0;
-	}
-
 }

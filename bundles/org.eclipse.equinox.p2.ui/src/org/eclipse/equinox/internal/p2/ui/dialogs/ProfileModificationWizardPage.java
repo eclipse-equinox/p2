@@ -113,7 +113,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		contentProvider = new StaticContentProvider(list.toArray());
 		listViewer.setContentProvider(contentProvider);
 		listViewer.setInput(new Object());
-		listViewer.setLabelProvider(new IUDetailsLabelProvider(getColumnConfig(), getShell()));
+		listViewer.setLabelProvider(new IUDetailsLabelProvider(null, getColumnConfig(), getShell()));
 		setInitialCheckState();
 		// If the initial provisioning plan was already calculated,
 		// no need to repeat it until the user changes selections

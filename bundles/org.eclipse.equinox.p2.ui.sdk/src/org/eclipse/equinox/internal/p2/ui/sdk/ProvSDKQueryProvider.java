@@ -58,24 +58,46 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					}
 				});
 			case IQueryProvider.AVAILABLE_IUS :
+
+				// Showing children of a rollback element
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
 					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_PROFILE, Boolean.toString(true));
 					return new ElementQueryDescriptor(((RollbackRepositoryElement) element).getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), new RollbackIUCollector(this, ((RollbackRepositoryElement) element).getQueryable()));
 				}
+
 				Query groupQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 				Query categoryQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
+
+				// Showing child IU's of some repositories
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;
 					if (metaRepos.getMetadataRepositories() != null)
 						queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
 					else
 						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+
+					if (metaRepos.getQueryContext() != null && metaRepos.getQueryContext() instanceof AvailableIUViewQueryContext) {
+						AvailableIUViewQueryContext context = (AvailableIUViewQueryContext) metaRepos.getQueryContext();
+						if (context.getViewType() == AvailableIUViewQueryContext.VIEW_FLAT) {
+							Collector collector;
+							if (showLatest)
+								collector = new LatestIUVersionElementCollector(this, queryable, true);
+							else
+								collector = new AvailableIUCollector(this, queryable, true);
+							return new ElementQueryDescriptor(queryable, groupQuery, collector);
+						}
+					}
+					// If there is no query context, assume by category
 					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, true));
 				}
+
+				// Showing children of a repository
 				if (element instanceof MetadataRepositoryElement) {
 					return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), true));
 				}
+
+				// Showing children of categories
 				// Must do this one before CategoryElement since it's a subclass
 				if (element instanceof UncategorizedCategoryElement) {
 					// Will have to look at all categories and groups and from there, figure out what's left

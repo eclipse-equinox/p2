@@ -24,6 +24,10 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
  */
 public class Profiles extends QueriedElement {
 
+	public Profiles() {
+		super(null);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -43,6 +47,14 @@ public class Profiles extends QueriedElement {
 	 */
 	public String getLabel(Object o) {
 		return ProvUIMessages.Label_Profiles;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
+	 */
+	protected int getDefaultQueryType() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }

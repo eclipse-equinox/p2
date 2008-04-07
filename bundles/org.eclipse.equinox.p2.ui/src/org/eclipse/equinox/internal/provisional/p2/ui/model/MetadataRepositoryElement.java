@@ -49,7 +49,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 		return ProvUIImages.IMG_METADATA_REPOSITORY;
 	}
 
-	protected int getQueryType() {
+	protected int getDefaultQueryType() {
 		return IQueryProvider.AVAILABLE_IUS;
 	}
 

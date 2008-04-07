@@ -25,7 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescript
  */
 public class ArtifactRepositories extends RemoteQueriedElement {
 
-	protected int getQueryType() {
+	protected int getDefaultQueryType() {
 		return IQueryProvider.ARTIFACT_REPOS;
 	}
 

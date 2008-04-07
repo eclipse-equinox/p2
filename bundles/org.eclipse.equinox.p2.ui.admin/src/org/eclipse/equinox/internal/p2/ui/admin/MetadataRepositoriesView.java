@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveMetadataRepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
@@ -56,7 +57,11 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	protected Object getInput() {
 		MetadataRepositories input = new MetadataRepositories();
 		input.setQueryProvider(ProvAdminUIActivator.getDefault().getQueryProvider());
-		input.setQueryType(IQueryProvider.METADATA_REPOS);
+		input.setQueryContext(new QueryContext() {
+			public int getQueryType() {
+				return IQueryProvider.METADATA_REPOS;
+			}
+		});
 		return input;
 	}
 

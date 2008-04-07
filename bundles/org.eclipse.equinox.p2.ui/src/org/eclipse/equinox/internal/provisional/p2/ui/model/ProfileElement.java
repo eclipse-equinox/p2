@@ -47,7 +47,7 @@ public class ProfileElement extends RemoteQueriedElement {
 		return profileId;
 	}
 
-	protected int getQueryType() {
+	protected int getDefaultQueryType() {
 		return IQueryProvider.INSTALLED_IUS;
 	}
 

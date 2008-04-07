@@ -42,18 +42,17 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	 * @param parent the parent composite for the group
 	 * @param queryProvider the query provider that defines the queries used
 	 * to retrieve elements in the viewer.
-	 * @param profileId the id of the profile whose content is being shown.
 	 * @param font The font to use for calculating pixel sizes.  This font is
 	 * not managed by the receiver.
 	 * @param context the ProvisioningContext describing the context for provisioning,
 	 * including information about which repositories should be used.
-
+	 * @param profileId the id of the profile whose content is being shown.
 	 */
 	public InstalledIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, String profileId) {
 		// This will evolve into a provisioning context
 		super(parent, queryProvider, font, context);
 		this.profileId = profileId;
-		this.createGroupComposite(parent);
+		createGroupComposite(parent);
 	}
 
 	protected StructuredViewer createViewer(Composite parent) {
@@ -100,5 +99,12 @@ public class InstalledIUGroup extends StructuredIUGroup {
 		ProfileElement element = new ProfileElement(profileId);
 		element.setQueryProvider(getQueryProvider());
 		return element;
+	}
+
+	/**
+	 * Get the viewer used to represent the installed IU's
+	 */
+	public StructuredViewer getStructuredViewer() {
+		return super.getStructuredViewer();
 	}
 }
