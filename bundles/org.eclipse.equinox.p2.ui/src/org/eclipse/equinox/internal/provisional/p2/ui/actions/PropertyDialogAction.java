@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.equinox.internal.p2.ui.actions;
+package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.IShellProvider;
