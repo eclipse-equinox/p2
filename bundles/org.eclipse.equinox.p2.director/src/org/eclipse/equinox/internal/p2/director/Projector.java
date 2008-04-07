@@ -12,14 +12,13 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.Version;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
 import org.sat4j.pb.core.PBSolverCP;
@@ -38,19 +37,20 @@ public class Projector {
 	private IQueryable picker;
 
 	private Map variables; //key IU, value corresponding variable in the problem
-	private Map variableForSyntheticIUs; //key IU, value corresponding variable in the problem.
+	private Map noopVariables; //key IU, value corresponding no optionality variable in the problem, 
+	private List abstractVariables;
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
 	private Dictionary selectionContext;
 
-	private final static int shift = 1;
+	private int varCount = 1;
 
 	private ArrayList constraints;
 	private ArrayList dependencies;
 	private ArrayList tautologies;
-	private String objective;
-
+	private StringBuffer objective;
+	private StringBuffer explanation = new StringBuffer("explain: "); //$NON-NLS-1$
 	private Collection solution;
 
 	private File problemFile;
@@ -59,12 +59,13 @@ public class Projector {
 	public Projector(IQueryable q, Dictionary context) {
 		picker = q;
 		variables = new HashMap();
-		variableForSyntheticIUs = new HashMap();
+		noopVariables = new HashMap();
 		slice = new TwoTierMap();
 		constraints = new ArrayList();
 		tautologies = new ArrayList();
 		dependencies = new ArrayList();
 		selectionContext = context;
+		abstractVariables = new ArrayList();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, "Problems resolving provisioning plan.", null);
 	}
 
@@ -78,7 +79,7 @@ public class Projector {
 
 			Iterator iusToEncode = picker.query(InstallableUnitQuery.ANY, new Collector(), null).iterator();
 			while (iusToEncode.hasNext()) {
-				processIU((IInstallableUnit) iusToEncode.next(), true);
+				processIU((IInstallableUnit) iusToEncode.next());
 			}
 			createConstraintsForSingleton();
 			for (int i = 0; i < ius.length; i++) {
@@ -97,24 +98,32 @@ public class Projector {
 
 	//Create an optimization function favoring the highest version of each IU  
 	private void createOptimizationFunction() {
-		StringBuffer buffer = new StringBuffer("min:");//$NON-NLS-1$
+		objective = new StringBuffer("min:"); //$NON-NLS-1$
 		Set s = slice.entrySet();
+
+		//Add the abstract variables
+		for (Iterator iterator = abstractVariables.iterator(); iterator.hasNext();) {
+			objective.append(" -2 ").append((String) iterator.next()); //$NON-NLS-1$
+		}
+
 		for (Iterator iterator = s.iterator(); iterator.hasNext();) {
 			Map.Entry entry = (Map.Entry) iterator.next();
 			HashMap conflictingEntries = (HashMap) entry.getValue();
 			if (conflictingEntries.size() <= 1) {
-				buffer.append(" 1 ").append(getVariable((IInstallableUnit) conflictingEntries.values().iterator().next())); //$NON-NLS-1$
+				objective.append(" 1 ").append(getVariable((IInstallableUnit) conflictingEntries.values().iterator().next())); //$NON-NLS-1$
 				continue;
 			}
 			List toSort = new ArrayList(conflictingEntries.values());
 			Collections.sort(toSort);
-			int weight = toSort.size();
+			double weight = Math.pow(10, toSort.size() - 1); //TODO We could start at toSort -1, but be careful
+			int count = toSort.size();
 			for (Iterator iterator2 = toSort.iterator(); iterator2.hasNext();) {
-				buffer.append(" ").append(weight--).append(" ").append(getVariable((IInstallableUnit) iterator2.next())); //$NON-NLS-1$//$NON-NLS-2$
+				count--;
+				objective.append(' ').append((int) weight).append(' ').append(getVariable((IInstallableUnit) iterator2.next()));
+				weight = weight / 10;
 			}
 		}
-		buffer.append(" ;"); //$NON-NLS-1$
-		objective = buffer.toString();
+		objective.append(" ;"); //$NON-NLS-1$
 	}
 
 	private void createMustHaves(IInstallableUnit iu) {
@@ -144,21 +153,20 @@ public class Projector {
 			BufferedWriter w = new BufferedWriter(new FileWriter(problemFile));
 			int clauseCount = tautologies.size() + dependencies.size() + constraints.size();
 
-			int variableCount = variables.size();
-			w.write("* #variable= " + variableCount + " #constraint= " + clauseCount + "  "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			w.write("* #variable= " + varCount + " #constraint= " + clauseCount + "  "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			w.newLine();
 			w.write("*"); //$NON-NLS-1$
 			w.newLine();
 
-			if (variableCount == 0 && clauseCount == 0) {
+			if (clauseCount == 0) {
 				w.close();
 				return;
 			}
-			w.write(objective);
+			w.write(objective.toString());
 			w.newLine();
 			w.newLine();
 
-			w.write(explanation.toString() + " ;"); //$NON-NLS-1$
+			w.write(explanation + " ;"); //$NON-NLS-1$
 			w.newLine();
 			w.newLine();
 
@@ -191,9 +199,7 @@ public class Projector {
 		}
 	}
 
-	StringBuffer explanation = new StringBuffer("explain: "); //$NON-NLS-1$
-
-	public void processIU(IInstallableUnit iu, boolean expandOptionalRequirements) {
+	public void processIU(IInstallableUnit iu) {
 		slice.put(iu.getId(), iu.getVersion(), iu);
 		explanation.append(" ").append(getVariable(iu)); //$NON-NLS-1$
 		if (!isApplicable(iu)) {
@@ -202,12 +208,6 @@ public class Projector {
 		}
 
 		RequiredCapability[] reqs = iu.getRequiredCapabilities();
-		if (expandOptionalRequirements) {
-			if (sortDependencies(iu)[OPT].size() != 0) {
-				expandIUs(iu, sortDependencies(iu));
-				return;
-			}
-		}
 		if (reqs.length == 0) {
 			return;
 		}
@@ -222,73 +222,48 @@ public class Projector {
 				createNegation(iu);
 			}
 		}
+		addOptionalityExpression();
 	}
 
-	private void expandIUs(IInstallableUnit iu, List[] list) {
-		List combinationsOfRequirements = new ArrayList();
-		getCombinations(list[CORE], list[OPT], combinationsOfRequirements);
-		combinationsOfRequirements.add(list[CORE]);
-		StringBuffer expression = new StringBuffer("-1 ").append(getVariable(iu)); //$NON-NLS-1$
-		int count = combinationsOfRequirements.size();
-		String generatedIUId = iu.getId() + '-' + System.currentTimeMillis();
-		for (Iterator iterator = combinationsOfRequirements.iterator(); iterator.hasNext();) {
-			RequiredCapability[] reqs = (RequiredCapability[]) ((ArrayList) iterator.next()).toArray(new RequiredCapability[0]);
-
-			InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-			iud.setId(generatedIUId);
-			iud.setVersion(new Version(0, reqs.length, count--));
-			iud.setRequiredCapabilities(reqs);
-			iud.setSingleton(true);
-			IInstallableUnit generated = MetadataFactory.createInstallableUnit(iud);
-
-			processIU(generated, false);
-			expression.append(" +1 ").append(getVariable(generated)); //$NON-NLS-1$
-			variableForSyntheticIUs.put(generated, getVariable(generated));
-		}
-		expression.append(">= 0;"); //$NON-NLS-1$
-		dependencies.add(expression.toString());
+	private void addOptionalityExpression() {
+		if (optionalityExpression != null && countOptionalIUs > 0)
+			dependencies.add(optionalityExpression + " >= 0;"); //$NON-NLS-1$
+		optionalityExpression = null;
+		countOptionalIUs = 0;
 	}
 
-	private void getCombinations(List seed, List elts, List solutions) {
-		if (elts.isEmpty()) {
-			solutions.add(seed);
-			return;
+	private String optionalityExpression = null;
+	private int countOptionalIUs = 0;
+
+	private void expandOptionalRequirement(IInstallableUnit iu, RequiredCapability req) {
+		String abstractVar = getAbstractVariable();
+		String expression = " -1 " + abstractVar; //$NON-NLS-1$
+		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
+		if (optionalityExpression == null)
+			optionalityExpression = " -1 " + getVariable(iu) + " 1 " + getNoOptionalVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
+
+		int countMatches = 0;
+		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+			IInstallableUnit match = (IInstallableUnit) iterator.next();
+			if (!isApplicable(match))
+				continue;
+			countMatches++;
+			expression += " 1 " + getVariable(match); //$NON-NLS-1$
+		}
+		countOptionalIUs += countMatches;
+		if (countMatches > 0) {
+			dependencies.add(" -1 " + getNoOptionalVariable(iu) + " -1 " + abstractVar + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
+			//			dependencies.add("-1" + getVariable(iu) + " 1 " + abstractVar + " >=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
 		}
 
-		Object head = elts.get(0);
-		ArrayList solutionElt = new ArrayList(seed);
-		solutionElt.add(head);
-		solutions.add(solutionElt);
-
-		List tail = elts.subList(1, elts.size());
-		if (!tail.isEmpty()) {
-			getCombinations(seed, tail, solutions);
-			ArrayList nextSeed = new ArrayList(seed);
-			nextSeed.add(head);
-			getCombinations(nextSeed, tail, solutions);
-		}
+		if (DEBUG)
+			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	final byte OPT = 0;
-	final byte CORE = 1;
-
-	private ArrayList[] sortDependencies(IInstallableUnit iu) {
-		RequiredCapability[] reqs = iu.getRequiredCapabilities();
-		ArrayList opt = new ArrayList(reqs.length);
-		ArrayList nonOpt = new ArrayList(reqs.length);
-		for (int i = 0; i < reqs.length; i++) {
-			if (reqs[i].isOptional())
-				opt.add(reqs[i]);
-			else
-				nonOpt.add(reqs[i]);
-		}
-		ArrayList[] sorted = new ArrayList[2];
-		sorted[CORE] = nonOpt;
-		sorted[OPT] = opt;
-		return sorted;
-	}
-
-	private void expandRequirement(IInstallableUnit iu, RequiredCapability req) {
+	private void expandNormalRequirement(IInstallableUnit iu, RequiredCapability req) {
+		//Generate the regular requirement
 		String expression = "-1 " + getVariable(iu); //$NON-NLS-1$
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 
@@ -300,16 +275,19 @@ public class Projector {
 			countMatches++;
 			expression += " +1 " + getVariable(match); //$NON-NLS-1$
 		}
+
 		if (countMatches > 0) {
-			dependencies.add(expression + (countMatches == 1 ? " >= 0;" : " >= 0;")); //$NON-NLS-1$ //$NON-NLS-2$
+			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 		} else {
-			if (req.isOptional()) {
-				if (DEBUG)
-					System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
-			} else {
-				throw new IllegalStateException("No IU found to satisfy dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
-			}
+			throw new IllegalStateException("No IU found to satisfy dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 		}
+	}
+
+	private void expandRequirement(IInstallableUnit iu, RequiredCapability req) {
+		if (req.isOptional())
+			expandOptionalRequirement(iu, req);
+		else
+			expandNormalRequirement(iu, req);
 	}
 
 	//Create constraints to deal with singleton
@@ -323,13 +301,13 @@ public class Projector {
 				continue;
 
 			Collection conflictingVersions = conflictingEntries.values();
-			StringBuffer singletonRule = new StringBuffer();
+			String singletonRule = ""; //$NON-NLS-1$
 			ArrayList nonSingleton = new ArrayList();
 			int countSingleton = 0;
 			for (Iterator conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
 				IInstallableUnit conflictElt = (IInstallableUnit) conflictIterator.next();
 				if (conflictElt.isSingleton()) {
-					singletonRule.append(" -1 ").append(getVariable(conflictElt)); //$NON-NLS-1$
+					singletonRule += " -1 " + getVariable(conflictElt); //$NON-NLS-1$
 					countSingleton++;
 				} else {
 					nonSingleton.add(conflictElt);
@@ -339,10 +317,10 @@ public class Projector {
 				continue;
 
 			for (Iterator iterator2 = nonSingleton.iterator(); iterator2.hasNext();) {
-				constraints.add(singletonRule.toString() + " -1 " + getVariable((IInstallableUnit) iterator2.next()) + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$
+				constraints.add(singletonRule + " -1 " + getVariable((IInstallableUnit) iterator2.next()) + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			singletonRule.append(" >= -1;"); //$NON-NLS-1$
-			constraints.add(singletonRule.toString());
+			singletonRule += " >= -1;"; //$NON-NLS-1$
+			constraints.add(singletonRule);
 		}
 	}
 
@@ -350,9 +328,25 @@ public class Projector {
 	private String getVariable(IInstallableUnit iu) {
 		String v = (String) variables.get(iu);
 		if (v == null) {
-			//			v = new String("x" + (variables.size() + shift) + iu.toString()); //$NON-NLS-1$
-			v = new String("x" + (variables.size() + shift)); //$NON-NLS-1$
+			//			v = new String("x" + varCount++ + "--" + iu.toString()); //$NON-NLS-1$
+			v = new String("x" + varCount++); //$NON-NLS-1$
 			variables.put(iu, v);
+		}
+		return v;
+	}
+
+	private String getAbstractVariable() {
+		String newVar = new String("x" + varCount++); //$NON-NLS-1$
+		abstractVariables.add(newVar);
+		return newVar;
+	}
+
+	private String getNoOptionalVariable(IInstallableUnit iu) {
+		String v = (String) noopVariables.get(iu);
+		if (v == null) {
+			//			v = new String("x" + varCount++ + "-noop-" + iu.toString()); //$NON-NLS-1$
+			v = new String("x" + varCount++); //$NON-NLS-1$
+			noopVariables.put(iu, v);
 		}
 		return v;
 	}
@@ -386,20 +380,16 @@ public class Projector {
 			} else {
 				if (DEBUG)
 					System.out.println("Unsatisfiable !"); //$NON-NLS-1$
-				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found", null));
+				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because the problem is unsatisfiable", null)); //$NON-NLS-1$
 			}
 		} catch (FileNotFoundException e) {
-			//Ignore we are producing the input file
-			if (DEBUG)
-				e.printStackTrace();
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "Missing problem file:" + problemFile, e)); //$NON-NLS-1$
 		} catch (ParseFormatException e) {
-			//Ignore we are producing the input file
-			if (DEBUG)
-				e.printStackTrace();
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "Format error in problem file: " + problemFile, e)); //$NON-NLS-1$
 		} catch (ContradictionException e) {
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because of a trivial contradiction", e));
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because of a trivial contradiction", e)); //$NON-NLS-1$
 		} catch (TimeoutException e) {
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found.", e));
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found.", e)); //$NON-NLS-1$
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -420,8 +410,7 @@ public class Projector {
 			Entry entry = (Entry) allIUs.next();
 			int match = Integer.parseInt(((String) entry.getValue()).substring(1));
 			if (problem.model(match)) {
-				if (variableForSyntheticIUs.get(entry.getKey()) == null)
-					solution.add(((IInstallableUnit) entry.getKey()).unresolved());
+				solution.add(((IInstallableUnit) entry.getKey()).unresolved());
 			}
 		}
 	}
