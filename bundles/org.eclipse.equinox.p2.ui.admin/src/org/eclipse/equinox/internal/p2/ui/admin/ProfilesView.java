@@ -14,7 +14,6 @@ package org.eclipse.equinox.internal.p2.ui.admin;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddProfileDialog;
-import org.eclipse.equinox.internal.p2.ui.admin.dialogs.UpdateAndInstallDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -78,21 +77,6 @@ public class ProfilesView extends ProvView {
 
 		public void run() {
 			new AddProfileDialog(viewer.getControl().getShell(), getKnownProfileIds()).open();
-		}
-	}
-
-	private class InstallIntoProfileAction extends Action {
-		InstallIntoProfileAction() {
-			setText(ProvUI.INSTALL_COMMAND_LABEL);
-			setToolTipText(ProvUI.INSTALL_COMMAND_TOOLTIP);
-		}
-
-		public void run() {
-			String profileId = getProfileChooser().getProfileId(getShell());
-			if (profileId != null) {
-				UpdateAndInstallDialog dialog = new UpdateAndInstallDialog(getShell(), profileId);
-				dialog.open();
-			}
 		}
 	}
 
@@ -161,7 +145,6 @@ public class ProfilesView extends ProvView {
 		uninstallAction = new UninstallAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPolicies(), getShell());
 		updateAction = new UpdateAction(viewer, null, getProfileChooser(), ProvAdminUIActivator.getDefault().getPolicies(), getShell());
 		propertiesAction = new PropertyDialogAction(this.getSite(), viewer);
-		installAction = new InstallIntoProfileAction();
 
 		getViewSite().getActionBars().setGlobalActionHandler(ActionFactory.PROPERTIES.getId(), propertiesAction);
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
