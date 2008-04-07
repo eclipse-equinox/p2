@@ -270,7 +270,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		if (!snapshot.isEmpty()) {
 			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
-			metadataRepository.addInstallableUnits(iusToAdd);
+			if (iusToAdd.length != 0)
+				metadataRepository.addInstallableUnits(iusToAdd);
 		}
 	}
 
@@ -309,6 +310,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 	protected IArtifactDescriptor generateArtifactDescriptor(File candidate) {
 
 		IArtifactDescriptor basicDescriptor = generateBasicDescriptor(candidate);
+		if (basicDescriptor == null)
+			return null;
+
 		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
 		try {
 			pathDescriptor.setRepositoryProperty(ARTIFACT_REFERENCE, candidate.toURL().toExternalForm());
@@ -331,11 +335,15 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (isFeature(candidate)) {
 			FeatureParser parser = new FeatureParser();
 			Feature feature = parser.parse(candidate);
+			if (feature == null)
+				return null;
 			IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 			return new ArtifactDescriptor(featureKey);
 		}
 
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(candidate);
+		if (bundleDescription == null)
+			return null;
 		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
 		return MetadataGeneratorHelper.createArtifactDescriptor(key, candidate, true, false);
 	}
@@ -369,6 +377,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		FeatureParser parser = new FeatureParser();
 		Feature feature = parser.parse(featureFile);
+		if (feature == null)
+			return null;
 
 		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, props);
 		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU, props);
