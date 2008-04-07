@@ -21,8 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
-import org.sat4j.pb.core.PBSolverCP;
-import org.sat4j.pb.orders.VarOrderHeapObjective;
 import org.sat4j.pb.reader.OPBEclipseReader2007;
 import org.sat4j.reader.ParseFormatException;
 import org.sat4j.specs.*;
@@ -364,10 +362,7 @@ public class Projector {
 		FileReader fr = null;
 		try {
 			fr = new FileReader(problemFile);
-			PBSolverCP problem = (PBSolverCP) reader.parseInstance(fr);
-			if (problem.getOrder() instanceof VarOrderHeapObjective) {
-				((VarOrderHeapObjective) problem.getOrder()).setObjectiveFunction(reader.getObjectiveFunction());
-			}
+			IProblem problem = reader.parseInstance(fr);
 			if (problem.isSatisfiable()) {
 				if (DEBUG) {
 					System.out.println("Satisfiable !"); //$NON-NLS-1$
