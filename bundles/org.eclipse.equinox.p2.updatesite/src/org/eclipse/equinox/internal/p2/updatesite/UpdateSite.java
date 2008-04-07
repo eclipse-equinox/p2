@@ -284,7 +284,7 @@ public class UpdateSite {
 	 * Try and load the feature information from the update site's
 	 * digest file, if it exists.
 	 */
-	private Feature[] loadFeaturesFromDigest() throws ProvisionException {
+	private Feature[] loadFeaturesFromDigest() {
 		if (!featureCache.isEmpty())
 			return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
 		try {
@@ -303,12 +303,16 @@ public class UpdateSite {
 			} catch (IllegalArgumentException e) {
 				//see bug 221600 - URL.openStream can throw IllegalArgumentException
 				String msg = NLS.bind(Messages.InvalidRepositoryLocation, digestURL.toExternalForm());
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
 			} finally {
 				digestFile.delete();
 			}
+		} catch (FileNotFoundException fnfe) {
+			// we do not track FNF exceptions as we will fall back to the 
+			// standard feature parsing from the site itself, see bug 225587.
 		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
+			String msg = NLS.bind(Messages.InvalidRepositoryLocation, location);
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		}
@@ -328,16 +332,23 @@ public class UpdateSite {
 			if (featureCache.containsKey(key))
 				continue;
 			URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
+			Feature feature = null;
 			try {
-				Feature feature = parseFeature(featureParser, featureURL);
-				if (feature == null) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
-				} else {
-					featureCache.put(key, feature);
-					loadIncludedFeatures(feature, featureParser);
-				}
+				feature = parseFeature(featureParser, featureURL);
 			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e));
+				// try twice to be a bit more robust if network
+				// connectivity glitches happen while parsing features
+				try {
+					feature = parseFeature(featureParser, featureURL);
+				} catch (IOException e1) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e1));
+				}
+			}
+			if (feature == null) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
+			} else {
+				featureCache.put(key, feature);
+				loadIncludedFeatures(feature, featureParser);
 			}
 		}
 		return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
@@ -358,7 +369,19 @@ public class UpdateSite {
 			URL featureURL = null;
 			try {
 				featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
-				Feature includedFeature = parseFeature(featureParser, featureURL);
+				Feature includedFeature = null;
+				try {
+					includedFeature = parseFeature(featureParser, featureURL);
+				} catch (IOException e) {
+					// try twice to get each feature in the site since we get
+					// communication errors occur periodically and this just helps the likelihood
+					// of finding the features that are available
+					try {
+						includedFeature = parseFeature(featureParser, featureURL);
+					} catch (IOException e1) {
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e1));
+					}
+				}
 				if (feature == null) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
 				} else {
@@ -367,8 +390,6 @@ public class UpdateSite {
 				}
 			} catch (MalformedURLException e) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, entry.getId()), e));
-			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e));
 			}
 		}
 	}
