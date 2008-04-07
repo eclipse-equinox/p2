@@ -13,16 +13,19 @@ package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import java.io.File;
 import java.util.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
 public class DirectoryWatcher {
+	private static final String DEL_EXT = ".del"; //$NON-NLS-1$
+
 	public class WatcherThread extends Thread {
 
 		private final long pollFrequency;
 		private boolean done = false;
 
 		public WatcherThread(long pollFrequency) {
-			super("Directory Watcher");
+			super("Directory Watcher"); //$NON-NLS-1$
 			this.pollFrequency = pollFrequency;
 		}
 
@@ -36,8 +39,7 @@ public class DirectoryWatcher {
 				} catch (InterruptedException e) {
 					// ignore
 				} catch (Throwable e) {
-					e.printStackTrace();
-					log("In main loop, we have serious trouble", e);
+					log(Messages.error_main_loop, e);
 					done = true;
 				}
 			} while (!done);
@@ -49,12 +51,12 @@ public class DirectoryWatcher {
 		}
 	}
 
-	public final static String POLL = "eclipse.p2.directory.watcher.poll";
-	public final static String DIR = "eclipse.p2.directory.watcher.dir";
+	public final static String POLL = "eclipse.p2.directory.watcher.poll"; //$NON-NLS-1$
+	public final static String DIR = "eclipse.p2.directory.watcher.dir"; //$NON-NLS-1$
 	private static final long DEFAULT_POLL_FREQUENCY = 2000;
 
 	public static void log(String string, Throwable e) {
-		System.err.println(string + ": " + e);
+		System.err.println(string + ": " + e); //$NON-NLS-1$
 	}
 
 	final File[] directories;
@@ -69,7 +71,7 @@ public class DirectoryWatcher {
 	public DirectoryWatcher(Dictionary properties, BundleContext context) {
 		String dir = (String) properties.get(DIR);
 		if (dir == null)
-			dir = "./load";
+			dir = "./load"; //$NON-NLS-1$
 
 		File targetDirectory = new File(dir);
 		targetDirectory.mkdirs();
@@ -78,14 +80,14 @@ public class DirectoryWatcher {
 
 	public DirectoryWatcher(File directory) {
 		if (directory == null)
-			throw new IllegalArgumentException("Folder must not be null");
+			throw new IllegalArgumentException(Messages.null_folder);
 
 		this.directories = new File[] {directory};
 	}
 
 	public DirectoryWatcher(File[] directories) {
 		if (directories == null)
-			throw new IllegalArgumentException("Folder must not be null");
+			throw new IllegalArgumentException(Messages.null_folder);
 		this.directories = directories;
 	}
 
@@ -109,7 +111,7 @@ public class DirectoryWatcher {
 
 	public synchronized void start(final long pollFrequency) {
 		if (watcher != null)
-			throw new IllegalStateException("Already Started");
+			throw new IllegalStateException(Messages.thread_started);
 
 		watcher = new WatcherThread(pollFrequency);
 		watcher.start();
@@ -117,7 +119,7 @@ public class DirectoryWatcher {
 
 	public synchronized void stop() {
 		if (watcher == null)
-			throw new IllegalStateException("Not Started");
+			throw new IllegalStateException(Messages.thread_not_started);
 
 		watcher.done();
 		watcher = null;
@@ -144,7 +146,7 @@ public class DirectoryWatcher {
 			for (int i = 0; i < list.length; i++) {
 				File file = list[i];
 				// if this is a deletion marker then add to the list of pending deletions.
-				if (list[i].getPath().endsWith(".del")) {
+				if (list[i].getPath().endsWith(DEL_EXT)) {
 					File target = new File(file.getPath().substring(0, file.getPath().length() - 4));
 					removals.add(target);
 					pendingDeletions.add(target);
@@ -203,7 +205,7 @@ public class DirectoryWatcher {
 					listener.changed(file);
 			}
 		} catch (Exception e) {
-			log("Processing : " + listener, e);
+			log(NLS.bind(Messages.error_processing, listener), e);
 		}
 	}
 
@@ -215,7 +217,7 @@ public class DirectoryWatcher {
 			File file = (File) iterator.next();
 			if (!file.exists() || file.delete())
 				iterator.remove();
-			new File(file.getPath() + ".del").delete();
+			new File(file.getPath() + DEL_EXT).delete();
 		}
 	}
 

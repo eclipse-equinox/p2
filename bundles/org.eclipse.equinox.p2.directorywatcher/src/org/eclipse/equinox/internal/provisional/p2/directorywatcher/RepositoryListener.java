@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.resolver.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -85,10 +86,10 @@ public class RepositoryListener extends DirectoryChangeListener {
 
 		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
 		if (reference == null)
-			throw new IllegalStateException("PlatformAdmin not registered."); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.platformadmin_not_registered);
 		PlatformAdmin platformAdmin = (PlatformAdmin) context.getService(reference);
 		if (platformAdmin == null)
-			throw new IllegalStateException("PlatformAdmin not registered."); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.platformadmin_not_registered);
 
 		try {
 			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();
@@ -104,7 +105,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (reference != null)
 			manager = (IArtifactRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
 
 		try {
 			try {
@@ -125,7 +126,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				return repository;
 			} catch (ProvisionException e) {
 				LogHelper.log(e);
-				throw new IllegalStateException("Couldn't create artifact repository for: " + stateDirURL); //$NON-NLS-1$
+				throw new IllegalStateException(NLS.bind(Messages.failed_create_artifact_repo, stateDirURL));
 			}
 		} finally {
 			context.ungetService(reference);
@@ -138,7 +139,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (reference != null)
 			manager = (IMetadataRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
 
 		try {
 			try {
@@ -157,7 +158,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			return repository;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
-			throw new IllegalStateException("Couldn't create metadata repository for: " + stateDirURL); //$NON-NLS-1$
+			throw new IllegalStateException(NLS.bind(Messages.failed_create_metadata_repo, stateDirURL));
 		} finally {
 			context.ungetService(reference);
 		}
@@ -405,7 +406,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 			if (!ius[i].isFragment())
 				return new IInstallableUnit[] {ius[i]};
 		}
-		throw new IllegalStateException("There should be exactly one Bundle IU"); //$NON-NLS-1$
+		throw new IllegalStateException(Messages.multiple_bundle_ius);
 	}
 
 	public IMetadataRepository getMetadataRepository() {
