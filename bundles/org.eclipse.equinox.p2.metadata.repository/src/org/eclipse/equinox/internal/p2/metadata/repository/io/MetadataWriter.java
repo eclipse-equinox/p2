@@ -15,6 +15,10 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 import java.util.Map;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.p2.persistence.XMLWriter;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
@@ -214,11 +218,14 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 	private void writeCopyright(Copyright copyright) {
 		if (copyright != null) {
 			start(COPYRIGHT_ELEMENT);
-			if (copyright.getURL() != null)
-				attribute(URL_ATTRIBUTE, copyright.getURL().toExternalForm());
+			try {
+				if (copyright.getURL() != null)
+					attribute(URL_ATTRIBUTE, copyright.getURL().toExternalForm());
+			} catch (IllegalStateException ise) {
+				LogHelper.log(new Status(IStatus.INFO, Activator.ID, "Error writing the copyright URL: " + copyright.getURL())); //$NON-NLS-1$
+			}
 			cdata(copyright.getBody(), true);
 			end(COPYRIGHT_ELEMENT);
 		}
 	}
-
 }
