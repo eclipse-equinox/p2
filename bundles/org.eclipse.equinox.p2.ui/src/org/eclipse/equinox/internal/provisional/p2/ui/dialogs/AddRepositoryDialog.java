@@ -106,7 +106,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				if (path != null) {
 					lastLocalLocation = path;
 					url.setText(URLValidator.makeFileURLString(path));
-					validateRepositoryURL(true);
+					validateRepositoryURL(false);
 				}
 			}
 		});
@@ -123,7 +123,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 				if (path != null) {
 					lastArchiveLocation = path;
 					url.setText(URLValidator.makeJarURLString(path));
-					validateRepositoryURL(true);
+					validateRepositoryURL(false);
 				}
 			}
 		});
@@ -166,7 +166,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	}
 
 	protected IStatus addRepository() {
-		IStatus status = validateRepositoryURL(true);
+		IStatus status = validateRepositoryURL(false);
 		if (status.isOK()) {
 			ProvisioningOperationRunner.schedule(getOperation(getUserURL()), getShell());
 		}
