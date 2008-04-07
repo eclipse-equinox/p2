@@ -22,6 +22,13 @@
       <update label="%updateSiteName" url="http://update.eclipse.org/updates/3.4"/>
    </url>
 
+   <requires>
+      <import plugin="org.eclipse.ecf" version="2.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.filetransfer" version="2.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.identity" version="2.0.0" match="compatible"/>
+      <import plugin="org.eclipse.ecf.provider.filetransfer" version="2.0.0" match="compatible"/>
+   </requires>
+
    <plugin
          id="org.eclipse.equinox.p2.director"
          download-size="0"
@@ -72,27 +79,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.ecf"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ecf.filetransfer"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ecf.identity"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.equinox.p2.exemplarysetup"
          download-size="0"
          install-size="0"
@@ -129,13 +115,6 @@
 
    <plugin
          id="org.eclipse.equinox.p2.console"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ecf.provider.filetransfer"
          download-size="0"
          install-size="0"
          version="0.0.0"
