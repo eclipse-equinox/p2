@@ -31,15 +31,22 @@ public class Messages extends NLS {
 	public static String Director_Cannot_Uninstall;
 	public static String Director_Already_Installed;
 
-	public static String Director_Replace_Problems;
 	public static String Director_Revert_Problems;
 	public static String Director_Unexpected_IU;
 	public static String Director_Task_Installing;
 	public static String Director_Task_Uninstalling;
 	public static String Director_Task_Updating;
 	public static String Director_Task_Resolving_Dependencies;
-	public static String Director_Resolving_Shared_Dependencies;
 	public static String Director_Unsatisfied_Dependencies;
 	public static String Director_Unsatisfied_Dependency;
+
+	public static String Planner_Error_saving_opbfile;
+	public static String Planner_Format_error;
+	public static String Planner_Missing_opb_file;
+	public static String Planner_Timeout;
+	public static String Planner_Problems_resolving_plan;
+	public static String Planner_Trivial_exception;
+	public static String Planner_Unsatisfiable_problem;
+	public static String Planner_Unsatisfied_dependency;
 
 }

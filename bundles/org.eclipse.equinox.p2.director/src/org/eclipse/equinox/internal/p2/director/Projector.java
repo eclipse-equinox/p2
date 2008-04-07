@@ -18,6 +18,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuer
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.SolverFactory;
@@ -64,7 +65,7 @@ public class Projector {
 		dependencies = new ArrayList();
 		selectionContext = context;
 		abstractVariables = new ArrayList();
-		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, "Problems resolving provisioning plan.", null);
+		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
 	public void encode(IInstallableUnit[] ius, IProgressMonitor monitor) {
@@ -113,7 +114,7 @@ public class Projector {
 			}
 			List toSort = new ArrayList(conflictingEntries.values());
 			Collections.sort(toSort);
-			double weight = Math.pow(10, toSort.size() - 1); //TODO We could start at toSort -1, but be careful
+			double weight = Math.pow(10, toSort.size() - 1);
 			int count = toSort.size();
 			for (Iterator iterator2 = toSort.iterator(); iterator2.hasNext();) {
 				count--;
@@ -182,7 +183,7 @@ public class Projector {
 			}
 			w.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Error_saving_opbfile, problemFile), e));
 		}
 	}
 
@@ -213,12 +214,7 @@ public class Projector {
 			if (!isApplicable(reqs[i]))
 				continue;
 
-			try {
-				expandRequirement(iu, reqs[i]);
-			} catch (IllegalStateException ise) {
-				result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, ise.getMessage(), ise));
-				createNegation(iu);
-			}
+			expandRequirement(iu, reqs[i]);
 		}
 		addOptionalityExpression();
 	}
@@ -252,7 +248,6 @@ public class Projector {
 		if (countMatches > 0) {
 			dependencies.add(" -1 " + getNoOptionalVariable(iu) + " -1 " + abstractVar + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
-			//			dependencies.add("-1" + getVariable(iu) + " 1 " + abstractVar + " >=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
 		}
 
@@ -277,7 +272,8 @@ public class Projector {
 		if (countMatches > 0) {
 			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 		} else {
-			throw new IllegalStateException("No IU found to satisfy dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
+			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+			createNegation(iu);
 		}
 	}
 
@@ -326,7 +322,6 @@ public class Projector {
 	private String getVariable(IInstallableUnit iu) {
 		String v = (String) variables.get(iu);
 		if (v == null) {
-			//			v = new String("x" + varCount++ + "--" + iu.toString()); //$NON-NLS-1$
 			v = new String("x" + varCount++); //$NON-NLS-1$
 			variables.put(iu, v);
 		}
@@ -342,7 +337,6 @@ public class Projector {
 	private String getNoOptionalVariable(IInstallableUnit iu) {
 		String v = (String) noopVariables.get(iu);
 		if (v == null) {
-			//			v = new String("x" + varCount++ + "-noop-" + iu.toString()); //$NON-NLS-1$
 			v = new String("x" + varCount++); //$NON-NLS-1$
 			noopVariables.put(iu, v);
 		}
@@ -375,16 +369,16 @@ public class Projector {
 			} else {
 				if (DEBUG)
 					System.out.println("Unsatisfiable !"); //$NON-NLS-1$
-				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because the problem is unsatisfiable", null)); //$NON-NLS-1$
+				result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfiable_problem, problemFile)));
 			}
 		} catch (FileNotFoundException e) {
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "Missing problem file:" + problemFile, e)); //$NON-NLS-1$
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Missing_opb_file, problemFile)));
 		} catch (ParseFormatException e) {
-			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "Format error in problem file: " + problemFile, e)); //$NON-NLS-1$
+			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Format_error, problemFile)));
 		} catch (ContradictionException e) {
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found because of a trivial contradiction", e)); //$NON-NLS-1$
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Trivial_exception, problemFile)));
 		} catch (TimeoutException e) {
-			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, 1, "No solution found.", e)); //$NON-NLS-1$
+			result.merge(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Timeout, problemFile)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
