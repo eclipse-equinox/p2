@@ -530,6 +530,7 @@ public class MetadataGeneratorHelper {
 		iu.setId(id);
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
