@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.InvalidSyntaxException;
 
 public class Slicer {
@@ -33,7 +34,7 @@ public class Slicer {
 		possibilites = input;
 		slice = new TwoTierMap();
 		selectionContext = context;
-		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, "Problems resolving provisioning plan.", null);
+		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
 	public Slicer(IInstallableUnit[] installRoots, IInstallableUnit[] gatherAvailableInstallableUnits, Dictionary selectionContext) {
@@ -143,7 +144,7 @@ public class Slicer {
 				if (DEBUG)
 					System.out.println("No IU found to satisfy optional dependency of " + iu + " on req " + req); //$NON-NLS-1$//$NON-NLS-2$
 			} else {
-				result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, "No IU found to satisfy dependency of " + iu + " on req " + req)); //$NON-NLS-1$//$NON-NLS-2$
+				result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
 			}
 		}
 	}
