@@ -33,6 +33,10 @@ public final class Messages extends NLS {
 	public static String DefaultSiteParser_InvalidXMLStream;
 	public static String DefaultSiteParser_mirrors;
 
+	public static String ErrorReadingDigest;
+	public static String ErrorReadingFeature;
+	public static String ErrorReadingSite;
+	public static String InvalidRepositoryLocation;
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}

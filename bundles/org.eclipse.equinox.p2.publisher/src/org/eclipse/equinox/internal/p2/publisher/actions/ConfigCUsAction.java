@@ -19,7 +19,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
@@ -176,7 +179,7 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 		}
 
 		for (int i = 0; i < bundles.length; i++) {
-			GeneratorBundleInfo bundle = createGeneratorBundleInfo(bundles[i], result);
+			GeneratorBundleInfo bundle = createGeneratorBundleInfo(info, bundles[i], result);
 			if (bundle == null)
 				continue;
 
@@ -202,7 +205,7 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 		}
 	}
 
-	protected GeneratorBundleInfo createGeneratorBundleInfo(BundleInfo bundleInfo, IPublisherResult result) {
+	protected GeneratorBundleInfo createGeneratorBundleInfo(IPublisherInfo info, BundleInfo bundleInfo, IPublisherResult result) {
 		if (bundleInfo.getLocation() != null)
 			return new GeneratorBundleInfo(bundleInfo);
 
@@ -228,6 +231,22 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 				// the '_' found was probably part of the symbolic id
 				i = name.indexOf('_', i);
 			}
+		}
+
+		//Query the repo
+		Query query = new InstallableUnitQuery(name);
+		Collector collector = new Collector();
+		Iterator matches = info.getMetadataRepository().query(query, collector, null).iterator();
+		//pick the newest match
+		IInstallableUnit newest = null;
+		while (matches.hasNext()) {
+			IInstallableUnit candidate = (IInstallableUnit) matches.next();
+			if (newest == null || (newest.getVersion().compareTo(candidate.getVersion()) < 0))
+				newest = candidate;
+		}
+		if (newest != null) {
+			bundleInfo.setVersion(newest.getVersion().toString());
+			return new GeneratorBundleInfo(bundleInfo);
 		}
 
 		return null;

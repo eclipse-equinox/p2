@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.publisher;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -20,12 +19,9 @@ import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryMan
 import org.eclipse.equinox.internal.p2.core.ProvisioningEventBus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.ServiceRegistration;
@@ -56,110 +52,32 @@ public abstract class AbstractPublisherApplication implements IApplication {
 	protected String artifactLocation;
 	protected String artifactRepoName;
 	//whether repository xml files should be compressed
-	protected String compress = "false"; //$NON-NLS-1$
+	protected boolean compress = false;
 	protected boolean inplace = false;
 	protected boolean append = false;
 	protected boolean reusePackedFiles = false;
 	protected String[] configurations;
 
 	protected void initialize(PublisherInfo info) throws ProvisionException {
-		if (inplace)
-			initializeForInplace(info);
-		else
+		if (inplace) {
+			File location = new File(source);
+			try {
+				if (metadataLocation == null)
+					metadataLocation = location.toURL().toExternalForm();
+				if (artifactLocation == null)
+					artifactLocation = location.toURL().toExternalForm();
+			} catch (MalformedURLException e) {
+				// ought not happen...
+			}
+			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
+		} else
 			info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_OVERWRITE);
 		initializeRepositories(info);
 	}
 
-	protected void initializeArtifactRepository(PublisherInfo info) throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
-		URL location;
-		try {
-			location = new URL(artifactLocation);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, artifactLocation));
-		}
-		try {
-			IArtifactRepository repository = manager.loadRepository(location, null);
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
-			info.setArtifactRepository(repository);
-			if (reusePackedFiles)
-				repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-			if (!append)
-				repository.removeAll();
-			return;
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
-
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a Simple repo by default.
-		String repositoryName = artifactRepoName != null ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		manager.addRepository(result.getLocation());
-		if (inplace) {
-			// TODO there must be something we have to do to set up the mapping rules here...
-		}
-		result.setProperty(IRepository.PROP_COMPRESSED, compress);
-		if (reusePackedFiles)
-			result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-		if (artifactRepoName != null)
-			result.setName(artifactRepoName);
-		info.setArtifactRepository(result);
-	}
-
-	protected void initializeForInplace(PublisherInfo info) {
-		File location = new File(source);
-		try {
-			if (metadataLocation == null)
-				metadataLocation = location.toURL().toExternalForm();
-			if (artifactLocation == null)
-				artifactLocation = location.toURL().toExternalForm();
-		} catch (MalformedURLException e) {
-			// ought not happen...
-		}
-		info.setArtifactOptions(info.getArtifactOptions() | IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH);
-	}
-
-	protected void initializeMetadataRepository(PublisherInfo info) throws ProvisionException {
-		URL location;
-		try {
-			location = new URL(metadataLocation);
-		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, artifactLocation));
-		}
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
-		try {
-			IMetadataRepository repository = manager.loadRepository(location, null);
-			if (repository != null) {
-				repository.setProperty(IRepository.PROP_COMPRESSED, compress);
-				if (!repository.isModifiable())
-					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
-				info.setMetadataRepository(repository);
-				if (!append)
-					repository.removeAll();
-				return;
-			}
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
-
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a random repo by default.
-		String repositoryName = metadataRepoName == null ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		manager.addRepository(result.getLocation());
-		if (result != null) {
-			result.setProperty(IRepository.PROP_COMPRESSED, compress);
-			if (metadataRepoName != null)
-				result.setName(metadataRepoName);
-			info.setMetadataRepository(result);
-		}
-	}
-
 	protected void initializeRepositories(PublisherInfo info) throws ProvisionException {
-		initializeArtifactRepository(info);
-		initializeMetadataRepository(info);
+		info.setArtifactRepository(Publisher.createArtifactRepository(artifactLocation, artifactRepoName, append, compress, reusePackedFiles));
+		info.setMetadataRepository(Publisher.createMetadataRepository(metadataLocation, metadataRepoName, append, compress));
 	}
 
 	protected void processCommandLineArguments(String[] args, PublisherInfo info) throws Exception {
@@ -211,7 +129,7 @@ public abstract class AbstractPublisherApplication implements IApplication {
 			append = true;
 
 		if (arg.equalsIgnoreCase("-compress")) //$NON-NLS-1$
-			compress = "true"; //$NON-NLS-1$
+			compress = true;
 
 		if (arg.equalsIgnoreCase("-reusePack200Files")) //$NON-NLS-1$
 			reusePackedFiles = true;

@@ -86,7 +86,7 @@ public class RootFilesAction extends AbstractPublishingAction {
 		result.addIU(unit, IPublisherResult.ROOT);
 
 		//Create the artifact descriptor.  we have several files so no path on disk
-		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null, false, true);
+		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null);
 		IRootFilesAdvice advice = getAdvice(configSpec, info);
 		publishArtifact(descriptor, filterRootFiles(advice, info), advice.getRoot(), info, INCLUDE_ROOT);
 	}

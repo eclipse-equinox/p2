@@ -12,17 +12,18 @@ package org.eclipse.equinox.internal.p2.publisher;
 
 import java.io.*;
 import java.util.*;
-import java.util.jar.*;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
 import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 public class BundleDescriptionFactory {
@@ -44,6 +45,13 @@ public class BundleDescriptionFactory {
 	StateObjectFactory factory;
 	State state;
 
+	public static BundleDescriptionFactory getBundleDescriptionFactory(BundleContext context) {
+		PlatformAdmin platformAdmin = (PlatformAdmin) ServiceHelper.getService(context, PlatformAdmin.class.getName());
+		if (platformAdmin == null)
+			throw new IllegalStateException("PlatformAdmin not registered."); //$NON-NLS-1$
+		return new BundleDescriptionFactory(platformAdmin.getFactory(), null);
+	}
+
 	public BundleDescriptionFactory(StateObjectFactory factory, State state) {
 		this.factory = factory;
 		this.state = state;
@@ -58,18 +66,20 @@ public class BundleDescriptionFactory {
 		PluginConverter converter;
 		try {
 			converter = acquirePluginConverter();
-			if (converter == null)
+			if (converter == null) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to aquire PluginConverter service during generation for: " + bundleLocation));
 				return null;
+			}
 			return converter.convertManifest(bundleLocation, false, null, true, null);
 		} catch (PluginConversionException convertException) {
+			// only log the exception if we had a plugin.xml or fragment.xml and we failed conversion
 			if (bundleLocation.getName().equals(FEATURE_FILENAME_DESCRIPTOR))
 				return null;
 			if (!new File(bundleLocation, PLUGIN_FILENAME_DESCRIPTOR).exists() && !new File(bundleLocation, FRAGMENT_FILENAME_DESCRIPTOR).exists())
 				return null;
 			if (logConversionException) {
 				IStatus status = new Status(IStatus.WARNING, Activator.ID, 0, NLS.bind(Messages.exception_errorConverting, bundleLocation.getAbsolutePath()), convertException);
-				System.out.println(status);
-				//TODO Need to find a way to get a logging service to log
+				LogHelper.log(status);
 			}
 			return null;
 		}
@@ -81,9 +91,9 @@ public class BundleDescriptionFactory {
 			descriptor.setUserObject(enhancedManifest);
 			return descriptor;
 		} catch (BundleException e) {
-			//			IStatus status = new Status(IStatus.WARNING, IPDEBuildConstants.PI_PDEBUILD, EXCEPTION_STATE_PROBLEM, NLS.bind(Messages.exception_stateAddition, enhancedManifest.get(Constants.BUNDLE_NAME)), e);
-			//			BundleHelper.getDefault().getLog().log(status);
-			System.err.println(NLS.bind(Messages.exception_stateAddition, bundleLocation != null ? bundleLocation.getAbsoluteFile() : null));
+			String message = NLS.bind(Messages.exception_stateAddition, bundleLocation == null ? null : bundleLocation.getAbsoluteFile());
+			IStatus status = new Status(IStatus.WARNING, Activator.ID, message, e);
+			LogHelper.log(status);
 			return null;
 		}
 	}
@@ -101,11 +111,13 @@ public class BundleDescriptionFactory {
 			ManifestElement.parseBundleManifest(manifestStream, entries);
 			return getBundleDescription(entries, bundleLocation);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String message = "An error occurred while reading the bundle description.";
+			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
+			LogHelper.log(status);
 		} catch (BundleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			String message = "An error occurred while reading the bundle description.";
+			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
+			LogHelper.log(status);
 		}
 		return null;
 	}
@@ -121,24 +133,29 @@ public class BundleDescriptionFactory {
 					manifestStream = jarFile.getInputStream(manifestEntry);
 				}
 			} else {
-				manifestStream = new BufferedInputStream(new FileInputStream(new File(bundleLocation, JarFile.MANIFEST_NAME)));
+				File manifestFile = new File(bundleLocation, JarFile.MANIFEST_NAME);
+				if (manifestFile.exists())
+					manifestStream = new BufferedInputStream(new FileInputStream(manifestFile));
 			}
 		} catch (IOException e) {
-			//ignore
+			//ignore but log
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "An error occurred while loading the bundle manifest.", e));
 		}
 
 		Dictionary manifest = null;
 		if (manifestStream != null) {
 			try {
-				manifest = manifestToProperties(new Manifest(manifestStream).getMainAttributes());
-			} catch (IOException ioe) {
+				Map manifestMap = ManifestElement.parseBundleManifest(manifestStream, null);
+				// TODO temporary hack.  We are reading a Map but everyone wants a Dictionary so convert.
+				// real answer is to have people expect a Map but that is a wider change.
+				manifest = new Hashtable(manifestMap);
+			} catch (IOException e) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest.", e));
+				return null;
+			} catch (BundleException e) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest.", e));
 				return null;
 			} finally {
-				try {
-					manifestStream.close();
-				} catch (IOException e1) {
-					//Ignore
-				}
 				try {
 					if (jarFile != null)
 						jarFile.close();
@@ -157,6 +174,8 @@ public class BundleDescriptionFactory {
 		if (manifest.get(org.osgi.framework.Constants.BUNDLE_SYMBOLICNAME) == null)
 			manifest = convertPluginManifest(bundleLocation, true);
 
+		if (manifest == null)
+			return null;
 		// if the bundle itself does not define its shape, infer the shape from the current form
 		if (manifest.get(BUNDLE_SHAPE) == null)
 			manifest.put(BUNDLE_SHAPE, bundleLocation.isDirectory() ? DIR : JAR);
@@ -344,12 +363,4 @@ public class BundleDescriptionFactory {
 	//		return localizedProperties;
 	//	}
 
-	private static Properties manifestToProperties(Attributes attributes) {
-		Properties result = new Properties();
-		for (Iterator i = attributes.keySet().iterator(); i.hasNext();) {
-			Attributes.Name key = (Attributes.Name) i.next();
-			result.put(key.toString(), attributes.get(key));
-		}
-		return result;
-	}
 }

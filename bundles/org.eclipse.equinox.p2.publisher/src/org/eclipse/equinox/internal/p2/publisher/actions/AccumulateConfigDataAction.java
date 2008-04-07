@@ -37,6 +37,8 @@ public class AccumulateConfigDataAction extends AbstractPublishingAction {
 			return;
 		info.addAdvice(new ConfigAdvice(data, configSpec));
 		LauncherData launcherData = loader.getLauncherData();
+		if (launcherData == null)
+			return;
 		info.addAdvice(new LaunchingAdvice(launcherData, configSpec));
 	}
 }

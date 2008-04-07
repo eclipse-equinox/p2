@@ -112,7 +112,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected IPublishingAction createFeaturesAction() {
-		return new FeaturesAction(new File[] {new File(source, "features")}, info); //$NON-NLS-1$
+		return new FeaturesAction(new File[] {new File(source, "features")}); //$NON-NLS-1$
 	}
 
 	protected Collection createExecutablesActions(String[] configSpecs) {

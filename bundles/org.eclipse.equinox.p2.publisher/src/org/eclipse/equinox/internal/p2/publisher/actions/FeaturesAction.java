@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.features.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
@@ -29,76 +30,109 @@ import org.osgi.framework.Version;
  * be actual locations of the features or folders of features.
  */
 public class FeaturesAction extends AbstractPublishingAction {
-
 	public static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
 
-	private File[] locations;
+	protected Feature[] featureList;
 
 	public static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
 		return (isPlugin ? original : original + (isGroup ? ".feature.group" : ".feature.jar")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	public FeaturesAction(File[] locations, IPublisherInfo info) {
-		this.locations = expandLocations(locations);
+	public static IArtifactKey createFeatureArtifactKey(String id, String version) {
+		return new ArtifactKey(MetadataGeneratorHelper.ECLIPSE_FEATURE_CLASSIFIER, id, new Version(version));
+	}
+
+	public FeaturesAction(File[] locations) {
+		featureList = getFeatures(expandLocations(locations));
+	}
+
+	public FeaturesAction(Feature[] featureList) {
+		this.featureList = featureList;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		Feature[] features = getFeatures(locations);
-		generateFeatureIUs(features, results, info);
+		generateFeatureIUs(featureList, results, info);
 		return Status.OK_STATUS;
 	}
 
 	private File[] expandLocations(File[] list) {
-		if (list == null)
-			return new File[] {};
 		ArrayList result = new ArrayList();
+		expandLocations(list, result);
+		return (File[]) result.toArray(new File[result.size()]);
+	}
+
+	private void expandLocations(File[] list, ArrayList result) {
+		if (list == null)
+			return;
 		for (int i = 0; i < list.length; i++) {
 			File location = list[i];
 			if (location.isDirectory()) {
-				File[] entries = location.listFiles();
-				for (int j = 0; j < entries.length; j++)
-					result.add(entries[j]);
+				// if the location is itself a feature, just add it.  Otherwise r down
+				if (!new File(location, "feature.xml").exists())
+					expandLocations(location.listFiles(), result);
+				else
+					result.add(location);
 			} else {
 				result.add(location);
 			}
 		}
-		return (File[]) result.toArray(new File[result.size()]);
 	}
 
 	protected void generateFeatureIUs(Feature[] features, IPublisherResult result, IPublisherInfo info) {
 		// Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
-
-			// generate the root file IUs for this feature.  The IU hierarchy must
-			// be built from the bottom up so do the root files first.
+			// The IU hierarchy must be built from the bottom up so do the root files first.
 			ArrayList childIUs = generateRootFileIUs(feature, result, info);
-
-			// create the basic feature IU with all the children
-			String location = feature.getLocation();
-			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
-			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, childIUs, isExploded, null);
-
-			// add all the artifacts associated with the feature
-			IArtifactKey[] artifacts = featureIU.getArtifacts();
-			for (int arti = 0; arti < artifacts.length; arti++) {
-				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
-				if (isExploded)
-					publishArtifact(ad, new File(location).listFiles(), info, INCLUDE_ROOT);
-				else
-					publishArtifact(ad, new File[] {new File(location)}, info, AS_IS | INCLUDE_ROOT);
-			}
-
-			gatherAdvice(feature, info);
-
+			IInstallableUnit featureIU = createFeatureJarIU(feature, childIUs, info);
+			publishFeatureArtifacts(feature, featureIU, info);
+			gatherBundleShapeAdvice(feature, info);
 			// create the associated group and register the feature and group in the result.
-			IInstallableUnit generated = createGroupIU(feature, featureIU, null);
-			result.addIU(generated, IPublisherResult.ROOT);
+			IInstallableUnit groupIU = createGroupIU(feature, featureIU, null);
+			result.addIU(groupIU, IPublisherResult.ROOT);
 			result.addIU(featureIU, IPublisherResult.ROOT);
 		}
 	}
 
-	private ArrayList generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo info) {
+	protected IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, IPublisherInfo info) {
+		// create the basic feature IU with all the children
+		String location = feature.getLocation();
+		boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
+		Properties props = getFeatureAdvice(feature, info);
+		IInstallableUnit featureIU = createFeatureJarIU(feature, childIUs, isExploded, props);
+		return featureIU;
+	}
+
+	protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU, IPublisherInfo info) {
+		// add all the artifacts associated with the feature
+		// TODO this is a little strange.  If there are several artifacts, how do we know which files go with
+		// which artifacts when we publish them?  For now it would be surprising to have more than one
+		// artifact per feature IU.
+		IArtifactKey[] artifacts = featureIU.getArtifacts();
+		for (int j = 0; j < artifacts.length; j++) {
+			File file = new File(feature.getLocation());
+			IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[j], file);
+			// if the artifact is a dir and we are not doing "AS_IS", zip it up.
+			if (file.isDirectory() && !((info.getArtifactOptions() & IPublisherInfo.A_AS_IS) > 0))
+				publishArtifact(ad, file.listFiles(), info, INCLUDE_ROOT);
+			else
+				publishArtifact(ad, new File[] {file}, info, AS_IS | INCLUDE_ROOT);
+		}
+	}
+
+	private Properties getFeatureAdvice(Feature feature, IPublisherInfo info) {
+		Properties result = new Properties();
+		Collection advice = info.getAdvice(null, false, null, null, IFeatureAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IFeatureAdvice entry = (IFeatureAdvice) i.next();
+			Properties props = entry.getProperties(feature, null);
+			if (props != null)
+				result.putAll(props);
+		}
+		return result;
+	}
+
+	protected ArrayList generateRootFileIUs(Feature feature, IPublisherResult result, IPublisherInfo info) {
 		File location = new File(feature.getLocation());
 		Properties props = loadProperties(location, "build.properties");
 		return generateRootFileIUs(feature.getId(), feature.getVersion(), props, location, result, info);
@@ -206,13 +240,75 @@ public class FeaturesAction extends AbstractPublishingAction {
 	 * @param feature the feature to process
 	 * @param info the publishing info to update
 	 */
-	public void gatherAdvice(Feature feature, IPublisherInfo info) {
+	public void gatherBundleShapeAdvice(Feature feature, IPublisherInfo info) {
 		FeatureEntry entries[] = feature.getEntries();
 		for (int i = 0; i < entries.length; i++) {
 			FeatureEntry entry = entries[i];
 			if (entry.isUnpack())
 				info.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleShapeAdvice.DIR));
 		}
+	}
+
+	public IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, boolean isExploded, Properties extraProperties) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
+		iu.setId(id);
+		Version version = new Version(feature.getVersion());
+		iu.setVersion(version);
+		if (feature.getLicense() != null)
+			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+		if (feature.getCopyright() != null)
+			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+
+		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
+
+		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
+		iu.setFilter(INSTALL_FEATURES_FILTER);
+		iu.setSingleton(true);
+
+		if (feature.getInstallHandler() != null && feature.getInstallHandler().trim().length() > 0) {
+			String installHandlerProperty = "handler=" + feature.getInstallHandler(); //$NON-NLS-1$
+
+			if (feature.getInstallHandlerLibrary() != null)
+				installHandlerProperty += ", library=" + feature.getInstallHandlerLibrary(); //$NON-NLS-1$
+
+			if (feature.getInstallHandlerURL() != null)
+				installHandlerProperty += ", url=" + feature.getInstallHandlerURL(); //$NON-NLS-1$
+
+			iu.setProperty(MetadataGeneratorHelper.ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
+		}
+
+		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(id, version), MetadataGeneratorHelper.FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(MetadataGeneratorHelper.CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
+		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
+
+		// link in all the children (if any) as requirements.
+		// TODO consider if these should be linked as exact version numbers.  Should be ok but may be brittle.
+		if (childIUs != null) {
+			RequiredCapability[] required = new RequiredCapability[childIUs.size()];
+			for (int i = 0; i < childIUs.size(); i++) {
+				IInstallableUnit child = (IInstallableUnit) childIUs.get(i);
+				required[i] = MetadataFactory.createRequiredCapability(MetadataGeneratorHelper.IU_NAMESPACE, child.getId(), new VersionRange(child.getVersion(), true, child.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
+			}
+			iu.setRequiredCapabilities(required);
+		}
+
+		if (isExploded) {
+			// Define the immutable metadata for this IU. In this case immutable means
+			// that this is something that will not impact the configuration.
+			Map touchpointData = new HashMap();
+			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		}
+
+		if (extraProperties != null) {
+			Enumeration e = extraProperties.propertyNames();
+			while (e.hasMoreElements()) {
+				String name = (String) e.nextElement();
+				iu.setProperty(name, extraProperties.getProperty(name));
+			}
+		}
+
+		return MetadataFactory.createInstallableUnit(iu);
 	}
 
 	public IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {

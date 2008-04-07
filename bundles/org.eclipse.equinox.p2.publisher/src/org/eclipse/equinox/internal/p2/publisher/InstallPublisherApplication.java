@@ -20,7 +20,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected String flavor;
 	protected String[] topLevel;
 	protected boolean start;
-	private String[] rootExclusions;
+	protected String[] rootExclusions;
 
 	public InstallPublisherApplication() {
 	}

@@ -16,8 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.osgi.service.resolver.*;
@@ -49,20 +48,26 @@ public class BundlesAction extends AbstractPublishingAction {
 	}
 
 	private File[] expandLocations(File[] list) {
-		if (list == null)
-			return new File[] {};
 		ArrayList result = new ArrayList();
+		expandLocations(list, result);
+		return (File[]) result.toArray(new File[result.size()]);
+	}
+
+	private void expandLocations(File[] list, ArrayList result) {
+		if (list == null)
+			return;
 		for (int i = 0; i < list.length; i++) {
 			File location = list[i];
 			if (location.isDirectory()) {
-				File[] entries = location.listFiles();
-				for (int j = 0; j < entries.length; j++)
-					result.add(entries[j]);
+				// if the location is itself a bundle, just add it.  Otherwise r down
+				if (!new File(location, "META-INF/MANIFEST.MF").exists()) //$NON-NLS-1$
+					expandLocations(location.listFiles(), result);
+				else
+					result.add(location);
 			} else {
 				result.add(location);
 			}
 		}
-		return (File[]) result.toArray(new File[result.size()]);
 	}
 
 	protected void generateBundleIUs(BundleDescription[] bundles, IPublisherResult result, IPublisherInfo info) {
@@ -72,7 +77,6 @@ public class BundlesAction extends AbstractPublishingAction {
 		// from the manifest for the localizable properties.
 		final int CACHE_PHASE = 0;
 		final int GENERATE_PHASE = 1;
-		final int BUNDLE_LOCALIZATION_INDEX = MetadataGeneratorHelper.BUNDLE_LOCALIZATION_INDEX;
 		Map bundleLocalizationMap = new HashMap(bundles.length);
 		Set localizationIUs = new HashSet(32);
 		for (int phase = CACHE_PHASE; phase <= GENERATE_PHASE; phase++) {
@@ -90,15 +94,18 @@ public class BundlesAction extends AbstractPublishingAction {
 						}
 					} else {
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
-						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
+						File location = new File(bd.getLocation());
+						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, location);
+						addProperties((ArtifactDescriptor) ad, location, info);
 						IArtifactRepository destination = info.getArtifactRepository();
 						// don't consider any advice here as we want to know about the real form on disk
 						boolean isDir = isDir(bd, info);
-						if (isDir)
+						// if the artifact is a dir and we are not doing "AS_IS", zip it up.
+						if (isDir && !((info.getArtifactOptions() & IPublisherInfo.A_AS_IS) > 0))
 							publishArtifact(ad, new File(bd.getLocation()), new File(bd.getLocation()).listFiles(), info, INCLUDE_ROOT);
 						else
 							publishArtifact(ad, new File(bd.getLocation()), new File[] {new File(bd.getLocation())}, info, AS_IS | INCLUDE_ROOT);
-						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key, localizationIUs);
+						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key);
 
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling
@@ -108,7 +115,7 @@ public class BundlesAction extends AbstractPublishingAction {
 							String[] cachedValues = (String[]) bundleLocalizationMap.get(hostKey);
 
 							if (cachedValues != null) {
-								MetadataGeneratorHelper.createHostLocalizationFragments(bd, hostId, cachedValues, localizationIUs);
+								MetadataGeneratorHelper.createHostLocalizationFragment(bundleIU, bd, hostId, cachedValues, localizationIUs);
 							}
 						}
 
@@ -117,6 +124,26 @@ public class BundlesAction extends AbstractPublishingAction {
 						localizationIUs.clear();
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Add all of the advice for the bundle at the given location to the given descriptor.
+	 * @param descriptor the descriptor to decorate
+	 * @param location the location of the bundle
+	 * @param info the publisher info supplying the advice
+	 */
+	private void addProperties(ArtifactDescriptor descriptor, File location, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IBundleAdvice entry = (IBundleAdvice) i.next();
+			Properties props = entry.getProperties(location);
+			if (props == null)
+				continue;
+			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
+				String key = (String) j.next();
+				descriptor.setRepositoryProperty(key, props.getProperty(key));
 			}
 		}
 	}

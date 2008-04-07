@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.eclipse.core.resources" default="main" basedir="..">
+
+	<target name="main" depends="clean, ant_tasks/generator-ant.jar">
+	</target>
+
+	<target name="init" depends="properties">
+		<property name="plugin" value="org.eclipse.equinox.p2.generator.app"/>
+		<property name="temp.folder" value="${basedir}/temp.folder"/>
+		<property name="plugin.destination" value="${basedir}"/>
+		<property name="build.result.folder" value="${basedir}/ant_tasks"/>
+		<property name="version.suffix" value="_3.1.0"/>
+	</target>
+
+	<target name="properties" if="eclipse.running">
+		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+	</target>
+
+	<target name="ant_tasks/generator-ant.jar" depends="init" unless="ant_tasks/generator-ant.jar">
+		<property name="destdir" value="${temp.folder}/ant_tasks/generator-ant.jar.bin"/>
+		<delete dir="${temp.folder}/ant_tasks/generator-ant.jar.bin"/>
+		<mkdir dir="${temp.folder}/ant_tasks/generator-ant.jar.bin"/>
+		<!-- compile the source code -->
+		<javac destdir="${temp.folder}/ant_tasks/generator-ant.jar.bin" failonerror="true" verbose="true" debug="on">
+			<classpath>
+				<dirset dir="${basedir}/..">
+					<include name="org.eclipse.equinox.p2.metadata.generator/bin"/>
+					<include name="org.eclipse.osgi/bin"/>
+				</dirset>
+				<fileset dir="${eclipse.home}">
+					<include name="plugins/org.eclipse.equinox.p2.metadata.generator*.jar"/>
+					<include name="plugins/org.eclipse.osgi*.jar"/>
+				</fileset>
+			</classpath>
+			<src path="src_ant/"/>
+		</javac>
+		<!-- copy necessary resources -->
+		<copy todir="${temp.folder}/ant_tasks/generator-ant.jar.bin">
+			<fileset dir="src_ant/" excludes="**/*.java"/>
+		</copy>
+		<mkdir dir="${build.result.folder}"/>
+		<jar jarfile="${build.result.folder}/generator-ant.jar" basedir="${temp.folder}/ant_tasks/generator-ant.jar.bin"/>
+		<delete dir="${temp.folder}/ant_tasks/generator-ant.jar.bin"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete file="${build.result.folder}/generator-ant.jar"/>
+		<delete dir="${temp.folder}"/>
+	</target>
+</project>

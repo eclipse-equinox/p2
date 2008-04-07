@@ -34,6 +34,13 @@ public interface IPublisherInfo {
 	public static final int A_OVERWRITE = 4;
 
 	/**
+	 * A bitwise flag to say whether or not to leave the disk content discovered
+	 * as is when publishing an artifact.  That is, if a directory is discovered, it is
+	 * left as a directory.
+	 */
+	public static final int A_AS_IS = 8;
+
+	/**
 	 * Returns the artifact repository into which any publishable artifacts are published
 	 * or <code>null</code> if none.
 	 * @return a destination artifact repository or <code>null</code>

@@ -31,23 +31,17 @@ public class PublisherResult implements IPublisherResult {
 	}
 
 	public void addIUs(Collection ius, String type) {
-		for (Iterator i = ius.iterator(); i.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) i.next();
-			addIU(iu, type);
-		}
+		for (Iterator i = ius.iterator(); i.hasNext();)
+			addIU((IInstallableUnit) i.next(), type);
 	}
 
 	private void addIU(Map map, String id, IInstallableUnit iu) {
-		IInstallableUnit[] ius = (IInstallableUnit[]) map.get(id);
+		Set ius = (Set) map.get(id);
 		if (ius == null) {
-			ius = new IInstallableUnit[] {iu};
+			ius = new HashSet(11);
 			map.put(id, ius);
-		} else {
-			IInstallableUnit[] newIUs = new IInstallableUnit[ius.length + 1];
-			System.arraycopy(ius, 0, newIUs, 0, ius.length);
-			newIUs[ius.length] = iu;
-			map.put(id, newIUs);
 		}
+		ius.add(iu);
 	}
 
 	/**
@@ -71,14 +65,14 @@ public class PublisherResult implements IPublisherResult {
 	// matching IU non-deterministically.
 	public IInstallableUnit getIU(String id, String type) {
 		if (type == null || type == ROOT) {
-			IInstallableUnit[] ius = (IInstallableUnit[]) rootIUs.get(id);
-			if (ius != null && ius.length > 0)
-				return ius[0];
+			Collection ius = (Collection) rootIUs.get(id);
+			if (ius != null && ius.size() > 0)
+				return (IInstallableUnit) ius.iterator().next();
 		}
 		if (type == null || type == NON_ROOT) {
-			IInstallableUnit[] ius = (IInstallableUnit[]) nonRootIUs.get(id);
-			if (ius != null && ius.length > 0)
-				return ius[0];
+			Collection ius = (Collection) nonRootIUs.get(id);
+			if (ius != null && ius.size() > 0)
+				return (IInstallableUnit) ius.iterator().next();
 		}
 		return null;
 	}
@@ -89,14 +83,14 @@ public class PublisherResult implements IPublisherResult {
 	public Collection getIUs(String id, String type) {
 		if (type == null) {
 			ArrayList result = new ArrayList();
-			result.addAll(id == null ? flatten(rootIUs.values()) : Arrays.asList((Object[]) rootIUs.get(id)));
-			result.addAll(id == null ? flatten(nonRootIUs.values()) : Arrays.asList((Object[]) nonRootIUs.get(id)));
+			result.addAll(id == null ? flatten(rootIUs.values()) : (Collection) rootIUs.get(id));
+			result.addAll(id == null ? flatten(nonRootIUs.values()) : (Collection) nonRootIUs.get(id));
 			return result;
 		}
 		if (type == ROOT)
-			return id == null ? flatten(rootIUs.values()) : Arrays.asList((Object[]) rootIUs.get(id));
+			return id == null ? flatten(rootIUs.values()) : (Collection) rootIUs.get(id);
 		if (type == NON_ROOT)
-			return id == null ? flatten(nonRootIUs.values()) : Arrays.asList((Object[]) nonRootIUs.get(id));
+			return id == null ? flatten(nonRootIUs.values()) : (Collection) nonRootIUs.get(id);
 		return null;
 	}
 
@@ -111,7 +105,6 @@ public class PublisherResult implements IPublisherResult {
 	}
 
 	public void merge(IPublisherResult result, int mode) {
-
 		if (mode == MERGE_MATCHING) {
 			addIUs(result.getIUs(null, ROOT), ROOT);
 			addIUs(result.getIUs(null, NON_ROOT), NON_ROOT);

@@ -9,30 +9,38 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
-import java.io.*;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.*;
-import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.features.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
-public class UpdateSiteAction extends AbstractPublishingAction {
+/**
+ * Action which processes a site.xml and generates categories.  The categorization process
+ * relies on IUs for the various features to have already been generated.
+ */
+public class SiteXMLAction extends AbstractPublishingAction {
 
-	private URL location;
-	private IPublisherInfo info;
+	private UpdateSite updateSite;
 	private SiteCategory defaultCategory;
 	private HashSet defaultCategorySet;
 
-	public UpdateSiteAction(URL location, IPublisherInfo info) {
-		this.location = location;
-		this.info = info;
+	public SiteXMLAction(URL location) {
+		try {
+			updateSite = UpdateSite.load(location, new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		initialize();
+	}
+
+	public SiteXMLAction(UpdateSite updateSite) {
+		this.updateSite = updateSite;
 		initialize();
 	}
 
@@ -46,13 +54,13 @@ public class UpdateSiteAction extends AbstractPublishingAction {
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		generateCategories(results);
+		generateCategories(info, results);
 		return Status.OK_STATUS;
 	}
 
-	private void generateCategories(IPublisherResult results) {
+	private void generateCategories(IPublisherInfo info, IPublisherResult results) {
 		Map categoriesToFeatureIUs = new HashMap();
-		Map featuresToCategories = getFeatureToCategoryMappings(location);
+		Map featuresToCategories = getFeatureToCategoryMappings(info);
 		for (Iterator i = featuresToCategories.keySet().iterator(); i.hasNext();) {
 			SiteFeature feature = (SiteFeature) i.next();
 			IInstallableUnit iu = getFeatureIU(feature, results);
@@ -76,6 +84,7 @@ public class UpdateSiteAction extends AbstractPublishingAction {
 	private IInstallableUnit getFeatureIU(SiteFeature feature, IPublisherResult results) {
 		String id = MetadataGeneratorHelper.getTransformedId(feature.getFeatureIdentifier(), false, true);
 		Version version = new Version(feature.getFeatureIdentifier());
+		// TODO look elsewhere as well.  Perhaps in the metadata repos and some advice.
 		Collection ius = results.getIUs(id, null);
 		for (Iterator i = ius.iterator(); i.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) i.next();
@@ -90,20 +99,11 @@ public class UpdateSiteAction extends AbstractPublishingAction {
 	 * if available. Returns an empty map if there is not site.xml, or no categories.
 	 * @return A map of SiteFeature -> Set<SiteCategory>.
 	 */
-	protected Map getFeatureToCategoryMappings(URL siteLocation) {
+	protected Map getFeatureToCategoryMappings(IPublisherInfo info) {
 		HashMap mappings = new HashMap();
-		if (siteLocation == null)
+		if (updateSite == null)
 			return mappings;
-		InputStream input;
-		SiteModel site = null;
-		try {
-			input = new BufferedInputStream(siteLocation.openStream());
-			site = new DefaultSiteParser().parse(input);
-		} catch (FileNotFoundException e) {
-			//don't complain if the update site is not present
-		} catch (Exception e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.exception_errorParsingUpdateSite, siteLocation), e));
-		}
+		SiteModel site = updateSite.getSite();
 		if (site == null)
 			return mappings;
 
