@@ -22,13 +22,12 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
-import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.dialogs.FilteredTree;
 
 /**
  * Label provider for showing IU's in a table.  Clients can configure
@@ -40,19 +39,23 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	final static int PRIMARY_COLUMN = 0;
 	final static String BLANK = ""; //$NON-NLS-1$
 	private String toolTipProperty = null;
-	Font busyFont;
+	private FilteredTree filteredTree;
+	private boolean useBoldFont = false;
 
-	private IUColumnConfig[] columnConfig = ProvUI.getIUColumnConfig();
+	private IUColumnConfig[] columnConfig;
 	Shell shell;
 	HashMap jobs = new HashMap();
 
 	public IUDetailsLabelProvider() {
-		// use default column config
+		this(null, null, null);
 	}
 
-	public IUDetailsLabelProvider(IUColumnConfig[] columnConfig, Shell shell) {
-		Assert.isLegal(columnConfig.length > 0);
-		this.columnConfig = columnConfig;
+	public IUDetailsLabelProvider(FilteredTree filteredTree, IUColumnConfig[] columnConfig, Shell shell) {
+		this.filteredTree = filteredTree;
+		if (columnConfig == null)
+			this.columnConfig = ProvUI.getIUColumnConfig();
+		else
+			this.columnConfig = columnConfig;
 		this.shell = shell;
 	}
 
@@ -173,6 +176,10 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		toolTipProperty = propertyName;
 	}
 
+	public void setUseBoldFontForFilteredItems(boolean useBoldFont) {
+		this.useBoldFont = useBoldFont;
+	}
+
 	public String getToolTipText(Object element) {
 		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null || toolTipProperty == null)
@@ -184,40 +191,9 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	 * @see org.eclipse.jface.viewers.IFontProvider#getFont(java.lang.Object)
 	 */
 	public Font getFont(Object element) {
-		if (element instanceof ProvElement) {
-			if (((ProvElement) element).isBusy()) {
-				if (busyFont == null) {
-					Font defaultFont = JFaceResources.getDefaultFont();
-					FontData[] data = defaultFont.getFontData();
-					for (int i = 0; i < data.length; i++) {
-						data[i].setStyle(SWT.ITALIC);
-					}
-					Display display = getDisplay();
-					if (display != null) {
-						busyFont = new Font(getDisplay(), data);
-						return busyFont;
-					}
-				} else {
-					return busyFont;
-				}
-			}
+		if (filteredTree != null && useBoldFont) {
+			return FilteredTree.getBoldFont(element, filteredTree, filteredTree.getPatternFilter());
 		}
 		return null;
 	}
-
-	private Display getDisplay() {
-		Display display = Display.getCurrent();
-		if (display == null) {
-			display = Display.getDefault();
-		}
-		return display;
-	}
-
-	public void dispose() {
-		if (busyFont != null) {
-			busyFont.dispose();
-			busyFont = null;
-		}
-	}
-
 }
