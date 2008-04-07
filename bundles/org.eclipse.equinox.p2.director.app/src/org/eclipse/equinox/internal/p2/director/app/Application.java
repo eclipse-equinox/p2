@@ -100,7 +100,7 @@ public class Application implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataRepositoryLocation = new URL(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") | args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (args[i - 1].equalsIgnoreCase("-artifactRepository") || args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactRepositoryLocation = new URL(arg);
 
 			if (args[i - 1].equalsIgnoreCase("-flavor")) //$NON-NLS-1$
