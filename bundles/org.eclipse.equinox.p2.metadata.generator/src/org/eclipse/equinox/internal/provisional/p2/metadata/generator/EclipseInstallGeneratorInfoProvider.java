@@ -366,7 +366,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	public void initialize(File base, File config, File executable, File[] bundleLocations, File features) {
 		// TODO
 		if (base == null || !base.exists())
-			throw new RuntimeException(NLS.bind(Messages.exception_sourceDirectoryInvalid, base.getAbsolutePath()));
+			throw new RuntimeException(NLS.bind(Messages.exception_sourceDirectoryInvalid, base == null ? "null" : base.getAbsolutePath())); //$NON-NLS-1$
 		this.baseLocation = base;
 		if (config == null || config.exists())
 			this.configLocation = config;
