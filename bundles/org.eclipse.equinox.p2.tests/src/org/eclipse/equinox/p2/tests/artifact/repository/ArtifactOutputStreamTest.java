@@ -12,7 +12,6 @@
 package org.eclipse.equinox.p2.tests.artifact.repository;
 
 import java.io.*;
-import java.net.URL;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
@@ -31,11 +30,15 @@ public class ArtifactOutputStreamTest extends TestCase {
 	private IArtifactDescriptor ad = null;
 	private ArtifactOutputStream aos = null;
 	private File temp = null;
+	private File tempWritableLocation = null;
 
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		sar = new SimpleArtifactRepository("name", new URL("http://justaurl.com"));
+		tempWritableLocation = File.createTempFile("artifact", ".repo");
+		tempWritableLocation.delete();
+		tempWritableLocation.mkdirs();
+		sar = new SimpleArtifactRepository("name", tempWritableLocation.toURL());
 		destination = new Destination();
 		ak = new ArtifactKey("classifier", "id", new Version("1.0"));
 		ad = new ArtifactDescriptor(ak);
@@ -49,6 +52,7 @@ public class ArtifactOutputStreamTest extends TestCase {
 
 	protected void tearDown() throws Exception {
 		temp.delete();
+		tempWritableLocation.delete();
 		super.tearDown();
 	}
 
@@ -57,10 +61,7 @@ public class ArtifactOutputStreamTest extends TestCase {
 		assertTrue(aos instanceof ArtifactOutputStream);
 	}
 
-	/**
-	 * This test currently fails. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=225574.
-	 */
-	public void _testSingleCloseStreamOkDestinationOk() throws IOException {
+	public void testSingleCloseStreamOkDestinationOk() throws IOException {
 		assertTrue(temp.exists());
 		aos.write(22);
 		aos.close();
@@ -68,10 +69,7 @@ public class ArtifactOutputStreamTest extends TestCase {
 		assertEquals("1", ad.getProperty(IArtifactDescriptor.DOWNLOAD_SIZE));
 	}
 
-	/**
-	 * This test currently fails. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=225574.
-	 */
-	public void _testDoubleCloseStreamOkDestinationOk() throws IOException {
+	public void testDoubleCloseStreamOkDestinationOk() throws IOException {
 		assertTrue(temp.exists());
 		aos.write(22);
 		aos.close();
@@ -122,10 +120,7 @@ public class ArtifactOutputStreamTest extends TestCase {
 		}
 	}
 
-	/**
-	 * This test currently fails. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=225574.
-	 */
-	public void _testWriteToDestinationStreamOkDestinationOk() throws IOException {
+	public void testWriteToDestinationStreamOkDestinationOk() throws IOException {
 		Destination.baos = new ByteArrayOutputStream();
 		assertTrue(temp.exists());
 		aos.write(22);
