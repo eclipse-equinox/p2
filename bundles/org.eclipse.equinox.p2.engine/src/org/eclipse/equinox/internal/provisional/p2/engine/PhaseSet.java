@@ -18,7 +18,7 @@ public abstract class PhaseSet {
 
 	public PhaseSet(Phase[] phases) {
 		if (phases == null)
-			throw new IllegalArgumentException("Phases must not be null"); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.null_phases);
 
 		this.phases = phases;
 	}

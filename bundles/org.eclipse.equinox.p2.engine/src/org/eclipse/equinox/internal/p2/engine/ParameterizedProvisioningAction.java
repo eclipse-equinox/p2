@@ -22,7 +22,7 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 
 	public ParameterizedProvisioningAction(ProvisioningAction action, Map actionParameters) {
 		if (action == null || actionParameters == null)
-			throw new IllegalArgumentException("Both action and action pararameters must not be null."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.ParameterizedProvisioningAction_action_or_parameters_null);
 		this.action = action;
 		this.actionParameters = actionParameters;
 	}

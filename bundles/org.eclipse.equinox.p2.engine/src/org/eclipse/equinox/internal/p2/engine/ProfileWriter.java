@@ -38,6 +38,7 @@ public class ProfileWriter extends MetadataWriter implements ProfileXMLConstants
 		writeInstallableUnits(collector.iterator(), collector.size());
 		writeInstallableUnitsProperties(collector.iterator(), collector.size(), profile);
 		end(PROFILE_ELEMENT);
+		flush();
 	}
 
 	private void writeInstallableUnitsProperties(Iterator it, int size, IProfile profile) {

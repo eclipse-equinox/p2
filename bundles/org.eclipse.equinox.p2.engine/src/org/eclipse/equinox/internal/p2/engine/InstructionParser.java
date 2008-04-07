@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.osgi.util.NLS;
 
 public class InstructionParser {
 
@@ -62,7 +63,7 @@ public class InstructionParser {
 			action = touchpoint.getAction(actionId);
 
 		if (action == null)
-			throw new IllegalArgumentException("No action found for " + actionId + '.'); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
 
 		return action;
 	}

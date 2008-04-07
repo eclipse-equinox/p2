@@ -55,7 +55,7 @@ public class MetadataCache {
 			return repository;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
-			throw new IllegalStateException("Metadata cache could not be created"); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.failed_creating_metadata_cache);
 		}
 	}
 

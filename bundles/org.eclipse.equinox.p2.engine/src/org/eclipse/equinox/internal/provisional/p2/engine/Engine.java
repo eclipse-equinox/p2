@@ -27,13 +27,13 @@ public class Engine implements IEngine {
 
 		// TODO -- Messages
 		if (iprofile == null)
-			throw new IllegalArgumentException("Profile must not be null."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.null_profile);
 
 		if (phaseSet == null)
-			throw new IllegalArgumentException("PhaseSet must not be null."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.null_phaseset);
 
 		if (operands == null)
-			throw new IllegalArgumentException("Operands must not be null."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.null_operands);
 
 		if (context == null)
 			context = new ProvisioningContext();

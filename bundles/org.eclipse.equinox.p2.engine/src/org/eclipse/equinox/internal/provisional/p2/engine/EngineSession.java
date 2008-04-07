@@ -80,10 +80,10 @@ public class EngineSession {
 
 	void recordPhaseStart(Phase phase) {
 		if (phase == null)
-			throw new IllegalArgumentException("Phase must not be null."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.null_phase);
 
 		if (currentPhase != null)
-			throw new IllegalStateException("A phase is already started."); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.phase_started);
 
 		currentPhase = phase;
 		currentActionRecords = new ArrayList();
@@ -91,10 +91,10 @@ public class EngineSession {
 
 	void recordPhaseEnd(Phase phase) {
 		if (currentPhase == null)
-			throw new IllegalStateException("There is no phase to end."); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.phase_not_started);
 
 		if (currentPhase != phase)
-			throw new IllegalArgumentException("Current phase does not match argument."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.not_current_phase);
 
 		phaseActionRecordsPairs.add(new Object[] {currentPhase, currentActionRecords});
 		currentPhase = null;
@@ -104,7 +104,7 @@ public class EngineSession {
 
 	void recordAction(ProvisioningAction action, Operand operand) {
 		if (action == null || operand == null)
-			throw new IllegalArgumentException("Action and InstallableUnitOperand must not be null."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.action_or_iu_operand_null);
 
 		if (currentRecord == null || operand != currentRecord.operand) {
 			currentRecord = new ActionsRecord(operand);

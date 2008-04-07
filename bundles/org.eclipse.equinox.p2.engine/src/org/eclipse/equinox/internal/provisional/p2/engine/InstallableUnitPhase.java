@@ -31,7 +31,7 @@ public abstract class InstallableUnitPhase extends Phase {
 			Touchpoint touchpoint = TouchpointManager.getInstance().getTouchpoint(type);
 			//abort the entire phase if any required touchpoint is missing
 			if (touchpoint == null) {
-				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.TouchpointManager_Required_Touchpoint_Not_Found, type), null));
+				status.add(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.required_touchpoint_not_found, type), null));
 				return;
 			}
 			if (!touchpointToTouchpointParameters.containsKey(touchpoint)) {

@@ -63,7 +63,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		protected void unlock(Object monitor) {
 			Thread current = Thread.currentThread();
 			if (lockHolder != current)
-				throw new IllegalStateException("Thread not lock owner"); //$NON-NLS-1$
+				throw new IllegalStateException(Messages.thread_not_owner);
 
 			lockedCount--;
 			if (lockedCount == 0) {
@@ -75,7 +75,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		protected synchronized void checkLocked() {
 			Thread current = Thread.currentThread();
 			if (lockHolder != current)
-				throw new IllegalStateException("Thread not lock owner"); //$NON-NLS-1$
+				throw new IllegalStateException(Messages.thread_not_owner);
 		}
 
 	}
@@ -183,7 +183,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		String id = profile.getProfileId();
 		Profile current = internalGetProfile(id);
 		if (current == null)
-			throw new IllegalArgumentException("Profile to be updated does not exist:" + id); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.profile_does_not_exist, id));
 
 		Lock lock = (Lock) profileLocks.get(id);
 		lock.checkLocked();
@@ -288,7 +288,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		File store = getRegistryDirectory();
 		if (store == null || !store.isDirectory())
-			throw new IllegalStateException("Registry Directory not available"); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.reg_dir_not_available);
 
 		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
 		File[] profileDirectories = store.listFiles();
@@ -297,7 +297,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			try {
 				parser.parse(profileFile);
 			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error parsing profile", e)); //$NON-NLS-1$
+				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, Messages.error_parsing_profile, e));
 			}
 		}
 		return parser.getProfileMap();
@@ -343,7 +343,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		} catch (IOException e) {
 			profile.setTimestamp(previousTimestamp);
 			profileFile.delete();
-			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, "Error persisting profile", e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, Messages.error_persisting_profile, e));
 		} finally {
 			try {
 				if (os != null)
@@ -403,7 +403,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		}
 
 		public void parse(File file) throws IOException {
-			parse(new FileInputStream(file));
+			parse(new BufferedInputStream(new FileInputStream(file)));
 		}
 
 		public synchronized void parse(InputStream stream) throws IOException {
@@ -504,10 +504,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public synchronized void lockProfile(Profile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
 		if (internalProfile == null)
-			throw new IllegalArgumentException("Profile not registered."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.profile_not_registered);
 
 		if (profile.isChanged() || !checkTimestamps(profile, internalProfile))
-			throw new IllegalArgumentException("Profile not current."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.profile_not_current);
 
 		internalLockProfile(internalProfile);
 	}
@@ -536,7 +536,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public synchronized void unlockProfile(IProfile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
 		if (internalProfile == null)
-			throw new IllegalArgumentException("Profile not registered."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.profile_not_registered);
 		internalUnlockProfile(internalProfile);
 	}
 

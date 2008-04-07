@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.provisional.p2.engine;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
-import org.eclipse.equinox.internal.p2.engine.Messages;
 
 public abstract class Phase {
 	protected static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
@@ -30,9 +29,9 @@ public abstract class Phase {
 
 	protected Phase(String phaseId, int weight) {
 		if (phaseId == null || phaseId.length() == 0)
-			throw new IllegalArgumentException("Phase id must be set."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.phaseid_not_set);
 		if (weight <= 0)
-			throw new IllegalArgumentException("Phase weight must be positive."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.phaseid_not_positive);
 		this.weight = weight;
 		this.phaseId = phaseId;
 	}
@@ -176,7 +175,7 @@ public abstract class Phase {
 	 * this phase. Subclasses should override.
 	 */
 	protected String getProblemMessage() {
-		return Messages.Phase_Error;
+		return Messages.phase_error;
 	}
 
 }
