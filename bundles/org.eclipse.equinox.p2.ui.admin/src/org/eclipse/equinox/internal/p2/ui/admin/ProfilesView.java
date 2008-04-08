@@ -41,7 +41,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * @since 3.4
  */
 public class ProfilesView extends ProvView {
-	private Action addProfileAction, removeProfileAction, uninstallAction, updateAction, installAction;
+	private Action addProfileAction, removeProfileAction, uninstallAction, updateAction;
 	private PropertyDialogAction propertiesAction;
 	private StructuredViewerProvisioningListener listener;
 
@@ -108,7 +108,6 @@ public class ProfilesView extends ProvView {
 		manager.add(removeProfileAction);
 		manager.add(propertiesAction);
 		manager.add(new Separator());
-		manager.add(installAction);
 		manager.add(updateAction);
 		manager.add(uninstallAction);
 	}
@@ -125,10 +124,6 @@ public class ProfilesView extends ProvView {
 			manager.add(new Separator());
 			manager.add(updateAction);
 			manager.add(uninstallAction);
-		}
-		if (installAction.isEnabled()) {
-			manager.add(new Separator());
-			manager.add(installAction);
 		}
 	}
 
@@ -160,14 +155,11 @@ public class ProfilesView extends ProvView {
 
 	protected void selectionChanged(IStructuredSelection ss) {
 		super.selectionChanged(ss);
-		installAction.setEnabled(false);
 		propertiesAction.setEnabled(false);
 		removeProfileAction.setEnabled(false);
 		if (ss.size() == 1) {
 			propertiesAction.setEnabled(true);
 			IProfile profile = (IProfile) ProvUI.getAdapter(ss.getFirstElement(), IProfile.class);
-			if (profile != null)
-				installAction.setEnabled(true);
 		}
 		Object[] selectionArray = ss.toArray();
 		if (selectionArray.length > 0) {
