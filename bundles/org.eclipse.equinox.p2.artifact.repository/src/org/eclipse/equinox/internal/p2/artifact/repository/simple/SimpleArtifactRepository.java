@@ -187,7 +187,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 
-	private boolean signatureVerification = false;
 	private MirrorSelector mirrors;
 
 	static void delete(File toDelete) {
@@ -239,9 +238,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public SimpleArtifactRepository(String name, String type, String version, String description, String provider, boolean verifySignature, Set artifacts, String[][] mappingRules, Map properties) {
+	public SimpleArtifactRepository(String name, String type, String version, String description, String provider, Set artifacts, String[][] mappingRules, Map properties) {
 		super(name, type, version, null, description, provider);
-		signatureVerification = verifySignature;
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
 		this.properties.putAll(properties);
@@ -656,10 +654,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return mappingRules;
 	}
 
-	public synchronized boolean getSignatureVerification() {
-		return signatureVerification;
-	}
-
 	private Transport getTransport() {
 		return ECFTransport.getInstance();
 	}
@@ -830,10 +824,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public synchronized void setRules(String[][] rules) {
 		mappingRules = rules;
-	}
-
-	public synchronized void setSignatureVerification(boolean value) {
-		signatureVerification = value;
 	}
 
 	public String toString() {
