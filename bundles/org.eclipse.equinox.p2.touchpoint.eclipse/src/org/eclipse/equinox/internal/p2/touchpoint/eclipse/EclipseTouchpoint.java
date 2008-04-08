@@ -74,9 +74,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		try {
 			configURL = configDir.toURI().toURL();
 		} catch (IllegalArgumentException e) {
-			throw new CoreException(Util.createError("Configuration directory is not absolute.", e)); //$NON-NLS-1$
+			throw new CoreException(Util.createError(Messages.config_dir_not_absolute, e));
 		} catch (MalformedURLException e) {
-			throw new CoreException(Util.createError("No URL protocol handler.", e)); //$NON-NLS-1$
+			throw new CoreException(Util.createError(Messages.protocol_handler_error, e));
 		}
 		return configURL;
 	}
@@ -147,7 +147,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 
 		// should not occur
-		throw new IllegalStateException("Unexpected state: prepareIU"); //$NON-NLS-1$
+		throw new IllegalStateException(Messages.unexpected_prepareiu_error);
 	}
 
 	public static IStatus loadManipulator(Manipulator manipulator) {

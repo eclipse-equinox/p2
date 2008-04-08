@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.osgi.util.NLS;
 
 /**	
  * 	This class provides a wrapper for reading and writing platform.xml.
@@ -85,7 +86,7 @@ public class PlatformConfigurationWrapper {
 			}
 		} catch (ProvisionException pe) {
 			// TODO: Make this a real message
-			throw new IllegalStateException("Error parsing platform configuration."); //$NON-NLS-1$;
+			throw new IllegalStateException(Messages.error_parsing_configuration);
 		}
 
 		poolSite = getSite(poolURL);
@@ -145,22 +146,20 @@ public class PlatformConfigurationWrapper {
 	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root) {
 		loadDelegate();
 		if (configuration == null)
-			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
+			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
 
 		URL fileURL = null;
 		try {
 			File featureDir = file.getParentFile();
-			if (featureDir == null || !featureDir.getName().equals("features"))
-				return new Status(IStatus.ERROR, Activator.ID, "Parent directory should be \"features\": " + file.getAbsolutePath(), null);
+			if (featureDir == null || !featureDir.getName().equals("features")) //$NON-NLS-1$
+				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
 			File locationDir = featureDir.getParentFile();
 			if (locationDir == null)
-				return new Status(IStatus.ERROR, Activator.ID, "Unable to calculate extension location for: " + file.getAbsolutePath(), null);
+				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_calculate_extension_location, file.getAbsolutePath()), null);
 
 			fileURL = locationDir.toURL();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return new Status(IStatus.ERROR, Activator.ID, "Unable to create URL from file: " + file.getAbsolutePath(), null);
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_create_url_from_file, file.getAbsolutePath()), e);
 		}
 		Site site = getSite(fileURL);
 		if (site == null) {
@@ -181,13 +180,13 @@ public class PlatformConfigurationWrapper {
 	public IStatus removeFeatureEntry(String id, String version) {
 		loadDelegate();
 		if (configuration == null)
-			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
+			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
 
 		Site site = getSite(id, version);
 		if (site == null)
 			site = poolSite;
 		Feature removedFeature = site.removeFeature(makeFeatureURL(id, version));
-		return (removedFeature != null ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, "A feature with the specified id was not found.", null)); //$NON-NLS-1$
+		return (removedFeature != null ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, Messages.feature_not_found, null));
 	}
 
 	/*

@@ -32,10 +32,10 @@ public class MetadataGeneratorUtils {
 
 		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
 		if (reference == null)
-			throw new IllegalStateException("PlatformAdmin not registered.");
+			throw new IllegalStateException(Messages.platformadmin_not_registered);
 		PlatformAdmin platformAdmin = (PlatformAdmin) context.getService(reference);
 		if (platformAdmin == null)
-			throw new IllegalStateException("PlatformAdmin not registered.");
+			throw new IllegalStateException(Messages.platformadmin_not_registered);
 
 		try {
 			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();

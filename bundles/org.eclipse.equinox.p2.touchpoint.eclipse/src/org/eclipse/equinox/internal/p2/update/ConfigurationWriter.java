@@ -14,6 +14,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * @since 1.0
@@ -53,9 +54,9 @@ public class ConfigurationWriter implements ConfigurationConstants {
 
 			writer.endTag(ELEMENT_CONFIG);
 		} catch (UnsupportedEncodingException e) {
-			throw new ProvisionException("Exception when saving configuration to: " + location, e);
+			throw new ProvisionException(NLS.bind(Messages.error_saving_config, location), e);
 		} catch (FileNotFoundException e) {
-			throw new ProvisionException("Exception when saving configuration to: " + location, e);
+			throw new ProvisionException(NLS.bind(Messages.error_saving_config, location), e);
 		} finally {
 			if (writer != null) {
 				writer.flush();

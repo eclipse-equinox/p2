@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointData;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
@@ -80,7 +81,7 @@ public class Util {
 			return (IFileArtifactRepository) bundlePool;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
-			throw new IllegalArgumentException("Bundle pool repository not writeable: " + location); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.bundle_pool_not_writeable, location));
 		}
 	}
 

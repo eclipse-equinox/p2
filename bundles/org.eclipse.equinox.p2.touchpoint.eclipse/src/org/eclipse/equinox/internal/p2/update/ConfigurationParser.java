@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -148,11 +149,11 @@ public class ConfigurationParser implements ConfigurationConstants {
 			Document document = load(input);
 			return process(document);
 		} catch (IOException e) {
-			throw new ProvisionException("An error occurred reading the platform configuration file: " + file, e);
+			throw new ProvisionException(NLS.bind(Messages.error_reading_config, file), e);
 		} catch (ParserConfigurationException e) {
-			throw new ProvisionException("An error occurred reading the platform configuration", e);
+			throw new ProvisionException(Messages.error_parsing_config, e);
 		} catch (SAXException e) {
-			throw new ProvisionException("An error occurred reading the platform configuration", e);
+			throw new ProvisionException(Messages.error_parsing_config, e);
 		}
 	}
 

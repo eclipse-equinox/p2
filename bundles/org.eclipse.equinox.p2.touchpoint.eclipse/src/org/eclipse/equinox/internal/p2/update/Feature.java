@@ -23,7 +23,7 @@ public class Feature {
 	public Feature(Site site) {
 		super();
 		if (site == null)
-			throw new IllegalArgumentException("Features should not have an empty site."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.empty_feature_site);
 		this.site = site;
 	}
 
