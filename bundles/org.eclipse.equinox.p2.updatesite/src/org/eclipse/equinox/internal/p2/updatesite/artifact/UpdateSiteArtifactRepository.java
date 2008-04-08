@@ -36,7 +36,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	private final IArtifactRepository artifactRepository;
 
 	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), null, null, location, null, null);
+		super("update site: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
 
 		// todo progress monitoring
 		// loading validates before we create repositories
@@ -52,7 +52,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		} catch (MalformedURLException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.ErrorCreatingRepository, e));
 		}
-		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
+		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm()); //$NON-NLS-1$
 
 		String savedChecksum = (String) artifactRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
