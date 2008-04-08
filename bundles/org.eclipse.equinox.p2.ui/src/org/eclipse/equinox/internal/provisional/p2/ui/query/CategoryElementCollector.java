@@ -12,9 +12,9 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 
 import java.util.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
@@ -121,22 +121,19 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		unit.setId(ProvUIMessages.CategoryElementCollector_Uncategorized);
 		unit.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, Boolean.toString(true));
 		unit.setVersion(new Version(0, 0, 0, "generated")); //$NON-NLS-1$
-		String name;
-		if (queryable instanceof IRepository) {
-			IRepository repo = (IRepository) queryable;
-			name = repo.getName();
-			if (name == null)
-				name = repo.getLocation().toExternalForm();
-		} else {
-			name = ProvUIMessages.CategoryElementCollector_Uncategorized;
-		}
-		unit.setProperty(IInstallableUnit.PROP_NAME, name);
+		unit.setProperty(IInstallableUnit.PROP_NAME, ProvUIMessages.CategoryElementCollector_Uncategorized);
 
 		IInstallableUnit iu = MetadataFactory.createInstallableUnit(unit);
 		CategoryElement element = new UncategorizedCategoryElement(iu);
 		element.setQueryable(queryable);
 		element.setQueryProvider(queryProvider);
-		getList().add(element);
+		// This is costly, but the only way to know if we need this category is to perform the query in advance.
+		// Note that this will end up querying the contents of all categories to determine which IU's were not
+		// referred to.
+		ElementQueryDescriptor queryDescriptor = queryProvider.getQueryDescriptor(element, element.getQueryType());
+		Collector collector = queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, null);
+		if (!collector.isEmpty())
+			getList().add(element);
 	}
 
 	private void removeNestedCategories() {
