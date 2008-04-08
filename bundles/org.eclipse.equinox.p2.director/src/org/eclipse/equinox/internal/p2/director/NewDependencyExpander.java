@@ -24,28 +24,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.Version;
 
 /**
- * Rather than trying to satisfy a particular IU, we try to satisfy all the requirements of this IU and thus recursively.
- * The core data structure here is a map of all the requirements encountered. More precisely it is a map whose key is a simplified requirement object (ns and name only), 
- * and whose value is a data structure holding:
- *	  - the intersection of all occurrences of the constraints encountered
- *   - the list of IUs satisfying this intersection
- * The algorithm is rather simple:
- *   - gather the requirements of a set of bundles and add them to the map computing the intersection
- *   - find the IUs matching each of these requirement
- *   - repeat the two previous steps until the last step no longer find matches 
- * Then the resolver is invoked and for each unsatisfied IU that comes out of the resolver we verify if it belongs to an entry in the map where at least one other IU has been picked.
- * If so we are good, otherwise we have a failure.
- * Known problems:
- *   - Malicious IU. A malicious IU could be brought into the system, thus causing a detection of impossible solution. Is this really unavoidable?
- *   - The more general problem is that we do not backtrack and therefore when we pick an IU and it may cause problems that we will not discover soon enough. Looking ahead may help us
- * in avoiding those cases but still we may have problems.
- * 
- * To be implemented:
- *   - merge of requirements with filters
- *   - check if the IU is applicable according to its platform filter with the given environment
- *   - return unsatisfied constraints
- *   - do the recommendation
- * TODO It may worth experimenting with two pickers (or chained) . One would pick on the alreadyInstalled ius and one on the available ones. This could help us favor already installed ius over the others.
+ * This code is kept to report errors. The real resolution is done in classes {@link Slicer} and {@link Projector}. 
  */
 public class NewDependencyExpander {
 
