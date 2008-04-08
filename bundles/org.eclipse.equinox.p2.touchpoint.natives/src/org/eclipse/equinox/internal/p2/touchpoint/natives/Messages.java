@@ -20,7 +20,12 @@ public class Messages extends NLS {
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
 
+	public static String artifact_not_available;
+	public static String artifact_repo_not_found;
+	public static String could_not_obtain_download_cache;
+	public static String download_cache_not_writeable;
 	public static String unzipping;
 	public static String restoring;
+	public static String param_not_set;
 
 }

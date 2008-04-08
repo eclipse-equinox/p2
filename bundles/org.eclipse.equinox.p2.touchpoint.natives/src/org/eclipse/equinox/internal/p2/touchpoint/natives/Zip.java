@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.osgi.util.NLS;
 
+//TODO: Do we need this class or is just using FileUtils.unzip sufficient?
 //TODO Be careful here with the permissions.... We may need to have a proper unzip technology here that supports file permissions for linux
 public class Zip {
 	public File[] unzip(String source, String destination, String backupDir) {
@@ -27,7 +28,7 @@ public class Zip {
 		File zipFile = new File(source);
 		if (zipFile == null || !zipFile.exists()) {
 			// internal error?
-			System.out.println(this.getClass().getName() + " the files to be unzipped is not here");
+			Util.log(this.getClass().getName() + " the files to be unzipped is not here");
 			//			throw Util.coreException(null, NLS.bind(Messages.failed_to_download_artifact, source));
 		}
 
@@ -52,8 +53,7 @@ public class Zip {
 					BackupFiles backupFiles = new BackupFiles(new File(backupDir));
 					backupFiles.backupFilesInZip(backupDir, zipFile.toURL(), new File(destination), null);
 				} catch (IOException e) {
-					System.out.println(this.getClass().getName() + " something went wrong when backing up the files");
-					e.printStackTrace();
+					Util.log(this.getClass().getName() + " something went wrong when backing up the files");
 					//				throw Util.coreException(e, NLS.bind(Messages.error_backing_up, zipFile));
 				} finally {
 					//				backupPM.done();
@@ -63,10 +63,9 @@ public class Zip {
 				String taskName = NLS.bind(Messages.unzipping, source);
 				return FileUtils.unzipFile(zipFile, new File(destination), taskName, new NullProgressMonitor());
 			} catch (IOException e) {
-				System.out.println(this.getClass().getName() + " something went wrong when unzipping");
-				System.out.println("zipfile: " + zipFile.getAbsolutePath());
-				System.out.println("destination: " + destination);
-				e.printStackTrace();
+				Util.log(this.getClass().getName() + " something went wrong when unzipping");
+				Util.log("zipfile: " + zipFile.getAbsolutePath());
+				Util.log("destination: " + destination);
 				//				throw Util.coreException(e.getMessage());
 			} finally {
 				//				unzipPM.done();

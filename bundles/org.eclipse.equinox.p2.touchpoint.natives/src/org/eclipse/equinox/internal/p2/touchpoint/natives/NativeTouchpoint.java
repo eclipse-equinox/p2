@@ -22,9 +22,27 @@ import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 public class NativeTouchpoint extends Touchpoint {
+	private static final String PARM_TARGET_FILE = "targetFile"; //$NON-NLS-1$
+	private static final String PARM_PERMISSIONS = "permissions"; //$NON-NLS-1$
+	private static final String PARM_TARGET_DIR = "targetDir"; //$NON-NLS-1$
+	private static final String PARM_TARGET = "target"; //$NON-NLS-1$
+	private static final String ACTION_CHMOD = "chmod"; //$NON-NLS-1$
+	private static final String PARM_IU = "iu"; //$NON-NLS-1$
+	private static final String PIPE = "|"; //$NON-NLS-1$
+	private static final String PARM_SOURCE = "source"; //$NON-NLS-1$
+	private static final String PARM_ARTIFACT = "@artifact"; //$NON-NLS-1$
+	private static final String PARM_INSTALL_FOLDER = "installFolder"; //$NON-NLS-1$
+	private static final String NATIVE_TOUCHPOINT_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
+	private static final String ACTION_CLEANUPZIP = "cleanupzip"; //$NON-NLS-1$
+	private static final String ACTION_UNZIP = "unzip"; //$NON-NLS-1$
+	private static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
+	private static final String PARM_OPERAND = "operand"; //$NON-NLS-1$
+	private static final String PARM_PROFILE = "profile"; //$NON-NLS-1$
+	private static final String ACTION_COLLECT = "collect"; //$NON-NLS-1$
 	private static final String ID = "org.eclipse.equinox.p2.touchpoint.natives"; //$NON-NLS-1$
 
 	protected static IStatus createError(String message) {
@@ -32,14 +50,14 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	public ProvisioningAction getAction(String actionId) {
-		if (actionId.equals("collect")) {
+		if (actionId.equals(ACTION_COLLECT)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					IProfile profile = (IProfile) parameters.get("profile");
-					InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get("operand");
+					IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
+					InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
 					try {
 						IArtifactRequest[] requests = collect(operand.second(), profile);
-						Collection artifactRequests = (Collection) parameters.get("artifactRequests");
+						Collection artifactRequests = (Collection) parameters.get(PARM_ARTIFACT_REQUESTS);
 						artifactRequests.add(requests);
 					} catch (ProvisionException e) {
 						return e.getStatus();
@@ -54,7 +72,7 @@ public class NativeTouchpoint extends Touchpoint {
 			};
 		}
 
-		if (actionId.equals("unzip")) {
+		if (actionId.equals(ACTION_UNZIP)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					return unzip(parameters);
@@ -65,7 +83,7 @@ public class NativeTouchpoint extends Touchpoint {
 				}
 			};
 		}
-		if (actionId.equals("cleanupzip")) {
+		if (actionId.equals(ACTION_CLEANUPZIP)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
 					return cleanupzip(parameters);
@@ -77,18 +95,18 @@ public class NativeTouchpoint extends Touchpoint {
 			};
 		}
 
-		if (actionId.equals("chmod")) {
+		if (actionId.equals(ACTION_CHMOD)) {
 			return new ProvisioningAction() {
 				public IStatus execute(Map parameters) {
-					String targetDir = (String) parameters.get("targetDir");
+					String targetDir = (String) parameters.get(PARM_TARGET_DIR);
 					if (targetDir == null)
-						return createError("The \"targetDir\" parameter was not set in the \"chmod\" action.");
-					String targetFile = (String) parameters.get("targetFile");
+						return createError(NLS.bind(Messages.param_not_set, PARM_TARGET_DIR, ACTION_CHMOD));
+					String targetFile = (String) parameters.get(PARM_TARGET_FILE);
 					if (targetFile == null)
-						return createError("The \"targetFile\" parameter was not set in the \"chmod\" action.");
-					String permissions = (String) parameters.get("permissions");
+						return createError(NLS.bind(Messages.param_not_set, PARM_TARGET_FILE, ACTION_CHMOD));
+					String permissions = (String) parameters.get(PARM_PERMISSIONS);
 					if (permissions == null)
-						return createError("The \"permissions\" parameter was not set in the \"chmod\" action");
+						return createError(NLS.bind(Messages.param_not_set, PARM_PERMISSIONS, ACTION_CHMOD));
 
 					new Permissions().chmod(targetDir, targetFile, permissions);
 					return Status.OK_STATUS;
@@ -105,7 +123,7 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	public TouchpointType getTouchpointType() {
-		return MetadataFactory.createTouchpointType("org.eclipse.equinox.p2.native", new Version(1, 0, 0));
+		return MetadataFactory.createTouchpointType(NATIVE_TOUCHPOINT_TYPE, new Version(1, 0, 0));
 	}
 
 	IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
@@ -142,10 +160,10 @@ public class NativeTouchpoint extends Touchpoint {
 	static private IFileArtifactRepository getDownloadCacheRepo() throws ProvisionException {
 		URL location = getDownloadCacheLocation();
 		if (location == null)
-			throw new IllegalStateException("Could not obtain the download cache location.");
+			throw new IllegalStateException(Messages.could_not_obtain_download_cache);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		if (manager == null)
-			throw new IllegalStateException("The artifact repository manager could not be found.");
+			throw new IllegalStateException(Messages.artifact_repo_not_found);
 		IArtifactRepository repository;
 		try {
 			repository = manager.loadRepository(location, null);
@@ -159,7 +177,7 @@ public class NativeTouchpoint extends Touchpoint {
 
 		IFileArtifactRepository downloadCache = (IFileArtifactRepository) repository.getAdapter(IFileArtifactRepository.class);
 		if (downloadCache == null)
-			throw new ProvisionException("Agent download cache not writeable: " + location);
+			throw new ProvisionException(NLS.bind(Messages.download_cache_not_writeable, location));
 		return downloadCache;
 	}
 
@@ -169,24 +187,24 @@ public class NativeTouchpoint extends Touchpoint {
 	}
 
 	public IStatus initializePhase(IProgressMonitor monitor, IProfile profile, String phaseId, Map touchpointParameters) {
-		touchpointParameters.put("installFolder", getInstallFolder(profile));
+		touchpointParameters.put(PARM_INSTALL_FOLDER, getInstallFolder(profile));
 		return null;
 	}
 
 	IStatus unzip(Map parameters) {
-		String source = (String) parameters.get("source");
+		String source = (String) parameters.get(PARM_SOURCE);
 		if (source == null)
-			return createError("The \"source\" parameter was not set in the \"unzip\" action.");
+			return createError(NLS.bind(Messages.param_not_set, PARM_SOURCE, ACTION_UNZIP));
 
 		String originalSource = source;
-		String target = (String) parameters.get("target");
+		String target = (String) parameters.get(PARM_TARGET);
 		if (target == null)
-			return createError("The \"target\" parameter was not set in the \"unzip\" action.");
+			return createError(NLS.bind(Messages.param_not_set, PARM_TARGET, ACTION_UNZIP));
 
-		IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
-		Profile profile = (Profile) parameters.get("profile");
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		Profile profile = (Profile) parameters.get(PARM_PROFILE);
 
-		if (source.equals("@artifact")) {
+		if (source.equals(PARM_ARTIFACT)) {
 			//TODO: fix wherever this occurs -- investigate as this is probably not desired
 			if (iu.getArtifacts() == null || iu.getArtifacts().length == 0)
 				return Status.OK_STATUS;
@@ -201,37 +219,37 @@ public class NativeTouchpoint extends Touchpoint {
 			}
 			File fileLocation = downloadCache.getArtifactFile(artifactKey);
 			if ((fileLocation == null) || !fileLocation.exists())
-				return createError("The artifact for " + artifactKey + " is not available");
+				return createError(NLS.bind(Messages.artifact_not_available, artifactKey));
 			source = fileLocation.getAbsolutePath();
 		}
 
 		File[] unzippedFiles = new Zip().unzip(source, target, null);
 		StringBuffer unzippedFileNameBuffer = new StringBuffer();
 		for (int i = 0; i < unzippedFiles.length; i++)
-			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append("|");
+			unzippedFileNameBuffer.append(unzippedFiles[i].getAbsolutePath()).append(PIPE);
 
-		profile.setInstallableUnitProperty(iu, "unzipped" + "|" + originalSource + "|" + target, unzippedFileNameBuffer.toString());
+		profile.setInstallableUnitProperty(iu, "unzipped" + PIPE + originalSource + PIPE + target, unzippedFileNameBuffer.toString()); //$NON-NLS-1$
 
 		return Status.OK_STATUS;
 	}
 
 	protected IStatus cleanupzip(Map parameters) {
-		String source = (String) parameters.get("source");
+		String source = (String) parameters.get(PARM_SOURCE);
 		if (source == null)
-			return createError("The \"source\" parameter was not set in the \"cleanupzip\" action.");
-		String target = (String) parameters.get("target");
+			return createError(NLS.bind(Messages.param_not_set, PARM_SOURCE, ACTION_CLEANUPZIP));
+		String target = (String) parameters.get(PARM_TARGET);
 		if (target == null)
-			return createError("The \"target\" parameter was not set in the \"cleanupzip\" action.");
+			return createError(NLS.bind(Messages.param_not_set, PARM_TARGET, ACTION_CLEANUPZIP));
 
-		IInstallableUnit iu = (IInstallableUnit) parameters.get("iu");
-		IProfile profile = (IProfile) parameters.get("profile");
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(PARM_IU);
+		IProfile profile = (IProfile) parameters.get(PARM_PROFILE);
 
-		String unzipped = profile.getInstallableUnitProperty(iu, "unzipped" + "|" + source + "|" + target);
+		String unzipped = profile.getInstallableUnitProperty(iu, "unzipped" + PIPE + source + PIPE + target); //$NON-NLS-1$
 
 		if (unzipped == null)
 			return Status.OK_STATUS;
 
-		StringTokenizer tokenizer = new StringTokenizer(unzipped, "|");
+		StringTokenizer tokenizer = new StringTokenizer(unzipped, PIPE);
 		List directories = new ArrayList();
 		while (tokenizer.hasMoreTokens()) {
 			String fileName = tokenizer.nextToken();

@@ -125,7 +125,7 @@ public class BackupFiles {
 	private void restoreFilesFromBackup(File propsFile, IProgressMonitor monitor) throws IOException {
 		BackupProperties backupProps = new BackupProperties(propsFile);
 		monitor.beginTask(NLS.bind(Messages.restoring, propsFile.toString()), 3);
-		monitor.subTask("");
+		monitor.subTask(""); //$NON-NLS-1$
 		for (Iterator i = backupProps.getFilesToDelete().iterator(); i.hasNext();) {
 			String name = (String) i.next();
 			File full = new File(backupProps.getRootDir(), name);
@@ -135,7 +135,7 @@ public class BackupFiles {
 		File zipFile = backupProps.getArchive();
 		if (zipFile.exists()) { // only exists if files were saved
 			SubProgressMonitor sub = new SubProgressMonitor(monitor, 1, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
-			FileUtils.unzipFile(zipFile, backupProps.getRootDir(), "", sub);
+			FileUtils.unzipFile(zipFile, backupProps.getRootDir(), "", sub); //$NON-NLS-1$
 			zipFile.delete();
 		} else {
 			monitor.worked(1);
@@ -152,7 +152,7 @@ public class BackupFiles {
 
 	// Backup files are just 0.properties, 1.properties, etc.
 	// Get the next unused one.
-	private File getBackupProperties() {
+	File getBackupProperties() {
 		for (int i = 0;; i += 1) {
 			File result = getBackupProperties(i);
 			if (!result.exists())

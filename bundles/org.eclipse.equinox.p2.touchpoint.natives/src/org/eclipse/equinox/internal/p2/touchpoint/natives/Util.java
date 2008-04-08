@@ -19,7 +19,7 @@ public class Util {
 	}
 
 	public static void log(IStatus status) {
-		System.out.println(Util.class.getName() + " " + status);
+		System.out.println(Util.class.getName() + " " + status); //$NON-NLS-1$
 	}
 
 	public static CoreException coreException(String msg) {
@@ -43,7 +43,7 @@ public class Util {
 		if (monitor == null || monitor instanceof NullProgressMonitor) {
 			monitor = null;
 		} else {
-			monitor.beginTask("", n);
+			monitor.beginTask("", n); //$NON-NLS-1$
 		}
 		IProgressMonitor[] result = new IProgressMonitor[n];
 		for (int i = 0; i < n; i += 1) {
@@ -55,8 +55,8 @@ public class Util {
 	private static IProgressMonitor createSubProgressMonitor(IProgressMonitor monitor, int ticks) {
 		if (monitor == null)
 			return new NullProgressMonitor();
-		else
-			return new SubProgressMonitor(monitor, ticks, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
+
+		return new SubProgressMonitor(monitor, ticks, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
 	}
 
 }
