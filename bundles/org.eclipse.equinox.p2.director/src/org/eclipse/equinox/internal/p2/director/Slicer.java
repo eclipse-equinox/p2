@@ -75,7 +75,6 @@ public class Slicer {
 
 	//This is a shortcut to simplify the error reporting when the filter of the ius we are being asked to install does not pass 
 	private void validateInput(IInstallableUnit[] ius) {
-		//TODO Need to see what is done in validateInput of PBProjector
 		for (int i = 0; i < ius.length; i++) {
 			if (!isApplicable(ius[i]))
 				throw new IllegalStateException("The IU " + ius[i] + " can't be installed in this environment because its filter does not match."); //$NON-NLS-1$//$NON-NLS-2$
