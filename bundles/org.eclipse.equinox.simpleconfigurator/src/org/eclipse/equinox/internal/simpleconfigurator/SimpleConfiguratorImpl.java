@@ -76,11 +76,16 @@ public class SimpleConfiguratorImpl implements Configurator {
 				return url;
 
 			//if it is an relative file URL, then resolve it against the configuration area
-			URL configURL = EquinoxUtils.getConfigAreaURL(context);
+			URL[] configURL = EquinoxUtils.getConfigAreaURL(context);
 			if (configURL != null) {
-				File target = new File(configURL.getFile(), url.getFile());
+				File target = new File(configURL[0].getFile(), url.getFile());
 				if (target.exists())
 					return target.toURL();
+				else if (configURL.length > 1) {
+					target = new File(configURL[1].getFile(), url.getFile());
+					if (target.exists())
+						return target.toURL();
+				}
 				return null;
 			}
 		} catch (MalformedURLException e) {
