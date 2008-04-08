@@ -8,56 +8,44 @@
  * Contributors:
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.artifact.optimizers;
+package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffStep;
+import org.eclipse.equinox.internal.p2.artifact.processors.jbdiff.JBPatchStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.tests.TestData;
-import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
+import org.eclipse.equinox.p2.tests.optimizers.TestData;
 import org.osgi.framework.Version;
 
 /**
- * Test the <code>JBDiffStepTest</code> processing step.
+ * Test the <code>JBPatchStep</code>
+ *
  */
-public class JBDiffStepTest extends TestCase {
+public class JBPatchStepTest extends TestCase {
 
-	//	public void testGenerateTestDataExe32To33() throws IOException {
-	//		File exe32 = TestData.getTempFile("optimizers", "eclipse-3.2.exe");
-	//		File exe33 = TestData.getTempFile("optimizers", "eclipse-3.3.exe");
-	//		File diff = File.createTempFile("eclipse-3.2-3.3~", ".jbdiff");
-	//		JBDiff.bsdiff(exe32, exe33, diff);
-	//	}
-
-	/**
-	 * Test diffing the launcher.
-	 * 
-	 * @throws IOException
-	 */
-	public void testDiffEclipseExe32to33() throws IOException {
-
+	public void testPatchEclipseExe32to33() throws IOException {
 		IArtifactRepository repoMock = ArtifactRepositoryMock.getMock("testData/optimizers/eclipse-3.2.exe");
-		MockableJBDiffStep differ = new MockableJBDiffStep(repoMock);
-		ProcessingStepDescriptor stepDescriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
+		ProcessingStep patcher = new MockableJBPatchStep(repoMock);
+		ProcessingStepDescriptor descriptor = new ProcessingStepDescriptor("id", "ns,cl,id1,1.0", true);
 		IArtifactKey key = new ArtifactKey("cl", "id1", new Version("1.1"));
-		ArtifactDescriptor descriptor = new ArtifactDescriptor(key);
-		differ.initialize(stepDescriptor, descriptor);
+		ArtifactDescriptor context = new ArtifactDescriptor(key);
+		patcher.initialize(descriptor, context);
 
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();
-		differ.link(destination, new NullProgressMonitor());
+		patcher.link(destination, new NullProgressMonitor());
 
-		InputStream inputStream = TestData.get("optimizers", "eclipse-3.3.exe");
-		FileUtils.copyStream(inputStream, true, differ, true);
+		InputStream inputStream = TestData.get("optimizers", "eclipse-3.2-3.3.jbdiff");
+		FileUtils.copyStream(inputStream, true, patcher, true);
 
-		inputStream = TestData.get("optimizers", "eclipse-3.2-3.3.jbdiff");
+		inputStream = TestData.get("optimizers", "eclipse-3.3.exe");
 		ByteArrayOutputStream expected = new ByteArrayOutputStream();
 		FileUtils.copyStream(inputStream, true, expected, true);
 		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));
@@ -66,9 +54,9 @@ public class JBDiffStepTest extends TestCase {
 	/**
 	 * Need to inject a repository!
 	 */
-	private static class MockableJBDiffStep extends JBDiffStep {
-		public MockableJBDiffStep(IArtifactRepository repository) {
-			super(repository);
+	private static class MockableJBPatchStep extends JBPatchStep {
+		public MockableJBPatchStep(IArtifactRepository repository) {
+			super.repository = repository;
 		}
 	}
 

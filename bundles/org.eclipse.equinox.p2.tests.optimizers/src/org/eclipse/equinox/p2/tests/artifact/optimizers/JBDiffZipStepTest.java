@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.artifact.optimizers;
 
 import java.io.*;
 import java.util.Arrays;
+import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff.JBDiffZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -20,15 +21,14 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactD
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
+import org.eclipse.equinox.p2.tests.optimizers.TestData;
 import org.osgi.framework.Version;
 
 /**
  * Test the <code>JBDiffZipTest</code> processing step.
  */
-public class JBDiffZipStepTest extends AbstractProvisioningTest {
+public class JBDiffZipStepTest extends TestCase {
 
 	/**
 	 * Test diffing the <b>normalized</b> jars. This is indicated by the extension ".njar".

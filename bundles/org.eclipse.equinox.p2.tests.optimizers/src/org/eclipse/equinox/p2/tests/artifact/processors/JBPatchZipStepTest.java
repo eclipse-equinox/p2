@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.artifact.processors;
 
 import java.io.*;
 import java.util.Arrays;
+import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.jbdiff.JBPatchZipStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
@@ -21,14 +22,13 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.optimizers.TestData;
 import org.osgi.framework.Version;
 
 /**
  * Test the <code>JBPatchZipStep</code> processing step.
  */
-public class JBPatchZipStepTest extends AbstractProvisioningTest {
+public class JBPatchZipStepTest extends TestCase {
 
 	//	/**
 	//	 * This is a disabled "unit test" that was used to generate the data needed for real test.

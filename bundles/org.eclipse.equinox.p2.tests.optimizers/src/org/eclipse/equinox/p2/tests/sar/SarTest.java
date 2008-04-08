@@ -14,7 +14,7 @@ import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.sar.SarUtil;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.optimizers.TestData;
 
 /**
  * Test the sar stuff.

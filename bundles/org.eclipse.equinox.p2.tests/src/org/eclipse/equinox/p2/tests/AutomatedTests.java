@@ -20,10 +20,7 @@ import junit.framework.*;
 public class AutomatedTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
-		suite.addTest(org.eclipse.equinox.p2.tests.artifact.optimizers.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.artifact.processors.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.processing.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.director.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.download.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.engine.AllTests.suite());
@@ -31,7 +28,6 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.repository.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.planner.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.sar.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.directorywatcher.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.simpleconfigurator.SimpleConfiguratorTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.updatesite.AllTests.suite());

@@ -23,8 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.p2.tests.TestData;
 import org.eclipse.equinox.p2.tests.artifact.processors.ArtifactRepositoryMock;
+import org.eclipse.equinox.p2.tests.optimizers.TestData;
 import org.osgi.framework.Version;
 
 /**

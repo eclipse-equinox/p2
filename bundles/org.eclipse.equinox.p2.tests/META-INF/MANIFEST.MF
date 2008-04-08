@@ -5,16 +5,7 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
-Import-Package: ie.wombat.jbdiff,
- junit.framework;version="3.8.2",
- org.eclipse.equinox.internal.p2.artifact.optimizers,
- org.eclipse.equinox.internal.p2.artifact.optimizers.jardelta,
- org.eclipse.equinox.internal.p2.artifact.optimizers.jbdiff,
- org.eclipse.equinox.internal.p2.artifact.optimizers.pack200,
- org.eclipse.equinox.internal.p2.artifact.processors.jardelta,
- org.eclipse.equinox.internal.p2.artifact.processors.jbdiff,
- org.eclipse.equinox.internal.p2.artifact.processors.pack200,
- org.eclipse.equinox.internal.p2.artifact.processors.verifier,
+Import-Package: junit.framework;version="3.8.2",
  org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.equinox.internal.p2.core.helpers,
@@ -25,7 +16,6 @@ Import-Package: ie.wombat.jbdiff,
  org.eclipse.equinox.internal.p2.metadata.repository.io,
  org.eclipse.equinox.internal.p2.persistence,
  org.eclipse.equinox.internal.p2.resolution,
- org.eclipse.equinox.internal.p2.sar,
  org.eclipse.equinox.internal.p2.touchpoint.eclipse,
  org.eclipse.equinox.internal.p2.updatesite,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
@@ -60,10 +50,7 @@ Eclipse-LazyStart: true
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
 Export-Package: org.eclipse.equinox.p2.tests,
- org.eclipse.equinox.p2.tests.artifact.optimizers,
- org.eclipse.equinox.p2.tests.artifact.processors,
  org.eclipse.equinox.p2.tests.artifact.repository,
- org.eclipse.equinox.p2.tests.artifact.repository.processing,
  org.eclipse.equinox.p2.tests.director,
  org.eclipse.equinox.p2.tests.directorywatcher,
  org.eclipse.equinox.p2.tests.download,
@@ -73,5 +60,4 @@ Export-Package: org.eclipse.equinox.p2.tests,
  org.eclipse.equinox.p2.tests.generator,
  org.eclipse.equinox.p2.tests.metadata,
  org.eclipse.equinox.p2.tests.metadata.repository,
- org.eclipse.equinox.p2.tests.sar,
  org.eclipse.equinox.p2.tests.simpleconfigurator

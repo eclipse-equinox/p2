@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.optimizers.TestActivator;
 
 /**
  * Mock the getArtifact() needed to locate the predecessor.
@@ -47,7 +47,7 @@ public class ArtifactRepositoryMock implements InvocationHandler {
 			FileUtils.copyStream(inputStream, true, destination, true);
 			return Status.OK_STATUS;
 		} catch (IOException e) {
-			return new Status(IStatus.ERROR, TestActivator.PI_PROV_TESTS, ":-(", e);
+			return new Status(IStatus.ERROR, TestActivator.PI, ":-(", e);
 		}
 	}
 }

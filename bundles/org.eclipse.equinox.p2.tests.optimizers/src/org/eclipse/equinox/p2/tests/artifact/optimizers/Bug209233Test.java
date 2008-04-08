@@ -15,7 +15,7 @@ import java.io.*;
 import java.util.Arrays;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
-import org.eclipse.equinox.p2.tests.TestData;
+import org.eclipse.equinox.p2.tests.optimizers.TestData;
 
 /**
  * ... <code>Bug209233Test</code> ...
