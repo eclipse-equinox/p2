@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
 import org.eclipse.osgi.util.NLS;
 
+//TODO Shouldn't have messages class in API package
 class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.provisional.p2.engine.phases.messages"; //$NON-NLS-1$
 	public static String Phase_Collect_Error;

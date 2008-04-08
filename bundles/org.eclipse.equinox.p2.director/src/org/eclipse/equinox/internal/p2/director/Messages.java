@@ -24,17 +24,9 @@ public class Messages extends NLS {
 		// Do not instantiate
 	}
 
-	public static String Director_Install_Problems;
-
-	public static String Director_Uninstall_Problems;
-	public static String Director_Nothing_To_Uninstall;
-	public static String Director_Cannot_Uninstall;
-	public static String Director_Already_Installed;
-
 	public static String Director_Revert_Problems;
 	public static String Director_Unexpected_IU;
 	public static String Director_Task_Installing;
-	public static String Director_Task_Uninstalling;
 	public static String Director_Task_Updating;
 	public static String Director_Task_Resolving_Dependencies;
 	public static String Director_Unsatisfied_Dependencies;
