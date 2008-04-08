@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -129,21 +130,29 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			Job resolveJob = new Job(element.getIU().getId()) {
 
 				protected IStatus run(IProgressMonitor monitor) {
-					if (shell == null || shell.isDisposed())
-						return Status.OK_STATUS;
+					if (monitor.isCanceled())
+						return Status.CANCEL_STATUS;
 
-					element.computeSize();
+					if (shell == null || shell.isDisposed())
+						return Status.CANCEL_STATUS;
+
+					element.computeSize(monitor);
+
+					if (monitor.isCanceled())
+						return Status.CANCEL_STATUS;
 
 					// If we still could not compute size, give up
 					if (element.getSize() == IUElement.SIZE_UNKNOWN)
 						return Status.OK_STATUS;
 
 					if (shell == null || shell.isDisposed())
-						return Status.OK_STATUS;
+						return Status.CANCEL_STATUS;
+
 					shell.getDisplay().asyncExec(new Runnable() {
 
 						public void run() {
-							fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
+							if (shell != null || !shell.isDisposed())
+								fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
 						}
 					});
 
@@ -196,4 +205,14 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		}
 		return null;
 	}
+
+	public void dispose() {
+		super.dispose();
+		Iterator iter = jobs.values().iterator();
+		while (iter.hasNext()) {
+			Job job = (Job) iter.next();
+			job.cancel();
+		}
+	}
+
 }

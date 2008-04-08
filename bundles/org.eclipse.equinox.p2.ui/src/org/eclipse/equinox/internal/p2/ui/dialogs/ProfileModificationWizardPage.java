@@ -42,7 +42,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	private static final int DEFAULT_HEIGHT = 20;
 	private static final int DEFAULT_WIDTH = 120;
 	private static final int DEFAULT_DESCRIPTION_HEIGHT = 4;
-	private static final int DEFAULT_COLUMN_WIDTH = 50;
+	private static final int DEFAULT_COLUMN_WIDTH = 60;
 	private static final int DEFAULT_SMALL_COLUMN_WIDTH = 20;
 	private static final String NESTING_INDENT = "  "; //$NON-NLS-1$
 	private static final IStatus NULL_PLAN_STATUS = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, null);
@@ -122,20 +122,31 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		else
 			currentStatus = currentPlan.getStatus();
 
+		createSizingInfo(composite);
+
 		// The text area shows a description of the selected IU, or error detail if applicable.
 		Group group = new Group(composite, SWT.NONE);
 		group.setText(ProvUIMessages.ProfileModificationWizardPage_DetailsLabel);
 		group.setLayout(new GridLayout());
 		group.setLayoutData(new GridData(GridData.FILL_BOTH));
-		detailsArea = new Text(group, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
-		data = new GridData(SWT.FILL, SWT.FILL, true, true);
-		data.heightHint = convertHeightInCharsToPixels(DEFAULT_DESCRIPTION_HEIGHT);
-		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
-		detailsArea.setLayoutData(data);
+
+		createDetailsArea(group);
 
 		updateStatus();
 		setControl(composite);
 		Dialog.applyDialogFont(composite);
+	}
+
+	protected void createSizingInfo(Composite parent) {
+		// Default is to do nothing
+	}
+
+	protected void createDetailsArea(Composite parent) {
+		detailsArea = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL | SWT.READ_ONLY | SWT.WRAP);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+		data.heightHint = convertHeightInCharsToPixels(DEFAULT_DESCRIPTION_HEIGHT);
+		data.widthHint = convertWidthInCharsToPixels(DEFAULT_WIDTH);
+		detailsArea.setLayoutData(data);
 	}
 
 	protected void makeElements(IInstallableUnit[] iusToShow, List list) {

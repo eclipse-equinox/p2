@@ -153,5 +153,6 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
 	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
 	public static String UpdateOperation_NothingToUpdate;
+	public static String UpdateOrInstallWizardPage_Size;
 
 }

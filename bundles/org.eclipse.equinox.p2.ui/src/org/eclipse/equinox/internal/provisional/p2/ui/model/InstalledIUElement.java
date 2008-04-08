@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
@@ -71,7 +72,7 @@ public class InstalledIUElement extends ProvElement implements IUElement {
 		return false;
 	}
 
-	public void computeSize() {
+	public void computeSize(IProgressMonitor monitor) {
 		// Should never be called, as long as shouldShowSize() returns false
 	}
 

@@ -37,6 +37,8 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 		for (int i = 0; i < selected.length; i++) {
 			changeRequest.setInstallableUnitProfileProperty(selected[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 		}
-		return ProvisioningUtil.getProvisioningPlan(changeRequest, getProvisioningContext(), monitor);
+		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, getProvisioningContext(), monitor);
+		computeSizing(plan, getProfileId());
+		return plan;
 	}
 }

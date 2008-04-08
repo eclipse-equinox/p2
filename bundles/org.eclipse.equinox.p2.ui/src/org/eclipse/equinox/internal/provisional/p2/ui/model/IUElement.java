@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 /**
@@ -38,5 +39,5 @@ public interface IUElement {
 
 	public long getSize();
 
-	public void computeSize();
+	public void computeSize(IProgressMonitor monitor);
 }

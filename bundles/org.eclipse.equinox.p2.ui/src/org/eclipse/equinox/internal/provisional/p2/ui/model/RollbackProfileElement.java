@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import java.text.DateFormat;
 import java.util.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
@@ -81,7 +82,7 @@ public class RollbackProfileElement extends ProvElement implements IUElement {
 		return null;
 	}
 
-	public void computeSize() {
+	public void computeSize(IProgressMonitor monitor) {
 		// Should never be called, since shouldShowSize() returns false
 	}
 

@@ -57,7 +57,9 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
 		request.removeInstallableUnits(getIUsToReplace(selectedElements));
 		request.addInstallableUnits(elementsToIUs(selectedElements));
-		return ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
+		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
+		computeSizing(plan, getProfileId());
+		return plan;
 	}
 
 	protected void setInitialCheckState() {

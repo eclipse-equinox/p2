@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import java.util.*;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
@@ -71,7 +72,7 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement {
 		return false;
 	}
 
-	public void computeSize() {
+	public void computeSize(IProgressMonitor monitor) {
 		// Should never be called, since shouldShowSize() returns false
 	}
 
