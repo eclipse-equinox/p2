@@ -31,7 +31,6 @@ public class AvailableIUPatternFilter extends PatternFilter {
 
 	/**
 	 * Create a new instance of a AvailableIUPatternFilter 
-	 * @param isMatchItem
 	 */
 	public AvailableIUPatternFilter(IUColumnConfig[] columnConfig) {
 		super();
