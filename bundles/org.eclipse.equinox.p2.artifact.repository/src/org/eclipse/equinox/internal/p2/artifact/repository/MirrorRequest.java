@@ -108,7 +108,7 @@ public class MirrorRequest extends ArtifactRequest {
 
 		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
 		// if ok or transfer has already been done with the canonical form return with status set 
-		if (status.isOK() || descriptor == canonical) {
+		if (status.isOK() || descriptor == canonical || canonical == null) {
 			setResult(status);
 			return;
 		}
