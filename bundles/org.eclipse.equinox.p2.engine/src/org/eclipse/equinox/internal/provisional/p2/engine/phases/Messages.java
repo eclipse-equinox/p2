@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 import org.eclipse.osgi.util.NLS;
 
 class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.engine.phases.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.provisional.p2.engine.phases.messages"; //$NON-NLS-1$
 	public static String Phase_Collect_Error;
 	public static String Phase_Install_Error;
 	public static String Phase_Configure_Error;
