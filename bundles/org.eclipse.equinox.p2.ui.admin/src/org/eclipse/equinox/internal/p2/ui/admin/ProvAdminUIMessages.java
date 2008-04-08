@@ -27,13 +27,11 @@ public class ProvAdminUIMessages extends NLS {
 	public static String AddArtifactRepositoryDialog_DuplicateURL;
 	public static String AddArtifactRepositoryDialog_OperationLabel;
 	public static String AddProfileDialog_Title;
-	public static String AddRepositoryDialog_InvalidURL;
 	public static String AddMetadataRepositoryDialog_OperationLabel;
 	public static String MetadataRepositoriesView_AddRepositoryTooltip;
 	public static String MetadataRepositoriesView_AddRepositoryLabel;
 	public static String MetadataRepositoriesView_ChooseProfileDialogTitle;
 	public static String MetadataRepositoriesView_RemoveRepositoryTooltip;
-	public static String MetadataRepositoriesView_RemoveRepositoryOperationLabel;
 	public static String ArtifactRepositoriesView_AddRepositoryTooltip;
 	public static String ArtifactRepositoriesView_AddRepositoryLabel;
 	public static String ArtifactRepositoriesView_RemoveRepositoryTooltip;
@@ -55,16 +53,11 @@ public class ProvAdminUIMessages extends NLS {
 	public static String ProvisioningPrefPage_ShowGroupsOnly;
 	public static String ProvisioningPrefPage_ShowInstallRootsOnly;
 	public static String ProvisioningPrefPage_CollapseIUVersions;
-	public static String ProvisioningPrefPage_Description;
 	public static String ProvisioningPrefPage_UseCategories;
 
 	public static String Ops_RemoveProfileOperationLabel;
 	public static String AddProfileDialog_OperationLabel;
 	public static String AddProfileDialog_DuplicateProfileID;
-	public static String UpdateAndInstallDialog_AvailableIUsPageLabel;
-	public static String UpdateAndInstallDialog_InstalledIUsPageLabel;
-	public static String UpdateAndInstallDialog_Title;
-
 	public static String ProvView_RefreshCommandLabel;
 	public static String ProvView_RefreshCommandTooltip;
 
