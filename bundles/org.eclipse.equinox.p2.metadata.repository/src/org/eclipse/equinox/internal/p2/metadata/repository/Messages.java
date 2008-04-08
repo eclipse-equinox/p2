@@ -23,7 +23,6 @@ public class Messages extends NLS {
 	}
 
 	public static String io_failedRead;
-	public static String io_failedWrite;
 	public static String io_IncompatibleVersion;
 	public static String io_parseError;
 
