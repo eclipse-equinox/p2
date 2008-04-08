@@ -60,7 +60,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
 	private static final String SELECTED_TAB_SETTING = "SelectedTab"; //$NON-NLS-1$
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
-	static final String INITIAL_TEXT = ProvSDKMessages.UpdateAndInstallDialog_TypeFilterText;
 
 	String profileId;
 	AvailableIUViewQueryContext queryContext;

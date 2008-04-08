@@ -56,7 +56,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 	MouseListener clickListener;
 
 	public AutomaticUpdatesPopup(Shell parentShell, boolean alreadyDownloaded, Preferences prefs) {
-		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, false, false, ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle, null);
+		super(parentShell, PopupDialog.INFOPOPUPRESIZE_SHELLSTYLE | SWT.MODELESS, false, true, false, false, ProvSDKMessages.AutomaticUpdatesPopup_UpdatesAvailableTitle, null);
 		downloaded = alreadyDownloaded;
 		this.prefs = prefs;
 		remindDelay = computeRemindDelay();
@@ -78,9 +78,9 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 		// The "click to update" label
 		Label infoLabel = new Label(dialogArea, SWT.NONE);
 		if (downloaded)
-			infoLabel.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewDownloaded);
+			infoLabel.setText(ProvSDKMessages.AutomaticUpdatesPopup_ClickToReviewDownloaded);
 		else
-			infoLabel.setText(ProvSDKMessages.AutomaticUpdatesDialog_ClickToReviewNotDownloaded);
+			infoLabel.setText(ProvSDKMessages.AutomaticUpdatesPopup_ClickToReviewNotDownloaded);
 		infoLabel.setLayoutData(new GridData(GridData.FILL_BOTH));
 		infoLabel.addMouseListener(clickListener);
 
@@ -200,7 +200,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setText(ProvSDKMessages.AutomaticUpdatesDialog_UpdatesAvailableTitle);
+		newShell.setText(ProvSDKMessages.AutomaticUpdatesPopup_UpdatesAvailableTitle);
 	}
 
 	/**

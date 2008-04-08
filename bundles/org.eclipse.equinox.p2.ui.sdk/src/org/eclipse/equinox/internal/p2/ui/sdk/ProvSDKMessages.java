@@ -24,8 +24,6 @@ public class ProvSDKMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvSDKMessages.class);
 	}
-	public static String AddColocatedRepositoryDialog_InvalidURL;
-	public static String AddColocatedRepositoryDialog_MissingProfile;
 	public static String AddColocatedRepositoryDialog_Title;
 	public static String ExternalFileHandler_BundleInstalledOK;
 	public static String ExternalFileHandler_ErrorCopyingFile;
@@ -33,8 +31,6 @@ public class ProvSDKMessages extends NLS {
 	public static String ExternalFileHandler_ErrorLoadingFromZipDirectory;
 	public static String ExternalFileHandler_PromptForInstallBundle;
 	public static String ExternalFileHandler_RepositoryGeneratedOK;
-	public static String ExternalFileHandler_UnexpectedError;
-	public static String ExternalFileHandler_UserGeneratedRepoName;
 	public static String ExternalFileHandler_PromptForUnzip;
 	public static String ExternalFilesPreferencePage_AddBundleGroup;
 	public static String ExternalFilesPreferencePage_ArchiveRepoGenerationGroup;
@@ -44,11 +40,6 @@ public class ProvSDKMessages extends NLS {
 	public static String ExternalFilesPreferencePage_GenerateArchiveRepoAlways;
 	public static String ExternalFilesPreferencePage_GenerateArchiveRepoNever;
 	public static String ExternalFilesPreferencePage_GenerateArchiveRepoPrompt;
-	public static String ExternalFilesPreferencePage_GenerateRepoAlways;
-	public static String ExternalFilesPreferencePage_GenerateRepoNever;
-	public static String ExternalFilesPreferencePage_GenerateRepoPrompt;
-	public static String ExternalFilesPreferencePage_RepoGenerationGroup;
-	public static String RepositoryManipulationDialog_ErrorRetrievingSites;
 	public static String RepositoryManipulationDialog_AddButton;
 	public static String RepositoryManipulationDialog_LocationColumnHeader;
 	public static String RepositoryManipulationDialog_NameColumnHeader;
@@ -56,7 +47,6 @@ public class ProvSDKMessages extends NLS {
 	public static String RepositoryManipulationDialog_RemoveButton;
 	public static String RepositoryManipulationDialog_RemoveOperationLabel;
 	public static String RepositoryManipulationDialog_UpdateSitesDialogTitle;
-	public static String UpdateAndInstallDialog_AccessibilityFilterDescription;
 	public static String UpdateAndInstallDialog_AddSiteButtonText;
 	public static String UpdateAndInstallDialog_AddSiteOperationlabel;
 	public static String UpdateAndInstallDialog_AvailableSoftware;
@@ -69,12 +59,10 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateAndInstallDialog_RemoveSiteOperationLabel;
 	public static String UpdateAndInstallDialog_RevertActionLabel;
 	public static String UpdateAndInstallDialog_Title;
-	public static String UpdateAndInstallDialog_TypeFilterText;
 	public static String UpdateAndInstallDialog_Properties;
 	public static String UpdateAndInstallDialog_Refresh;
 
 	public static String UpdateAndInstallDialog_ViewByCategory;
-	public static String UpdateAndInstallDialog_ViewByMenuToolTip;
 	public static String UpdateAndInstallDialog_ViewByName;
 	public static String UpdateAndInstallDialog_ViewBySite;
 	public static String UpdateHandler_CannotLaunchUI;
@@ -111,7 +99,6 @@ public class ProvSDKMessages extends NLS {
 	public static String SchedulerStartup_10PM;
 	public static String SchedulerStartup_11PM;
 	public static String SchedulerStartup_12AM;
-	public static String AutomaticUpdatesJob_AutomaticUpdateSearch;
 	public static String AutomaticUpdatesPopup_PrefLinkOnly;
 	public static String AutomaticUpdatesPopup_RemindAndPrefLink;
 	public static String AutomaticUpdatesPopup_ReminderJobTitle;
@@ -120,13 +107,11 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdateScheduler_60Minutes;
 	public static String AutomaticUpdateScheduler_240Minutes;
 	public static String AutomaticUpdateScheduler_UpdateNotInitialized;
-	public static String AutomaticUpdatesDialog_DownloadedNotification;
-	public static String AutomaticUpdatesDialog_UpdatesAvailableTitle;
+	public static String AutomaticUpdatesPopup_UpdatesAvailableTitle;
 	public static String AutomaticUpdater_AutomaticDownloadOperationName;
 	public static String AutomaticUpdater_ClickToReviewUpdates;
 	public static String AutomaticUpdater_ClickToReviewUpdatesWithProblems;
 	public static String AutomaticUpdater_ErrorCheckingUpdates;
-	public static String AutomaticUpdatesDialog_UpdatesFoundNotification;
 	public static String AutomaticUpdatesPreferencePage_UpdateSchedule;
 	public static String AutomaticUpdatesPreferencePage_findOnStart;
 	public static String AutomaticUpdatesPreferencePage_findOnSchedule;
@@ -137,17 +122,12 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesPreferencePage_RemindGroup;
 	public static String AutomaticUpdatesPreferencePage_RemindSchedule;
 	public static String AutomaticUpdatesPreferencePage_RemindOnce;
-	public static String AutomaticUpdatesJob_Updates;
-	public static String AutomaticUpdatesDialog_ClickToReviewDownloaded;
-	public static String AutomaticUpdatesDialog_ClickToReviewNotDownloaded;
+	public static String AutomaticUpdatesPopup_ClickToReviewDownloaded;
+	public static String AutomaticUpdatesPopup_ClickToReviewNotDownloaded;
 	public static String ProvisioningPreferencePage_AlwaysOpenWizard;
 	public static String ProvisioningPreferencePage_BrowsingPrefsGroup;
 	public static String ProvisioningPreferencePage_ShowLatestVersions;
 	public static String ProvisioningPreferencePage_ShowAllVersions;
-	public static String ProvisioningPreferencePage_gcGroup;
-	public static String ProvisioningPreferencePage_enableGC;
-	public static String ProvisioningPreferencePage_gcImmediately;
-	public static String ProvisioningPreferencePage_gcRetentionTime;
 	public static String ProvisioningPreferencePage_NeverOpenWizard;
 	public static String ProvisioningPreferencePage_OpenWizardIfInvalid;
 	public static String ProvisioningPreferencePage_PromptToOpenWizard;
