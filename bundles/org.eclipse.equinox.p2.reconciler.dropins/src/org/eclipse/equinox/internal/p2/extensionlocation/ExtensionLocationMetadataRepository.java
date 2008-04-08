@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.io.File;
@@ -41,7 +51,7 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 			localRepositoryURL = stateDir.toURL();
 		} catch (MalformedURLException e) {
 			// unexpected
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Failed to create local repository", e)); //$NON-NLS-1$
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository, e));
 		}
 
 		metadataRepository = initializeMetadataRepository(localRepositoryURL, "extension location implementation - " + location.toExternalForm()); //$NON-NLS-1$
@@ -87,7 +97,7 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 
 	public static File getBaseDirectory(URL url) throws ProvisionException {
 		if (!FILE.equals(url.getProtocol()))
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location must use file protocol", null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_file_protocol, null));
 
 		String path = url.getPath();
 		File base = new File(path);
@@ -96,7 +106,7 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 		}
 
 		if (!base.isDirectory())
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location not a directory", null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_directory, null));
 
 		if (isBaseDirectory(base))
 			return base;
@@ -105,7 +115,7 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 		if (isBaseDirectory(eclipseBase))
 			return eclipseBase;
 
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location is not an extension", null));
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_eclipse_extension, null));
 	}
 
 	private static boolean isBaseDirectory(File base) {
@@ -121,7 +131,7 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 	public Map getProperties() {
 		if (metadataRepository == null)
 			return super.getProperties();
-		else
-			return metadataRepository.getProperties();
+
+		return metadataRepository.getProperties();
 	}
 }
