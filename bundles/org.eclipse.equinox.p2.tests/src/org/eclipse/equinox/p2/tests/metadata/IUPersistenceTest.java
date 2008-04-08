@@ -128,6 +128,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			start(IU_TEST_ELEMENT);
 			writeInstallableUnit(iu);
 			end(IU_TEST_ELEMENT);
+			flush();
 		}
 	}
 

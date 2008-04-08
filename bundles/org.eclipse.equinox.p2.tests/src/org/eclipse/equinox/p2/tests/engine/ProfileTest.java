@@ -238,6 +238,7 @@ public class ProfileTest extends AbstractProvisioningTest {
 			start(PROFILE_TEST_ELEMENT);
 			writeProfiles(profiles);
 			end(PROFILE_TEST_ELEMENT);
+			flush();
 		}
 
 		public void writeProfiles(IProfile[] profiles) {
