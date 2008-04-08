@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.text.NumberFormat;
 import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -31,6 +31,7 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 	// private static final int DEFAULT_COLUMN_WIDTH = 150;
 	protected Label sizeInfo;
 	protected Sizing sizing;
+	private Job sizingJob;
 
 	protected UpdateOrInstallWizardPage(String id, IInstallableUnit[] ius, String profileId, ProvisioningPlan plan, UpdateOrInstallWizard wizard) {
 		super(id, ius, profileId, plan);
@@ -59,7 +60,9 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 
 				});
 			}
-		Job job = new Job("Computing size") {
+		if (sizingJob != null)
+			sizingJob.cancel();
+		sizingJob = new Job("Computing size") {
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
 					sizing = ProvisioningUtil.getSizeInfo(plan, profileId, monitor);
@@ -80,7 +83,12 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 			}
 
 		};
-		job.schedule();
+		sizingJob.schedule();
+		sizingJob.addJobChangeListener(new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				sizingJob = null;
+			}
+		});
 	}
 
 	protected void createSizingInfo(Composite parent) {
@@ -114,4 +122,10 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 		return NLS.bind(ProvUIMessages.IUDetailsLabelProvider_Bytes, NumberFormat.getInstance().format(new Long(size)));
 	}
 
+	public void dispose() {
+		if (sizingJob != null) {
+			sizingJob.cancel();
+			sizingJob = null;
+		}
+	}
 }
