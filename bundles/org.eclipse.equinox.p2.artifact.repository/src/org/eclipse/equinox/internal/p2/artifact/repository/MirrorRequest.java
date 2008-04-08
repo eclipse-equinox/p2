@@ -62,11 +62,11 @@ public class MirrorRequest extends ArtifactRequest {
 
 		// if the request does not have a descriptor then try to fill one in by getting
 		// the list of all and randomly picking one that appears to be optimized.
+		IArtifactDescriptor optimized = null;
+		IArtifactDescriptor canonical = null;
 		if (descriptor == null) {
 			IArtifactDescriptor[] descriptors = source.getArtifactDescriptors(getArtifactKey());
 			if (descriptors.length > 0) {
-				IArtifactDescriptor optimized = null;
-				IArtifactDescriptor canonical = null;
 				for (int i = 0; i < descriptors.length; i++) {
 					if (descriptors[i].getProperty(IArtifactDescriptor.FORMAT) == null)
 						canonical = descriptors[i];
@@ -106,23 +106,35 @@ public class MirrorRequest extends ArtifactRequest {
 		if (targetRepositoryProperties != null)
 			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
 
+		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
+		// if ok or transfer has already been done with the canonical form return with status set 
+		if (status.isOK() || descriptor == canonical) {
+			setResult(status);
+			return;
+		}
+
+		// retry with canonical, first remove possibly erroneously added descriptor
+		if (target.contains(destinationDescriptor))
+			target.removeDescriptor(destinationDescriptor);
+		setResult(transfer(destinationDescriptor, canonical, monitor));
+	}
+
+	private IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
 		OutputStream destination;
 		try {
 			destination = target.getOutputStream(destinationDescriptor);
 		} catch (ProvisionException e) {
-			setResult(e.getStatus());
-			return;
+			return e.getStatus();
 		}
 
 		// Do the actual transfer
 		try {
-			setResult(getSourceRepository().getArtifact(descriptor, destination, monitor));
-			return;
+			return getSourceRepository().getArtifact(descriptor, destination, monitor);
 		} finally {
 			try {
 				destination.close();
 			} catch (IOException e) {
-				setResult(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e));
+				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
 			}
 		}
 	}
