@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.io.File;
@@ -7,8 +17,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
@@ -16,6 +25,7 @@ import org.osgi.framework.BundleContext;
 
 public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository {
 
+	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	//private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
@@ -39,13 +49,16 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 			localRepositoryURL = stateDir.toURL();
 		} catch (MalformedURLException e) {
 			// unexpected
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Failed to create local repository", e)); //$NON-NLS-1$
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_repo, e));
 		}
 
 		artifactRepository = (IFileArtifactRepository) initializeArtifactRepository(localRepositoryURL, "extension location implementation - " + location.toExternalForm()); //$NON-NLS-1$
 
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		RepositoryListener listener = new RepositoryListener(context, null, artifactRepository);
+		DirectoryChangeListener listener = new RepositoryListener(context, null, artifactRepository);
+		if (location.getPath().endsWith(POOLED))
+			listener = new BundlePoolFilteredListener(listener);
+
 		watcher.addListener(listener);
 		watcher.poll();
 	}
@@ -69,11 +82,16 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 
 	public static File getBaseDirectory(URL url) throws ProvisionException {
 		if (!FILE.equals(url.getProtocol()))
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location must use file protocol", null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_file_protocol, null));
 
-		File base = new File(url.getPath());
+		String path = url.getPath();
+		File base = new File(path);
+		if (path.endsWith(POOLED)) {
+			base = base.getParentFile();
+		}
+
 		if (!base.isDirectory())
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location not a directory", null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_directory, null));
 
 		if (isBaseDirectory(base))
 			return base;
@@ -82,7 +100,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		if (isBaseDirectory(eclipseBase))
 			return eclipseBase;
 
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location is not an extension", null));
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_eclipse_extension, null));
 	}
 
 	private static boolean isBaseDirectory(File base) {

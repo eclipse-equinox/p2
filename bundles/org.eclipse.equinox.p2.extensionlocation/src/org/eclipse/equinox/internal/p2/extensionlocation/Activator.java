@@ -1,7 +1,10 @@
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.osgi.framework.*;
 
 public class Activator implements BundleActivator {
 
@@ -26,6 +29,35 @@ public class Activator implements BundleActivator {
 
 	public static BundleContext getContext() {
 		return bundleContext;
+	}
+
+	public static IProfile getCurrentProfile() {
+		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.class.getName());
+		if (reference == null)
+			return null;
+		IProfileRegistry profileRegistry = (IProfileRegistry) bundleContext.getService(reference);
+		try {
+			return profileRegistry.getProfile(IProfileRegistry.SELF);
+		} finally {
+			bundleContext.ungetService(reference);
+		}
+	}
+
+	public static IFileArtifactRepository getBundlePoolRepository() {
+		ServiceReference reference = bundleContext.getServiceReference(IProfileRegistry.class.getName());
+		if (reference == null)
+			return null;
+		IProfileRegistry profileRegistry = (IProfileRegistry) bundleContext.getService(reference);
+		IProfile profile = null;
+		try {
+			profile = profileRegistry.getProfile(IProfileRegistry.SELF);
+		} finally {
+			bundleContext.ungetService(reference);
+		}
+		if (profile == null)
+			return null;
+
+		return Util.getBundlePoolRepository(profile);
 	}
 
 }
