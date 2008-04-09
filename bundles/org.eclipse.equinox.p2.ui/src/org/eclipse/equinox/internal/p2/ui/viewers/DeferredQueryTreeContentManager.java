@@ -69,10 +69,11 @@ public class DeferredQueryTreeContentManager extends DeferredTreeContentManager 
 	}
 
 	protected void runClearPlaceholderJob(final PendingUpdateAdapter placeholder) {
-		if (placeholder.isRemoved() || !PlatformUI.isWorkbenchRunning())
-			return;
-		if (placeholder instanceof ElementPendingUpdateAdapter)
+		if (placeholder instanceof ElementPendingUpdateAdapter) {
+			if (((ElementPendingUpdateAdapter) placeholder).isRemoved() || !PlatformUI.isWorkbenchRunning())
+				return;
 			notifyListener(false, (ElementPendingUpdateAdapter) placeholder);
+		}
 		super.runClearPlaceholderJob(placeholder);
 	}
 
