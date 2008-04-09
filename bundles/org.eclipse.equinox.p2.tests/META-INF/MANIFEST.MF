@@ -5,8 +5,7 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
-Import-Package: junit.framework;version="3.8.2",
- org.eclipse.equinox.internal.p2.artifact.repository,
+Import-Package: org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.director,
@@ -45,8 +44,9 @@ Bundle-Activator: org.eclipse.equinox.p2.tests.TestActivator
 Bundle-ClassPath: .
 Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.frameworkadmin,
- org.eclipse.equinox.common
-Eclipse-LazyStart: true
+ org.eclipse.equinox.common,
+ org.junit
+Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
 Export-Package: org.eclipse.equinox.p2.tests,
