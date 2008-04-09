@@ -25,8 +25,8 @@ import org.eclipse.swt.widgets.Shell;
 public class RemoveColocatedRepositoryAction extends ProvisioningAction {
 
 	public RemoveColocatedRepositoryAction(ISelectionProvider selectionProvider, Shell shell) {
-		super("Remove site...", selectionProvider, shell);
-		setToolTipText("Remove one or more sites used to access the available software");
+		super(ProvSDKMessages.RemoveColocatedRepositoryAction_Label, selectionProvider, shell);
+		setToolTipText(ProvSDKMessages.RemoveColocatedRepositoryAction_Tooltip);
 	}
 
 	public void run() {
@@ -43,7 +43,11 @@ public class RemoveColocatedRepositoryAction extends ProvisioningAction {
 		return (URL[]) urls.toArray(new URL[urls.size()]);
 	}
 
-	public void selectionChanged(IStructuredSelection selection) {
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction#structuredSelectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
+	 */
+	protected void structuredSelectionChanged(IStructuredSelection selection) {
 		setEnabled(getSelectedURLs(selection.toArray()).length > 0);
 	}
 }

@@ -19,8 +19,8 @@ import org.eclipse.swt.widgets.Shell;
 public class AddColocatedRepositoryAction extends ProvisioningAction {
 
 	public AddColocatedRepositoryAction(ISelectionProvider selectionProvider, Shell shell) {
-		super("Add Site...", selectionProvider, shell);
-		setToolTipText("Add a site used to access the available software");
+		super(ProvSDKMessages.AddColocatedRepositoryAction_Label, selectionProvider, shell);
+		setToolTipText(ProvSDKMessages.AddColocatedRepositoryAction_ToolTip);
 	}
 
 	public void run() {

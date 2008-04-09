@@ -24,6 +24,8 @@ public class ProvSDKMessages extends NLS {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, ProvSDKMessages.class);
 	}
+	public static String AddColocatedRepositoryAction_Label;
+	public static String AddColocatedRepositoryAction_ToolTip;
 	public static String AddColocatedRepositoryDialog_Title;
 	public static String ExternalFileHandler_BundleInstalledOK;
 	public static String ExternalFileHandler_ErrorCopyingFile;
@@ -40,6 +42,8 @@ public class ProvSDKMessages extends NLS {
 	public static String ExternalFilesPreferencePage_GenerateArchiveRepoAlways;
 	public static String ExternalFilesPreferencePage_GenerateArchiveRepoNever;
 	public static String ExternalFilesPreferencePage_GenerateArchiveRepoPrompt;
+	public static String RemoveColocatedRepositoryAction_Label;
+	public static String RemoveColocatedRepositoryAction_Tooltip;
 	public static String RepositoryManipulationDialog_AddButton;
 	public static String RepositoryManipulationDialog_LocationColumnHeader;
 	public static String RepositoryManipulationDialog_NameColumnHeader;
