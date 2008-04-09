@@ -155,8 +155,9 @@ public class FeatureParser extends DefaultHandler {
 				e.printStackTrace();
 			}
 		} else if (location.getName().endsWith(".jar")) { //$NON-NLS-1$
+			JarFile jar = null;
 			try {
-				JarFile jar = new JarFile(location);
+				jar = new JarFile(location);
 				Properties properties = loadProperties(jar);
 				JarEntry entry = jar.getJarEntry("feature.xml"); //$NON-NLS-1$
 				if (entry == null)
@@ -165,6 +166,13 @@ public class FeatureParser extends DefaultHandler {
 				return parse(input, properties);
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				try {
+					if (jar != null)
+						jar.close();
+				} catch (IOException e) {
+					//
+				}
 			}
 		}
 		return null;
