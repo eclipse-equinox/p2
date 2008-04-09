@@ -89,7 +89,38 @@ public abstract class QueriedElement extends ProvElement {
 		return queryable;
 	}
 
+	/**
+	 * Return a boolean indicating whether the receiver
+	 * has enough information to get its queryable.  This is used in lieu
+	 * of {{@link #getQueryable()} when lazy initialization
+	 * of the queryable is not desired, and a client wishes
+	 * to know whether the queryable could be obtained.  Subclasses
+	 * that cache information needed to retrieve the queryable rather
+	 * than the queryable itself should
+	 * override this. 
+	 * 
+	 * @return <code>true</code> if the receiver has enough
+	 * information to retrieve its queryable, <code>false</code> 
+	 * if it does not.
+	 */
 	public boolean knowsQueryable() {
+		return queryable != null;
+	}
+
+	/**
+	 * Return a boolean indicating whether the receiver
+	 * actually has its queryable.  This is used in lieu
+	 * of {{@link #getQueryable()} when lazy initialization
+	 * of the queryable is not desired.  For example, when
+	 * working with an element whose queryable may be 
+	 * expensive to obtain, clients may check this before
+	 * actually getting the queryable.  Subclasses
+	 * should typically not need to override this.
+	 * 
+	 * @return <code>true</code> if the receiver has its
+	 * queryable, <code>false</code> if it does not yet.
+	 */
+	public boolean hasQueryable() {
 		return queryable != null;
 	}
 

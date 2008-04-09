@@ -1,6 +1,5 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -110,14 +109,6 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	public void contentProviderSet(final DeferredQueryContentProvider deferredProvider) {
 		this.contentProvider = deferredProvider;
 		deferredProvider.addListener(new DeferredQueryContentListener() {
-			public void fetchingDeferredChildren(Object parent) {
-				// Nothing to do
-			}
-
-			public void finishedFetchingDeferredChildren(Object parent, IStatus result) {
-				//Nothing to do
-			}
-
 			public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 				if (newInput == null)
 					return;

@@ -9,19 +9,21 @@
  *     IBM Corporation - initial API and implementation
  ******************************************************************************/
 
-package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
+package org.eclipse.equinox.internal.p2.ui.viewers;
 
 import java.util.EventListener;
-import org.eclipse.jface.viewers.Viewer;
 
 /**
  * A listening interface used to signal when fetching begins and
  * ends.  Used by clients who wish to coordinate fetching with other
- * jobs that must occur in the viewer.
+ * capabilities of the viewer.
  * 
  * @since 3.4
  *
  */
-public interface DeferredQueryContentListener extends EventListener {
-	public void inputChanged(Viewer v, Object oldInput, Object newInput);
+public interface DeferredQueryTreeListener extends EventListener {
+
+	public void fetchingDeferredChildren(Object parent, Object placeHolder);
+
+	public void finishedFetchingDeferredChildren(Object parent, Object placeHolder);
 }

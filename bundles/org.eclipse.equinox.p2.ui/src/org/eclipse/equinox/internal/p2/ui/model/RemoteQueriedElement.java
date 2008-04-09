@@ -79,21 +79,4 @@ public abstract class RemoteQueriedElement extends QueriedElement implements IDe
 	protected boolean isSufficientForQuery(ElementQueryDescriptor queryDescriptor) {
 		return queryDescriptor.isComplete();
 	}
-
-	/**
-	 * Return a boolean indicating whether this element requires 
-	 * remote/deferred queries only on the first access of its
-	 * children, or on every access.  Elements that cache data or
-	 * rely on their model caching the data may only need to use
-	 * deferred queries the first time.  Elements that do not cache,
-	 * and whose models do not cache, may need to use deferred
-	 * queries on every access.
-	 * 
-	 * @return <code>true</code> if a deferred query is only required
-	 * on first access of children, <code>false</code> if deferred
-	 * query is required on all accesses.
-	 */
-	public boolean fetchOnFirstAccessOnly() {
-		return true;
-	}
 }

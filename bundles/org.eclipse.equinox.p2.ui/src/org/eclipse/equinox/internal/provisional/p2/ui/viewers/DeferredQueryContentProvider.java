@@ -14,14 +14,13 @@ package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.eclipse.core.runtime.ListenerList;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryTreeContentManager;
+import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryTreeListener;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.ui.progress.DeferredTreeContentManager;
 
 /**
  * Content provider that retrieves children asynchronously where
@@ -33,7 +32,7 @@ import org.eclipse.ui.progress.DeferredTreeContentManager;
  */
 public class DeferredQueryContentProvider implements ITreeContentProvider {
 
-	DeferredTreeContentManager manager;
+	DeferredQueryTreeContentManager manager;
 	IQueryProvider queryProvider;
 	Object currentInput;
 	HashMap alreadyQueried = new HashMap();
@@ -58,11 +57,22 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 		if (manager != null)
 			manager.cancel(oldInput);
 		if (v instanceof AbstractTreeViewer) {
-			manager = new DeferredTreeContentManager((AbstractTreeViewer) v);
+			manager = new DeferredQueryTreeContentManager((AbstractTreeViewer) v);
 			viewer = (AbstractTreeViewer) v;
+			manager.setListener(new DeferredQueryTreeListener() {
+
+				public void fetchingDeferredChildren(Object parent, Object placeholder) {
+					alreadyQueried.put(parent, placeholder);
+				}
+
+				public void finishedFetchingDeferredChildren(Object parent, Object placeholder) {
+					queryCompleted.add(parent);
+				}
+			});
 		} else
 			viewer = null;
 		alreadyQueried = new HashMap();
+		queryCompleted = new HashSet();
 		currentInput = newInput;
 		Object[] inputListeners = listeners.getListeners();
 		for (int i = 0; i < inputListeners.length; i++) {
@@ -106,47 +116,17 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 	public Object[] getChildren(final Object parent) {
 		if (parent instanceof RemoteQueriedElement) {
 			RemoteQueriedElement element = (RemoteQueriedElement) parent;
-			if (element.fetchOnFirstAccessOnly() && queryCompleted.contains(element))
+			// We rely on the assumption that the queryable is the most expensive
+			// thing to get vs. the query itself being expensive.
+			// (loading a repo vs. querying a repo afterward)
+			if (element.hasQueryable())
 				return element.getChildren(element);
 
 			if (manager != null && !synchronous) {
-				if (!alreadyQueried.containsKey(parent)) {
-					alreadyQueried.put(parent, null);
-					Object[] fetchListeners = listeners.getListeners();
-					for (int i = 0; i < fetchListeners.length; i++) {
-						((DeferredQueryContentListener) fetchListeners[i]).fetchingDeferredChildren(parent);
-					}
-					manager.addUpdateCompleteListener(new JobChangeAdapter() {
-						public void done(IJobChangeEvent event) {
-							if (event.getResult().isOK()) {
-								queryCompleted.add(parent);
-							}
-							Object[] finishedListeners = listeners.getListeners();
-							for (int i = 0; i < finishedListeners.length; i++) {
-								((DeferredQueryContentListener) finishedListeners[i]).finishedFetchingDeferredChildren(parent, event.getResult());
-							}
-
-						}
-					});
-					Object[] children = manager.getChildren(parent);
-					if (children != null) {
-						// This will be a placeholder to indicate 
-						// that the real children are being fetched
-						alreadyQueried.put(parent, children);
-						return children;
-					}
-				} else {
-					// We have already asked the manager, just bail out quickly here using the
-					// same placeholder as before
-					Object children = alreadyQueried.get(parent);
-					if (children == null)
-						return null;
-					return (Object[]) children;
-				}
+				return manager.getChildren(parent);
 			}
 		}
-		// Either we had no deferred manager or we are operating
-		// in synchronous mode
+		// Either it's not a remote element or we are in synchronous mode
 		if (parent instanceof ProvElement) {
 			return ((ProvElement) parent).getChildren(parent);
 		}

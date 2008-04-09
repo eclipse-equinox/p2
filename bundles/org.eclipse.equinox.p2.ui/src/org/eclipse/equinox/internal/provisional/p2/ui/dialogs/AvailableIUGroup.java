@@ -28,7 +28,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.dialogs.PatternFilter;
 
 /**
  * An AvailableIUGroup is a reusable UI component that displays the
@@ -39,9 +38,12 @@ import org.eclipse.ui.dialogs.PatternFilter;
 public class AvailableIUGroup extends StructuredIUGroup {
 
 	QueryContext queryContext;
-	PatternFilter filter;
+	// We restrict the type of the filter used because PatternFilter does
+	// unnecessary accesses of children that cause problems with the deferred
+	// tree.
+	AvailableIUPatternFilter filter;
 	private IViewMenuProvider menuProvider;
-	private boolean useBold = false;;
+	private boolean useBold = false;
 	private IUDetailsLabelProvider labelProvider;
 	DeferredFetchFilteredTree filteredTree;
 	IUColumnConfig[] columnConfig;
@@ -74,26 +76,31 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * including information about which repositories should be used.
 	 * @param queryContext the QueryContext describing additional information about how
 	 * the model should be traversed in this view.
-	 * @param filter the PatternFilter to use to filter the tree contents.  If <code>null</code>,
-	 * then there will be no filter.
+	 * @param filter the AvailableIUPatternFilter to use to filter the tree contents.  If <code>null</code>,
+	 * then a default will be used.
 	 * @param columnConfig the description of the columns that should be shown.  If <code>null</code>, a default
 	 * will be used.
 	 * @param menuProvider the IMenuProvider that fills the view menu.  If <code>null</code>,
 	 * then there is no view menu shown.
 	 */
-	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, QueryContext queryContext, PatternFilter filter, IUColumnConfig[] columnConfig, IViewMenuProvider menuProvider) {
+	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, QueryContext queryContext, AvailableIUPatternFilter filter, IUColumnConfig[] columnConfig, IViewMenuProvider menuProvider) {
 		super(parent, queryProvider, font, context);
 		this.queryContext = queryContext;
 		this.filter = filter;
 		this.menuProvider = menuProvider;
-		this.columnConfig = columnConfig;
+		if (columnConfig == null)
+			this.columnConfig = ProvUI.getIUColumnConfig();
+		else
+			this.columnConfig = columnConfig;
+		if (filter == null)
+			this.filter = new AvailableIUPatternFilter(this.columnConfig);
+		else
+			this.filter = filter;
 		createGroupComposite(parent);
 	}
 
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of available IU's
-		if (filter == null)
-			filter = new PatternFilter();
 		filteredTree = new DeferredFetchFilteredTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, menuProvider, parent.getDisplay());
 		final TreeViewer availableIUViewer = filteredTree.getViewer();
 
