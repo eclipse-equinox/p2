@@ -69,9 +69,10 @@ public class DigestParser extends DefaultHandler {
 		if (!location.exists())
 			return null;
 
+		JarFile jar = null;
 		InputStream is = null;
 		try {
-			JarFile jar = new JarFile(location);
+			jar = new JarFile(location);
 			JarEntry entry = jar.getJarEntry("digest.xml"); //$NON-NLS-1$
 			if (entry == null)
 				return null;
@@ -87,6 +88,12 @@ public class DigestParser extends DefaultHandler {
 				if (is != null)
 					is.close();
 			} catch (IOException e1) {
+				//
+			}
+			try {
+				if (jar != null)
+					jar.close();
+			} catch (IOException e) {
 				//
 			}
 		}
