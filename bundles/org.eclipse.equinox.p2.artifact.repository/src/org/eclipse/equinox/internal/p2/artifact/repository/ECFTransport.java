@@ -229,7 +229,7 @@ public class ECFTransport extends Transport {
 			setPassword(null);
 			throw new UserCancelledException();
 		}
-		if (loginDetails[2] != null && Boolean.parseBoolean(loginDetails[2])) {
+		if (loginDetails[2] != null && Boolean.valueOf(loginDetails[2]).booleanValue()) {
 			try {
 				metadataNode.put(IRepository.PROP_USERNAME, loginDetails[0], true);
 				metadataNode.put(IRepository.PROP_PASSWORD, loginDetails[1], true);
