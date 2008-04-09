@@ -10,19 +10,16 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.sar;
 
-import junit.framework.*;
+import junit.framework.TestCase;
+import org.eclipse.equinox.internal.p2.sar.SarEntry;
 
-/**
- * Performs all sar tests.
- */
-public class AllTests extends TestCase {
+public class SarEntryTest extends TestCase {
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite(AllTests.class.getName());
-		suite.addTestSuite(DirectByteArrayOutputStreamTest.class);
-		suite.addTestSuite(SarTest.class);
-		suite.addTestSuite(SarEntryTest.class);
-		return suite;
+	public void testJavaToDosTimeAndBack() {
+		final long minute = 1000l * 60l;
+		long now = (System.currentTimeMillis() / minute) * minute;
+		long dos = SarEntry.javaToDosTime(now);
+		assertEquals(now, SarEntry.dosToJavaTime(dos));
 	}
 
 }
