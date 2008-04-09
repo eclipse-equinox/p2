@@ -516,6 +516,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				queryContext = new AvailableIUViewQueryContext(viewType);
 			}
 		}
+		// If we did not find a setting for the query context, use a default
+		if (queryContext == null) {
+			queryContext = new AvailableIUViewQueryContext(AvailableIUViewQueryContext.VIEW_BY_REPO);
+		}
 	}
 
 	private void saveDialogSettings() {
