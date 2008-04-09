@@ -179,7 +179,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		if (reference != null)
 			manager = (IMetadataRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
+			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
 
 		try {
 			manager.removeRepository(new URL(urlString));
@@ -213,7 +213,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		if (reference != null)
 			manager = (IArtifactRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
+			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
 
 		try {
 			manager.removeRepository(new URL(urlString));

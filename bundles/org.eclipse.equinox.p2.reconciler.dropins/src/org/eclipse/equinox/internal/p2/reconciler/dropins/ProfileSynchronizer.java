@@ -248,7 +248,7 @@ public class ProfileSynchronizer {
 	private IInstallableUnit createRootIU(List children) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setId(SUPER_IU);
-		iu.setVersion(new Version("1.0.0.v" + System.currentTimeMillis()));
+		iu.setVersion(new Version("1.0.0.v" + System.currentTimeMillis())); //$NON-NLS-1$
 		List required = new ArrayList();
 		for (Iterator iter = children.iterator(); iter.hasNext();) {
 			IInstallableUnit next = (IInstallableUnit) iter.next();
