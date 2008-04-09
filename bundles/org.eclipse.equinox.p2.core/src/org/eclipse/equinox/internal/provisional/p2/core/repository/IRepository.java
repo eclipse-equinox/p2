@@ -68,6 +68,25 @@ public interface IRepository extends IAdaptable {
 	public static final int TYPE_ARTIFACT = 1;
 
 	/**
+	 * The key for a string property providing the user name to an authenticated
+	 * URL.  This key is used in the secure preference store for repository data.
+	 * @see #PREFERENCE_NODE
+	 */
+	public static final String PROP_USERNAME = "username"; //$NON-NLS-1$
+
+	/**
+	 * The key for a string property providing the password to an authenticated
+	 * URL.  This key is used in the secure preference store for repository data.
+	 * @see #PREFERENCE_NODE
+	 */
+	public static final String PROP_PASSWORD = "password"; //$NON-NLS-1$
+
+	/**
+	 * The node identifier for repository secure preference store.
+	 */
+	public static final String PREFERENCE_NODE = "org.eclipse.equinox.p2.repository"; //$NON-NLS-1$
+
+	/**
 	 * Returns the URL of the repository.
 	 * TODO: Should we use URL or URI? URL requires a protocol handler
 	 * to be installed in Java.  Can the URL have any protocol?

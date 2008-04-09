@@ -72,6 +72,12 @@ public class ProvisionException extends CoreException {
 	 */
 	public static final int REPOSITORY_INVALID_LOCATION = 1006;
 
+	/** 
+	 * Status code constant (value 1007) indicating that there was
+	 * an authentication error while reading a repository
+	 */
+	public static final int REPOSITORY_FAILED_AUTHENTICATION = 1007;
+
 	//Metadata repository codes [1100-1199]
 
 	//Artifact repository codes [1200-1299]

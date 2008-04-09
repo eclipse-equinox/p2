@@ -63,14 +63,14 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		File dataAreaFile = URLUtil.toFile(dataArea);
 		int hashCode = location.hashCode();
 		URL remoteLocation;
-		long remoteTimestamp = getTransport().getLastModified(jarLocation.toExternalForm());
+		long remoteTimestamp = getTransport().getLastModified(jarLocation);
 		if (remoteTimestamp != 0) {
 			//remote file is in jar form
 			remoteLocation = jarLocation;
 			localFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + JAR_EXTENSION);
 		} else {
 			//check for remote file in xml form
-			remoteTimestamp = getTransport().getLastModified(xmlLocation.toExternalForm());
+			remoteTimestamp = getTransport().getLastModified(xmlLocation);
 			if (remoteTimestamp == 0) {
 				//there is no remote file in either form
 				String msg = NLS.bind(Messages.io_failedRead, location);

@@ -138,6 +138,9 @@ public class ProvUIMessages extends NLS {
 	public static String QueryableProfileRegistry_QueryProfileProgress;
 	public static String QueryableUpdates_UpdateListProgress;
 	public static String SizingPhaseSet_PhaseSetName;
+	public static String RepositoryPropertyPage_UsernameField;
+	public static String RepositoryPropertyPage_PasswordField;
+	public static String RepositoryPropertyPage_SavePasswordField;
 	public static String RevertDialog_ConfigContentsLabel;
 	public static String RevertDialog_ConfigsLabel;
 	public static String RevertDialog_ConfirmRestartMessage;
@@ -153,6 +156,10 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
 	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
 	public static String UpdateOperation_NothingToUpdate;
+	public static String ServiceUI_Cancel;
+	public static String ServiceUI_LoginDetails;
+	public static String ServiceUI_LoginRequired;
+	public static String ServiceUI_OK;
 	public static String UpdateOrInstallWizardPage_Size;
 
 }

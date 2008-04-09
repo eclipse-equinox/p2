@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.admin;
 
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.ui.SimpleLicenseManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.UpdateManagerCompatibility;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -21,6 +21,7 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * Activator class for the admin UI.
@@ -37,6 +38,8 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	private LicenseManager licenseManager;
 	private IPlanValidator planValidator;
 	private Policies policies;
+	private ValidationDialogServiceUI adminServiceUI;
+	private ServiceRegistration certificateUIRegistration;
 
 	public static BundleContext getContext() {
 		return context;
@@ -76,10 +79,14 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		ProvAdminUIActivator.context = bundleContext;
+
+		adminServiceUI = new ValidationDialogServiceUI();
+		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), adminServiceUI, null);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
 		plugin = null;
+		certificateUIRegistration.unregister();
 		super.stop(bundleContext);
 	}
 
