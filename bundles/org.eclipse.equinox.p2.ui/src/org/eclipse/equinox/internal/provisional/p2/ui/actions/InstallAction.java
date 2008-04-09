@@ -36,13 +36,12 @@ public class InstallAction extends ProfileModificationAction {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.actions.SelectionProviderAction#selectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
-	 *
 	 *  Overridden to enable only on selections with IU's.  Does not validate
 	 *  whether the IU is already installed in a particular profile.
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction#structuredSelectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
 	 */
-	public void selectionChanged(IStructuredSelection selection) {
+	protected void structuredSelectionChanged(IStructuredSelection selection) {
 		Object[] selectionArray = selection.toArray();
 		if (selectionArray.length < 1) {
 			setEnabled(false);

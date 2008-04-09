@@ -37,4 +37,27 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 			return PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 		return shell;
 	}
+
+	/*
+	 * Overridden to use the selection from the selection provider, not the one
+	 * from the triggering event.  Some selection providers reinterpret the raw selections
+	 * (non-Javadoc)
+	 * @see org.eclipse.ui.actions.SelectionProviderAction#selectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
+	 */
+	public final void selectionChanged(IStructuredSelection selection) {
+		ISelection providerSelection = getSelectionProvider().getSelection();
+		if (providerSelection instanceof IStructuredSelection) {
+			structuredSelectionChanged((IStructuredSelection) providerSelection);
+		} else {
+			// shouldn't really happen, but a provider could decide to de-structure the selection
+			selectionChanged(providerSelection);
+		}
+	}
+
+	/*
+	 * Hook in subclasses.
+	 */
+	protected void structuredSelectionChanged(IStructuredSelection selection) {
+		// Default is do nothing.
+	}
 }

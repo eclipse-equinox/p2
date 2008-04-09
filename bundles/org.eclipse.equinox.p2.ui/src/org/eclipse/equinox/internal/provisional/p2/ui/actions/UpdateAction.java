@@ -100,13 +100,14 @@ public class UpdateAction extends ProfileModificationAction {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.ui.actions.SelectionProviderAction#selectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
-	 *
 	 *  Overridden to enable only on selections of installed IU's with the same parent
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction#structuredSelectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
 	 */
-	public void selectionChanged(IStructuredSelection selection) {
-		Object[] selectionArray = selection.toArray();
+	protected void structuredSelectionChanged(IStructuredSelection selection) {
+		// Check the selection of the selection provider, not this one.
+		// This is a bit of a cheat...we know that some client selection providers are reinterpreting the selection.
+		Object[] selectionArray = getStructuredSelection().toArray();
 		Object parent = null;
 		if (selectionArray.length > 0) {
 			setEnabled(true);
