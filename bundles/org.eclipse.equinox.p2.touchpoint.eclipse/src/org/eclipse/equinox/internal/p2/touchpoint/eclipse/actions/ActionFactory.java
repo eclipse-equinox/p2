@@ -40,6 +40,8 @@ public class ActionFactory {
 		actions.put(RemoveJVMArgumentAction.ID, RemoveJVMArgumentAction.class);
 		actions.put(MkdirAction.ID, MkdirAction.class);
 		actions.put(RmdirAction.ID, RmdirAction.class);
+		actions.put(LinkAction.ID, LinkAction.class);
+		actions.put(ChmodAction.ID, ChmodAction.class);
 	}
 
 	public static ProvisioningAction create(String actionId) {

@@ -17,7 +17,7 @@ public class Permissions {
 	public void chmod(String targetDir, String targetFile, String perms) {
 		Runtime r = Runtime.getRuntime();
 		try {
-			r.exec("chmod " + perms + " " + targetDir + IPath.SEPARATOR + targetFile); //$NON-NLS-1$ //$NON-NLS-2$
+			r.exec(new String[] {"chmod", perms, targetDir + IPath.SEPARATOR + targetFile}); //$NON-NLS-1$
 		} catch (IOException e) {
 			// FIXME:  we should probably throw some sort of error here
 		}
