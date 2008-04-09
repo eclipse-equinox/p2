@@ -60,12 +60,12 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 		if (!location.getProtocol().equals(PROTOCOL_FILE))
 			artifactRepository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
-		artifactRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		artifactRepository.removeAll();
-		generateMetadata(updateSite);
+		generateArtifacts(updateSite);
+		artifactRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 	}
 
-	private void generateMetadata(UpdateSite updateSite) throws ProvisionException {
+	private void generateArtifacts(UpdateSite updateSite) throws ProvisionException {
 		Feature[] features = updateSite.loadFeatures();
 
 		Set allSiteArtifacts = new HashSet();

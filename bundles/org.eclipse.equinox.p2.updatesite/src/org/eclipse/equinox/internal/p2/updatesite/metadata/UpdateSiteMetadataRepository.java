@@ -61,9 +61,9 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		String savedChecksum = (String) metadataRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
-		metadataRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		metadataRepository.removeAll();
 		generateMetadata(updateSite);
+		metadataRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 	}
 
 	private void generateMetadata(UpdateSite updateSite) throws ProvisionException {
