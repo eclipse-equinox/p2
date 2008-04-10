@@ -14,7 +14,6 @@ import java.net.URL;
 import java.util.EventObject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
@@ -39,8 +38,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	private static ServiceReference packageAdminRef = null;
 	private static ProvUIActivator plugin;
 	private ProvisioningListener profileChangeListener;
-	private ValidationDialogServiceUI validationServiceUI;
-	private ServiceRegistration certificateUIRegistration;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
 
@@ -98,9 +95,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 
 		initializeImages();
 		addProfileChangeListener();
-
-		validationServiceUI = new ValidationDialogServiceUI();
-		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), validationServiceUI, null);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
@@ -108,7 +102,6 @@ public class ProvUIActivator extends AbstractUIPlugin {
 			removeProfileChangeListener();
 			plugin = null;
 			ProvUIActivator.context = null;
-			certificateUIRegistration.unregister();
 		} finally {
 			super.stop(bundleContext);
 		}
