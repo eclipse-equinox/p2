@@ -39,7 +39,7 @@ public class ProvUIActivator extends AbstractUIPlugin {
 	private static ServiceReference packageAdminRef = null;
 	private static ProvUIActivator plugin;
 	private ProvisioningListener profileChangeListener;
-	private ValidationDialogServiceUI adminServiceUI;
+	private ValidationDialogServiceUI validationServiceUI;
 	private ServiceRegistration certificateUIRegistration;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
@@ -99,8 +99,8 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		initializeImages();
 		addProfileChangeListener();
 
-		adminServiceUI = new ValidationDialogServiceUI();
-		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), adminServiceUI, null);
+		validationServiceUI = new ValidationDialogServiceUI();
+		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), validationServiceUI, null);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {

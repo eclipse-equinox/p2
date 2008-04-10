@@ -14,6 +14,7 @@ import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -29,8 +30,7 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
 /**
  * Activator class for the p2 UI.
@@ -47,6 +47,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private IQueryProvider queryProvider;
 	private SimpleLicenseManager licenseManager;
 	private IPlanValidator planValidator;
+	private ServiceRegistration certificateUIRegistration;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
 
@@ -89,6 +90,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		plugin = this;
 		ProvSDKUIActivator.context = bundleContext;
 		readLicenseRegistry();
+		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
 	}
 
 	private void readLicenseRegistry() {
@@ -132,6 +134,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			updater = null;
 		}
 		plugin = null;
+		certificateUIRegistration.unregister();
 		super.stop(bundleContext);
 	}
 

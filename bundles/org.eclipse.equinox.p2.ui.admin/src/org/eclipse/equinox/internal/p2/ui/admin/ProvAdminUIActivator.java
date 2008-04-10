@@ -38,7 +38,6 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 	private LicenseManager licenseManager;
 	private IPlanValidator planValidator;
 	private Policies policies;
-	private ValidationDialogServiceUI adminServiceUI;
 	private ServiceRegistration certificateUIRegistration;
 
 	public static BundleContext getContext() {
@@ -79,9 +78,7 @@ public class ProvAdminUIActivator extends AbstractUIPlugin {
 		super.start(bundleContext);
 		plugin = this;
 		ProvAdminUIActivator.context = bundleContext;
-
-		adminServiceUI = new ValidationDialogServiceUI();
-		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), adminServiceUI, null);
+		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
 	}
 
 	public void stop(BundleContext bundleContext) throws Exception {
