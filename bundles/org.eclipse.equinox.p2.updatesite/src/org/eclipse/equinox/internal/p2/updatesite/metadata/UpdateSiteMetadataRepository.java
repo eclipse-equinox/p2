@@ -15,11 +15,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.p2.updatesite.Messages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
@@ -43,6 +47,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		// todo progress monitoring
 		// loading validates before we create repositories
 		UpdateSite updateSite = UpdateSite.load(location, null);
+		broadcastAssociateSites(updateSite);
 
 		BundleContext context = Activator.getBundleContext();
 		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
@@ -64,6 +69,32 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		metadataRepository.removeAll();
 		generateMetadata(updateSite);
 		metadataRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
+	}
+
+	/**
+	 * Broadcast events for any associated sites for this repository so repository
+	 * managers are aware of them.
+	 */
+	private void broadcastAssociateSites(UpdateSite baseSite) {
+		if (baseSite == null)
+			return;
+		URLEntry[] sites = baseSite.getSite().getAssociatedSites();
+		if (sites == null || sites.length == 0)
+			return;
+
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		for (int i = 0; i < sites.length; i++) {
+			try {
+				URL siteLocation = new URL(sites[i].getURL());
+				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED));
+				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED));
+			} catch (MalformedURLException e) {
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Site has invalid associate site: " + baseSite.getLocation(), e)); //$NON-NLS-1$
+			}
+		}
+
 	}
 
 	private void generateMetadata(UpdateSite updateSite) throws ProvisionException {

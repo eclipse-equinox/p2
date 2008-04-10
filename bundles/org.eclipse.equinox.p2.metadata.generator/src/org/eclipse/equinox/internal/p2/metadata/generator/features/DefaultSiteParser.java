@@ -33,8 +33,8 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static final String CATEGORY = "category"; //$NON-NLS-1$
 	private static final String CATEGORY_DEF = "category-def"; //$NON-NLS-1$
 
-	//private static final String ASSOCIATE_SITES = "associateSites"; //$NON-NLS-1$
-	//	private static final String ASSOCIATE_SITE = "associateSite"; //$NON-NLS-1$
+	private static final String ASSOCIATE_SITES_URL = "associateSitesURL"; //$NON-NLS-1$
+	private static final String ASSOCIATE_SITE = "associateSite"; //$NON-NLS-1$
 	private static final String DEFAULT_INFO_URL = "index.html"; //$NON-NLS-1$
 	private static final String DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String FEATURE = "feature"; //$NON-NLS-1$
@@ -75,39 +75,39 @@ public class DefaultSiteParser extends DefaultHandler {
 		Tracing.debug("DefaultSiteParser: " + s); //$NON-NLS-1$
 	}
 
-	//	private static URLEntry[] getAssociateSites(String associateSitesURL) {
-	//
-	//		try {
-	//			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-	//			DocumentBuilder builder = domFactory.newDocumentBuilder();
-	//			Document document = builder.parse(associateSitesURL);
-	//			if (document == null)
-	//				return null;
-	//			NodeList mirrorNodes = document.getElementsByTagName(ASSOCIATE_SITE);
-	//			URLEntry[] mirrors = new URLEntry[mirrorNodes.getLength()];
-	//			for (int i = 0; i < mirrorNodes.getLength(); i++) {
-	//				Element mirrorNode = (Element) mirrorNodes.item(i);
-	//				mirrors[i] = new URLEntry();
-	//				String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
-	//				String label = mirrorNode.getAttribute("label"); //$NON-NLS-1$
-	//				mirrors[i].setURL(infoURL);
-	//				mirrors[i].setAnnotation(label);
-	//
-	//				if (Tracing.DEBUG_GENERATOR_PARSING)
-	//					debug("Processed mirror: url:" + infoURL + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
-	//			}
-	//			return mirrors;
-	//		} catch (Exception e) {
-	//			// log if absolute url
-	//			if (associateSitesURL != null && (associateSitesURL.startsWith("http://") //$NON-NLS-1$
-	//					|| associateSitesURL.startsWith("https://") //$NON-NLS-1$
-	//					|| associateSitesURL.startsWith("file://") //$NON-NLS-1$
-	//					|| associateSitesURL.startsWith("ftp://") //$NON-NLS-1$
-	//			|| associateSitesURL.startsWith("jar://"))) //$NON-NLS-1$
-	//				log(Messages.DefaultSiteParser_mirrors, e);
-	//			return null;
-	//		}
-	//	}
+	private static URLEntry[] getAssociateSites(String associateSitesURL) {
+
+		try {
+			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = domFactory.newDocumentBuilder();
+			Document document = builder.parse(associateSitesURL);
+			if (document == null)
+				return null;
+			NodeList mirrorNodes = document.getElementsByTagName(ASSOCIATE_SITE);
+			URLEntry[] mirrors = new URLEntry[mirrorNodes.getLength()];
+			for (int i = 0; i < mirrorNodes.getLength(); i++) {
+				Element mirrorNode = (Element) mirrorNodes.item(i);
+				mirrors[i] = new URLEntry();
+				String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
+				String label = mirrorNode.getAttribute("label"); //$NON-NLS-1$
+				mirrors[i].setURL(infoURL);
+				mirrors[i].setAnnotation(label);
+
+				if (Tracing.DEBUG_GENERATOR_PARSING)
+					debug("Processed mirror: url:" + infoURL + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			return mirrors;
+		} catch (Exception e) {
+			// log if absolute url
+			if (associateSitesURL != null && (associateSitesURL.startsWith("http://") //$NON-NLS-1$
+					|| associateSitesURL.startsWith("https://") //$NON-NLS-1$
+					|| associateSitesURL.startsWith("file://") //$NON-NLS-1$
+					|| associateSitesURL.startsWith("ftp://") //$NON-NLS-1$
+			|| associateSitesURL.startsWith("jar://"))) //$NON-NLS-1$
+				log(Messages.DefaultSiteParser_mirrors, e);
+			return null;
+		}
+	}
 
 	static URLEntry[] getMirrors(String mirrorsURL) {
 
@@ -768,13 +768,8 @@ public class DefaultSiteParser extends DefaultHandler {
 		//			}
 		//		}
 		//
-		//		if ((site instanceof ExtendedSite) && (attributes.getValue("associateSitesURL") != null)) { //$NON-NLS-1$
-		//			IURLEntry[] associateSites = getAssociateSites(attributes.getValue("associateSitesURL"), factory); //$NON-NLS-1$
-		//			if (associateSites != null)
-		//				((ExtendedSite) site).setAssociateSites(associateSites);
-		//			else
-		//				site.setMirrorsURLString(mirrorsURL);
-		//		}
+		if (attributes.getValue(ASSOCIATE_SITES_URL) != null)
+			site.setAssociateSites(getAssociateSites(attributes.getValue(ASSOCIATE_SITES_URL)));
 
 		objectStack.push(site);
 

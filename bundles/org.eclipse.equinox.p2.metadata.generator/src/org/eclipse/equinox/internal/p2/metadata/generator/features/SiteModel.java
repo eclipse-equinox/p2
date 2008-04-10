@@ -38,6 +38,7 @@ public class SiteModel {
 	private String mirrorsURLString;
 	private boolean supportsPack200;
 	private String type;
+	private URLEntry[] associateSites;
 
 	/**
 	 * Creates an uninitialized site model object.
@@ -118,6 +119,10 @@ public class SiteModel {
 			return new URLEntry[0];
 
 		return (URLEntry[]) archiveReferences.toArray(new URLEntry[0]);
+	}
+
+	public URLEntry[] getAssociatedSites() {
+		return associateSites;
 	}
 
 	/**
@@ -309,5 +314,14 @@ public class SiteModel {
 	 */
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	/**
+	 * Sets the associated sites for this update site.
+	 * 
+	 * @param associateSites the associated sites
+	 */
+	public void setAssociateSites(URLEntry[] associateSites) {
+		this.associateSites = associateSites;
 	}
 }
