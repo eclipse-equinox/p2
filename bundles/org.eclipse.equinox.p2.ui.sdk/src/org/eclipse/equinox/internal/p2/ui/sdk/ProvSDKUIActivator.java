@@ -37,7 +37,7 @@ import org.osgi.framework.ServiceReference;
  */
 public class ProvSDKUIActivator extends AbstractUIPlugin {
 
-	public static final boolean ANY_PROFILE = true;
+	public static final boolean ANY_PROFILE = false;
 	private static final String DEFAULT_PROFILE_ID = "DefaultProfile"; //$NON-NLS-1$
 	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
