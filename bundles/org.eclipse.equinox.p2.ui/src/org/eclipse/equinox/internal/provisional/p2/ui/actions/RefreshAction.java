@@ -25,9 +25,6 @@ import org.eclipse.swt.widgets.Control;
 public abstract class RefreshAction extends ProvisioningAction {
 
 	/**
-	 * @param text
-	 * @param selectionProvider
-	 * @param shell
 	 */
 	public RefreshAction(ISelectionProvider selectionProvider, Control control) {
 		super(ProvUIMessages.RefreshAction_Label, selectionProvider, control.getShell());
