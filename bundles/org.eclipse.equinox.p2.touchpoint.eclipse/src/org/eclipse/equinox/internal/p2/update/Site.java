@@ -23,8 +23,8 @@ public class Site {
 	public final static String POLICY_USER_INCLUDE = "USER-INCLUDE"; //$NON-NLS-1$
 
 	private String policy;
-	private boolean enabled;
-	private boolean updateable;
+	private boolean enabled = true;
+	private boolean updateable = true;
 	private String url;
 	private String linkFile;
 	private List features = new ArrayList();
