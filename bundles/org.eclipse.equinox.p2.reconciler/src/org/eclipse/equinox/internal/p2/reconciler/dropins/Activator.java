@@ -57,7 +57,7 @@ public class Activator implements BundleActivator {
 		if (reference != null)
 			manager = (IMetadataRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		try {
 			return manager.loadRepository(repoURL, null);
 		} finally {
@@ -85,6 +85,14 @@ public class Activator implements BundleActivator {
 		} finally {
 			context.ungetService(reference);
 		}
+	}
+
+	protected static Collection getDropinRepositories() {
+		return Arrays.asList(dropinRepositories);
+	}
+
+	protected static Collection getConfigurationRepositories() {
+		return Arrays.asList(configurationRepositories);
 	}
 
 	/* (non-Javadoc)
@@ -115,7 +123,7 @@ public class Activator implements BundleActivator {
 
 		synchronize(new ArrayList(0), null);
 
-		// we should probably be  holding on to these repos by URL
+		// we should probably be holding on to these repos by URL
 		// see Bug 223422
 		// for now explicitly nulling out these repos to allow GC to occur
 		dropinRepositories = null;
@@ -184,17 +192,13 @@ public class Activator implements BundleActivator {
 	private void watchConfiguration() {
 		File configFile = new File("configuration/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
-		try {
-			PlatformXmlListener listener = new PlatformXmlListener(configFile);
-			watcher.addListener(listener);
-			watcher.poll();
-			List repositories = listener.getMetadataRepositories();
-			if (repositories != null)
-				configurationRepositories = (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[0]);
-		} catch (ProvisionException e) {
-			// TODO proper logging
-			e.printStackTrace();
-		}
+		PlatformXmlListener listener = new PlatformXmlListener(configFile);
+		watcher.addListener(listener);
+		watcher.poll();
+		List repositories = listener.getMetadataRepositories();
+		if (repositories != null)
+			configurationRepositories = (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[0]);
+
 	}
 
 	/*
