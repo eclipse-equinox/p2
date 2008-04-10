@@ -88,11 +88,11 @@ public class Activator implements BundleActivator {
 	}
 
 	protected static Collection getDropinRepositories() {
-		return Arrays.asList(dropinRepositories);
+		return (dropinRepositories != null ? Arrays.asList(dropinRepositories) : new ArrayList(0));
 	}
 
 	protected static Collection getConfigurationRepositories() {
-		return Arrays.asList(configurationRepositories);
+		return (configurationRepositories != null ? Arrays.asList(configurationRepositories) : new ArrayList(0));
 	}
 
 	/* (non-Javadoc)
@@ -118,8 +118,8 @@ public class Activator implements BundleActivator {
 		// create the watcher for the "drop-ins" folder
 		watchDropins(profile);
 		// keep an eye on the platform.xml
-		if (false)
-			watchConfiguration();
+		// if (false)
+		watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
 
