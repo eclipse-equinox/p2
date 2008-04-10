@@ -306,9 +306,21 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		// Add the buttons to the button bar.
 		installButton = createVerticalButton(composite, ProvUI.INSTALL_COMMAND_LABEL, false);
-		installButton.setData(BUTTONACTION, new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), getShell()));
+		IAction installAction = new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), getShell());
+		installButton.setData(BUTTONACTION, installAction);
 		availablePropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
-		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer()));
+
+		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer());
+		availablePropButton.setData(BUTTONACTION, propertiesAction);
+
+		IAction refreshAction = new RefreshAction(availableIUGroup.getStructuredViewer(), availableIUGroup.getStructuredViewer().getControl()) {
+			protected void refresh() {
+				availableIUGroup.refresh();
+			}
+		};
+		Button refreshButton = createVerticalButton(composite, refreshAction.getText(), false);
+		refreshButton.setData(BUTTONACTION, refreshAction);
+
 		manipulateRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_ManageSites, false);
 		manipulateRepoButton.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
@@ -319,6 +331,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		addRepoButton.setData(BUTTONACTION, new AddColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell()));
 		removeRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteButtonText, false);
 		removeRepoButton.setData(BUTTONACTION, new RemoveColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell()));
+
+		createMenu(availableIUGroup.getStructuredViewer().getControl(), new IAction[] {installAction, propertiesAction, refreshAction});
+
 		return composite;
 	}
 
@@ -397,11 +412,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		composite.setLayout(layout);
 
 		// Add the buttons to the button bar.
-		uninstallButton = createVerticalButton(composite, ProvUI.UNINSTALL_COMMAND_LABEL, false);
-		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUI.UPDATE_COMMAND_LABEL, false);
 		// For update only, we want it to check for all updates if there is nothing selected
-		updateButton.setData(BUTTONACTION, new UpdateAction(new ISelectionProvider() {
+		IAction updateAction = new UpdateAction(new ISelectionProvider() {
 			public void addSelectionChangedListener(ISelectionChangedListener listener) {
 				installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
 			}
@@ -423,10 +436,16 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 			public void setSelection(ISelection selection) {
 				installedIUGroup.getStructuredViewer().setSelection(selection);
 			}
-		}, profileId, null, ProvPolicies.getDefault(), parent.getShell()));
+		}, profileId, null, ProvPolicies.getDefault(), parent.getShell());
+		updateButton.setData(BUTTONACTION, updateAction);
+
+		uninstallButton = createVerticalButton(composite, ProvUI.UNINSTALL_COMMAND_LABEL, false);
+		IAction uninstallAction = new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), parent.getShell());
+		uninstallButton.setData(BUTTONACTION, uninstallAction);
 
 		installedPropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
-		installedPropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer()));
+		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer());
+		installedPropButton.setData(BUTTONACTION, propertiesAction);
 
 		// temporarily disabled.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224180
@@ -441,7 +460,17 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				}
 			});
 		}
+		createMenu(installedIUGroup.getStructuredViewer().getControl(), new IAction[] {updateAction, uninstallAction, propertiesAction});
+
 		return composite;
+	}
+
+	private void createMenu(Control control, IAction[] actions) {
+		MenuManager menuManager = new MenuManager();
+		for (int i = 0; i < actions.length; i++)
+			menuManager.add(actions[i]);
+		Menu menu = menuManager.createContextMenu(control);
+		control.setMenu(menu);
 	}
 
 	void validateInstalledIUButtons(ISelection selection) {

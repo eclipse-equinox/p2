@@ -10,14 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
+import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.DeferredFetchFilteredTree;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.RefreshMetadataRepositoriesOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
@@ -47,6 +53,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private IUDetailsLabelProvider labelProvider;
 	DeferredFetchFilteredTree filteredTree;
 	IUColumnConfig[] columnConfig;
+	private int refreshRepoFlags = IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM;
 
 	/**
 	 * Create a group that represents the available IU's but does not use any of the
@@ -168,6 +175,10 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			getStructuredViewer().setInput(getInput());
 	}
 
+	public void setRepositoryRefreshFlags(int flags) {
+		refreshRepoFlags = flags;
+	}
+
 	/**
 	 * Set a boolean indicating whether a bold font should be used when
 	 * showing filtered items.  This method does not refresh the tree or 
@@ -207,5 +218,20 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		if (getStructuredViewer() == null)
 			return null;
 		return ((TreeViewer) getStructuredViewer()).getTree();
+	}
+
+	/**
+	 * Refresh the available view completely.
+	 */
+	public void refresh() {
+		URL[] urls = getProvisioningContext().getMetadataRepositories();
+		ProvisioningOperation op;
+		if (urls == null)
+			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, refreshRepoFlags);
+		else
+			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, urls);
+		ProvisioningOperationRunner.schedule(op, getShell());
+		// Calling this will create a new input and refresh the viewer
+		setQueryContext(queryContext);
 	}
 }

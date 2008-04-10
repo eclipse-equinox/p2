@@ -89,6 +89,8 @@ public class ProvUIMessages extends NLS {
 	public static String UpdateIUCommandLabel;
 	public static String UpdateIUCommandTooltip;
 	public static String UpdateIUProgress;
+	public static String RefreshAction_Label;
+	public static String RefreshAction_Tooltip;
 	public static String RevertIUOperationLabel;
 	public static String RevertIUCommandLabel;
 	public static String RevertIUCommandTooltip;
@@ -116,6 +118,7 @@ public class ProvUIMessages extends NLS {
 	public static String AddRepositoryDialog_InvalidURL;
 	public static String AddRepositoryDialog_Title;
 	public static String AvailableIUElement_ProfileNotFound;
+	public static String AvailableIUGroup_RefreshOperationLabel;
 	public static String AvailableIUGroup_ViewByToolTipText;
 	public static String Label_Profiles;
 	public static String Label_Repositories;

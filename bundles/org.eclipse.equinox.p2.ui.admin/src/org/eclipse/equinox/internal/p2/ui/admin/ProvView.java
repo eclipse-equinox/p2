@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.actions.RefreshAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -36,7 +37,7 @@ import org.eclipse.ui.part.ViewPart;
 abstract class ProvView extends ViewPart {
 	TreeViewer viewer;
 	private UndoRedoActionGroup undoRedoGroup;
-	Action refreshAction;
+	RefreshAction refreshAction;
 	private IPropertyChangeListener preferenceListener;
 	protected Display display;
 
@@ -122,8 +123,8 @@ abstract class ProvView extends ViewPart {
 
 	protected void makeActions() {
 		undoRedoGroup = new UndoRedoActionGroup(getSite(), ProvUI.getProvisioningUndoContext(), true);
-		refreshAction = new Action(ProvAdminUIMessages.ProvView_RefreshCommandLabel) {
-			public void run() {
+		refreshAction = new RefreshAction(viewer, viewer.getControl()) {
+			protected void refresh() {
 				refreshAll();
 			}
 		};
@@ -214,8 +215,7 @@ abstract class ProvView extends ViewPart {
 	}
 
 	protected void refreshUnderlyingModel() {
-		// TODO there should be some underlying API to call to refresh the underlying core object.
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=207678
+		// Default is to do nothing
 	}
 
 	protected List getVisualProperties() {

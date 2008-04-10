@@ -159,12 +159,34 @@ public class ProvisioningUtil {
 		return manager.getKnownRepositories(flags);
 	}
 
+	public static void refreshMetadataRepositories(URL[] urls, IProgressMonitor monitor) throws ProvisionException {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		}
+		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
+		for (int i = 0; i < urls.length; i++) {
+			manager.refreshRepository(urls[i], mon.newChild(100));
+		}
+	}
+
 	public static URL[] getArtifactRepositories(int flags) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null) {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
 		}
 		return manager.getKnownRepositories(flags);
+	}
+
+	public static void refreshArtifactRepositories(URL[] urls, IProgressMonitor monitor) throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null) {
+			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
+		}
+		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
+		for (int i = 0; i < urls.length; i++) {
+			manager.refreshRepository(urls[i], mon.newChild(100));
+		}
 	}
 
 	/*

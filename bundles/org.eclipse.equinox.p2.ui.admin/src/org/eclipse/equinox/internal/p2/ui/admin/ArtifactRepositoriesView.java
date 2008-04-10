@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.admin.dialogs.AddArtifactRepositoryDialog;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveArtifactRepositoryOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.swt.widgets.Shell;
 
@@ -82,6 +82,14 @@ public class ArtifactRepositoriesView extends RepositoriesView {
 	 */
 	protected int getListenerEventTypes() {
 		return StructuredViewerProvisioningListener.PROV_EVENT_ARTIFACT_REPOSITORY;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
+	 */
+	protected void refreshUnderlyingModel() {
+		ProvisioningOperationRunner.schedule(new RefreshArtifactRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), getShell());
 	}
 
 }
