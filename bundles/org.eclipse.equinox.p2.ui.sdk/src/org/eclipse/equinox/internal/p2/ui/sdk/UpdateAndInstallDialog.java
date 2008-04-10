@@ -44,7 +44,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.dialogs.PropertyDialogAction;
 
 /**
  * Dialog that allows users to update their installed IU's or find new ones.
@@ -121,20 +120,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		createTabFolder(comp);
 
-		final Button checkBox = new Button(comp, SWT.CHECK);
 		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
-		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);
-		checkBox.setSelection(store.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
-		checkBox.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				store.setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, checkBox.getSelection());
-			}
-		});
-
 		final IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED))
-					checkBox.setSelection(store.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
 				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
 					availableIUGroup.getStructuredViewer().refresh();
 			}
@@ -351,7 +339,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 	void validateAvailableIUButtons() {
 		// This relies on the actions themselves receiving the selection changed
-		// listener before we do, since we use their state to enable the buttons
+		// listener before we do, since we use their state to enable the buttons.
 		updateEnablement(installButton);
 		updateEnablement(availablePropButton);
 		updateEnablement(manipulateRepoButton);
@@ -387,13 +375,13 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// register and receive their selection notifications before us.
 		installedIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				validateInstalledIUButtons(event.getSelection());
+				validateInstalledIUButtons();
 			}
 		});
 
 		setDropTarget(installedIUGroup.getStructuredViewer().getControl());
 
-		validateInstalledIUButtons(installedIUGroup.getStructuredViewer().getSelection());
+		validateInstalledIUButtons();
 		return composite;
 	}
 
@@ -473,7 +461,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		control.setMenu(menu);
 	}
 
-	void validateInstalledIUButtons(ISelection selection) {
+	void validateInstalledIUButtons() {
 		// Note that this relies on the actions getting the selection notification
 		// before we do, since we rely on the action enablement to update
 		// the buttons.  This should be ok since the buttons

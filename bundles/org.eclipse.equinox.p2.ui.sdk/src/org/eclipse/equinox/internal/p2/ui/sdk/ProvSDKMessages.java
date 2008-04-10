@@ -55,9 +55,7 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateAndInstallDialog_AddSiteOperationlabel;
 	public static String UpdateAndInstallDialog_AvailableSoftware;
 	public static String UpdateAndInstallDialog_InstalledSoftware;
-
 	public static String UpdateAndInstallDialog_ManageSites;
-	public static String UpdateAndInstallDialog_AlertCheckbox;
 	public static String UpdateAndInstallDialog_PrefLink;
 	public static String UpdateAndInstallDialog_RemoveSiteButtonText;
 	public static String UpdateAndInstallDialog_RemoveSiteOperationLabel;
@@ -65,7 +63,6 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateAndInstallDialog_Title;
 	public static String UpdateAndInstallDialog_Properties;
 	public static String UpdateAndInstallDialog_Refresh;
-
 	public static String UpdateAndInstallDialog_ViewByCategory;
 	public static String UpdateAndInstallDialog_ViewByName;
 	public static String UpdateAndInstallDialog_ViewBySite;
