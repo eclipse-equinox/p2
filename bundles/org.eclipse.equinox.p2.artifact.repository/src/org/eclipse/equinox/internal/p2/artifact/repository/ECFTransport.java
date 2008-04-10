@@ -222,7 +222,8 @@ public class ECFTransport extends Transport {
 			ServiceTracker adminUITracker = new ServiceTracker(Activator.getContext(), IServiceUI.class.getName(), null);
 			adminUITracker.open();
 			IServiceUI adminUIService = (IServiceUI) adminUITracker.getService();
-			loginDetails = adminUIService.getUsernamePassword(hostLocation.toString());
+			if (adminUIService != null)
+				loginDetails = adminUIService.getUsernamePassword(hostLocation.toString());
 		}
 		if (loginDetails == null) {
 			setUsername(null);
