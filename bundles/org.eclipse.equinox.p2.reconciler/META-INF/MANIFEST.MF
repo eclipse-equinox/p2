@@ -32,5 +32,4 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.xml.sax
 Require-Bundle: org.eclipse.equinox.common,
  org.eclipse.equinox.p2.touchpoint.eclipse;bundle-version="0.1.0"
-Export-Package: org.eclipse.equinox.internal.p2.extensionlocation;x-internal:=true,
- org.eclipse.equinox.internal.p2.reconciler.dropins;x-internal:=true
+Export-Package: org.eclipse.equinox.internal.p2.reconciler.dropins;x-internal:=true

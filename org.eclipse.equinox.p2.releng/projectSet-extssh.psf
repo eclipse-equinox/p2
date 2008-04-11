@@ -34,6 +34,7 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.equinox.p2.ui.admin.rcp"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.updatechecker,org.eclipse.equinox.p2.updatechecker"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.updatesite"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.extensionlocation"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.tools,org.eclipse.equinox.p2.tools"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.simpleconfigurator,org.eclipse.equinox.simpleconfigurator"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.simpleconfigurator.manipulator,org.eclipse.equinox.simpleconfigurator.manipulator"/>
