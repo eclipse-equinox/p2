@@ -10,14 +10,42 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core;
 
+/**
+ * Callback API for prompting for user information from within lower level code.
+ */
 public interface IServiceUI {
+	/**
+	 * Authentication information returned from an authentication prompt request.
+	 */
+	public static class AuthenticationInfo {
+		private final boolean save;
+		private final String userName;
+		private final String password;
+
+		public AuthenticationInfo(String userName, String password, boolean saveResult) {
+			this.userName = userName;
+			this.password = password;
+			this.save = saveResult;
+		}
+
+		public boolean saveResult() {
+			return save;
+		}
+
+		public String getUserName() {
+			return userName;
+		}
+
+		public String getPassword() {
+			return password;
+		}
+	}
 
 	/**
-	 * Opens a UI prompt for a username and password.
+	 * Opens a UI prompt for authentication details
 	 * 
 	 * @param location - the location requiring login details, may be <code>null</code>.
-	 * @return A two element array containing the username and password, in that orders.
-	 * Returns <code>null</code> if the prompt was cancelled.
+	 * @return The authentication result
 	 */
-	public String[] getUsernamePassword(String location);
+	public AuthenticationInfo getUsernamePassword(String location);
 }

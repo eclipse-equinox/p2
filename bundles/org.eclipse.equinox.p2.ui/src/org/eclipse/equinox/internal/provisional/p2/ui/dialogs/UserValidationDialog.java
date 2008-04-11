@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -19,11 +20,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
+/**
+ * A dialog to prompt the user for login information such as user name and password.
+ */
 public class UserValidationDialog extends MessageDialog {
 
 	private Text username;
 	private Text password;
-	private String[] result = null;
+	private AuthenticationInfo result = null;
 
 	private Button saveButton;
 
@@ -72,24 +76,16 @@ public class UserValidationDialog extends MessageDialog {
 	}
 
 	protected void buttonPressed(int buttonId) {
-		if (buttonId == getDefaultButtonIndex()) {
-			String[] loginDetails = new String[3];
-			loginDetails[0] = username.getText();
-			loginDetails[1] = password.getText();
-			loginDetails[2] = Boolean.toString(saveButton.getSelection());
-			this.result = loginDetails;
-		}
+		if (buttonId == getDefaultButtonIndex())
+			this.result = new AuthenticationInfo(username.getText(), password.getText(), saveButton.getSelection());
 		super.buttonPressed(buttonId);
 	}
 
 	/**
-	 * Returns the username and password given by the user.
-	 * @return A three element {@link String} array with the username, password, 
-	 * and save state, in that order.
-	 * Returns <code>null</code> if the dialog was canceled.
+	 * Returns the authentication information given by the user, or null if the user cancelled
+	 * @return the authentication information given by the user, or null if the user cancelled
 	 */
-	public Object getResult() {
+	public AuthenticationInfo getResult() {
 		return result;
 	}
-
 }

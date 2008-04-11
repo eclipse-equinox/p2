@@ -24,9 +24,9 @@ public class ValidationDialogServiceUI implements IServiceUI {
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#getUsernamePassword(java.lang.String)
 	 */
-	public String[] getUsernamePassword(final String location) {
+	public AuthenticationInfo getUsernamePassword(final String location) {
 
-		final Object[] result = new Object[1];
+		final AuthenticationInfo[] result = new AuthenticationInfo[1];
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
 			public void run() {
@@ -41,6 +41,6 @@ public class ValidationDialogServiceUI implements IServiceUI {
 			}
 
 		});
-		return result[0] instanceof String[] ? (String[]) result[0] : null;
+		return result[0];
 	}
 }

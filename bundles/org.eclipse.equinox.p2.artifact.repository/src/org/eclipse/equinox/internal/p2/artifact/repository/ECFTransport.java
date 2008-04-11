@@ -11,7 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.ProtocolException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
@@ -25,6 +26,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.security.storage.*;
 import org.eclipse.osgi.util.NLS;
@@ -39,10 +41,9 @@ public class ECFTransport extends Transport {
 	 */
 	private static final int LOGIN_RETRIES = 3;
 
-	protected String username;
-	protected String password;
-	private static final String ERROR_FILENOTFOUND = "FileNotFound"; //$NON-NLS-1$
-	private static final String ERROR_401 = "401"; //$NON-NLS-1$
+	private static final ProtocolException ERROR_401 = new ProtocolException();
+
+	private static final String SERVER_REDIRECT = "Server redirected too many times"; //$NON-NLS-1$
 
 	/**
 	 * The singleton transport instance.
@@ -93,14 +94,13 @@ public class ECFTransport extends Transport {
 
 	public IStatus download(String url, OutputStream destination, IProgressMonitor monitor) {
 		try {
-			setLogin(url, false);
+			IConnectContext context = getConnectionContext(url, false);
 			for (int i = 0; i < LOGIN_RETRIES; i++) {
 				try {
-					return performDownload(url, destination, monitor);
+					return performDownload(url, destination, context, monitor);
 				} catch (ProtocolException e) {
-					if (ERROR_401.equals(e.getMessage())) {
-						setLogin(url, true);
-					}
+					if (e == ERROR_401)
+						context = getConnectionContext(url, true);
 				}
 			}
 		} catch (UserCancelledException e) {
@@ -112,15 +112,15 @@ public class ECFTransport extends Transport {
 		return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.io_failedRead, url), null);
 	}
 
-	public IStatus performDownload(String toDownload, OutputStream target, IProgressMonitor monitor) throws ProtocolException {
+	public IStatus performDownload(String toDownload, OutputStream target, IConnectContext context, IProgressMonitor monitor) throws ProtocolException {
 		IRetrieveFileTransferFactory factory = (IRetrieveFileTransferFactory) retrievalFactoryTracker.getService();
 		if (factory == null)
 			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.io_failedRead, toDownload)));
 
-		return transfer(factory.newInstance(), toDownload, target, monitor);
+		return transfer(factory.newInstance(), toDownload, target, context, monitor);
 	}
 
-	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, final IProgressMonitor monitor) throws ProtocolException {
+	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, IConnectContext context, final IProgressMonitor monitor) throws ProtocolException {
 		final IStatus[] result = new IStatus[1];
 		final long startTime = System.currentTimeMillis();
 		IFileTransferListener listener = new IFileTransferListener() {
@@ -158,21 +158,14 @@ public class ECFTransport extends Transport {
 		};
 
 		try {
-			if (username != null && password != null) {
-				IConnectContext connectContext = ConnectContextFactory.createUsernamePasswordConnectContext(username, password);
-				retrievalContainer.setConnectContextForAuthentication(connectContext);
-			} else {
-				retrievalContainer.setConnectContextForAuthentication(null);
-			}
+			retrievalContainer.setConnectContextForAuthentication(context);
 			retrievalContainer.sendRetrieveRequest(FileIDFactory.getDefault().createFileID(retrievalContainer.getRetrieveNamespace(), toDownload), listener, null);
 		} catch (IncomingFileTransferException e) {
 			IStatus status = e.getStatus();
 			Throwable exception = status.getException();
-			if (exception instanceof FileNotFoundException) {
-				throw new ProtocolException(ERROR_FILENOTFOUND);
-			} else if (exception instanceof IOException) {
-				//throw exception that login details are required
-				throw new ProtocolException(ERROR_401);
+			if (exception instanceof IOException) {
+				if (exception.getMessage() != null && (exception.getMessage().indexOf("401") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
+					throw ERROR_401;
 			}
 			return statusOn(target, status);
 		} catch (FileCreateException e) {
@@ -194,71 +187,56 @@ public class ECFTransport extends Transport {
 	}
 
 	/**
-	 * Sets the login details from the user for the specified URL. If the login
-	 * details are not available, the user is prompted.
+	 * Returns the connection context for the given URL. This may prompt the
+	 * user for user name and password as required.
+	 * 
 	 * @param xmlLocation - the file location requiring login details
 	 * @param prompt - use <code>true</code> to prompt the user instead of
 	 * looking at the secure preference store for login, use <code>false</code>
 	 * to only try the secure preference store
 	 * @throws UserCancelledException when the user cancels the login prompt 
 	 * @throws ProvisionException if the password cannot be read or saved
+	 * @return The connection context
 	 */
-	public void setLogin(String xmlLocation, boolean prompt) throws UserCancelledException, ProvisionException {
+	public IConnectContext getConnectionContext(String xmlLocation, boolean prompt) throws UserCancelledException, ProvisionException {
 		ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
 		IPath hostLocation = new Path(xmlLocation).removeLastSegments(1);
 		int repositoryHash = hostLocation.hashCode();
 		ISecurePreferences metadataNode = securePreferences.node(IRepository.PREFERENCE_NODE + "/" + repositoryHash); //$NON-NLS-1$
-		String[] loginDetails = new String[3];
 		if (!prompt) {
 			try {
-				loginDetails[0] = metadataNode.get(IRepository.PROP_USERNAME, null);
-				loginDetails[1] = metadataNode.get(IRepository.PROP_PASSWORD, null);
+				String username = metadataNode.get(IRepository.PROP_USERNAME, null);
+				String password = metadataNode.get(IRepository.PROP_PASSWORD, null);
+				//if we don't have stored connection data just return a null connection context
+				if (username == null || password == null)
+					return null;
+				return ConnectContextFactory.createUsernamePasswordConnectContext(username, password);
 			} catch (StorageException e) {
 				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
 				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
 			}
 		}
-		if ((loginDetails[0] == null || loginDetails[1] == null) && prompt) {
-			ServiceTracker adminUITracker = new ServiceTracker(Activator.getContext(), IServiceUI.class.getName(), null);
-			adminUITracker.open();
-			IServiceUI adminUIService = (IServiceUI) adminUITracker.getService();
-			if (adminUIService != null)
-				loginDetails = adminUIService.getUsernamePassword(hostLocation.toString());
-		}
-		if (loginDetails == null) {
-			setUsername(null);
-			setPassword(null);
+		//need to prompt user for user name and password
+		ServiceTracker adminUITracker = new ServiceTracker(Activator.getContext(), IServiceUI.class.getName(), null);
+		adminUITracker.open();
+		IServiceUI adminUIService = (IServiceUI) adminUITracker.getService();
+		AuthenticationInfo loginDetails = null;
+		if (adminUIService != null)
+			loginDetails = adminUIService.getUsernamePassword(hostLocation.toString());
+		//null result means user canceled password dialog
+		if (loginDetails == null)
 			throw new UserCancelledException();
-		}
-		if (loginDetails[2] != null && Boolean.valueOf(loginDetails[2]).booleanValue()) {
+		//save user name and password if requested by user
+		if (loginDetails.saveResult()) {
 			try {
-				metadataNode.put(IRepository.PROP_USERNAME, loginDetails[0], true);
-				metadataNode.put(IRepository.PROP_PASSWORD, loginDetails[1], true);
+				metadataNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
+				metadataNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
 			} catch (StorageException e1) {
 				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
 				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
 			}
 		}
-		setUsername(loginDetails[0]);
-		setPassword(loginDetails[1]);
-	}
-
-	/**
-	 * Sets the username for login purposes on the next connection. Password
-	 * must also be set.
-	 * @param username - the username, may be <code>null</code>
-	 */
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	/**
-	 * Sets the password for login purposes on the next connection. Username
-	 * must also be set.
-	 * @param password - the password, may be <code>null</code>
-	 */
-	public void setPassword(String password) {
-		this.password = password;
+		return ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
 	}
 
 	private static IStatus statusOn(OutputStream target, IStatus status) {

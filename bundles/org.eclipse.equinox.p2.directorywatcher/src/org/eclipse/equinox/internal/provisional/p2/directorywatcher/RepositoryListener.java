@@ -13,11 +13,16 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
@@ -80,6 +85,29 @@ public class RepositoryListener extends DirectoryChangeListener {
 		this.artifactRepository = artifactRepository;
 		this.metadataRepository = metadataRepository;
 		bundleDescriptionFactory = initializeBundleDescriptionFactory(context);
+	}
+
+	/**
+	 * Broadcast events for any discovery sites associated with the feature
+	 * so the repository managers add them to their list of known repositories.
+	 */
+	private void broadcastDiscoverySites(Feature feature) {
+		URLEntry[] sites = feature.getDiscoverySites();
+		if (sites == null || sites.length == 0)
+			return;
+
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		for (int i = 0; i < sites.length; i++) {
+			try {
+				URL location = new URL(sites[i].getURL());
+				bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED));
+				bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED));
+			} catch (MalformedURLException e) {
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature has invalid discovery site: " + feature.getId(), e)); //$NON-NLS-1$
+			}
+		}
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
@@ -381,9 +409,10 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (feature == null)
 			return null;
 
+		broadcastDiscoverySites(feature);
+
 		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, props);
 		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU, props);
-
 		return new IInstallableUnit[] {featureIU, groupIU};
 	}
 
