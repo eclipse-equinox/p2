@@ -15,11 +15,9 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.p2.metadata.repository.*;
-import org.eclipse.equinox.internal.p2.metadata.repository.Messages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.util.NLS;
 
@@ -27,7 +25,6 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 
 	private static final String JAR_EXTENSION = ".jar"; //$NON-NLS-1$
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
-	private static final String CONTENT_FILENAME = "content"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
 	public IMetadataRepository create(URL location, String name, String type) {
@@ -57,40 +54,12 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 			String msg = NLS.bind(Messages.io_failedRead, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
-		//file is not local, so we need to get a locally cached copy
-		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
-		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
-		File dataAreaFile = URLUtil.toFile(dataArea);
-		int hashCode = location.hashCode();
-		URL remoteLocation;
-		long remoteTimestamp = getTransport().getLastModified(jarLocation);
-		if (remoteTimestamp != 0) {
-			//remote file is in jar form
-			remoteLocation = jarLocation;
-			localFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + JAR_EXTENSION);
-		} else {
-			//check for remote file in xml form
-			remoteTimestamp = getTransport().getLastModified(xmlLocation);
-			if (remoteTimestamp == 0) {
-				//there is no remote file in either form
-				String msg = NLS.bind(Messages.io_failedRead, location);
-				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
-			}
-			remoteLocation = xmlLocation;
-			localFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + XML_EXTENSION);
-		}
-		long cacheTimestamp = localFile.lastModified();
-		//if the cache is out of date, refresh with latest contents
-		if (remoteTimestamp > cacheTimestamp) {
-			localFile.getParentFile().mkdirs();
-			OutputStream metadata = new BufferedOutputStream(new FileOutputStream(localFile));
-			try {
-				IStatus result = getTransport().download(remoteLocation.toExternalForm(), metadata, monitor);
-				if (!result.isOK())
-					throw new ProvisionException(result);
-			} finally {
-				metadata.close();
-			}
+		//file is not local, create a cache of the repository metadata
+		localFile = Activator.getCacheManager().createCache(location, monitor);
+		if (localFile == null) {
+			//there is no remote file in either form
+			String msg = NLS.bind(Messages.io_failedRead, location);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, null));
 		}
 		return localFile;
 	}
@@ -182,9 +151,5 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 		} catch (IOException e) {
 			//ignore
 		}
-	}
-
-	private ECFMetadataTransport getTransport() {
-		return ECFMetadataTransport.getInstance();
 	}
 }
