@@ -14,12 +14,15 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * @since 1.0
@@ -40,6 +43,18 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		if (!PLATFORM_XML.equals(file.getName()))
 			throw new IllegalArgumentException();
 		this.root = file;
+	}
+
+	/*
+	 * Do a look-up and return the OSGi install area if it is set.
+	 */
+	private static URL getOSGiInstallArea() {
+		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		if (location == null)
+			return null;
+		if (!location.isSet())
+			return null;
+		return location.getURL();
 	}
 
 	/* (non-Javadoc)
@@ -94,18 +109,17 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		if (changed) {
 			lastModified = root.lastModified();
 			try {
-				Configuration configuration = ConfigurationParser.parse(root, (URL) null);
+				Configuration configuration = ConfigurationParser.parse(root, getOSGiInstallArea());
 				synchronizeConfiguration(configuration);
 			} catch (ProvisionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.errorProcessingConfg, e));
 			}
 		}
 		changed = false;
 	}
 
-	public List getMetadataRepositories() {
-		return makeList(configRepositories);
+	public Collection getMetadataRepositories() {
+		return configRepositories;
 	}
 
 	private IMetadataRepository getMatchingRepo(Collection repositoryList, String urlString) {
@@ -127,7 +141,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			String siteURL = ((Site) iter.next()).getUrl();
 			// TODO: this is our way of skipping the base.
-			// we will need to change this to platform:base: at some point
+			// we will need to change this to platform:/base/ at some point
 			if ("file:.".equals(siteURL) || "file:".equals(siteURL)) //$NON-NLS-1$//$NON-NLS-2$
 				continue;
 			if (siteURL.startsWith("file:") && siteURL.endsWith("/eclipse/")) //$NON-NLS-1$//$NON-NLS-2$
@@ -142,11 +156,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					Activator.loadArtifactRepository(repoURL);
 					newRepos.add(newRepo);
 				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				} catch (ProvisionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				}
 			}
 		}
@@ -154,18 +166,6 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		if (newRepos.isEmpty())
 			return;
 		configRepositories = newRepos;
-		Activator.synchronize(makeList(newRepos), null);
+		Activator.synchronize(newRepos, null);
 	}
-
-	// TODO: this is a kludge to fix collection impedance mismatch
-	//		 between the xml listener and the activator; get rid of it!
-	private List makeList(Set set) {
-		List list = new ArrayList((set != null ? set.size() : 0));
-		if (set != null) {
-			for (Iterator iter = set.iterator(); iter.hasNext();)
-				list.add(iter.next());
-		}
-		return list;
-	}
-
 }

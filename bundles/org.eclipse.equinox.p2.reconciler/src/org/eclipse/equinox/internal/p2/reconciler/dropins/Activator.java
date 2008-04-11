@@ -13,8 +13,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -38,8 +37,8 @@ public class Activator implements BundleActivator {
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
 	private List watchers = new ArrayList();
-	private static IMetadataRepository[] dropinRepositories;
-	private static IMetadataRepository[] configurationRepositories;
+	private static Collection dropinRepositories;
+	private static Collection configurationRepositories;
 	private static IMetadataRepository[] linksRepositories;
 	private static IMetadataRepository eclipseProductRepository;
 
@@ -88,11 +87,11 @@ public class Activator implements BundleActivator {
 	}
 
 	protected static Collection getDropinRepositories() {
-		return (dropinRepositories != null ? Arrays.asList(dropinRepositories) : new ArrayList(0));
+		return dropinRepositories == null ? new ArrayList(0) : dropinRepositories;
 	}
 
 	protected static Collection getConfigurationRepositories() {
-		return (configurationRepositories != null ? Arrays.asList(configurationRepositories) : new ArrayList(0));
+		return configurationRepositories == null ? new ArrayList(0) : configurationRepositories;
 	}
 
 	/* (non-Javadoc)
@@ -119,7 +118,7 @@ public class Activator implements BundleActivator {
 		watchDropins(profile);
 		// keep an eye on the platform.xml
 		if (false)
-			watchConfiguration();
+		watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
 
@@ -133,21 +132,16 @@ public class Activator implements BundleActivator {
 	}
 
 	private void watchEclipseProduct() {
-
-		URL baseURL;
 		try {
-			baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
+			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
 			URL pooledURL = new URL(baseURL, "../.pooled"); //$NON-NLS-1$
 			loadArtifactRepository(pooledURL);
 			eclipseProductRepository = loadMetadataRepository(pooledURL);
 		} catch (MalformedURLException e) {
-			// TODO proper logging
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
 		} catch (ProvisionException e) {
-			// TODO proper logging
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
 		}
-
 	}
 
 	private boolean startEarly(String bundleName) throws BundleException {
@@ -161,17 +155,17 @@ public class Activator implements BundleActivator {
 	/*
 	 * Synchronize the profile.
 	 */
-	public static synchronized void synchronize(List extraRepositories, IProgressMonitor monitor) {
+	public static synchronized void synchronize(Collection extraRepositories, IProgressMonitor monitor) {
 		IProfile profile = getCurrentProfile(bundleContext);
 		if (profile == null)
 			return;
 		// create the profile synchronizer on all available repositories
 		Set repositories = new HashSet(extraRepositories);
 		if (dropinRepositories != null)
-			repositories.addAll(Arrays.asList(dropinRepositories));
+			repositories.addAll(dropinRepositories);
 
 		if (configurationRepositories != null)
-			repositories.addAll(Arrays.asList(configurationRepositories));
+			repositories.addAll(configurationRepositories);
 
 		if (linksRepositories != null)
 			repositories.addAll(Arrays.asList(linksRepositories));
@@ -195,9 +189,9 @@ public class Activator implements BundleActivator {
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
 		watcher.addListener(listener);
 		watcher.poll();
-		List repositories = listener.getMetadataRepositories();
+		Collection repositories = listener.getMetadataRepositories();
 		if (repositories != null)
-			configurationRepositories = (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[0]);
+			configurationRepositories = repositories;
 
 	}
 

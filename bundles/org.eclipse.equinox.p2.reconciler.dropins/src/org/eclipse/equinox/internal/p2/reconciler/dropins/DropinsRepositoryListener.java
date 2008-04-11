@@ -249,10 +249,10 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		repository.setProperty(key, value);
 	}
 
-	public IMetadataRepository[] getMetadataRepositories() {
+	public Collection getMetadataRepositories() {
 		List result = new ArrayList(metadataRepositories);
 		result.add(getMetadataRepository());
-		return (IMetadataRepository[]) result.toArray(new IMetadataRepository[0]);
+		return result;
 	}
 
 }
