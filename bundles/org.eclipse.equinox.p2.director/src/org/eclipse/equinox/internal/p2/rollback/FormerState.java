@@ -34,9 +34,29 @@ public class FormerState {
 
 	public static final String IUPROP_PREFIX = "---IUPROPERTY---"; //$NON-NLS-1$
 	public static final String IUPROP_POSTFIX = "---IUPROPERTYKEY---"; //$NON-NLS-1$
+	private static long lastTimestamp;
 	URL location = null;
 
 	Hashtable generatedIUs = new Hashtable(); //key profile id, value the iu representing this profile
+
+	private synchronized static long uniqueTimestamp() {
+		long timewaited = 0;
+		long timestamp = System.currentTimeMillis();
+		while (timestamp == lastTimestamp) {
+			if (timewaited > 1000)
+				throw new IllegalStateException("uniquetimestamp failed"); //$NON-NLS-1$
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// reset interrupted status
+				Thread.currentThread().interrupt();
+			}
+			timewaited += 10;
+			timestamp = System.currentTimeMillis();
+		}
+		lastTimestamp = timestamp;
+		return timestamp;
+	}
 
 	public FormerState(URL repoLocation) {
 		if (repoLocation == null)
@@ -96,7 +116,7 @@ public class FormerState {
 		InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
 		result.setProperty(IInstallableUnit.PROP_TYPE_PROFILE, Boolean.TRUE.toString());
 		result.setId(profile.getProfileId());
-		result.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
+		result.setVersion(new Version(0, 0, 0, Long.toString(uniqueTimestamp())));
 		result.setRequiredCapabilities(IUTransformationHelper.toRequirements(profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator(), false));
 		// Save the profile properties
 		// TODO we aren't marking these properties in any special way to indicate they came from profile properties.  Should we?
