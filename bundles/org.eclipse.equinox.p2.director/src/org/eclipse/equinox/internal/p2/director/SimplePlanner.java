@@ -161,7 +161,7 @@ public class SimplePlanner implements IPlanner {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
 				return new ProvisioningPlan(result);
 			}
-			IProfile revertProfile = FormerState.IUToProfile(profileSnapshot, sub.newChild(ExpandWork / 2));
+			IProfile revertProfile = FormerState.IUToProfile(profileSnapshot, profile, context, sub.newChild(ExpandWork / 2));
 
 			ProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(profile, revertProfile);
 			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));

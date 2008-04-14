@@ -140,9 +140,9 @@ public class FormerState {
 		return MetadataFactory.createInstallableUnit(result);
 	}
 
-	public static IProfile IUToProfile(IInstallableUnit profileIU, IProgressMonitor monitor) throws CoreException {
+	public static IProfile IUToProfile(IInstallableUnit profileIU, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) throws CoreException {
 		try {
-			return new FormerStateProfile(profileIU);
+			return new FormerStateProfile(profileIU, profile, context);
 		} finally {
 			monitor.done();
 		}
@@ -243,7 +243,7 @@ public class FormerState {
 		private HashMap iuProfileProperties = new HashMap();
 		private Set ius = new HashSet();
 
-		public FormerStateProfile(IInstallableUnit profileIU) throws CoreException {
+		public FormerStateProfile(IInstallableUnit profileIU, IProfile profile, ProvisioningContext context) throws CoreException {
 
 			String profileTypeProperty = profileIU.getProperty(IInstallableUnit.PROP_TYPE_PROFILE);
 			if (profileTypeProperty == null || !Boolean.valueOf(profileTypeProperty).booleanValue())
@@ -269,10 +269,12 @@ public class FormerState {
 			}
 			profileProperties.remove(IInstallableUnit.PROP_TYPE_PROFILE);
 
-			Dictionary snapshotSelectionContext = SimplePlanner.createSelectionContext(profileProperties);
-			ProvisioningContext context = new ProvisioningContext();
-			IInstallableUnit[] availableIUs = SimplePlanner.gatherAvailableInstallableUnits(new IInstallableUnit[] {profileIU}, context.getMetadataRepositories(), context, new NullProgressMonitor());
+			List extraIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+			extraIUs.add(profileIU);
 
+			IInstallableUnit[] availableIUs = SimplePlanner.gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), context.getMetadataRepositories(), context, new NullProgressMonitor());
+
+			Dictionary snapshotSelectionContext = SimplePlanner.createSelectionContext(profileProperties);
 			IInstallableUnit[] allIUs = new IInstallableUnit[] {profileIU};
 			Slicer slicer = new Slicer(allIUs, availableIUs, snapshotSelectionContext);
 			IQueryable slice = slicer.slice(allIUs, new NullProgressMonitor());
