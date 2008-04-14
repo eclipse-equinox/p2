@@ -94,6 +94,35 @@ public class Property extends Phase {
 		}
 	}
 
+	public class RemoveInstallableUnitProfilePropertiesAction extends ProvisioningAction {
+
+		// we do not need to use a memento here since the profile is not persisted unless the operation is successful
+		Map originalSourceProperties;
+		Map originalTargetProperties;
+
+		public IStatus execute(Map parameters) {
+			Profile profile = (Profile) parameters.get(PARM_PROFILE);
+			InstallableUnitOperand iuOperand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
+
+			IInstallableUnit source = iuOperand.first();
+			originalSourceProperties = profile.getInstallableUnitProperties(source);
+			profile.clearInstallableUnitProperties(source);
+
+			return null;
+		}
+
+		public IStatus undo(Map parameters) {
+			Profile profile = (Profile) parameters.get(PARM_PROFILE);
+			InstallableUnitOperand iuOperand = (InstallableUnitOperand) parameters.get(PARM_OPERAND);
+
+			IInstallableUnit source = iuOperand.first();
+			profile.clearInstallableUnitProperties(source);
+			profile.addInstallableUnitProperties(source, originalSourceProperties);
+
+			return null;
+		}
+	}
+
 	private static final String PHASE_ID = "property"; //$NON-NLS-1$
 
 	public Property(int weight) {
@@ -106,9 +135,11 @@ public class Property extends Phase {
 
 		if (operand instanceof InstallableUnitOperand) {
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
-			if (iuOperand.first() != null && iuOperand.second() != null) {
-				return new ProvisioningAction[] {new UpdateInstallableUnitProfilePropertiesAction()};
-			}
+			if (iuOperand.first() != null)
+				if (iuOperand.second() != null) {
+					return new ProvisioningAction[] {new UpdateInstallableUnitProfilePropertiesAction()};
+				} else
+					return new ProvisioningAction[] {new RemoveInstallableUnitProfilePropertiesAction()};
 		}
 		return null;
 	}
