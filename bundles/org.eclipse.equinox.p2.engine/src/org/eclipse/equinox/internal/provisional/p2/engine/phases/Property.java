@@ -135,11 +135,12 @@ public class Property extends Phase {
 
 		if (operand instanceof InstallableUnitOperand) {
 			InstallableUnitOperand iuOperand = (InstallableUnitOperand) operand;
-			if (iuOperand.first() != null)
+			if (iuOperand.first() != null) {
 				if (iuOperand.second() != null) {
 					return new ProvisioningAction[] {new UpdateInstallableUnitProfilePropertiesAction()};
-				} else
-					return new ProvisioningAction[] {new RemoveInstallableUnitProfilePropertiesAction()};
+				}
+				return new ProvisioningAction[] {new RemoveInstallableUnitProfilePropertiesAction()};
+			}
 		}
 		return null;
 	}
