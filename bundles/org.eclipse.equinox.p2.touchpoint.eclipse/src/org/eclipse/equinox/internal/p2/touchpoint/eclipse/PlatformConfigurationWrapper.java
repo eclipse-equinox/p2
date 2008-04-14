@@ -67,9 +67,9 @@ public class PlatformConfigurationWrapper {
 		return parentFolder.toFile();
 	}
 
-	public PlatformConfigurationWrapper(URL configDir, URL featurePool, Manipulator manipulator) {
+	public PlatformConfigurationWrapper(File configDir, URL featurePool, Manipulator manipulator) {
 		this.configuration = null;
-		this.configFile = new File(configDir.getFile(), "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
+		this.configFile = new File(configDir, "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		this.poolURL = featurePool;
 		this.manipulator = manipulator;
 	}
