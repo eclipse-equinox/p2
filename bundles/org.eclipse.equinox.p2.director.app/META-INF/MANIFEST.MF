@@ -8,6 +8,7 @@ Bundle-Version: 0.1.0.qualifier
 Import-Package: org.eclipse.equinox.app,
  org.eclipse.equinox.internal.p2.console,
  org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.engine,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core.location,
  org.eclipse.equinox.internal.provisional.p2.director,

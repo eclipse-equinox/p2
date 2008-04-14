@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
+import java.io.File;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -20,17 +21,15 @@ import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.phases.Sizing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 public class Application implements IApplication {
-	private String destination;
+	private Path destination;
 	private URL artifactRepositoryLocation;
 	private URL metadataRepositoryLocation;
 	private String root;
@@ -45,6 +44,19 @@ public class Application implements IApplication {
 	private String arch;
 	private String ws;
 	private boolean roamingProfile = false;
+	private IPlanner planner;
+	private IEngine engine;
+
+	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collector roots) {
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		markRoots(request, roots);
+		if (install) {
+			request.addInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
+		} else {
+			request.removeInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
+		}
+		return request;
+	}
 
 	private String getEnvironmentProperty() {
 		Properties values = new Properties();
@@ -61,7 +73,85 @@ public class Application implements IApplication {
 		return toString(values);
 	}
 
-	public void initializeFromArguments(String[] args) throws Exception {
+	private IProfile initializeProfile() {
+		if (profileId == null)
+			profileId = IProfileRegistry.SELF;
+		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		if (profile == null) {
+			Properties props = new Properties();
+			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
+			props.setProperty(IProfile.PROP_FLAVOR, flavor);
+			if (bundlePool != null)
+				if (bundlePool.equals(Messages.destination_commandline))
+					props.setProperty(IProfile.PROP_CACHE, destination.toOSString());
+				else
+					props.setProperty(IProfile.PROP_CACHE, bundlePool);
+			if (roamingProfile)
+				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
+
+			String env = getEnvironmentProperty();
+			if (env != null)
+				props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
+			if (profileProperties != null) {
+				putProperties(profileProperties, props);
+			}
+			profile = ProvisioningHelper.addProfile(profileId, props);
+			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
+			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
+				throw new RuntimeException(Messages.Inconsistent_flavor);
+		}
+		return profile;
+	}
+
+	private void initializeRepositories() {
+		ProvisioningHelper.addArtifactRepository(artifactRepositoryLocation);
+		ProvisioningHelper.addMetadataRepository(metadataRepositoryLocation);
+	}
+
+	private void initializeServices() {
+		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
+		if (director == null)
+			throw new RuntimeException(Messages.Missing_director);
+
+		planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
+		if (planner == null)
+			throw new RuntimeException(Messages.Missing_planner);
+
+		engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
+		if (engine == null)
+			throw new RuntimeException(Messages.Missing_Engine);
+	}
+
+	private void markRoots(ProfileChangeRequest request, Collector roots) {
+		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
+			request.setInstallableUnitProfileProperty((IInstallableUnit) iterator.next(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+		}
+	}
+
+	private IStatus planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request) {
+		ProvisioningPlan result;
+		IStatus operationStatus;
+		result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
+		if (!result.getStatus().isOK())
+			operationStatus = result.getStatus();
+		else {
+			operationStatus = engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), context, new NullProgressMonitor());
+		}
+		return operationStatus;
+	}
+
+	private void printRequest(ProfileChangeRequest request) {
+		IInstallableUnit[] toAdd = request.getAddedInstallableUnits();
+		IInstallableUnit[] toRemove = request.getRemovedInstallableUnits();
+		for (int i = 0; i < toAdd.length; i++) {
+			System.out.println(NLS.bind(Messages.Installing, toAdd[i].getId(), toAdd[i].getVersion()));
+		}
+		for (int i = 0; i < toRemove.length; i++) {
+			System.out.println(NLS.bind(Messages.Uninstalling, toRemove[i].getId(), toRemove[i].getVersion()));
+		}
+	}
+
+	public void processArguments(String[] args) throws Exception {
 		if (args == null)
 			return;
 		for (int i = 0; i < args.length; i++) {
@@ -91,7 +181,7 @@ public class Application implements IApplication {
 
 			// we create a path object here to handle ../ entries in the middle of paths
 			if (args[i - 1].equalsIgnoreCase("-destination") || args[i - 1].equalsIgnoreCase("-dest")) //$NON-NLS-1$ //$NON-NLS-2$
-				destination = new Path(arg).toOSString();
+				destination = new Path(arg);
 
 			// we create a path object here to handle ../ entries in the middle of paths
 			if (args[i - 1].equalsIgnoreCase("-bundlepool") || args[i - 1].equalsIgnoreCase("-bp")) //$NON-NLS-1$ //$NON-NLS-2$
@@ -156,95 +246,33 @@ public class Application implements IApplication {
 
 	public Object run(String[] args) throws Exception {
 		long time = -System.currentTimeMillis();
-		initializeFromArguments(args);
+		initializeServices();
+		processArguments(args);
+		IProfile profile = initializeProfile();
+		initializeRepositories();
 
-		if (profileId == null)
-			profileId = IProfileRegistry.SELF;
-		IProfile profile = ProvisioningHelper.getProfile(profileId);
-		if (profile == null) {
-			Properties props = new Properties();
-			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination);
-			props.setProperty(IProfile.PROP_FLAVOR, flavor);
-			if (bundlePool != null)
-				if (bundlePool.equals(Messages.destination_commandline))
-					props.setProperty(IProfile.PROP_CACHE, destination);
-				else
-					props.setProperty(IProfile.PROP_CACHE, bundlePool);
-			if (roamingProfile)
-				props.setProperty(IProfile.PROP_ROAMING, Boolean.TRUE.toString());
+		Collector roots = ProvisioningHelper.getInstallableUnits(null, new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true)), new NullProgressMonitor());
+		if (roots.size() <= 0)
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root));
 
-			String env = getEnvironmentProperty();
-			if (env != null)
-				props.setProperty(IProfile.PROP_ENVIRONMENTS, env);
-			if (profileProperties != null) {
-				putProperties(profileProperties, props);
-			}
-			profile = ProvisioningHelper.addProfile(profileId, props);
-			String currentFlavor = profile.getProperty(IProfile.PROP_FLAVOR);
-			if (currentFlavor != null && !currentFlavor.endsWith(flavor))
-				throw new RuntimeException(Messages.Inconsistent_flavor);
-		}
-		IDirector director = (IDirector) ServiceHelper.getService(Activator.getContext(), IDirector.class.getName());
-		if (director == null)
-			throw new RuntimeException(Messages.Missing_director);
+		if (!updateRoamingProperties(profile).isOK())
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
 
-		IPlanner planner = (IPlanner) ServiceHelper.getService(Activator.getContext(), IPlanner.class.getName());
-		if (planner == null)
-			throw new RuntimeException(Messages.Missing_planner);
-
-		IEngine engine = (IEngine) ServiceHelper.getService(Activator.getContext(), IEngine.SERVICE_NAME);
-		if (engine == null)
-			throw new RuntimeException(Messages.Missing_Engine);
-
-		ProvisioningHelper.addArtifactRepository(artifactRepositoryLocation);
-		IMetadataRepository metadataRepository = ProvisioningHelper.addMetadataRepository(metadataRepositoryLocation);
-		VersionRange range = version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true);
-		IInstallableUnit[] roots = (IInstallableUnit[]) metadataRepository.query(new InstallableUnitQuery(root, range), new Collector(), null).toArray(IInstallableUnit.class);
-		ProvisioningPlan result = null;
-		IStatus operationStatus = null;
 		ProvisioningContext context = new ProvisioningContext();
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		if (roots.length > 0) {
-			if (install) {
-				request.addInstallableUnits(roots);
-			} else {
-				request.removeInstallableUnits(roots);
-			}
-			result = planner.getProvisioningPlan(request, context, new NullProgressMonitor());
-			if (!result.getStatus().isOK())
-				operationStatus = result.getStatus();
-			else {
-				Sizing sizeComputer = new Sizing(100, "Compute sizes"); //$NON-NLS-1$
-				PhaseSet set = new PhaseSet(new Phase[] {sizeComputer}) {/*empty */};
-				operationStatus = engine.perform(profile, set, result.getOperands(), context, new NullProgressMonitor());
-				System.out.println(Messages.Disk_size + sizeComputer.getDiskSize());
-				System.out.println(Messages.Download_size + sizeComputer.getDlSize());
-				request = new ProfileChangeRequest(profile);
-				if (install)
-					request.addInstallableUnits(roots);
-				else
-					request.removeInstallableUnits(roots);
-				operationStatus = director.provision(request, null, new NullProgressMonitor());
-			}
-		} else {
-			operationStatus = new Status(IStatus.INFO, Activator.ID, NLS.bind(Messages.Missing_IU, root));
-		}
+		ProfileChangeRequest request = buildProvisioningRequest(profile, roots);
+		printRequest(request);
+		IStatus operationStatus = planAndExecute(profile, context, request);
 
 		time += System.currentTimeMillis();
-		if (operationStatus.isOK()) {
-			System.out.println(NLS.bind(install ? Messages.Installation_complete : Messages.Uninstallation_complete, new Long(time)));
-		} else {
-			System.out.println(install ? Messages.Installation_failed : Messages.Uninstallation_failed + operationStatus);
+		if (operationStatus.isOK())
+			System.out.println(NLS.bind(Messages.Operation_complete, new Long(time)));
+		else {
+			System.out.println(Messages.Operation_failed);
 			LogHelper.log(operationStatus);
 		}
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
-	 */
 	public Object start(IApplicationContext context) throws Exception {
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
@@ -264,5 +292,25 @@ public class Application implements IApplication {
 				result.append(',');
 		}
 		return result.toString();
+	}
+
+	private IStatus updateRoamingProperties(IProfile profile) {
+		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+		if (!Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
+			return Status.OK_STATUS;
+		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER)))) {
+			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
+		}
+		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_CACHE)))) {
+			request.setProfileProperty(IProfile.PROP_CACHE, destination.toOSString());
+		}
+		if (request.getProfileProperties().size() == 0)
+			return Status.OK_STATUS;
+
+		ProvisioningPlan result = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
+		if (!result.getStatus().isOK())
+			return result.getStatus();
+
+		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), new ProvisioningContext(), new NullProgressMonitor());
 	}
 }
