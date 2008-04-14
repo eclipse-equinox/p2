@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 IBM Corporation and others.
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,8 @@ import java.io.File;
 import java.net.*;
 
 /**
- * A utility class for manipulating URLs.
+ * A utility class for manipulating URLs. This class works around some of the
+ * broken behavior of the java.net.URL class.
  */
 public class URLUtil {
 	/*
@@ -49,6 +50,19 @@ public class URLUtil {
 		} catch (URISyntaxException e) {
 			//URL contains unencoded characters
 			return new File(url.getFile());
+		}
+	}
+
+	/**
+	 * Returns the URL as a URI. This method will handle broken URLs that are
+	 * not properly encoded (for example they contain unencoded space characters).
+	 */
+	public static URI toURI(URL url) throws URISyntaxException {
+		try {
+			return new URI(url.toExternalForm());
+		} catch (URISyntaxException e) {
+			//try multi-argument URI constructor to perform encoding
+			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
 		}
 	}
 }

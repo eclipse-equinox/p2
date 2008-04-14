@@ -16,11 +16,15 @@ import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
- * 
+ * Tests for the {@link URLUtil} class.
  */
 public class URLUtilTest extends AbstractProvisioningTest {
+	private static final String[] testPaths = new String[] {"abc", "with spaces", "with%percent"};
+
+	/**
+	 * Tests for {@link URLUtil#toFile(URL)}.
+	 */
 	public void testToFile() {
-		String[] testPaths = new String[] {"abc", "with spaces", "with%percent"};
 		File base = new File(System.getProperty("java.io.tmpdir"));
 		for (int i = 0; i < testPaths.length; i++) {
 			File original = new File(base, testPaths[i]);
@@ -33,6 +37,25 @@ public class URLUtilTest extends AbstractProvisioningTest {
 				fail("1.99", e);
 			}
 		}
+	}
 
+	/**
+	 * Tests for {@link URLUtil#toURI(URL)}.
+	 */
+	public void testToURI() {
+		File base = new File(System.getProperty("java.io.tmpdir"));
+		for (int i = 0; i < testPaths.length; i++) {
+			File file = new File(base, testPaths[i]);
+			URI original = file.toURI();
+			try {
+				URL encoded = file.toURL();
+				URI result = URLUtil.toURI(encoded);
+				assertEquals("1." + i, original, result);
+			} catch (URISyntaxException e) {
+				fail("1.99", e);
+			} catch (MalformedURLException e) {
+				fail("2.99", e);
+			}
+		}
 	}
 }
