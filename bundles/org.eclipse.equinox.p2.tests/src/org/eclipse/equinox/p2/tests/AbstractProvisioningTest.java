@@ -387,6 +387,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			VersionRange hostRange = new VersionRange(host.getVersion(), true, host.getVersion(), true);
 			fragment.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, host.getId(), hostRange, null, false, false)});
 		}
+		fragment.setCapabilities(new ProvidedCapability[] {getSelfCapability(name, version)});
 		return MetadataFactory.createInstallableUnitFragment(fragment);
 	}
 
