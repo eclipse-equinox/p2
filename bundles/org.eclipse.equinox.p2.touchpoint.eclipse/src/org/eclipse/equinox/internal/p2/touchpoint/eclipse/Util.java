@@ -162,8 +162,13 @@ public class Util {
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
 	}
 
+	/**
+	 * Returns the install folder for the profile, or <code>null</code>
+	 * if no install folder is defined.
+	 */
 	public static File getInstallFolder(IProfile profile) {
-		return new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
+		String folder = profile.getProperty(IProfile.PROP_INSTALL_FOLDER);
+		return folder == null ? null : new File(folder);
 	}
 
 	public static File getLauncherPath(IProfile profile) {
