@@ -118,12 +118,12 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * cache is updated when it becomes stale.
 	 */
 	public void testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
-		URL repoLocation = new URL("http://download.eclipse.org/eclipse/testUpdates/");
+		URL repoLocation = new URL("http://fullmoon.ottawa.ibm.com/eclipse/updates/3.4milestones/");
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URLUtil.toFile(dataArea);
-		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".xml");
-		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
+		File cacheFileXML = new File(dataAreaFile, "content" + repoLocation.toExternalForm().hashCode() + ".xml");
+		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.toExternalForm().hashCode() + ".jar");
 		File cacheFile;
 
 		// load a remote repository and check that a local cache was created
