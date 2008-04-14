@@ -340,18 +340,13 @@ public class SimplePlanner implements IPlanner {
 		//Remove the iu properties associated to the ius removed and the iu properties being removed as well
 		for (Iterator iterator = alreadyInstalled.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			boolean found = false;
 			for (int i = 0; i < removed.length; i++) {
 				if (iu.equals(removed[i])) {
 					profileChangeRequest.removeInstallableUnitProfileProperty(removed[i], INCLUSION_RULES);
 					iterator.remove();
-					found = true;
 					break;
 				}
 			}
-
-			if (found)
-				break;
 		}
 
 		ArrayList gatheredRequirements = new ArrayList();
