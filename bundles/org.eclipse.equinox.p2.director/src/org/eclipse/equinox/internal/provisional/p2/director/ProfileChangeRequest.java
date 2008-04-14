@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.provisional.p2.director;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.DirectorActivator;
+import org.eclipse.equinox.internal.p2.director.SimplePlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -151,4 +152,25 @@ public class ProfileChangeRequest {
 		return iuPropertiesToAdd;
 	}
 
+	public void setInstallableUnitInclusionRules(IInstallableUnit iu, String value) {
+		if (iuPropertiesToAdd == null)
+			iuPropertiesToAdd = new HashMap();
+		Map properties = (Map) iuPropertiesToAdd.get(iu);
+		if (properties == null) {
+			properties = new HashMap();
+			iuPropertiesToAdd.put(iu, properties);
+		}
+		properties.put(SimplePlanner.INCLUSION_RULES, value);
+	}
+
+	public void removeInstallableUnitInclusionRules(IInstallableUnit iu) {
+		if (iuPropertiesToRemove == null)
+			iuPropertiesToRemove = new HashMap();
+		List keys = (List) iuPropertiesToRemove.get(iu);
+		if (keys == null) {
+			keys = new ArrayList();
+			iuPropertiesToRemove.put(iu, keys);
+		}
+		keys.add(SimplePlanner.INCLUSION_RULES);
+	}
 }

@@ -634,6 +634,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 			metadataRepos.clear();
 		}
+		URL[] urls = repoMan.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		for (int i = 0; i < urls.length; i++) {
+			if (urls[i].toExternalForm().indexOf("cache") != -1 || urls[i].toExternalForm().indexOf("rollback") != -1)
+				repoMan.loadRepository(urls[i], null).removeAll();
+		}
 		//remove all profiles created by this test
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {

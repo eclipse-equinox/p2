@@ -19,12 +19,15 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(AddIUProperty.class);
 		suite.addTestSuite(AllOptional.class);
 		suite.addTestSuite(AnotherSingleton.class);
 		suite.addTestSuite(Bug207319.class);
 		suite.addTestSuite(DependencyOnSelf.class);
 		suite.addTestSuite(DropinsScenario.class);
 		suite.addTestSuite(GreedyRequirement.class);
+		suite.addTestSuite(InclusionRuleTest.class);
+		suite.addTestSuite(InclusionRuleTest2.class);
 		suite.addTestSuite(IUWithFilter.class);
 		suite.addTestSuite(IUWithFilter2.class);
 		suite.addTestSuite(MinimalInstall.class);

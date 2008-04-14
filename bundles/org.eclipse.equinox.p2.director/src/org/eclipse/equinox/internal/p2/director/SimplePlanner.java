@@ -18,7 +18,8 @@ import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -26,10 +27,12 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Version;
 
 public class SimplePlanner implements IPlanner {
 	private static final int ExpandWork = 12;
 	private static final String PLANNER_MARKER = "private.org.eclipse.equinox.p2.planner.installed"; //$NON-NLS-1$
+	public static final String INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
 	private IProfile getProfile(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
@@ -283,6 +286,7 @@ public class SimplePlanner implements IPlanner {
 				return new ProvisioningPlan(s);
 			}
 			Collection newState = projector.extractSolution();
+			newState.remove(allIUs[0]);
 
 			ResolutionHelper newStateHelper = new ResolutionHelper(newSelectionContext, null);
 			newState = newStateHelper.attachCUs(newState);
@@ -296,38 +300,106 @@ public class SimplePlanner implements IPlanner {
 		}
 	}
 
+	private IInstallableUnit createIURepresentingTheProfile(ArrayList allRequirements) {
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		String time = Long.toString(System.currentTimeMillis());
+		iud.setId(time);
+		iud.setVersion(new Version(0, 0, 0, time));
+		iud.setRequiredCapabilities((RequiredCapability[]) allRequirements.toArray(new RequiredCapability[allRequirements.size()]));
+		return MetadataFactory.createInstallableUnit(iud);
+	}
+
 	//The planner uses installable unit properties to keep track of what it has been asked to install. This updates this information
 	private IInstallableUnit[] updatePlannerInfo(ProfileChangeRequest profileChangeRequest) {
-		Collector alreadyInstalled = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), PLANNER_MARKER, Boolean.toString(true)), new Collector(), null);
+		//Support for backward compatibility. Convert planner_marker properties into strict inclusion rules
+		Collector previousMarkers = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), PLANNER_MARKER, Boolean.TRUE.toString()), new Collector(), null);
+		for (Iterator iterator = previousMarkers.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			profileChangeRequest.setInstallableUnitInclusionRules(iu, PlannerHelper.createStrictInclusionRule(iu));
+			profileChangeRequest.removeInstallableUnitProfileProperty(iu, PLANNER_MARKER);
+		}
+
+		Collection includedIUs = profileChangeRequest.getProfile().query(new IUProfilePropertyQuery(profileChangeRequest.getProfile(), INCLUSION_RULES, null), new Collector(), null).toCollection();
+		Collection alreadyInstalled = new HashSet(includedIUs);
+		alreadyInstalled.addAll(previousMarkers.toCollection());
 
 		IInstallableUnit[] added = profileChangeRequest.getAddedInstallableUnits();
 		IInstallableUnit[] removed = profileChangeRequest.getRemovedInstallableUnits();
-		IInstallableUnit[] allIUs = new IInstallableUnit[alreadyInstalled.size() + added.length + removed.length];
 
-		int count = 0;
+		for (Iterator iterator = profileChangeRequest.getInstallableUnitProfilePropertiesToRemove().entrySet().iterator(); iterator.hasNext();) {
+			Map.Entry object = (Map.Entry) iterator.next();
+			if (((List) object.getValue()).contains(INCLUSION_RULES))
+				profileChangeRequest.setInstallableUnitProfileProperty((IInstallableUnit) object.getKey(), INCLUSION_RULES, PlannerHelper.createStrictInclusionRule((IInstallableUnit) object.getKey()));
+		}
+		//Remove the iu properties associated to the ius removed and the iu properties being removed as well
 		for (Iterator iterator = alreadyInstalled.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			boolean found = false;
 			for (int i = 0; i < removed.length; i++) {
 				if (iu.equals(removed[i])) {
-					profileChangeRequest.removeInstallableUnitProfileProperty(removed[i], PLANNER_MARKER);
+					profileChangeRequest.removeInstallableUnitProfileProperty(removed[i], INCLUSION_RULES);
+					iterator.remove();
 					found = true;
 					break;
 				}
 			}
-			if (!found)
-				allIUs[count++] = iu;
+
+			if (found)
+				break;
 		}
+
+		ArrayList gatheredRequirements = new ArrayList();
+
+		//Process all the IUs being added
+		Map iuPropertiesToAdd = profileChangeRequest.getInstallableUnitProfilePropertiesToAdd();
 		for (int i = 0; i < added.length; i++) {
-			allIUs[count++] = added[i];
-			profileChangeRequest.setInstallableUnitProfileProperty(added[i], PLANNER_MARKER, "true"); //$NON-NLS-1$
+			Map propertiesForIU = (Map) iuPropertiesToAdd.get(added[i]);
+			RequiredCapability profileRequirement = null;
+			if (propertiesForIU != null) {
+				profileRequirement = createRequirement(added[i], (String) propertiesForIU.get(INCLUSION_RULES));
+			}
+			if (profileRequirement == null) {
+				profileChangeRequest.setInstallableUnitProfileProperty(added[i], INCLUSION_RULES, PlannerHelper.createStrictInclusionRule(added[i]));
+				profileRequirement = createStrictRequirement(added[i]);
+			}
+			gatheredRequirements.add(profileRequirement);
 		}
-		if (allIUs.length > count) {
-			IInstallableUnit[] result = new IInstallableUnit[count];
-			System.arraycopy(allIUs, 0, result, 0, count);
-			allIUs = result;
+
+		//Process the IUs that were already there
+		for (Iterator iterator = alreadyInstalled.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			Map propertiesForIU = (Map) iuPropertiesToAdd.get(iu);
+			RequiredCapability profileRequirement = null;
+			//Test if the value has changed
+			if (propertiesForIU != null) {
+				profileRequirement = createRequirement(iu, (String) propertiesForIU.get(INCLUSION_RULES));
+			}
+			if (profileRequirement == null) {
+				profileRequirement = createRequirement(iu, profileChangeRequest.getProfile().getInstallableUnitProperty(iu, INCLUSION_RULES));
+			}
+			gatheredRequirements.add(profileRequirement);
 		}
-		return allIUs;
+		return new IInstallableUnit[] {createIURepresentingTheProfile(gatheredRequirements)};
+	}
+
+	private RequiredCapability createRequirement(IInstallableUnit iu, String rule) {
+		if (rule == null)
+			return null;
+		if (rule.equals(PlannerHelper.createStrictInclusionRule(iu))) {
+			return createStrictRequirement(iu);
+		}
+		if (rule.equals(PlannerHelper.createOptionalInclusionRule(iu))) {
+			return createOptionalRequirement(iu);
+		}
+		return null;
+	}
+
+	private RequiredCapability createOptionalRequirement(IInstallableUnit iu) {
+		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, true, false, true);
+	}
+
+	private RequiredCapability createStrictRequirement(IInstallableUnit iu) {
+		return MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new VersionRange(iu.getVersion(), true, iu.getVersion(), true), null, false, false, true);
 	}
 
 	public IInstallableUnit[] updatesFor(IInstallableUnit toUpdate, ProvisioningContext context, IProgressMonitor monitor) {
