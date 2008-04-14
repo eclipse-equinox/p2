@@ -86,7 +86,6 @@ public class RevertProfileWizardPage extends WizardPage {
 		label.setText(ProvUIMessages.RevertDialog_ConfigsLabel);
 		configsViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		configsViewer.setContentProvider(new RepositoryContentProvider(queryProvider));
-		configsViewer.setInput(getInput());
 		configsViewer.setLabelProvider(new ProvElementLabelProvider());
 		configsViewer.setComparator(new ViewerComparator() {
 			// We override the ViewerComparator so that we don't get the labels of the elements
@@ -101,6 +100,8 @@ public class RevertProfileWizardPage extends WizardPage {
 				return iu2.getVersion().compareTo(iu1.getVersion());
 			}
 		});
+		configsViewer.setInput(getInput());
+
 		configsViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				handleSelectionChanged((IStructuredSelection) event.getSelection());
