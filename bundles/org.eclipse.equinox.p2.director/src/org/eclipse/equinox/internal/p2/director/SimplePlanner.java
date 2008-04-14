@@ -10,7 +10,6 @@ package org.eclipse.equinox.internal.p2.director;
 
 import java.net.URL;
 import java.util.*;
-import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -24,18 +23,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.UpdateQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
 
 public class SimplePlanner implements IPlanner {
 	private static final int ExpandWork = 12;
 	private static final String PLANNER_MARKER = "private.org.eclipse.equinox.p2.planner.installed"; //$NON-NLS-1$
-
-	private IInstallableUnit[] getInstallableUnits(IProfile profile) {
-		return (IInstallableUnit[]) profile.query(InstallableUnitQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class);
-	}
 
 	private IProfile getProfile(String profileId) {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(DirectorActivator.context, IProfileRegistry.class.getName());
@@ -164,35 +158,33 @@ public class SimplePlanner implements IPlanner {
 				result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Director_Unexpected_IU, profileSnapshot.getId())));
 				return new ProvisioningPlan(result);
 			}
+			IProfile revertProfile = FormerState.IUToProfile(profileSnapshot, sub.newChild(ExpandWork / 2));
 
-			//TODO if the profile changes (locations are being modified, etc), should not we do a full uninstall then an install?
-			//Maybe it depends on the kind of changes in a profile
-			//We need to get all the ius that were part of the profile and give that to be what to become
+			ProfileChangeRequest profileChangeRequest = FormerState.generateProfileDeltaChangeRequest(profile, revertProfile);
+			return getProvisioningPlan(profileChangeRequest, context, sub.newChild(ExpandWork / 2));
 
-			Dictionary snapshotSelectionContext = createSelectionContext(getSnapshotProperties(profileSnapshot));
-			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits(new IInstallableUnit[] {profileSnapshot}, context.getMetadataRepositories(), context, sub.newChild(ExpandWork / 2));
-			NewDependencyExpander toExpander = new NewDependencyExpander(new IInstallableUnit[] {profileSnapshot}, null, availableIUs, snapshotSelectionContext, true);
-			toExpander.expand(sub.newChild(ExpandWork / 2));
-			ResolutionHelper newStateHelper = new ResolutionHelper(snapshotSelectionContext, toExpander.getRecommendations());
-			Collection newState = newStateHelper.attachCUs(toExpander.getAllInstallableUnits());
-			newState.remove(profileSnapshot);
-
-			Collection oldIUs = new HashSet();
-			for (Iterator it = profile.query(InstallableUnitQuery.ANY, new Collector(), null).iterator(); it.hasNext();) {
-				oldIUs.add(it.next());
-			}
-
-			Dictionary oldSelectionContext = createSelectionContext(profile.getProperties());
-			ResolutionHelper oldStateHelper = new ResolutionHelper(oldSelectionContext, null);
-			Collection oldState = oldStateHelper.attachCUs(oldIUs);
-			ProfileChangeRequest profileChangeRequest = generateChangeRequest(profile, profileSnapshot, newState);
-			return generateProvisioningPlan(null, oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted(), profileChangeRequest);
+		} catch (CoreException e) {
+			return new ProvisioningPlan(e.getStatus());
 		} finally {
 			sub.done();
 		}
 	}
 
-	private Dictionary createSelectionContext(Map properties) {
+	public static IInstallableUnit[] findPlannerMarkedIUs(final IProfile profile) {
+		Query markerQuery = new Query() {
+			public boolean isMatch(Object candidate) {
+				if (!(candidate instanceof IInstallableUnit))
+					return false;
+
+				IInstallableUnit iu = (IInstallableUnit) candidate;
+				String marker = profile.getInstallableUnitProperty(iu, PLANNER_MARKER);
+				return marker != null && Boolean.valueOf(marker).booleanValue();
+			}
+		};
+		return (IInstallableUnit[]) profile.query(markerQuery, new Collector(), null).toArray(IInstallableUnit.class);
+	}
+
+	public static Dictionary createSelectionContext(Map properties) {
 		Hashtable result = new Hashtable(properties);
 		String environments = (String) properties.get(IProfile.PROP_ENVIRONMENTS);
 		if (environments == null)
@@ -207,73 +199,7 @@ public class SimplePlanner implements IPlanner {
 		return result;
 	}
 
-	private Map getSnapshotProperties(IInstallableUnit profileSnapshot) {
-		Map result = new HashMap();
-		for (Iterator it = profileSnapshot.getProperties().entrySet().iterator(); it.hasNext();) {
-			Entry entry = (Entry) it.next();
-			String key = (String) entry.getKey();
-			if (IInstallableUnit.PROP_TYPE_PROFILE.equals(key) || key.startsWith(FormerState.IUPROP_PREFIX))
-				continue;
-
-			result.put(key, entry.getValue());
-		}
-		return result;
-	}
-
-	// TODO note that this only describes property changes, not the IU changes.
-	private ProfileChangeRequest generateChangeRequest(IProfile profile, IInstallableUnit iuDescribingNewState, Collection newIUs) {
-		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		Map profileProperties = iuDescribingNewState.getProperties();
-		for (Iterator iter = profileProperties.keySet().iterator(); iter.hasNext();) {
-			String key = (String) iter.next();
-			// ignore the property that confirms this IU is a profile snapshot
-			if (IInstallableUnit.PROP_TYPE_PROFILE.equals(key))
-				continue;
-			if (key.startsWith(FormerState.IUPROP_PREFIX)) {
-				int postID = key.indexOf(FormerState.IUPROP_POSTFIX, FormerState.IUPROP_PREFIX.length());
-				String id = key.substring(FormerState.IUPROP_PREFIX.length(), postID);
-				for (Iterator iuIter = newIUs.iterator(); iuIter.hasNext();) {
-					IInstallableUnit iu = (IInstallableUnit) iuIter.next();
-					if (id.equals(iu.getId())) {
-						String iuPropKey = key.substring(postID + FormerState.IUPROP_POSTFIX.length());
-						request.setInstallableUnitProfileProperty(iu, iuPropKey, profileProperties.get(key));
-						continue;
-					}
-				}
-			} else {
-				request.setProfileProperty(key, profileProperties.get(key));
-			}
-		}
-		// Now process removals, but don't include those that simply changed or were otherwise reset above.
-		for (Iterator iter = profile.getProperties().keySet().iterator(); iter.hasNext();) {
-			String key = (String) iter.next();
-			if (!request.getPropertiesToAdd().containsKey(key))
-				request.removeProfileProperty(key);
-		}
-		IInstallableUnit[] ius = getInstallableUnits(profile);
-		for (int i = 0; i < ius.length; i++) {
-			// Get the properties we added so those can be excluded
-			Iterator iuIter = request.getInstallableUnitProfilePropertiesToAdd().keySet().iterator();
-			HashMap addedProperties = new HashMap();
-			while (iuIter.hasNext()) {
-				IInstallableUnit iu = (IInstallableUnit) iuIter.next();
-				if (iu.getId().equals(ius[i].getId())) {
-					addedProperties = (HashMap) request.getInstallableUnitProfilePropertiesToAdd().get(iu);
-					continue;
-				}
-			}
-
-			for (Iterator iter = profile.getInstallableUnitProperties(ius[i]).keySet().iterator(); iter.hasNext();) {
-				String key = (String) iter.next();
-				if (!addedProperties.containsKey(key))
-					request.removeInstallableUnitProfileProperty(ius[i], key);
-			}
-		}
-
-		return request;
-	}
-
-	protected IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
+	public static IInstallableUnit[] gatherAvailableInstallableUnits(IInstallableUnit[] additionalSource, URL[] repositories, ProvisioningContext context, IProgressMonitor monitor) {
 		Map resultsMap = new HashMap();
 		if (additionalSource != null) {
 			for (int i = 0; i < additionalSource.length; i++) {
@@ -314,7 +240,7 @@ public class SimplePlanner implements IPlanner {
 		return (IInstallableUnit[]) results.toArray(new IInstallableUnit[results.size()]);
 	}
 
-	private boolean hasHigherFidelity(IInstallableUnit iu, IInstallableUnit currentIU) {
+	private static boolean hasHigherFidelity(IInstallableUnit iu, IInstallableUnit currentIU) {
 		if (Boolean.valueOf(currentIU.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue() && !Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_PARTIAL_IU)).booleanValue())
 			return true;
 		return false;

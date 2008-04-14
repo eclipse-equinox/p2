@@ -436,7 +436,7 @@ public class NewDependencyExpander {
 		return result;
 	}
 
-	public IStatus expand(SubMonitor p) {
+	public IStatus expand(IProgressMonitor p) {
 		MultiStatus result = new MultiStatus(DirectorActivator.PI_DIRECTOR, 1, Messages.Director_Unsatisfied_Dependencies, null);
 		try {
 			algo(SubMonitor.convert(p, "Resolving", 10), result);

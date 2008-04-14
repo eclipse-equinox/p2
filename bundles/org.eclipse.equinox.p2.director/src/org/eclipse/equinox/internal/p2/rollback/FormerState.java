@@ -10,14 +10,16 @@ package org.eclipse.equinox.internal.p2.rollback;
 
 import java.net.URL;
 import java.util.*;
+import java.util.Map.Entry;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.director.DirectorActivator;
-import org.eclipse.equinox.internal.p2.director.IUTransformationHelper;
+import org.eclipse.equinox.internal.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
@@ -25,10 +27,11 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.osgi.framework.Version;
 
 public class FormerState {
+
 	public static final String IUPROP_PREFIX = "---IUPROPERTY---"; //$NON-NLS-1$
 	public static final String IUPROP_POSTFIX = "---IUPROPERTYKEY---"; //$NON-NLS-1$
 	URL location = null;
@@ -89,7 +92,7 @@ public class FormerState {
 		throw new IllegalStateException("Unable to open or create Agent's rollback repository"); //$NON-NLS-1$
 	}
 
-	IInstallableUnit profileToIU(IProfile profile) {
+	public static IInstallableUnit profileToIU(IProfile profile) {
 		InstallableUnitDescription result = new MetadataFactory.InstallableUnitDescription();
 		result.setProperty(IInstallableUnit.PROP_TYPE_PROFILE, Boolean.TRUE.toString());
 		result.setId(profile.getProfileId());
@@ -114,11 +117,221 @@ public class FormerState {
 				result.setProperty(IUPROP_PREFIX + iu.getId() + IUPROP_POSTFIX + key, (String) properties.get(key));
 			}
 		}
-
-		//TODO Do we need to mark profile with a special marker
 		return MetadataFactory.createInstallableUnit(result);
 	}
-	//	private copyProperty(Profile p) {
-	//		Map profileProperties = p.getValues();
-	//	}
+
+	public static IProfile IUToProfile(IInstallableUnit profileIU, IProgressMonitor monitor) throws CoreException {
+		try {
+			return new FormerStateProfile(profileIU);
+		} finally {
+			monitor.done();
+		}
+	}
+
+	public static ProfileChangeRequest generateProfileDeltaChangeRequest(IProfile current, IProfile target) {
+		ProfileChangeRequest request = new ProfileChangeRequest(current);
+
+		synchronizeProfileProperties(request, current, target);
+		synchronizeMarkedIUs(request, current, target);
+		synchronizeAllIUProperties(request, current, target);
+
+		return request;
+	}
+
+	private static void synchronizeAllIUProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
+		Collection currentIUs = current.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
+		Collection targetIUs = target.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection();
+		List iusToAdd = new ArrayList(targetIUs);
+		iusToAdd.remove(currentIUs);
+
+		//additions
+		for (Iterator iterator = iusToAdd.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			for (Iterator it = target.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
+				Entry entry = (Entry) it.next();
+				String key = (String) entry.getKey();
+				String value = (String) entry.getValue();
+				request.setInstallableUnitProfileProperty(iu, key, value);
+			}
+		}
+
+		// updates
+		List iusToUpdate = new ArrayList(targetIUs);
+		iusToUpdate.remove(iusToAdd);
+		for (Iterator iterator = iusToUpdate.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			Map propertiesToSet = new HashMap(target.getInstallableUnitProperties(iu));
+			for (Iterator it = current.getInstallableUnitProperties(iu).entrySet().iterator(); it.hasNext();) {
+				Entry entry = (Entry) it.next();
+				String key = (String) entry.getKey();
+				String newValue = (String) propertiesToSet.get(key);
+				if (newValue == null) {
+					request.removeInstallableUnitProfileProperty(iu, key);
+				} else if (newValue.equals(entry.getValue()))
+					propertiesToSet.remove(key);
+			}
+
+			for (Iterator it = propertiesToSet.entrySet().iterator(); it.hasNext();) {
+				Entry entry = (Entry) it.next();
+				String key = (String) entry.getKey();
+				String value = (String) entry.getValue();
+				request.setInstallableUnitProfileProperty(iu, key, value);
+			}
+		}
+	}
+
+	private static void synchronizeMarkedIUs(ProfileChangeRequest request, IProfile current, IProfile target) {
+		IInstallableUnit[] currentPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(current);
+		IInstallableUnit[] targetPlannerMarkedIUs = SimplePlanner.findPlannerMarkedIUs(target);
+
+		//additions
+		List markedIUsToAdd = new ArrayList(Arrays.asList(targetPlannerMarkedIUs));
+		markedIUsToAdd.removeAll(Arrays.asList(currentPlannerMarkedIUs));
+		request.addInstallableUnits((IInstallableUnit[]) markedIUsToAdd.toArray(new IInstallableUnit[markedIUsToAdd.size()]));
+
+		// removes
+		List markedIUsToRemove = new ArrayList(Arrays.asList(currentPlannerMarkedIUs));
+		markedIUsToRemove.removeAll(Arrays.asList(targetPlannerMarkedIUs));
+		request.removeInstallableUnits((IInstallableUnit[]) markedIUsToRemove.toArray(new IInstallableUnit[markedIUsToRemove.size()]));
+	}
+
+	private static void synchronizeProfileProperties(ProfileChangeRequest request, IProfile current, IProfile target) {
+		Map profilePropertiesToSet = new HashMap(target.getProperties());
+		for (Iterator it = current.getProperties().entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			String key = (String) entry.getKey();
+
+			String newValue = (String) profilePropertiesToSet.get(key);
+			if (newValue == null) {
+				request.removeProfileProperty(key);
+			} else if (newValue.equals(entry.getValue()))
+				profilePropertiesToSet.remove(key);
+		}
+
+		for (Iterator it = profilePropertiesToSet.entrySet().iterator(); it.hasNext();) {
+			Entry entry = (Entry) it.next();
+			String key = (String) entry.getKey();
+			String value = (String) entry.getValue();
+			request.setProfileProperty(key, value);
+		}
+	}
+
+	public static class FormerStateProfile implements IProfile {
+
+		private String profileId;
+		private HashMap profileProperties = new HashMap();
+		private HashMap iuProfileProperties = new HashMap();
+		private Set ius = new HashSet();
+
+		public FormerStateProfile(IInstallableUnit profileIU) throws CoreException {
+
+			String profileTypeProperty = profileIU.getProperty(IInstallableUnit.PROP_TYPE_PROFILE);
+			if (profileTypeProperty == null || !Boolean.valueOf(profileTypeProperty).booleanValue())
+				throw new CoreException(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "Not a profile type IU"));
+
+			profileId = profileIU.getId();
+			for (Iterator it = profileIU.getProperties().entrySet().iterator(); it.hasNext();) {
+				Entry entry = (Entry) it.next();
+				String key = (String) entry.getKey();
+				if (key.startsWith(IUPROP_PREFIX)) {
+					int postIndex = key.indexOf(FormerState.IUPROP_POSTFIX, FormerState.IUPROP_PREFIX.length());
+					String iuId = key.substring(FormerState.IUPROP_PREFIX.length(), postIndex);
+					Map iuProperties = (Map) iuProfileProperties.get(iuId);
+					if (iuProperties == null) {
+						iuProperties = new HashMap();
+						iuProfileProperties.put(iuId, iuProperties);
+					}
+					String iuPropertyKey = key.substring(postIndex + FormerState.IUPROP_POSTFIX.length());
+					iuProperties.put(iuPropertyKey, entry.getValue());
+				} else {
+					profileProperties.put(key, entry.getValue());
+				}
+			}
+			profileProperties.remove(IInstallableUnit.PROP_TYPE_PROFILE);
+
+			Dictionary snapshotSelectionContext = SimplePlanner.createSelectionContext(profileProperties);
+			ProvisioningContext context = new ProvisioningContext();
+			IInstallableUnit[] availableIUs = SimplePlanner.gatherAvailableInstallableUnits(new IInstallableUnit[] {profileIU}, context.getMetadataRepositories(), context, new NullProgressMonitor());
+
+			IInstallableUnit[] allIUs = new IInstallableUnit[] {profileIU};
+			Slicer slicer = new Slicer(allIUs, availableIUs, snapshotSelectionContext);
+			IQueryable slice = slicer.slice(allIUs, new NullProgressMonitor());
+			if (slice == null)
+				throw new CoreException(slicer.getStatus());
+
+			Projector projector = new Projector(slice, snapshotSelectionContext);
+			projector.encode(allIUs, new NullProgressMonitor());
+			IStatus s = projector.invokeSolver(new NullProgressMonitor());
+
+			if (s.getSeverity() == IStatus.ERROR) {
+				//log the error from the new solver so it is not lost
+				LogHelper.log(s);
+				if (!"true".equalsIgnoreCase(context == null ? null : context.getProperty("org.eclipse.equinox.p2.disable.error.reporting"))) {
+					//We invoke the old resolver to get explanations for now
+					IStatus oldResolverStatus = new NewDependencyExpander(allIUs, null, availableIUs, snapshotSelectionContext, false).expand(new NullProgressMonitor());
+					if (!oldResolverStatus.isOK())
+						s = oldResolverStatus;
+				}
+				throw new CoreException(s);
+			}
+			ius.addAll(projector.extractSolution());
+			ius.remove(profileIU);
+		}
+
+		public Map getInstallableUnitProperties(IInstallableUnit iu) {
+			Map iuProperties = (Map) iuProfileProperties.get(iu.getId());
+			if (iuProperties == null) {
+				return Collections.EMPTY_MAP;
+			}
+			return Collections.unmodifiableMap(iuProperties);
+		}
+
+		public String getInstallableUnitProperty(IInstallableUnit iu, String key) {
+			return (String) getInstallableUnitProperties(iu).get(key);
+		}
+
+		public Map getLocalProperties() {
+			return Collections.unmodifiableMap(profileProperties);
+		}
+
+		public String getLocalProperty(String key) {
+			return (String) profileProperties.get(key);
+		}
+
+		public IProfile getParentProfile() {
+			return null;
+		}
+
+		public String getProfileId() {
+			return profileId;
+		}
+
+		public Map getProperties() {
+			return Collections.unmodifiableMap(profileProperties);
+		}
+
+		public String getProperty(String key) {
+			return (String) profileProperties.get(key);
+		}
+
+		public String[] getSubProfileIds() {
+			return null;
+		}
+
+		public long getTimestamp() {
+			return 0;
+		}
+
+		public boolean hasSubProfiles() {
+			return false;
+		}
+
+		public boolean isRootProfile() {
+			return true;
+		}
+
+		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+			return query.perform(ius.iterator(), collector);
+		}
+	}
 }
