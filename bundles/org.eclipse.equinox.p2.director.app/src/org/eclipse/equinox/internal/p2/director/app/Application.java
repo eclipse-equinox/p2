@@ -29,6 +29,8 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
 public class Application implements IApplication {
+	private static final Integer EXIT_ERROR = new Integer(13);
+
 	private Path destination;
 	private URL artifactRepositoryLocation;
 	private URL metadataRepositoryLocation;
@@ -251,13 +253,20 @@ public class Application implements IApplication {
 		IProfile profile = initializeProfile();
 		initializeRepositories();
 
-		Collector roots = ProvisioningHelper.getInstallableUnits(null, new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true)), new NullProgressMonitor());
+		InstallableUnitQuery query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
+		Collector roots = ProvisioningHelper.getInstallableUnits(null, query, new NullProgressMonitor());
 		if (roots.size() <= 0)
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root));
-
-		if (!updateRoamingProperties(profile).isOK())
-			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
-
+			roots = profile.query(query, roots, new NullProgressMonitor());
+		if (roots.size() <= 0) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
+			System.out.println(NLS.bind(Messages.Missing_IU, root));
+			return EXIT_ERROR;
+		}
+		if (!updateRoamingProperties(profile).isOK()) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId())));
+			System.out.println(NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
+			return EXIT_ERROR;
+		}
 		ProvisioningContext context = new ProvisioningContext();
 		ProfileChangeRequest request = buildProvisioningRequest(profile, roots);
 		printRequest(request);
@@ -269,8 +278,9 @@ public class Application implements IApplication {
 		else {
 			System.out.println(Messages.Operation_failed);
 			LogHelper.log(operationStatus);
+			return EXIT_ERROR;
 		}
-		return null;
+		return IApplication.EXIT_OK;
 	}
 
 	public Object start(IApplicationContext context) throws Exception {
