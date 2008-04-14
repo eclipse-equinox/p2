@@ -15,8 +15,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.IUndoableOperation;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -41,9 +40,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class ProvisioningOperationRunner {
 
-	static HashSet runningJobs = new HashSet();
+	static HashSet scheduledJobs = new HashSet();
 	static boolean restartRequested = false;
 	static boolean restartRequired = false;
+	static ListenerList jobListeners = new ListenerList();
 
 	/**
 	 * Run the provisioning operation synchronously, adding it to the undo history if it
@@ -120,15 +120,18 @@ public class ProvisioningOperationRunner {
 			job.setPriority(Job.SHORT);
 		}
 		job.setUser(op.isUser());
-		runningJobs.add(job);
+		scheduledJobs.add(job);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
-				runningJobs.remove(event.getJob());
+				scheduledJobs.remove(event.getJob());
 				if (restartRequested) {
 					requestRestart(restartRequired);
 				}
 			}
 		});
+		Object[] listeners = jobListeners.getListeners();
+		for (int i = 0; i < listeners.length; i++)
+			job.addJobChangeListener((IJobChangeListener) listeners[i]);
 		job.schedule();
 		return job;
 	}
@@ -162,6 +165,24 @@ public class ProvisioningOperationRunner {
 	}
 
 	private static boolean isRunningOperations() {
-		return !runningJobs.isEmpty();
+		return !scheduledJobs.isEmpty();
+	}
+
+	public static void addJobChangeListener(IJobChangeListener listener) {
+		jobListeners.add(listener);
+		Job[] jobs = getScheduledJobs();
+		for (int i = 0; i < jobs.length; i++)
+			jobs[i].addJobChangeListener(listener);
+	}
+
+	public static void removeJobChangeListener(IJobChangeListener listener) {
+		jobListeners.remove(listener);
+		Job[] jobs = getScheduledJobs();
+		for (int i = 0; i < jobs.length; i++)
+			jobs[i].removeJobChangeListener(listener);
+	}
+
+	public static Job[] getScheduledJobs() {
+		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
 	}
 }

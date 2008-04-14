@@ -12,13 +12,13 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.MetadataGeneratingURLValidator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.IRepositoryManipulator;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
@@ -36,6 +36,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
@@ -43,6 +44,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 /**
@@ -54,6 +56,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
+	private static final int DEFAULT_VIEW_TYPE = AvailableIUViewQueryContext.VIEW_BY_REPO;
 	private static final int INDEX_INSTALLED = 0;
 	private static final int INDEX_AVAILABLE = 1;
 	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
@@ -61,6 +64,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
 
 	String profileId;
+	Display display;
 	AvailableIUViewQueryContext queryContext;
 	TabFolder tabFolder;
 	AvailableIUGroup availableIUGroup;
@@ -68,6 +72,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	IRepositoryManipulator repositoryManipulator;
 	ChangeViewAction viewByRepo, viewFlat, viewCategory;
 	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, manipulateRepoButton, addRepoButton, removeRepoButton;
+	ProgressIndicator progressIndicator;
+	Label progressLabel;
+	IPropertyChangeListener preferenceListener;
+	IJobChangeListener progressListener;
 
 	private class ChangeViewAction extends Action {
 		int viewType;
@@ -97,6 +105,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	 */
 	public UpdateAndInstallDialog(Shell shell, String profileId) {
 		super(shell);
+		if (shell != null)
+			this.display = shell.getDisplay();
+		else
+			this.display = PlatformUI.getWorkbench().getDisplay();
 		this.profileId = profileId;
 	}
 
@@ -120,8 +132,8 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		createTabFolder(comp);
 
-		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
-		final IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
+		IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
+		preferenceListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
 					availableIUGroup.getStructuredViewer().refresh();
@@ -130,14 +142,11 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		store.addPropertyChangeListener(preferenceListener);
 		comp.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				store.removePropertyChangeListener(preferenceListener);
+				handleDispose();
 			}
 		});
 
 		Link updatePrefsLink = new Link(comp, SWT.LEFT | SWT.WRAP);
-		gd = new GridData();
-		gd.horizontalIndent = convertHorizontalDLUsToPixels(IDialogConstants.SMALL_INDENT);
-		updatePrefsLink.setLayoutData(gd);
 		updatePrefsLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 
@@ -146,6 +155,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 			}
 		});
 		updatePrefsLink.setText(ProvSDKMessages.UpdateAndInstallDialog_PrefLink);
+		createProgressArea(comp);
 		Dialog.applyDialogFont(comp);
 		return comp;
 	}
@@ -177,6 +187,56 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		availableTab.setControl(createAvailableIUsPage(tabFolder));
 
 		setDropTarget(tabFolder);
+	}
+
+	private void createProgressArea(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		composite.setLayout(layout);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		composite.setLayoutData(gd);
+		progressLabel = new Label(composite, SWT.NONE);
+		progressIndicator = new ProgressIndicator(composite);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		progressIndicator.setLayoutData(gd);
+		progressListener = new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						checkProgressIndicator(null);
+					}
+				});
+			}
+
+			public void scheduled(final IJobChangeEvent event) {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						checkProgressIndicator(event.getJob().getName());
+					}
+				});
+			}
+		};
+		ProvisioningOperationRunner.addJobChangeListener(progressListener);
+		checkProgressIndicator(null);
+	}
+
+	// May be called from an async exec, so check that we are still
+	// alive.
+	void checkProgressIndicator(String jobName) {
+		if (progressIndicator.isDisposed())
+			return;
+		if (ProvisioningOperationRunner.getScheduledJobs().length == 0)
+			progressIndicator.done();
+		else
+			progressIndicator.beginAnimatedTask();
+		if (jobName == null)
+			progressLabel.setText(""); //$NON-NLS-1$
+		else
+			progressLabel.setText(NLS.bind(ProvSDKMessages.UpdateAndInstallDialog_OperationInProgress, jobName));
+		progressLabel.getParent().layout(true);
 	}
 
 	/*
@@ -445,6 +505,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 					WizardDialog dialog = new WizardDialog(getShell(), wizard);
 					dialog.create();
 					dialog.getShell().setSize(600, 500);
+					dialog.open();
 				}
 			});
 		}
@@ -527,15 +588,20 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 					tab = section.getInt(SELECTED_TAB_SETTING);
 				tabFolder.setSelection(tab);
 
-				int viewType = AvailableIUViewQueryContext.VIEW_BY_CATEGORY;
-				if (section.get(AVAILABLE_VIEW_TYPE) != null)
-					viewType = section.getInt(AVAILABLE_VIEW_TYPE);
-				queryContext = new AvailableIUViewQueryContext(viewType);
+				int viewType = DEFAULT_VIEW_TYPE;
+				try {
+					if (section.get(AVAILABLE_VIEW_TYPE) != null)
+						viewType = section.getInt(AVAILABLE_VIEW_TYPE);
+					queryContext = new AvailableIUViewQueryContext(viewType);
+				} catch (NumberFormatException e) {
+					// Ignore if there actually was a value that didn't parse.  
+					// We'll get a default query context below.
+				}
 			}
 		}
 		// If we did not find a setting for the query context, use a default
 		if (queryContext == null) {
-			queryContext = new AvailableIUViewQueryContext(AvailableIUViewQueryContext.VIEW_BY_REPO);
+			queryContext = new AvailableIUViewQueryContext(DEFAULT_VIEW_TYPE);
 		}
 	}
 
@@ -603,5 +669,17 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				return super.dropTargetIsValid(event);
 			}
 		});
+	}
+
+	void handleDispose() {
+		if (preferenceListener != null) {
+			ProvSDKUIActivator.getDefault().getPreferenceStore().removePropertyChangeListener(preferenceListener);
+			preferenceListener = null;
+		}
+		if (progressListener != null) {
+			ProvisioningOperationRunner.removeJobChangeListener(progressListener);
+			progressListener = null;
+		}
+
 	}
 }
