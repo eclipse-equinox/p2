@@ -244,7 +244,7 @@ public class FeaturesAction extends AbstractPublishingAction {
 		FeatureEntry entries[] = feature.getEntries();
 		for (int i = 0; i < entries.length; i++) {
 			FeatureEntry entry = entries[i];
-			if (entry.isUnpack())
+			if (entry.isUnpack() && entry.isPlugin() && !entry.isRequires())
 				info.addAdvice(new BundleShapeAdvice(entry.getId(), new Version(entry.getVersion()), IBundleShapeAdvice.DIR));
 		}
 	}
