@@ -39,6 +39,14 @@ public class CacheManager {
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	/**
+	 * Returns a hash of the URL.
+	 */
+	private int computeHash(URL repositoryLocation) {
+		//don't use URL#hashCode because it performs DNS lookups
+		return repositoryLocation.toExternalForm().hashCode();
+	}
+
+	/**
 	 * Returns a local cache file with the contents of the given remote location,
 	 * or <code>null</code> if a local cache could not be created.
 	 * 
@@ -56,7 +64,7 @@ public class CacheManager {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		File dataAreaFile = URLUtil.toFile(dataArea);
-		int hashCode = repositoryLocation.hashCode();
+		int hashCode = computeHash(repositoryLocation);
 		if (cacheFile == null || isCacheStale(repositoryLocation, cacheFile)) {
 			long lastModifiedRemote = getTransport().getLastModified(jarLocation);
 			URL remoteFile;
@@ -105,7 +113,7 @@ public class CacheManager {
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea(Activator.ID + "/cache/"); //$NON-NLS-1$
 		File dataAreaFile = URLUtil.toFile(dataArea);
-		int hashCode = repositoryLocation.hashCode();
+		int hashCode = computeHash(repositoryLocation);
 		File cacheFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + JAR_EXTENSION);
 		if (!cacheFile.exists()) {
 			cacheFile = new File(dataAreaFile, CONTENT_FILENAME + hashCode + XML_EXTENSION);
