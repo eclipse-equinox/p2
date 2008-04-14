@@ -24,7 +24,7 @@ public class URLUtilTest extends AbstractProvisioningTest {
 	/**
 	 * Tests for {@link URLUtil#toFile(URL)}.
 	 */
-	public void testToFile() {
+	public void _testToFile() {
 		File base = new File(System.getProperty("java.io.tmpdir"));
 		for (int i = 0; i < testPaths.length; i++) {
 			File original = new File(base, testPaths[i]);
@@ -57,5 +57,14 @@ public class URLUtilTest extends AbstractProvisioningTest {
 				fail("2.99", e);
 			}
 		}
+	}
+
+	/**
+	 * Tests for {@link URLUtil#toURI(URL)}.
+	 */
+	public void testToFileFromLocalURL() throws Exception {
+		File repo = new File(System.getProperty("java.io.tmpdir"), "repo");
+		URL url = new URL("file:" + repo.toString());
+		URLUtil.toFile(url);
 	}
 }
