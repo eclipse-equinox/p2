@@ -180,8 +180,14 @@ public class SimplePlanner implements IPlanner {
 					return false;
 
 				IInstallableUnit iu = (IInstallableUnit) candidate;
+
+				// TODO: remove marker -- temporary backwards compatibility only
 				String marker = profile.getInstallableUnitProperty(iu, PLANNER_MARKER);
-				return marker != null && Boolean.valueOf(marker).booleanValue();
+				if (marker != null && Boolean.valueOf(marker).booleanValue())
+					return true;
+
+				String inclusion = profile.getInstallableUnitProperty(iu, INCLUSION_RULES);
+				return (inclusion != null);
 			}
 		};
 		return (IInstallableUnit[]) profile.query(markerQuery, new Collector(), null).toArray(IInstallableUnit.class);
