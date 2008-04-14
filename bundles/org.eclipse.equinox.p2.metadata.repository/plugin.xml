@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.2"?>
-<plugin>
-   <extension-point id="metadataRepositories" name="Metadata Repositories" schema="schema/metadataRepositories.exsd"/>
-   <extension id="simpleRepository"  point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
-		<filter suffix="content.xml"/>
-		<factory class="org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory"/>
-   </extension>
-</plugin>
