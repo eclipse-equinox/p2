@@ -495,20 +495,16 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer());
 		installedPropButton.setData(BUTTONACTION, propertiesAction);
 
-		// temporarily disabled.
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224180
-		if (false) {
-			Button revert = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
-			revert.setData(BUTTONACTION, new Action() {
-				public void runWithEvent(Event event) {
-					RevertWizard wizard = new RevertWizard(profileId, ProvSDKUIActivator.getDefault().getQueryProvider());
-					WizardDialog dialog = new WizardDialog(getShell(), wizard);
-					dialog.create();
-					dialog.getShell().setSize(600, 500);
-					dialog.open();
-				}
-			});
-		}
+		Button revert = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
+		revert.setData(BUTTONACTION, new Action() {
+			public void runWithEvent(Event event) {
+				RevertWizard wizard = new RevertWizard(profileId, ProvSDKUIActivator.getDefault().getQueryProvider());
+				WizardDialog dialog = new WizardDialog(getShell(), wizard);
+				dialog.create();
+				dialog.getShell().setSize(600, 500);
+				dialog.open();
+			}
+		});
 		createMenu(installedIUGroup.getStructuredViewer().getControl(), new IAction[] {updateAction, uninstallAction, propertiesAction});
 
 		return composite;
