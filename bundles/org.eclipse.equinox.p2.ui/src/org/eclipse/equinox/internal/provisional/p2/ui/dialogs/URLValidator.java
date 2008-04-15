@@ -54,7 +54,7 @@ public abstract class URLValidator {
 	}
 
 	public static String makeFileURLString(String path) {
-		return FILE_PROTOCOL_PREFIX + path;
+		return FILE_PROTOCOL_PREFIX + '/' + path;
 	}
 
 	protected abstract IStatus validateRepositoryURL(URL url, boolean contactRepositories, IProgressMonitor monitor);
