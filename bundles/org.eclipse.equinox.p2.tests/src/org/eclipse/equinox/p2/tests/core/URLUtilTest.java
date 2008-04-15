@@ -24,7 +24,7 @@ public class URLUtilTest extends AbstractProvisioningTest {
 	/**
 	 * Tests for {@link URLUtil#toFile(URL)}.
 	 */
-	public void _testToFile() {
+	public void testToFile() {
 		File base = new File(System.getProperty("java.io.tmpdir"));
 		for (int i = 0; i < testPaths.length; i++) {
 			File original = new File(base, testPaths[i]);
@@ -63,8 +63,10 @@ public class URLUtilTest extends AbstractProvisioningTest {
 	 * Tests for {@link URLUtil#toURI(URL)}.
 	 */
 	public void testToFileFromLocalURL() throws Exception {
-		File repo = new File(System.getProperty("java.io.tmpdir"), "repo");
-		URL url = new URL("file:" + repo.toString());
-		URLUtil.toFile(url);
+		File original = new File(System.getProperty("java.io.tmpdir"), "repo");
+		//this URL is technically not correct because it is not hierarchical, but ensure URLUtil is lenient.
+		URL url = new URL("file:" + original.toString());
+		File result = URLUtil.toFile(url);
+		assertEquals("1.0", original, result);
 	}
 }
