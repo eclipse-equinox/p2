@@ -13,7 +13,9 @@ package org.eclipse.equinox.p2.tests.directorywatcher;
 import java.io.File;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 
 public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 
@@ -29,6 +31,16 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 	 */
 	public static Test suite() {
 		return new TestSuite(RepositoryListenerTest.class);
+	}
+
+	public static boolean isZipped(TouchpointData[] data) {
+		if (data == null || data.length == 0)
+			return false;
+		for (int i = 0; i < data.length; i++) {
+			if (data[i].getInstructions("zipped") != null) //$NON-NLS-1$
+				return true;
+		}
+		return false;
 	}
 
 	/*
@@ -53,6 +65,7 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 
 		// create the watcher
 		TestRepositoryWatcher watcher = TestRepositoryWatcher.createWatcher(folder);
+		watcher.poll();
 
 		// We should have an empty repository because we haven't done anything yet
 		assertEquals("1.0", 0, watcher.getInstallableUnits().length);
@@ -80,6 +93,59 @@ public class RepositoryListenerTest extends AbstractDirectoryWatcherTest {
 		watcher.poll();
 		assertEquals("6.0", 1, watcher.getInstallableUnits().length);
 		assertEquals("6.1", 1, watcher.getArtifactKeys().length);
+	}
+
+	public void testBundleShape() {
+
+		// make sure we remove this file after we finish running the tests
+		File folder = getTempFolder();
+		toRemove.add(folder);
+
+		// create the watcher
+		TestRepositoryWatcher watcher = TestRepositoryWatcher.createWatcher(folder);
+
+		// this folder contains a jared plugin and a directory plugin
+		File baseFolder = getTestData("0.99", "/testData/directorywatcher1");
+		copy("2.0", baseFolder, folder);
+		watcher.poll();
+
+		// verify metadata
+		IInstallableUnit jaredIU = null;
+		IInstallableUnit directoryIU = null;
+		IInstallableUnit[] ius = watcher.getInstallableUnits();
+		assertEquals("3.0", 2, ius.length);
+		for (int i = 0; i < ius.length; i++) {
+			IInstallableUnit iu = ius[i];
+			if (isZipped(iu.getTouchpointData())) {
+				assertNull("4.0", jaredIU);
+				jaredIU = iu;
+			} else {
+				assertNull("5.0", directoryIU);
+				directoryIU = iu;
+			}
+		}
+		assertTrue("6.0", directoryIU != null && jaredIU != null);
+
+		// verify artifact descriptors
+		IArtifactDescriptor jaredDescriptor = null;
+		IArtifactDescriptor directoryDescriptor = null;
+		IArtifactKey[] keys = watcher.getArtifactKeys();
+		assertEquals("7.0", 2, keys.length);
+		for (int i = 0; i < keys.length; i++) {
+			IArtifactKey key = keys[i];
+			IArtifactDescriptor[] descriptors = watcher.getArtifactDescriptors(key);
+			assertEquals("8.0", 1, descriptors.length);
+			ArtifactDescriptor descriptor = (ArtifactDescriptor) descriptors[0];
+			String isFolder = descriptor.getRepositoryProperty("artifact.folder");
+			if (Boolean.valueOf(isFolder).booleanValue()) {
+				assertNull("9.0", directoryDescriptor);
+				directoryDescriptor = descriptors[0];
+			} else {
+				assertNull("10.0", jaredDescriptor);
+				jaredDescriptor = descriptors[0];
+			}
+		}
+		assertTrue("11.0", jaredDescriptor != null && directoryDescriptor != null);
 	}
 
 	/*

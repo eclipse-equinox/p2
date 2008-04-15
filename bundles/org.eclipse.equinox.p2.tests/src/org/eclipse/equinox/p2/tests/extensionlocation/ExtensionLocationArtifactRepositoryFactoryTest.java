@@ -164,7 +164,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 	public void testNormalFeaturesandPluginsDirectory() throws IOException {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
-		copy("1.0", getFile("/testdata/extensionlocation"), directory);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
 		IArtifactRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);
@@ -180,7 +180,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		directory.mkdirs();
 		File features = new File(directory, "features");
 		features.mkdir();
-		copy("1.0", getFile("/testdata/extensionlocation/features"), features);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation/features"), features);
 		IArtifactRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);
@@ -196,7 +196,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		directory.mkdirs();
 		File plugins = new File(directory, "plugins");
 		plugins.mkdir();
-		copy("1.0", getFile("/testdata/extensionlocation/plugins"), plugins);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
 		IArtifactRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);
@@ -211,7 +211,7 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		File eclipseDirectory = new File(directory, "eclipse");
-		copy("1.0", getFile("/testdata/extensionlocation"), eclipseDirectory);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
 		IArtifactRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);

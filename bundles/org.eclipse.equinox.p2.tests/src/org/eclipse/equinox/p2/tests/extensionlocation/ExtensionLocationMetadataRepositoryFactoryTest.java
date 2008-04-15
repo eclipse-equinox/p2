@@ -14,14 +14,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProvisioningTest {
 
@@ -44,11 +42,6 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		delete(tempDirectory);
 		tempDirectory.mkdirs();
 		factory = new ExtensionLocationMetadataRepositoryFactory();
-	}
-
-	public static File getFile(String path) throws IOException {
-		URL fileURL = TestActivator.getContext().getBundle().getEntry(path);
-		return new File(FileLocator.toFileURL(fileURL).getPath());
 	}
 
 	public void testNonFileURL() throws MalformedURLException {
@@ -165,7 +158,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 	public void testNormalFeaturesandPluginsDirectory() throws IOException {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
-		copy("1.0", getFile("/testdata/extensionlocation"), directory);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
 		IMetadataRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);
@@ -181,7 +174,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		directory.mkdirs();
 		File features = new File(directory, "features");
 		features.mkdir();
-		copy("1.0", getFile("/testdata/extensionlocation/features"), features);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation/features"), features);
 		IMetadataRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);
@@ -197,7 +190,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		directory.mkdirs();
 		File plugins = new File(directory, "plugins");
 		plugins.mkdir();
-		copy("1.0", getFile("/testdata/extensionlocation/plugins"), plugins);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
 		IMetadataRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);
@@ -212,7 +205,7 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		File eclipseDirectory = new File(directory, "eclipse");
-		copy("1.0", getFile("/testdata/extensionlocation"), eclipseDirectory);
+		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
 		IMetadataRepository repo = null;
 		try {
 			repo = factory.load(directory.toURL(), null);
