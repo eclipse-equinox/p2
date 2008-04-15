@@ -249,6 +249,11 @@ public class ProfileSynchronizer {
 		List toAdd = new ArrayList();
 		List toRemove = new ArrayList();
 
+		//Backward compatibility
+		Collector collect = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.dropins"), new Collector(), null); //$NON-NLS-1$
+		toRemove.addAll(collect.toCollection());
+		//End of backward compatibility
+
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
 		for (Iterator iter = allIUs.iterator(); iter.hasNext();) {
