@@ -38,11 +38,19 @@ public class URLUtil {
 	/**
 	 * Returns the URL as a local file, or <code>null</code> if the given
 	 * URL does not represent a local file.
-	 * @param url The url to return the file file
+	 * @param url The url to return the file for
 	 * @return The local file corresponding to the given url, or <code>null</code>
 	 */
 	public static File toFile(URL url) {
-		return "file".equalsIgnoreCase(url.getProtocol()) ? new File(url.getFile()) : null; //$NON-NLS-1$
+		try {
+			if (!"file".equalsIgnoreCase(url.getProtocol())) //$NON-NLS-1$
+				return null;
+			//assume all illegal characters have been properly encoded, so use URI class to unencode
+			return new File(new URI(url.toExternalForm()));
+		} catch (Exception e) {
+			//URL contains unencoded characters
+			return new File(url.getFile());
+		}
 	}
 
 	/**
