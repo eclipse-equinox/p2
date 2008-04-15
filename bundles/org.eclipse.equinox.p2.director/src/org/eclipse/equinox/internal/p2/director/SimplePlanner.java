@@ -4,7 +4,9 @@
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ * 	IBM Corporation - initial API and implementation
+ * 	Genuitec - bug fixes
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director;
 
