@@ -140,6 +140,10 @@ public class ProfileSynchronizer {
 	}
 
 	private boolean isUpToDate() {
+		//Backward compatibility to be removed post M7
+		if (profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.dropins"), new Collector(), null).size() > 0)
+			return false;
+		//End of backward compatibility to be removed post M7
 		String lastKnownProfileTimeStamp = (String) timestamps.remove(PROFILE_TIMESTAMP);
 		if (lastKnownProfileTimeStamp == null)
 			return false;
