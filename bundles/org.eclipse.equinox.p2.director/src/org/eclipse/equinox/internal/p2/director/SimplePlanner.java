@@ -108,42 +108,34 @@ public class SimplePlanner implements IPlanner {
 	}
 
 	private InstallableUnitOperand[] sortOperations(InstallableUnitOperand[] toSort, List installOrder, List uninstallOrder) {
-		List updateOp = new ArrayList();
+		List sorted = new ArrayList(toSort.length);
+		for (Iterator i = installOrder.iterator(); i.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) i.next();
+			for (int j = 0; j < toSort.length; j++) {
+				InstallableUnitOperand operand = toSort[j];
+				if (operand.first() == null && iu.equals(operand.second())) {
+					sorted.add(operand);
+					break;
+				}
+			}
+		}
+		for (Iterator i = uninstallOrder.iterator(); i.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) i.next();
+			for (int j = 0; j < toSort.length; j++) {
+				InstallableUnitOperand operand = toSort[j];
+				if (operand.second() == null && iu.equals(operand.first())) {
+					sorted.add(operand);
+					break;
+				}
+			}
+		}
 		for (int i = 0; i < toSort.length; i++) {
-			InstallableUnitOperand op = toSort[i];
-			if (op.first() == null && op.second() != null) {
-				installOrder.set(installOrder.indexOf(op.second()), op);
-				continue;
-			}
-			if (op.first() != null && op.second() == null) {
-				uninstallOrder.set(uninstallOrder.indexOf(op.first()), op);
-				continue;
-			}
-			if (op.first() != null && op.second() != null) {
-				updateOp.add(op);
-				continue;
+			InstallableUnitOperand operand = toSort[i];
+			if (operand.first() != null && operand.second() != null) {
+				sorted.add(operand);
 			}
 		}
-		int i = 0;
-		for (Iterator iterator = installOrder.iterator(); iterator.hasNext();) {
-			Object elt = iterator.next();
-			if (elt instanceof InstallableUnitOperand) {
-				toSort[i++] = (InstallableUnitOperand) elt;
-			}
-		}
-		for (Iterator iterator = uninstallOrder.iterator(); iterator.hasNext();) {
-			Object elt = iterator.next();
-			if (elt instanceof InstallableUnitOperand) {
-				toSort[i++] = (InstallableUnitOperand) elt;
-			}
-		}
-		for (Iterator iterator = updateOp.iterator(); iterator.hasNext();) {
-			Object elt = iterator.next();
-			if (elt instanceof InstallableUnitOperand) {
-				toSort[i++] = (InstallableUnitOperand) elt;
-			}
-		}
-		return toSort;
+		return (InstallableUnitOperand[]) sorted.toArray(new InstallableUnitOperand[sorted.size()]);
 	}
 
 	public ProvisioningPlan getRevertPlan(IInstallableUnit profileSnapshot, ProvisioningContext context, IProgressMonitor monitor) {
