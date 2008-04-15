@@ -42,6 +42,8 @@ public class Generator {
 	public static class GeneratorResult {
 		public static final String CONFIGURATION_CUS = "CONFIGURATION_CUS"; //$NON-NLS-1$
 
+		final Map pluginShape = new HashMap();
+
 		/**
 		 * The set of generated IUs that will be children of the root IU
 		 */
@@ -89,6 +91,9 @@ public class Generator {
 
 		}
 
+		public Map getPluginShapeInfo() {
+			return pluginShape;
+		}
 	}
 
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
@@ -345,7 +350,9 @@ public class Generator {
 							bundleLocalizationMap.put(makeSimpleKey(bd), cachedValues);
 						}
 					} else {
-						String format = (String) (bundleManifest).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
+						String format = (String) result.getPluginShapeInfo().get(bd.getSymbolicName() + '_' + bd.getVersion());
+						if (format == null)
+							format = (String) bundleManifest.get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
 						boolean isDir = (format != null && format.equals(BundleDescriptionFactory.DIR) ? true : false);
 
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
@@ -877,6 +884,7 @@ public class Generator {
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
 			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, isExploded);
 			IArtifactKey[] artifacts = featureIU.getArtifacts();
+			storePluginShape(feature, result);
 			for (int arti = 0; arti < artifacts.length; arti++) {
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
 				if (isExploded)
@@ -903,6 +911,15 @@ public class Generator {
 			}
 		}
 		generateCategoryIUs(categoriesToFeatureIUs, result);
+	}
+
+	private void storePluginShape(Feature feature, GeneratorResult result) {
+		FeatureEntry[] entries = feature.getEntries();
+		for (int i = 0; i < entries.length; i++) {
+			if (entries[i].isPlugin() || entries[i].isFragment()) {
+				result.getPluginShapeInfo().put(entries[i].getId() + '_' + entries[i].getVersion(), entries[i].isUnpack() ? BundleDescriptionFactory.DIR : BundleDescriptionFactory.JAR);
+			}
+		}
 	}
 
 	protected void generateNativeIUs(File executableLocation, GeneratorResult result, IArtifactRepository destination) {
