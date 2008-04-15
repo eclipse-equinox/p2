@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.rollback;
+package org.eclipse.equinox.internal.p2.rollback;
 
 import java.net.URL;
 import java.util.*;
