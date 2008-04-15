@@ -187,7 +187,7 @@ public class EclipseGeneratorApplication implements IApplication {
 
 	public void setCompress(String value) {
 		if (Boolean.valueOf(value).booleanValue())
-			compress = "true";
+			compress = "true"; //$NON-NLS-1$
 	}
 
 	public void processCommandLineArguments(String[] args, EclipseInstallGeneratorInfoProvider provider) throws Exception {
@@ -323,7 +323,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		registerDefaultArtifactRepoManager();
 		initialize(provider);
 
-		if (provider.getBaseLocation() == null && provider.getProductFile() == null) {
+		if (provider.getBaseLocation() == null && provider.getProductFile() == null && !generateRootIU) {
 			System.out.println(Messages.exception_baseLocationNotSpecified);
 			return new Integer(-1);
 		}
