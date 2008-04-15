@@ -114,8 +114,9 @@ public class DropinsRepositoryListener extends RepositoryListener {
 				file = new File(path);
 				if (!file.isAbsolute()) {
 					// link support is relative to the install root
-					// For now we will use the parent of dropins folder
-					file = new File(Activator.getDropinsDirectory().getParentFile(), path);
+					File root = Activator.getEclipseHome();
+					if (root != null)
+						file = new File(root, path);
 				}
 			}
 

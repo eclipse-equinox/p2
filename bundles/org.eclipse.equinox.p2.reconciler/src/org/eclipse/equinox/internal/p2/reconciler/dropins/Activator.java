@@ -240,28 +240,26 @@ public class Activator implements BundleActivator {
 		return bundleContext;
 	}
 
-	private static File getLinksDirectory() {
+	public static File getEclipseHome() {
 		Location eclipseHome = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
 		if (eclipseHome == null || !eclipseHome.isSet())
 			return null;
 		URL url = eclipseHome.getURL();
 		if (url == null)
 			return null;
-		File root = URLUtil.toFile(url);
+		return URLUtil.toFile(url);
+	}
+
+	private static File getLinksDirectory() {
+		File root = getEclipseHome();
 		return root == null ? null : new File(root, LINKS);
 	}
 
-	public static File getDropinsDirectory() {
+	private static File getDropinsDirectory() {
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null)
 			return new File(watchedDirectoryProperty);
-		Location eclipseHome = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
-		if (eclipseHome == null || !eclipseHome.isSet())
-			return null;
-		URL url = eclipseHome.getURL();
-		if (url == null)
-			return null;
-		File root = URLUtil.toFile(url);
+		File root = getEclipseHome();
 		return root == null ? null : new File(root, DROPINS);
 	}
 
