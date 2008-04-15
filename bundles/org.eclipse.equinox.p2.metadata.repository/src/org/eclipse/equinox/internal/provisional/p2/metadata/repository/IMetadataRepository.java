@@ -29,7 +29,7 @@ public interface IMetadataRepository extends IRepository, IQueryable {
 
 	/** 
 	 * Add the given installable units to this repository
-	 * @param installableUnits the installable unts to add
+	 * @param installableUnits the installable units to add
 	 */
 	public void addInstallableUnits(IInstallableUnit[] installableUnits);
 
