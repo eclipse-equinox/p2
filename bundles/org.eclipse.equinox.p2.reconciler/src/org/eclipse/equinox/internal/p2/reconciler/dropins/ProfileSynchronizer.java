@@ -140,6 +140,10 @@ public class ProfileSynchronizer {
 	}
 
 	private boolean isUpToDate() {
+		//Backward compatibility to be removed post M7
+		if (profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.dropins"), new Collector(), null).size() > 0)
+			return false;
+		//End of backward compatibility to be removed post M7
 		String lastKnownProfileTimeStamp = (String) timestamps.remove(PROFILE_TIMESTAMP);
 		if (lastKnownProfileTimeStamp == null)
 			return false;
@@ -248,6 +252,11 @@ public class ProfileSynchronizer {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		List toAdd = new ArrayList();
 		List toRemove = new ArrayList();
+
+		//Backward compatibility
+		Collector collect = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.dropins"), new Collector(), null); //$NON-NLS-1$
+		toRemove.addAll(collect.toCollection());
+		//End of backward compatibility
 
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
