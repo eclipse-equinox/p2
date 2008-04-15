@@ -662,9 +662,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (base == null)
 			fail(message + " entry not found in bundle: " + entry);
 		try {
-			File result = new File(FileLocator.toFileURL(base).getPath());
-			if (!result.getCanonicalFile().getPath().equals(result.getPath()))
-				System.out.println("Warning:" + message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
+			String osPath = new Path(FileLocator.toFileURL(base).getPath()).toOSString();
+			File result = new File(osPath);
+			if (!result.getCanonicalPath().equals(result.getPath()))
+				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
 			return result;
 		} catch (IOException e) {
 			fail(message, e);
