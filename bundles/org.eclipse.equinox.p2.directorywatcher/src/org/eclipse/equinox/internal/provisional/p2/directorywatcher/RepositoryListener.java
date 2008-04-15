@@ -91,22 +91,29 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * Broadcast events for any discovery sites associated with the feature
 	 * so the repository managers add them to their list of known repositories.
 	 */
-	private void broadcastDiscoverySites(Feature feature) {
-		URLEntry[] sites = feature.getDiscoverySites();
-		if (sites == null || sites.length == 0)
-			return;
+	private void publishSites(Feature feature) {
 
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
-		for (int i = 0; i < sites.length; i++) {
-			try {
-				URL location = new URL(sites[i].getURL());
-				bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED));
-				bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED));
-			} catch (MalformedURLException e) {
-				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature has invalid discovery site: " + feature.getId(), e)); //$NON-NLS-1$
-			}
+		URLEntry[] discoverySites = feature.getDiscoverySites();
+		for (int i = 0; i < discoverySites.length; i++)
+			publishSite(feature, bus, discoverySites[i].getURL());
+		String updateSite = feature.getUpdateSiteURL();
+		if (updateSite != null)
+			publishSite(feature, bus, updateSite);
+	}
+
+	/**
+	 * Broadcast a discovery event for the given repository location.
+	 */
+	private void publishSite(Feature feature, IProvisioningEventBus bus, String locationString) {
+		try {
+			URL location = new URL(locationString);
+			bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED));
+			bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED));
+		} catch (MalformedURLException e) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature references invalid site: " + feature.getId(), e)); //$NON-NLS-1$
 		}
 	}
 
@@ -409,7 +416,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 		if (feature == null)
 			return null;
 
-		broadcastDiscoverySites(feature);
+		publishSites(feature);
 
 		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, props);
 		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU, props);
