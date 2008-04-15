@@ -13,7 +13,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
-import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
+import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -67,6 +67,7 @@ public class RevertProfileWizardPage extends WizardPage {
 		createContentsSection(sashForm);
 		setControl(sashForm);
 
+		// prime the selection
 		Object element = configsViewer.getElementAt(0);
 		if (element != null)
 			configsViewer.setSelection(new StructuredSelection(element));
@@ -123,12 +124,15 @@ public class RevertProfileWizardPage extends WizardPage {
 
 		Label label = new Label(composite, SWT.NONE);
 		label.setText(ProvUIMessages.RevertDialog_ConfigContentsLabel);
-		configContentsViewer = new TableViewer(composite, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
-		configContentsViewer.setContentProvider(new StaticContentProvider(new Object[0]));
-		configContentsViewer.setInput(new Object[0]);
-		configContentsViewer.setLabelProvider(new ProvElementLabelProvider());
-		configContentsViewer.setComparator(new ViewerComparator());
+		configContentsViewer = new TableViewer(composite, SWT.SINGLE | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		configContentsViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
+		configContentsViewer.setComparer(new ProvElementComparer());
+		configContentsViewer.setContentProvider(new DeferredQueryContentProvider(queryProvider));
+
+		// columns before labels or you get a blank table
 		setTableColumns(configContentsViewer.getTable());
+		configContentsViewer.setLabelProvider(new IUDetailsLabelProvider());
+
 		gd = new GridData(GridData.FILL_BOTH);
 		configContentsViewer.getControl().setLayoutData(gd);
 
@@ -149,7 +153,7 @@ public class RevertProfileWizardPage extends WizardPage {
 		if (!selection.isEmpty()) {
 			Object selected = selection.getFirstElement();
 			if (selected instanceof RollbackProfileElement)
-				configContentsViewer.setInput(((RollbackProfileElement) selected).getChildren(null));
+				configContentsViewer.setInput(selected);
 		}
 	}
 

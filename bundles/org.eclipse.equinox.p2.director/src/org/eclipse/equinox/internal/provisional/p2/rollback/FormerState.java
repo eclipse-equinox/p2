@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.internal.p2.rollback;
+package org.eclipse.equinox.internal.provisional.p2.rollback;
 
 import java.net.URL;
 import java.util.*;
@@ -140,11 +140,12 @@ public class FormerState {
 		return MetadataFactory.createInstallableUnit(result);
 	}
 
-	public static IProfile IUToProfile(IInstallableUnit profileIU, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) throws CoreException {
+	public static IProfile IUToProfile(IInstallableUnit profileIU, IProfile profile, ProvisioningContext context, IProgressMonitor monitor) throws ProvisionException {
 		try {
 			return new FormerStateProfile(profileIU, profile, context);
 		} finally {
-			monitor.done();
+			if (monitor != null)
+				monitor.done();
 		}
 	}
 
@@ -243,11 +244,11 @@ public class FormerState {
 		private HashMap iuProfileProperties = new HashMap();
 		private Set ius = new HashSet();
 
-		public FormerStateProfile(IInstallableUnit profileIU, IProfile profile, ProvisioningContext context) throws CoreException {
+		public FormerStateProfile(IInstallableUnit profileIU, IProfile profile, ProvisioningContext context) throws ProvisionException {
 
 			String profileTypeProperty = profileIU.getProperty(IInstallableUnit.PROP_TYPE_PROFILE);
 			if (profileTypeProperty == null || !Boolean.valueOf(profileTypeProperty).booleanValue())
-				throw new CoreException(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "Not a profile type IU"));
+				throw new ProvisionException(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, "Not a profile type IU"));
 
 			profileId = profileIU.getId();
 			for (Iterator it = profileIU.getProperties().entrySet().iterator(); it.hasNext();) {
@@ -279,7 +280,7 @@ public class FormerState {
 			Slicer slicer = new Slicer(allIUs, availableIUs, snapshotSelectionContext);
 			IQueryable slice = slicer.slice(allIUs, new NullProgressMonitor());
 			if (slice == null)
-				throw new CoreException(slicer.getStatus());
+				throw new ProvisionException(slicer.getStatus());
 
 			Projector projector = new Projector(slice, snapshotSelectionContext);
 			projector.encode(allIUs, new NullProgressMonitor());
@@ -294,7 +295,7 @@ public class FormerState {
 					if (!oldResolverStatus.isOK())
 						s = oldResolverStatus;
 				}
-				throw new CoreException(s);
+				throw new ProvisionException(s);
 			}
 			ius.addAll(projector.extractSolution());
 			ius.remove(profileIU);

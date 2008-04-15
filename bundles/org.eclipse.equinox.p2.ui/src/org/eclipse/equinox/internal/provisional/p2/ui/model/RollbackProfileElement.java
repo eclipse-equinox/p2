@@ -11,22 +11,34 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
+import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.osgi.util.NLS;
 
 /**
- * Element wrapper class for IU's that represent categories of
- * available IU's
+ * Element wrapper class for an IU that represents a profile snapshot
+ * from a rollback repository.  It has characteristics of an IU element,
+ * in that it is stored as an IU and can be adapted to its IU.  But 
+ * conceptually, it is more like a profile, in that its children are the
+ * IU's that represent the content of the profile when it was snapshotted.
  * 
  * @since 3.4
  */
-public class RollbackProfileElement extends ProvElement implements IUElement {
+public class RollbackProfileElement extends RemoteQueriedElement implements IUElement {
 
 	private IInstallableUnit iu;
+	private IProfile snapshot;
 
 	public RollbackProfileElement(IInstallableUnit iu) {
 		this.iu = iu;
@@ -48,6 +60,8 @@ public class RollbackProfileElement extends ProvElement implements IUElement {
 	public Object getAdapter(Class adapter) {
 		if (adapter == IInstallableUnit.class)
 			return iu;
+		if (adapter == IProfile.class)
+			return getProfileSnapshot(null);
 		return super.getAdapter(adapter);
 	}
 
@@ -67,23 +81,48 @@ public class RollbackProfileElement extends ProvElement implements IUElement {
 		return false;
 	}
 
-	public Object[] getChildren(Object o) {
-		RequiredCapability[] reqs = iu.getRequiredCapabilities();
-		List roots = new ArrayList(reqs.length);
-		// TODO we really want to filter out install roots
-		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=197701
-		for (int i = 0; i < reqs.length; i++)
-			if (IInstallableUnit.NAMESPACE_IU_ID.equals(reqs[i].getNamespace()))
-				roots.add(reqs[i]);
-		return roots.toArray();
-	}
-
-	public Object getParent(Object o) {
-		return null;
-	}
-
 	public void computeSize(IProgressMonitor monitor) {
 		// Should never be called, since shouldShowSize() returns false
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
+	 */
+	protected int getDefaultQueryType() {
+		return IQueryProvider.INSTALLED_IUS;
+	}
+
+	/*
+	 * overridden to lazily fetch profile
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryable()
+	 */
+	public IQueryable getQueryable() {
+		if (queryable == null)
+			return getProfileSnapshot(null);
+		return queryable;
+	}
+
+	private IProfile getProfileSnapshot(IProgressMonitor monitor) {
+		if (snapshot == null)
+			try {
+				IProfile profile = ProvisioningUtil.getProfile(iu.getId());
+				snapshot = FormerState.IUToProfile(iu, profile, new ProvisioningContext(), monitor);
+				setQueryable(snapshot);
+			} catch (ProvisionException e) {
+				handleException(e, NLS.bind(ProvUIMessages.ProfileElement_InvalidProfile, iu.getId()));
+			}
+		return snapshot;
+	}
+
+	/*
+	 * overridden to check whether snapshot IU is specified rather
+	 * than loading the profile via getQueryable()
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#knowsQueryable()
+	 */
+	public boolean knowsQueryable() {
+		return iu != null;
+	}
 }
