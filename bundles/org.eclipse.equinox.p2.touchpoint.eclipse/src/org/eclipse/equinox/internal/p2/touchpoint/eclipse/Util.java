@@ -188,9 +188,12 @@ public class Util {
 				os = info.getOS();
 		}
 		if (name == null)
-			name = "eclipse"; //$NON-NLS-1$
+			name = "Eclipse"; //$NON-NLS-1$
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
+			IPath path = new Path(name);
+			if (path.segment(0).endsWith(".app")) //$NON-NLS-1$
+				return name;
 			return name + ".app/Contents/MacOS/" + name.toLowerCase(); //$NON-NLS-1$
 		}
 		return name;
