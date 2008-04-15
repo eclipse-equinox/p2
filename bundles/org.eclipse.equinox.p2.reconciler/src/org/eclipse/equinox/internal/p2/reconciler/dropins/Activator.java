@@ -14,7 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -23,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -32,6 +33,7 @@ public class Activator implements BundleActivator {
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String OSGI_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
+	private static final String LINKS = "links"; //$NON-NLS-1$
 	//	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
@@ -118,7 +120,7 @@ public class Activator implements BundleActivator {
 		watchDropins(profile);
 		// keep an eye on the platform.xml
 		if (false)
-		watchConfiguration();
+			watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
 
@@ -239,33 +241,28 @@ public class Activator implements BundleActivator {
 	}
 
 	private static File getLinksDirectory() {
-		try {
-			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
-			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
-			URL folderURL = new URL(baseURL, "../links"); //$NON-NLS-1$
-			return new File(folderURL.getPath());
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return null;
+		Location eclipseHome = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
+		if (eclipseHome == null || !eclipseHome.isSet())
+			return null;
+		URL url = eclipseHome.getURL();
+		if (url == null)
+			return null;
+		File root = URLUtil.toFile(url);
+		return root == null ? null : new File(root, LINKS);
 	}
 
 	public static File getDropinsDirectory() {
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
-		if (watchedDirectoryProperty != null) {
-			File folder = new File(watchedDirectoryProperty);
-			return folder;
-		}
-		try {
-			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
-			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
-			URL folderURL = new URL(baseURL, "../" + DROPINS); //$NON-NLS-1$
-			File folder = new File(folderURL.getPath());
-			return folder;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return null;
+		if (watchedDirectoryProperty != null)
+			return new File(watchedDirectoryProperty);
+		Location eclipseHome = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
+		if (eclipseHome == null || !eclipseHome.isSet())
+			return null;
+		URL url = eclipseHome.getURL();
+		if (url == null)
+			return null;
+		File root = URLUtil.toFile(url);
+		return root == null ? null : new File(root, DROPINS);
 	}
 
 	// Disabled for now
