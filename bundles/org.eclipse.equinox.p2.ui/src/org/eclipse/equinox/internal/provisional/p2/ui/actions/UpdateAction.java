@@ -30,7 +30,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -99,35 +98,24 @@ public class UpdateAction extends ProfileModificationAction {
 		return plan;
 	}
 
-	/*
-	 *  Overridden to enable only on selections of installed IU's with the same parent
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction#structuredSelectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
-	 */
-	protected void structuredSelectionChanged(IStructuredSelection selection) {
-		// Check the selection of the selection provider, not this one.
-		// This is a bit of a cheat...we know that some client selection providers are reinterpreting the selection.
-		Object[] selectionArray = getStructuredSelection().toArray();
+	protected boolean isEnabledFor(Object[] selectionArray) {
 		Object parent = null;
 		if (selectionArray.length > 0) {
-			setEnabled(true);
 			for (int i = 0; i < selectionArray.length; i++) {
 				if (selectionArray[i] instanceof InstalledIUElement) {
 					InstalledIUElement element = (InstalledIUElement) selectionArray[i];
 					if (parent == null) {
 						parent = element.getParent(null);
 					} else if (parent != element.getParent(null)) {
-						setEnabled(false);
-						break;
+						return false;
 					}
 				} else {
-					setEnabled(false);
-					break;
+					return false;
 				}
 			}
-		} else {
-			setEnabled(false);
+			return true;
 		}
+		return false;
 	}
 
 	protected String getTaskName() {

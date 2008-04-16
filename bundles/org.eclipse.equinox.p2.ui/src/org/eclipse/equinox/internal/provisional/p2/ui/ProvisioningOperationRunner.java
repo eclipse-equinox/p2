@@ -22,11 +22,13 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.ApplyProfileChangesDialog;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.progress.IProgressConstants;
 import org.eclipse.ui.progress.WorkbenchJob;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -40,6 +42,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class ProvisioningOperationRunner {
 
+	private static final String PROPERTY_PREFIX = "org.eclipse.equinox.p2.ui"; //$NON-NLS-1$
+	private static final QualifiedName OPERATION_KEY = new QualifiedName(PROPERTY_PREFIX, "operationKey"); //$NON-NLS-1$
 	static HashSet scheduledJobs = new HashSet();
 	static boolean restartRequested = false;
 	static boolean restartRequired = false;
@@ -120,6 +124,8 @@ public class ProvisioningOperationRunner {
 			job.setPriority(Job.SHORT);
 		}
 		job.setUser(op.isUser());
+		job.setProperty(OPERATION_KEY, op);
+		job.setProperty(IProgressConstants.ICON_PROPERTY, ProvUIImages.getImageDescriptor(ProvUIImages.IMG_PROFILE));
 		scheduledJobs.add(job);
 		job.addJobChangeListener(new JobChangeAdapter() {
 			public void done(IJobChangeEvent event) {
@@ -137,7 +143,7 @@ public class ProvisioningOperationRunner {
 	}
 
 	public static void requestRestart(boolean force) {
-		if (isRunningOperations()) {
+		if (hasScheduledOperations()) {
 			restartRequested = true;
 			restartRequired = restartRequired || force;
 			return;
@@ -164,8 +170,21 @@ public class ProvisioningOperationRunner {
 		});
 	}
 
-	private static boolean isRunningOperations() {
+	public static boolean hasScheduledOperations() {
 		return !scheduledJobs.isEmpty();
+	}
+
+	public static boolean hasScheduledOperationsFor(String profileId) {
+		Job[] jobs = getScheduledJobs();
+		for (int i = 0; i < jobs.length; i++) {
+			Object op = jobs[i].getProperty(OPERATION_KEY);
+			if (op instanceof ProfileModificationOperation) {
+				String id = ((ProfileModificationOperation) op).getProfileId();
+				if (profileId.equals(id))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public static void addJobChangeListener(IJobChangeListener listener) {
@@ -182,7 +201,8 @@ public class ProvisioningOperationRunner {
 			jobs[i].removeJobChangeListener(listener);
 	}
 
-	public static Job[] getScheduledJobs() {
+	private static Job[] getScheduledJobs() {
 		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
 	}
+
 }

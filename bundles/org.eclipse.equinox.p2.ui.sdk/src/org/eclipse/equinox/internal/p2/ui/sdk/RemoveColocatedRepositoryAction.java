@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveColocatedRepositoryOperation;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
 public class RemoveColocatedRepositoryAction extends ProvisioningAction {
@@ -43,11 +42,7 @@ public class RemoveColocatedRepositoryAction extends ProvisioningAction {
 		return (URL[]) urls.toArray(new URL[urls.size()]);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction#structuredSelectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
-	 */
-	protected void structuredSelectionChanged(IStructuredSelection selection) {
-		setEnabled(getSelectedURLs(selection.toArray()).length > 0);
+	protected void checkEnablement(Object[] selectionArray) {
+		setEnabled(getSelectedURLs(selectionArray).length > 0);
 	}
 }

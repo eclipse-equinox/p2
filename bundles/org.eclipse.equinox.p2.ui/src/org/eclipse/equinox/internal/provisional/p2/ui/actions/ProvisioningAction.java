@@ -47,17 +47,27 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	public final void selectionChanged(IStructuredSelection selection) {
 		ISelection providerSelection = getSelectionProvider().getSelection();
 		if (providerSelection instanceof IStructuredSelection) {
-			structuredSelectionChanged((IStructuredSelection) providerSelection);
+			checkEnablement(((IStructuredSelection) providerSelection).toArray());
 		} else {
 			// shouldn't really happen, but a provider could decide to de-structure the selection
 			selectionChanged(providerSelection);
 		}
 	}
 
-	/*
-	 * Hook in subclasses.
+	protected void checkEnablement(Object[] selections) {
+		// Default is to nothing
+	}
+
+	/**
+	 * Recheck the enablement.  Called by clients when some condition outside of
+	 * the action that may effect its enablement should be changed.
 	 */
-	protected void structuredSelectionChanged(IStructuredSelection selection) {
-		// Default is do nothing.
+	public final void checkEnablement() {
+		ISelection selection = getSelection();
+		if (selection instanceof IStructuredSelection) {
+			checkEnablement(((IStructuredSelection) selection).toArray());
+		} else {
+			selectionChanged(selection);
+		}
 	}
 }

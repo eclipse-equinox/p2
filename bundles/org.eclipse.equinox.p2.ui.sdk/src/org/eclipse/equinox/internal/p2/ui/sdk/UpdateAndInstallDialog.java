@@ -228,15 +228,18 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	void checkProgressIndicator(String jobName) {
 		if (progressIndicator.isDisposed())
 			return;
-		if (ProvisioningOperationRunner.getScheduledJobs().length == 0)
-			progressIndicator.done();
-		else
+		if (ProvisioningOperationRunner.hasScheduledOperations())
 			progressIndicator.beginAnimatedTask();
+		else
+			progressIndicator.done();
 		if (jobName == null)
 			progressLabel.setText(""); //$NON-NLS-1$
 		else
 			progressLabel.setText(NLS.bind(ProvSDKMessages.UpdateAndInstallDialog_OperationInProgress, jobName));
 		progressLabel.getParent().layout(true);
+		// These may have changed because the status of scheduled provisioning jobs changed
+		validateAvailableIUButtons();
+		validateInstalledIUButtons();
 	}
 
 	/*
@@ -529,8 +532,12 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	}
 
 	private void updateEnablement(Button button) {
+		// At this point the action's enablement is correct for its
+		// selection.  Now we want to double check other conditions.
 		IAction action = getButtonAction(button);
 		if (action != null) {
+			if (action instanceof ProvisioningAction)
+				((ProvisioningAction) action).checkEnablement();
 			button.setEnabled(action.isEnabled());
 		}
 	}
