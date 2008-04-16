@@ -11,16 +11,17 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
+import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
 public class RevertAction extends ProfileModificationAction {
@@ -43,18 +44,20 @@ public class RevertAction extends ProfileModificationAction {
 	}
 
 	/*
-	 *  Overridden to enable only on single selections with a profile IU.
+	 * Overridden to only allow selection of single rollback IU's
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction#structuredSelectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isEnabledFor(java.lang.Object[])
 	 */
-	protected void structuredSelectionChanged(IStructuredSelection selection) {
-		Object[] selectionArray = selection.toArray();
+	protected boolean isEnabledFor(Object[] selectionArray) {
 		if (selectionArray.length == 1) {
-			IInstallableUnit iu = getIU(selectionArray[0]);
-			setEnabled(iu != null && Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_PROFILE)).booleanValue());
-		} else {
-			setEnabled(false);
+			Set ius = ElementUtils.getIUs(selectionArray[0]);
+			if (ius.size() == 1) {
+				Object element = ius.iterator().next();
+				if (element instanceof IInstallableUnit)
+					return Boolean.valueOf(((IInstallableUnit) element).getProperty(IInstallableUnit.PROP_TYPE_PROFILE)).booleanValue();
+			}
 		}
+		return false;
 	}
 
 	protected String getTaskName() {

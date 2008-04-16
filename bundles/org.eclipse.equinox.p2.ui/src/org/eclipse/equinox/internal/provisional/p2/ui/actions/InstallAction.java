@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
+import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -21,10 +22,10 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 
@@ -36,25 +37,20 @@ public class InstallAction extends ProfileModificationAction {
 	}
 
 	/*
-	 *  Overridden to enable only on selections with IU's.  Does not validate
-	 *  whether the IU is already installed in a particular profile.
 	 * (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction#structuredSelectionChanged(org.eclipse.jface.viewers.IStructuredSelection)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isEnabledFor(java.lang.Object[])
 	 */
-	protected void structuredSelectionChanged(IStructuredSelection selection) {
-		Object[] selectionArray = selection.toArray();
-		if (selectionArray.length < 1) {
-			setEnabled(false);
-		} else {
-			for (int i = 0; i < selectionArray.length; i++) {
-				IInstallableUnit iu = getIU(selectionArray[i]);
-				if (iu == null || ProvisioningUtil.isCategory(iu)) {
-					setEnabled(false);
-					return;
-				}
-			}
-			setEnabled(true);
+	protected boolean isEnabledFor(Object[] selectionArray) {
+		if (selectionArray.length < 1)
+			return false;
+
+		for (int i = 0; i < selectionArray.length; i++) {
+			Set children = ElementUtils.getIUs(selectionArray[i]);
+			if (children.isEmpty())
+				return false;
 		}
+		return true;
+
 	}
 
 	protected String getTaskName() {

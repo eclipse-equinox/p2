@@ -12,15 +12,13 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -107,22 +105,8 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	protected abstract String getTaskName();
 
-	protected IInstallableUnit getIU(Object element) {
-		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
-
-	}
-
 	protected IInstallableUnit[] getSelectedIUs() {
-		List elements = getStructuredSelection().toList();
-		List iusList = new ArrayList(elements.size());
-
-		for (int i = 0; i < elements.size(); i++) {
-			IInstallableUnit iu = getIU(elements.get(i));
-			if (iu != null)
-				iusList.add(iu);
-		}
-
-		return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
+		return ElementUtils.getIUs(getStructuredSelection().toArray());
 	}
 
 	protected LicenseManager getLicenseManager() {
@@ -141,4 +125,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return policies;
 	}
 
+	protected final void checkEnablement(Object[] selections) {
+		setEnabled(isEnabledFor(selections) && !ProvisioningOperationRunner.hasScheduledOperationsFor(profileId));
+	}
+
+	protected abstract boolean isEnabledFor(Object[] selections);
 }

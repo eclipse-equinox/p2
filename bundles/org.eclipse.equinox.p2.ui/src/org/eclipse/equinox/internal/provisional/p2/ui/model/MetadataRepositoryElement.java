@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
@@ -29,7 +30,7 @@ import org.eclipse.osgi.util.NLS;
  * 
  * @since 3.4
  */
-public class MetadataRepositoryElement extends RemoteQueriedElement implements RepositoryElement {
+public class MetadataRepositoryElement extends RemoteQueriedElement implements RepositoryElement, IUContainerElement {
 
 	URL url;
 
@@ -132,5 +133,17 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 		} catch (ProvisionException e) {
 			return ""; //$NON-NLS-1$
 		}
+	}
+
+	/* 
+	 * This method is used eagerly by actions to perform selection validation, so
+	 * we do not answer the IU's unless we have already loaded the repository.
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IUContainerElement#getIUs()
+	 */
+	public IInstallableUnit[] getIUs() {
+		if (!hasQueryable())
+			return new IInstallableUnit[0];
+		return ElementUtils.getIUs(getChildren(this));
 	}
 }

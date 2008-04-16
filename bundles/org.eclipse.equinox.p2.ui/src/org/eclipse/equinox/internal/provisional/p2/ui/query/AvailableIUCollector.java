@@ -15,7 +15,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.QueriedElementCollector;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
@@ -54,7 +53,8 @@ public class AvailableIUCollector extends QueriedElementCollector {
 	}
 
 	protected boolean isCategory(IInstallableUnit iu) {
-		return ProvisioningUtil.isCategory(iu);
+		String isCategory = iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY);
+		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
 	}
 
 	protected boolean makeCategory() {
