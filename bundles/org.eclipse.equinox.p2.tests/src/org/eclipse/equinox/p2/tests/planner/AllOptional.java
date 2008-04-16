@@ -54,8 +54,5 @@ public class AllOptional extends AbstractProvisioningTest {
 		assertInstallOperand(plan, c1);
 		assertInstallOperand(plan, d1);
 		assertInstallOperand(plan, e1);
-		for (int i = 0; i < plan.getOperands().length; i++) {
-			System.out.println(plan.getOperands()[i]);
-		}
 	}
 }

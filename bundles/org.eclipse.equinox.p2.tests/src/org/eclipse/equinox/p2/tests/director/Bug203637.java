@@ -25,6 +25,6 @@ public class Bug203637 extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {a1});
 		request.removeInstallableUnits(new IInstallableUnit[0]);
-		assertOK(d.provision(request, null, null));
+		assertOK("1.0", d.provision(request, null, null));
 	}
 }

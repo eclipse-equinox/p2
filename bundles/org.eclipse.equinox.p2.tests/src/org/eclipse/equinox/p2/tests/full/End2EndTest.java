@@ -107,14 +107,14 @@ public class End2EndTest extends AbstractProvisioningTest {
 		request = new ProfileChangeRequest(profile2);
 		request.addInstallableUnits(planner.updatesFor(getIU("sdk", new Version("3.3.0")), null, null));
 		request.removeInstallableUnits(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))});
-		assertOK(director.provision(request, null, null));
+		assertOK("2.0", director.provision(request, null, null));
 		assertProfileContainsAll("", profile2, new IInstallableUnit[] {getIU("sdk", new Version("3.4.0"))});
 		assertNotIUs(new IInstallableUnit[] {getIU("sdk", new Version("3.3.0"))}, getInstallableUnits(profile2));
 
 		//Remove everything from the profile by becoming an empty profile
 		s = director.revert(firstSnapshot, profile2, new ProvisioningContext(), new NullProgressMonitor());
-		assertOK(s);
-		//		assertEmptyProfile(profile2);
+		assertOK("2.1", s);
+		assertEmptyProfile(profile2);
 	}
 
 	public IInstallableUnit[] getIUs(String id) {

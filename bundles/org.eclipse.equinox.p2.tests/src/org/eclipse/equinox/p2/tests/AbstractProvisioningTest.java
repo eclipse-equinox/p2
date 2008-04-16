@@ -79,23 +79,19 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		assertTrue("The status should not have been OK", !result.isOK());
 	}
 
-	protected static void assertOK(IStatus result) {
-		if (result.isOK())
+	protected static void assertOK(String message, IStatus status) {
+		if (status.isOK())
 			return;
 
-		if (result instanceof MultiStatus) {
-			MultiStatus ms = (MultiStatus) result;
-			IStatus children[] = ms.getChildren();
-			for (int i = 0; i < children.length; i++) {
-				System.err.println(children[i]);
-			}
+		// print out the children if we have any
+		IStatus children[] = status.getChildren();
+		for (int i = 0; i < children.length; i++) {
+			IStatus child = children[i];
+			if (!child.isOK())
+				new CoreException(child).printStackTrace();
 		}
 
-		Throwable t = result.getException();
-		if (t != null)
-			t.printStackTrace();
-
-		fail(result.toString());
+		fail(message + ' ' + status.getMessage(), status.getException());
 	}
 
 	/**
@@ -450,7 +446,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			//if the status does not have an exception, print the stack for this one
 			if (status.getException() == null)
 				e.printStackTrace();
-			write(status, 0);
+			write(status, 0, System.err);
 		} else
 			e.printStackTrace();
 		fail(message + ": " + e);
@@ -493,8 +489,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			System.out.println("No iu");
 	}
 
-	private static void write(IStatus status, int indent) {
-		PrintStream output = System.out;
+	private static void write(IStatus status, int indent, PrintStream output) {
 		indent(output, indent);
 		output.println("Severity: " + status.getSeverity());
 
@@ -516,7 +511,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (status.isMultiStatus()) {
 			IStatus[] children = status.getChildren();
 			for (int i = 0; i < children.length; i++)
-				write(children[i], indent + 1);
+				write(children[i], indent + 1, output);
 		}
 	}
 

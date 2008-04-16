@@ -32,14 +32,14 @@ public class UninstallTest extends AbstractProvisioningTest {
 		IInstallableUnit[] units = new IInstallableUnit[] {a1};
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(units);
-		System.out.println(director.provision(request, null, null));
-		assertProfileContains("1.0", profile, units);
+		assertTrue("1.0", director.provision(request, null, null).isOK());
+		assertProfileContains("1.1", profile, units);
 		request = new ProfileChangeRequest(profile);
 		request.removeInstallableUnits(units);
-		director.provision(request, null, null);
+		assertTrue("1.2", director.provision(request, null, null).isOK());
 		assertEmptyProfile(profile);
-		//uninstalling on empty profile should be a no-op
-		director.provision(request, null, null);
+		// uninstalling on empty profile should be a no-op
+		assertTrue("1.3", director.provision(request, null, null).isOK());
 		assertEmptyProfile(profile);
 	}
 }

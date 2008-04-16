@@ -59,8 +59,5 @@ public class MissingOptionalWithDependencies3 extends AbstractProvisioningTest {
 		assertInstallOperand(plan, b1);
 		assertInstallOperand(plan, d);
 		assertInstallOperand(plan, c2);
-		for (int i = 0; i < plan.getOperands().length; i++) {
-			System.out.println(plan.getOperands()[i]);
-		}
 	}
 }

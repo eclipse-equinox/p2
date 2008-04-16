@@ -8,7 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.director;
 
-import java.util.Iterator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
@@ -51,7 +50,7 @@ public class UpdateTest extends AbstractProvisioningTest {
 		planner = createPlanner();
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {fa});
-		assertOK(director.provision(request, null, null));
+		assertOK("1.0", director.provision(request, null, null));
 		assertProfileContains("Profile setup", profile, new IInstallableUnit[] {f1, fa});
 		createTestMetdataRepository(new IInstallableUnit[] {f1_1, f1_4});
 	}
@@ -60,11 +59,8 @@ public class UpdateTest extends AbstractProvisioningTest {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {f1_1});
 		ProvisioningPlan plan = planner.getProvisioningPlan(request, new ProvisioningContext(), new NullProgressMonitor());
-		assertOK(plan.getStatus());
-		assertOK(director.provision(request, null, null));
-		for (Iterator iterator = getInstallableUnits(profile); iterator.hasNext();) {
-			System.out.println(iterator.next());
-		}
+		assertOK("1.0", plan.getStatus());
+		assertOK("1.1", director.provision(request, null, null));
 		request = new ProfileChangeRequest(profile);
 		request.addInstallableUnits(new IInstallableUnit[] {f1_4});
 		assertEquals(IStatus.ERROR, director.provision(request, null, new NullProgressMonitor()).getSeverity());
