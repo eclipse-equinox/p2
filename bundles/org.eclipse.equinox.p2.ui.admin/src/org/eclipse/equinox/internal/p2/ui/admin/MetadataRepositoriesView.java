@@ -34,6 +34,7 @@ import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.dialogs.ListDialog;
 import org.eclipse.ui.part.PluginTransfer;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This view allows users to interact with metadata repositories
@@ -169,6 +170,6 @@ public class MetadataRepositoriesView extends RepositoriesView {
 	 * @see org.eclipse.equinox.internal.p2.ui.admin.ProvView#refreshUnderlyingModel()
 	 */
 	protected void refreshUnderlyingModel() {
-		ProvisioningOperationRunner.schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), getShell());
+		ProvisioningOperationRunner.schedule(new RefreshMetadataRepositoriesOperation(ProvAdminUIMessages.ProvView_RefreshCommandLabel, getRepoFlags()), getShell(), StatusManager.SHOW | StatusManager.LOG);
 	}
 }

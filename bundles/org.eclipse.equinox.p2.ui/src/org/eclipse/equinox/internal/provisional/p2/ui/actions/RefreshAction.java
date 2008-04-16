@@ -30,6 +30,7 @@ public abstract class RefreshAction extends ProvisioningAction {
 		super(ProvUIMessages.RefreshAction_Label, selectionProvider, control.getShell());
 		setToolTipText(ProvUIMessages.RefreshAction_Tooltip);
 		hookKeyListener(control);
+		init();
 	}
 
 	private void hookKeyListener(Control control) {

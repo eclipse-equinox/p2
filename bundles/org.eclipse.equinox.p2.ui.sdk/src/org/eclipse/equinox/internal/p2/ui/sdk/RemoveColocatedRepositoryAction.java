@@ -20,17 +20,19 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryEl
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveColocatedRepositoryOperation;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 public class RemoveColocatedRepositoryAction extends ProvisioningAction {
 
 	public RemoveColocatedRepositoryAction(ISelectionProvider selectionProvider, Shell shell) {
 		super(ProvSDKMessages.RemoveColocatedRepositoryAction_Label, selectionProvider, shell);
 		setToolTipText(ProvSDKMessages.RemoveColocatedRepositoryAction_Tooltip);
+		init();
 	}
 
 	public void run() {
 		RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, getSelectedURLs(getStructuredSelection().toArray()));
-		ProvisioningOperationRunner.run(op, getShell());
+		ProvisioningOperationRunner.run(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 	}
 
 	private URL[] getSelectedURLs(Object[] selectionArray) {

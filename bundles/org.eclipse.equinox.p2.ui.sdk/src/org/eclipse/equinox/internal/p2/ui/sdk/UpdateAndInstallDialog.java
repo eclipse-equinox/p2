@@ -71,7 +71,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	InstalledIUGroup installedIUGroup;
 	IRepositoryManipulator repositoryManipulator;
 	ChangeViewAction viewByRepo, viewFlat, viewCategory;
-	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, manipulateRepoButton, addRepoButton, removeRepoButton;
+	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, revertButton, manipulateRepoButton, addRepoButton, removeRepoButton;
 	ProgressIndicator progressIndicator;
 	Label progressLabel;
 	IPropertyChangeListener preferenceListener;
@@ -228,14 +228,16 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	void checkProgressIndicator(String jobName) {
 		if (progressIndicator.isDisposed())
 			return;
-		if (ProvisioningOperationRunner.hasScheduledOperations())
+		if (ProvisioningOperationRunner.hasScheduledOperations()) {
 			progressIndicator.beginAnimatedTask();
-		else
+			if (jobName == null)
+				progressLabel.setText(ProvSDKMessages.UpdateAndInstallDialog_OperationInProgress);
+			else
+				progressLabel.setText(NLS.bind(ProvSDKMessages.UpdateAndInstallDialog_NamedOperationInProgress, jobName));
+		} else {
 			progressIndicator.done();
-		if (jobName == null)
 			progressLabel.setText(""); //$NON-NLS-1$
-		else
-			progressLabel.setText(NLS.bind(ProvSDKMessages.UpdateAndInstallDialog_OperationInProgress, jobName));
+		}
 		progressLabel.getParent().layout(true);
 		// These may have changed because the status of scheduled provisioning jobs changed
 		validateAvailableIUButtons();
@@ -498,9 +500,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer());
 		installedPropButton.setData(BUTTONACTION, propertiesAction);
 
-		Button revert = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
-		revert.setData(BUTTONACTION, new Action() {
-			public void runWithEvent(Event event) {
+		revertButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
+		revertButton.setData(BUTTONACTION, new Action() {
+			public void run() {
 				RevertWizard wizard = new RevertWizard(profileId, ProvSDKUIActivator.getDefault().getQueryProvider());
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.create();
@@ -529,6 +531,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		updateEnablement(installedPropButton);
 		updateEnablement(uninstallButton);
 		updateEnablement(updateButton);
+		// special case because revert isn't a standard action
+		revertButton.setEnabled(!ProvisioningOperationRunner.hasScheduledOperationsFor(profileId));
+
 	}
 
 	private void updateEnablement(Button button) {

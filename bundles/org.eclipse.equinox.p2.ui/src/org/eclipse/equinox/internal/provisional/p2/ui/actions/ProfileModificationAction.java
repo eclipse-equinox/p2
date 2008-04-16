@@ -37,6 +37,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		this.profileId = profileId;
 		this.profileChooser = profileChooser;
 		this.policies = policies;
+		init();
 	}
 
 	protected ProvisioningPlan getProvisioningPlan() {

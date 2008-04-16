@@ -53,7 +53,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 				IStatus status = manipulator.getURLValidator(control.getShell()).validateRepositoryURL(url[0], true, monitor);
 				if (status.isOK()) {
 					ProvisioningOperation addOperation = manipulator.getAddOperation(url[0]);
-					ProvisioningOperationRunner.run(addOperation, control.getShell());
+					ProvisioningOperationRunner.schedule(addOperation, control.getShell(), StatusManager.SHOW | StatusManager.LOG);
 					event.detail = DND.DROP_LINK;
 				} else if (status.getCode() == URLValidator.REPO_AUTO_GENERATED || status.getCode() == URLValidator.ALTERNATE_ACTION_TAKEN) {
 					event.detail = DND.DROP_COPY;

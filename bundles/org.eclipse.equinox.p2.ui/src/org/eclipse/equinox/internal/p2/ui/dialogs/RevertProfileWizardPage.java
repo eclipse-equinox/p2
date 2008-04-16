@@ -209,7 +209,7 @@ public class RevertProfileWizardPage extends WizardPage {
 			if (plan[0] != null) {
 				if (plan[0].getStatus().isOK()) {
 					ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertDialog_RevertOperationLabel, profileId, plan[0]);
-					ProvisioningOperationRunner.run(op, getShell());
+					ProvisioningOperationRunner.run(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 					return true;
 				}
 				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG);

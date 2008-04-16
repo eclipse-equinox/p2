@@ -21,6 +21,7 @@ public class AddColocatedRepositoryAction extends ProvisioningAction {
 	public AddColocatedRepositoryAction(ISelectionProvider selectionProvider, Shell shell) {
 		super(ProvSDKMessages.AddColocatedRepositoryAction_Label, selectionProvider, shell);
 		setToolTipText(ProvSDKMessages.AddColocatedRepositoryAction_ToolTip);
+		init();
 	}
 
 	public void run() {

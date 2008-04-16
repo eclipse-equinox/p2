@@ -27,6 +27,7 @@ import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Abstract dialog class for adding repositories of different types. This class
@@ -168,7 +169,7 @@ public abstract class AddRepositoryDialog extends StatusDialog {
 	protected IStatus addRepository() {
 		IStatus status = validateRepositoryURL(false);
 		if (status.isOK()) {
-			ProvisioningOperationRunner.schedule(getOperation(getUserURL()), getShell());
+			ProvisioningOperationRunner.schedule(getOperation(getUserURL()), getShell(), StatusManager.SHOW | StatusManager.LOG);
 		}
 		return status;
 	}

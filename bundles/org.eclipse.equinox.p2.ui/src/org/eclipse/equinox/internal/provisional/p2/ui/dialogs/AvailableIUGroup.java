@@ -34,6 +34,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * An AvailableIUGroup is a reusable UI component that displays the
@@ -230,7 +231,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, refreshRepoFlags);
 		else
 			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, urls);
-		ProvisioningOperationRunner.schedule(op, getShell());
+		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 		// Calling this will create a new input and refresh the viewer
 		setQueryContext(queryContext);
 	}

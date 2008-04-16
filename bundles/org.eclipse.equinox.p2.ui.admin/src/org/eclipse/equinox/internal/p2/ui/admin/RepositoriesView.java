@@ -26,6 +26,7 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * This class supports the common characteristics for views that manipulate
@@ -45,7 +46,7 @@ abstract class RepositoriesView extends ProvView {
 		}
 
 		public void run() {
-			ProvisioningOperationRunner.run(getRemoveOperation(getSelection().toArray()), getShell());
+			ProvisioningOperationRunner.run(getRemoveOperation(getSelection().toArray()), getShell(), StatusManager.SHOW | StatusManager.LOG);
 		}
 	}
 

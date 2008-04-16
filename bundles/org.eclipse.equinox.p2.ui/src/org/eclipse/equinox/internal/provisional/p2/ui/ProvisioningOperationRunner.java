@@ -55,8 +55,9 @@ public class ProvisioningOperationRunner {
 	 * @param op The operation to execute
 	 * @param shell provided by the caller in order to supply UI information for prompting the
 	 *            user if necessary. May be <code>null</code>.
+	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
-	public static void run(ProvisioningOperation op, Shell shell) {
+	public static void run(ProvisioningOperation op, Shell shell, int errorStyle) {
 		try {
 			if (op instanceof IUndoableOperation) {
 				PlatformUI.getWorkbench().getOperationSupport().getOperationHistory().execute((IUndoableOperation) op, null, ProvUI.getUIInfoAdapter(shell));
@@ -64,7 +65,7 @@ public class ProvisioningOperationRunner {
 				op.execute(null, ProvUI.getUIInfoAdapter(shell));
 			}
 		} catch (ExecutionException e) {
-			ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), StatusManager.SHOW | StatusManager.LOG);
+			ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), errorStyle);
 		}
 
 	}
@@ -76,13 +77,16 @@ public class ProvisioningOperationRunner {
 	 * @param op The operation to execute
 	 * @param shell provided by the caller in order to supply UI information for prompting the
 	 *            user if necessary. May be <code>null</code>.
+	 * @param errorStyle the flags passed to the StatusManager for error reporting
 	 */
-	public static Job schedule(final ProvisioningOperation op, final Shell shell) {
+	public static Job schedule(final ProvisioningOperation op, final Shell shell, final int errorStyle) {
 		Job job;
+		final boolean noPrompt = (errorStyle & (StatusManager.BLOCK | StatusManager.SHOW)) == 0;
 
 		if (op.runInBackground()) {
 			job = new Job(op.getLabel()) {
 				protected IStatus run(IProgressMonitor monitor) {
+					final Job thisJob = this;
 					try {
 						IStatus status;
 						if (op instanceof IUndoableOperation) {
@@ -90,13 +94,20 @@ public class ProvisioningOperationRunner {
 						} else {
 							status = op.execute(monitor, ProvUI.getUIInfoAdapter(shell));
 						}
+						if (status != Status.OK_STATUS && noPrompt) {
+							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
+							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
+						}
 						return status;
 					} catch (final ExecutionException e) {
 						final IStatus[] status = new IStatus[1];
 						shell.getDisplay().asyncExec(new Runnable() {
 							public void run() {
-								status[0] = ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), StatusManager.SHOW | StatusManager.LOG);
-
+								status[0] = ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), errorStyle);
+								if (noPrompt) {
+									thisJob.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
+									thisJob.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
+								}
 							}
 						});
 						return status[0];
@@ -106,7 +117,6 @@ public class ProvisioningOperationRunner {
 			job.setPriority(Job.LONG);
 		} else {
 			job = new WorkbenchJob(op.getLabel()) {
-
 				public IStatus runInUIThread(IProgressMonitor monitor) {
 					try {
 						IStatus status;
@@ -115,9 +125,17 @@ public class ProvisioningOperationRunner {
 						} else {
 							status = op.execute(monitor, ProvUI.getUIInfoAdapter(shell));
 						}
+						if (status != Status.OK_STATUS && noPrompt) {
+							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
+							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
+						}
 						return status;
 					} catch (ExecutionException e) {
-						return ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), StatusManager.SHOW | StatusManager.LOG);
+						if (noPrompt) {
+							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
+							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
+						}
+						return ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), errorStyle);
 					}
 				}
 			};

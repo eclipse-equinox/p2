@@ -23,8 +23,14 @@ public abstract class ProvisioningAction extends SelectionProviderAction {
 	protected ProvisioningAction(String text, ISelectionProvider selectionProvider, Shell shell) {
 		super(selectionProvider, text);
 		this.shell = shell;
+	}
+
+	/*
+	 * perform initialization that should be done after creation.
+	 */
+	protected void init() {
 		// prime the selection validation
-		ISelection selection = selectionProvider.getSelection();
+		ISelection selection = getSelection();
 		if (selection instanceof IStructuredSelection) {
 			selectionChanged((IStructuredSelection) selection);
 		} else {
