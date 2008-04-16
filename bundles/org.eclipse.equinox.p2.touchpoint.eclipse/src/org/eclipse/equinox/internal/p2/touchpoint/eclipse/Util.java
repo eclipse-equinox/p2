@@ -188,13 +188,18 @@ public class Util {
 				os = info.getOS();
 		}
 		if (name == null)
-			name = "Eclipse"; //$NON-NLS-1$
+			name = "eclipse"; //$NON-NLS-1$
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 			IPath path = new Path(name);
 			if (path.segment(0).endsWith(".app")) //$NON-NLS-1$
 				return name;
-			return name + ".app/Contents/MacOS/" + name.toLowerCase(); //$NON-NLS-1$
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(name.substring(0, 1).toUpperCase());
+			buffer.append(name.substring(1));
+			buffer.append(".app/Contents/MacOS/"); //$NON-NLS-1$
+			buffer.append(name.toLowerCase());
+			return buffer.toString();
 		}
 		return name;
 	}
