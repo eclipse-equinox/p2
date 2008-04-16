@@ -119,8 +119,7 @@ public class Activator implements BundleActivator {
 		// create the watcher for the "drop-ins" folder
 		watchDropins(profile);
 		// keep an eye on the platform.xml
-		if (false)
-			watchConfiguration();
+		watchConfiguration();
 
 		synchronize(new ArrayList(0), null);
 
