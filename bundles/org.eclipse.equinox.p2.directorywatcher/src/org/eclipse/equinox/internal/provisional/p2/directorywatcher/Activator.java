@@ -29,14 +29,14 @@ public class Activator implements BundleActivator {
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext aContext) throws Exception {
-		this.context = aContext;
+		context = aContext;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext aContext) throws Exception {
-		this.context = null;
+		context = null;
 	}
 
 }

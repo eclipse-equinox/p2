@@ -15,7 +15,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
@@ -70,7 +69,7 @@ public class JarURLRepositoryTest extends TestCase {
 		IMetadataRepository repository = manager.createRepository(testRepo.toURL(), "testRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		manager.addRepository(repository.getLocation());
 		provider.setMetadataRepository(repository);
-		IStatus result = new Generator(provider).generate();
+		new Generator(provider).generate();
 		FileUtils.zip(new File[] {testRepo}, new File(tempDir, "testRepo.jar"));
 		testRepoJar = new File(tempDir, "testRepo.jar");
 		assertTrue(testRepoJar.exists());

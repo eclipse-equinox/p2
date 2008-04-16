@@ -198,7 +198,7 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 			}
 
 			protected void handleRootAttributes(Attributes attributes) {
-				String[] values = parseAttributes(attributes, noAttributes, noAttributes);
+				parseAttributes(attributes, noAttributes, noAttributes);
 			}
 
 			public void startElement(String name, Attributes attributes) {

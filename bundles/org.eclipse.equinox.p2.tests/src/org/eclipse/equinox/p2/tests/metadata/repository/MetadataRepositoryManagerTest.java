@@ -106,7 +106,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
 
 		// create a local repository
-		IMetadataRepository testRepo = manager.createRepository(repoLocation.toURL(), "MetadataRepositoryCachingTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.createRepository(repoLocation.toURL(), "MetadataRepositoryCachingTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		manager.loadRepository(repoLocation.toURL(), null);
 
 		// check that a local cache was not created

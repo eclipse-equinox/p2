@@ -17,7 +17,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 
 /**
@@ -105,10 +104,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		} catch (MalformedURLException e) {
 			fail("0.3", e);
 		}
-		Feature[] features = null;
 		try {
-
-			features = site.loadFeatures();
+			site.loadFeatures();
 		} catch (ProvisionException e) {
 			fail("0.4", e);
 		}
