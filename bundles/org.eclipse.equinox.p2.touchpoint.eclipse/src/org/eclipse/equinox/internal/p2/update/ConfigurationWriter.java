@@ -102,12 +102,12 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	/*
 	 * Convert the given list to a comma-separated string.
 	 */
-	private static String toString(String[] list) {
+	private static String toString(Object[] list) {
 		if (list == null || list.length == 0)
 			return null;
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < list.length; i++) {
-			buffer.append(list[i]);
+			buffer.append(list[i].toString());
 			if (i + 1 < list.length)
 				buffer.append(',');
 		}
@@ -132,6 +132,25 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			value = feature.getVersion();
 			if (value != null)
 				args.put(ATTRIBUTE_VERSION, value);
+			value = feature.getPluginIdentifier();
+			// only write out the plug-in identifier if it is different from the feature id
+			if (value != null && !value.equals(feature.getId()))
+				args.put(ATTRIBUTE_PLUGIN_IDENTIFIER, value);
+			value = feature.getPluginVersion();
+			// only write out the plug-in version if it is different from the feature version
+			if (value != null && !value.equals(feature.getVersion()))
+				args.put(ATTRIBUTE_PLUGIN_VERSION, value);
+			if (feature.isPrimary())
+				args.put(ATTRIBUTE_PRIMARY, "true"); //$NON-NLS-1$
+			value = feature.getApplication();
+			if (value != null)
+				args.put(ATTRIBUTE_APPLICATION, value);
+
+			// collect the roots
+			URL[] roots = feature.getRoots();
+			if (roots != null && roots.length > 0)
+				args.put(ATTRIBUTE_ROOT, toString(roots));
+
 			writer.startTag(ELEMENT_FEATURE, args);
 			writer.endTag(ELEMENT_FEATURE);
 		}
