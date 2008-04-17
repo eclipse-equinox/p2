@@ -13,6 +13,7 @@ package org.eclipse.equinox.p2.tests.directorywatcher;
 import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
@@ -71,6 +72,13 @@ class TestRepositoryWatcher extends DirectoryWatcher {
 	 */
 	public IArtifactKey[] getArtifactKeys() {
 		return listener.getArtifactRepository().getArtifactKeys();
+	}
+
+	/*
+	 * Return the list of artifact descriptors known to this listener's repository.
+	 */
+	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+		return listener.getArtifactRepository().getArtifactDescriptors(key);
 	}
 
 	/*

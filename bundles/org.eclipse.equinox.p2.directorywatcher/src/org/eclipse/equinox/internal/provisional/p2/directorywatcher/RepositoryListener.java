@@ -35,7 +35,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class RepositoryListener extends DirectoryChangeListener {
-
 	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
 	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String FILE_LAST_MODIFIED = "file.lastModified"; //$NON-NLS-1$
@@ -55,7 +54,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @param hidden <code>true</code> if the repository should be hidden, <code>false</code> if not.
 	 */
 	public RepositoryListener(BundleContext context, String repositoryName, File repositoryFolder, boolean hidden) {
-
 		File stateDir;
 		if (repositoryFolder == null) {
 			String stateDirName = "listener_" + repositoryName.hashCode(); //$NON-NLS-1$
@@ -92,7 +90,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * so the repository managers add them to their list of known repositories.
 	 */
 	private void publishSites(Feature feature) {
-
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
@@ -118,7 +115,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
-
 		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
 		if (reference == null)
 			throw new IllegalStateException(Messages.platformadmin_not_registered);
@@ -344,7 +340,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	protected IArtifactDescriptor generateArtifactDescriptor(File candidate) {
-
 		IArtifactDescriptor basicDescriptor = generateBasicDescriptor(candidate);
 		if (basicDescriptor == null)
 			return null;
@@ -367,7 +362,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private IArtifactDescriptor generateBasicDescriptor(File candidate) {
-
 		if (isFeature(candidate)) {
 			FeatureParser parser = new FeatureParser();
 			Feature feature = parser.parse(candidate);
@@ -410,7 +404,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private IInstallableUnit[] generateFeatureIUs(File featureFile, Properties props) {
-
 		FeatureParser parser = new FeatureParser();
 		Feature feature = parser.parse(featureFile);
 		if (feature == null)
@@ -424,13 +417,12 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	private IInstallableUnit[] generateBundleIU(File bundleFile, Properties props) {
-
 		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundleFile);
 		if (bundleDescription == null)
 			return null;
 
 		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-		IInstallableUnit[] ius = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
+		IInstallableUnit[] ius = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), key, props);
 
 		// see bug 222370		
 		// we only want to return the bundle IU
