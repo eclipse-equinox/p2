@@ -16,24 +16,27 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.DeferredFetchFilteredTree;
 import org.eclipse.equinox.internal.p2.ui.dialogs.StructuredIUGroup;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.RefreshMetadataRepositoriesOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
-import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -52,6 +55,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private IViewMenuProvider menuProvider;
 	private boolean useBold = false;
 	private IUDetailsLabelProvider labelProvider;
+	private Display display;
+	boolean ignoreEvent = false;
 	DeferredFetchFilteredTree filteredTree;
 	IUColumnConfig[] columnConfig;
 	private int refreshRepoFlags = IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM;
@@ -93,6 +98,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 */
 	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, QueryContext queryContext, AvailableIUPatternFilter filter, IUColumnConfig[] columnConfig, IViewMenuProvider menuProvider) {
 		super(parent, queryProvider, font, context);
+		this.display = parent.getDisplay();
 		this.queryContext = queryContext;
 		this.filter = filter;
 		this.menuProvider = menuProvider;
@@ -136,7 +142,19 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		// Input last.
 		availableIUViewer.setInput(getInput());
 
-		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, getQueryProvider());
+		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, getQueryProvider()) {
+			protected void repositoryAdded(final RepositoryEvent event) {
+				if (ignoreEvent) {
+					ignoreEvent = false;
+					return;
+				}
+				makeRepositoryVisible(event.getRepositoryLocation());
+			}
+
+			protected void repositoryDiscovered(RepositoryEvent event) {
+				ignoreEvent = true;
+			}
+		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
 
 		availableIUViewer.getControl().addDisposeListener(new DisposeListener() {
@@ -234,5 +252,46 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 		// Calling this will create a new input and refresh the viewer
 		setQueryContext(queryContext);
+	}
+
+	/*
+	 * Make the repository with the specified location visible in the viewer.
+	 */
+	void makeRepositoryVisible(final URL location) {
+		// We rely on the fact that repository addition happens
+		// in a job.  We would get burned by this assumption if other
+		// code adds repositories in the UI thread.
+		// For now we assume that loading the repo while receiving
+		// the add event won't block the UI.  Do this
+		// first before expanding.
+		try {
+			ProvisioningUtil.loadMetadataRepository(location, null);
+		} catch (ProvisionException e) {
+			// ignore because we were doing this "for free." 
+			return;
+		}
+		display.asyncExec(new Runnable() {
+			public void run() {
+				final TreeViewer viewer = filteredTree.getViewer();
+				IWorkbench workbench = PlatformUI.getWorkbench();
+				if (workbench.isClosing())
+					return;
+				viewer.refresh();
+				final Tree tree = viewer.getTree();
+				if (tree != null && !tree.isDisposed()) {
+					TreeItem[] items = tree.getItems();
+					for (int i = 0; i < items.length; i++) {
+						if (items[i].getData() instanceof RepositoryElement) {
+							URL url = ((RepositoryElement) items[i].getData()).getLocation();
+							if (url.toExternalForm().equals(location.toExternalForm())) {
+								viewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
+								tree.select(items[i]);
+								return;
+							}
+						}
+					}
+				}
+			}
+		});
 	}
 }

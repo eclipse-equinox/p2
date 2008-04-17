@@ -26,7 +26,10 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * ProvisioningListener which updates a structured viewer based on
- * provisioning changes
+ * provisioning changes.  Provides default behavior which refreshes particular
+ * model elements or the entire viewer based on the nature of the change and the
+ * changes that the client is interested in.  Subclasses typically only need
+ * override when there is additional, specialized behavior required.
  * 
  * @since 3.4
  */
@@ -53,52 +56,139 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 		if (o instanceof ProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
 			ProfileEvent event = (ProfileEvent) o;
 			if (event.getReason() == ProfileEvent.CHANGED) {
-				final String profileId = event.getProfileId();
-				display.asyncExec(new Runnable() {
-					public void run() {
-						if (viewer.getControl().isDisposed())
-							return;
-						// We want to refresh the affected profile, so we
-						// construct a profile element on this profile.
-						ProfileElement element = new ProfileElement(profileId);
-						element.setQueryProvider(queryProvider);
-						viewer.refresh(element);
-					}
-				});
-			} else {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						if (viewer.getControl().isDisposed())
-							return;
-						refreshAll();
-					}
-				});
+				profileChanged(event.getProfileId());
+			} else if (event.getReason() == ProfileEvent.ADDED) {
+				profileAdded(event.getProfileId());
+			} else if (event.getReason() == ProfileEvent.REMOVED) {
+				profileRemoved(event.getProfileId());
 			}
 		} else if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
 			// Do not refresh unless this is the type of repo that we are interested in
 			if ((event.getRepositoryType() == IRepository.TYPE_METADATA && (eventTypes & PROV_EVENT_METADATA_REPOSITORY) == PROV_EVENT_METADATA_REPOSITORY) || (event.getRepositoryType() == IRepository.TYPE_ARTIFACT && (eventTypes & PROV_EVENT_ARTIFACT_REPOSITORY) == PROV_EVENT_ARTIFACT_REPOSITORY)) {
-				if (event.getKind() == RepositoryEvent.ADDED || event.getKind() == RepositoryEvent.REMOVED) {
-					display.asyncExec(new Runnable() {
-						public void run() {
-							IWorkbench workbench = PlatformUI.getWorkbench();
-							if (workbench.isClosing())
-								return;
-							Control control = viewer.getControl();
-							if (control != null && !control.isDisposed())
-								refreshAll();
-						}
-					});
+				if (event.getKind() == RepositoryEvent.ADDED) {
+					repositoryAdded(event);
+				} else if (event.getKind() == RepositoryEvent.REMOVED) {
+					repositoryRemoved(event);
+
+				} else if (event.getKind() == RepositoryEvent.DISCOVERED) {
+					repositoryDiscovered(event);
+				} else if (event.getKind() == RepositoryEvent.CHANGED) {
+					repositoryChanged(event);
 				}
 			}
 		}
+	}
 
+	/**
+	 * A repository has been added.  The default behavior is to
+	 * refresh the viewer.  Subclasses may override.  May be called
+	 * from a non-UI thread.
+	 * 
+	 * @param event the RepositoryEvent describing the details
+	 */
+	protected void repositoryAdded(RepositoryEvent event) {
+		asyncRefresh();
+	}
+
+	/**
+	 * A repository has been removed.  The default behavior is to
+	 * refresh the viewer.  Subclasses may override.  May be called
+	 * from a non-UI thread.
+	 * 
+	 * @param event the RepositoryEvent describing the details
+	 */
+	protected void repositoryRemoved(RepositoryEvent event) {
+		asyncRefresh();
+	}
+
+	/**
+	 * A repository has been discovered.  Subclasses may override.  May be called
+	 * from a non-UI thread.
+	 * 
+	 * @param event the RepositoryEvent describing the details
+	 */
+	protected void repositoryDiscovered(RepositoryEvent event) {
+		// Do nothing for now
+	}
+
+	/**
+	 * A repository has changed.  Subclasses may override.  May be called
+	 * from a non-UI thread.
+	 * 
+	 * @param event the RepositoryEvent describing the details
+	 */
+	protected void repositoryChanged(RepositoryEvent event) {
+		// Do nothing for now.  When this event is actually used in
+		// the core, we may want to refresh particular elements the way
+		// we currently refresh a profile element.
+	}
+
+	/**
+	 * The specified profile has changed.  The default behavior is to refresh the viewer
+	 * with a profile element of the matching id.  Subclasses may override.  May be called
+	 * from a non-UI thread.
+	 * 
+	 * @param profileId the id of the profile that changed.
+	 */
+	protected void profileChanged(final String profileId) {
+		display.asyncExec(new Runnable() {
+			public void run() {
+				IWorkbench workbench = PlatformUI.getWorkbench();
+				if (workbench.isClosing())
+					return;
+
+				if (viewer.getControl().isDisposed())
+					return;
+				// We want to refresh the affected profile, so we
+				// construct a profile element on this profile.
+				ProfileElement element = new ProfileElement(profileId);
+				element.setQueryProvider(queryProvider);
+				viewer.refresh(element);
+			}
+		});
+	}
+
+	/**
+	 * The specified profile has been added.  The default behavior is to fully
+	 * refresh the associated viewer. Subclasses may override.  May be called
+	 * from a non-UI thread.
+	 * 
+	 * @param profileId the id of the profile that has been added.
+	 */
+	protected void profileAdded(final String profileId) {
+		asyncRefresh();
+	}
+
+	/**
+	 * The specified profile has been removed.  The default behavior is to fully
+	 * refresh the associated viewer. Subclasses may override.  May be called
+	 * from a non-UI thread.
+	 * 
+	 * @param profileId the id of the profile that has been removed.
+	 */
+	protected void profileRemoved(final String profileId) {
+		asyncRefresh();
+	}
+
+	private void asyncRefresh() {
+		display.asyncExec(new Runnable() {
+			public void run() {
+				IWorkbench workbench = PlatformUI.getWorkbench();
+				if (workbench.isClosing())
+					return;
+				Control control = viewer.getControl();
+				if (control != null && !control.isDisposed())
+					refreshAll();
+			}
+		});
 	}
 
 	/**
 	 * Refresh the entire structure of the viewer.  Subclasses may
 	 * override to ensure that any caching done in content providers or
-	 * model elements is refreshed before the viewer is refreshed.
+	 * model elements is refreshed before the viewer is refreshed.  This will 
+	 * always be called from the UI thread.
 	 */
 	protected void refreshAll() {
 		viewer.refresh();

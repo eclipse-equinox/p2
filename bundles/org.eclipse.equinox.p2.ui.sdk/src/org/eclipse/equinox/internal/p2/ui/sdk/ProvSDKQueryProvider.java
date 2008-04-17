@@ -153,6 +153,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 						queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
 					else
 						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+					metaRepos.setQueryable(queryable);
 				} else
 					queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
 				return new ElementQueryDescriptor(queryable, null, new MetadataRepositoryElementCollector(this));
