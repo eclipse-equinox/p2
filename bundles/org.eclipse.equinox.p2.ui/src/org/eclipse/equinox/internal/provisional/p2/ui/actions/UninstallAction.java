@@ -41,6 +41,9 @@ public class UninstallAction extends ProfileModificationAction {
 			for (int i = 0; i < selectionArray.length; i++) {
 				if (selectionArray[i] instanceof InstalledIUElement) {
 					InstalledIUElement element = (InstalledIUElement) selectionArray[i];
+					int lock = getLock(element.getIU());
+					if ((lock & IInstallableUnit.LOCK_UNINSTALL) == IInstallableUnit.LOCK_UNINSTALL)
+						return false;
 					if (parent == null) {
 						parent = element.getParent(null);
 					} else if (parent != element.getParent(null)) {

@@ -16,9 +16,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ElementUtils;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -131,4 +133,18 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected abstract boolean isEnabledFor(Object[] selections);
+
+	protected int getLock(IInstallableUnit iu) {
+		try {
+			IProfile profile = ProvisioningUtil.getProfile(profileId);
+			String value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+			if (value != null)
+				return Integer.parseInt(value);
+		} catch (ProvisionException e) {
+			// ignore, we have bigger problems to report elsewhere
+		} catch (NumberFormatException e) {
+			// ignore and assume no lock
+		}
+		return IInstallableUnit.LOCK_NONE;
+	}
 }

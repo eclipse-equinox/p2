@@ -23,8 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEv
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
-import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.UpdateAction;
@@ -53,7 +52,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	 *
 	 */
 	final class AutomaticUpdateAction extends UpdateAction {
-		ProvisioningPlan plan;
+		ProvisioningPlan currentPlan;
 
 		AutomaticUpdateAction(ISelectionProvider selectionProvider, String profileId, IProfileChooser chooser, Policies policies, Shell shell) {
 			super(selectionProvider, profileId, chooser, policies, shell);
@@ -61,16 +60,44 @@ public class AutomaticUpdater implements IUpdateListener {
 
 		public void initializePlan() {
 			try {
-				plan = getProvisioningPlan(iusWithUpdates, profileId, new NullProgressMonitor());
+				currentPlan = getProvisioningPlan(iusWithUpdates, profileId, new NullProgressMonitor());
 			} catch (ProvisionException e) {
 				// ignore
 			}
 		}
 
 		protected ProvisioningPlan getProvisioningPlan() {
-			if (plan != null)
-				return plan;
+			if (currentPlan != null)
+				return currentPlan;
 			return super.getProvisioningPlan();
+		}
+
+		protected IPlanValidator getPlanValidator() {
+			return new IPlanValidator() {
+				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
+					if (alreadyValidated)
+						return true;
+					// In all other cases we return false, because the clicking the popup will actually run the action.
+					String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+					if (plan != null) {
+						if (plan.getStatus().isOK() || !(MessageDialogWithToggle.NEVER.equals(openPlan))) {
+							// Show the affordance if user prefers always opening a currentPlan or being prompted
+							// In this context, the affordance is the prompt.
+							if (updateAffordance == null)
+								createUpdateAffordance();
+							setUpdateAffordanceState(plan.getStatus().isOK());
+							// If the user always wants to open invalid plans, or status is OK then go ahead and show
+							// the popup.
+							if (plan.getStatus().isOK() || MessageDialogWithToggle.ALWAYS.equals(openPlan) && popup == null)
+								createUpdatePopup();
+						} else {
+							// The pref is NEVER, the user doesn't want to know about it
+							ProvUI.reportStatus(plan.getStatus(), StatusManager.LOG);
+						}
+					}
+					return false;
+				}
+			};
 		}
 	}
 
@@ -98,6 +125,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		final boolean download = prefs.getBoolean(PreferenceConstants.PREF_DOWNLOAD_ONLY);
 		profileId = event.getProfileId();
 		iusWithUpdates = event.getIUs();
+		validateUpdates(null, true);
 		alreadyDownloaded = false;
 
 		if (iusWithUpdates.length <= 0) {
@@ -153,26 +181,43 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	/*
-	 * Recheck that iusToBeUpdated is still valid, and reset the cache.  
-	 * Reminding the user of updates may happen long after the update 
-	 * was discovered,  so it's possible that the update list is stale.
-	 * This reduces the risk of notifying the user of updates and then 
-	 * not finding them (which can still happen, but
-	 * we are trying to reduce the window in which it can happen.)
+	 * Validate that iusToBeUpdated is valid, and reset the cache.  
+	 * If isKnownToBeAvailable is false, then recheck that the update is
+	 * available.  isKnownToBeAvailable should be false when the update list 
+	 * might be stale (Reminding the user of updates may happen long
+	 * after the update.  This reduces the risk of notifying the user
+	 * of updates and then not finding them .)
 	 */
 
-	private void recheckUpdates(IProgressMonitor monitor) {
+	void validateUpdates(IProgressMonitor monitor, boolean isKnownToBeAvailable) {
 		ArrayList list = new ArrayList();
 		for (int i = 0; i < iusWithUpdates.length; i++) {
 			try {
-				if (ProvisioningUtil.getPlanner().updatesFor(iusWithUpdates[i], new ProvisioningContext(), monitor).length > 0)
-					list.add(iusWithUpdates[i]);
+				if (isKnownToBeAvailable || ProvisioningUtil.getPlanner().updatesFor(iusWithUpdates[i], new ProvisioningContext(), monitor).length > 0) {
+					if (!updateLocked(iusWithUpdates[i]))
+						list.add(iusWithUpdates[i]);
+				}
 			} catch (ProvisionException e) {
 				ProvUI.handleException(e, ProvSDKMessages.AutomaticUpdater_ErrorCheckingUpdates, StatusManager.LOG);
 				continue;
 			}
 		}
 		iusWithUpdates = (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);
+	}
+
+	private boolean updateLocked(IInstallableUnit iu) {
+		int lock = IInstallableUnit.LOCK_NONE;
+		try {
+			IProfile profile = ProvisioningUtil.getProfile(profileId);
+			String value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+			if (value != null)
+				lock = Integer.parseInt(value);
+		} catch (ProvisionException e) {
+			// ignore
+		} catch (NumberFormatException e) {
+			// ignore and assume no lock
+		}
+		return (lock & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE;
 	}
 
 	Shell getWorkbenchWindowShell() {
@@ -262,34 +307,6 @@ public class AutomaticUpdater implements IUpdateListener {
 			updateAction = new AutomaticUpdateAction(getSelectionProvider(), profileId, null, ProvPolicies.getDefault(), null);
 	}
 
-	IPlanValidator getPlanValidator() {
-		return new IPlanValidator() {
-			public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
-				if (alreadyValidated)
-					return true;
-				// In all other cases we return false, because the clicking the popup will actually run the action.
-				String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
-				if (plan != null) {
-					if (plan.getStatus().isOK() || !(MessageDialogWithToggle.NEVER.equals(openPlan))) {
-						// Show the affordance if user prefers always opening a plan or being prompted
-						// In this context, the affordance is the prompt.
-						if (updateAffordance == null)
-							createUpdateAffordance();
-						setUpdateAffordanceState(plan.getStatus().isOK());
-						// If the user always wants to open invalid plans, then go ahead and show
-						// the popup.
-						if (MessageDialogWithToggle.ALWAYS.equals(openPlan) && popup == null)
-							createUpdatePopup();
-					} else {
-						// The pref is NEVER, the user doesn't want to know about it
-						ProvUI.reportStatus(plan.getStatus(), StatusManager.LOG);
-					}
-				}
-				return false;
-			}
-		};
-	}
-
 	void clearUpdatesAvailable() {
 		if (updateAffordance != null) {
 			IStatusLineManager manager = getStatusLineManager();
@@ -373,7 +390,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
-				recheckUpdates(monitor);
+				validateUpdates(monitor, false);
 				if (iusWithUpdates.length == 0)
 					clearUpdatesAvailable();
 				else {
