@@ -81,6 +81,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public void addRepository(IArtifactRepository repository) {
+		addRepository(repository, true);
+	}
+
+	private void addRepository(IArtifactRepository repository, boolean signalAdd) {
 		RepositoryInfo info = new RepositoryInfo();
 		info.repository = new SoftReference(repository);
 		info.name = repository.getName();
@@ -96,7 +100,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		}
 		// save the given repository in the preferences.
 		remember(repository);
-		if (added)
+		if (added && signalAdd)
 			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
 	}
 
@@ -332,6 +336,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		return loadRepository(location, monitor, true);
+	}
+
+	private IArtifactRepository loadRepository(URL location, IProgressMonitor monitor, boolean signalAdd) throws ProvisionException {
 		// TODO do something with the monitor
 		IArtifactRepository result = getRepository(location);
 		if (result != null)
@@ -343,7 +351,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		for (int i = 0; i < suffixes.length; i++) {
 			result = loadRepository(location, suffixes[i], sub.newChild(100));
 			if (result != null) {
-				addRepository(result);
+				addRepository(result, signalAdd);
 				return result;
 			}
 		}
@@ -414,7 +422,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		clearNotFound(location);
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return loadRepository(location, monitor);
+		return loadRepository(location, monitor, false);
 	}
 
 	/*

@@ -81,6 +81,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	public void addRepository(IMetadataRepository repository) {
+		addRepository(repository, true);
+	}
+
+	private void addRepository(IMetadataRepository repository, boolean signalAdd) {
 		RepositoryInfo info = new RepositoryInfo();
 		info.repository = new SoftReference(repository);
 		info.name = repository.getName();
@@ -96,7 +100,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		}
 		// save the given repository in the preferences.
 		remember(repository);
-		if (added)
+		if (added && signalAdd)
 			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
 	}
 
@@ -348,6 +352,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		return loadRepository(location, monitor, true);
+	}
+
+	private IMetadataRepository loadRepository(URL location, IProgressMonitor monitor, boolean signalAdd) throws ProvisionException {
 		Assert.isNotNull(location);
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
@@ -361,7 +369,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 			for (int i = 0; i < suffixes.length; i++) {
 				result = loadRepository(location, suffixes[i], sub.newChild(100), notFoundStatus);
 				if (result != null) {
-					addRepository(result);
+					addRepository(result, signalAdd);
 					return result;
 				}
 			}
@@ -473,7 +481,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		clearNotFound(location);
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return loadRepository(location, monitor);
+		return loadRepository(location, monitor, false);
 	}
 
 	/*
