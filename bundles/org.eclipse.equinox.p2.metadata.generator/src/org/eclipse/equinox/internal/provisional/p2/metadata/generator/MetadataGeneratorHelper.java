@@ -862,7 +862,7 @@ public class MetadataGeneratorHelper {
 
 	public static VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
-		if (versionSpec == null)
+		if (versionSpec == null || versionSpec.length() == 0)
 			// TODO should really be returning VersionRange.emptyRange here...
 			return null;
 		Version version = new Version(versionSpec);
