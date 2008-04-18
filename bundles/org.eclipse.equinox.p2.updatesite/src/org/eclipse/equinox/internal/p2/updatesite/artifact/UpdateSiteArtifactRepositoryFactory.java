@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -18,10 +19,16 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArti
 
 public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 
-	public IArtifactRepository create(URL location, String name, String type) {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 */
+	public IArtifactRepository create(URL location, String name, String type, Map properties) {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
 		return new UpdateSiteArtifactRepository(location, monitor);
 	}

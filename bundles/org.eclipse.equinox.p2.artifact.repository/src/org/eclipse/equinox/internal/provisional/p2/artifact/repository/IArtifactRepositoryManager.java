@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -110,6 +111,7 @@ public interface IArtifactRepositoryManager {
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
+	 * @param properties the properties to set on the repository
 	 * @return the newly created repository
 	 * @throws ProvisionException if the repository could not be created.  Reasons include:
 	 * <ul>
@@ -118,7 +120,7 @@ public interface IArtifactRepositoryManager {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException;
+	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Returns the artifact repository locations known to the repository manager.

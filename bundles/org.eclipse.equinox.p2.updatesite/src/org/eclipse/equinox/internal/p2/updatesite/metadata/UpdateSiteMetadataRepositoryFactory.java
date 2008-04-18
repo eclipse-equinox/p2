@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -18,7 +19,10 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMeta
 
 public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
-	public IMetadataRepository create(URL location, String name, String type) {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 */
+	public IMetadataRepository create(URL location, String name, String type, Map properties) {
 		return null;
 	}
 

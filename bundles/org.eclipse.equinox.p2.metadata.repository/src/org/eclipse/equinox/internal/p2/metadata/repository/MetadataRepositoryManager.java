@@ -179,9 +179,9 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#createRepository(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
 	 */
-	public IMetadataRepository createRepository(URL location, String name, String type) throws ProvisionException {
+	public IMetadataRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException {
 		Assert.isNotNull(location);
 		Assert.isNotNull(name);
 		Assert.isNotNull(type);
@@ -198,7 +198,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		IMetadataRepositoryFactory factory = (IMetadataRepositoryFactory) createExecutableExtension(extension, FACTORY);
 		if (factory == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		IMetadataRepository result = factory.create(location, name, type);
+		IMetadataRepository result = factory.create(location, name, type, properties);
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 		clearNotFound(location);

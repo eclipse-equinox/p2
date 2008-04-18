@@ -70,7 +70,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 
 		//create a new repository
 		File repoLocation = getTempLocation();
-		IMetadataRepository testRepo = manager.createRepository(repoLocation.toURL(), "MetadataRepositoryManagerTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		IMetadataRepository testRepo = manager.createRepository(repoLocation.toURL(), "MetadataRepositoryManagerTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		manager.addRepository(testRepo.getLocation());
 		int newNonSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
 		int newSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_SYSTEM).length;
@@ -106,7 +106,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		File cacheFileJAR = new File(dataAreaFile, "content" + repoLocation.hashCode() + ".jar");
 
 		// create a local repository
-		manager.createRepository(repoLocation.toURL(), "MetadataRepositoryCachingTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.createRepository(repoLocation.toURL(), "MetadataRepositoryCachingTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		manager.loadRepository(repoLocation.toURL(), null);
 
 		// check that a local cache was not created

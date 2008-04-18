@@ -34,7 +34,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	private final IFileArtifactRepository artifactRepository;
 
 	public ExtensionLocationArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("Extension: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
+		super("Extension: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
 
 		File base = getBaseDirectory(location);
 		File plugins = new File(base, PLUGINS);
@@ -71,7 +71,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		IArtifactRepository repository = factory.create(stateDirURL, repositoryName, null);
+		IArtifactRepository repository = factory.create(stateDirURL, repositoryName, null, null);
 		//repository.setProperty(PROFILE_EXTENSION, "true");
 		return repository;
 	}

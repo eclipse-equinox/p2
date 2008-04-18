@@ -35,7 +35,7 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 	private final IMetadataRepository metadataRepository;
 
 	public ExtensionLocationMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("Extension: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
+		super("Extension: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
 
 		File base = getBaseDirectory(location);
 		File plugins = new File(base, PLUGINS);
@@ -71,7 +71,7 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		return factory.create(stateDirURL, repositoryName, null);
+		return factory.create(stateDirURL, repositoryName, null, null);
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {

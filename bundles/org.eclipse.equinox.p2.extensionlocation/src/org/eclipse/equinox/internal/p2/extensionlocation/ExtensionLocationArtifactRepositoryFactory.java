@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -18,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArti
 
 public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 
-	public IArtifactRepository create(URL location, String name, String type) throws ProvisionException {
+	public IArtifactRepository create(URL location, String name, String type, Map properties) throws ProvisionException {
 		return null;
 	}
 

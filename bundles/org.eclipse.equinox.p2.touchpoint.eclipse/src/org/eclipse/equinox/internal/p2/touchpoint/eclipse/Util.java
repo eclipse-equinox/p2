@@ -75,9 +75,10 @@ public class Util {
 		}
 		try {
 			String repositoryName = Messages.BundlePool;
-			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
+			Map properties = new HashMap(1);
+			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
 			manager.addRepository(bundlePool.getLocation());
-			bundlePool.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
 			return (IFileArtifactRepository) bundlePool;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);

@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.repository;
 
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -80,6 +81,7 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
+	 * @param properties the properties to set on the repository
 	 * @return the newly created repository
 	 * @throws ProvisionException if the repository could not be created.  Reasons include:
 	 * <ul>
@@ -88,7 +90,7 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository createRepository(URL location, String name, String type) throws ProvisionException;
+	public IMetadataRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Returns the metadata repository locations known to the repository manager.

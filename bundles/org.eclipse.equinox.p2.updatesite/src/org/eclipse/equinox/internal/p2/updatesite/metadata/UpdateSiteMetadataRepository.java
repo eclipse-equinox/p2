@@ -43,7 +43,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 
 	public UpdateSiteMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
+		super("update site: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
 		// todo progress monitoring
 		// loading validates before we create repositories
 		UpdateSite updateSite = UpdateSite.load(location, null);
@@ -180,7 +180,8 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		return factory.create(stateDirURL, repositoryName, null);
+		// TODO might want to pass along repository properties?
+		return factory.create(stateDirURL, repositoryName, null, null);
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {

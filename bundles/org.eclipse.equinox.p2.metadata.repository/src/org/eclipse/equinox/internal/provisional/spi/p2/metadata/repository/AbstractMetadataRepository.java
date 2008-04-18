@@ -39,13 +39,13 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 	}
 
 	public AbstractMetadataRepository() {
-		super("noName", "noType", "noVersion", null, null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		super("noName", "noType", "noVersion", null, null, null, null); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	public abstract void initialize(RepositoryState state);
 
-	protected AbstractMetadataRepository(String name, String type, String version, URL location, String description, String provider) {
-		super(name, type, version, location, description, provider);
+	protected AbstractMetadataRepository(String name, String type, String version, URL location, String description, String provider, Map properties) {
+		super(name, type, version, location, description, provider, properties);
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] installableUnit) {

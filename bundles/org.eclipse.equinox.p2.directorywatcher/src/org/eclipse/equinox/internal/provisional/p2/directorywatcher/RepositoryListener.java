@@ -145,15 +145,14 @@ public class RepositoryListener extends DirectoryChangeListener {
 				//fall through and create a new repository
 			}
 			try {
-				IArtifactRepository repository;
+				String name = repositoryName;
+				Map properties = new HashMap(1);
 				if (hidden) {
-					repository = manager.createRepository(stateDirURL, "artifact listener " + repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
-					manager.addRepository(repository.getLocation());
-					repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-				} else {
-					repository = manager.createRepository(stateDirURL, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-					manager.addRepository(repository.getLocation());
+					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+					name = "artifact listener " + repositoryName; //$NON-NLS-1$
 				}
+				IArtifactRepository repository = manager.createRepository(stateDirURL, name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+				manager.addRepository(repository.getLocation());
 				return repository;
 			} catch (ProvisionException e) {
 				LogHelper.log(e);
@@ -178,13 +177,13 @@ public class RepositoryListener extends DirectoryChangeListener {
 			} catch (ProvisionException e) {
 				//fall through and create new repository
 			}
-			IMetadataRepository repository;
+			String name = repositoryName;
+			Map properties = new HashMap(1);
 			if (hidden) {
-				repository = manager.createRepository(stateDirURL, "Metadata listener " + repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
-				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			} else {
-				repository = manager.createRepository(stateDirURL, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				name = "metadata listener " + repositoryName; //$NON-NLS-1$
 			}
+			IMetadataRepository repository = manager.createRepository(stateDirURL, name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			manager.addRepository(stateDirURL);
 			return repository;
 		} catch (ProvisionException e) {

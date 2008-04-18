@@ -176,7 +176,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
-	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException {
+	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException {
 		try {
 			loadRepository(location, (IProgressMonitor) null);
 			fail(location, ProvisionException.REPOSITORY_EXISTS);
@@ -189,7 +189,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		IArtifactRepository result = factory.create(location, name, type);
+		IArtifactRepository result = factory.create(location, name, type, properties);
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 		clearNotFound(result.getLocation());
@@ -500,9 +500,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			// TODO should do something here since we are failing to restore.
 			return;
 		try {
-			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
+			Map properties = new HashMap(1);
+			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 			addRepository(cache);
-			cache.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}

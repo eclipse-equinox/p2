@@ -45,7 +45,7 @@ public class ProvisioningHelper {
 		// for convenience create and add a repository here
 		String repositoryName = location + " - metadata"; //$NON-NLS-1$
 		try {
-			IMetadataRepository repository = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			IMetadataRepository repository = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			manager.addRepository(repository.getLocation());
 			return repository;
 		} catch (ProvisionException e) {
@@ -84,7 +84,7 @@ public class ProvisioningHelper {
 		// could not load a repo at that location so create one as a convenience
 		String repositoryName = location + " - artifacts"; //$NON-NLS-1$
 		try {
-			IArtifactRepository repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			IArtifactRepository repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 			manager.addRepository(repository.getLocation());
 			return repository;
 		} catch (ProvisionException e) {

@@ -17,12 +17,12 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 
 /**
-* AbstractRepository defines common properties that may be provided by various kinds
-* of repositories.
-* <p>
-* Clients may extend this class.
-* </p>
-*/
+ * AbstractRepository defines common properties that may be provided by various kinds
+ * of repositories.
+ * <p>
+ * Clients may extend this class.
+ * </p>
+ */
 public abstract class AbstractRepository extends PlatformObject implements IRepository {
 	protected String description;
 	protected transient URL location;
@@ -32,13 +32,15 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	protected String type;
 	protected String version;
 
-	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider) {
+	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider, Map properties) {
 		this.name = name;
 		this.type = type;
 		this.version = version;
 		this.location = location;
 		this.description = description == null ? "" : description; //$NON-NLS-1$
 		this.provider = provider == null ? "" : provider; //$NON-NLS-1$
+		if (properties != null)
+			this.properties.putAll(properties);
 	}
 
 	/**

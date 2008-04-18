@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.engine;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.EventObject;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -49,9 +48,10 @@ public class MetadataCache {
 			//fall through and create a new repository
 		}
 		try {
-			IMetadataRepository repository = manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+			Map properties = new HashMap(1);
+			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			IMetadataRepository repository = manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			manager.addRepository(repository.getLocation());
-			repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			return repository;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);

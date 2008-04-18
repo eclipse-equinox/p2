@@ -25,7 +25,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	private final Collection bundleRepositories;
 
 	public AggregatedBundleRepository(Collection bundleRepositories) {
-		super(REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null); //$NON-NLS-1$
+		super(REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null, null); //$NON-NLS-1$
 		this.bundleRepositories = bundleRepositories;
 	}
 

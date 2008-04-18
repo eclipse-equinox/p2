@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -18,7 +19,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMeta
 
 public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
-	public IMetadataRepository create(URL location, String name, String type) throws ProvisionException {
+	public IMetadataRepository create(URL location, String name, String type, Map properties) throws ProvisionException {
 		return null;
 	}
 

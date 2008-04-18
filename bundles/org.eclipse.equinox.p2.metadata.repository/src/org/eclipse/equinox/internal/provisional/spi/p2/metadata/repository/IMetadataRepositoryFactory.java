@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -25,6 +26,7 @@ public interface IMetadataRepositoryFactory {
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
+	 * @param properties the properties to set on the repository
 	 * @return the newly created repository
 	 * @throws ProvisionException if the repository could not be created.  Reasons include:
 	 * <ul>
@@ -32,7 +34,7 @@ public interface IMetadataRepositoryFactory {
 	 * <li>There was an error writing to the given repository location.</li>
 	 * </ul>
 	 */
-	public IMetadataRepository create(URL location, String name, String type) throws ProvisionException;
+	public IMetadataRepository create(URL location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Loads a repository corresponding to the given URL.
