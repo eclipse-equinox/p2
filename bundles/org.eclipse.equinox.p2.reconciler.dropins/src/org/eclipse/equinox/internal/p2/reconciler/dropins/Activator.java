@@ -185,6 +185,7 @@ public class Activator implements BundleActivator {
 	 * Watch the platform.xml file.
 	 */
 	private void watchConfiguration() {
+		// TODO get the real config area
 		File configFile = new File("configuration/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
