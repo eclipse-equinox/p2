@@ -5,6 +5,8 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.core.identity,org.eclipse.ecf.core.identity"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.filetransfer,org.eclipse.ecf.filetransfer"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.provider.filetransfer,org.eclipse.ecf.provider.filetransfer"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.provider.filetransfer.ssl,org.eclipse.ecf.provider.filetransfer.ssl"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/technology,org.eclipse.ecf/plugins/org.eclipse.ecf.ssl,org.eclipse.ecf.ssl"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.jarprocessor,org.eclipse.equinox.p2.jarprocessor"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.director,org.eclipse.equinox.p2.director"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.director.app"/>
