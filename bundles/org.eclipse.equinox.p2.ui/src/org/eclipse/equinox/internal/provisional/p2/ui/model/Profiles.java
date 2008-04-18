@@ -37,10 +37,6 @@ public class Profiles extends QueriedElement {
 		return null;
 	}
 
-	protected int getQueryType() {
-		return IQueryProvider.PROFILES;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.model.IWorkbenchAdapter#getLabel(java.lang.Object)
@@ -53,8 +49,7 @@ public class Profiles extends QueriedElement {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getDefaultQueryType()
 	 */
 	protected int getDefaultQueryType() {
-		// TODO Auto-generated method stub
-		return 0;
+		return IQueryProvider.PROFILES;
 	}
 
 }

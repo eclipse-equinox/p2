@@ -25,8 +25,8 @@ public class OtherIUVersionsCollector extends QueriedElementCollector {
 
 	private IInstallableUnit iu;
 
-	public OtherIUVersionsCollector(IInstallableUnit iu, IQueryProvider queryProvider, IQueryable queryable) {
-		super(queryProvider, queryable);
+	public OtherIUVersionsCollector(IInstallableUnit iu, IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext) {
+		super(queryProvider, queryable, queryContext);
 		this.iu = iu;
 	}
 

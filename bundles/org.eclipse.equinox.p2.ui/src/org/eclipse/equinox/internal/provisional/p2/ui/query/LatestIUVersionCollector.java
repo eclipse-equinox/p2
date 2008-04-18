@@ -25,8 +25,8 @@ public class LatestIUVersionCollector extends AvailableIUCollector {
 
 	private HashMap uniqueIds = new HashMap();
 
-	public LatestIUVersionCollector(IQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
-		super(queryProvider, queryable, makeCategories);
+	public LatestIUVersionCollector(IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext, boolean makeCategories) {
+		super(queryProvider, queryable, queryContext, makeCategories);
 	}
 
 	/**

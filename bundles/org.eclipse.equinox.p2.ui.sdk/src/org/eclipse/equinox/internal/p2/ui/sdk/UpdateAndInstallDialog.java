@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.sdk.ProvPolicies;
 import org.eclipse.equinox.internal.provisional.p2.ui.sdk.RepositoryManipulationDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -56,12 +57,16 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
+	private static final int CHAR_INDENT = 5;
+	private static final int VERTICAL_MARGIN_DLU = 2;
 	private static final int DEFAULT_VIEW_TYPE = AvailableIUViewQueryContext.VIEW_BY_REPO;
 	private static final int INDEX_INSTALLED = 0;
 	private static final int INDEX_AVAILABLE = 1;
 	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
 	private static final String SELECTED_TAB_SETTING = "SelectedTab"; //$NON-NLS-1$
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
+	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
+	private static final String HIDE_INSTALLED_IUS = "HideInstalledContent"; //$NON-NLS-1$
 
 	String profileId;
 	Display display;
@@ -72,10 +77,12 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	IRepositoryManipulator repositoryManipulator;
 	ChangeViewAction viewByRepo, viewFlat, viewCategory;
 	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, revertButton, manipulateRepoButton, addRepoButton, removeRepoButton;
+	Button showInstalledCheckbox, showLatestVersionsCheckbox;
 	ProgressIndicator progressIndicator;
 	Label progressLabel;
 	IPropertyChangeListener preferenceListener;
 	IJobChangeListener progressListener;
+	StructuredViewerProvisioningListener profileListener;
 
 	private class ChangeViewAction extends Action {
 		int viewType;
@@ -156,8 +163,16 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		});
 		updatePrefsLink.setText(ProvSDKMessages.UpdateAndInstallDialog_PrefLink);
 		createProgressArea(comp);
+		initializeWidgetState();
 		Dialog.applyDialogFont(comp);
 		return comp;
+	}
+
+	private void initializeWidgetState() {
+		// Set widgets according to query context
+		showInstalledCheckbox.setSelection(!queryContext.getHideAlreadyInstalled());
+		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
+
 	}
 
 	private void createTabFolder(Composite parent) {
@@ -309,7 +324,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginTop = 0;
+		// breathing room underneath last checkboxes
+		layout.marginBottom = convertVerticalDLUsToPixels(VERTICAL_MARGIN_DLU);
+
 		composite.setLayout(layout);
 
 		// Now the available group 
@@ -318,6 +336,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// Vertical buttons
 		Composite vButtonBar = (Composite) createAvailableIUsVerticalButtonBar(composite);
 		GridData data = new GridData(GridData.FILL_VERTICAL);
+		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		vButtonBar.setLayoutData(data);
 
 		// Must be done after buttons are created so that the buttons can
@@ -327,8 +346,68 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				validateAvailableIUButtons();
 			}
 		});
+
+		// We might need to adjust the content of this viewer according to installation
+		// changes.  We want to be very selective about refreshing.
+		profileListener = new StructuredViewerProvisioningListener(availableIUGroup.getStructuredViewer(), StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, ProvSDKUIActivator.getDefault().getQueryProvider()) {
+			protected void profileAdded(String id) {
+				// do nothing
+			}
+
+			protected void profileRemoved(String id) {
+				// do nothing
+			}
+
+			protected void profileChanged(String id) {
+				if (id.equals(profileId)) {
+					display.asyncExec(new Runnable() {
+						public void run() {
+							if (isClosing())
+								return;
+							if (!showInstalledCheckbox.getSelection())
+								refreshAll();
+						}
+					});
+				}
+			}
+		};
+		ProvUI.addProvisioningListener(profileListener);
+
 		availableIUGroup.setUseBoldFontForFilteredItems(queryContext.getViewType() != AvailableIUViewQueryContext.VIEW_FLAT);
 		setDropTarget(availableIUGroup.getStructuredViewer().getControl());
+
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		gd.horizontalIndent = convertWidthInCharsToPixels(CHAR_INDENT);
+		gd.verticalIndent = convertVerticalDLUsToPixels(VERTICAL_MARGIN_DLU);
+		showLatestVersionsCheckbox = new Button(composite, SWT.CHECK);
+		showLatestVersionsCheckbox.setText(ProvSDKMessages.UpdateAndInstallDialog_ShowLatestVersionsOnly);
+		showLatestVersionsCheckbox.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+		});
+		showLatestVersionsCheckbox.setLayoutData(gd);
+
+		showInstalledCheckbox = new Button(composite, SWT.CHECK);
+		showInstalledCheckbox.setText(ProvSDKMessages.UpdateAndInstallDialog_ShowAlreadyInstalledItems);
+		showInstalledCheckbox.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+		});
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		gd.horizontalIndent = convertWidthInCharsToPixels(CHAR_INDENT);
+		showInstalledCheckbox.setLayoutData(gd);
 
 		validateAvailableIUButtons();
 		return composite;
@@ -395,9 +474,12 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		parent.setRedraw(false);
 		validateAvailableIUButtons();
 		availableIUGroup.setUseBoldFontForFilteredItems(queryContext.getViewType() != AvailableIUViewQueryContext.VIEW_FLAT);
-		// This triggers the viewer refresh
+		queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
+		if (showInstalledCheckbox.getSelection())
+			queryContext.showAlreadyInstalled();
+		else
+			queryContext.hideAlreadyInstalled(profileId);
 		availableIUGroup.setQueryContext(queryContext);
-
 		parent.layout(true);
 		parent.setRedraw(true);
 	}
@@ -434,6 +516,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// Vertical buttons
 		Composite vButtonBar = (Composite) createInstalledIUsVerticalButtonBar(composite, ProvSDKUIActivator.getDefault().getQueryProvider());
 		GridData data = new GridData(GridData.FILL_VERTICAL);
+		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		vButtonBar.setLayoutData(data);
 
 		// Must be done after buttons are created so that the buttons can
@@ -587,29 +670,44 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	}
 
 	private void readDialogSettings() {
+		if (tabFolder == null || tabFolder.isDisposed())
+			return;
+
+		// Initialize the query context using defaults and pref values
+		queryContext = new AvailableIUViewQueryContext(DEFAULT_VIEW_TYPE);
+		IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
+		queryContext.setShowLatestVersionsOnly(store.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
+		queryContext.hideAlreadyInstalled(profileId);
+
+		// Now refine it based on the dialog settings
 		IDialogSettings settings = ProvSDKUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
 		if (section != null) {
-			if (tabFolder != null && !tabFolder.isDisposed()) {
-				int tab = 0;
-				if (section.get(SELECTED_TAB_SETTING) != null)
-					tab = section.getInt(SELECTED_TAB_SETTING);
-				tabFolder.setSelection(tab);
+			// Default selected tab
+			int tab = 0;
+			if (section.get(SELECTED_TAB_SETTING) != null)
+				tab = section.getInt(SELECTED_TAB_SETTING);
+			tabFolder.setSelection(tab);
 
-				int viewType = DEFAULT_VIEW_TYPE;
-				try {
-					if (section.get(AVAILABLE_VIEW_TYPE) != null)
-						viewType = section.getInt(AVAILABLE_VIEW_TYPE);
-					queryContext = new AvailableIUViewQueryContext(viewType);
-				} catch (NumberFormatException e) {
-					// Ignore if there actually was a value that didn't parse.  
-					// We'll get a default query context below.
-				}
+			// View by...
+			try {
+				if (section.get(AVAILABLE_VIEW_TYPE) != null)
+					queryContext.setViewType(section.getInt(AVAILABLE_VIEW_TYPE));
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+				// We'll get a default query context below.
 			}
-		}
-		// If we did not find a setting for the query context, use a default
-		if (queryContext == null) {
-			queryContext = new AvailableIUViewQueryContext(DEFAULT_VIEW_TYPE);
+
+			// Show latest versions
+			if (section.get(SHOW_LATEST_VERSIONS_ONLY) != null)
+				queryContext.setShowLatestVersionsOnly(section.getBoolean(SHOW_LATEST_VERSIONS_ONLY));
+
+			// Hide installed content
+			boolean hideContent = section.getBoolean(HIDE_INSTALLED_IUS);
+			if (hideContent)
+				queryContext.hideAlreadyInstalled(profileId);
+			else
+				queryContext.showAlreadyInstalled();
 		}
 	}
 
@@ -617,6 +715,8 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		if (!tabFolder.isDisposed()) {
 			getDialogBoundsSettings().put(SELECTED_TAB_SETTING, tabFolder.getSelectionIndex());
 			getDialogBoundsSettings().put(AVAILABLE_VIEW_TYPE, queryContext.getViewType());
+			getDialogBoundsSettings().put(SHOW_LATEST_VERSIONS_ONLY, showLatestVersionsCheckbox.getSelection());
+			getDialogBoundsSettings().put(HIDE_INSTALLED_IUS, !showInstalledCheckbox.getSelection());
 		}
 	}
 
@@ -687,6 +787,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		if (progressListener != null) {
 			ProvisioningOperationRunner.removeJobChangeListener(progressListener);
 			progressListener = null;
+		}
+		if (profileListener != null) {
+			ProvUI.removeProvisioningListener(profileListener);
+			profileListener = null;
 		}
 
 	}

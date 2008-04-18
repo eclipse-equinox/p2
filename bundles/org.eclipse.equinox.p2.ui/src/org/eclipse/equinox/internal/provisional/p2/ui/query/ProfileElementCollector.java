@@ -23,8 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  */
 public class ProfileElementCollector extends QueriedElementCollector {
 
-	public ProfileElementCollector(IQueryProvider queryProvider, IProfile profile) {
-		super(queryProvider, profile);
+	public ProfileElementCollector(IQueryProvider queryProvider, IProfile profile, QueryContext queryContext) {
+		super(queryProvider, profile, queryContext);
 	}
 
 	/**

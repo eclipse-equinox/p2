@@ -22,8 +22,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  * @since 3.4
  */
 public class LatestIUVersionElementCollector extends LatestIUVersionCollector {
-	public LatestIUVersionElementCollector(IQueryProvider queryProvider, IQueryable queryable, boolean makeCategories) {
-		super(queryProvider, queryable, makeCategories);
+	public LatestIUVersionElementCollector(IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext, boolean makeCategories) {
+		super(queryProvider, queryable, queryContext, makeCategories);
 	}
 
 	protected Object makeDefaultElement(IInstallableUnit iu) {

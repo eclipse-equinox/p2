@@ -46,6 +46,9 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 
 	public ElementQueryDescriptor getQueryDescriptor(Object element, int queryType) {
 		IQueryable queryable;
+		QueryContext queryContext = null;
+		if (element instanceof QueriedElement)
+			queryContext = ((QueriedElement) element).getQueryContext();
 		boolean showLatest = ProvSDKUIActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION);
 		switch (queryType) {
 			case IQueryProvider.ARTIFACT_REPOS :
@@ -58,12 +61,38 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					}
 				});
 			case IQueryProvider.AVAILABLE_IUS :
+				// Things get more complicated if the user wants to filter out installed items. 
+				// This involves setting up a secondary query for installed content that the various
+				// collectors will use to reject content.  We can't use a compound query because the
+				// queryables are different (profile for installed content, repo for available content)
+				AvailableIUViewQueryContext availableViewQueryContext = null;
+				AvailableIUCollector availableIUCollector;
+				boolean hideInstalled = false;
+				ElementQueryDescriptor installedQueryDescriptor = null;
+				if (queryContext instanceof AvailableIUViewQueryContext) {
+					availableViewQueryContext = (AvailableIUViewQueryContext) ((QueriedElement) element).getQueryContext();
+					showLatest = availableViewQueryContext.getShowLatestVersionsOnly();
+					hideInstalled = availableViewQueryContext.getHideAlreadyInstalled();
+					String profileId = availableViewQueryContext.getInstalledProfileId();
+					if (hideInstalled && profileId != null) {
+						try {
+							IProfile profile = ProvisioningUtil.getProfile(profileId);
+							installedQueryDescriptor = new ElementQueryDescriptor(profile, new IUProfilePropertyByIdQuery(profile.getProfileId(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new Collector());
+						} catch (ProvisionException e) {
+							// just bail out, we won't try to query the installed
+							installedQueryDescriptor = null;
+						}
+					}
+				}
 
 				// Showing children of a rollback element
 				if (element instanceof RollbackRepositoryElement) {
 					Query profileIdQuery = new InstallableUnitQuery(((RollbackRepositoryElement) element).getProfileId());
 					Query rollbackIUQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_PROFILE, Boolean.toString(true));
-					return new ElementQueryDescriptor(((RollbackRepositoryElement) element).getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), new RollbackIUCollector(this, ((RollbackRepositoryElement) element).getQueryable()));
+					availableIUCollector = new RollbackIUCollector(this, ((RollbackRepositoryElement) element).getQueryable(), queryContext);
+					if (hideInstalled && installedQueryDescriptor != null)
+						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
+					return new ElementQueryDescriptor(((RollbackRepositoryElement) element).getQueryable(), new CompoundQuery(new Query[] {profileIdQuery, rollbackIUQuery}, true), availableIUCollector);
 				}
 
 				Query groupQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
@@ -77,24 +106,26 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					else
 						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
 
-					if (metaRepos.getQueryContext() != null && metaRepos.getQueryContext() instanceof AvailableIUViewQueryContext) {
-						AvailableIUViewQueryContext context = (AvailableIUViewQueryContext) metaRepos.getQueryContext();
-						if (context.getViewType() == AvailableIUViewQueryContext.VIEW_FLAT) {
-							Collector collector;
+					if (availableViewQueryContext != null) {
+						if (availableViewQueryContext.getViewType() == AvailableIUViewQueryContext.VIEW_FLAT) {
+							AvailableIUCollector collector;
 							if (showLatest)
-								collector = new LatestIUVersionElementCollector(this, queryable, true);
+								collector = new LatestIUVersionElementCollector(this, queryable, queryContext, true);
 							else
-								collector = new AvailableIUCollector(this, queryable, true);
+								collector = new AvailableIUCollector(this, queryable, queryContext, true);
+							if (hideInstalled && installedQueryDescriptor != null)
+								collector.hideInstalledIUs(installedQueryDescriptor);
 							return new ElementQueryDescriptor(queryable, groupQuery, collector);
 						}
 					}
-					// If there is no query context, assume by category
-					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, true));
+					// Assume category view if it wasn't flat or if there was no query context at all.
+					// Installed content not a concern for collecting categories
+					return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, queryContext, true));
 				}
 
-				// Showing children of a repository
+				// Showing children of a repository.  We always show categories, no concern for filtering installed content
 				if (element instanceof MetadataRepositoryElement) {
-					return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), true));
+					return new ElementQueryDescriptor(((MetadataRepositoryElement) element).getQueryable(), categoryQuery, new CategoryElementCollector(this, ((MetadataRepositoryElement) element).getQueryable(), queryContext, true));
 				}
 
 				// Showing children of categories
@@ -103,18 +134,21 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					// Will have to look at all categories and groups and from there, figure out what's left
 					Query firstPassQuery = new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false);
 					queryable = ((UncategorizedCategoryElement) element).getQueryable();
-					Collector collector = showLatest ? new LatestIUVersionElementCollector(this, queryable, false) : new AvailableIUCollector(this, queryable, false);
-					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(this, queryable, collector));
+					availableIUCollector = showLatest ? new LatestIUVersionElementCollector(this, queryable, queryContext, false) : new AvailableIUCollector(this, queryable, queryContext, false);
+					if (hideInstalled && installedQueryDescriptor != null)
+						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
+					return new ElementQueryDescriptor(queryable, firstPassQuery, new UncategorizedElementCollector(this, queryable, queryContext, availableIUCollector));
 
 				}
 				if (element instanceof CategoryElement) {
 					Query membersOfCategoryQuery = new AnyRequiredCapabilityQuery(((CategoryElement) element).getRequirements());
-					Collector collector;
 					if (showLatest)
-						collector = new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), true);
+						availableIUCollector = new LatestIUVersionElementCollector(this, ((CategoryElement) element).getQueryable(), queryContext, true);
 					else
-						collector = new AvailableIUCollector(this, ((CategoryElement) element).getQueryable(), true);
-					return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), collector);
+						availableIUCollector = new AvailableIUCollector(this, ((CategoryElement) element).getQueryable(), queryContext, true);
+					if (hideInstalled && installedQueryDescriptor != null)
+						availableIUCollector.hideInstalledIUs(installedQueryDescriptor);
+					return new ElementQueryDescriptor(((CategoryElement) element).getQueryable(), new CompoundQuery(new Query[] {new CompoundQuery(new Query[] {groupQuery, categoryQuery}, false), membersOfCategoryQuery}, true), availableIUCollector);
 				}
 				// If we are showing only the latest version, we never represent other versions as children.
 				if (element instanceof IUVersionsElement) {
@@ -125,7 +159,7 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 				IInstallableUnit[] toUpdate;
 				Collector collector;
 				if (profile != null) {
-					collector = profile.query(new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new Collector(), null);
+					collector = profile.query(new IUProfilePropertyByIdQuery(profile.getProfileId(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new Collector(), null);
 					toUpdate = (IInstallableUnit[]) collector.toArray(IInstallableUnit.class);
 				} else if (element instanceof UpdateEvent) {
 					try {
@@ -139,13 +173,13 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					return null;
 				QueryableUpdates updateQueryable = new QueryableUpdates(toUpdate);
 				if (showLatest)
-					collector = new LatestIUVersionCollector(this, updateQueryable, true);
+					collector = new LatestIUVersionCollector(this, updateQueryable, queryContext, true);
 				else
 					collector = new Collector();
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case IQueryProvider.INSTALLED_IUS :
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
-				return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile));
+				return new ElementQueryDescriptor(profile, new IUProfilePropertyByIdQuery(profile.getProfileId(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile, queryContext));
 			case IQueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;
@@ -156,14 +190,14 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 					metaRepos.setQueryable(queryable);
 				} else
 					queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
-				return new ElementQueryDescriptor(queryable, null, new MetadataRepositoryElementCollector(this));
+				return new ElementQueryDescriptor(queryable, null, new MetadataRepositoryElementCollector(this, queryContext));
 			case IQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {
 					public boolean isMatch(Object candidate) {
 						return ProvUI.getAdapter(candidate, IProfile.class) != null;
 					}
-				}, new ProfileElementCollector(this, null));
+				}, new ProfileElementCollector(this, null, queryContext));
 			default :
 				return null;
 		}

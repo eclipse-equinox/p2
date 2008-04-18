@@ -19,7 +19,6 @@ import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
@@ -134,11 +133,7 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 	protected void profileChanged(final String profileId) {
 		display.asyncExec(new Runnable() {
 			public void run() {
-				IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench.isClosing())
-					return;
-
-				if (viewer.getControl().isDisposed())
+				if (isClosing())
 					return;
 				// We want to refresh the affected profile, so we
 				// construct a profile element on this profile.
@@ -171,15 +166,12 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 		asyncRefresh();
 	}
 
-	private void asyncRefresh() {
+	protected void asyncRefresh() {
 		display.asyncExec(new Runnable() {
 			public void run() {
-				IWorkbench workbench = PlatformUI.getWorkbench();
-				if (workbench.isClosing())
+				if (isClosing())
 					return;
-				Control control = viewer.getControl();
-				if (control != null && !control.isDisposed())
-					refreshAll();
+				refreshAll();
 			}
 		});
 	}
@@ -196,5 +188,22 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 
 	public int getEventTypes() {
 		return eventTypes;
+	}
+
+	/**
+	 * Return whether the viewer is closing or shutting down.
+	 * This method should be used in async execs to ensure that
+	 * the viewer is still alive.
+	 * @return a boolean indicating whether the viewer is closing
+	 */
+	protected boolean isClosing() {
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		if (workbench.isClosing())
+			return true;
+
+		if (viewer.getControl().isDisposed())
+			return true;
+
+		return false;
 	}
 }

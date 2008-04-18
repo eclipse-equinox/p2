@@ -57,12 +57,22 @@ public abstract class QueriedElement extends ProvElement {
 		return null;
 	}
 
+	/**
+	 * Return the query type that is appropriate for this element when there
+	 * is no query context.
+	 * @return  The integer query type
+	 */
 	protected abstract int getDefaultQueryType();
 
+	/**
+	 * Return the query type that should be used for this element.
+	 * Depending on the element, the query type may take the query context
+	 * into account.  Subclasses should override this method if there are
+	 * context-dependent decisions to be made to determine the query.
+	 * @return The integer query type
+	 */
 	protected int getQueryType() {
-		if (queryContext == null)
-			return getDefaultQueryType();
-		return queryContext.getQueryType();
+		return getDefaultQueryType();
 	}
 
 	public void setQueryProvider(IQueryProvider queryProvider) {

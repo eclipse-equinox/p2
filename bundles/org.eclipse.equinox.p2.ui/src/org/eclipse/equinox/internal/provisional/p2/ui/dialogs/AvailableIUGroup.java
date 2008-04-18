@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories
 import org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.viewers.*;
@@ -140,7 +141,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		filteredTree.contentProviderSet(contentProvider);
 
 		// Input last.
-		availableIUViewer.setInput(getInput());
+		availableIUViewer.setInput(getNewInput());
 
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, getQueryProvider()) {
 			protected void repositoryAdded(final RepositoryEvent event) {
@@ -176,7 +177,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		}
 	}
 
-	Object getInput() {
+	Object getNewInput() {
 		MetadataRepositories input = new MetadataRepositories(getProvisioningContext().getMetadataRepositories());
 		input.setQueryContext(queryContext);
 		input.setQueryProvider(getQueryProvider());
@@ -184,14 +185,20 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	}
 
 	/**
-	 * Set the query context to be used to traverse the model in this view.  If the viewer has
-	 * already been created, reset the input with the new information.
-	 * @param context the query context
+	 * Set the query context to be used to traverse the model in this view.
+	 * If the viewer has been created and the input element honors the query
+	 * context, refresh the viewer.
 	 */
 	public void setQueryContext(QueryContext context) {
 		this.queryContext = context;
-		if (getStructuredViewer() != null)
-			getStructuredViewer().setInput(getInput());
+		if (getStructuredViewer() == null)
+			return;
+
+		Object input = getStructuredViewer().getInput();
+		if (input instanceof QueriedElement) {
+			((QueriedElement) input).setQueryContext(context);
+			getStructuredViewer().refresh();
+		}
 	}
 
 	public void setRepositoryRefreshFlags(int flags) {
@@ -250,8 +257,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		else
 			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, urls);
 		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
-		// Calling this will create a new input and refresh the viewer
-		setQueryContext(queryContext);
+		StructuredViewer v = getStructuredViewer();
+		if (v != null && !v.getControl().isDisposed())
+			v.setInput(getNewInput());
 	}
 
 	/*

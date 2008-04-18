@@ -38,6 +38,19 @@ public class MetadataRepositories extends RemoteQueriedElement {
 		this.metadataRepositories = metadataRepositories;
 	}
 
+	/*
+	 * Overridden to check the query context.  We might
+	 * be showing repositories, or we might be flattening the 
+	 * view to some other element
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#getQueryType()
+	 */
+	protected int getQueryType() {
+		if (queryContext == null)
+			return getDefaultQueryType();
+		return queryContext.getQueryType();
+	}
+
 	protected int getDefaultQueryType() {
 		return IQueryProvider.METADATA_REPOS;
 	}

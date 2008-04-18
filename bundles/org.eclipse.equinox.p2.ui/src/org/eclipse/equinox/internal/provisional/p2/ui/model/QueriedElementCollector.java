@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext;
 
 /**
  * Collector that assigns a query provider and the queryable
@@ -26,10 +27,12 @@ public class QueriedElementCollector extends Collector {
 
 	protected IQueryProvider queryProvider;
 	protected IQueryable queryable;
+	protected QueryContext queryContext;
 
-	public QueriedElementCollector(IQueryProvider queryProvider, IQueryable queryable) {
+	public QueriedElementCollector(IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext) {
 		this.queryProvider = queryProvider;
 		this.queryable = queryable;
+		this.queryContext = queryContext;
 	}
 
 	/**
@@ -46,6 +49,8 @@ public class QueriedElementCollector extends Collector {
 			if (!element.knowsQueryable()) {
 				element.setQueryable(queryable);
 			}
+			if (element.getQueryContext() == null)
+				element.setQueryContext(queryContext);
 		}
 		return super.accept(match);
 	}

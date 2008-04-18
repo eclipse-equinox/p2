@@ -34,8 +34,8 @@ public class UncategorizedElementCollector extends QueriedElementCollector {
 	private HashMap allOthersById = new HashMap();
 	private Collector resultCollector;
 
-	public UncategorizedElementCollector(IQueryProvider queryProvider, IQueryable queryable, Collector resultCollector) {
-		super(queryProvider, queryable);
+	public UncategorizedElementCollector(IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext, Collector resultCollector) {
+		super(queryProvider, queryable, queryContext);
 		this.resultCollector = resultCollector;
 	}
 

@@ -154,7 +154,6 @@ abstract class ProvView extends ViewPart {
 	protected void addListeners() {
 		IPreferenceStore store = ProvAdminUIActivator.getDefault().getPreferenceStore();
 		preferenceListener = new IPropertyChangeListener() {
-
 			public void propertyChange(PropertyChangeEvent event) {
 				if (getVisualProperties().contains(event.getProperty())) {
 					ProvView.this.refreshAll();
@@ -163,7 +162,6 @@ abstract class ProvView extends ViewPart {
 
 		};
 		store.addPropertyChangeListener(preferenceListener);
-
 	}
 
 	protected void removeListeners() {

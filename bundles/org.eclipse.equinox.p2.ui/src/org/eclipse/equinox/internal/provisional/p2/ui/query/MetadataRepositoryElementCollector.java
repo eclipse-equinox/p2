@@ -23,8 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  */
 public class MetadataRepositoryElementCollector extends QueriedElementCollector {
 
-	public MetadataRepositoryElementCollector(IQueryProvider queryProvider) {
-		super(queryProvider, null);
+	public MetadataRepositoryElementCollector(IQueryProvider queryProvider, QueryContext queryContext) {
+		super(queryProvider, null, queryContext);
 	}
 
 	/**

@@ -65,6 +65,8 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateAndInstallDialog_Title;
 	public static String UpdateAndInstallDialog_Properties;
 	public static String UpdateAndInstallDialog_Refresh;
+	public static String UpdateAndInstallDialog_ShowAlreadyInstalledItems;
+	public static String UpdateAndInstallDialog_ShowLatestVersionsOnly;
 	public static String UpdateAndInstallDialog_ViewByCategory;
 	public static String UpdateAndInstallDialog_ViewByName;
 	public static String UpdateAndInstallDialog_ViewBySite;

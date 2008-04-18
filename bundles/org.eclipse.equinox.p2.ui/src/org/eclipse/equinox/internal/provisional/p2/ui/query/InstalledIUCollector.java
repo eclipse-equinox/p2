@@ -24,8 +24,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  */
 public class InstalledIUCollector extends QueriedElementCollector {
 
-	public InstalledIUCollector(IQueryProvider queryProvider, IProfile profile) {
-		super(queryProvider, profile);
+	public InstalledIUCollector(IQueryProvider queryProvider, IProfile profile, QueryContext queryContext) {
+		super(queryProvider, profile, queryContext);
 	}
 
 	/**

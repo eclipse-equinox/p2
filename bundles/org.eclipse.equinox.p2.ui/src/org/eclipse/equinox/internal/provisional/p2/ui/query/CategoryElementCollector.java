@@ -31,8 +31,8 @@ public class CategoryElementCollector extends QueriedElementCollector {
 	private boolean groupUncategorized;
 	private Set referredIUs = new HashSet();
 
-	public CategoryElementCollector(IQueryProvider queryProvider, IQueryable queryable, boolean showUncategorized) {
-		super(queryProvider, queryable);
+	public CategoryElementCollector(IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext, boolean showUncategorized) {
+		super(queryProvider, queryable, queryContext);
 		this.groupUncategorized = showUncategorized;
 	}
 

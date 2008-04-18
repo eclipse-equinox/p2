@@ -23,8 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  */
 public class RollbackIUCollector extends AvailableIUCollector {
 
-	public RollbackIUCollector(IQueryProvider queryProvider, IQueryable queryable) {
-		super(queryProvider, queryable, false);
+	public RollbackIUCollector(IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext) {
+		super(queryProvider, queryable, queryContext, false);
 	}
 
 	protected Object makeDefaultElement(IInstallableUnit iu) {
