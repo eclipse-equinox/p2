@@ -12,7 +12,6 @@ package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
@@ -37,24 +36,81 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		return new TestSuite(UpdateSiteTest.class);
 	}
 
-	public void testBadDigest() {
-		// TODO test the case where we have a site which contains a bad digest file
-		// and default to a good site.xml
+	public void testGoodDigest() {
+		File site = getTestData("0.1", "/testData/updatesite/digest");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
 
-		// TODO test the case where we have a site which contains a bad digest file
-		// and try default to a site.xml but it is bad too
-
+		try {
+			updatesite.loadFeatures();
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
 	}
 
-	public void testGoodDigest() {
-		// TODO handle the case where we have a site with a good digest file
+	/*
+	 * Test in which we load an update site from a valid site.xml file. Handle
+	 * all the variations in the file.
+	 */
+	public void testNoDigestGoodSite() {
+		File site = getTestData("0.1", "/testData/updatesite/site");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			updatesite.loadFeatures();
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testBadDigestGoodSite() {
+		File site = getTestData("0.1", "/testData/updatesite/baddigestgoodsite");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			updatesite.loadFeatures();
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testBadDigestBadSite() {
+		File site = getTestData("0.1", "/testData/updatesite/baddigestbadsite");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			fail("0.2");
+		} catch (ProvisionException e) {
+			// expected
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
 	}
 
 	public void testBadSiteXML() {
 		// handle the case where the site.xml doesn't parse correctly
 		File site = getTestData("0.1", "/testData/updatesite/badSiteXML");
+		UpdateSite updatesite = null;
 		try {
-			UpdateSite.load(site.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected exception
@@ -70,19 +126,17 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		// ensure we have a validate, empty location
 		File temp = getTempFolder();
 		temp.mkdirs();
-		URL location = null;
 		try {
-			location = temp.toURL();
-		} catch (MalformedURLException e) {
-			fail("0.1", e);
-		}
-		try {
-			UpdateSite.load(location, getMonitor());
+			UpdateSite.load(temp.toURL(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// we expect an exception
+		} catch (MalformedURLException e) {
+			fail("0.1", e);
 		}
+	}
 
+	public void testNullSite() {
 		try {
 			assertNull("1.0", UpdateSite.load(null, getMonitor()));
 		} catch (ProvisionException e) {
@@ -90,24 +144,93 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
-	/*
-	 * Test in which we load an update site from a valid site.xml file. Handle
-	 * all the variations in the file.
-	 */
-	public void testSite() {
-		File siteLocation = getTestData("0.1", "/testData/updatesite/site");
-		UpdateSite site = null;
+	public void testBadFeatureURL() {
+		File site = getTestData("0.1", "/testData/updatesite/badfeatureurl");
+		UpdateSite updatesite = null;
 		try {
-			site = UpdateSite.load(siteLocation.toURL(), getMonitor());
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
 		} catch (ProvisionException e) {
 			fail("0.2", e);
 		} catch (MalformedURLException e) {
 			fail("0.3", e);
 		}
 		try {
-			site.loadFeatures();
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(0, featureCount);
 		} catch (ProvisionException e) {
-			fail("0.4", e);
+			fail("0.5");
+		}
+	}
+
+	public void testGoodFeatureURL() {
+		File site = getTestData("0.1", "/testData/updatesite/goodfeatureurl");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.5");
+		}
+	}
+
+	public void testIncludedFeature() {
+		File site = getTestData("0.1", "/testData/updatesite/includedfeature");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(2, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.5");
+		}
+	}
+
+	public void testIncludedFeatureArchive() {
+		File site = getTestData("0.1", "/testData/updatesite/includedfeaturearchive");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(2, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.5");
+		}
+	}
+
+	public void testBadIncludedFeatureArchive() {
+		File site = getTestData("0.1", "/testData/updatesite/badincludedfeaturearchive");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.5");
 		}
 	}
 

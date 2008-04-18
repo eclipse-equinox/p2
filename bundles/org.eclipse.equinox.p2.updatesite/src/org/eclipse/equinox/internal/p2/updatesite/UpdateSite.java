@@ -206,10 +206,17 @@ public class UpdateSite {
 			URL url = siteFeature.getURL();
 			if (url != null)
 				return url;
-			url = getArchiveURL(base, id);
+
+			String urlString = siteFeature.getURLString();
+			url = internalGetURL(base, urlString);
 			if (url != null)
 				return url;
 		}
+
+		URL url = getArchiveURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
+		if (url != null)
+			return url;
+
 		// fall through to default URL
 		try {
 			return getFileURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
@@ -366,30 +373,26 @@ public class UpdateSite {
 			String key = entry.getId() + VERSION_SEPARATOR + entry.getVersion();
 			if (featureCache.containsKey(key))
 				continue;
-			URL featureURL = null;
+
+			URL includedFeatureURL = getFeatureURL(null, entry.getId(), entry.getVersion());
+			Feature includedFeature = null;
 			try {
-				featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
-				Feature includedFeature = null;
+				includedFeature = parseFeature(featureParser, includedFeatureURL);
+			} catch (IOException e) {
+				// try twice to get each feature in the site since we get
+				// communication errors occur periodically and this just helps the likelihood
+				// of finding the features that are available
 				try {
-					includedFeature = parseFeature(featureParser, featureURL);
-				} catch (IOException e) {
-					// try twice to get each feature in the site since we get
-					// communication errors occur periodically and this just helps the likelihood
-					// of finding the features that are available
-					try {
-						includedFeature = parseFeature(featureParser, featureURL);
-					} catch (IOException e1) {
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e1));
-					}
+					includedFeature = parseFeature(featureParser, includedFeatureURL);
+				} catch (IOException e1) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, includedFeatureURL), e1));
 				}
-				if (feature == null) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
-				} else {
-					featureCache.put(key, includedFeature);
-					loadIncludedFeatures(includedFeature, featureParser);
-				}
-			} catch (MalformedURLException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, entry.getId()), e));
+			}
+			if (includedFeature == null) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, includedFeatureURL)));
+			} else {
+				featureCache.put(key, includedFeature);
+				loadIncludedFeatures(includedFeature, featureParser);
 			}
 		}
 	}
