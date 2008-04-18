@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.director;
 
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
 
 /**
  * A query that searches for {@link IInstallableUnit} instances that have
@@ -22,6 +23,9 @@ public class IUProfilePropertyQuery extends IUPropertyQuery {
 
 	/**
 	 * Creates a new query on the given property name and value.
+	 * Because the queryable for this query is typically the profile
+	 * instance, we use a reference to the profile rather than the
+	 * profile id for performance reasons.
 	 */
 	public IUProfilePropertyQuery(IProfile profile, String propertyName, String propertyValue) {
 		super(propertyName, propertyValue);
