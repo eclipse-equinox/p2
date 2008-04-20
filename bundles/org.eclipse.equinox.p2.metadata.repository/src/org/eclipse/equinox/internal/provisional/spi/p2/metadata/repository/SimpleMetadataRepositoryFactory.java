@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
@@ -28,10 +27,10 @@ public class SimpleMetadataRepositoryFactory implements IMetadataRepositoryFacto
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
-	public IMetadataRepository create(URL location, String name, String type, Map properties) {
+	public IMetadataRepository create(URL location, String name, String type) {
 		if (location.getProtocol().equals("file")) //$NON-NLS-1$
-			return new LocalMetadataRepository(location, name, properties);
-		return new URLMetadataRepository(location, name, properties);
+			return new LocalMetadataRepository(location, name);
+		return new URLMetadataRepository(location, name);
 	}
 
 	/**

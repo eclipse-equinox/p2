@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.provisional.p2.metadata.query;
+package org.eclipse.equinox.internal.provisional.p2.director;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
@@ -37,7 +37,7 @@ public class IUPropertyQuery extends Query {
 			return false;
 		IInstallableUnit candidate = (IInstallableUnit) object;
 		String value = getProperty(candidate, propertyName);
-		if (value != null && value.equals(propertyValue))
+		if (value != null && (value.equals(propertyValue) || propertyValue == null))
 			return true;
 		return false;
 	}

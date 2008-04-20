@@ -13,8 +13,6 @@ package org.eclipse.equinox.internal.p2.metadata.generator;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -120,14 +118,12 @@ public class EclipseGeneratorApplication implements IApplication {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = artifactRepoName != null ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
-		Map properties = new HashMap(1);
-		properties.put(IRepository.PROP_COMPRESSED, compress);
-		if (provider.reuseExistingPack200Files())
-			properties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, Boolean.TRUE.toString());
-		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		manager.addRepository(result.getLocation());
 		provider.setArtifactRepository(result);
-		// TODO is this needed?
+		result.setProperty(IRepository.PROP_COMPRESSED, compress);
+		if (provider.reuseExistingPack200Files())
+			result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
 		if (artifactRepoName != null)
 			result.setName(artifactRepoName);
 	}
@@ -174,14 +170,14 @@ public class EclipseGeneratorApplication implements IApplication {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = metadataRepoName == null ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
-		Map properties = new HashMap(1);
-		properties.put(IRepository.PROP_COMPRESSED, compress);
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		manager.addRepository(result.getLocation());
-		// TODO is this needed?
-		if (metadataRepoName != null)
-			result.setName(metadataRepoName);
-		provider.setMetadataRepository(result);
+		if (result != null) {
+			result.setProperty(IRepository.PROP_COMPRESSED, compress);
+			if (metadataRepoName != null)
+				result.setName(metadataRepoName);
+			provider.setMetadataRepository(result);
+		}
 	}
 
 	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {

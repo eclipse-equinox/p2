@@ -14,7 +14,7 @@ import org.eclipse.osgi.util.NLS;
 
 public final class Messages extends NLS {
 
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.metadata.generator.features.messages";//$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.update.internal.core.messages";//$NON-NLS-1$
 
 	public static String DefaultFeatureParser_IdOrVersionInvalid;
 	public static String DefaultSiteParser_NoSiteTag;

@@ -65,7 +65,7 @@ public class TestArtifactRepository extends AbstractArtifactRepository {
 	};
 
 	public TestArtifactRepository() {
-		super(NAME, TYPE, VERSION, null, DESCRIPTION, PROVIDER, null);
+		super(NAME, TYPE, VERSION, null, DESCRIPTION, PROVIDER);
 	}
 
 	public void addArtifact(IArtifactKey key, byte[] contents) {

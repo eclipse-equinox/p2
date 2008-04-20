@@ -46,7 +46,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public TestMetadataRepository(IInstallableUnit[] ius) {
-		super(NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER, null);
+		super(NAME, TYPE, VERSION, createLocation(), DESCRIPTION, PROVIDER);
 		units.addAll(Arrays.asList(ius));
 	}
 

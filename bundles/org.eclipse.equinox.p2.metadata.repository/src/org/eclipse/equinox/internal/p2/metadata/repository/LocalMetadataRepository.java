@@ -68,8 +68,8 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	 * @param location The location of the repository
 	 * @param name The name of the repository
 	 */
-	public LocalMetadataRepository(URL location, String name, Map properties) {
-		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties); //$NON-NLS-1$
+	public LocalMetadataRepository(URL location, String name) {
+		super(name == null ? (location != null ? location.toExternalForm() : "") : name, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null); //$NON-NLS-1$
 		if (!location.getProtocol().equals("file")) //$NON-NLS-1$
 			throw new IllegalArgumentException("Invalid local repository location: " + location); //$NON-NLS-1$
 		//when creating a repository, we must ensure it exists on disk so a subsequent load will succeed

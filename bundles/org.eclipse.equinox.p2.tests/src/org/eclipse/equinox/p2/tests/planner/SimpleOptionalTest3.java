@@ -42,6 +42,7 @@ public class SimpleOptionalTest3 extends AbstractProvisioningTest {
 		d1 = createIU("D", new Version("1.0.0"), true);
 		d2 = createIU("D", new Version("2.0.0"), true);
 
+		//B's dependency is missing
 		RequiredCapability[] reqA = new RequiredCapability[3];
 		reqA[0] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, true, false, true);
 		reqA[1] = MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "C", VersionRange.emptyRange, null, false, false, true);
@@ -59,7 +60,7 @@ public class SimpleOptionalTest3 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallation() {
-		//Ensure that A and X1's installation does not fail because of C's absence
+		//Ensure that D's installation does not fail because of C's absence
 		ProfileChangeRequest req = new ProfileChangeRequest(profile);
 		req.addInstallableUnits(new IInstallableUnit[] {a1, x1});
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);

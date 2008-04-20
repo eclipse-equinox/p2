@@ -674,7 +674,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
 				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
-				if (iu.equals(iuOp.second()))
+				if (iuOp.second().equals(iu))
 					return;
 			}
 		}
