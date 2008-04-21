@@ -153,7 +153,7 @@ public class MetadataRepositoryIO {
 		public synchronized void parse(InputStream stream, IProgressMonitor monitor) throws IOException {
 			this.status = null;
 			setProgressMonitor(monitor);
-			monitor.beginTask(Messages.REPO_LOADING, IProgressMonitor.UNKNOWN);
+			monitor.beginTask(Messages.repo_loading, IProgressMonitor.UNKNOWN);
 			try {
 				// TODO: currently not caching the parser since we make no assumptions
 				//		 or restrictions on concurrent parsing

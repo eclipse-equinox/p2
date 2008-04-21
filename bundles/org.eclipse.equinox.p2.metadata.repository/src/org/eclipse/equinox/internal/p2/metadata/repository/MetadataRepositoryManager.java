@@ -364,7 +364,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		if (checkNotFound(location))
 			throw new ProvisionException(notFoundStatus);
 		String[] suffixes = getAllSuffixes();
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPOMGR_ADDING_REPO, suffixes.length * 100);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.repoMan_adding, suffixes.length * 100);
 		try {
 			for (int i = 0; i < suffixes.length; i++) {
 				result = loadRepository(location, suffixes[i], sub.newChild(100), notFoundStatus);
@@ -633,7 +633,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		if (result != null)
 			return Status.OK_STATUS;
 		String[] suffixes = getAllSuffixes();
-		SubMonitor sub = SubMonitor.convert(monitor, Messages.REPO_LOADING, suffixes.length * 100);
+		SubMonitor sub = SubMonitor.convert(monitor, Messages.repo_loading, suffixes.length * 100);
 		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
 		for (int i = 0; i < suffixes.length; i++) {
 			SubMonitor loopMonitor = sub.newChild(100);
