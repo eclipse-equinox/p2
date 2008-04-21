@@ -215,7 +215,7 @@ public class FeatureParser extends DefaultHandler {
 		//ignore discovery sites of type 'web'
 		if ("web".equals(attributes.getValue("type"))) //$NON-NLS-1$ //$NON-NLS-2$
 			return;
-		result.addDiscoverySite(attributes.getValue("url"), attributes.getValue("label")); //$NON-NLS-1$ //$NON-NLS-2$
+		result.addDiscoverySite(attributes.getValue("label"), attributes.getValue("url")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	protected void processFeature(Attributes attributes) {
