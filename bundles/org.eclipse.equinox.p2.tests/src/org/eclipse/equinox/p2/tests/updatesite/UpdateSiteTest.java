@@ -49,10 +49,15 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 
 		try {
-			updatesite.loadFeatures();
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
 		}
+	}
+
+	public void testGoodDigestURL() {
+		// TODO: write a test that uses the site's digestURL to find the digest.zip location
 	}
 
 	/*
