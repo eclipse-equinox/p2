@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.update;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /*
  * Represents a site in a platform.xml file.
@@ -27,7 +26,7 @@ public class Site {
 	private boolean updateable = true;
 	private String url;
 	private String linkFile;
-	private List features = new ArrayList();
+	private Collection features = new HashSet();
 	private List list = new ArrayList();
 
 	public void addFeature(Feature feature) {
@@ -43,11 +42,11 @@ public class Site {
 	}
 
 	public Feature removeFeature(String featureURL) {
-		for (int i = 0; i < features.size(); i++) {
-			String nextURL = ((Feature) features.get(i)).getUrl();
-			if (nextURL != null && nextURL.equals(featureURL)) {
-				return (Feature) features.remove(i);
-			}
+		for (Iterator iter = features.iterator(); iter.hasNext();) {
+			Feature feature = (Feature) iter.next();
+			String nextURL = feature.getUrl();
+			if (nextURL != null && nextURL.equals(featureURL))
+				return features.remove(feature) ? feature : null;
 		}
 		return null;
 	}
