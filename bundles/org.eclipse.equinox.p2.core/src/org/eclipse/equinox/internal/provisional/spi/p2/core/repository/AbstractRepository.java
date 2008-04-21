@@ -17,12 +17,12 @@ import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 
 /**
- * AbstractRepository defines common properties that may be provided by various kinds
- * of repositories.
- * <p>
- * Clients may extend this class.
- * </p>
- */
+* AbstractRepository defines common properties that may be provided by various kinds
+* of repositories.
+* <p>
+* Clients may extend this class.
+* </p>
+*/
 public abstract class AbstractRepository extends PlatformObject implements IRepository {
 	protected String description;
 	protected transient URL location;
@@ -50,7 +50,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 */
 	protected void assertModifiable() {
 		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable"); //$NON-NLS-1$
+			throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
 	/**
