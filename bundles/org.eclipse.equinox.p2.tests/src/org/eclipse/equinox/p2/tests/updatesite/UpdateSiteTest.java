@@ -12,6 +12,7 @@ package org.eclipse.equinox.p2.tests.updatesite;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
@@ -69,7 +70,45 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("0.3", e);
 		}
 		try {
-			updatesite.loadFeatures();
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testNoEndingSlashURL() {
+		File base = getTestData("0.1", "/testData/updatesite");
+		UpdateSite updatesite = null;
+		try {
+			URL siteURL = new URL(base.toURL(), "site");
+			updatesite = UpdateSite.load(siteURL, getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testSiteXMLURL() {
+		File site = getTestData("0.1", "/testData/updatesite/site/site.xml");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.4", e);
 		}

@@ -108,7 +108,7 @@ public class UpdateSite {
 			input = new CheckedInputStream(new BufferedInputStream(input), checksum);
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
-			result = new UpdateSite(siteModel, location, checksumString);
+			result = new UpdateSite(siteModel, getSiteURL(location), checksumString);
 			siteCache.put(location.toExternalForm(), result);
 			return result;
 		} catch (SAXException e) {
