@@ -13,7 +13,7 @@
    <configIni use="custom" path="/org.eclipse.equinox.p2.installer/config.ini"/>
 
    <launcherArgs>
-      <vmArgs>-Dorg.eclipse.equinox.p2.installDescription=http://update.eclipse.org/testUpdates/sdk-installer.properties</vmArgs>
+      <vmArgs>-Dorg.eclipse.equinox.p2.installDescription=http://download.eclipse.org/eclipse/testUpdates/sdk-installer.properties</vmArgs>
    </launcherArgs>
 
    <windowImages/>
