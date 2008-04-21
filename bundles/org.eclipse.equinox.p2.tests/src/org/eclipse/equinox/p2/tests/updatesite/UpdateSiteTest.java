@@ -138,9 +138,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 
 	public void testBadDigestBadSite() {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestbadsite");
-		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			UpdateSite.load(site.toURL(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected
@@ -152,9 +151,8 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 	public void testBadSiteXML() {
 		// handle the case where the site.xml doesn't parse correctly
 		File site = getTestData("0.1", "/testData/updatesite/badSiteXML");
-		UpdateSite updatesite = null;
 		try {
-			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			UpdateSite.load(site.toURL(), getMonitor());
 			fail("0.2");
 		} catch (ProvisionException e) {
 			// expected exception
