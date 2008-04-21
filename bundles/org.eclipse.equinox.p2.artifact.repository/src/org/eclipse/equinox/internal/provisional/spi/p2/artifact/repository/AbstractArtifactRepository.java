@@ -48,28 +48,23 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 	}
 
 	public void addDescriptor(IArtifactDescriptor descriptor) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void removeDescriptor(IArtifactKey key) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void removeAll() {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public boolean equals(Object o) {
