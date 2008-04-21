@@ -38,6 +38,7 @@ public class Projector {
 	private Map variables; //key IU, value corresponding variable in the problem
 	private Map noopVariables; //key IU, value corresponding no optionality variable in the problem, 
 	private List abstractVariables;
+	private Set bestMatchForOptionality;
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
@@ -65,6 +66,7 @@ public class Projector {
 		dependencies = new ArrayList();
 		selectionContext = context;
 		abstractVariables = new ArrayList();
+		bestMatchForOptionality = new HashSet();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
@@ -97,7 +99,8 @@ public class Projector {
 
 	//Create an optimization function favoring the highest version of each IU  
 	private void createOptimizationFunction() {
-		objective = new StringBuffer("min:"); //$NON-NLS-1$
+		final String MIN = "min:"; //$NON-NLS-1$
+		objective = new StringBuffer(MIN);
 		Set s = slice.entrySet();
 
 		//Add the abstract variables
@@ -115,14 +118,22 @@ public class Projector {
 			List toSort = new ArrayList(conflictingEntries.values());
 			Collections.sort(toSort);
 			double weight = Math.pow(10, toSort.size() - 1);
-			int count = toSort.size();
+			toSort.remove(toSort.size() - 1);
 			for (Iterator iterator2 = toSort.iterator(); iterator2.hasNext();) {
-				count--;
-				objective.append(' ').append((int) weight).append(' ').append(getVariable((IInstallableUnit) iterator2.next()));
+				IInstallableUnit current = (IInstallableUnit) iterator2.next();
+				if (!bestMatchForOptionality.contains(current))
+					objective.append(' ').append((int) weight).append(' ').append(getVariable(current));
 				weight = weight / 10;
 			}
 		}
-		objective.append(" ;"); //$NON-NLS-1$
+		//for (Iterator iterator = noopVariables.entrySet().iterator(); iterator.hasNext();) {
+		//	Map.Entry entry = (Map.Entry) iterator.next();
+		//	objective.append(' ').append(10000).append(' ').append((String) entry.getValue());
+		//}
+		if (objective.length() == MIN.length())
+			objective = new StringBuffer();
+		else
+			objective.append(" ;"); //$NON-NLS-1$
 	}
 
 	private void createMustHaves(IInstallableUnit iu) {
@@ -156,6 +167,20 @@ public class Projector {
 			w.newLine();
 			w.write("*"); //$NON-NLS-1$
 			w.newLine();
+
+			//Store variable correspondance in the file to ease debugging
+			for (Iterator iterator = variables.entrySet().iterator(); iterator.hasNext();) {
+				Map.Entry entry = (Map.Entry) iterator.next();
+				w.write("* " + (String) entry.getValue() + " " + ((IInstallableUnit) entry.getKey()).getId() + " " + ((IInstallableUnit) entry.getKey()).getVersion()); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				w.newLine();
+			}
+			w.write("* noop variables"); //$NON-NLS-1$
+			w.newLine();
+			for (Iterator iterator = noopVariables.entrySet().iterator(); iterator.hasNext();) {
+				Map.Entry entry = (Map.Entry) iterator.next();
+				w.write("* " + (String) entry.getValue() + " " + ((IInstallableUnit) entry.getKey()).getId()); //$NON-NLS-1$//$NON-NLS-2$
+				w.newLine();
+			}
 
 			if (clauseCount == 0) {
 				w.close();
@@ -237,13 +262,16 @@ public class Projector {
 			optionalityExpression = " -1 " + getVariable(iu) + " 1 " + getNoOptionalVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
 
 		int countMatches = 0;
+		Map bestMatches = new HashMap();
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (!isApplicable(match))
 				continue;
 			countMatches++;
+			addBestMatch(bestMatches, match);
 			expression += " 1 " + getVariable(match); //$NON-NLS-1$
 		}
+		manageBestMatch(bestMatches);
 		countOptionalIUs += countMatches;
 		if (countMatches > 0) {
 			dependencies.add(" -1 " + getNoOptionalVariable(iu) + " -1 " + abstractVar + " >= -1;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -253,6 +281,16 @@ public class Projector {
 
 		if (DEBUG)
 			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
+	}
+
+	private void addBestMatch(Map bestMatches, IInstallableUnit candidate) {
+		IInstallableUnit current = (IInstallableUnit) bestMatches.get(candidate.getId());
+		if (current == null || (current != null && candidate.getVersion().compareTo(current.getVersion()) < 0))
+			bestMatches.put(candidate.getId(), candidate);
+	}
+
+	private void manageBestMatch(Map bestMatches) {
+		bestMatchForOptionality.addAll(bestMatches.values());
 	}
 
 	private void expandNormalRequirement(IInstallableUnit iu, RequiredCapability req) {
