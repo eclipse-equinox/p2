@@ -234,6 +234,24 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testNoFeatureIdAndVersion() {
+		File site = getTestData("0.1", "/testData/updatesite/nofeatureidandversion");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(2, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.5");
+		}
+	}
+
 	public void testMirrors() {
 		// TODO test the case where the site.xml points to a mirror location
 	}

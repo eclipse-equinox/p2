@@ -335,9 +335,12 @@ public class UpdateSite {
 		FeatureParser featureParser = new FeatureParser();
 		for (int i = 0; i < siteFeatures.length; i++) {
 			SiteFeature siteFeature = siteFeatures[i];
-			String key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
-			if (featureCache.containsKey(key))
-				continue;
+			String key = null;
+			if (siteFeature.getFeatureIdentifier() != null && siteFeature.getFeatureVersion() != null) {
+				key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
+				if (featureCache.containsKey(key))
+					continue;
+			}
 			URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
 			Feature feature = null;
 			try {
@@ -354,6 +357,11 @@ public class UpdateSite {
 			if (feature == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
 			} else {
+				if (key == null) {
+					siteFeature.setFeatureIdentifier(feature.getId());
+					siteFeature.setFeatureVersion(feature.getVersion());
+					key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
+				}
 				featureCache.put(key, feature);
 				loadIncludedFeatures(feature, featureParser);
 			}

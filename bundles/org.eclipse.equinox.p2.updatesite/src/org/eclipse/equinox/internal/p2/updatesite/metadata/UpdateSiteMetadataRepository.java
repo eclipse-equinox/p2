@@ -99,6 +99,11 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 	private void generateMetadata(UpdateSite updateSite) throws ProvisionException {
 		SiteModel siteModel = updateSite.getSite();
+
+		// we load the features here to ensure that all site features are fully populated with
+		// id and version information before looking at category information
+		Feature[] features = updateSite.loadFeatures();
+
 		SiteCategory[] siteCategories = siteModel.getCategories();
 		Map categoryNameToFeatureIUs = new HashMap();
 		for (int i = 0; i < siteCategories.length; i++)
@@ -112,7 +117,6 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			featureKeyToCategoryNames.put(featureKey, siteFeature.getCategoryNames());
 		}
 
-		Feature[] features = updateSite.loadFeatures();
 		Properties extraProperties = new Properties();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 		Set allSiteIUs = new HashSet();
