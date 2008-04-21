@@ -129,6 +129,6 @@ public class Feature {
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return super.hashCode();
+		return id.hashCode() + version.hashCode();
 	}
 }
