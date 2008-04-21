@@ -37,7 +37,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		return new TestSuite(UpdateSiteTest.class);
 	}
 
-	public void testGoodDigest() {
+	public void testDefaultDigestURL() {
 		File site = getTestData("0.1", "/testData/updatesite/digest");
 		UpdateSite updatesite = null;
 		try {
@@ -56,8 +56,44 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
-	public void testGoodDigestURL() {
-		// TODO: write a test that uses the site's digestURL to find the digest.zip location
+	public void testRelativeDigestURL() {
+		File site = getTestData("0.1", "/testData/updatesite/digesturl");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testAbsoluteDigestURL() {
+		File site = getTestData("0.1", "/testData/updatesite/digesturl2");
+		File digestDirectory = getTestData("0.1", "/testData/updatesite/digesturl/digesturl/");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite.getSite().setDigestURLString(digestDirectory.toURL().toExternalForm());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
 	}
 
 	/*

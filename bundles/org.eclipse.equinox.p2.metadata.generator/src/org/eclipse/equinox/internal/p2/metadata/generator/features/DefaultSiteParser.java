@@ -753,10 +753,11 @@ public class DefaultSiteParser extends DefaultHandler {
 			site.setSupportsPack200(true);
 		}
 
-		//		if (attributes.getValue("digestURL") != null) { //$NON-NLS-1$
-		//			site.setDigestExist(true);
-		//			site.setDigestURL(attributes.getValue("digestURL")); //$NON-NLS-1$
-		//
+		String digestURL = attributes.getValue("digestURL");
+		if (digestURL != null)
+			site.setDigestURLString(digestURL);
+
+		// TODO: Digest locales
 		//			if ((attributes.getValue("availableLocales") != null) && (!attributes.getValue("availableLocales").trim().equals(""))) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		//				StringTokenizer locals = new StringTokenizer(attributes.getValue("availableLocales"), ","); //$NON-NLS-1$//$NON-NLS-2$
 		//				String[] availableLocals = new String[locals.countTokens()];

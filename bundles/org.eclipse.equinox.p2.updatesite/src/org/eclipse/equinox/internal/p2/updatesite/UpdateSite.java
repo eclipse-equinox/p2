@@ -295,7 +295,7 @@ public class UpdateSite {
 		if (!featureCache.isEmpty())
 			return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
 		try {
-			URL digestURL = getFileURL(location, "digest.zip"); //$NON-NLS-1$
+			URL digestURL = getDigestURL();
 			File digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 			try {
 				FileUtils.copyStream(digestURL.openStream(), true, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
@@ -324,6 +324,15 @@ public class UpdateSite {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		}
 		return null;
+	}
+
+	private URL getDigestURL() throws MalformedURLException {
+		URL digestBase = location;
+		String digestURLString = site.getDigestURLString();
+		if (digestURLString != null)
+			digestBase = internalGetURL(location, digestURLString);
+
+		return getFileURL(digestBase, "digest.zip"); //$NON-NLS-1$
 	}
 
 	/*
