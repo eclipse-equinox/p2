@@ -21,6 +21,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(AddIUProperty.class);
 		suite.addTestSuite(AllOptional.class);
+		suite.addTestSuite(AllOrbit.class);
 		suite.addTestSuite(AnotherSingleton.class);
 		suite.addTestSuite(Bug207319.class);
 		suite.addTestSuite(DependencyOnSelf.class);
@@ -47,7 +48,9 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SimpleOptionalTest.class);
 		suite.addTestSuite(SimpleOptionalTest2.class);
 		suite.addTestSuite(SimpleOptionalTest3.class);
+		suite.addTestSuite(SimpleOptionalTest4.class);
 		suite.addTestSuite(SimpleSingleton.class);
+		suite.addTestSuite(TwoVersionsOfWSDL.class);
 		suite.addTestSuite(UninstallEverything.class);
 		return suite;
 	}
