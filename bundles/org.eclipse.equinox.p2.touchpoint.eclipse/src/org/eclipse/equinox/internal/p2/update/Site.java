@@ -41,6 +41,24 @@ public class Site {
 		return (Feature[]) features.toArray(new Feature[features.size()]);
 	}
 
+	/*
+	 * Return the feature object with the specific id and version. Return null 
+	 * if there is no match or the id is null. If the version is null then return the
+	 * first feature with a matching id.
+	 */
+	public Feature getFeature(String id, String version) {
+		if (id == null)
+			return null;
+		for (Iterator iter = features.iterator(); iter.hasNext();) {
+			Feature feature = (Feature) iter.next();
+			if (id.equals(feature.getId())) {
+				if (version == null || version.equals(feature.getVersion()))
+					return feature;
+			}
+		}
+		return null;
+	}
+
 	public Feature removeFeature(String featureURL) {
 		for (Iterator iter = features.iterator(); iter.hasNext();) {
 			Feature feature = (Feature) iter.next();

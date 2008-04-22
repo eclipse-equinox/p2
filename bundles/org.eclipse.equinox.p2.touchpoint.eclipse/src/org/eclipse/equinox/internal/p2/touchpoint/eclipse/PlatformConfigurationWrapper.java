@@ -91,18 +91,32 @@ public class PlatformConfigurationWrapper {
 
 		poolSite = getSite(poolURL);
 		if (poolSite == null) {
-			poolSite = createSite(poolURL);
+			poolSite = createSite(poolURL, getDefaultPolicy());
 			configuration.add(poolSite);
 		}
 	}
 
 	/*
+	 * Return the default policy to use when creating a new site. If there are
+	 * any sites with the MANAGED-ONLY policy, then that is the default.
+	 * Otherwise the default is USER-EXCLUDE.
+	 */
+	private String getDefaultPolicy() {
+		for (Iterator iter = configuration.getSites().iterator(); iter.hasNext();) {
+			Site site = (Site) iter.next();
+			if (Site.POLICY_MANAGED_ONLY.equals(site.getPolicy()))
+				return Site.POLICY_MANAGED_ONLY;
+		}
+		return Site.POLICY_USER_EXCLUDE;
+	}
+
+	/*
 	 * Create and return a site object based on the given location.
 	 */
-	private Site createSite(URL location) {
+	private Site createSite(URL location, String policy) {
 		Site result = new Site();
 		result.setUrl(location.toExternalForm());
-		result.setPolicy(Site.POLICY_MANAGED_ONLY);
+		result.setPolicy(policy);
 		result.setEnabled(true);
 		return result;
 	}
@@ -163,8 +177,12 @@ public class PlatformConfigurationWrapper {
 		}
 		Site site = getSite(fileURL);
 		if (site == null) {
-			site = createSite(fileURL);
+			site = createSite(fileURL, getDefaultPolicy());
 			configuration.add(site);
+		} else {
+			// check to see if the feature already exists in this site
+			if (site.getFeature(id, version) != null)
+				return Status.OK_STATUS;
 		}
 		Feature addedFeature = new Feature(site);
 		addedFeature.setId(id);
