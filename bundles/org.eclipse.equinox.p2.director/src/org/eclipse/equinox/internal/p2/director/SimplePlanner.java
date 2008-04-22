@@ -43,8 +43,8 @@ public class SimplePlanner implements IPlanner {
 		return profileRegistry.getProfile(profileId);
 	}
 
-	private ProvisioningPlan generateProvisioningPlan(IStatus status, Collection fromState, Collection toState, List fromStateOrder, List newStateOrder, ProfileChangeRequest changeRequest) {
-		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState, fromStateOrder, newStateOrder);
+	private ProvisioningPlan generateProvisioningPlan(IStatus status, Collection fromState, Collection toState, ProfileChangeRequest changeRequest) {
+		InstallableUnitOperand[] iuOperands = generateOperations(fromState, toState);
 		PropertyOperand[] propertyOperands = generatePropertyOperations(changeRequest);
 
 		Operand[] operands = new Operand[iuOperands.length + propertyOperands.length];
@@ -105,39 +105,8 @@ public class SimplePlanner implements IPlanner {
 		return (PropertyOperand[]) operands.toArray(new PropertyOperand[operands.size()]);
 	}
 
-	private InstallableUnitOperand[] generateOperations(Collection fromState, Collection toState, List fromStateOrder, List newStateOrder) {
-		return sortOperations(new OperationGenerator().generateOperation(fromState, toState), newStateOrder, fromStateOrder);
-	}
-
-	private InstallableUnitOperand[] sortOperations(InstallableUnitOperand[] toSort, List installOrder, List uninstallOrder) {
-		List sorted = new ArrayList(toSort.length);
-		for (Iterator i = installOrder.iterator(); i.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) i.next();
-			for (int j = 0; j < toSort.length; j++) {
-				InstallableUnitOperand operand = toSort[j];
-				if (operand.first() == null && iu.equals(operand.second())) {
-					sorted.add(operand);
-					break;
-				}
-			}
-		}
-		for (Iterator i = uninstallOrder.iterator(); i.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) i.next();
-			for (int j = 0; j < toSort.length; j++) {
-				InstallableUnitOperand operand = toSort[j];
-				if (operand.second() == null && iu.equals(operand.first())) {
-					sorted.add(operand);
-					break;
-				}
-			}
-		}
-		for (int i = 0; i < toSort.length; i++) {
-			InstallableUnitOperand operand = toSort[i];
-			if (operand.first() != null && operand.second() != null) {
-				sorted.add(operand);
-			}
-		}
-		return (InstallableUnitOperand[]) sorted.toArray(new InstallableUnitOperand[sorted.size()]);
+	private InstallableUnitOperand[] generateOperations(Collection fromState, Collection toState) {
+		return new OperationGenerator().generateOperation(fromState, toState);
 	}
 
 	public ProvisioningPlan getRevertPlan(IInstallableUnit profileSnapshot, ProvisioningContext context, IProgressMonitor monitor) {
@@ -294,7 +263,7 @@ public class SimplePlanner implements IPlanner {
 			ResolutionHelper oldStateHelper = new ResolutionHelper(createSelectionContext(profile.getProperties()), null);
 			Collection oldState = oldStateHelper.attachCUs(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
-			return generateProvisioningPlan(s, oldState, newState, oldStateHelper.getSorted(), newStateHelper.getSorted(), profileChangeRequest);
+			return generateProvisioningPlan(s, oldState, newState, profileChangeRequest);
 		} finally {
 			sub.done();
 		}
