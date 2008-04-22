@@ -11,8 +11,14 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.osgi.util.NLS;
 
@@ -80,12 +86,8 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			args.put(ATTRIBUTE_POLICY, value);
 
 		value = site.getUrl();
-		if (value != null) {
-			if (osgiInstallArea == null)
-				args.put(ATTRIBUTE_URL, value);
-			else
-				args.put(ATTRIBUTE_URL, Utils.makeRelative(value, osgiInstallArea));
-		}
+		if (value != null)
+			args.put(ATTRIBUTE_URL, getLocation(value, osgiInstallArea));
 
 		value = toString(site.getList());
 		if (value != null)
@@ -97,6 +99,26 @@ public class ConfigurationWriter implements ConfigurationConstants {
 		writer.startTag(ELEMENT_SITE, args);
 		write(writer, site.getFeatures());
 		writer.endTag(ELEMENT_SITE);
+	}
+
+	/*
+	 * Return the location for the given location which is a url string. Take into account 
+	 * the specified osgi install area. This method should make the path relative if 
+	 * possible and could potentially return platform:/base/.
+	 */
+	private static String getLocation(String value, URL osgiInstallArea) {
+		if (osgiInstallArea == null || !value.startsWith("file:"))
+			return value;
+		try {
+			// if our site represents the osgi install area, then write out platform:/base/
+			File installArea = URLUtil.toFile(osgiInstallArea);
+			File path = URLUtil.toFile(new URL(value));
+			if (installArea.getAbsoluteFile().equals(path.getAbsoluteFile()))
+				return ConfigurationParser.PLATFORM_BASE;
+		} catch (MalformedURLException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while writing configuration.", e));
+		}
+		return Utils.makeRelative(value, osgiInstallArea);
 	}
 
 	/*

@@ -27,6 +27,7 @@ import org.xml.sax.SAXException;
  * @since 1.0
  */
 public class ConfigurationParser implements ConfigurationConstants {
+	static final String PLATFORM_BASE = "platform:/base/"; //$NON-NLS-1$
 	private URL osgiInstallArea;
 
 	/*
@@ -127,12 +128,8 @@ public class ConfigurationParser implements ConfigurationConstants {
 		if (updateable != null)
 			result.setUpdateable(Boolean.valueOf(updateable).booleanValue());
 		String url = getAttribute(node, ATTRIBUTE_URL);
-		if (url != null) {
-			if (osgiInstallArea == null)
-				result.setUrl(url);
-			else
-				result.setUrl(Utils.makeAbsolute(url, osgiInstallArea));
-		}
+		if (url != null)
+			result.setUrl(getLocation(url));
 		String linkFile = getAttribute(node, ATTRIBUTE_LINKFILE);
 		if (linkFile != null)
 			result.setLinkFile(linkFile);
@@ -142,6 +139,19 @@ public class ConfigurationParser implements ConfigurationConstants {
 				result.addPlugin(tokenizer.nextToken());
 		createFeatures(node, result);
 		return result;
+	}
+
+	/*
+	 * Convert the given url string to an absolute url. If the string is 
+	 * platform:/base/ then return a string which represents the osgi
+	 * install area.
+	 */
+	private String getLocation(String urlString) {
+		if (osgiInstallArea == null)
+			return urlString;
+		if (PLATFORM_BASE.equals(urlString))
+			return osgiInstallArea.toExternalForm();
+		return Utils.makeAbsolute(urlString, osgiInstallArea);
 	}
 
 	/*
