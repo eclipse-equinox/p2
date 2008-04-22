@@ -54,7 +54,13 @@ public abstract class URLValidator {
 	}
 
 	public static String makeFileURLString(String path) {
-		return FILE_PROTOCOL_PREFIX + '/' + path;
+		StringBuffer result = new StringBuffer(path.length() + 6);
+		result.append(FILE_PROTOCOL_PREFIX);
+		//make sure URL has leading slash to indicate a hierarchical URL
+		if (path.length() == 0 || path.charAt(0) != '/')
+			result.append('/');
+		result.append(path);
+		return result.toString();
 	}
 
 	protected abstract IStatus validateRepositoryURL(URL url, boolean contactRepositories, IProgressMonitor monitor);
