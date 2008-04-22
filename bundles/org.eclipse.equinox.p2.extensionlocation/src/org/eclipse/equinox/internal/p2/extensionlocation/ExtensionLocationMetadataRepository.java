@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -34,7 +35,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	private static final String FILE = "file"; //$NON-NLS-1$
 	private final IMetadataRepository metadataRepository;
 
-	public ExtensionLocationMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public ExtensionLocationMetadataRepository(URL location, Site site, IProgressMonitor monitor) throws ProvisionException {
 		super("Extension: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
 
 		File base = getBaseDirectory(location);
@@ -59,6 +60,9 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		DirectoryChangeListener listener = new RepositoryListener(context, metadataRepository, null);
 		if (location.getPath().endsWith(POOLED))
 			listener = new BundlePoolFilteredListener(listener);
+		// TODO
+		//		if (site != null)
+		//			listener = new SiteListener(site, listener);
 
 		watcher.addListener(listener);
 		watcher.poll();
@@ -74,18 +78,30 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		return factory.create(stateDirURL, repositoryName, null, null);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#addInstallableUnits(org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit[])
+	 */
 	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
 		throw new UnsupportedOperationException();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#removeAll()
+	 */
 	public void removeAll() {
 		throw new UnsupportedOperationException();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository#removeInstallableUnits(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
 		throw new UnsupportedOperationException();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.query.IQueryable#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return metadataRepository.query(query, collector, monitor);
 	}

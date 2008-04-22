@@ -1,13 +1,13 @@
 /*******************************************************************************
-* Copyright (c) 2007, 2008 IBM Corporation and others.
-* All rights reserved. This program and the accompanying materials 
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-* 
-* Contributors:
-*     IBM Corporation - initial API and implementation
-*******************************************************************************/
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
@@ -17,6 +17,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
@@ -139,7 +140,8 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		List sites = config.getSites();
 		Set newRepos = new LinkedHashSet();
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
-			String siteURL = ((Site) iter.next()).getUrl();
+			Site site = (Site) iter.next();
+			String siteURL = site.getUrl();
 			// TODO: this is our way of skipping the base.
 			// we will need to change this to platform:/base/ at some point
 			if ("file:.".equals(siteURL) || "file:".equals(siteURL)) //$NON-NLS-1$//$NON-NLS-2$
@@ -152,7 +154,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			if (match == null) {
 				try {
 					URL repoURL = new URL(siteURL);
-					IMetadataRepository newRepo = Activator.loadMetadataRepository(repoURL);
+					IMetadataRepository newRepo = new ExtensionLocationMetadataRepository(repoURL, site, null);
 					Activator.loadArtifactRepository(repoURL);
 					newRepos.add(newRepo);
 				} catch (MalformedURLException e) {

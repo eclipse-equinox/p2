@@ -23,10 +23,16 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
-		return new ExtensionLocationMetadataRepository(location, monitor);
+		return new ExtensionLocationMetadataRepository(location, null, monitor);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#validate(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IStatus validate(URL location, IProgressMonitor monitor) {
 		try {
 			ExtensionLocationMetadataRepository.validate(location, monitor);
