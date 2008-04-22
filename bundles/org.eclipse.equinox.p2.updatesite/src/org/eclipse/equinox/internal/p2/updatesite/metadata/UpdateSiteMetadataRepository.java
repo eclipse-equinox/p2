@@ -30,13 +30,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class UpdateSiteMetadataRepository extends AbstractRepository implements IMetadataRepository {
+public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 
 	private final IMetadataRepository metadataRepository;
 	private static final String FEATURE_VERSION_SEPARATOR = "_"; //$NON-NLS-1$
@@ -88,8 +88,8 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		for (int i = 0; i < sites.length; i++) {
 			try {
 				URL siteLocation = new URL(sites[i].getURL());
-				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED));
-				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED));
+				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED, true));
+				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
 			} catch (MalformedURLException e) {
 				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Site has invalid associate site: " + baseSite.getLocation(), e)); //$NON-NLS-1$
 			}
@@ -228,6 +228,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
 		return metadataRepository.removeInstallableUnits(query, monitor);
+	}
+
+	public void initialize(RepositoryState state) {
+		//nothing to do
 	}
 
 }

@@ -9,6 +9,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
@@ -874,12 +875,24 @@ public class Generator {
 
 	}
 
+	/**
+	 * Generates metadata for the given features.
+	 */
 	protected void generateFeatureIUs(Feature[] features, GeneratorResult result, IArtifactRepository destination) {
 		Map categoriesToFeatureIUs = new HashMap();
 		Map featuresToCategories = getFeatureToCategoryMappings();
 		//Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
+			//publish feature site references
+			String updateURL = feature.getUpdateSiteURL();
+			if (updateURL != null)
+				generateSiteReference(updateURL, true);
+			URLEntry[] discoverySites = feature.getDiscoverySites();
+			for (int j = 0; j < discoverySites.length; j++)
+				generateSiteReference(discoverySites[j].getURL(), false);
+
+			//generate feature IU
 			String location = feature.getLocation();
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
 			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, isExploded);
@@ -967,6 +980,23 @@ public class Generator {
 
 		result.nonRootIUs.add(rootIU);
 		result.nonRootIUs.add(generateDefaultCategory(rootIU));
+	}
+
+	/**
+	 * Generates and publishes a reference to an update site location
+	 * @param location The update site location
+	 * @param isEnabled Whether the site should be enabled by default
+	 */
+	private void generateSiteReference(String location, boolean isEnabled) {
+		IMetadataRepository metadataRepo = info.getMetadataRepository();
+		try {
+			URL associateLocation = new URL(location);
+			int flags = isEnabled ? IRepository.ENABLED : IRepository.NONE;
+			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, flags);
+			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, flags);
+		} catch (MalformedURLException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Invalid site reference: " + location)); //$NON-NLS-1$
+		}
 	}
 
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
@@ -1073,6 +1103,12 @@ public class Generator {
 			info.getMetadataRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 			info.getArtifactRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 		}
+
+		//publish associate sites as repository references
+		URLEntry[] associatedSites = site.getAssociatedSites();
+		if (associatedSites != null)
+			for (int i = 0; i < associatedSites.length; i++)
+				generateSiteReference(associatedSites[i].getURL(), true);
 
 		SiteFeature[] features = site.getFeatures();
 		for (int i = 0; i < features.length; i++) {

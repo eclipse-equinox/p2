@@ -35,11 +35,13 @@ import org.osgi.service.prefs.Preferences;
  * 
  * TODO the current assumption that the "location" is the dir/root limits us to 
  * having just one repository in a given URL..  
+ * TODO Merge common parts with MetadataRepositoryManager
  */
 public class ArtifactRepositoryManager extends AbstractRepositoryManager implements IArtifactRepositoryManager, ProvisioningListener {
 	static class RepositoryInfo {
 		String description;
 		boolean isSystem = false;
+		boolean isEnabled = true;
 		URL location;
 		String name;
 		SoftReference repository;
@@ -105,9 +107,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public void addRepository(URL location) {
+		addRepository(location, true);
+	}
+
+	private void addRepository(URL location, boolean isEnabled) {
 		Assert.isNotNull(location);
 		RepositoryInfo info = new RepositoryInfo();
 		info.location = location;
+		info.isEnabled = isEnabled;
 		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
@@ -387,6 +394,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		if ((flags & REPOSITORIES_NON_SYSTEM) == REPOSITORIES_NON_SYSTEM)
 			if (info.isSystem)
 				return false;
+		if ((flags & REPOSITORIES_DISABLED) == REPOSITORIES_DISABLED) {
+			if (info.isEnabled)
+				return false;
+		} else {
+			//ignore disabled repositories for all other flag types
+			if (!info.isEnabled)
+				return false;
+		}
 		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
 			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
 		return true;
@@ -399,7 +414,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
 			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == IRepository.TYPE_ARTIFACT)
-				addRepository(event.getRepositoryLocation());
+				addRepository(event.getRepositoryLocation(), event.isRepositoryEnabled());
 		}
 	}
 
@@ -576,6 +591,21 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			getPreferences().flush();
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
+		}
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager#setEnabled(java.net.URL, boolean)
+	 */
+	public void setEnabled(URL location, boolean enablement) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null || info.isEnabled == enablement)
+				return;
+			info.isEnabled = enablement;
+			remember(info);
 		}
 	}
 }

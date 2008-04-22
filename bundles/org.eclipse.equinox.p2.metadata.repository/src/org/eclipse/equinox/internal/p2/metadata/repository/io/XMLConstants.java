@@ -28,6 +28,11 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String INSTALLABLE_UNITS_ELEMENT = "units"; //$NON-NLS-1$
 	public static final String INSTALLABLE_UNIT_ELEMENT = "unit"; //$NON-NLS-1$
 
+	//Constants for repository references
+	public static final String REPOSITORY_REFERENCES_ELEMENT = "references"; //$NON-NLS-1$
+	public static final String REPOSITORY_REFERENCE_ELEMENT = "repository"; //$NON-NLS-1$
+	public static final String OPTIONS_ATTRIBUTE = "options"; //$NON-NLS-1$
+
 	// Constants for sub-elements of an installable unit element
 	public static final String ARTIFACT_KEYS_ELEMENT = "artifacts"; //$NON-NLS-1$
 	public static final String ARTIFACT_KEY_ELEMENT = "artifact"; //$NON-NLS-1$

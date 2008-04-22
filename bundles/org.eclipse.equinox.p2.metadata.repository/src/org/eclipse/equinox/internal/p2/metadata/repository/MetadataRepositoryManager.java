@@ -38,6 +38,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	static class RepositoryInfo {
 		String description;
 		boolean isSystem = false;
+		boolean isEnabled = true;
 		URL location;
 		String name;
 		SoftReference repository;
@@ -105,9 +106,14 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	public void addRepository(URL location) {
+		addRepository(location, true);
+	}
+
+	private void addRepository(URL location, boolean isEnabled) {
 		Assert.isNotNull(location);
 		RepositoryInfo info = new RepositoryInfo();
 		info.location = location;
+		info.isEnabled = isEnabled;
 		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
@@ -126,7 +132,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	protected void broadcastChangeEvent(URL location, int repositoryType, int kind) {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
 		if (bus != null)
-			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind));
+			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind, true));
 	}
 
 	/**
@@ -412,6 +418,14 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		if ((flags & REPOSITORIES_NON_SYSTEM) == REPOSITORIES_NON_SYSTEM)
 			if (info.isSystem)
 				return false;
+		if ((flags & REPOSITORIES_DISABLED) == REPOSITORIES_DISABLED) {
+			if (info.isEnabled)
+				return false;
+		} else {
+			//ignore disabled repositories for all other flag types
+			if (!info.isEnabled)
+				return false;
+		}
 		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
 			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
 		return true;
@@ -424,7 +438,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
 			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == IRepository.TYPE_METADATA)
-				addRepository(event.getRepositoryLocation());
+				addRepository(event.getRepositoryLocation(), event.isRepositoryEnabled());
 		}
 	}
 
@@ -624,6 +638,21 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 			getPreferences().flush();
 		} catch (BackingStoreException e) {
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
+		}
+	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#setEnabled(java.net.URL, boolean)
+	 */
+	public void setEnabled(URL location, boolean enablement) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null || info.isEnabled == enablement)
+				return;
+			info.isEnabled = enablement;
+			remember(info);
 		}
 	}
 

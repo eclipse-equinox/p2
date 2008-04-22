@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
@@ -18,6 +20,7 @@ import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -28,6 +31,49 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 	public MetadataParser(BundleContext context, String bundleId) {
 		super(context, bundleId);
+	}
+
+	protected class RepositoryReferencesHandler extends AbstractHandler {
+		private HashSet references;
+
+		public RepositoryReferencesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, REPOSITORY_REFERENCES_ELEMENT);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			references = (size != null ? new HashSet(Integer.parseInt(size)) : new HashSet(4));
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(REPOSITORY_REFERENCE_ELEMENT)) {
+				new RepositoryReferenceHandler(this, attributes, references);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+
+		public RepositoryReference[] getReferences() {
+			return (RepositoryReference[]) references.toArray(new RepositoryReference[references.size()]);
+		}
+	}
+
+	protected class RepositoryReferenceHandler extends AbstractHandler {
+
+		private final String[] required = new String[] {URL_ATTRIBUTE, TYPE_ATTRIBUTE, OPTIONS_ATTRIBUTE};
+
+		public RepositoryReferenceHandler(AbstractHandler parentHandler, Attributes attributes, Set references) {
+			super(parentHandler, REPOSITORY_REFERENCE_ELEMENT);
+			String[] values = parseRequiredAttributes(attributes, required);
+			try {
+				int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[1]);
+				int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[2]);
+				references.add(new RepositoryReference(new URL(values[0]), type, options));
+			} catch (MalformedURLException e) {
+				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, values[0]);
+			}
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			invalidElement(name, attributes);
+		}
 	}
 
 	protected class InstallableUnitsHandler extends AbstractHandler {

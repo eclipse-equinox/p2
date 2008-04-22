@@ -60,6 +60,12 @@ public interface IArtifactRepositoryManager {
 	public static final int REPOSITORIES_LOCAL = 1 << 2;
 
 	/**
+	 * Constant used to indicate that disabled repositories are of interest.
+	 * @see #getKnownRepositories(int)
+	 */
+	public static final int REPOSITORIES_DISABLED = 1 << 3;
+
+	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
 	 */
 	public static final String TYPE_SIMPLE_REPOSITORY = "org.eclipse.equinox.p2.artifact.repository.simpleRepository"; //$NON-NLS-1$
@@ -132,7 +138,7 @@ public interface IArtifactRepositoryManager {
 	 * 
 	 * @param flags an integer bit-mask indicating which repositories should be
 	 * returned.  <code>REPOSITORIES_ALL</code> can be used as the mask when
-	 * all repositories should be returned.
+	 * all enabled repositories should be returned.
 	 * 
 	 * @return the locations of the repositories managed by this repository manager.
 	 * 
@@ -140,6 +146,7 @@ public interface IArtifactRepositoryManager {
 	 * @see #REPOSITORIES_SYSTEM
 	 * @see #REPOSITORIES_NON_SYSTEM
 	 * @see #REPOSITORIES_LOCAL
+	 * @see #REPOSITORIES_DISABLED
 	 */
 	public URL[] getKnownRepositories(int flags);
 
@@ -219,4 +226,24 @@ public interface IArtifactRepositoryManager {
 	 * <code>false</code> otherwise.
 	 */
 	public boolean removeRepository(URL location);
+
+	/**
+	 * Sets the enablement of a repository. Disabled repositories are known
+	 * to the repository manager, but are never used in the context of provisioning
+	 * operation. Disabled repositories are useful as a form of bookmark to indicate that a 
+	 * repository location is of interest, but not currently used.
+	 * <p>
+	 * Note that enablement is a property of the repository manager and not a property
+	 * of the affected repository. The enablement of the repository is discarded when 
+	 * a repository is removed from the repository manager.
+	 * <p>
+	 * This method has no effect if the given repository location is not known to the
+	 * repository manager.
+	 * 
+	 * @param location The location of the repository to enable or disable
+	 * @param enablement <code>true</code>to enable the repository, and
+	 * <code>false</code> to disable the repository
+	 * @see #REPOSITORIES_DISABLED
+	 */
+	public void setEnabled(URL location, boolean enablement);
 }

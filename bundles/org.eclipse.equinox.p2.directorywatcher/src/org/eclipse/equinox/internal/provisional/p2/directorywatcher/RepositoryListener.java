@@ -95,20 +95,20 @@ public class RepositoryListener extends DirectoryChangeListener {
 			return;
 		URLEntry[] discoverySites = feature.getDiscoverySites();
 		for (int i = 0; i < discoverySites.length; i++)
-			publishSite(feature, bus, discoverySites[i].getURL());
+			publishSite(feature, bus, discoverySites[i].getURL(), false);
 		String updateSite = feature.getUpdateSiteURL();
 		if (updateSite != null)
-			publishSite(feature, bus, updateSite);
+			publishSite(feature, bus, updateSite, true);
 	}
 
 	/**
 	 * Broadcast a discovery event for the given repository location.
 	 */
-	private void publishSite(Feature feature, IProvisioningEventBus bus, String locationString) {
+	private void publishSite(Feature feature, IProvisioningEventBus bus, String locationString, boolean isEnabled) {
 		try {
 			URL location = new URL(locationString);
-			bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED));
-			bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED));
+			bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED, isEnabled));
+			bus.publishEvent(new RepositoryEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, isEnabled));
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature references invalid site: " + feature.getId(), e)); //$NON-NLS-1$
 		}

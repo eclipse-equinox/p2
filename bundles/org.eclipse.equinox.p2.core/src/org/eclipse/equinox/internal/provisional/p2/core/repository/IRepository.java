@@ -58,16 +58,6 @@ public interface IRepository extends IAdaptable {
 	public static final String PROP_TIMESTAMP = "p2.timestamp"; //$NON-NLS-1$
 
 	/**
-	 * A repository type constant (value 0) representing a metadata repository.
-	 */
-	public static final int TYPE_METADATA = 0;
-
-	/**
-	 * A repository type constant (value 1) representing an artifact repository.
-	 */
-	public static final int TYPE_ARTIFACT = 1;
-
-	/**
 	 * The key for a string property providing the user name to an authenticated
 	 * URL.  This key is used in the secure preference store for repository data.
 	 * @see #PREFERENCE_NODE
@@ -85,6 +75,27 @@ public interface IRepository extends IAdaptable {
 	 * The node identifier for repository secure preference store.
 	 */
 	public static final String PREFERENCE_NODE = "org.eclipse.equinox.p2.repository"; //$NON-NLS-1$
+
+	/**
+	 * A repository type constant (value 0) representing a metadata repository.
+	 */
+	public static final int TYPE_METADATA = 0;
+
+	/**
+	 * A repository type constant (value 1) representing an artifact repository.
+	 */
+	public static final int TYPE_ARTIFACT = 1;
+
+	/** 
+	 * General purpose zero-valued bit mask constant. Useful whenever you need to
+	 * supply a bit mask with no bits set.
+	 */
+	public static final int NONE = 0;
+
+	/**
+	 * An option flag constant (value 1) indicating an enabled repository.
+	 */
+	public static final int ENABLED = 1;
 
 	/**
 	 * Returns the URL of the repository.

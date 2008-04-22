@@ -52,18 +52,21 @@ public class RepositoryEvent extends EventObject {
 
 	private final int kind, type;
 
+	private boolean isEnabled;
+
 	/**
 	 * Creates a new repository event.
 	 * 
 	 * @param location the location of the repository that changed.
 	 * @param repositoryType the type of repository that was changed
 	 * @param kind the kind of change that occurred.
+	 * @param enabled whether the repository is enabled
 	 */
-	public RepositoryEvent(URL location, int repositoryType, int kind) {
+	public RepositoryEvent(URL location, int repositoryType, int kind, boolean enabled) {
 		super(location);
 		this.kind = kind;
 		this.type = repositoryType;
-
+		isEnabled = enabled;
 	}
 
 	/**
@@ -98,6 +101,16 @@ public class RepositoryEvent extends EventObject {
 	 */
 	public int getRepositoryType() {
 		return type;
+	}
+
+	/**
+	 * Returns whether the affected repository is enabled.
+	 * 
+	 * @return <code>true</code> if the repository is enabled,
+	 * and <code>false</code> otherwise.
+	 */
+	public boolean isRepositoryEnabled() {
+		return isEnabled;
 	}
 
 }

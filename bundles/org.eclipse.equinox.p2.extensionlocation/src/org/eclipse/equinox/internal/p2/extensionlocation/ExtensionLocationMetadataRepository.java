@@ -21,11 +21,11 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.osgi.framework.BundleContext;
 
-public class ExtensionLocationMetadataRepository extends AbstractRepository implements IMetadataRepository {
+public class ExtensionLocationMetadataRepository extends AbstractMetadataRepository {
 
 	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
@@ -132,5 +132,9 @@ public class ExtensionLocationMetadataRepository extends AbstractRepository impl
 			return super.getProperties();
 
 		return metadataRepository.getProperties();
+	}
+
+	public void initialize(RepositoryState state) {
+		//nothing to do
 	}
 }
