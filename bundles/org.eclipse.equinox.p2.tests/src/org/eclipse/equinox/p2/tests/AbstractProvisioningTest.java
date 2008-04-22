@@ -479,16 +479,6 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 	}
 
-	public static void printProfile(IProfile profile) {
-		boolean containsIU = false;
-		for (Iterator iterator = getInstallableUnits(profile); iterator.hasNext();) {
-			System.out.println(iterator.next());
-			containsIU = true;
-		}
-		if (!containsIU)
-			System.out.println("No iu");
-	}
-
 	private static void write(IStatus status, int indent, PrintStream output) {
 		indent(output, indent);
 		output.println("Severity: " + status.getSeverity());
