@@ -108,6 +108,7 @@ public class AutomaticUpdatesPopup extends PopupDialog {
 			remindLink.setText(NLS.bind(ProvSDKMessages.AutomaticUpdatesPopup_RemindAndPrefLink, new String[] {prefs.getString(PreferenceConstants.PREF_REMIND_ELAPSED), PREFS_HREF}));
 		else
 			remindLink.setText(ProvSDKMessages.AutomaticUpdatesPopup_PrefLinkOnly);
+		remindLink.getParent().layout(true);
 	}
 
 	protected IDialogSettings getDialogBoundsSettings() {
