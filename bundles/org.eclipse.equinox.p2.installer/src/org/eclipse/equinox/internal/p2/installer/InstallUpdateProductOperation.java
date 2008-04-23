@@ -79,6 +79,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
 			properties.putAll(installDescription.getProfileProperties());
+			properties.put(IProfile.PROP_CACHE, installDescription.getBundleLocation().toOSString());
 			profile = profileRegistry.addProfile(getProfileId(), properties);
 		}
 		return profile;

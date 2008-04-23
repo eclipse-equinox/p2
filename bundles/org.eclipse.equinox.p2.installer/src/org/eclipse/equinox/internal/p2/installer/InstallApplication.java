@@ -19,7 +19,6 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.osgi.framework.Bundle;
@@ -194,11 +193,6 @@ public class InstallApplication implements IApplication {
 			if (agentArea == null || agentArea.length() == 0)
 				System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
 		}
-		//set bundle pool location if specified
-		IPath bundleLocation = description.getBundleLocation();
-		if (bundleLocation != null && System.getProperty(IProfile.PROP_CACHE) == null)
-			System.setProperty(IProfile.PROP_CACHE, bundleLocation.toString());
-
 		//start up p2
 		try {
 			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$
