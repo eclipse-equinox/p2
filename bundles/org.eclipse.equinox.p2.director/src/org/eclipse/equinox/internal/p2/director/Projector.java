@@ -32,7 +32,7 @@ import org.sat4j.specs.*;
  * back into information understandable by the planner.
  */
 public class Projector {
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	private IQueryable picker;
 
 	private Map variables; //key IU, value corresponding variable in the problem
