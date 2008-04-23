@@ -92,6 +92,26 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals("3.1", systemCount + 1, newSystemCount);
 		assertEquals("3.2", allCount + 1, newAllCount);
 
+		int disabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
+		allCount = newAllCount;
+
+		//mark the repository as disabled
+		manager.setEnabled(testRepo.getLocation(), false);
+
+		//should be one less enabled repository and one more disabled repository
+		int newDisabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
+		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		assertEquals("4.0", disabledCount + 1, newDisabledCount);
+		assertEquals("4.1", allCount - 1, newAllCount);
+
+		//re-enable the repository
+		manager.setEnabled(testRepo.getLocation(), true);
+
+		//should be back to the original counts
+		newDisabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
+		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		assertEquals("4.0", disabledCount, newDisabledCount);
+		assertEquals("4.1", allCount, newAllCount);
 	}
 
 	/**
@@ -118,7 +138,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * cache is updated when it becomes stale.
 	 */
 	public void testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
-		URL repoLocation = new URL("http://fullmoon.ottawa.ibm.com/eclipse/updates/3.4milestones/");
+		URL repoLocation = new URL("http://download.eclipse.org/eclipse/updates/3.4milestones/");
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URLUtil.toFile(dataArea);
