@@ -184,12 +184,15 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException {
+		boolean loaded = false;
 		try {
-			loadRepository(location, (IProgressMonitor) null);
-			fail(location, ProvisionException.REPOSITORY_EXISTS);
+			loadRepository(location, (IProgressMonitor) null, type, true);
+			loaded = true;
 		} catch (ProvisionException e) {
 			//expected - fall through and create a new repository
 		}
+		if (loaded)
+			fail(location, ProvisionException.REPOSITORY_EXISTS);
 		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 		if (extension == null)
 			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
@@ -224,8 +227,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, null));
 	}
 
-	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
-		IConfigurationElement[] elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+	private IExtension[] findMatchingRepositoryExtensions(String suffix, String type) {
+		IConfigurationElement[] elt = null;
+		if (type != null && type.length() > 0) {
+			IExtension ext = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
+			elt = (ext != null) ? ext.getConfigurationElements() : new IConfigurationElement[0];
+		} else {
+			elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+		}
 		int count = 0;
 		for (int i = 0; i < elt.length; i++) {
 			if (EL_FILTER.equals(elt[i].getName())) {
@@ -362,10 +371,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		return loadRepository(location, monitor, true);
+		return loadRepository(location, monitor, null, true);
 	}
 
-	private IArtifactRepository loadRepository(URL location, IProgressMonitor monitor, boolean signalAdd) throws ProvisionException {
+	private IArtifactRepository loadRepository(URL location, IProgressMonitor monitor, String type, boolean signalAdd) throws ProvisionException {
 		// TODO do something with the monitor
 		IArtifactRepository result = getRepository(location);
 		if (result != null)
@@ -375,7 +384,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		String[] suffixes = getAllSuffixes();
 		SubMonitor sub = SubMonitor.convert(monitor, suffixes.length * 100);
 		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i], sub.newChild(100));
+			result = loadRepository(location, suffixes[i], type, sub.newChild(100));
 			if (result != null) {
 				addRepository(result, signalAdd);
 				return result;
@@ -386,8 +395,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return null;
 	}
 
-	private IArtifactRepository loadRepository(URL location, String suffix, SubMonitor monitor) {
-		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
+	private IArtifactRepository loadRepository(URL location, String suffix, String type, SubMonitor monitor) {
+		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 		for (int i = 0; i < providers.length; i++)
@@ -456,7 +465,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		clearNotFound(location);
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return loadRepository(location, monitor, false);
+		return loadRepository(location, monitor, null, false);
 	}
 
 	/*

@@ -275,7 +275,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public String getFlavor() {
-		return flavor;
+		//use 'tooling' as default flavor since we are not actively using flavors yet
+		return flavor == null ? "tooling" : flavor; //$NON-NLS-1$
 	}
 
 	private FrameworkAdmin getFrameworkAdmin() {

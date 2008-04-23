@@ -191,13 +191,17 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		Assert.isNotNull(location);
 		Assert.isNotNull(name);
 		Assert.isNotNull(type);
+		boolean loaded = false;
 		try {
 			//repository should not already exist
-			loadRepository(location, (IProgressMonitor) null);
-			fail(location, ProvisionException.REPOSITORY_EXISTS);
+			loadRepository(location, (IProgressMonitor) null, type, true);
+			loaded = true;
 		} catch (ProvisionException e) {
 			//expected - fall through and create the new repository
 		}
+		if (loaded)
+			fail(location, ProvisionException.REPOSITORY_EXISTS);
+
 		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 		if (extension == null)
 			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
@@ -239,8 +243,15 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		return new Status(IStatus.ERROR, Activator.ID, code, msg, null);
 	}
 
-	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
-		IConfigurationElement[] elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+	private IExtension[] findMatchingRepositoryExtensions(String suffix, String type) {
+		IConfigurationElement[] elt = null;
+		if (type != null && type.length() > 0) {
+			IExtension ext = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
+			elt = (ext != null) ? ext.getConfigurationElements() : new IConfigurationElement[0];
+		} else {
+			elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+		}
+
 		int count = 0;
 		for (int i = 0; i < elt.length; i++) {
 			if (elt[i].getName().equals("filter")) { //$NON-NLS-1$
@@ -377,10 +388,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		return loadRepository(location, monitor, true);
+		return loadRepository(location, monitor, null, true);
 	}
 
-	private IMetadataRepository loadRepository(URL location, IProgressMonitor monitor, boolean signalAdd) throws ProvisionException {
+	private IMetadataRepository loadRepository(URL location, IProgressMonitor monitor, String type, boolean signalAdd) throws ProvisionException {
 		Assert.isNotNull(location);
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
@@ -392,7 +403,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.repoMan_adding, suffixes.length * 100);
 		try {
 			for (int i = 0; i < suffixes.length; i++) {
-				result = loadRepository(location, suffixes[i], sub.newChild(100), notFoundStatus);
+				result = loadRepository(location, suffixes[i], type, sub.newChild(100), notFoundStatus);
 				if (result != null) {
 					addRepository(result, signalAdd);
 					return result;
@@ -408,8 +419,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	/**
 	 * Try to load a pre-existing repo at the given location
 	 */
-	private IMetadataRepository loadRepository(URL location, String suffix, SubMonitor monitor, MultiStatus failures) {
-		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
+	private IMetadataRepository loadRepository(URL location, String suffix, String type, SubMonitor monitor, MultiStatus failures) {
+		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 		for (int i = 0; i < providers.length; i++) {
@@ -514,7 +525,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		clearNotFound(location);
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return loadRepository(location, monitor, false);
+		return loadRepository(location, monitor, null, false);
 	}
 
 	/*
@@ -685,7 +696,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		IStatus status = new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
 		for (int i = 0; i < suffixes.length; i++) {
 			SubMonitor loopMonitor = sub.newChild(100);
-			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i]);
+			IExtension[] providers = findMatchingRepositoryExtensions(suffixes[i], null);
 			// Loop over the candidates and return the first one that successfully loads
 			loopMonitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 			for (int j = 0; j < providers.length; j++) {

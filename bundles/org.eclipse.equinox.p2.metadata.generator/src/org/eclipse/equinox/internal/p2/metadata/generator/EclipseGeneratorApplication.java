@@ -103,33 +103,33 @@ public class EclipseGeneratorApplication implements IApplication {
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, artifactLocation));
 		}
-		try {
-			IArtifactRepository repository = manager.loadRepository(location, null);
-			if (!repository.isModifiable())
-				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
-			provider.setArtifactRepository(repository);
-			if (provider.reuseExistingPack200Files())
-				repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-			if (!provider.append())
-				repository.removeAll();
-			return;
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
 
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a Simple repo by default.
 		String repositoryName = artifactRepoName != null ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
 		Map properties = new HashMap(1);
 		properties.put(IRepository.PROP_COMPRESSED, compress);
 		if (provider.reuseExistingPack200Files())
 			properties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, Boolean.TRUE.toString());
-		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		manager.addRepository(result.getLocation());
-		provider.setArtifactRepository(result);
-		// TODO is this needed?
-		if (artifactRepoName != null)
-			result.setName(artifactRepoName);
+		IArtifactRepository result = null;
+		try {
+			result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			provider.setArtifactRepository(result);
+			// TODO is this needed?
+			if (artifactRepoName != null)
+				result.setName(artifactRepoName);
+			return;
+		} catch (ProvisionException e) {
+			//fall through a load existing repo
+		}
+
+		IArtifactRepository repository = manager.loadRepository(location, null);
+		if (!repository.isModifiable())
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
+		provider.setArtifactRepository(repository);
+		if (provider.reuseExistingPack200Files())
+			repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
+		if (!provider.append())
+			repository.removeAll();
+		return;
 	}
 
 	public void initializeForInplace(EclipseInstallGeneratorInfoProvider provider) {
@@ -154,34 +154,39 @@ public class EclipseGeneratorApplication implements IApplication {
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, artifactLocation));
 		}
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
-		try {
-			IMetadataRepository repository = manager.loadRepository(location, null);
-			if (repository != null) {
-				// don't set the compress flag here because we don't want to change the format
-				// of an already existing repository
-				if (!repository.isModifiable())
-					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
-				provider.setMetadataRepository(repository);
-				if (!provider.append())
-					repository.removeAll();
-				return;
-			}
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
 
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a random repo by default.
+		// 	First try to create a simple repo, this will fail if one already exists
+		//  We try creating a repo first instead of just loading what is there because we don't want a repo based
+		//  on a site.xml if there is one there.
+
 		String repositoryName = metadataRepoName == null ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
 		Map properties = new HashMap(1);
 		properties.put(IRepository.PROP_COMPRESSED, compress);
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		manager.addRepository(result.getLocation());
-		// TODO is this needed?
-		if (metadataRepoName != null)
-			result.setName(metadataRepoName);
-		provider.setMetadataRepository(result);
+
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		try {
+			IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			manager.addRepository(result.getLocation());
+			// TODO is this needed?
+			if (metadataRepoName != null)
+				result.setName(metadataRepoName);
+			provider.setMetadataRepository(result);
+			return;
+		} catch (ProvisionException e) {
+			//fall through and load the existing repo
+		}
+
+		IMetadataRepository repository = manager.loadRepository(location, null);
+		if (repository != null) {
+			// don't set the compress flag here because we don't want to change the format
+			// of an already existing repository
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
+			provider.setMetadataRepository(repository);
+			if (!provider.append())
+				repository.removeAll();
+			return;
+		}
 	}
 
 	private void initializeRepositories(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
