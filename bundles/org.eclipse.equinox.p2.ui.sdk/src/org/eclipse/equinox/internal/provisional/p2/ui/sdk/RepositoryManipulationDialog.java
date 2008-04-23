@@ -10,16 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.sdk;
 
-import java.net.URL;
 import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulatorDropTarget;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -37,7 +33,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.dialogs.PropertyDialogAction;
-import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Dialog that allows users to update, add, or remove repositories.
@@ -242,17 +237,6 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		button = createVerticalButton(parent, ProvSDKMessages.RepositoryManipulationDialog_Export, false);
 		button.setData(BUTTONACTION, new Action() {
 			public void run() {
-				final URL[] repos;
-				try {
-					MetadataRepositories input = (MetadataRepositories) repositoryViewer.getInput();
-					if (input.getMetadataRepositories() != null)
-						repos = input.getMetadataRepositories();
-					else
-						repos = ProvisioningUtil.getMetadataRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
-				} catch (ProvisionException e) {
-					ProvUI.handleException(e, null, StatusManager.LOG | StatusManager.SHOW);
-					return;
-				}
 				BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
 					public void run() {
 						UpdateManagerCompatibility.exportSites(getShell(), getElements());
