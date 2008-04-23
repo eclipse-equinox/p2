@@ -258,6 +258,8 @@ public class FeatureParser extends DefaultHandler {
 			if ("true".equalsIgnoreCase(attributes.getValue("patch"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), "perfect", attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				entry.setPatch(true);
+			} else {
+				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		} else {
 			id = attributes.getValue("plugin"); //$NON-NLS-1$
