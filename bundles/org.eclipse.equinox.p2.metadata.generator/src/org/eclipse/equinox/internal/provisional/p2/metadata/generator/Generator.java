@@ -370,7 +370,7 @@ public class Generator {
 							}
 						}
 
-						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key);
+						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key, true);
 
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling

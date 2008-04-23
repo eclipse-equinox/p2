@@ -114,6 +114,9 @@ public class MetadataGeneratorHelper {
 	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
 	static final String MANIFEST_LOCALIZATIONS = "eclipse.p2.manifest.localizations"; //$NON-NLS-1$
 
+	static final String BUNDLE_ADVICE_FILE = "META-INF/p2.inf"; //$NON-NLS-1$
+	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
+
 	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
 	static final Locale PSEUDO_LOCALE = new Locale("zz", "ZZ"); //$NON-NLS-1$//$NON-NLS-2$
 
@@ -176,15 +179,23 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
+		return createBundleIU(bd, manifest, isFolderPlugin, key);
+	}
+
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, boolean useNestedAdvice) {
 		Map manifestLocalizations = null;
 		if (manifest != null && bd.getLocation() != null) {
 			manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
 		}
 
-		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations);
+		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, useNestedAdvice);
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations) {
+		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, false);
+	}
+
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations, boolean useNestedAdvice) {
 		boolean isBinaryBundle = true;
 		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
 			isBinaryBundle = false;
@@ -288,9 +299,30 @@ public class MetadataGeneratorHelper {
 		if (isFolderPlugin)
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
+
+		if (useNestedAdvice)
+			mergeInstructionsAdvice(touchpointData, getBundleAdvice(bd.getLocation()));
+
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	private static void mergeInstructionsAdvice(Map touchpointData, Map bundleAdvice) {
+		if (touchpointData == null || bundleAdvice == null)
+			return;
+
+		for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
+				String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
+				String instructions = touchpointData.containsKey(phase) ? (String) touchpointData.get(phase) : ""; //$NON-NLS-1$
+				if (instructions.length() > 0)
+					instructions += ";"; //$NON-NLS-1$
+				instructions += ((String) bundleAdvice.get(key)).trim();
+				touchpointData.put(phase, instructions);
+			}
+		}
 	}
 
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
@@ -787,11 +819,11 @@ public class MetadataGeneratorHelper {
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
 			if (info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 				configurationData += " chmod(targetDir:${installFolder}/Eclipse.app/Contents/MacOS, targetFile:eclipse, permissions:755);"; //$NON-NLS-1$
-				generateLauncherSetter("Eclipse", launcherId, LAUNCHER_VERSION, "macosx", null, null, resultantIUs);
+				generateLauncherSetter("Eclipse", launcherId, LAUNCHER_VERSION, "macosx", null, null, resultantIUs); //$NON-NLS-1$//$NON-NLS-2$
 			} else
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			generateLauncherSetter("eclipse", launcherId, LAUNCHER_VERSION, "win32", null, null, resultantIUs);
+			generateLauncherSetter("eclipse", launcherId, LAUNCHER_VERSION, "win32", null, null, resultantIUs); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -816,8 +848,8 @@ public class MetadataGeneratorHelper {
 			iud.setFilter("(& " + filterOs + filterWs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		Map touchpointData = new HashMap();
-		touchpointData.put("configure", "setLauncherName(name:" + launcherName + ")");
-		touchpointData.put("unconfigure", "setLauncherName()");
+		touchpointData.put("configure", "setLauncherName(name:" + launcherName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		result.add(MetadataFactory.createInstallableUnit(iud));
 	}
@@ -962,6 +994,69 @@ public class MetadataGeneratorHelper {
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
 			return new VersionRange(version, true, new VersionRange(null).getMaximum(), true);
 		return null;
+	}
+
+	public static Map getBundleAdvice(String bundleLocation) {
+		if (bundleLocation == null)
+			return Collections.EMPTY_MAP;
+
+		File bundle = new File(bundleLocation);
+		if (!bundle.exists())
+			return Collections.EMPTY_MAP;
+
+		ZipFile jar = null;
+		InputStream stream = null;
+		if (bundle.isDirectory()) {
+			File adviceFile = new File(bundle, BUNDLE_ADVICE_FILE);
+			if (adviceFile.exists()) {
+				try {
+					stream = new BufferedInputStream(new FileInputStream(adviceFile));
+				} catch (IOException e) {
+					return Collections.EMPTY_MAP;
+				}
+			}
+		} else if (bundle.isFile()) {
+			try {
+				jar = new ZipFile(bundle);
+				ZipEntry entry = jar.getEntry(BUNDLE_ADVICE_FILE);
+				if (entry != null)
+					stream = new BufferedInputStream(jar.getInputStream(entry));
+			} catch (IOException e) {
+				if (jar != null)
+					try {
+						jar.close();
+					} catch (IOException e1) {
+						//boo
+					}
+				return Collections.EMPTY_MAP;
+			}
+		}
+
+		Properties advice = null;
+		if (stream != null) {
+			try {
+				advice = new Properties();
+				advice.load(stream);
+			} catch (IOException e) {
+				return Collections.EMPTY_MAP;
+			} finally {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					//boo
+				}
+			}
+		}
+
+		if (jar != null) {
+			try {
+				jar.close();
+			} catch (IOException e) {
+				// boo
+			}
+		}
+
+		return advice != null ? advice : Collections.EMPTY_MAP;
 	}
 
 	private static boolean isOptional(ImportPackageSpecification importedPackage) {
