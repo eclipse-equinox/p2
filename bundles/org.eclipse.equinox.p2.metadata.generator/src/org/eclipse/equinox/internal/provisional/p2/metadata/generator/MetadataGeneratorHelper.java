@@ -179,7 +179,7 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
-		return createBundleIU(bd, manifest, isFolderPlugin, key);
+		return createBundleIU(bd, manifest, isFolderPlugin, key, false);
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, boolean useNestedAdvice) {
