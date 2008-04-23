@@ -13,10 +13,9 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
+import org.eclipse.equinox.internal.provisional.p2.ui.actions.InstallAction;
 
 public class InstallWizardPage extends UpdateOrInstallWizardPage {
 
@@ -32,12 +31,7 @@ public class InstallWizardPage extends UpdateOrInstallWizardPage {
 
 	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) throws ProvisionException {
 		IInstallableUnit[] selected = elementsToIUs(selectedElements);
-		ProfileChangeRequest changeRequest = ProfileChangeRequest.createByProfileId(getProfileId());
-		changeRequest.addInstallableUnits(selected);
-		for (int i = 0; i < selected.length; i++) {
-			changeRequest.setInstallableUnitProfileProperty(selected[i], IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
-		}
-		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(changeRequest, getProvisioningContext(), monitor);
+		ProvisioningPlan plan = InstallAction.computeProvisioningPlan(selected, getProfileId(), monitor);
 		computeSizing(plan, getProfileId());
 		return plan;
 	}
