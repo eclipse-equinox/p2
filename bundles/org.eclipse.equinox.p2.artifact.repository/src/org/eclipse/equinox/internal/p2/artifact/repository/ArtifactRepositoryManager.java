@@ -355,7 +355,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager#getEnabled(java.net.URL)
 	 */
-	public boolean getEnabled(URL location) {
+	public boolean isEnabled(URL location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();

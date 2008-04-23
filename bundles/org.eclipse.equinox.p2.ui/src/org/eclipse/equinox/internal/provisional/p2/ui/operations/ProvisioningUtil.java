@@ -54,14 +54,14 @@ public class ProvisioningUtil {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			return false;
-		return manager.getEnabled(location);
+		return manager.isEnabled(location);
 	}
 
 	public static boolean getArtifactRepositoryEnablement(URL location) {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			return false;
-		return manager.getEnabled(location);
+		return manager.isEnabled(location);
 	}
 
 	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {

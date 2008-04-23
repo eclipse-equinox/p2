@@ -372,7 +372,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	 * (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#getEnabled(java.net.URL)
 	 */
-	public boolean getEnabled(URL location) {
+	public boolean isEnabled(URL location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
