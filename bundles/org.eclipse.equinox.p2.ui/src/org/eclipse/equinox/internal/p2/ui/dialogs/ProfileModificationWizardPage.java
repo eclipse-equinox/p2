@@ -208,7 +208,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			final Object[] selections = getCheckedElements();
 			if (selections.length == 0) {
 				currentPlan = null;
-				currentStatus = new Status(IStatus.WARNING, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationWizardPage_NothingSelected);
+				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationWizardPage_NothingSelected);
 			} else
 				getContainer().run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
@@ -256,18 +256,18 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 	void updateStatus() {
 		int messageType = IMessageProvider.NONE;
+		boolean pageComplete = true;
 		if (currentStatus != null && !currentStatus.isOK()) {
 			messageType = IMessageProvider.INFORMATION;
 			int severity = currentStatus.getSeverity();
-			if (severity == IStatus.ERROR)
+			if (severity == IStatus.ERROR) {
 				messageType = IMessageProvider.ERROR;
-			else if (severity == IStatus.WARNING)
+				pageComplete = false;
+			} else if (severity == IStatus.WARNING)
 				messageType = IMessageProvider.WARNING;
-			setPageComplete(false);
 			ProvUI.reportStatus(currentStatus, StatusManager.LOG);
-		} else {
-			setPageComplete(true);
 		}
+		setPageComplete(pageComplete);
 		setMessage(getMessageText(), messageType);
 		detailsArea.setText(getDetailText());
 	}
