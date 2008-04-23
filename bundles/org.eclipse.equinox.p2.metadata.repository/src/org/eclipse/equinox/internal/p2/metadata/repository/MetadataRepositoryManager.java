@@ -42,6 +42,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		URL location;
 		String name;
 		SoftReference repository;
+		String suffix;
 	}
 
 	private static final String ATTR_SUFFIX = "suffix"; //$NON-NLS-1$
@@ -50,8 +51,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 
 	private static final String FACTORY = "factory"; //$NON-NLS-1$
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
+	private static final String KEY_ENABLED = "enabled"; //$NON-NLS-1$
 	private static final String KEY_NAME = "name"; //$NON-NLS-1$
 	private static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
+	private static final String KEY_SUFFIX = "suffix"; //$NON-NLS-1$
 	private static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
@@ -82,25 +85,35 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	public void addRepository(IMetadataRepository repository) {
-		addRepository(repository, true);
+		addRepository(repository, true, null);
 	}
 
-	private void addRepository(IMetadataRepository repository, boolean signalAdd) {
-		RepositoryInfo info = new RepositoryInfo();
-		info.repository = new SoftReference(repository);
-		info.name = repository.getName();
-		info.description = repository.getDescription();
-		info.location = repository.getLocation();
-		String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
-		info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+	/**
+	 * Adds a repository to the list of known repositories
+	 * @param repository the repository object to add
+	 * @param signalAdd whether a repository change event should be fired
+	 * @param suffix the suffix used to load the repository, or <code>null</code> if unknown
+	 */
+	private void addRepository(IMetadataRepository repository, boolean signalAdd, String suffix) {
 		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
+			String key = getKey(repository);
+			RepositoryInfo info = (RepositoryInfo) repositories.get(key);
+			if (info == null)
+				info = new RepositoryInfo();
+			info.repository = new SoftReference(repository);
+			info.name = repository.getName();
+			info.description = repository.getDescription();
+			info.location = repository.getLocation();
+			String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
+			info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+			info.suffix = suffix;
 			added = repositories.put(getKey(repository), info) == null;
 		}
 		// save the given repository in the preferences.
-		remember(repository);
+		remember(repository, suffix);
 		if (added && signalAdd)
 			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
 	}
@@ -399,13 +412,13 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		MultiStatus notFoundStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
 		if (checkNotFound(location))
 			throw new ProvisionException(notFoundStatus);
-		String[] suffixes = getAllSuffixes();
+		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.repoMan_adding, suffixes.length * 100);
 		try {
 			for (int i = 0; i < suffixes.length; i++) {
 				result = loadRepository(location, suffixes[i], type, sub.newChild(100), notFoundStatus);
 				if (result != null) {
-					addRepository(result, signalAdd);
+					addRepository(result, signalAdd, suffixes[i]);
 					return result;
 				}
 			}
@@ -531,7 +544,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	/*
 	 * Save the list of repositories in the preference store.
 	 */
-	private boolean remember(IMetadataRepository repository) {
+	private boolean remember(IMetadataRepository repository, String suffix) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(repository));
 		changed |= putValue(node, KEY_URL, repository.getLocation().toExternalForm());
@@ -541,6 +554,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		changed |= putValue(node, KEY_TYPE, repository.getType());
 		changed |= putValue(node, KEY_VERSION, repository.getVersion());
 		changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
+		changed |= putValue(node, KEY_SUFFIX, suffix);
 		if (changed)
 			saveToPreferences();
 		return changed;
@@ -556,6 +570,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
 		changed |= putValue(node, KEY_DESCRIPTION, info.description);
 		changed |= putValue(node, KEY_NAME, info.name);
+		changed |= putValue(node, KEY_SUFFIX, info.suffix);
+		changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
 		if (changed)
 			saveToPreferences();
 		return changed;
@@ -622,6 +638,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
 				info.isSystem = child.getBoolean(KEY_SYSTEM, false);
+				info.isEnabled = child.getBoolean(KEY_ENABLED, true);
+				info.suffix = child.get(KEY_SUFFIX, null);
 				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
@@ -684,6 +702,30 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 			info.isEnabled = enablement;
 			remember(info);
 		}
+	}
+
+	/**
+	 * Optimize the order in which repository suffixes are searched by trying 
+	 * the last successfully loaded suffix first.
+	 */
+	private String[] sortSuffixes(String[] suffixes, URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null || info.suffix == null)
+				return suffixes;
+			//move lastSuffix to the front of the list but preserve order of remaining entries
+			String lastSuffix = info.suffix;
+			for (int i = 0; i < suffixes.length; i++) {
+				if (lastSuffix.equals(suffixes[i])) {
+					System.arraycopy(suffixes, 0, suffixes, 1, i);
+					suffixes[0] = lastSuffix;
+					return suffixes;
+				}
+			}
+		}
+		return suffixes;
 	}
 
 	public IStatus validateRepositoryLocation(URL location, IProgressMonitor monitor) {

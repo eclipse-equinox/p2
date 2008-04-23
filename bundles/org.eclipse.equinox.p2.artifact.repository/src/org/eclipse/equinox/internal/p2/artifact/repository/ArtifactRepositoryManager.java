@@ -44,6 +44,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		boolean isEnabled = true;
 		URL location;
 		String name;
+		String suffix;
 		SoftReference repository;
 	}
 
@@ -53,8 +54,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 
 	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
+	private static final String KEY_ENABLED = "enabled"; //$NON-NLS-1$
 	private static final String KEY_NAME = "name"; //$NON-NLS-1$
 	private static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
+	private static final String KEY_SUFFIX = "suffix"; //$NON-NLS-1$
 	private static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
@@ -83,27 +86,31 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public void addRepository(IArtifactRepository repository) {
-		addRepository(repository, true);
+		addRepository(repository, true, null);
 	}
 
-	private void addRepository(IArtifactRepository repository, boolean signalAdd) {
-		RepositoryInfo info = new RepositoryInfo();
-		info.repository = new SoftReference(repository);
-		info.name = repository.getName();
-		info.description = repository.getDescription();
-		info.location = repository.getLocation();
-		String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
-		info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+	private void addRepository(IArtifactRepository repository, boolean signalAdd, String suffix) {
 		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
+			String key = getKey(repository);
+			RepositoryInfo info = (RepositoryInfo) repositories.get(key);
+			if (info == null)
+				info = new RepositoryInfo();
+			info.repository = new SoftReference(repository);
+			info.name = repository.getName();
+			info.description = repository.getDescription();
+			info.location = repository.getLocation();
+			String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
+			info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+			info.suffix = suffix;
 			added = repositories.put(getKey(repository), info) == null;
 		}
 		// save the given repository in the preferences.
-		remember(repository);
+		remember(repository, suffix);
 		if (added && signalAdd)
-			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
 	}
 
 	public void addRepository(URL location) {
@@ -381,12 +388,12 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			return result;
 		if (checkNotFound(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		String[] suffixes = getAllSuffixes();
+		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
 		SubMonitor sub = SubMonitor.convert(monitor, suffixes.length * 100);
 		for (int i = 0; i < suffixes.length; i++) {
 			result = loadRepository(location, suffixes[i], type, sub.newChild(100));
 			if (result != null) {
-				addRepository(result, signalAdd);
+				addRepository(result, signalAdd, suffixes[i]);
 				return result;
 			}
 		}
@@ -471,7 +478,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	/*
 	 * Add the given repository object to the preferences and save.
 	 */
-	private void remember(IArtifactRepository repository) {
+	private void remember(IArtifactRepository repository, String suffix) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(repository));
 		changed |= putValue(node, KEY_URL, repository.getLocation().toExternalForm());
@@ -481,6 +488,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		changed |= putValue(node, KEY_TYPE, repository.getType());
 		changed |= putValue(node, KEY_VERSION, repository.getVersion());
 		changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
+		changed |= putValue(node, KEY_SUFFIX, suffix);
 		if (changed)
 			saveToPreferences();
 	}
@@ -495,6 +503,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
 		changed |= putValue(node, KEY_DESCRIPTION, info.description);
 		changed |= putValue(node, KEY_NAME, info.name);
+		changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
+		changed |= putValue(node, KEY_SUFFIX, info.suffix);
 		if (changed)
 			saveToPreferences();
 	}
@@ -576,6 +586,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
 				info.isSystem = child.getBoolean(KEY_SYSTEM, false);
+				info.isEnabled = child.getBoolean(KEY_ENABLED, true);
+				info.suffix = child.get(KEY_SUFFIX, null);
 				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
@@ -636,4 +648,29 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			remember(info);
 		}
 	}
+
+	/**
+	 * Optimize the order in which repository suffixes are searched by trying 
+	 * the last successfully loaded suffix first.
+	 */
+	private String[] sortSuffixes(String[] suffixes, URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null || info.suffix == null)
+				return suffixes;
+			//move lastSuffix to the front of the list but preserve order of remaining entries
+			String lastSuffix = info.suffix;
+			for (int i = 0; i < suffixes.length; i++) {
+				if (lastSuffix.equals(suffixes[i])) {
+					System.arraycopy(suffixes, 0, suffixes, 1, i);
+					suffixes[0] = lastSuffix;
+					return suffixes;
+				}
+			}
+		}
+		return suffixes;
+	}
+
 }
