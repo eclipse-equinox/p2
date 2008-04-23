@@ -445,6 +445,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer());
 		availablePropButton.setData(BUTTONACTION, propertiesAction);
 
+		// spacer
+		new Label(composite, SWT.NONE);
+
 		IAction refreshAction = new RefreshAction(availableIUGroup.getStructuredViewer(), availableIUGroup.getStructuredViewer().getControl()) {
 			protected void refresh() {
 				availableIUGroup.refresh();
@@ -452,6 +455,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		};
 		Button refreshButton = createVerticalButton(composite, refreshAction.getText(), false);
 		refreshButton.setData(BUTTONACTION, refreshAction);
+
+		// spacer
+		new Label(composite, SWT.NONE);
 
 		manipulateRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_ManageSites, false);
 		manipulateRepoButton.setData(BUTTONACTION, new Action() {
@@ -493,7 +499,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		updateEnablement(addRepoButton);
 		updateEnablement(removeRepoButton);
 		boolean showRepos = queryContext.getViewType() == AvailableIUViewQueryContext.VIEW_BY_REPO;
-		manipulateRepoButton.setVisible(!showRepos);
 		addRepoButton.setVisible(showRepos);
 		removeRepoButton.setVisible(showRepos);
 	}
@@ -582,6 +587,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		installedPropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer());
 		installedPropButton.setData(BUTTONACTION, propertiesAction);
+
+		// spacer
+		new Label(composite, SWT.NONE);
 
 		revertButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
 		revertButton.setData(BUTTONACTION, new Action() {
