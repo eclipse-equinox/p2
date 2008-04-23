@@ -255,7 +255,7 @@ public class FeatureParser extends DefaultHandler {
 		String id = attributes.getValue("feature"); //$NON-NLS-1$
 		FeatureEntry entry = null;
 		if (id != null) {
-			if (attributes.getValue("patch").equalsIgnoreCase("true")) { //$NON-NLS-1$ //$NON-NLS-2$
+			if ("true".equalsIgnoreCase(attributes.getValue("patch"))) { //$NON-NLS-1$ //$NON-NLS-2$
 				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), "perfect", attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				entry.setPatch(true);
 			}
