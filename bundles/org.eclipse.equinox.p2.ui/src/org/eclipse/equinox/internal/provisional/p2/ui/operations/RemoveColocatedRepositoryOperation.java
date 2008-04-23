@@ -27,7 +27,7 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 		super(label, repoURLs);
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
 			ProvisioningUtil.removeArtifactRepository(urls[i], monitor);
@@ -54,7 +54,7 @@ public class RemoveColocatedRepositoryOperation extends RepositoryOperation {
 		return removed && super.canUndo();
 	}
 
-	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.addMetadataRepository(urls[i]);
 			ProvisioningUtil.addArtifactRepository(urls[i]);

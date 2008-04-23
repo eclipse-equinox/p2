@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
 
@@ -29,6 +30,8 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescript
 public class MetadataRepositories extends RemoteQueriedElement {
 
 	private URL[] metadataRepositories = null;
+	private boolean includeDisabled = false;
+	private int repoFlags = IMetadataRepositoryManager.REPOSITORIES_ALL;
 
 	public MetadataRepositories() {
 		super();
@@ -36,6 +39,52 @@ public class MetadataRepositories extends RemoteQueriedElement {
 
 	public MetadataRepositories(URL[] metadataRepositories) {
 		this.metadataRepositories = metadataRepositories;
+	}
+
+	/**
+	 * Get whether disabled repositories should be included in queries when no repositories
+	 * have been specified.  This boolean is used because the flags specified when getting
+	 * repositories from a repository manager are treated as an AND, and we want to permit
+	 * aggregating disabled repositories along with other flags.
+	 * 
+	 * @return includeDisabled <code>true</code> if disabled repositories should be included and
+	 * <code>false</code> if they should not be included.  
+	 */
+	public boolean getIncludeDisabledRepositories() {
+		return includeDisabled;
+	}
+
+	/**
+	 * Set whether disabled repositories should be included in queries when no repositories
+	 * have been specified.  This boolean is used because the flags specified when getting
+	 * repositories from a repository manager are treated as an AND, and we want to permit
+	 * aggregating disabled repositories along with other flags.
+	 * 
+	 * @param includeDisabled <code>true</code> if disabled repositories should be included and
+	 * <code>false</code> if they should not be included.  
+	 */
+	public void setIncludeDisabledRepositories(boolean includeDisabled) {
+		this.includeDisabled = includeDisabled;
+	}
+
+	/**
+	 * Get the flags that should be used to get the repositories when no repositories
+	 * are specified.
+	 * 
+	 * @return the integer repository manager flags
+	 */
+	public int getRepoFlags() {
+		return repoFlags;
+	}
+
+	/**
+	 * Set the flags that should be used to get the repositories when no repositories
+	 * are specified.
+	 * 
+	 * @param flags the integer repository manager flags
+	 */
+	public void setRepoFlags(int flags) {
+		this.repoFlags = flags;
 	}
 
 	/*

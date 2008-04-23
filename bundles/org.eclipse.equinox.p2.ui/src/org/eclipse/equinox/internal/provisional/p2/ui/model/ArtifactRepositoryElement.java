@@ -32,13 +32,19 @@ import org.eclipse.ui.progress.IElementCollector;
  * 
  * @since 3.4
  */
-public class ArtifactRepositoryElement extends ProvElement implements IDeferredWorkbenchAdapter, RepositoryElement {
+public class ArtifactRepositoryElement extends ProvElement implements IDeferredWorkbenchAdapter, IRepositoryElement {
 
 	URL url;
 	IArtifactRepository repo;
+	boolean isEnabled;
 
 	public ArtifactRepositoryElement(URL url) {
+		this(url, true);
+	}
+
+	public ArtifactRepositoryElement(URL url, boolean isEnabled) {
 		this.url = url;
+		this.isEnabled = isEnabled;
 	}
 
 	public Object getAdapter(Class adapter) {
@@ -138,5 +144,19 @@ public class ArtifactRepositoryElement extends ProvElement implements IDeferredW
 		} catch (ProvisionException e) {
 			return ""; //$NON-NLS-1$
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#isEnabled()
+	 */
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
 	}
 }

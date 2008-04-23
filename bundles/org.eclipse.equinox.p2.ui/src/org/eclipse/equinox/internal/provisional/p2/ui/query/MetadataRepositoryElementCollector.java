@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 import java.net.URL;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.QueriedElementCollector;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 
 /**
@@ -37,7 +38,6 @@ public class MetadataRepositoryElementCollector extends QueriedElementCollector 
 	public boolean accept(Object match) {
 		if (!(match instanceof URL))
 			return true;
-		return super.accept(new MetadataRepositoryElement((URL) match));
+		return super.accept(new MetadataRepositoryElement((URL) match, ProvisioningUtil.getMetadataRepositoryEnablement((URL) match)));
 	}
-
 }

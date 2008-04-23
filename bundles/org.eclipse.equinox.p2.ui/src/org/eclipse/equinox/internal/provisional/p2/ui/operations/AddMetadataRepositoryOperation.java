@@ -27,7 +27,7 @@ public class AddMetadataRepositoryOperation extends RepositoryOperation {
 		super(label, new URL[] {url});
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.addMetadataRepository(urls[i]);
 		}
@@ -35,7 +35,7 @@ public class AddMetadataRepositoryOperation extends RepositoryOperation {
 		return okStatus();
 	}
 
-	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
 		}

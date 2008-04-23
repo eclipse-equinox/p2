@@ -40,18 +40,12 @@ public class RefreshMetadataRepositoriesOperation extends RepositoryOperation {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.operations.UndoableProvisioningOperation#doExecute(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.core.runtime.IAdaptable)
-	 */
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		ProvisioningUtil.refreshMetadataRepositories(urls, monitor);
 		return Status.OK_STATUS;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.operations.UndoableProvisioningOperation#doUndo(org.eclipse.core.runtime.IProgressMonitor, org.eclipse.core.runtime.IAdaptable)
-	 */
-	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		// Should never happen
 		return Status.CANCEL_STATUS;
 	}

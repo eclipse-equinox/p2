@@ -50,6 +50,20 @@ public class ProvisioningUtil {
 		return manager.getRepositoryProperty(location, key);
 	}
 
+	public static boolean getMetadataRepositoryEnablement(URL location) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			return false;
+		return manager.getEnabled(location);
+	}
+
+	public static boolean getArtifactRepositoryEnablement(URL location) {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null)
+			return false;
+		return manager.getEnabled(location);
+	}
+
 	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
@@ -273,5 +287,14 @@ public class ProvisioningUtil {
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoDirectorFound);
 		}
 		return director;
+	}
+
+	public static void setColocatedRepositoryEnablement(URL location, boolean enabled) {
+		IMetadataRepositoryManager metaManager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (metaManager != null)
+			metaManager.setEnabled(location, enabled);
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (artifactManager != null)
+			artifactManager.setEnabled(location, enabled);
 	}
 }

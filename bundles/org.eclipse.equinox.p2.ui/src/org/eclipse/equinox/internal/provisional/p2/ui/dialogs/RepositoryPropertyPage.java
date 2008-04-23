@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -27,7 +27,7 @@ import org.eclipse.ui.dialogs.PropertyPage;
  */
 public class RepositoryPropertyPage extends PropertyPage {
 
-	private RepositoryElement repositoryElement;
+	private IRepositoryElement repositoryElement;
 	private Composite composite;
 	private Text name;
 	private Text url;
@@ -85,9 +85,9 @@ public class RepositoryPropertyPage extends PropertyPage {
 		description.setText(repositoryElement.getDescription());
 	}
 
-	protected RepositoryElement getRepositoryElement() {
+	protected IRepositoryElement getRepositoryElement() {
 		if (repositoryElement == null) {
-			repositoryElement = (RepositoryElement) ProvUI.getAdapter(getElement(), RepositoryElement.class);
+			repositoryElement = (IRepositoryElement) ProvUI.getAdapter(getElement(), IRepositoryElement.class);
 		}
 		return repositoryElement;
 	}

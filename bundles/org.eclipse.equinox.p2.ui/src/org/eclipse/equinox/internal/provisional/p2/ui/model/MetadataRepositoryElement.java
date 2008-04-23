@@ -30,12 +30,18 @@ import org.eclipse.osgi.util.NLS;
  * 
  * @since 3.4
  */
-public class MetadataRepositoryElement extends RemoteQueriedElement implements RepositoryElement, IUContainerElement {
+public class MetadataRepositoryElement extends RemoteQueriedElement implements IRepositoryElement, IUContainerElement {
 
 	URL url;
+	boolean isEnabled;
 
 	public MetadataRepositoryElement(URL url) {
+		this(url, true);
+	}
+
+	public MetadataRepositoryElement(URL url, boolean isEnabled) {
 		this.url = url;
+		this.isEnabled = isEnabled;
 	}
 
 	public Object getAdapter(Class adapter) {
@@ -145,5 +151,19 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements R
 		if (!hasQueryable())
 			return new IInstallableUnit[0];
 		return ElementUtils.getIUs(getChildren(this));
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#isEnabled()
+	 */
+	public boolean isEnabled() {
+		return isEnabled;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
 	}
 }

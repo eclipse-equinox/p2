@@ -28,7 +28,11 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 		super(label, new URL[] {url});
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	public AddColocatedRepositoryOperation(String label, URL[] urls) {
+		super(label, urls);
+	}
+
+	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.addMetadataRepository(urls[i]);
 			ProvisioningUtil.addArtifactRepository(urls[i]);
@@ -37,7 +41,7 @@ public class AddColocatedRepositoryOperation extends RepositoryOperation {
 		return okStatus();
 	}
 
-	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.removeMetadataRepository(urls[i], monitor);
 			ProvisioningUtil.removeArtifactRepository(urls[i], monitor);

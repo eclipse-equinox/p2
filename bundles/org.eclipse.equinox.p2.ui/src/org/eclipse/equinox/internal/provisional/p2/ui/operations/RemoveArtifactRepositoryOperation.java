@@ -27,7 +27,7 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 		super(label, repoURLs);
 	}
 
-	protected IStatus doExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.removeArtifactRepository(urls[i], monitor);
 		}
@@ -53,7 +53,7 @@ public class RemoveArtifactRepositoryOperation extends RepositoryOperation {
 		return super.canUndo() && removed;
 	}
 
-	protected IStatus doUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+	protected IStatus doBatchedUndo(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
 		for (int i = 0; i < urls.length; i++) {
 			ProvisioningUtil.addArtifactRepository(urls[i]);
 		}

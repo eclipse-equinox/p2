@@ -97,10 +97,10 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 				}
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;
-					if (metaRepos.getMetadataRepositories() != null)
-						queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
-					else
-						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+					if (metaRepos.getMetadataRepositories() == null)
+						metaRepos.setRepoFlags(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+					queryable = new QueryableMetadataRepositoryManager(metaRepos);
+
 					if (useCategories)
 						// We are using categories, group into categories first.
 						return new ElementQueryDescriptor(queryable, categoryQuery, new CategoryElementCollector(this, queryable, queryContext, true));
@@ -177,13 +177,12 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 			case IQueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;
-					if (metaRepos.getMetadataRepositories() != null)
-						queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
-					else
-						queryable = new QueryableMetadataRepositoryManager(hideSystem ? IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM : IMetadataRepositoryManager.REPOSITORIES_ALL);
-				} else
-					queryable = new QueryableMetadataRepositoryManager(hideSystem ? IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM : IMetadataRepositoryManager.REPOSITORIES_ALL);
-				return new ElementQueryDescriptor(queryable, null, new MetadataRepositoryElementCollector(this, queryContext));
+					if (metaRepos.getMetadataRepositories() == null)
+						metaRepos.setRepoFlags(hideSystem ? IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM : IMetadataRepositoryManager.REPOSITORIES_ALL);
+					queryable = new QueryableMetadataRepositoryManager(metaRepos);
+					return new ElementQueryDescriptor(queryable, null, new MetadataRepositoryElementCollector(this, queryContext));
+				}
+				return null;
 			case IQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {

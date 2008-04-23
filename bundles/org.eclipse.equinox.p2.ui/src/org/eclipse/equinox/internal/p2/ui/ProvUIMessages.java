@@ -156,6 +156,10 @@ public class ProvUIMessages extends NLS {
 
 	// Operations
 	public static String URLValidator_UnrecognizedURL;
+	public static String UpdateManagerCompatibility_ExportSitesTitle;
+	public static String UpdateManagerCompatibility_ImportSitesTitle;
+	public static String UpdateManagerCompatibility_InvalidSiteFileMessage;
+	public static String UpdateManagerCompatibility_InvalidSitesTitle;
 	public static String UpdateManagerCompatibility_UnableToOpenFindAndInstall;
 	public static String UpdateManagerCompatibility_UnableToOpenManageConfiguration;
 	public static String UpdateOperation_NothingToUpdate;

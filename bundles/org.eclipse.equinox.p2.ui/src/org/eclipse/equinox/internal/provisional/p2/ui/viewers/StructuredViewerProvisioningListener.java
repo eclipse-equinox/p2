@@ -12,6 +12,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import java.util.EventObject;
+import org.eclipse.equinox.internal.p2.ui.BatchChangeBeginningEvent;
+import org.eclipse.equinox.internal.p2.ui.BatchChangeCompleteEvent;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
@@ -40,6 +42,7 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 	public static final int PROV_EVENT_ARTIFACT_REPOSITORY = 0x0008;
 
 	int eventTypes = 0;
+	int batchCount = 0;
 	StructuredViewer viewer;
 	Display display;
 	IQueryProvider queryProvider;
@@ -52,7 +55,16 @@ public class StructuredViewerProvisioningListener implements SynchronousProvisio
 	}
 
 	public void notify(EventObject o) {
-		if (o instanceof ProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
+		if (o instanceof BatchChangeBeginningEvent) {
+			batchCount++;
+		} else if (o instanceof BatchChangeCompleteEvent) {
+			batchCount--;
+			if (batchCount <= 0)
+				asyncRefresh();
+		} else if (batchCount > 0) {
+			// We are in the middle of a batch operation
+			return;
+		} else if (o instanceof ProfileEvent && (((eventTypes & PROV_EVENT_IU) == PROV_EVENT_IU) || ((eventTypes & PROV_EVENT_PROFILE) == PROV_EVENT_PROFILE))) {
 			ProfileEvent event = (ProfileEvent) o;
 			if (event.getReason() == ProfileEvent.CHANGED) {
 				profileChanged(event.getProfileId());

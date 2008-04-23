@@ -19,13 +19,17 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
  * 
  * @since 3.4
  */
-public interface RepositoryElement {
+public interface IRepositoryElement {
 
 	public URL getLocation();
 
 	public String getName();
 
 	public String getDescription();
+
+	public boolean isEnabled();
+
+	public void setEnabled(boolean enabled);
 
 	public IRepository getRepository(IProgressMonitor monitor);
 }

@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
@@ -289,8 +289,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				if (tree != null && !tree.isDisposed()) {
 					TreeItem[] items = tree.getItems();
 					for (int i = 0; i < items.length; i++) {
-						if (items[i].getData() instanceof RepositoryElement) {
-							URL url = ((RepositoryElement) items[i].getData()).getLocation();
+						if (items[i].getData() instanceof IRepositoryElement) {
+							URL url = ((IRepositoryElement) items[i].getData()).getLocation();
 							if (url.toExternalForm().equals(location.toExternalForm())) {
 								viewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
 								tree.select(items[i]);

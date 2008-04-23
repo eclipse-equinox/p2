@@ -15,7 +15,7 @@ import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.admin.preferences.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.RepositoryContentProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
@@ -62,8 +62,8 @@ abstract class RepositoriesView extends ProvView {
 			Object[] elements = ((ITreeContentProvider) viewer.getContentProvider()).getElements(getInput());
 			ArrayList urls = new ArrayList();
 			for (int i = 0; i < elements.length; i++)
-				if (elements[i] instanceof RepositoryElement)
-					urls.add(((RepositoryElement) elements[i]).getLocation());
+				if (elements[i] instanceof IRepositoryElement)
+					urls.add(((IRepositoryElement) elements[i]).getLocation());
 			openAddRepositoryDialog(getShell());
 		}
 	}

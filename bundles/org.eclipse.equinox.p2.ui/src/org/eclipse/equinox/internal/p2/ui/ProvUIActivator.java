@@ -145,6 +145,14 @@ public class ProvUIActivator extends AbstractUIPlugin {
 		getProvisioningEventBus().addListener(listener);
 	}
 
+	public void signalBatchOperationStart() {
+		getProvisioningEventBus().publishEvent(new BatchChangeBeginningEvent(this));
+	}
+
+	public void signalBatchOperationComplete() {
+		getProvisioningEventBus().publishEvent(new BatchChangeCompleteEvent(this));
+	}
+
 	private IProvisioningEventBus getProvisioningEventBus() {
 		ServiceReference busReference = context.getServiceReference(IProvisioningEventBus.SERVICE_NAME);
 		if (busReference == null)

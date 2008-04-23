@@ -11,6 +11,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.query;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -20,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -33,15 +36,10 @@ import org.eclipse.ui.statushandlers.StatusManager;
  * should specify a null query, in which case the collector will be accepting the URL's.
  */
 public class QueryableMetadataRepositoryManager implements IQueryable {
-	private URL[] metadataRepositories;
-	private int flags = IMetadataRepositoryManager.REPOSITORIES_ALL;
+	private MetadataRepositories repositories;
 
-	public QueryableMetadataRepositoryManager(URL[] metadataRepositories) {
-		this.metadataRepositories = metadataRepositories;
-	}
-
-	public QueryableMetadataRepositoryManager(int flags) {
-		this.flags = flags;
+	public QueryableMetadataRepositoryManager(MetadataRepositories repositories) {
+		this.repositories = repositories;
 	}
 
 	/**
@@ -63,35 +61,39 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 	 * @return The collector argument
 	 */
 	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
-		URL[] repoURLs;
+		ArrayList repoURLs = new ArrayList();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
 
-		if (metadataRepositories != null) {
-			repoURLs = metadataRepositories;
+		if (repositories.getMetadataRepositories() != null) {
+			repoURLs.addAll(Arrays.asList(repositories.getMetadataRepositories()));
 		} else {
-			repoURLs = manager.getKnownRepositories(flags);
+			repoURLs.addAll(Arrays.asList(manager.getKnownRepositories(repositories.getRepoFlags())));
+			if (repositories.getIncludeDisabledRepositories()) {
+				repoURLs.addAll(Arrays.asList(manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED)));
+			}
+
 		}
-		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.length * 2);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.size() * 2);
 		if (sub.isCanceled())
 			return result;
-		for (int i = 0; i < repoURLs.length; i++) {
+		for (int i = 0; i < repoURLs.size(); i++) {
 			if (sub.isCanceled())
 				return result;
 			if (query == null) {
-				result.accept(repoURLs[i]);
+				result.accept(repoURLs.get(i));
 				sub.worked(2);
 			} else {
 				try {
-					IMetadataRepository repo = manager.loadRepository(repoURLs[i], sub.newChild(1));
+					IMetadataRepository repo = manager.loadRepository((URL) repoURLs.get(i), sub.newChild(1));
 					repo.query(query, result, sub.newChild(1));
 				} catch (ProvisionException e) {
 					//ignore unavailable repositories
 					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
-						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs[i]), StatusManager.LOG);
+						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs.get(i)), StatusManager.LOG);
 				}
 			}
 		}

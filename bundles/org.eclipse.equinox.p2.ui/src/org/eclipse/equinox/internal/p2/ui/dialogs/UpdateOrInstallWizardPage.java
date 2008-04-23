@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -93,6 +94,8 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 
 	protected void createSizingInfo(Composite parent) {
 		sizeInfo = new Label(parent, SWT.NONE);
+		GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
+		sizeInfo.setLayoutData(data);
 		updateSizingInfo();
 	}
 

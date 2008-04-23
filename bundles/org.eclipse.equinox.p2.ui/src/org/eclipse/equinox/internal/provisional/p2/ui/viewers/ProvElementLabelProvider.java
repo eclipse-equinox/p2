@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -54,6 +55,13 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				return name;
 			}
 			return ((IRepository) obj).getLocation().toExternalForm();
+		}
+		if (obj instanceof IRepositoryElement) {
+			String name = ((IRepositoryElement) obj).getName();
+			if (name != null && name.length() > 0) {
+				return name;
+			}
+			return ((IRepositoryElement) obj).getLocation().toExternalForm();
 		}
 		if (obj instanceof IArtifactKey) {
 			IArtifactKey key = (IArtifactKey) obj;
@@ -105,9 +113,6 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 
 		switch (columnIndex) {
 			case 0 :
-				if (element instanceof IRepository) {
-					return ((IRepository) element).getName();
-				}
 				return getText(element);
 			case 1 :
 				if (element instanceof IProfile) {
@@ -123,6 +128,9 @@ public class ProvElementLabelProvider extends LabelProvider implements ITableLab
 				}
 				if (element instanceof IRepository) {
 					return ((IRepository) element).getLocation().toExternalForm();
+				}
+				if (element instanceof IRepositoryElement) {
+					return ((IRepositoryElement) element).getLocation().toExternalForm();
 				}
 				if (element instanceof IArtifactKey) {
 					IArtifactKey key = (IArtifactKey) element;

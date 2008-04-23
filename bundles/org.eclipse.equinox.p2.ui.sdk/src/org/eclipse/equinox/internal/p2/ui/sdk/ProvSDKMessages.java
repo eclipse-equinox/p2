@@ -45,6 +45,8 @@ public class ProvSDKMessages extends NLS {
 	public static String RemoveColocatedRepositoryAction_Label;
 	public static String RemoveColocatedRepositoryAction_Tooltip;
 	public static String RepositoryManipulationDialog_AddButton;
+	public static String RepositoryManipulationDialog_Export;
+	public static String RepositoryManipulationDialog_Import;
 	public static String RepositoryManipulationDialog_LocationColumnHeader;
 	public static String RepositoryManipulationDialog_NameColumnHeader;
 	public static String RepositoryManipulationDialog_PropertiesButton;
@@ -129,6 +131,7 @@ public class ProvSDKMessages extends NLS {
 	public static String AutomaticUpdatesPreferencePage_RemindOnce;
 	public static String AutomaticUpdatesPopup_ClickToReviewDownloaded;
 	public static String AutomaticUpdatesPopup_ClickToReviewNotDownloaded;
+	public static String RepositoryManipulationDialog_SelectMessage;
 	public static String ProvisioningPreferencePage_AlwaysOpenWizard;
 	public static String ProvisioningPreferencePage_BrowsingPrefsGroup;
 	public static String ProvisioningPreferencePage_ShowLatestVersions;

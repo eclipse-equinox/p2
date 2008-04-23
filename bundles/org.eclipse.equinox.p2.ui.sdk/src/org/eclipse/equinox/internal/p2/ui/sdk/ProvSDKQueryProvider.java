@@ -101,10 +101,9 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 				// Showing child IU's of some repositories
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;
-					if (metaRepos.getMetadataRepositories() != null)
-						queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
-					else
-						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+					if (metaRepos.getMetadataRepositories() == null)
+						metaRepos.setRepoFlags(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+					queryable = new QueryableMetadataRepositoryManager(metaRepos);
 
 					if (availableViewQueryContext != null) {
 						if (availableViewQueryContext.getViewType() == AvailableIUViewQueryContext.VIEW_FLAT) {
@@ -183,14 +182,13 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 			case IQueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {
 					MetadataRepositories metaRepos = (MetadataRepositories) element;
-					if (metaRepos.getMetadataRepositories() != null)
-						queryable = new QueryableMetadataRepositoryManager(((MetadataRepositories) element).getMetadataRepositories());
-					else
-						queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+					if (metaRepos.getMetadataRepositories() == null)
+						metaRepos.setRepoFlags(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
+					queryable = new QueryableMetadataRepositoryManager(metaRepos);
 					metaRepos.setQueryable(queryable);
-				} else
-					queryable = new QueryableMetadataRepositoryManager(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
-				return new ElementQueryDescriptor(queryable, null, new MetadataRepositoryElementCollector(this, queryContext));
+					return new ElementQueryDescriptor(queryable, null, new MetadataRepositoryElementCollector(this, queryContext));
+				}
+				return null;
 			case IQueryProvider.PROFILES :
 				queryable = new QueryableProfileRegistry();
 				return new ElementQueryDescriptor(queryable, new Query() {

@@ -230,4 +230,12 @@ public class ProvUI {
 	public static void removeProvisioningListener(StructuredViewerProvisioningListener listener) {
 		ProvUIActivator.getDefault().removeProvisioningListener(listener);
 	}
+
+	public static void startBatchOperation() {
+		ProvUIActivator.getDefault().signalBatchOperationStart();
+	}
+
+	public static void endBatchOperation() {
+		ProvUIActivator.getDefault().signalBatchOperationComplete();
+	}
 }
