@@ -58,7 +58,7 @@ public class XMLWriter implements XMLConstants {
 	private PrintWriter pw;
 
 	public XMLWriter(OutputStream output, ProcessingInstruction[] piElements) throws UnsupportedEncodingException {
-		this.pw = new PrintWriter(new OutputStreamWriter(output, "UTF8"), true); //$NON-NLS-1$
+		this.pw = new PrintWriter(new OutputStreamWriter(output, "UTF8"), false); //$NON-NLS-1$
 		println(ProcessingInstruction.XML_UTF8);
 		this.elements = new Stack();
 		this.open = false;
@@ -199,13 +199,6 @@ public class XMLWriter implements XMLConstants {
 	}
 
 	public void flush() {
-		while (!this.elements.empty()) {
-			try {
-				end();
-			} catch (EndWithoutStartError e) {
-				// can't happen
-			}
-		}
 		this.pw.flush();
 	}
 

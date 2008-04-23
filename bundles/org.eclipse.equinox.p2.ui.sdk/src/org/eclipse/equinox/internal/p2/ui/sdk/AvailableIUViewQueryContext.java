@@ -24,6 +24,14 @@ public class AvailableIUViewQueryContext extends QueryContext {
 
 	// Default to repo as this provides the fastest information
 	private int view = VIEW_BY_REPO;
+	// Whether to show latest versions only, defaults to
+	// true.  Clients typically use a pref setting or dialog
+	// setting to initialize
+	private boolean showLatestVersionsOnly = true;
+	// Whether to hide things that are already installed
+	// Defaults to false since we wouldn't know what profile to use
+	private boolean hideAlreadyInstalled = false;
+	private String profileId = null;
 
 	public AvailableIUViewQueryContext(int viewType) {
 		this.view = viewType;
@@ -44,5 +52,30 @@ public class AvailableIUViewQueryContext extends QueryContext {
 
 	public void setViewType(int viewType) {
 		view = viewType;
+	}
+
+	public boolean getShowLatestVersionsOnly() {
+		return showLatestVersionsOnly;
+	}
+
+	public void setShowLatestVersionsOnly(boolean showLatest) {
+		showLatestVersionsOnly = showLatest;
+	}
+
+	public void hideAlreadyInstalled(String installedProfileId) {
+		profileId = installedProfileId;
+		hideAlreadyInstalled = true;
+	}
+
+	public void showAlreadyInstalled() {
+		hideAlreadyInstalled = false;
+	}
+
+	public boolean getHideAlreadyInstalled() {
+		return hideAlreadyInstalled;
+	}
+
+	public String getInstalledProfileId() {
+		return profileId;
 	}
 }

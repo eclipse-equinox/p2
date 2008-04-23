@@ -32,13 +32,15 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	protected String type;
 	protected String version;
 
-	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider) {
+	protected AbstractRepository(String name, String type, String version, URL location, String description, String provider, Map properties) {
 		this.name = name;
 		this.type = type;
 		this.version = version;
 		this.location = location;
 		this.description = description == null ? "" : description; //$NON-NLS-1$
 		this.provider = provider == null ? "" : provider; //$NON-NLS-1$
+		if (properties != null)
+			this.properties.putAll(properties);
 	}
 
 	/**
@@ -48,7 +50,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 */
 	protected void assertModifiable() {
 		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable"); //$NON-NLS-1$
+			throw new UnsupportedOperationException("Repository not modifiable: " + location); //$NON-NLS-1$
 	}
 
 	/**

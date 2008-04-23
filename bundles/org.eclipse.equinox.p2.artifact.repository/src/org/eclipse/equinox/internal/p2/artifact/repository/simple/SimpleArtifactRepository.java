@@ -187,7 +187,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	protected String[][] mappingRules = DEFAULT_MAPPING_RULES;
 
-	private boolean signatureVerification = false;
 	private MirrorSelector mirrors;
 
 	static void delete(File toDelete) {
@@ -239,17 +238,32 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		}
 	}
 
-	public SimpleArtifactRepository(String name, String type, String version, String description, String provider, boolean verifySignature, Set artifacts, String[][] mappingRules, Map properties) {
-		super(name, type, version, null, description, provider);
-		signatureVerification = verifySignature;
+	/*
+	 * This is only called by the parser when loading a repository.
+	 */
+	SimpleArtifactRepository(String name, String type, String version, String description, String provider, Set artifacts, String[][] mappingRules, Map properties) {
+		super(name, type, version, null, description, provider, properties);
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
-		this.properties.putAll(properties);
 	}
 
-	public SimpleArtifactRepository(String repositoryName, URL location) {
-		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null);
+	public SimpleArtifactRepository(String repositoryName, URL location, Map properties) {
+		super(repositoryName, REPOSITORY_TYPE, REPOSITORY_VERSION.toString(), location, null, null, properties);
 		initializeAfterLoad(location);
+		if (properties != null) {
+			if (properties.containsKey(PUBLISH_PACK_FILES_AS_SIBLINGS)) {
+				synchronized (this) {
+					String newValue = (String) properties.get(PUBLISH_PACK_FILES_AS_SIBLINGS);
+					if (Boolean.TRUE.toString().equals(newValue)) {
+						mappingRules = PACKED_MAPPING_RULES;
+					} else {
+						mappingRules = DEFAULT_MAPPING_RULES;
+					}
+					initializeMapper();
+				}
+			}
+			save();
+		}
 	}
 
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd) {
@@ -656,10 +670,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		return mappingRules;
 	}
 
-	public synchronized boolean getSignatureVerification() {
-		return signatureVerification;
-	}
-
 	private Transport getTransport() {
 		return ECFTransport.getInstance();
 	}
@@ -830,10 +840,6 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public synchronized void setRules(String[][] rules) {
 		mappingRules = rules;
-	}
-
-	public synchronized void setSignatureVerification(boolean value) {
-		signatureVerification = value;
 	}
 
 	public String toString() {

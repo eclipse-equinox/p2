@@ -12,19 +12,20 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.MetadataGeneratingURLValidator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.ui.IRepositoryManipulator;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.actions.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.sdk.ProvPolicies;
 import org.eclipse.equinox.internal.provisional.p2.ui.sdk.RepositoryManipulationDialog;
+import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerProvisioningListener;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.dialogs.Dialog;
@@ -36,6 +37,7 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
@@ -43,8 +45,8 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
-import org.eclipse.ui.dialogs.PropertyDialogAction;
 
 /**
  * Dialog that allows users to update their installed IU's or find new ones.
@@ -55,21 +57,32 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
+	private static final int CHAR_INDENT = 5;
+	private static final int VERTICAL_MARGIN_DLU = 2;
+	private static final int DEFAULT_VIEW_TYPE = AvailableIUViewQueryContext.VIEW_BY_REPO;
 	private static final int INDEX_INSTALLED = 0;
 	private static final int INDEX_AVAILABLE = 1;
 	private static final String DIALOG_SETTINGS_SECTION = "UpdateAndInstallDialog"; //$NON-NLS-1$
 	private static final String SELECTED_TAB_SETTING = "SelectedTab"; //$NON-NLS-1$
 	private static final String AVAILABLE_VIEW_TYPE = "AvailableViewType"; //$NON-NLS-1$
-	static final String INITIAL_TEXT = ProvSDKMessages.UpdateAndInstallDialog_TypeFilterText;
+	private static final String SHOW_LATEST_VERSIONS_ONLY = "ShowLatestVersionsOnly"; //$NON-NLS-1$
+	private static final String HIDE_INSTALLED_IUS = "HideInstalledContent"; //$NON-NLS-1$
 
 	String profileId;
+	Display display;
 	AvailableIUViewQueryContext queryContext;
 	TabFolder tabFolder;
 	AvailableIUGroup availableIUGroup;
 	InstalledIUGroup installedIUGroup;
 	IRepositoryManipulator repositoryManipulator;
 	ChangeViewAction viewByRepo, viewFlat, viewCategory;
-	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, manipulateRepoButton, addRepoButton, removeRepoButton;
+	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, revertButton, manipulateRepoButton, addRepoButton, removeRepoButton;
+	Button showInstalledCheckbox, showLatestVersionsCheckbox;
+	ProgressIndicator progressIndicator;
+	Label progressLabel;
+	IPropertyChangeListener preferenceListener;
+	IJobChangeListener progressListener;
+	StructuredViewerProvisioningListener profileListener;
 
 	private class ChangeViewAction extends Action {
 		int viewType;
@@ -99,6 +112,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	 */
 	public UpdateAndInstallDialog(Shell shell, String profileId) {
 		super(shell);
+		if (shell != null)
+			this.display = shell.getDisplay();
+		else
+			this.display = PlatformUI.getWorkbench().getDisplay();
 		this.profileId = profileId;
 	}
 
@@ -122,20 +139,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		createTabFolder(comp);
 
-		final Button checkBox = new Button(comp, SWT.CHECK);
-		final IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
-		checkBox.setText(ProvSDKMessages.UpdateAndInstallDialog_AlertCheckbox);
-		checkBox.setSelection(store.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
-		checkBox.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				store.setValue(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED, checkBox.getSelection());
-			}
-		});
-
-		final IPropertyChangeListener preferenceListener = new IPropertyChangeListener() {
+		IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
+		preferenceListener = new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
-				if (event.getProperty().equals(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED))
-					checkBox.setSelection(store.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_ENABLED));
 				if (event.getProperty().equals(PreferenceConstants.PREF_SHOW_LATEST_VERSION))
 					availableIUGroup.getStructuredViewer().refresh();
 			}
@@ -143,14 +149,11 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		store.addPropertyChangeListener(preferenceListener);
 		comp.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent e) {
-				store.removePropertyChangeListener(preferenceListener);
+				handleDispose();
 			}
 		});
 
 		Link updatePrefsLink = new Link(comp, SWT.LEFT | SWT.WRAP);
-		gd = new GridData();
-		gd.horizontalIndent = convertHorizontalDLUsToPixels(IDialogConstants.SMALL_INDENT);
-		updatePrefsLink.setLayoutData(gd);
 		updatePrefsLink.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 
@@ -159,8 +162,17 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 			}
 		});
 		updatePrefsLink.setText(ProvSDKMessages.UpdateAndInstallDialog_PrefLink);
+		createProgressArea(comp);
+		initializeWidgetState();
 		Dialog.applyDialogFont(comp);
 		return comp;
+	}
+
+	private void initializeWidgetState() {
+		// Set widgets according to query context
+		showInstalledCheckbox.setSelection(!queryContext.getHideAlreadyInstalled());
+		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
+
 	}
 
 	private void createTabFolder(Composite parent) {
@@ -190,6 +202,61 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		availableTab.setControl(createAvailableIUsPage(tabFolder));
 
 		setDropTarget(tabFolder);
+	}
+
+	private void createProgressArea(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = 2;
+		layout.marginHeight = 0;
+		layout.marginWidth = 0;
+		composite.setLayout(layout);
+		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		composite.setLayoutData(gd);
+		progressLabel = new Label(composite, SWT.NONE);
+		progressIndicator = new ProgressIndicator(composite);
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		progressIndicator.setLayoutData(gd);
+		progressListener = new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						checkProgressIndicator(null);
+					}
+				});
+			}
+
+			public void scheduled(final IJobChangeEvent event) {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						checkProgressIndicator(event.getJob().getName());
+					}
+				});
+			}
+		};
+		ProvisioningOperationRunner.addJobChangeListener(progressListener);
+		checkProgressIndicator(null);
+	}
+
+	// May be called from an async exec, so check that we are still
+	// alive.
+	void checkProgressIndicator(String jobName) {
+		if (progressIndicator.isDisposed())
+			return;
+		if (ProvisioningOperationRunner.hasScheduledOperations()) {
+			progressIndicator.beginAnimatedTask();
+			if (jobName == null)
+				progressLabel.setText(ProvSDKMessages.UpdateAndInstallDialog_OperationInProgress);
+			else
+				progressLabel.setText(NLS.bind(ProvSDKMessages.UpdateAndInstallDialog_NamedOperationInProgress, jobName));
+		} else {
+			progressIndicator.done();
+			progressLabel.setText(""); //$NON-NLS-1$
+		}
+		progressLabel.getParent().layout(true);
+		// These may have changed because the status of scheduled provisioning jobs changed
+		validateAvailableIUButtons();
+		validateInstalledIUButtons();
 	}
 
 	/*
@@ -257,7 +324,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		layout.marginWidth = 0;
-		layout.marginHeight = 0;
+		layout.marginTop = 0;
+		// breathing room underneath last checkboxes
+		layout.marginBottom = convertVerticalDLUsToPixels(VERTICAL_MARGIN_DLU);
+
 		composite.setLayout(layout);
 
 		// Now the available group 
@@ -266,6 +336,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// Vertical buttons
 		Composite vButtonBar = (Composite) createAvailableIUsVerticalButtonBar(composite);
 		GridData data = new GridData(GridData.FILL_VERTICAL);
+		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		vButtonBar.setLayoutData(data);
 
 		// Must be done after buttons are created so that the buttons can
@@ -275,8 +346,68 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				validateAvailableIUButtons();
 			}
 		});
+
+		// We might need to adjust the content of this viewer according to installation
+		// changes.  We want to be very selective about refreshing.
+		profileListener = new StructuredViewerProvisioningListener(availableIUGroup.getStructuredViewer(), StructuredViewerProvisioningListener.PROV_EVENT_PROFILE, ProvSDKUIActivator.getDefault().getQueryProvider()) {
+			protected void profileAdded(String id) {
+				// do nothing
+			}
+
+			protected void profileRemoved(String id) {
+				// do nothing
+			}
+
+			protected void profileChanged(String id) {
+				if (id.equals(profileId)) {
+					display.asyncExec(new Runnable() {
+						public void run() {
+							if (isClosing())
+								return;
+							if (!showInstalledCheckbox.getSelection())
+								refreshAll();
+						}
+					});
+				}
+			}
+		};
+		ProvUI.addProvisioningListener(profileListener);
+
 		availableIUGroup.setUseBoldFontForFilteredItems(queryContext.getViewType() != AvailableIUViewQueryContext.VIEW_FLAT);
 		setDropTarget(availableIUGroup.getStructuredViewer().getControl());
+
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		gd.horizontalIndent = convertWidthInCharsToPixels(CHAR_INDENT);
+		gd.verticalIndent = convertVerticalDLUsToPixels(VERTICAL_MARGIN_DLU);
+		showLatestVersionsCheckbox = new Button(composite, SWT.CHECK);
+		showLatestVersionsCheckbox.setText(ProvSDKMessages.UpdateAndInstallDialog_ShowLatestVersionsOnly);
+		showLatestVersionsCheckbox.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+		});
+		showLatestVersionsCheckbox.setLayoutData(gd);
+
+		showInstalledCheckbox = new Button(composite, SWT.CHECK);
+		showInstalledCheckbox.setText(ProvSDKMessages.UpdateAndInstallDialog_ShowAlreadyInstalledItems);
+		showInstalledCheckbox.addSelectionListener(new SelectionListener() {
+			public void widgetDefaultSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+
+			public void widgetSelected(SelectionEvent e) {
+				updateAvailableViewState();
+			}
+		});
+		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		gd.horizontalSpan = 2;
+		gd.horizontalIndent = convertWidthInCharsToPixels(CHAR_INDENT);
+		showInstalledCheckbox.setLayoutData(gd);
 
 		validateAvailableIUButtons();
 		return composite;
@@ -307,9 +438,27 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		// Add the buttons to the button bar.
 		installButton = createVerticalButton(composite, ProvUI.INSTALL_COMMAND_LABEL, false);
-		installButton.setData(BUTTONACTION, new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), getShell()));
+		IAction installAction = new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), getShell());
+		installButton.setData(BUTTONACTION, installAction);
 		availablePropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
-		availablePropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer()));
+
+		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer());
+		availablePropButton.setData(BUTTONACTION, propertiesAction);
+
+		// spacer
+		new Label(composite, SWT.NONE);
+
+		IAction refreshAction = new RefreshAction(availableIUGroup.getStructuredViewer(), availableIUGroup.getStructuredViewer().getControl()) {
+			protected void refresh() {
+				availableIUGroup.refresh();
+			}
+		};
+		Button refreshButton = createVerticalButton(composite, refreshAction.getText(), false);
+		refreshButton.setData(BUTTONACTION, refreshAction);
+
+		// spacer
+		new Label(composite, SWT.NONE);
+
 		manipulateRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_ManageSites, false);
 		manipulateRepoButton.setData(BUTTONACTION, new Action() {
 			public void runWithEvent(Event event) {
@@ -320,6 +469,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		addRepoButton.setData(BUTTONACTION, new AddColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell()));
 		removeRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteButtonText, false);
 		removeRepoButton.setData(BUTTONACTION, new RemoveColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell()));
+
+		createMenu(availableIUGroup.getStructuredViewer().getControl(), new IAction[] {installAction, propertiesAction, refreshAction});
+
 		return composite;
 	}
 
@@ -328,23 +480,25 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		parent.setRedraw(false);
 		validateAvailableIUButtons();
 		availableIUGroup.setUseBoldFontForFilteredItems(queryContext.getViewType() != AvailableIUViewQueryContext.VIEW_FLAT);
-		// This triggers the viewer refresh
+		queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
+		if (showInstalledCheckbox.getSelection())
+			queryContext.showAlreadyInstalled();
+		else
+			queryContext.hideAlreadyInstalled(profileId);
 		availableIUGroup.setQueryContext(queryContext);
-
 		parent.layout(true);
 		parent.setRedraw(true);
 	}
 
 	void validateAvailableIUButtons() {
 		// This relies on the actions themselves receiving the selection changed
-		// listener before we do, since we use their state to enable the buttons
+		// listener before we do, since we use their state to enable the buttons.
 		updateEnablement(installButton);
 		updateEnablement(availablePropButton);
 		updateEnablement(manipulateRepoButton);
 		updateEnablement(addRepoButton);
 		updateEnablement(removeRepoButton);
 		boolean showRepos = queryContext.getViewType() == AvailableIUViewQueryContext.VIEW_BY_REPO;
-		manipulateRepoButton.setVisible(!showRepos);
 		addRepoButton.setVisible(showRepos);
 		removeRepoButton.setVisible(showRepos);
 	}
@@ -367,19 +521,20 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// Vertical buttons
 		Composite vButtonBar = (Composite) createInstalledIUsVerticalButtonBar(composite, ProvSDKUIActivator.getDefault().getQueryProvider());
 		GridData data = new GridData(GridData.FILL_VERTICAL);
+		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		vButtonBar.setLayoutData(data);
 
 		// Must be done after buttons are created so that the buttons can
 		// register and receive their selection notifications before us.
 		installedIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
-				validateInstalledIUButtons(event.getSelection());
+				validateInstalledIUButtons();
 			}
 		});
 
 		setDropTarget(installedIUGroup.getStructuredViewer().getControl());
 
-		validateInstalledIUButtons(installedIUGroup.getStructuredViewer().getSelection());
+		validateInstalledIUButtons();
 		return composite;
 	}
 
@@ -398,11 +553,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		composite.setLayout(layout);
 
 		// Add the buttons to the button bar.
-		uninstallButton = createVerticalButton(composite, ProvUI.UNINSTALL_COMMAND_LABEL, false);
-		uninstallButton.setData(BUTTONACTION, new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), parent.getShell()));
 		updateButton = createVerticalButton(composite, ProvUI.UPDATE_COMMAND_LABEL, false);
 		// For update only, we want it to check for all updates if there is nothing selected
-		updateButton.setData(BUTTONACTION, new UpdateAction(new ISelectionProvider() {
+		IAction updateAction = new UpdateAction(new ISelectionProvider() {
 			public void addSelectionChangedListener(ISelectionChangedListener listener) {
 				installedIUGroup.getStructuredViewer().addSelectionChangedListener(listener);
 			}
@@ -424,28 +577,44 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 			public void setSelection(ISelection selection) {
 				installedIUGroup.getStructuredViewer().setSelection(selection);
 			}
-		}, profileId, null, ProvPolicies.getDefault(), parent.getShell()));
+		}, profileId, null, ProvPolicies.getDefault(), parent.getShell());
+		updateButton.setData(BUTTONACTION, updateAction);
+
+		uninstallButton = createVerticalButton(composite, ProvUI.UNINSTALL_COMMAND_LABEL, false);
+		IAction uninstallAction = new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), parent.getShell());
+		uninstallButton.setData(BUTTONACTION, uninstallAction);
 
 		installedPropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
-		installedPropButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer()));
+		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer());
+		installedPropButton.setData(BUTTONACTION, propertiesAction);
 
-		// temporarily disabled.
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224180
-		if (false) {
-			Button revert = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
-			revert.setData(BUTTONACTION, new Action() {
-				public void runWithEvent(Event event) {
-					RevertWizard wizard = new RevertWizard(profileId, ProvSDKUIActivator.getDefault().getQueryProvider());
-					WizardDialog dialog = new WizardDialog(getShell(), wizard);
-					dialog.create();
-					dialog.getShell().setSize(600, 500);
-				}
-			});
-		}
+		// spacer
+		new Label(composite, SWT.NONE);
+
+		revertButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
+		revertButton.setData(BUTTONACTION, new Action() {
+			public void run() {
+				RevertWizard wizard = new RevertWizard(profileId, ProvSDKUIActivator.getDefault().getQueryProvider());
+				WizardDialog dialog = new WizardDialog(getShell(), wizard);
+				dialog.create();
+				dialog.getShell().setSize(600, 500);
+				dialog.open();
+			}
+		});
+		createMenu(installedIUGroup.getStructuredViewer().getControl(), new IAction[] {updateAction, uninstallAction, propertiesAction});
+
 		return composite;
 	}
 
-	void validateInstalledIUButtons(ISelection selection) {
+	private void createMenu(Control control, IAction[] actions) {
+		MenuManager menuManager = new MenuManager();
+		for (int i = 0; i < actions.length; i++)
+			menuManager.add(actions[i]);
+		Menu menu = menuManager.createContextMenu(control);
+		control.setMenu(menu);
+	}
+
+	void validateInstalledIUButtons() {
 		// Note that this relies on the actions getting the selection notification
 		// before we do, since we rely on the action enablement to update
 		// the buttons.  This should be ok since the buttons
@@ -453,11 +622,18 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		updateEnablement(installedPropButton);
 		updateEnablement(uninstallButton);
 		updateEnablement(updateButton);
+		// special case because revert isn't a standard action
+		revertButton.setEnabled(!ProvisioningOperationRunner.hasScheduledOperationsFor(profileId));
+
 	}
 
 	private void updateEnablement(Button button) {
+		// At this point the action's enablement is correct for its
+		// selection.  Now we want to double check other conditions.
 		IAction action = getButtonAction(button);
 		if (action != null) {
+			if (action instanceof ProvisioningAction)
+				((ProvisioningAction) action).checkEnablement();
 			button.setEnabled(action.isEnabled());
 		}
 	}
@@ -502,20 +678,44 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	}
 
 	private void readDialogSettings() {
+		if (tabFolder == null || tabFolder.isDisposed())
+			return;
+
+		// Initialize the query context using defaults and pref values
+		queryContext = new AvailableIUViewQueryContext(DEFAULT_VIEW_TYPE);
+		IPreferenceStore store = ProvSDKUIActivator.getDefault().getPreferenceStore();
+		queryContext.setShowLatestVersionsOnly(store.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
+		queryContext.hideAlreadyInstalled(profileId);
+
+		// Now refine it based on the dialog settings
 		IDialogSettings settings = ProvSDKUIActivator.getDefault().getDialogSettings();
 		IDialogSettings section = settings.getSection(DIALOG_SETTINGS_SECTION);
 		if (section != null) {
-			if (tabFolder != null && !tabFolder.isDisposed()) {
-				int tab = 0;
-				if (section.get(SELECTED_TAB_SETTING) != null)
-					tab = section.getInt(SELECTED_TAB_SETTING);
-				tabFolder.setSelection(tab);
+			// Default selected tab
+			int tab = 0;
+			if (section.get(SELECTED_TAB_SETTING) != null)
+				tab = section.getInt(SELECTED_TAB_SETTING);
+			tabFolder.setSelection(tab);
 
-				int viewType = AvailableIUViewQueryContext.VIEW_BY_CATEGORY;
+			// View by...
+			try {
 				if (section.get(AVAILABLE_VIEW_TYPE) != null)
-					viewType = section.getInt(AVAILABLE_VIEW_TYPE);
-				queryContext = new AvailableIUViewQueryContext(viewType);
+					queryContext.setViewType(section.getInt(AVAILABLE_VIEW_TYPE));
+			} catch (NumberFormatException e) {
+				// Ignore if there actually was a value that didn't parse.  
+				// We'll get a default query context below.
 			}
+
+			// Show latest versions
+			if (section.get(SHOW_LATEST_VERSIONS_ONLY) != null)
+				queryContext.setShowLatestVersionsOnly(section.getBoolean(SHOW_LATEST_VERSIONS_ONLY));
+
+			// Hide installed content
+			boolean hideContent = section.getBoolean(HIDE_INSTALLED_IUS);
+			if (hideContent)
+				queryContext.hideAlreadyInstalled(profileId);
+			else
+				queryContext.showAlreadyInstalled();
 		}
 	}
 
@@ -523,6 +723,8 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		if (!tabFolder.isDisposed()) {
 			getDialogBoundsSettings().put(SELECTED_TAB_SETTING, tabFolder.getSelectionIndex());
 			getDialogBoundsSettings().put(AVAILABLE_VIEW_TYPE, queryContext.getViewType());
+			getDialogBoundsSettings().put(SHOW_LATEST_VERSIONS_ONLY, showLatestVersionsCheckbox.getSelection());
+			getDialogBoundsSettings().put(HIDE_INSTALLED_IUS, !showInstalledCheckbox.getSelection());
 		}
 	}
 
@@ -583,5 +785,21 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				return super.dropTargetIsValid(event);
 			}
 		});
+	}
+
+	void handleDispose() {
+		if (preferenceListener != null) {
+			ProvSDKUIActivator.getDefault().getPreferenceStore().removePropertyChangeListener(preferenceListener);
+			preferenceListener = null;
+		}
+		if (progressListener != null) {
+			ProvisioningOperationRunner.removeJobChangeListener(progressListener);
+			progressListener = null;
+		}
+		if (profileListener != null) {
+			ProvUI.removeProvisioningListener(profileListener);
+			profileListener = null;
+		}
+
 	}
 }

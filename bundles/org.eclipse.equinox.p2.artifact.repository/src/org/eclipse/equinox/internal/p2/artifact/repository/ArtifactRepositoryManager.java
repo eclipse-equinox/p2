@@ -35,13 +35,16 @@ import org.osgi.service.prefs.Preferences;
  * 
  * TODO the current assumption that the "location" is the dir/root limits us to 
  * having just one repository in a given URL..  
+ * TODO Merge common parts with MetadataRepositoryManager
  */
 public class ArtifactRepositoryManager extends AbstractRepositoryManager implements IArtifactRepositoryManager, ProvisioningListener {
 	static class RepositoryInfo {
 		String description;
 		boolean isSystem = false;
+		boolean isEnabled = true;
 		URL location;
 		String name;
+		String suffix;
 		SoftReference repository;
 	}
 
@@ -51,8 +54,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 
 	private static final String EL_FILTER = "filter"; //$NON-NLS-1$
 	private static final String KEY_DESCRIPTION = "description"; //$NON-NLS-1$
+	private static final String KEY_ENABLED = "enabled"; //$NON-NLS-1$
 	private static final String KEY_NAME = "name"; //$NON-NLS-1$
 	private static final String KEY_PROVIDER = "provider"; //$NON-NLS-1$
+	private static final String KEY_SUFFIX = "suffix"; //$NON-NLS-1$
 	private static final String KEY_SYSTEM = "isSystem"; //$NON-NLS-1$
 	private static final String KEY_TYPE = "type"; //$NON-NLS-1$
 	private static final String KEY_URL = "url"; //$NON-NLS-1$
@@ -81,29 +86,42 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public void addRepository(IArtifactRepository repository) {
-		RepositoryInfo info = new RepositoryInfo();
-		info.repository = new SoftReference(repository);
-		info.name = repository.getName();
-		info.description = repository.getDescription();
-		info.location = repository.getLocation();
-		String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
-		info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+		addRepository(repository, true, null);
+	}
+
+	private void addRepository(IArtifactRepository repository, boolean signalAdd, String suffix) {
 		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
+			String key = getKey(repository);
+			RepositoryInfo info = (RepositoryInfo) repositories.get(key);
+			if (info == null)
+				info = new RepositoryInfo();
+			info.repository = new SoftReference(repository);
+			info.name = repository.getName();
+			info.description = repository.getDescription();
+			info.location = repository.getLocation();
+			String value = (String) repository.getProperties().get(IRepository.PROP_SYSTEM);
+			info.isSystem = value == null ? false : Boolean.valueOf(value).booleanValue();
+			info.suffix = suffix;
 			added = repositories.put(getKey(repository), info) == null;
 		}
 		// save the given repository in the preferences.
-		remember(repository);
-		if (added)
-			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
+		remember(repository, suffix);
+		if (added && signalAdd)
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
 	}
 
 	public void addRepository(URL location) {
+		addRepository(location, true);
+	}
+
+	private void addRepository(URL location, boolean isEnabled) {
 		Assert.isNotNull(location);
 		RepositoryInfo info = new RepositoryInfo();
 		info.location = location;
+		info.isEnabled = isEnabled;
 		boolean added = true;
 		synchronized (repositoryLock) {
 			if (repositories == null)
@@ -172,20 +190,23 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return new MirrorRequest(key, destination, destinationDescriptorProperties, destinationRepositoryProperties);
 	}
 
-	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException {
+	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException {
+		boolean loaded = false;
 		try {
-			loadRepository(location, (IProgressMonitor) null);
-			fail(location, ProvisionException.REPOSITORY_EXISTS);
+			loadRepository(location, (IProgressMonitor) null, type, true);
+			loaded = true;
 		} catch (ProvisionException e) {
 			//expected - fall through and create a new repository
 		}
+		if (loaded)
+			fail(location, ProvisionException.REPOSITORY_EXISTS);
 		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
 		if (extension == null)
 			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
 		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
 		if (factory == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		IArtifactRepository result = factory.create(location, name, type);
+		IArtifactRepository result = factory.create(location, name, type, properties);
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 		clearNotFound(result.getLocation());
@@ -213,8 +234,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, null));
 	}
 
-	private IExtension[] findMatchingRepositoryExtensions(String suffix) {
-		IConfigurationElement[] elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+	private IExtension[] findMatchingRepositoryExtensions(String suffix, String type) {
+		IConfigurationElement[] elt = null;
+		if (type != null && type.length() > 0) {
+			IExtension ext = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
+			elt = (ext != null) ? ext.getConfigurationElements() : new IConfigurationElement[0];
+		} else {
+			elt = RegistryFactory.getRegistry().getConfigurationElementsFor(Activator.REPO_PROVIDER_XPT);
+		}
 		int count = 0;
 		for (int i = 0; i < elt.length; i++) {
 			if (EL_FILTER.equals(elt[i].getName())) {
@@ -331,19 +358,42 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager#getEnabled(java.net.URL)
+	 */
+	public boolean isEnabled(URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.location, location)) {
+					return info.isEnabled;
+				}
+			}
+			// Repository not found, return false
+			return false;
+		}
+	}
+
 	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		return loadRepository(location, monitor, null, true);
+	}
+
+	private IArtifactRepository loadRepository(URL location, IProgressMonitor monitor, String type, boolean signalAdd) throws ProvisionException {
 		// TODO do something with the monitor
 		IArtifactRepository result = getRepository(location);
 		if (result != null)
 			return result;
 		if (checkNotFound(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		String[] suffixes = getAllSuffixes();
+		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
 		SubMonitor sub = SubMonitor.convert(monitor, suffixes.length * 100);
 		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i], sub.newChild(100));
+			result = loadRepository(location, suffixes[i], type, sub.newChild(100));
 			if (result != null) {
-				addRepository(result);
+				addRepository(result, signalAdd, suffixes[i]);
 				return result;
 			}
 		}
@@ -352,8 +402,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		return null;
 	}
 
-	private IArtifactRepository loadRepository(URL location, String suffix, SubMonitor monitor) {
-		IExtension[] providers = findMatchingRepositoryExtensions(suffix);
+	private IArtifactRepository loadRepository(URL location, String suffix, String type, SubMonitor monitor) {
+		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
 		for (int i = 0; i < providers.length; i++)
@@ -379,6 +429,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		if ((flags & REPOSITORIES_NON_SYSTEM) == REPOSITORIES_NON_SYSTEM)
 			if (info.isSystem)
 				return false;
+		if ((flags & REPOSITORIES_DISABLED) == REPOSITORIES_DISABLED) {
+			if (info.isEnabled)
+				return false;
+		} else {
+			//ignore disabled repositories for all other flag types
+			if (!info.isEnabled)
+				return false;
+		}
 		if ((flags & REPOSITORIES_LOCAL) == REPOSITORIES_LOCAL)
 			return "file".equals(info.location.getProtocol()); //$NON-NLS-1$
 		return true;
@@ -391,7 +449,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
 			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == IRepository.TYPE_ARTIFACT)
-				addRepository(event.getRepositoryLocation());
+				addRepository(event.getRepositoryLocation(), event.isRepositoryEnabled());
 		}
 	}
 
@@ -414,13 +472,13 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		clearNotFound(location);
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return loadRepository(location, monitor);
+		return loadRepository(location, monitor, null, false);
 	}
 
 	/*
 	 * Add the given repository object to the preferences and save.
 	 */
-	private void remember(IArtifactRepository repository) {
+	private void remember(IArtifactRepository repository, String suffix) {
 		boolean changed = false;
 		Preferences node = getPreferences().node(getKey(repository));
 		changed |= putValue(node, KEY_URL, repository.getLocation().toExternalForm());
@@ -430,6 +488,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		changed |= putValue(node, KEY_TYPE, repository.getType());
 		changed |= putValue(node, KEY_VERSION, repository.getVersion());
 		changed |= putValue(node, KEY_SYSTEM, (String) repository.getProperties().get(IRepository.PROP_SYSTEM));
+		changed |= putValue(node, KEY_SUFFIX, suffix);
 		if (changed)
 			saveToPreferences();
 	}
@@ -444,6 +503,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		changed |= putValue(node, KEY_SYSTEM, Boolean.toString(info.isSystem));
 		changed |= putValue(node, KEY_DESCRIPTION, info.description);
 		changed |= putValue(node, KEY_NAME, info.name);
+		changed |= putValue(node, KEY_ENABLED, Boolean.toString(info.isEnabled));
+		changed |= putValue(node, KEY_SUFFIX, info.suffix);
 		if (changed)
 			saveToPreferences();
 	}
@@ -492,9 +553,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			// TODO should do something here since we are failing to restore.
 			return;
 		try {
-			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY); //$NON-NLS-1$
+			Map properties = new HashMap(1);
+			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 			addRepository(cache);
-			cache.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}
@@ -524,6 +586,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 				info.name = child.get(KEY_NAME, null);
 				info.description = child.get(KEY_DESCRIPTION, null);
 				info.isSystem = child.getBoolean(KEY_SYSTEM, false);
+				info.isEnabled = child.getBoolean(KEY_ENABLED, true);
+				info.suffix = child.get(KEY_SUFFIX, null);
 				repositories.put(getKey(info.location), info);
 			} catch (MalformedURLException e) {
 				log("Error while restoring repository: " + locationString, e); //$NON-NLS-1$
@@ -569,4 +633,44 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			log("Error while saving repositories in preferences", e); //$NON-NLS-1$
 		}
 	}
+
+	/*(non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager#setEnabled(java.net.URL, boolean)
+	 */
+	public void setEnabled(URL location, boolean enablement) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null || info.isEnabled == enablement)
+				return;
+			info.isEnabled = enablement;
+			remember(info);
+		}
+	}
+
+	/**
+	 * Optimize the order in which repository suffixes are searched by trying 
+	 * the last successfully loaded suffix first.
+	 */
+	private String[] sortSuffixes(String[] suffixes, URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null || info.suffix == null)
+				return suffixes;
+			//move lastSuffix to the front of the list but preserve order of remaining entries
+			String lastSuffix = info.suffix;
+			for (int i = 0; i < suffixes.length; i++) {
+				if (lastSuffix.equals(suffixes[i])) {
+					System.arraycopy(suffixes, 0, suffixes, 1, i);
+					suffixes[0] = lastSuffix;
+					return suffixes;
+				}
+			}
+		}
+		return suffixes;
+	}
+
 }

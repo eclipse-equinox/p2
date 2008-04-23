@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
 
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
@@ -24,8 +25,8 @@ import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
-	protected AbstractArtifactRepository(String name, String type, String version, URL location, String description, String provider) {
-		super(name, type, version, location, description, provider);
+	protected AbstractArtifactRepository(String name, String type, String version, URL location, String description, String provider, Map properties) {
+		super(name, type, version, location, description, provider, properties);
 	}
 
 	public abstract boolean contains(IArtifactDescriptor descriptor);
@@ -47,28 +48,23 @@ public abstract class AbstractArtifactRepository extends AbstractRepository impl
 	}
 
 	public void addDescriptor(IArtifactDescriptor descriptor) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void removeDescriptor(IArtifactDescriptor descriptor) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void removeDescriptor(IArtifactKey key) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public void removeAll() {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public boolean equals(Object o) {
