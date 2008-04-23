@@ -28,8 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactD
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
@@ -581,6 +580,8 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
+		if (isPatch(feature))
+			return createPatchIU(feature, featureIU, extraProperties);
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
@@ -617,6 +618,79 @@ public class MetadataGeneratorHelper {
 		}
 
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	public static IInstallableUnit createPatchIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
+		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
+		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
+		iu.setId(id);
+		Version version = new Version(feature.getVersion());
+		iu.setVersion(version);
+		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getLicense() != null)
+			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+		if (feature.getCopyright() != null)
+			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+
+		FeatureEntry entries[] = feature.getEntries();
+		ArrayList applicabilityScope = new ArrayList();
+		ArrayList patchRequirements = new ArrayList();
+		ArrayList requirementChanges = new ArrayList();
+		for (int i = 0; i < entries.length; i++) {
+			VersionRange range = getVersionRange(entries[i]);
+			RequiredCapability req = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			if (entries[i].isRequires()) {
+				applicabilityScope.add(req);
+				continue;
+			}
+			if (entries[i].isPlugin()) {
+				RequiredCapability from = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
+				requirementChanges.add(new RequirementChange(from, req));
+				continue;
+			}
+			patchRequirements.add(req);
+		}
+		//Always add a requirement on the IU containing the feature jar
+		patchRequirements.add(MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
+		iu.setRequiredCapabilities((RequiredCapability[]) patchRequirements.toArray(new RequiredCapability[requirementChanges.size()]));
+		iu.setApplicabilityScope(new RequiredCapability[][] {(RequiredCapability[]) applicabilityScope.toArray(new RequiredCapability[applicabilityScope.size()])});
+		iu.setRequirementChanges((RequirementChange[]) requirementChanges.toArray(new RequirementChange[requirementChanges.size()]));
+
+		//Generate lifecycle
+		RequiredCapability lifeCycle = null;
+		if (applicabilityScope.size() > 0) {
+			RequiredCapability req = (RequiredCapability) applicabilityScope.get(0);
+			lifeCycle = MetadataFactory.createRequiredCapability(req.getNamespace(), req.getName(), req.getRange(), null, false, false, false);
+			iu.setLifeCycle(lifeCycle);
+		}
+
+		iu.setTouchpointType(TouchpointType.NONE);
+		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		iu.setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
+		// 		 of the feature?
+		// iu.setFilter(filter);
+		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+
+		if (extraProperties != null) {
+			Enumeration e = extraProperties.propertyNames();
+			while (e.hasMoreElements()) {
+				String name = (String) e.nextElement();
+				iu.setProperty(name, extraProperties.getProperty(name));
+			}
+		}
+
+		return MetadataFactory.createInstallableUnitPatch(iu);
+	}
+
+	private static boolean isPatch(Feature feature) {
+		FeatureEntry[] entries = feature.getEntries();
+		for (int i = 0; i < entries.length; i++) {
+			if (entries[i].isPatch())
+				return true;
+		}
+		return false;
 	}
 
 	/**

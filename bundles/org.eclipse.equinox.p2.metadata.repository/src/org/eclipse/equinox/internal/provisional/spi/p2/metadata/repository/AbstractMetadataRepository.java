@@ -36,6 +36,7 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 		public URL Location;
 		public Map Properties;
 		public IInstallableUnit[] Units;
+		public RepositoryReference[] Repositories;
 	}
 
 	public AbstractMetadataRepository() {
@@ -49,18 +50,19 @@ public abstract class AbstractMetadataRepository extends AbstractRepository impl
 	}
 
 	public void addInstallableUnits(IInstallableUnit[] installableUnit) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
+	}
+
+	public void addReference(URL repositoryLocation, int repositoryType, int options) {
+		assertModifiable();
 	}
 
 	public void removeAll() {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 	}
 
 	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
-		if (!isModifiable())
-			throw new UnsupportedOperationException("Repository not modifiable");
+		assertModifiable();
 		return false;
 	}
 

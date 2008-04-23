@@ -32,7 +32,7 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 public interface IMetadataRepositoryManager extends IQueryable {
 
 	/**
-	 * Constant used to indicate that all repositories are of interest.
+	 * Constant used to indicate that all enabled repositories are of interest.
 	 */
 	public static final int REPOSITORIES_ALL = 0;
 
@@ -55,6 +55,12 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * @see #getKnownRepositories(int)
 	 */
 	public static final int REPOSITORIES_LOCAL = 1 << 2;
+
+	/**
+	 * Constant used to indicate that disabled repositories are of interest.
+	 * @see #getKnownRepositories(int)
+	 */
+	public static final int REPOSITORIES_DISABLED = 1 << 3;
 
 	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
@@ -102,7 +108,7 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * 
 	 * @param flags an integer bit-mask indicating which repositories should be
 	 * returned.  <code>REPOSITORIES_ALL</code> can be used as the mask when
-	 * all repositories should be returned.  Where multiple masks are combined, only
+	 * all enabled repositories should be returned.  Where multiple masks are combined, only
 	 * the repositories that satisfy all the given criteria are returned. For example,
 	 * a flag value of (REPOSITORIES_SYSTEM|REPOSITORIES_LOCAL) will only
 	 * return repositories that are both system and local repositories.
@@ -113,6 +119,7 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * @see #REPOSITORIES_SYSTEM
 	 * @see #REPOSITORIES_LOCAL
 	 * @see #REPOSITORIES_NON_SYSTEM
+	 * @see #REPOSITORIES_DISABLED
 	 */
 	public URL[] getKnownRepositories(int flags);
 
@@ -137,9 +144,27 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * 
 	 * @see #loadRepository(URL, IProgressMonitor)
 	 * @see IRepository#getProperties()
-	 * 
 	 */
 	public String getRepositoryProperty(URL location, String key);
+
+	/**
+	 * Returns the enablement value of a repository.  Disabled repositories are known
+	 * to the repository manager, but are never used in the context of provisioning
+	 * operation. Disabled repositories are useful as a form of bookmark to indicate that a 
+	 * repository location is of interest, but not currently used.
+	 * <p>
+	 * Note that enablement is a property of the repository manager and not a property
+	 * of the affected repository. The enablement of the repository is discarded when 
+	 * a repository is removed from the repository manager.
+	 * 
+	 * @param location The location of the repository whose enablement is requested
+	 * @return <code>true</code> if the repository is enabled, and
+	 * <code>false</code> if it is not enabled, or if the repository location 
+	 * is not known to the repository manager.
+	 * @see #REPOSITORIES_DISABLED
+	 * @see #setEnabled(URL, boolean)
+	 */
+	public boolean isEnabled(URL location);
 
 	/**
 	 * Loads a repository corresponding to the given URL.  If a repository has
@@ -193,6 +218,27 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * <code>false</code> otherwise.
 	 */
 	public boolean removeRepository(URL location);
+
+	/**
+	 * Sets the enablement of a repository. Disabled repositories are known
+	 * to the repository manager, but are never used in the context of provisioning
+	 * operation. Disabled repositories are useful as a form of bookmark to indicate that a 
+	 * repository location is of interest, but not currently used.
+	 * <p>
+	 * Note that enablement is a property of the repository manager and not a property
+	 * of the affected repository. The enablement of the repository is discarded when 
+	 * a repository is removed from the repository manager.
+	 * <p>
+	 * This method has no effect if the given repository location is not known to the
+	 * repository manager.
+	 * 
+	 * @param location The location of the repository to enable or disable
+	 * @param enablement <code>true</code>to enable the repository, and
+	 * <code>false</code> to disable the repository
+	 * @see #REPOSITORIES_DISABLED
+	 * @see #isEnabled(URL)
+	 */
+	public void setEnabled(URL location, boolean enablement);
 
 	/**
 	 * Validates a given URL and returns a status indicating whether a valid repository is likely

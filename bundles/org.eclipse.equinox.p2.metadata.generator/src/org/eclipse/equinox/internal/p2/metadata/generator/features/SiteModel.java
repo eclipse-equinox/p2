@@ -39,6 +39,7 @@ public class SiteModel {
 	private boolean supportsPack200;
 	private String type;
 	private URLEntry[] associateSites;
+	private String digestURLString;
 
 	/**
 	 * Creates an uninitialized site model object.
@@ -323,5 +324,13 @@ public class SiteModel {
 	 */
 	public void setAssociateSites(URLEntry[] associateSites) {
 		this.associateSites = associateSites;
+	}
+
+	public void setDigestURLString(String digestURLString) {
+		this.digestURLString = digestURLString;
+	}
+
+	public String getDigestURLString() {
+		return digestURLString;
 	}
 }

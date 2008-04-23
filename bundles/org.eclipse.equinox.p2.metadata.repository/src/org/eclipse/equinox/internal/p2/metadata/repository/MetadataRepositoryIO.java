@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.metadata.repository;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Iterator;
+import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
@@ -26,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository.RepositoryState;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -130,10 +133,37 @@ public class MetadataRepositoryIO {
 
 			writeProperties(repository.getProperties());
 			Collector units = repository.query(InstallableUnitQuery.ANY, new Collector(), null);
+			if (repository instanceof LocalMetadataRepository) {
+				Set references = ((LocalMetadataRepository) repository).repositories;
+				writeRepositoryReferences(references.iterator(), references.size());
+			}
 			writeInstallableUnits(units.iterator(), units.size());
 
 			end(REPOSITORY_ELEMENT);
 			flush();
+		}
+
+		/**
+		 * Writes a list of {@link RepositoryReference}.
+		 * @param references An Iterator of {@link RepositoryReference}.
+		 * @param size The number of references  to write
+		 */
+		protected void writeRepositoryReferences(Iterator references, int size) {
+			if (size == 0)
+				return;
+			start(REPOSITORY_REFERENCES_ELEMENT);
+			attribute(COLLECTION_SIZE_ATTRIBUTE, size);
+			while (references.hasNext())
+				writeRepositoryReference((RepositoryReference) references.next());
+			end(REPOSITORY_REFERENCES_ELEMENT);
+		}
+
+		private void writeRepositoryReference(RepositoryReference reference) {
+			start(REPOSITORY_REFERENCE_ELEMENT);
+			attribute(URL_ATTRIBUTE, reference.Location.toExternalForm());
+			attribute(TYPE_ATTRIBUTE, Integer.toString(reference.Type));
+			attribute(OPTIONS_ATTRIBUTE, Integer.toString(reference.Options));
+			end(REPOSITORY_REFERENCE_ELEMENT);
 		}
 	}
 
@@ -153,7 +183,7 @@ public class MetadataRepositoryIO {
 		public synchronized void parse(InputStream stream, IProgressMonitor monitor) throws IOException {
 			this.status = null;
 			setProgressMonitor(monitor);
-			monitor.beginTask(Messages.REPO_LOADING, IProgressMonitor.UNKNOWN);
+			monitor.beginTask(Messages.repo_loading, IProgressMonitor.UNKNOWN);
 			try {
 				// TODO: currently not caching the parser since we make no assumptions
 				//		 or restrictions on concurrent parsing
@@ -210,6 +240,7 @@ public class MetadataRepositoryIO {
 
 			private InstallableUnitsHandler unitsHandler = null;
 			private PropertiesHandler propertiesHandler = null;
+			private RepositoryReferencesHandler repositoryReferencesHandler = null;
 
 			private AbstractMetadataRepository repository = null;
 
@@ -259,6 +290,7 @@ public class MetadataRepositoryIO {
 							: propertiesHandler.getProperties());
 					state.Units = (unitsHandler == null ? new IInstallableUnit[0] //
 							: unitsHandler.getUnits());
+					state.Repositories = repositoryReferencesHandler == null ? new RepositoryReference[0] : repositoryReferencesHandler.getReferences();
 					try {
 						//can't create repository if missing type - this is already logged when parsing attributes
 						if (state.Type == null)

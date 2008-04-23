@@ -18,8 +18,7 @@ import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryMan
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -331,6 +330,38 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	public static IInstallableUnit createIU(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton) {
 		return createIU(name, version, filter, required, additionalProvides, properties, tpType, tpData, singleton, null);
+	}
+
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, boolean singleton, RequirementChange[] changes, RequiredCapability[][] scope, RequiredCapability lifeCycle) {
+		return createIUPatch(name, version, null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, singleton, null, changes, scope, lifeCycle);
+	}
+
+	public static IInstallableUnitPatch createIUPatch(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton, IUpdateDescriptor update, RequirementChange[] reqChanges, RequiredCapability[][] scope, RequiredCapability lifeCycle) {
+		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
+		iu.setId(name);
+		iu.setVersion(version);
+		iu.setFilter(filter);
+		ProvidedCapability[] provides = new ProvidedCapability[additionalProvides.length + 1];
+		provides[0] = getSelfCapability(name, version);
+		for (int i = 0; i < additionalProvides.length; i++) {
+			provides[i + 1] = additionalProvides[i];
+		}
+		for (Iterator iter = properties.keySet().iterator(); iter.hasNext();) {
+			String nextKey = (String) iter.next();
+			String nextValue = (String) properties.get(nextKey);
+			iu.setProperty(nextKey, nextValue);
+		}
+		iu.setCapabilities(provides);
+		iu.setRequiredCapabilities(required);
+		iu.setTouchpointType(tpType);
+		if (tpData != null)
+			iu.addTouchpointData(tpData);
+		iu.setSingleton(singleton);
+		iu.setUpdateDescriptor(update);
+		iu.setRequirementChanges(reqChanges);
+		iu.setApplicabilityScope(scope);
+		iu.setLifeCycle(lifeCycle);
+		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
 	public static IInstallableUnit createIU(String name, Version version, String filter, RequiredCapability[] required, ProvidedCapability[] additionalProvides, Map properties, TouchpointType tpType, TouchpointData tpData, boolean singleton, IUpdateDescriptor update) {
@@ -675,6 +706,18 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (ops[i] instanceof InstallableUnitOperand) {
 				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
 				if (iu.equals(iuOp.second()))
+					return;
+			}
+		}
+		fail("Can't find " + iu + " in the plan");
+	}
+
+	protected void assertUninstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+		Operand[] ops = plan.getOperands();
+		for (int i = 0; i < ops.length; i++) {
+			if (ops[i] instanceof InstallableUnitOperand) {
+				InstallableUnitOperand iuOp = (InstallableUnitOperand) ops[i];
+				if (iu.equals(iuOp.first()))
 					return;
 			}
 		}

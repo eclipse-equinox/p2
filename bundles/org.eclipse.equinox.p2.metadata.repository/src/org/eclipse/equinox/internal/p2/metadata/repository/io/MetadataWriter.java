@@ -57,6 +57,13 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 			writeHostRequiredCapabilities(fragment.getHost());
 		}
 
+		if (iu instanceof IInstallableUnitPatch) {
+			IInstallableUnitPatch patch = (IInstallableUnitPatch) iu;
+			writeApplicabilityScope(patch.getApplicabilityScope());
+			writeRequirementsChange(patch.getRequirementsChange());
+			writeLifeCycle(patch.getLifeCycle());
+		}
+
 		writeUpdateDescriptor(resolvedIU, resolvedIU.getUpdateDescriptor());
 		writeProperties(iu.getProperties());
 		writeProvidedCapabilities(iu.getProvidedCapabilities());
@@ -70,6 +77,14 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		writeCopyright(iu.getCopyright());
 
 		end(INSTALLABLE_UNIT_ELEMENT);
+	}
+
+	protected void writeLifeCycle(RequiredCapability capability) {
+		if (capability == null)
+			return;
+		start(LIFECYCLE);
+		writeRequiredCapability(capability);
+		end(LIFECYCLE);
 	}
 
 	protected void writeHostRequiredCapabilities(RequiredCapability[] capabilities) {
@@ -119,7 +134,39 @@ public abstract class MetadataWriter extends XMLWriter implements XMLConstants {
 		attribute(UPDATE_DESCRIPTOR_SEVERITY, descriptor.getSeverity());
 		attribute(DESCRIPTION_ATTRIBUTE, descriptor.getDescription());
 		end(UPDATE_DESCRIPTOR_ELEMENT);
+	}
 
+	protected void writeApplicabilityScope(RequiredCapability[][] capabilities) {
+		start(APPLICABILITY_SCOPE);
+		for (int i = 0; i < capabilities.length; i++) {
+			start(APPLY_ON);
+			writeRequiredCapabilities(capabilities[i]);
+			end(APPLY_ON);
+		}
+		end(APPLICABILITY_SCOPE);
+	}
+
+	protected void writeRequirementsChange(RequirementChange[] changes) {
+		start(REQUIREMENT_CHANGES);
+		for (int i = 0; i < changes.length; i++) {
+			writeRequirementChange(changes[i]);
+		}
+		end(REQUIREMENT_CHANGES);
+	}
+
+	protected void writeRequirementChange(RequirementChange change) {
+		start(REQUIREMENT_CHANGE);
+		if (change.applyOn() != null) {
+			start(REQUIREMENT_FROM);
+			writeRequiredCapability(change.applyOn());
+			end(REQUIREMENT_FROM);
+		}
+		if (change.newValue() != null) {
+			start(REQUIREMENT_TO);
+			writeRequiredCapability(change.newValue());
+			end(REQUIREMENT_TO);
+		}
+		end(REQUIREMENT_CHANGE);
 	}
 
 	protected void writeRequiredCapability(RequiredCapability capability) {

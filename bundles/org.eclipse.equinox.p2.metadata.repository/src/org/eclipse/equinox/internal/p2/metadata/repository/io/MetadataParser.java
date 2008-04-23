@@ -11,13 +11,15 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.metadata.repository.io;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.persistence.XMLParser;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
@@ -30,8 +32,50 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		super(context, bundleId);
 	}
 
-	protected class InstallableUnitsHandler extends AbstractHandler {
+	protected class RepositoryReferencesHandler extends AbstractHandler {
+		private HashSet references;
 
+		public RepositoryReferencesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, REPOSITORY_REFERENCES_ELEMENT);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			references = (size != null ? new HashSet(Integer.parseInt(size)) : new HashSet(4));
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(REPOSITORY_REFERENCE_ELEMENT)) {
+				new RepositoryReferenceHandler(this, attributes, references);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+
+		public RepositoryReference[] getReferences() {
+			return (RepositoryReference[]) references.toArray(new RepositoryReference[references.size()]);
+		}
+	}
+
+	protected class RepositoryReferenceHandler extends AbstractHandler {
+
+		private final String[] required = new String[] {URL_ATTRIBUTE, TYPE_ATTRIBUTE, OPTIONS_ATTRIBUTE};
+
+		public RepositoryReferenceHandler(AbstractHandler parentHandler, Attributes attributes, Set references) {
+			super(parentHandler, REPOSITORY_REFERENCE_ELEMENT);
+			String[] values = parseRequiredAttributes(attributes, required);
+			try {
+				int type = checkInteger(elementHandled, TYPE_ATTRIBUTE, values[1]);
+				int options = checkInteger(elementHandled, OPTIONS_ATTRIBUTE, values[2]);
+				references.add(new RepositoryReference(new URL(values[0]), type, options));
+			} catch (MalformedURLException e) {
+				invalidAttributeValue(elementHandled, URL_ATTRIBUTE, values[0]);
+			}
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			invalidElement(name, attributes);
+		}
+	}
+
+	protected class InstallableUnitsHandler extends AbstractHandler {
 		private ArrayList units;
 
 		public InstallableUnitsHandler(AbstractHandler parentHandler, Attributes attributes) {
@@ -61,7 +105,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class InstallableUnitHandler extends AbstractHandler {
-
 		private final String[] required = new String[] {ID_ATTRIBUTE, VERSION_ATTRIBUTE};
 		private final String[] optional = new String[] {SINGLETON_ATTRIBUTE};
 
@@ -78,6 +121,9 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		private UpdateDescriptorHandler updateDescriptorHandler = null;
 		private LicensesHandler licensesHandler = null;
 		private CopyrightHandler copyrightHandler = null;
+		private RequirementsChangeHandler requirementChangesHandler = null;
+		private ApplicabilityScopesHandler applicabilityScopeHandler = null;
+		private LifeCycleHandler lifeCycleHandler;
 
 		private String id;
 		private Version version;
@@ -155,9 +201,30 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 			} else if (UPDATE_DESCRIPTOR_ELEMENT.equals(name)) {
 				if (updateDescriptorHandler == null)
 					updateDescriptorHandler = new UpdateDescriptorHandler(this, attributes);
+				else {
+					duplicateElement(this, name, attributes);
+				}
 			} else if (LICENSES_ELEMENT.equals(name)) {
 				if (licensesHandler == null) {
 					licensesHandler = new LicensesHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
+			} else if (REQUIREMENT_CHANGES.equals(name)) {
+				if (requirementChangesHandler == null) {
+					requirementChangesHandler = new RequirementsChangeHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
+			} else if (APPLICABILITY_SCOPE.equals(name)) {
+				if (applicabilityScopeHandler == null) {
+					applicabilityScopeHandler = new ApplicabilityScopesHandler(this, attributes);
+				} else {
+					duplicateElement(this, name, attributes);
+				}
+			} else if (LIFECYCLE.equals(name)) {
+				if (lifeCycleHandler == null) {
+					lifeCycleHandler = new LifeCycleHandler(this, attributes);
 				} else {
 					duplicateElement(this, name, attributes);
 				}
@@ -174,7 +241,14 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 
 		protected void finished() {
 			if (isValidXML()) {
-				if (hostRequiredCapabilitiesHandler == null || hostRequiredCapabilitiesHandler.getHostRequiredCapabilities().length == 0) {
+				if (requirementChangesHandler != null) {
+					currentUnit = new MetadataFactory.InstallableUnitPatchDescription();
+					((InstallableUnitPatchDescription) currentUnit).setRequirementChanges((RequirementChange[]) requirementChangesHandler.getRequirementChanges().toArray(new RequirementChange[requirementChangesHandler.getRequirementChanges().size()]));
+					if (applicabilityScopeHandler != null)
+						((InstallableUnitPatchDescription) currentUnit).setApplicabilityScope(applicabilityScopeHandler.getScope());
+					if (lifeCycleHandler != null)
+						((InstallableUnitPatchDescription) currentUnit).setLifeCycle(lifeCycleHandler.getLifeCycleRequirement());
+				} else if (hostRequiredCapabilitiesHandler == null || hostRequiredCapabilitiesHandler.getHostRequiredCapabilities().length == 0) {
 					currentUnit = new InstallableUnitDescription();
 				} else {
 					currentUnit = new MetadataFactory.InstallableUnitFragmentDescription();
@@ -240,8 +314,144 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 		}
 	}
 
-	protected class ProvidedCapabilitiesHandler extends AbstractHandler {
+	protected class ApplicabilityScopesHandler extends AbstractHandler {
+		private List scopes;
 
+		public ApplicabilityScopesHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, APPLICABILITY_SCOPE);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			scopes = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (APPLY_ON.equals(name)) {
+				new ApplicabilityScopeHandler(this, attributes, scopes);
+			} else {
+				duplicateElement(this, name, attributes);
+			}
+		}
+
+		public RequiredCapability[][] getScope() {
+			return (RequiredCapability[][]) scopes.toArray(new RequiredCapability[scopes.size()][]);
+		}
+	}
+
+	protected class ApplicabilityScopeHandler extends AbstractHandler {
+		private RequiredCapabilitiesHandler children;
+		private List scopes;
+
+		public ApplicabilityScopeHandler(AbstractHandler parentHandler, Attributes attributes, List scopes) {
+			super(parentHandler, APPLY_ON);
+			this.scopes = scopes;
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (REQUIRED_CAPABILITIES_ELEMENT.equals(name)) {
+				children = new RequiredCapabilitiesHandler(this, attributes);
+			} else {
+				duplicateElement(this, name, attributes);
+			}
+		}
+
+		protected void finished() {
+			scopes.add(children.getRequiredCapabilities());
+		}
+	}
+
+	protected class RequirementsChangeHandler extends AbstractHandler {
+		private List requirementChanges;
+
+		public RequirementsChangeHandler(InstallableUnitHandler parentHandler, Attributes attributes) {
+			super(parentHandler, REQUIREMENT_CHANGES);
+			String size = parseOptionalAttribute(attributes, COLLECTION_SIZE_ATTRIBUTE);
+			requirementChanges = (size != null ? new ArrayList(new Integer(size).intValue()) : new ArrayList(4));
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(REQUIREMENT_CHANGE)) {
+				new RequirementChangeHandler(this, attributes, requirementChanges);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+
+		public List getRequirementChanges() {
+			return requirementChanges;
+		}
+	}
+
+	protected class RequirementChangeHandler extends AbstractHandler {
+		private List from;
+		private List to;
+		private List requirementChanges;
+
+		public RequirementChangeHandler(AbstractHandler parentHandler, Attributes attributes, List requirementChanges) {
+			super(parentHandler, REQUIREMENT_CHANGE);
+			from = new ArrayList(1);
+			to = new ArrayList(1);
+			this.requirementChanges = requirementChanges;
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (name.equals(REQUIREMENT_FROM)) {
+				new RequirementChangeEltHandler(this, REQUIREMENT_FROM, attributes, from);
+				return;
+			}
+
+			if (name.equals(REQUIREMENT_TO)) {
+				new RequirementChangeEltHandler(this, REQUIREMENT_TO, attributes, to);
+				return;
+			}
+			invalidElement(name, attributes);
+		}
+
+		protected void finished() {
+			requirementChanges.add(new RequirementChange(from.size() == 0 ? null : (RequiredCapability) from.get(0), to.size() == 0 ? null : (RequiredCapability) to.get(0)));
+		}
+	}
+
+	protected class RequirementChangeEltHandler extends AbstractHandler {
+		private List requirement;
+
+		public RequirementChangeEltHandler(AbstractHandler parentHandler, String parentId, Attributes attributes, List from) {
+			super(parentHandler, parentId);
+			requirement = from;
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (REQUIRED_CAPABILITY_ELEMENT.equals(name))
+				new RequiredCapabilityHandler(this, attributes, requirement);
+			else {
+				invalidElement(name, attributes);
+			}
+		}
+
+	}
+
+	protected class LifeCycleHandler extends AbstractHandler {
+		private List lifeCycleRequirement;
+
+		public LifeCycleHandler(AbstractHandler parentHandler, Attributes attributes) {
+			super(parentHandler, LIFECYCLE);
+			lifeCycleRequirement = new ArrayList(1);
+		}
+
+		public RequiredCapability getLifeCycleRequirement() {
+			if (lifeCycleRequirement.size() == 0)
+				return null;
+			return (RequiredCapability) lifeCycleRequirement.get(0);
+		}
+
+		public void startElement(String name, Attributes attributes) {
+			if (REQUIRED_CAPABILITY_ELEMENT.equals(name)) {
+				new RequiredCapabilityHandler(this, attributes, lifeCycleRequirement);
+			} else {
+				invalidElement(name, attributes);
+			}
+		}
+	}
+
+	protected class ProvidedCapabilitiesHandler extends AbstractHandler {
 		private List providedCapabilities;
 
 		public ProvidedCapabilitiesHandler(AbstractHandler parentHandler, Attributes attributes) {
@@ -264,7 +474,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class ProvidedCapabilityHandler extends AbstractHandler {
-
 		private final String[] required = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_ATTRIBUTE};
 
 		public ProvidedCapabilityHandler(AbstractHandler parentHandler, Attributes attributes, List capabilities) {
@@ -324,7 +533,6 @@ public abstract class MetadataParser extends XMLParser implements XMLConstants {
 	}
 
 	protected class RequiredCapabilityHandler extends AbstractHandler {
-
 		private final String[] required = new String[] {NAMESPACE_ATTRIBUTE, NAME_ATTRIBUTE, VERSION_RANGE_ATTRIBUTE};
 		private final String[] optional = new String[] {CAPABILITY_OPTIONAL_ATTRIBUTE, CAPABILITY_MULTIPLE_ATTRIBUTE, CAPABILITY_GREED_ATTRIBUTE};
 

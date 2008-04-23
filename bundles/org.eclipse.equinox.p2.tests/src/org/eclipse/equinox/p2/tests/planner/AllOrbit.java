@@ -57,9 +57,6 @@ public class AllOrbit extends AbstractProvisioningTest {
 				count++;
 			}
 		}
-		System.out.println(repo.query(new InstallableUnitQuery("javax.wsdl"), new Collector(), null).size());
-		System.out.println("count:" + count);
-		System.out.println("repo:" + allIUs.size());
 		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 

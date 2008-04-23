@@ -28,6 +28,11 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String INSTALLABLE_UNITS_ELEMENT = "units"; //$NON-NLS-1$
 	public static final String INSTALLABLE_UNIT_ELEMENT = "unit"; //$NON-NLS-1$
 
+	//Constants for repository references
+	public static final String REPOSITORY_REFERENCES_ELEMENT = "references"; //$NON-NLS-1$
+	public static final String REPOSITORY_REFERENCE_ELEMENT = "repository"; //$NON-NLS-1$
+	public static final String OPTIONS_ATTRIBUTE = "options"; //$NON-NLS-1$
+
 	// Constants for sub-elements of an installable unit element
 	public static final String ARTIFACT_KEYS_ELEMENT = "artifacts"; //$NON-NLS-1$
 	public static final String ARTIFACT_KEY_ELEMENT = "artifact"; //$NON-NLS-1$
@@ -40,6 +45,14 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String TOUCHPOINT_DATA_ELEMENT = "touchpointData"; //$NON-NLS-1$
 	public static final String IU_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
 	public static final String UPDATE_DESCRIPTOR_ELEMENT = "update"; //$NON-NLS-1$
+
+	public static final String APPLICABILITY_SCOPE = "patchScope"; //$NON-NLS-1$
+	public static final String APPLY_ON = "scope"; //$NON-NLS-1$
+	public static final String REQUIREMENT_CHANGES = "changes"; //$NON-NLS-1$
+	public static final String REQUIREMENT_CHANGE = "change"; //$NON-NLS-1$
+	public static final String REQUIREMENT_FROM = "from"; //$NON-NLS-1$
+	public static final String REQUIREMENT_TO = "to"; //$NON-NLS-1$
+	public static final String LIFECYCLE = "lifeCycle"; //$NON-NLS-1$
 
 	// Constants for attributes of an installable unit element
 	public static final String SINGLETON_ATTRIBUTE = "singleton"; //$NON-NLS-1$

@@ -215,7 +215,7 @@ public class FeatureParser extends DefaultHandler {
 		//ignore discovery sites of type 'web'
 		if ("web".equals(attributes.getValue("type"))) //$NON-NLS-1$ //$NON-NLS-2$
 			return;
-		result.addDiscoverySite(attributes.getValue("url"), attributes.getValue("label")); //$NON-NLS-1$ //$NON-NLS-2$
+		result.addDiscoverySite(attributes.getValue("label"), attributes.getValue("url")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	protected void processFeature(Attributes attributes) {
@@ -255,7 +255,10 @@ public class FeatureParser extends DefaultHandler {
 		String id = attributes.getValue("feature"); //$NON-NLS-1$
 		FeatureEntry entry = null;
 		if (id != null) {
-			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (attributes.getValue("patch").equalsIgnoreCase("true")) { //$NON-NLS-1$ //$NON-NLS-2$
+				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), "perfect", attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				entry.setPatch(true);
+			}
 		} else {
 			id = attributes.getValue("plugin"); //$NON-NLS-1$
 			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

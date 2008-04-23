@@ -20,12 +20,15 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 
 /**
  * A metadata repository that resides in the local file system.  If the repository
@@ -33,6 +36,7 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Abstr
  * and combine any metadata repository files that are found.
  */
 public class LocalMetadataRepository extends AbstractMetadataRepository {
+
 	static final private String CONTENT_FILENAME = "content"; //$NON-NLS-1$
 	static final private String REPOSITORY_TYPE = LocalMetadataRepository.class.getName();
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
@@ -40,6 +44,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	static final private String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 
 	protected HashSet units = new LinkedHashSet();
+	protected HashSet repositories = new HashSet();
 
 	private static File getActualLocation(URL location, String extension) {
 		String spec = location.getFile();
@@ -83,6 +88,11 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		save();
 	}
 
+	public void addReference(URL repositoryLocation, int repositoryType, int options) {
+		assertModifiable();
+		repositories.add(new RepositoryReference(repositoryLocation, repositoryType, options));
+	}
+
 	public void initialize(RepositoryState state) {
 		this.name = state.Name;
 		this.type = state.Type;
@@ -92,6 +102,22 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		this.location = state.Location;
 		this.properties = state.Properties;
 		this.units.addAll(Arrays.asList(state.Units));
+		this.repositories.addAll(Arrays.asList(state.Repositories));
+		publishRepositoryReferences();
+	}
+
+	/**
+	 * Broadcast discovery events for all repositories referenced by this repository.
+	 */
+	private void publishRepositoryReferences() {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		for (Iterator it = repositories.iterator(); it.hasNext();) {
+			RepositoryReference reference = (RepositoryReference) it.next();
+			boolean isEnabled = (reference.Options & IRepository.ENABLED) != 0;
+			bus.publishEvent(new RepositoryEvent(reference.Location, reference.Type, RepositoryEvent.DISCOVERED, isEnabled));
+		}
 	}
 
 	// use this method to setup any transient fields etc after the object has been restored from a stream

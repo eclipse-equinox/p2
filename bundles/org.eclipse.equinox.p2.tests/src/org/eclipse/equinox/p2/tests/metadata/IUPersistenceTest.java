@@ -254,6 +254,60 @@ public class IUPersistenceTest extends AbstractProvisioningTest {
 		assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
 	}
 
+	public void testIUPatchPersistence() throws IOException {
+		IInstallableUnit iu0 = createPatchIU();
+		validateIU(iu0);
+		ByteArrayOutputStream output0 = new ByteArrayOutputStream(3072);
+		IUStringWriter writer0 = new IUStringWriter(output0);
+		writer0.writeTest(iu0);
+		String iuText0 = output0.toString();
+		output0.close();
+
+		IUStringParser parser = new IUStringParser(TestActivator.context, TestActivator.PI_PROV_TESTS);
+		parser.parse(iuText0);
+		assertTrue("Error parsing test iu: " + parser.getStatus().getMessage(), parser.getStatus().isOK());
+		InstallableUnitPatch iu1 = (InstallableUnitPatch) parser.getRootObject();
+		validateIU(iu1);
+		validateIUPatch(iu1);
+		ByteArrayOutputStream output1 = new ByteArrayOutputStream(1492);
+		IUStringWriter writer = new IUStringWriter(output1);
+		writer.writeTest(iu1);
+		String iuText1 = output1.toString();
+		output1.close();
+		assertTrue("Installable unit write after read after write produced different XML", iuText1.equals(iuText0));
+
+	}
+
+	private IInstallableUnitPatch createPatchIU() {
+		Map propertyMap = createProperties(properties);
+		ProvidedCapability[] additionalProvides = createProvided(provides);
+		RequiredCapability[] requirements = createRequired(requires);
+		TouchpointData tpData = createTouchpointData(instructions);
+		IUpdateDescriptor update = createUpdateDescriptor();
+		boolean singleton = false;
+		RequirementChange change1 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		RequirementChange change2 = new RequirementChange(null, MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.1.0, 1.3.0)"), null, false, false, true));
+		RequirementChange change3 = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), null);
+		RequiredCapability[][] scope = new RequiredCapability[][] { {MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true), MetadataFactory.createRequiredCapability("foo", "bar", null, null, true, true)}, {MetadataFactory.createRequiredCapability("zoo", "far", null, null, true, true)}};
+		IInstallableUnitPatch iu = createIUPatch(id, version, filter, requirements, additionalProvides, propertyMap, TOUCHPOINT_OSGI, tpData, singleton, update, new RequirementChange[] {change1, change2, change3}, scope, null);
+		return iu;
+	}
+
+	private static void validateIUPatch(IInstallableUnitPatch iu) {
+		validateIU(iu);
+		assertTrue(iu.getApplicabilityScope() != null);
+		assertTrue(iu.getRequiredCapabilities() != null);
+		assertEquals(3, iu.getRequirementsChange().length);
+		assertEquals(null, iu.getRequirementsChange()[1].applyOn());
+		assertNotNull(iu.getRequirementsChange()[1].newValue());
+		assertEquals(null, iu.getRequirementsChange()[2].newValue());
+		assertNotNull(iu.getRequirementsChange()[2].applyOn());
+		assertEquals(2, iu.getApplicabilityScope().length);
+		assertEquals(2, iu.getApplicabilityScope()[0].length);
+		assertEquals(1, iu.getApplicabilityScope()[1].length);
+		assertNull(iu.getLifeCycle());
+	}
+
 	private static void validateIU(IInstallableUnit iu) {
 		assertTrue("Installable unit id is not correct", id.equals(iu.getId()));
 		assertTrue("Installable unit version is not correct", version.equals(iu.getVersion()));
