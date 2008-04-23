@@ -142,10 +142,6 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site site = (Site) iter.next();
 			String siteURL = site.getUrl();
-			// TODO: this is our way of skipping the base.
-			// we will need to change this to platform:/base/ at some point
-			if ("file:.".equals(siteURL) || "file:".equals(siteURL)) //$NON-NLS-1$//$NON-NLS-2$
-				continue;
 			if (siteURL.startsWith("file:") && siteURL.endsWith("/eclipse/")) //$NON-NLS-1$//$NON-NLS-2$
 				siteURL = siteURL.substring(0, siteURL.length() - 8);
 			IMetadataRepository match = getMatchingRepo(Activator.getConfigurationRepositories(), siteURL);
@@ -165,9 +161,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			}
 		}
 		// if we didn't add any new repos then there is no work to do
-		if (newRepos.isEmpty())
-			return;
-		configRepositories = newRepos;
-		Activator.synchronize(newRepos, null);
+		if (!newRepos.isEmpty())
+			configRepositories = newRepos;
 	}
 }

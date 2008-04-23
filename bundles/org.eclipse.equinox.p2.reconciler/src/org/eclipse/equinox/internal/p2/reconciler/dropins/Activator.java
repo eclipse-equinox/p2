@@ -121,7 +121,7 @@ public class Activator implements BundleActivator {
 		// keep an eye on the platform.xml
 		watchConfiguration();
 
-		synchronize(new ArrayList(0), null);
+		synchronize(null);
 
 		// we should probably be holding on to these repos by URL
 		// see Bug 223422
@@ -156,12 +156,12 @@ public class Activator implements BundleActivator {
 	/*
 	 * Synchronize the profile.
 	 */
-	public static synchronized void synchronize(Collection extraRepositories, IProgressMonitor monitor) {
+	public static synchronized void synchronize(IProgressMonitor monitor) {
 		IProfile profile = getCurrentProfile(bundleContext);
 		if (profile == null)
 			return;
 		// create the profile synchronizer on all available repositories
-		Set repositories = new HashSet(extraRepositories);
+		Set repositories = new HashSet();
 		if (dropinRepositories != null)
 			repositories.addAll(dropinRepositories);
 

@@ -27,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -261,21 +262,31 @@ public class ProfileSynchronizer {
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
 		for (Iterator iter = allIUs.iterator(); iter.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iter.next();
-			if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
-				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
-			// mark all IUs with special property
-			request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
-			request.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
-			toAdd.add(iu);
+			final IInstallableUnit iu = (IInstallableUnit) iter.next();
+			// if the IU is already installed in the profile then skip it
+			Query query = new Query() {
+				public boolean isMatch(Object candidate) {
+					return iu.equals(candidate);
+				}
+			};
+			Collector collector = profile.query(query, new Collector(), null);
+			if (collector.size() == 0) {
+				if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
+					request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+				// mark all IUs with special property
+				request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
+				request.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
+				toAdd.add(iu);
+			}
 		}
 
 		// get all IUs from profile with marked property (existing)
 		Collector profileIUs = profile.query(new IUProfilePropertyQuery(profile, PROP_FROM_DROPINS, Boolean.toString(true)), new Collector(), null);
+		Collection all = allIUs.toCollection();
 		for (Iterator iter = profileIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			// remove the IUs that are in the intersection between the 2 sets
-			if (toAdd.contains(iu))
+			if (all.contains(iu))
 				toAdd.remove(iu);
 			else
 				toRemove.add(iu);
