@@ -105,7 +105,9 @@ public class ResolutionHelper {
 	public Collection attachCUs(Collection toAttach) {
 		initialize();
 		for (Iterator iterator = toAttach.iterator(); iterator.hasNext();) {
-			addInResolution((IInstallableUnit) iterator.next());
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			if (iu != null)
+				addInResolution(iu);
 		}
 		state.resolve();
 		BundleDescription[] bds = state.getBundles();
@@ -169,6 +171,8 @@ public class ResolutionHelper {
 		Collection result = new HashSet(toAttach.size());
 		for (Iterator iterator = toAttach.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			if (iu == null)
+				continue;
 			//just return fragments as they are
 			if (iu.isFragment()) {
 				result.add(iu);

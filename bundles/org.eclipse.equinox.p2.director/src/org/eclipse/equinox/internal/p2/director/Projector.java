@@ -13,8 +13,7 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -33,12 +32,13 @@ import org.sat4j.specs.*;
  * back into information understandable by the planner.
  */
 public class Projector {
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	private IQueryable picker;
 
 	private Map variables; //key IU, value corresponding variable in the problem
 	private Map noopVariables; //key IU, value corresponding no optionality variable in the problem, 
 	private List abstractVariables;
+	private List abstractVarsForPatches;
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
@@ -56,7 +56,7 @@ public class Projector {
 	private File problemFile;
 	private MultiStatus result;
 
-	//	private int commentsCount = 0;
+	private int commentsCount = 0;
 
 	public Projector(IQueryable q, Dictionary context) {
 		picker = q;
@@ -68,6 +68,7 @@ public class Projector {
 		dependencies = new ArrayList();
 		selectionContext = context;
 		abstractVariables = new ArrayList();
+		abstractVarsForPatches = new ArrayList();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
@@ -109,6 +110,10 @@ public class Projector {
 	// translates a -> -b into pseudo boolean
 	private String impliesNo(String a, String b) {
 		return "-1 " + a + " -1 " + b + ">= -1 ;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	private String implies(String a, String b) {
+		return "-1 " + a + " +1 " + b + ">= -1 ;"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 	//Create an optimization function favoring the highest version of each IU  
@@ -163,7 +168,11 @@ public class Projector {
 	}
 
 	private void createNegation(IInstallableUnit iu) {
-		tautologies.add(" +1" + getVariable(iu) + " = 0;"); //$NON-NLS-1$//$NON-NLS-2$
+		createNegation(getVariable(iu));
+	}
+
+	private void createNegation(String var) {
+		tautologies.add(" +1" + var + " = 0;"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	// Check whether the requirement is applicable
@@ -183,7 +192,7 @@ public class Projector {
 		try {
 			problemFile = File.createTempFile("p2Encoding", ".opb"); //$NON-NLS-1$//$NON-NLS-2$
 			BufferedWriter w = new BufferedWriter(new FileWriter(problemFile));
-			int clauseCount = tautologies.size() + dependencies.size() + constraints.size();// - commentsCount;
+			int clauseCount = tautologies.size() + dependencies.size() + constraints.size() - commentsCount;
 
 			w.write("* #variable= " + varCount + " #constraint= " + clauseCount + "  "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			w.newLine();
@@ -288,16 +297,132 @@ public class Projector {
 			return;
 		}
 
-		RequiredCapability[] reqs = iu.getRequiredCapabilities();
-		if (reqs.length == 0) {
-			return;
-		}
-		for (int i = 0; i < reqs.length; i++) {
-			if (isApplicable(reqs[i])) {
-				expandRequirement(iu, reqs[i]);
+		Collector patches = getApplicablePatches(iu);
+		//No patches apply, normal code path
+		if (patches.size() == 0) {
+			RequiredCapability[] reqs = iu.getRequiredCapabilities();
+			if (reqs.length == 0) {
+				return;
 			}
+			for (int i = 0; i < reqs.length; i++) {
+				if (!isApplicable(reqs[i]))
+					continue;
+
+				expandRequirement(null, iu, reqs[i]);
+			}
+			addOptionalityExpression();
+		} else {
+			//Patches are applicable to the IU
+
+			//Unmodified dependencies
+			Map allRequirements = new HashMap(iu.getRequiredCapabilities().length);
+
+			for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
+				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
+				RequiredCapability[][] reqs = mergeRequirements(iu, patch);
+				if (reqs.length == 0)
+					return;
+
+				List variablesResultingFromPatchApplication = new ArrayList();
+				int count = -1;
+				for (int i = 0; i < reqs.length; i++) {
+					if (reqs[i][0] == reqs[i][1]) //The requirement has not changed
+						continue;
+					if (!isApplicable(reqs[i][1])) //TODO We may have to do something here
+						continue;
+
+					//create IU & Patch -> reqVar
+					String appliedPatchVar = getVariableForAppliedPatches(iu, patch, reqs[i][0]);
+					commentsCount++;
+					dependencies.add("* " + iu + " & " + patch + "->" + appliedPatchVar); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					dependencies.add("-1 " + getVariable(iu) + " -1" + getVariable(patch) + " +1 " + appliedPatchVar + " = -1;"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+
+					variablesResultingFromPatchApplication.add(appliedPatchVar);
+					//Collect variable used to patch the requirement
+					List appliedPatchesVarForRequirement = (List) allRequirements.get(reqs[i][0]);
+					if (appliedPatchesVarForRequirement == null) {
+						appliedPatchesVarForRequirement = new ArrayList();
+						allRequirements.put(reqs[i][0], appliedPatchesVarForRequirement);
+					}
+					appliedPatchesVarForRequirement.add(appliedPatchVar);
+
+					expandRequirement(appliedPatchVar, iu, reqs[i][1]);
+					count++;
+				}
+				for (Iterator iterator2 = variablesResultingFromPatchApplication.iterator(); iterator2.hasNext();) {
+					String var = (String) iterator2.next();
+					commentsCount++;
+					dependencies.add("* " + patch + " -> " + var);
+					dependencies.add(implies(getVariable(patch), var));
+				}
+			}
+
+			//Generate expressions for requirements that have not been patched 
+			RequiredCapability[] reqs = iu.getRequiredCapabilities();
+			if (reqs.length == 0) {
+				return;
+			}
+			for (int i = 0; i < reqs.length; i++) {
+				if (!isApplicable(reqs[i]))
+					continue;
+				String varForAllPatchedRequirement = null;
+				if (allRequirements.get(reqs[i]) != null) {
+					//generate the no patch expression summing all the req applications and generate a new variable
+					//A & !allRequissss -> AbsctVar
+					String expression = "-1 " + getVariable(iu); //$NON-NLS-1$
+					for (Iterator iterator = ((ArrayList) allRequirements.get(reqs[i])).iterator(); iterator.hasNext();) {
+						expression += " +1 " + (String) iterator.next(); //$NON-NLS-1$
+					}
+					varForAllPatchedRequirement = getVariableForAppliedPatches(null, null, null);
+					commentsCount++;
+					dependencies.add("* " + iu + " & !reqsvars ->" + varForAllPatchedRequirement);
+					expression += " +1 " + varForAllPatchedRequirement + " >= -1 ;"; //$NON-NLS-1$
+					dependencies.add(expression);
+				}
+
+				expandRequirement(varForAllPatchedRequirement, iu, reqs[i]);
+			}
+			addOptionalityExpression();
 		}
-		addOptionalityExpression();
+	}
+
+	private String getVariableForAppliedPatches(IInstallableUnit iu1, IInstallableUnit iu2, RequiredCapability req) {
+		String newVar = new String("x" + varCount++); //$NON-NLS-1$
+		abstractVarsForPatches.add(newVar);
+		return newVar;
+	}
+
+	//Return a new array of requirements representing the application of the patch
+	private RequiredCapability[][] mergeRequirements(IInstallableUnit iu, IInstallableUnitPatch patch) {
+		if (patch == null)
+			return null;
+		RequirementChange[] changes = patch.getRequirementsChange();
+		RequiredCapability[] originalRequirements = new RequiredCapability[iu.getRequiredCapabilities().length];
+		System.arraycopy(iu.getRequiredCapabilities(), 0, originalRequirements, 0, originalRequirements.length);
+		List rrr = new ArrayList();
+		boolean found = false;
+		for (int i = 0; i < changes.length; i++) {
+			for (int j = 0; j < originalRequirements.length; j++) {
+				if (originalRequirements[j] != null && changes[i].matches(originalRequirements[j])) {
+					found = true;
+					if (changes[i].newValue() != null)
+						rrr.add(new RequiredCapability[] {originalRequirements[j], changes[i].newValue()});
+					else
+						// case where a requirement is removed
+						rrr.add(new RequiredCapability[] {originalRequirements[j], null});
+					originalRequirements[j] = null;
+				}
+				//				break;
+			}
+			if (!found && changes[i].applyOn() == null && changes[i].newValue() != null) //Case where a new requirement is added
+				rrr.add(new RequiredCapability[] {null, changes[i].newValue()});
+		}
+		//Add all the unmodified requirements to the result
+		for (int i = 0; i < originalRequirements.length; i++) {
+			if (originalRequirements[i] != null)
+				rrr.add(new RequiredCapability[] {originalRequirements[i], originalRequirements[i]});
+		}
+		return (RequiredCapability[][]) rrr.toArray(new RequiredCapability[rrr.size()][]);
 	}
 
 	private void addOptionalityExpression() {
@@ -310,30 +435,32 @@ public class Projector {
 	private String optionalityExpression = null;
 	private int countOptionalIUs = 0;
 
-	private void expandOptionalRequirement(IInstallableUnit iu, RequiredCapability req) {
+	private void expandOptionalRequirement(String iuVar, IInstallableUnit iu, RequiredCapability req) {
+		if (iuVar == null)
+			iuVar = getVariable(iu);
 		String abstractVar = getAbstractVariable();
 		String expression = " -1 " + abstractVar; //$NON-NLS-1$
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		if (optionalityExpression == null)
-			optionalityExpression = " -1 " + getVariable(iu) + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
-		//		StringBuffer comment = new StringBuffer();
-		//		comment.append("* ");
-		//		comment.append(iu.toString());
-		//		comment.append(" requires optionaly either ");
+			optionalityExpression = " -1 " + iuVar + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
+		StringBuffer comment = new StringBuffer();
+		comment.append("* ");
+		comment.append(iu.toString());
+		comment.append(" requires optionaly either ");
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
 				countMatches++;
 				expression += " 1 " + getVariable(match); //$NON-NLS-1$
-				//				comment.append(match.toString());
-				//				comment.append(' ');
+				comment.append(match.toString());
+				comment.append(' ');
 			}
 		}
 		countOptionalIUs += countMatches;
 		if (countMatches > 0) {
-			//			dependencies.add(comment.toString());
-			//			commentsCount++;
+			dependencies.add(comment.toString());
+			commentsCount++;
 			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
 			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
@@ -343,40 +470,47 @@ public class Projector {
 			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	private void expandNormalRequirement(IInstallableUnit iu, RequiredCapability req) {
+	private void expandNormalRequirement(String varIu, IInstallableUnit iu, RequiredCapability req) {
 		//Generate the regular requirement
-		String expression = "-1 " + getVariable(iu); //$NON-NLS-1$
+		if (varIu == null)
+			varIu = getVariable(iu);
+		String expression = "-1 " + varIu; //$NON-NLS-1$
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
-		//		StringBuffer comment = new StringBuffer();
-		//		comment.append("* ");
-		//		comment.append(iu.toString());
-		//		comment.append(" requires either ");
+		StringBuffer comment = new StringBuffer();
+		comment.append("* ");
+		comment.append(iu.toString());
+		comment.append(" requires either ");
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
 			if (isApplicable(match)) {
 				countMatches++;
 				expression += " +1 " + getVariable(match); //$NON-NLS-1$
-				//				comment.append(match.toString());
-				//				comment.append(' ');
+				comment.append(match.toString());
+				comment.append(' ');
 			}
 		}
 
 		if (countMatches > 0) {
-			//			dependencies.add(comment.toString());
-			//			commentsCount++;
+			dependencies.add(comment.toString());
+			commentsCount++;
 			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 		} else {
 			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
-			createNegation(iu);
+			createNegation(varIu);
 		}
 	}
 
-	private void expandRequirement(IInstallableUnit iu, RequiredCapability req) {
+	//Return IUPatches that are applicable for the given iu
+	private Collector getApplicablePatches(IInstallableUnit iu) {
+		return picker.query(new ApplicablePatchQuery(iu), new Collector(), null);
+	}
+
+	private void expandRequirement(String var, IInstallableUnit iu, RequiredCapability req) {
 		if (req.isOptional())
-			expandOptionalRequirement(iu, req);
+			expandOptionalRequirement(var, iu, req);
 		else
-			expandNormalRequirement(iu, req);
+			expandNormalRequirement(var, iu, req);
 	}
 
 	//Create constraints to deal with singleton

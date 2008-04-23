@@ -46,6 +46,14 @@ public interface XMLConstants extends org.eclipse.equinox.internal.p2.persistenc
 	public static final String IU_FILTER_ELEMENT = "filter"; //$NON-NLS-1$
 	public static final String UPDATE_DESCRIPTOR_ELEMENT = "update"; //$NON-NLS-1$
 
+	public static final String APPLICABILITY_SCOPE = "patchScope"; //$NON-NLS-1$
+	public static final String APPLY_ON = "scope"; //$NON-NLS-1$
+	public static final String REQUIREMENT_CHANGES = "changes"; //$NON-NLS-1$
+	public static final String REQUIREMENT_CHANGE = "change"; //$NON-NLS-1$
+	public static final String REQUIREMENT_FROM = "from"; //$NON-NLS-1$
+	public static final String REQUIREMENT_TO = "to"; //$NON-NLS-1$
+	public static final String LIFECYCLE = "lifeCycle"; //$NON-NLS-1$
+
 	// Constants for attributes of an installable unit element
 	public static final String SINGLETON_ATTRIBUTE = "singleton"; //$NON-NLS-1$
 	public static final String FRAGMENT_ATTRIBUTE = "fragment"; //$NON-NLS-1$

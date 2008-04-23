@@ -72,6 +72,14 @@ public interface IInstallableUnit extends Comparable {
 	public static final String PROP_TYPE_GROUP = "org.eclipse.equinox.p2.type.group"; //$NON-NLS-1$
 
 	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.type.patch"</code>) for a 
+	 * boolean property indicating that an installable unit is a group.
+	 * 
+	 * @see #getProperty(String)
+	 */
+	public static final String PROP_TYPE_PATCH = "org.eclipse.equinox.p2.type.patch"; //$NON-NLS-1$
+
+	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.type.lock"</code>) for an
 	 * integer property indicating how an installable unit is locked in its profile.
 	 * The integer is a bit-mask indicating the different locks defined on the installable

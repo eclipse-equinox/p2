@@ -11,8 +11,7 @@ package org.eclipse.equinox.internal.p2.director;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.RequiredCapability;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
@@ -110,7 +109,7 @@ public class Slicer {
 			return;
 		}
 
-		RequiredCapability[] reqs = iu.getRequiredCapabilities();
+		RequiredCapability[] reqs = getRequiredCapabilities(iu);
 		if (reqs.length == 0) {
 			return;
 		}
@@ -124,6 +123,22 @@ public class Slicer {
 
 			expandRequirement(iu, reqs[i]);
 		}
+	}
+
+	private RequiredCapability[] getRequiredCapabilities(IInstallableUnit iu) {
+		if (!(iu instanceof IInstallableUnitPatch)) {
+			return iu.getRequiredCapabilities();
+		}
+		RequiredCapability[] aggregatedCapabilities;
+		IInstallableUnitPatch patchIU = (IInstallableUnitPatch) iu;
+		RequirementChange[] changes = patchIU.getRequirementsChange();
+		int initialRequirementCount = iu.getRequiredCapabilities().length;
+		aggregatedCapabilities = new RequiredCapability[initialRequirementCount + changes.length];
+		System.arraycopy(iu.getRequiredCapabilities(), 0, aggregatedCapabilities, 0, initialRequirementCount);
+		for (int i = 0; i < changes.length; i++) {
+			aggregatedCapabilities[initialRequirementCount++] = changes[i].newValue();
+		}
+		return aggregatedCapabilities;
 	}
 
 	private void expandRequirement(IInstallableUnit iu, RequiredCapability req) {

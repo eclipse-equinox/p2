@@ -26,6 +26,7 @@ public class FeatureEntry {
 	private boolean isRequires = false;
 	private boolean unpack = true;
 	private boolean optional = false;
+	private boolean isPatch = false;
 
 	/**
 	 * Temporary field to add provisioning filters to features
@@ -173,5 +174,13 @@ public class FeatureEntry {
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
 		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return result.toString();
+	}
+
+	public boolean isPatch() {
+		return isPatch;
+	}
+
+	public void setPatch(boolean patch) {
+		this.isPatch = patch;
 	}
 }
