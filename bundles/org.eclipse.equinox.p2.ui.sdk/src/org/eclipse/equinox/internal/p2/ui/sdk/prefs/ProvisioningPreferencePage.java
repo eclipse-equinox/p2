@@ -100,7 +100,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
 		showLatestRadio.setSelection(pref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
 		showAllRadio.setSelection(!pref.getBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
-		String openWizard = pref.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+		String openWizard = pref.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
 		alwaysShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.ALWAYS));
 		neverShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.NEVER));
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
@@ -111,7 +111,7 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
 		showLatestRadio.setSelection(pref.getDefaultBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
 		showAllRadio.setSelection(!pref.getDefaultBoolean(PreferenceConstants.PREF_SHOW_LATEST_VERSION));
-		String openWizard = pref.getDefaultString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+		String openWizard = pref.getDefaultString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
 		alwaysShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.ALWAYS));
 		neverShowFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.NEVER));
 		promptOnFailedPlan.setSelection(openWizard.equals(MessageDialogWithToggle.PROMPT));
@@ -121,11 +121,11 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 		Preferences pref = ProvSDKUIActivator.getDefault().getPluginPreferences();
 		pref.setValue(PreferenceConstants.PREF_SHOW_LATEST_VERSION, showLatestRadio.getSelection());
 		if (alwaysShowFailedPlan.getSelection())
-			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN, MessageDialogWithToggle.ALWAYS);
+			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.ALWAYS);
 		else if (neverShowFailedPlan.getSelection())
-			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN, MessageDialogWithToggle.NEVER);
+			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.NEVER);
 		else
-			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN, MessageDialogWithToggle.PROMPT);
+			pref.setValue(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN, MessageDialogWithToggle.PROMPT);
 
 		ProvSDKUIActivator.getDefault().savePluginPreferences();
 		return true;

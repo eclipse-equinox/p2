@@ -78,20 +78,22 @@ public class AutomaticUpdater implements IUpdateListener {
 					if (alreadyValidated)
 						return true;
 					// In all other cases we return false, because the clicking the popup will actually run the action.
-					String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+					// We are just checking prefs to determine whether to to show the popup or not.
+					String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
 					if (plan != null) {
-						if (plan.getStatus().isOK() || !(MessageDialogWithToggle.NEVER.equals(openPlan))) {
+						boolean noError = plan.getStatus().getSeverity() != IStatus.ERROR;
+						if (noError || !(MessageDialogWithToggle.NEVER.equals(openPlan))) {
 							// Show the affordance if user prefers always opening a currentPlan or being prompted
 							// In this context, the affordance is the prompt.
 							if (updateAffordance == null)
 								createUpdateAffordance();
-							setUpdateAffordanceState(plan.getStatus().isOK());
-							// If the user always wants to open invalid plans, or status is OK then go ahead and show
+							setUpdateAffordanceState(noError);
+							// If the user always wants to open invalid plans, or there is no error then go ahead and show
 							// the popup.
-							if (plan.getStatus().isOK() || MessageDialogWithToggle.ALWAYS.equals(openPlan) && popup == null)
+							if ((noError || MessageDialogWithToggle.ALWAYS.equals(openPlan)) && popup == null)
 								createUpdatePopup();
 						} else {
-							// The pref is NEVER, the user doesn't want to know about it
+							// There is an error and the pref is NEVER, the user doesn't want to know about it
 							ProvUI.reportStatus(plan.getStatus(), StatusManager.LOG);
 						}
 					}
