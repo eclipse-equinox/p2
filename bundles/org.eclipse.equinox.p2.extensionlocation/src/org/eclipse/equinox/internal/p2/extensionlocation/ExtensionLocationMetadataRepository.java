@@ -60,9 +60,8 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		DirectoryChangeListener listener = new RepositoryListener(context, metadataRepository, null);
 		if (location.getPath().endsWith(POOLED))
 			listener = new BundlePoolFilteredListener(listener);
-		// TODO this is the line which will enable platform.xml site policy filtering
-		//		if (site != null)
-		//			listener = new SiteListener(site, listener);
+		if (site != null)
+			listener = new SiteListener(site, listener);
 
 		watcher.addListener(listener);
 		watcher.poll();
