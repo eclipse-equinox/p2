@@ -342,6 +342,25 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager#getEnabled(java.net.URL)
+	 */
+	public boolean getEnabled(URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.location, location)) {
+					return info.isEnabled;
+				}
+			}
+			// Repository not found, return false
+			return false;
+		}
+	}
+
 	public IArtifactRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		return loadRepository(location, monitor, true);
 	}

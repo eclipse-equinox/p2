@@ -228,6 +228,24 @@ public interface IArtifactRepositoryManager {
 	public boolean removeRepository(URL location);
 
 	/**
+	 * Returns the enablement value of a repository.  Disabled repositories are known
+	 * to the repository manager, but are never used in the context of provisioning
+	 * operation. Disabled repositories are useful as a form of bookmark to indicate that a 
+	 * repository location is of interest, but not currently used.
+	 * <p>
+	 * Note that enablement is a property of the repository manager and not a property
+	 * of the affected repository. The enablement of the repository is discarded when 
+	 * a repository is removed from the repository manager.
+	 * 
+	 * @param location The location of the repository whose enablement is requested
+	 * @return <code>true</code> if the repository is enabled, and
+	 * <code>false</code> if it is not enabled, or if the repository location 
+	 * is not known to the repository manager.
+	 * @see #REPOSITORIES_DISABLED
+	 */
+	public boolean getEnabled(URL location);
+
+	/**
 	 * Sets the enablement of a repository. Disabled repositories are known
 	 * to the repository manager, but are never used in the context of provisioning
 	 * operation. Disabled repositories are useful as a form of bookmark to indicate that a 

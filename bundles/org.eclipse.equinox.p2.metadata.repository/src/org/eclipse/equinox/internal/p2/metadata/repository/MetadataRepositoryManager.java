@@ -357,6 +357,25 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager#getEnabled(java.net.URL)
+	 */
+	public boolean getEnabled(URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
+				RepositoryInfo info = (RepositoryInfo) it.next();
+				if (URLUtil.sameURL(info.location, location)) {
+					return info.isEnabled;
+				}
+			}
+			// Repository not found, return false
+			return false;
+		}
+	}
+
 	public IMetadataRepository loadRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		return loadRepository(location, monitor, true);
 	}
