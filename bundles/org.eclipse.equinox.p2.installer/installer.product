@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.1"?>
+<?pde version="3.4"?>
 
 <product name="RCP Product" id="org.eclipse.equinox.p2.installer.product" application="org.eclipse.equinox.p2.installer.application" useFeatures="false">
 
@@ -10,7 +10,12 @@
       </text>
    </aboutInfo>
 
-   <configIni use="custom" path="/org.eclipse.equinox.p2.installer/config.ini"/>
+   <configIni use="default">
+      <linux>/org.eclipse.equinox.p2.installer/config.ini</linux>
+      <macosx>/org.eclipse.equinox.p2.installer/config.ini</macosx>
+      <solaris>/org.eclipse.equinox.p2.installer/config.ini</solaris>
+      <win32>/org.eclipse.equinox.p2.installer/config.ini</win32>
+   </configIni>
 
    <launcherArgs>
       <vmArgs>-Dorg.eclipse.equinox.p2.installDescription=http://download.eclipse.org/eclipse/testUpdates/sdk-installer.properties</vmArgs>
@@ -32,6 +37,7 @@
 
    <plugins>
       <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.net"/>
       <plugin id="org.eclipse.ecf"/>
       <plugin id="org.eclipse.ecf.filetransfer"/>
       <plugin id="org.eclipse.ecf.identity"/>

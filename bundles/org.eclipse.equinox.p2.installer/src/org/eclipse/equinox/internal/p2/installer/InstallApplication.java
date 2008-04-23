@@ -14,10 +14,12 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
@@ -135,6 +137,7 @@ public class InstallApplication implements IApplication {
 			try {
 				description = computeInstallDescription();
 				startRequiredBundles(description);
+				initializeProxySupport();
 				//perform long running install operation
 				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(InstallerActivator.getDefault().getContext(), description);
 				IStatus result = advisor.performInstall(operation);
@@ -164,6 +167,14 @@ public class InstallApplication implements IApplication {
 		} finally {
 			advisor.stop();
 		}
+	}
+
+	private void initializeProxySupport() {
+		IProxyService proxies = (IProxyService) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
+		if (proxies == null)
+			return;
+		proxies.setProxiesEnabled(true);
+		proxies.setSystemProxiesEnabled(true);
 	}
 
 	/**
