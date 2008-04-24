@@ -16,12 +16,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.updatesite.*;
+import org.eclipse.equinox.internal.p2.publisher.MetadataGeneratorHelper;
+import org.eclipse.equinox.internal.p2.publisher.features.*;
+import org.eclipse.equinox.internal.p2.updatesite.Activator;
+import org.eclipse.equinox.internal.p2.updatesite.Messages;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.BundleContext;
@@ -147,7 +149,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	}
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-		return artifactRepository.getOutputStream(descriptor);
+		return getOutputStream(descriptor, true);
 	}
 
 	public void removeAll() {
@@ -164,5 +166,9 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		artifactRepository.addDescriptors(descriptors);
+	}
+
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor, boolean overwrite) throws ProvisionException {
+		return artifactRepository.getOutputStream(descriptor, overwrite);
 	}
 }

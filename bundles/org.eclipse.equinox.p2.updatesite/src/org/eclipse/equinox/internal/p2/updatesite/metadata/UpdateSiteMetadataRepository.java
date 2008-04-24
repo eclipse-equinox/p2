@@ -15,22 +15,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
-import org.eclipse.equinox.internal.p2.updatesite.*;
+import org.eclipse.equinox.internal.p2.publisher.BundleDescriptionFactory;
+import org.eclipse.equinox.internal.p2.publisher.MetadataGeneratorHelper;
+import org.eclipse.equinox.internal.p2.publisher.features.*;
+import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.p2.updatesite.Messages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
-import org.eclipse.osgi.service.resolver.*;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 public class UpdateSiteMetadataRepository extends AbstractRepository implements IMetadataRepository {
 
@@ -85,7 +85,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		Properties extraProperties = new Properties();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 		Set allSiteIUs = new HashSet();
-		BundleDescriptionFactory bundleDesciptionFactory = initializeBundleDescriptionFactory(Activator.getBundleContext());
+		BundleDescriptionFactory bundleDesciptionFactory = BundleDescriptionFactory.getBundleDescriptionFactory(Activator.getBundleContext());
 
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
@@ -107,7 +107,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 				}
 			}
 
-			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true);
+			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, null, true, null);
 			IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
 
 			String featureKey = feature.getId() + FEATURE_VERSION_SEPARATOR + feature.getVersion();
@@ -135,13 +135,6 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		metadataRepository.addInstallableUnits(ius);
 	}
 
-	/*(non-Javadoc)
-	 * @see IMetadataRepositoryFactory#validate(URL, IProgressMonitor)
-	 */
-	public static void validate(URL url, IProgressMonitor monitor) throws ProvisionException {
-		UpdateSite.validate(url, monitor);
-	}
-
 	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) {
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
@@ -150,22 +143,6 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			//fall through and create a new repository
 		}
 		return factory.create(stateDirURL, repositoryName, null);
-	}
-
-	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
-		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
-		if (reference == null)
-			throw new IllegalStateException(Messages.PlatformAdminNotRegistered);
-		PlatformAdmin platformAdmin = (PlatformAdmin) context.getService(reference);
-		if (platformAdmin == null)
-			throw new IllegalStateException(Messages.PlatformAdminNotRegistered);
-
-		try {
-			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();
-			return new BundleDescriptionFactory(stateObjectFactory, null);
-		} finally {
-			context.ungetService(reference);
-		}
 	}
 
 	public Map getProperties() {

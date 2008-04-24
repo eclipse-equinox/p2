@@ -7,6 +7,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.ui.sdk;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+ org.eclipse.equinox.internal.p2.publisher,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core,
  org.eclipse.equinox.internal.provisional.p2.core.eventbus,
@@ -14,7 +15,6 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.director,
  org.eclipse.equinox.internal.provisional.p2.engine,
  org.eclipse.equinox.internal.provisional.p2.metadata,
- org.eclipse.equinox.internal.provisional.p2.metadata.generator,
  org.eclipse.equinox.internal.provisional.p2.metadata.query,
  org.eclipse.equinox.internal.provisional.p2.metadata.repository,
  org.eclipse.equinox.internal.provisional.p2.query,

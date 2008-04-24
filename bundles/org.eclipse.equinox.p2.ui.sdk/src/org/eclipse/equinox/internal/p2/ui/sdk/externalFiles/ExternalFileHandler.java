@@ -18,11 +18,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.publisher.BundleDescriptionFactory;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.BundleDescriptionFactory;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
@@ -31,13 +31,10 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUti
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.osgi.service.datalocation.Location;
-import org.eclipse.osgi.service.resolver.PlatformAdmin;
-import org.eclipse.osgi.service.resolver.StateObjectFactory;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.ServiceReference;
 
 /**
  * Utility class that handles files or folders that are not recognized as valid
@@ -179,27 +176,10 @@ public class ExternalFileHandler {
 	boolean isBundle() {
 		if (file == null)
 			return false;
-		BundleDescriptionFactory factory = getBundleDescriptionFactory();
+		BundleDescriptionFactory factory = BundleDescriptionFactory.getBundleDescriptionFactory(ProvSDKUIActivator.getContext());
 		if (factory == null)
 			return false;
 		return factory.getBundleDescription(file) != null;
-	}
-
-	private BundleDescriptionFactory getBundleDescriptionFactory() {
-
-		ServiceReference reference = ProvSDKUIActivator.getContext().getServiceReference(PlatformAdmin.class.getName());
-		if (reference == null)
-			return null;
-		PlatformAdmin platformAdmin = (PlatformAdmin) ProvSDKUIActivator.getContext().getService(reference);
-		if (platformAdmin == null)
-			return null;
-
-		try {
-			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();
-			return new BundleDescriptionFactory(stateObjectFactory, null);
-		} finally {
-			ProvSDKUIActivator.getContext().ungetService(reference);
-		}
 	}
 
 	boolean isArchive() {
