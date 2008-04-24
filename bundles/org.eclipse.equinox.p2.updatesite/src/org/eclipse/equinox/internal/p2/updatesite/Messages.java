@@ -27,6 +27,10 @@ public class Messages extends NLS {
 	public static String MalformedArchiveURL;
 	public static String PlatformAdminNotRegistered;
 
+	public static String io_failedRead;
+
+	public static String repoMan_internalError;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
