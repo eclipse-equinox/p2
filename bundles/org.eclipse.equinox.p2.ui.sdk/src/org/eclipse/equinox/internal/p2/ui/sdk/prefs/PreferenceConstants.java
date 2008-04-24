@@ -27,4 +27,5 @@ public class PreferenceConstants {
 	public static final String PREF_OPEN_WIZARD_ON_ERROR_PLAN = "allowNonOKPlan"; //$NON-NLS-1$
 	public static final String PREF_GENERATE_ARCHIVEREPOFOLDER = "generateReposForArchive"; //$NON-NLS-1$
 	public static final String PREF_AUTO_INSTALL_BUNDLES = "autoInstallBundles"; //$NON-NLS-1$
+	public static final String PREF_AUTO_UPDATE_INIT = "autoUpdateInit"; //$NON-NLS-1$
 }
