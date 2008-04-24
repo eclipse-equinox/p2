@@ -62,7 +62,6 @@ public class ProvSDKMessages extends NLS {
 	public static String UpdateAndInstallDialog_NamedOperationInProgress;
 	public static String UpdateAndInstallDialog_OperationInProgress;
 	public static String UpdateAndInstallDialog_PrefLink;
-	public static String UpdateAndInstallDialog_RemoveSiteButtonText;
 	public static String UpdateAndInstallDialog_RemoveSiteOperationLabel;
 	public static String UpdateAndInstallDialog_RevertActionLabel;
 	public static String UpdateAndInstallDialog_RevertTooltip;

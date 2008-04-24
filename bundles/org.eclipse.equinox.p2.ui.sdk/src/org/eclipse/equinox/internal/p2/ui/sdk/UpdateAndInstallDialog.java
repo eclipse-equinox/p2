@@ -484,7 +484,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		addRepoButton = createVerticalButton(composite, addSites, false);
 
 		IAction removeSites = new RemoveColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell());
-		removeSites.setText(ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteButtonText);
 		removeRepoButton = createVerticalButton(composite, removeSites, false);
 
 		createMenu(availableIUGroup.getStructuredViewer().getControl(), new IAction[] {installAction, propertiesAction, refreshAction});
