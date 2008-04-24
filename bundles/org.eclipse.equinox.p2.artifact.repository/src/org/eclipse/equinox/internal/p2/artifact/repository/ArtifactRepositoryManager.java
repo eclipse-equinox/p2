@@ -553,6 +553,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			// TODO should do something here since we are failing to restore.
 			return;
 		try {
+			loadRepository(location.getArtifactRepositoryURL(), null);
+			return;
+		} catch (ProvisionException e) {
+			// log but still continue and try to create a new one
+			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
+		}
+		try {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
