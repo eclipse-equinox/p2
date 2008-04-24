@@ -27,3 +27,4 @@ Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
 Export-Package: org.eclipse.equinox.internal.provisional.p2.directorywatcher;x-friends:="org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.extensionlocation"
 Require-Bundle: org.eclipse.equinox.common;bundle-version="[3.3.0,4.0)"
 Bundle-Activator: org.eclipse.equinox.internal.provisional.p2.directorywatcher.Activator
+Bundle-ActivationPolicy: lazy
