@@ -168,7 +168,7 @@ public class ProvisioningOperationRunner {
 				if (PlatformUI.getWorkbench().isClosing())
 					return;
 				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				if (window == null)
+				if (window == null || window.getShell() == null || window.getShell().isDisposed())
 					return;
 				int retCode = ApplyProfileChangesDialog.promptForRestart(window.getShell(), restartRequired);
 				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
