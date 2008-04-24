@@ -172,6 +172,13 @@ public class SiteModel {
 	 * @return url, or <code>null</code>
 	 */
 	public URL getLocationURL() {
+		if (locationURL == null && locationURLString != null) {
+			try {
+				locationURL = new URL(locationURLString);
+			} catch (MalformedURLException e) {
+				//ignore and return null
+			}
+		}
 		return locationURL;
 	}
 
