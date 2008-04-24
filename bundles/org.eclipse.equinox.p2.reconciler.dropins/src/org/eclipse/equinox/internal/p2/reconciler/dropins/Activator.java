@@ -10,11 +10,13 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -31,7 +33,6 @@ public class Activator implements BundleActivator {
 
 	public static final String ID = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
-	private static final String OSGI_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 	private static final String LINKS = "links"; //$NON-NLS-1$
 	//	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
@@ -66,6 +67,24 @@ public class Activator implements BundleActivator {
 		}
 	}
 
+	/*
+	 * Helper method to add the given metadata repository to the manager's list.
+	 */
+	public static void addRepository(IMetadataRepository repo) {
+		BundleContext context = getContext();
+		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
+		IMetadataRepositoryManager manager = null;
+		if (reference != null)
+			manager = (IMetadataRepositoryManager) context.getService(reference);
+		if (manager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		try {
+			((MetadataRepositoryManager) manager).addRepository(repo);
+		} finally {
+			context.ungetService(reference);
+		}
+	}
+
 	/**
 	 * Helper method to load an artifact repository from the given URL.
 	 * This method never returns <code>null</code>.
@@ -86,14 +105,6 @@ public class Activator implements BundleActivator {
 		} finally {
 			context.ungetService(reference);
 		}
-	}
-
-	protected static Collection getDropinRepositories() {
-		return dropinRepositories == null ? new ArrayList(0) : dropinRepositories;
-	}
-
-	protected static Collection getConfigurationRepositories() {
-		return configurationRepositories == null ? new ArrayList(0) : configurationRepositories;
 	}
 
 	/* (non-Javadoc)
@@ -134,13 +145,20 @@ public class Activator implements BundleActivator {
 
 	private void watchEclipseProduct() {
 		try {
-			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
-			URL pooledURL = new URL(baseURL, "../.pooled"); //$NON-NLS-1$
+			File configurationLocation = getConfigurationLocation();
+			if (configurationLocation == null) {
+				LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location."));
+				return;
+			}
+			File pool = new File(configurationLocation, "../.pooled").getCanonicalFile(); //$NON-NLS-1$
+			URL pooledURL = pool.toURL();
 			loadArtifactRepository(pooledURL);
 			eclipseProductRepository = loadMetadataRepository(pooledURL);
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
 		} catch (ProvisionException e) {
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
+		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
 		}
 	}
@@ -185,16 +203,17 @@ public class Activator implements BundleActivator {
 	 * Watch the platform.xml file.
 	 */
 	private void watchConfiguration() {
-		// TODO get the real config area
-		File configFile = new File("configuration/org.eclipse.update/platform.xml"); //$NON-NLS-1$
+		File configFile = getConfigurationLocation();
+		if (configFile == null) {
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location."));
+			return;
+		}
+		configFile = new File(configFile, "org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
 		watcher.addListener(listener);
 		watcher.poll();
-		Collection repositories = listener.getMetadataRepositories();
-		if (repositories != null)
-			configurationRepositories = repositories;
-
+		configurationRepositories = listener.getMetadataRepositories();
 	}
 
 	/*
@@ -240,6 +259,24 @@ public class Activator implements BundleActivator {
 		return bundleContext;
 	}
 
+	/*
+	 * Helper method to get the configuration location. Return null if
+	 * it is unavailable.
+	 */
+	public static File getConfigurationLocation() {
+		Location configurationLocation = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		if (configurationLocation == null || !configurationLocation.isSet())
+			return null;
+		URL url = configurationLocation.getURL();
+		if (url == null)
+			return null;
+		return URLUtil.toFile(url);
+	}
+
+	/*
+	 * Helper method to return the eclipse.home location. Return
+	 * null if it is unavailable.
+	 */
 	public static File getEclipseHome() {
 		Location eclipseHome = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
 		if (eclipseHome == null || !eclipseHome.isSet())
@@ -262,52 +299,6 @@ public class Activator implements BundleActivator {
 		File root = getEclipseHome();
 		return root == null ? null : new File(root, DROPINS);
 	}
-
-	// Disabled for now
-
-	//	private void removeUnwatchedRepositories(BundleContext context, Profile profile, File watchedFolder) {
-	//		removeUnwatchedMetadataRepositories(context, profile, watchedFolder);
-	//		removeUnwatchedArtifactRepositories(context, profile, watchedFolder);
-	//	}
-	//
-	//	private void removeUnwatchedArtifactRepositories(BundleContext context, Profile profile, File watchedFolder) {
-	//		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
-	//		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) context.getService(reference);
-	//		try {
-	//			IArtifactRepository[] repositories = manager.getKnownRepositories();
-	//			for (int i = 0; i < repositories.length; i++) {
-	//				Map properties = repositories[i].getProperties();
-	//				String profileId = (String) properties.get("profileId");
-	//				String folderName = (String) properties.get("folder");
-	//
-	//				if (profile.getProfileId().equals(profileId) && !watchedFolder.getAbsolutePath().equals(folderName)) {
-	//					manager.removeRepository(repositories[i]);
-	//				}
-	//			}
-	//		} finally {
-	//			context.ungetService(reference);
-	//		}
-	//	}
-	//
-	//	private void removeUnwatchedMetadataRepositories(BundleContext context, Profile profile, File watchedFolder) {
-	//		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-	//		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) context.getService(reference);
-	//		try {
-	//			IMetadataRepository[] repositories = manager.getKnownRepositories();
-	//			for (int i = 0; i < repositories.length; i++) {
-	//				Map properties = repositories[i].getProperties();
-	//				String profileId = (String) properties.get("profileId");
-	//				if (profile.getProfileId().equals(profileId)) {
-	//					String folderName = (String) properties.get("folder");
-	//					if ((folderName != null) && !watchedFolder.getAbsolutePath().equals(folderName)) {
-	//						manager.removeRepository(repositories[i].getLocation());
-	//					}
-	//				}
-	//			}
-	//		} finally {
-	//			context.ungetService(reference);
-	//		}
-	//	}
 
 	public static IProfile getCurrentProfile(BundleContext context) {
 		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());

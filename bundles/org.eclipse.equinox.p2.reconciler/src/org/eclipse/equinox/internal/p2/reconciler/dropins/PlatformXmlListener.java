@@ -26,6 +26,11 @@ import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
 /**
+ * This class watches a platform.xml file. Note that we don't really need to use the DirectoryChangeListener
+ * framework since we are doing a single poll on startup, but we will leave the code here in case we
+ * want to watch for changes during a session. Note that the code to actually synchronize the repositories
+ * is on the Activator so we will need to call out to that if this behaviour is changed.
+ * 
  * @since 1.0
  */
 public class PlatformXmlListener extends DirectoryChangeListener {
@@ -123,6 +128,11 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		return configRepositories;
 	}
 
+	/*
+	 * Look through the given list of repositories and see if there is one
+	 * currently associated with the given url string. Return null if one could not
+	 * be found.
+	 */
 	private IMetadataRepository getMatchingRepo(Collection repositoryList, String urlString) {
 		if (repositoryList == null)
 			return null;
@@ -136,6 +146,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		return null;
 	}
 
+	/*
+	 * Ensure that we have a repository for each site in the given configuration.
+	 */
 	protected void synchronizeConfiguration(Configuration config) {
 		List sites = config.getSites();
 		Set newRepos = new LinkedHashSet();
@@ -144,13 +157,12 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			String siteURL = site.getUrl();
 			if (siteURL.startsWith("file:") && siteURL.endsWith("/eclipse/")) //$NON-NLS-1$//$NON-NLS-2$
 				siteURL = siteURL.substring(0, siteURL.length() - 8);
-			IMetadataRepository match = getMatchingRepo(Activator.getConfigurationRepositories(), siteURL);
-			if (match == null)
-				match = getMatchingRepo(configRepositories, siteURL);
+			IMetadataRepository match = getMatchingRepo(configRepositories, siteURL);
 			if (match == null) {
 				try {
 					URL repoURL = new URL(siteURL);
 					IMetadataRepository newRepo = new ExtensionLocationMetadataRepository(repoURL, site, null);
+					Activator.addRepository(newRepo);
 					Activator.loadArtifactRepository(repoURL);
 					newRepos.add(newRepo);
 				} catch (MalformedURLException e) {
@@ -158,10 +170,10 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				} catch (ProvisionException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				}
+			} else {
+				newRepos.add(match);
 			}
 		}
-		// if we didn't add any new repos then there is no work to do
-		if (!newRepos.isEmpty())
-			configRepositories = newRepos;
+		configRepositories = newRepos;
 	}
 }

@@ -61,7 +61,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		if (location.getPath().endsWith(POOLED))
 			listener = new BundlePoolFilteredListener(listener);
 		if (site != null)
-			listener = new SiteListener(site, listener);
+			listener = new SiteListener(site, new BundlePoolFilteredListener(listener));
 
 		watcher.addListener(listener);
 		watcher.poll();

@@ -10,6 +10,7 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.extensionlocation,
+ org.eclipse.equinox.internal.p2.metadata.repository,
  org.eclipse.equinox.internal.p2.update,
  org.eclipse.equinox.internal.provisional.configurator,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
