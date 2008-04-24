@@ -448,39 +448,44 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		composite.setLayout(layout);
 
 		// Add the buttons to the button bar.
-		installButton = createVerticalButton(composite, ProvUI.INSTALL_COMMAND_LABEL, false);
+		// We use the check box selection provider to determine what to install.  For other actions we use the normal selection provider.
 		IAction installAction = new InstallAction(availableIUGroup.getCheckMappingSelectionProvider(), profileId, null, ProvPolicies.getDefault(), getShell());
-		installButton.setData(BUTTONACTION, installAction);
-		availablePropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
+		installButton = createVerticalButton(composite, installAction, false);
 
-		// We use the viewer selection for properties, not the check marks
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer());
-		availablePropButton.setData(BUTTONACTION, propertiesAction);
+		propertiesAction.setText(ProvSDKMessages.UpdateAndInstallDialog_Properties);
+		availablePropButton = createVerticalButton(composite, propertiesAction, false);
 
 		// spacer
 		new Label(composite, SWT.NONE);
-
 		IAction refreshAction = new RefreshAction(availableIUGroup.getStructuredViewer(), availableIUGroup.getStructuredViewer().getControl()) {
 			protected void refresh() {
 				availableIUGroup.refresh();
 			}
 		};
-		Button refreshButton = createVerticalButton(composite, refreshAction.getText(), false);
-		refreshButton.setData(BUTTONACTION, refreshAction);
+		refreshAction.setToolTipText(ProvSDKMessages.UpdateAndInstallDialog_RefreshTooltip);
+		createVerticalButton(composite, refreshAction, false);
 
 		// spacer
 		new Label(composite, SWT.NONE);
 
-		manipulateRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_ManageSites, false);
-		manipulateRepoButton.setData(BUTTONACTION, new Action() {
+		IAction manipulateRepos = new Action() {
 			public void runWithEvent(Event event) {
 				getRepositoryManipulator().manipulateRepositories(getShell());
 			}
-		});
-		addRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_AddSiteButtonText, false);
-		addRepoButton.setData(BUTTONACTION, new AddColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell()));
-		removeRepoButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteButtonText, false);
-		removeRepoButton.setData(BUTTONACTION, new RemoveColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell()));
+		};
+		manipulateRepos.setText(ProvSDKMessages.UpdateAndInstallDialog_ManageSites);
+		manipulateRepos.setToolTipText(ProvSDKMessages.UpdateAndInstallDialog_ManageSitesTooltip);
+		manipulateRepoButton = createVerticalButton(composite, manipulateRepos, false);
+
+		IAction addSites = new AddColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell());
+		// Change the text so it's clear this is adding sites, not just "add".  Since items in the list are not all sites.
+		addSites.setText(ProvSDKMessages.UpdateAndInstallDialog_AddSiteButtonText);
+		addRepoButton = createVerticalButton(composite, addSites, false);
+
+		IAction removeSites = new RemoveColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell());
+		removeSites.setText(ProvSDKMessages.UpdateAndInstallDialog_RemoveSiteButtonText);
+		removeRepoButton = createVerticalButton(composite, removeSites, false);
 
 		createMenu(availableIUGroup.getStructuredViewer().getControl(), new IAction[] {installAction, propertiesAction, refreshAction});
 
@@ -582,7 +587,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		composite.setLayout(layout);
 
 		// Add the buttons to the button bar.
-		updateButton = createVerticalButton(composite, ProvUI.UPDATE_COMMAND_LABEL, false);
 		// For update only, we want it to check for all updates if there is nothing selected
 		IAction updateAction = new UpdateAction(new ISelectionProvider() {
 			public void addSelectionChangedListener(ISelectionChangedListener listener) {
@@ -607,21 +611,19 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				installedIUGroup.getStructuredViewer().setSelection(selection);
 			}
 		}, profileId, null, ProvPolicies.getDefault(), parent.getShell());
-		updateButton.setData(BUTTONACTION, updateAction);
+		updateButton = createVerticalButton(composite, updateAction, false);
 
-		uninstallButton = createVerticalButton(composite, ProvUI.UNINSTALL_COMMAND_LABEL, false);
 		IAction uninstallAction = new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), parent.getShell());
-		uninstallButton.setData(BUTTONACTION, uninstallAction);
+		uninstallButton = createVerticalButton(composite, uninstallAction, false);
 
-		installedPropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer());
-		installedPropButton.setData(BUTTONACTION, propertiesAction);
+		propertiesAction.setText(ProvSDKMessages.UpdateAndInstallDialog_Properties);
+		installedPropButton = createVerticalButton(composite, propertiesAction, false);
 
 		// spacer
 		new Label(composite, SWT.NONE);
 
-		revertButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel, false);
-		revertButton.setData(BUTTONACTION, new Action() {
+		IAction revertAction = new Action() {
 			public void run() {
 				RevertWizard wizard = new RevertWizard(profileId, ProvSDKUIActivator.getDefault().getQueryProvider());
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
@@ -629,7 +631,11 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				dialog.getShell().setSize(600, 500);
 				dialog.open();
 			}
-		});
+		};
+		revertAction.setText(ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel);
+		revertAction.setToolTipText(ProvSDKMessages.UpdateAndInstallDialog_RevertTooltip);
+		revertButton = createVerticalButton(composite, revertAction, false);
+
 		createMenu(installedIUGroup.getStructuredViewer().getControl(), new IAction[] {updateAction, uninstallAction, propertiesAction});
 
 		return composite;
@@ -667,9 +673,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		}
 	}
 
-	private Button createVerticalButton(Composite parent, String label, boolean defaultButton) {
+	private Button createVerticalButton(Composite parent, IAction action, boolean defaultButton) {
 		Button button = new Button(parent, SWT.PUSH);
-		button.setText(label);
+		button.setText(action.getText());
 
 		setButtonLayoutData(button);
 		Object data = button.getLayoutData();
@@ -681,13 +687,14 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				verticalButtonPressed(event);
 			}
 		});
-		button.setToolTipText(label);
+		button.setToolTipText(action.getToolTipText());
 		if (defaultButton) {
 			Shell shell = parent.getShell();
 			if (shell != null) {
 				shell.setDefaultButton(button);
 			}
 		}
+		button.setData(BUTTONACTION, action);
 		return button;
 	}
 
