@@ -104,14 +104,21 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertEquals("4.0", disabledCount + 1, newDisabledCount);
 		assertEquals("4.1", allCount - 1, newAllCount);
 
+		//re-loading the repository should not change anything
+		manager.loadRepository(testRepo.getLocation(), null);
+		newDisabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
+		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
+		assertEquals("5.0", disabledCount + 1, newDisabledCount);
+		assertEquals("5.1", allCount - 1, newAllCount);
+
 		//re-enable the repository
 		manager.setEnabled(testRepo.getLocation(), true);
 
 		//should be back to the original counts
 		newDisabledCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED).length;
 		newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
-		assertEquals("4.0", disabledCount, newDisabledCount);
-		assertEquals("4.1", allCount, newAllCount);
+		assertEquals("6.0", disabledCount, newDisabledCount);
+		assertEquals("6.1", allCount, newAllCount);
 	}
 
 	/**
