@@ -358,10 +358,11 @@ public class Generator {
 
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
-						if (isDir)
-							publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
+						File bundleFile = new File(bd.getLocation());
+						if (bundleFile.isDirectory())
+							publishArtifact(ad, bundleFile.listFiles(), destination, false);
 						else
-							publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
+							publishArtifact(ad, new File[] {bundleFile}, destination, true);
 						if (info.reuseExistingPack200Files() && !info.publishArtifacts()) {
 							File packFile = new Path(bd.getLocation()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 							if (packFile.exists()) {
