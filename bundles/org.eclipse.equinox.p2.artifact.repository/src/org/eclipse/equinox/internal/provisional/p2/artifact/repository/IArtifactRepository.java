@@ -100,6 +100,8 @@ public interface IArtifactRepository extends IRepository {
 	 */
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
 
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor, boolean overwrite) throws ProvisionException;
+
 	/**
 	 * Remove the all keys, descriptors, and contents from this repository.
 	 */
