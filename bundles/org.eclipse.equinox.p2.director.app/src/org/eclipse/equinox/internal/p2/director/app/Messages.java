@@ -4,7 +4,9 @@
  * the Eclipse Public License v1.0 which accompanies this distribution, and is
  * available at http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: IBM Corporation - initial API and implementation
+ * Contributors: 
+ * 	IBM Corporation - initial API and implementation
+ * 	Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
@@ -19,10 +21,15 @@ public class Messages extends NLS {
 	public static String Operation_failed;
 	public static String Cant_change_roaming;
 
+	public static String Missing_bundle;
 	public static String Missing_director;
 	public static String Missing_Engine;
 	public static String Missing_IU;
 	public static String Missing_planner;
+
+	public static String Listing;
+	public static String Ambigous_Command;
+	public static String Missing_Required_Argument;
 
 	public static String Installing;
 	public static String Uninstalling;

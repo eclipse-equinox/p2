@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Cloudsmith - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226401
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.director.app;
 
@@ -26,20 +27,39 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.Version;
+import org.osgi.framework.*;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 public class Application implements IApplication {
 	private static final Integer EXIT_ERROR = new Integer(13);
+	static private String FLAVOR_DEFAULT = "tooling"; //$NON-NLS-1$
+	static private String EXEMPLARY_SETUP = "org.eclipse.equinox.p2.exemplarysetup"; //$NON-NLS-1$
+
+	public static final int COMMAND_INSTALL = 0;
+	public static final int COMMAND_UNINSTALL = 1;
+	public static final int COMMAND_LIST = 2;
+
+	public static final String[] COMMAND_NAMES = {"-installIU", "-uninstallIU", "-list"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+	//	private ServiceRegistration directorRegistration;
+	//	private ServiceRegistration plannerRegistration;
+	//	private ServiceRegistration engineRegistration;
+	//	private ServiceRegistration busRegistration;
+	//	private ServiceRegistration metadataManagerRegistration;
+	//	private ServiceRegistration artifactManagerRegistration;
+	//	private IProvisioningEventBus bus;
 
 	private Path destination;
+
 	private URL artifactRepositoryLocation;
+
 	private URL metadataRepositoryLocation;
+
 	private String root;
 	private Version version = null;
 	private String flavor;
 	private String profileId;
 	private String profileProperties; // a comma-separated list of property pairs "tag=value"
-	private boolean install;
 	private String bundlePool = null;
 	private String nl;
 	private String os;
@@ -49,7 +69,17 @@ public class Application implements IApplication {
 	private IPlanner planner;
 	private IEngine engine;
 
-	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collector roots) {
+	private int command = -1;
+
+	private ServiceReference packageAdminRef;
+	private PackageAdmin packageAdmin;
+	private boolean needsToUpdateRoamingValues = false;
+
+	private void ambigousCommand(int cmd1, int cmd2) throws CoreException {
+		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Ambigous_Command, new Object[] {COMMAND_NAMES[cmd1], COMMAND_NAMES[cmd2]})));
+	}
+
+	private ProfileChangeRequest buildProvisioningRequest(IProfile profile, Collector roots, boolean install) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		markRoots(request, roots);
 		if (install) {
@@ -58,6 +88,22 @@ public class Application implements IApplication {
 			request.removeInstallableUnits((IInstallableUnit[]) roots.toArray(IInstallableUnit.class));
 		}
 		return request;
+	}
+
+	synchronized Bundle getBundle(String symbolicName) {
+		if (packageAdmin == null)
+			return null;
+
+		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
+		if (bundles == null)
+			return null;
+		//Return the first bundle that is not installed or uninstalled
+		for (int i = 0; i < bundles.length; i++) {
+			if ((bundles[i].getState() & (Bundle.INSTALLED | Bundle.UNINSTALLED)) == 0) {
+				return bundles[i];
+			}
+		}
+		return null;
 	}
 
 	private String getEnvironmentProperty() {
@@ -75,11 +121,18 @@ public class Application implements IApplication {
 		return toString(values);
 	}
 
-	private IProfile initializeProfile() {
+	private IProfile initializeProfile() throws CoreException {
 		if (profileId == null)
 			profileId = IProfileRegistry.SELF;
 		IProfile profile = ProvisioningHelper.getProfile(profileId);
+		if (profile != null && profile != ProvisioningHelper.getProfile(IProfileRegistry.SELF))
+			needsToUpdateRoamingValues = true;
 		if (profile == null) {
+			if (destination == null)
+				missingArgument("destination"); //$NON-NLS-1$
+			if (flavor == null)
+				flavor = System.getProperty("eclipse.p2.configurationFlavor", FLAVOR_DEFAULT); //$NON-NLS-1$
+
 			Properties props = new Properties();
 			props.setProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
 			props.setProperty(IProfile.PROP_FLAVOR, flavor);
@@ -105,7 +158,11 @@ public class Application implements IApplication {
 		return profile;
 	}
 
-	private void initializeRepositories() {
+	private void initializeRepositories() throws CoreException {
+		if (artifactRepositoryLocation == null)
+			missingArgument("artifactRepository"); //$NON-NLS-1$
+		if (metadataRepositoryLocation == null)
+			missingArgument("metadataRepository"); //$NON-NLS-1$
 		ProvisioningHelper.addArtifactRepository(artifactRepositoryLocation);
 		ProvisioningHelper.addMetadataRepository(metadataRepositoryLocation);
 	}
@@ -128,6 +185,10 @@ public class Application implements IApplication {
 		for (Iterator iterator = roots.iterator(); iterator.hasNext();) {
 			request.setInstallableUnitProfileProperty((IInstallableUnit) iterator.next(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 		}
+	}
+
+	private void missingArgument(String argumentName) throws CoreException {
+		throw new CoreException(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_Required_Argument, argumentName)));
 	}
 
 	private IStatus planAndExecute(IProfile profile, ProvisioningContext context, ProfileChangeRequest request) {
@@ -158,8 +219,15 @@ public class Application implements IApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 
-			if (args[i].equals("-roaming")) { //$NON-NLS-1$
+			String opt = args[i];
+			if (opt.equals("-roaming")) { //$NON-NLS-1$
 				roamingProfile = true;
+			}
+
+			if (opt.equals(COMMAND_NAMES[COMMAND_LIST])) {
+				if (command != -1)
+					ambigousCommand(COMMAND_LIST, command);
+				command = COMMAND_LIST;
 			}
 
 			// check for args without parameters (i.e., a flag arg)
@@ -175,56 +243,61 @@ public class Application implements IApplication {
 
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-profile")) //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-profile")) //$NON-NLS-1$
 				profileId = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-profileProperties") || args[i - 1].equalsIgnoreCase("-props")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (opt.equalsIgnoreCase("-profileProperties") || opt.equalsIgnoreCase("-props")) //$NON-NLS-1$ //$NON-NLS-2$
 				profileProperties = arg;
 
 			// we create a path object here to handle ../ entries in the middle of paths
-			if (args[i - 1].equalsIgnoreCase("-destination") || args[i - 1].equalsIgnoreCase("-dest")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (opt.equalsIgnoreCase("-destination") || opt.equalsIgnoreCase("-dest")) //$NON-NLS-1$ //$NON-NLS-2$
 				destination = new Path(arg);
 
 			// we create a path object here to handle ../ entries in the middle of paths
-			if (args[i - 1].equalsIgnoreCase("-bundlepool") || args[i - 1].equalsIgnoreCase("-bp")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (opt.equalsIgnoreCase("-bundlepool") || opt.equalsIgnoreCase("-bp")) //$NON-NLS-1$ //$NON-NLS-2$
 				bundlePool = new Path(arg).toOSString();
 
-			if (args[i - 1].equalsIgnoreCase("-metadataRepository") || args[i - 1].equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (opt.equalsIgnoreCase("-metadataRepository") || opt.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
 				metadataRepositoryLocation = new URL(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-artifactRepository") || args[i - 1].equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
+			if (opt.equalsIgnoreCase("-artifactRepository") || opt.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
 				artifactRepositoryLocation = new URL(arg);
 
-			if (args[i - 1].equalsIgnoreCase("-flavor")) //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 				flavor = arg;
 
-			if (args[i - 1].equalsIgnoreCase("-installIU")) { //$NON-NLS-1$
+			if (opt.equalsIgnoreCase(COMMAND_NAMES[COMMAND_INSTALL])) {
+				if (command != -1)
+					ambigousCommand(COMMAND_INSTALL, command);
 				root = arg;
-				install = true;
+				command = COMMAND_INSTALL;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-version")) { //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-version")) { //$NON-NLS-1$
 				version = new Version(arg);
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-uninstallIU")) { //$NON-NLS-1$
+			if (opt.equalsIgnoreCase(COMMAND_NAMES[COMMAND_UNINSTALL])) {
+				if (command != -1)
+					ambigousCommand(COMMAND_UNINSTALL, command);
 				root = arg;
-				install = false;
+				command = COMMAND_UNINSTALL;
 			}
 
-			if (args[i - 1].equalsIgnoreCase("-p2.os")) { //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-p2.os")) { //$NON-NLS-1$
 				os = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-p2.ws")) { //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-p2.ws")) { //$NON-NLS-1$
 				ws = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-p2.nl")) { //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-p2.nl")) { //$NON-NLS-1$
 				nl = arg;
 			}
-			if (args[i - 1].equalsIgnoreCase("-p2.arch")) { //$NON-NLS-1$
+			if (opt.equalsIgnoreCase("-p2.arch")) { //$NON-NLS-1$
 				arch = arg;
 			}
 		}
+
 	}
 
 	/**
@@ -250,27 +323,48 @@ public class Application implements IApplication {
 		long time = -System.currentTimeMillis();
 		initializeServices();
 		processArguments(args);
-		IProfile profile = initializeProfile();
-		initializeRepositories();
 
-		InstallableUnitQuery query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-		Collector roots = ProvisioningHelper.getInstallableUnits(null, query, new NullProgressMonitor());
-		if (roots.size() <= 0)
-			roots = profile.query(query, roots, new NullProgressMonitor());
-		if (roots.size() <= 0) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
-			System.out.println(NLS.bind(Messages.Missing_IU, root));
-			return EXIT_ERROR;
+		IStatus operationStatus = Status.OK_STATUS;
+		InstallableUnitQuery query;
+		Collector roots;
+		switch (command) {
+			case COMMAND_INSTALL :
+			case COMMAND_UNINSTALL :
+				IProfile profile = initializeProfile();
+				initializeRepositories();
+
+				query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
+				roots = ProvisioningHelper.getInstallableUnits(null, query, new NullProgressMonitor());
+				if (roots.size() <= 0)
+					roots = profile.query(query, roots, new NullProgressMonitor());
+				if (roots.size() <= 0) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_IU, root)));
+					System.out.println(NLS.bind(Messages.Missing_IU, root));
+					return EXIT_ERROR;
+				}
+				if (!updateRoamingProperties(profile).isOK()) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId())));
+					System.out.println(NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
+					return EXIT_ERROR;
+				}
+				ProvisioningContext context = new ProvisioningContext();
+				ProfileChangeRequest request = buildProvisioningRequest(profile, roots, command == COMMAND_INSTALL);
+				printRequest(request);
+				operationStatus = planAndExecute(profile, context, request);
+				break;
+			case COMMAND_LIST :
+				query = new InstallableUnitQuery(null, VersionRange.emptyRange);
+				if (metadataRepositoryLocation == null)
+					missingArgument("metadataRepository"); //$NON-NLS-1$
+				roots = ProvisioningHelper.getInstallableUnits(metadataRepositoryLocation, query, new NullProgressMonitor());
+
+				Iterator unitIterator = roots.iterator();
+				while (unitIterator.hasNext()) {
+					IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
+					System.out.println(iu.getId());
+				}
+				break;
 		}
-		if (!updateRoamingProperties(profile).isOK()) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Cant_change_roaming, profile.getProfileId())));
-			System.out.println(NLS.bind(Messages.Cant_change_roaming, profile.getProfileId()));
-			return EXIT_ERROR;
-		}
-		ProvisioningContext context = new ProvisioningContext();
-		ProfileChangeRequest request = buildProvisioningRequest(profile, roots);
-		printRequest(request);
-		IStatus operationStatus = planAndExecute(profile, context, request);
 
 		time += System.currentTimeMillis();
 		if (operationStatus.isOK())
@@ -283,12 +377,31 @@ public class Application implements IApplication {
 		return IApplication.EXIT_OK;
 	}
 
+	private synchronized void setPackageAdmin(PackageAdmin service) {
+		packageAdmin = service;
+	}
+
+	private boolean startEarly(String bundleName) throws BundleException {
+		Bundle bundle = getBundle(bundleName);
+		if (bundle == null)
+			return false;
+		bundle.start(Bundle.START_TRANSIENT);
+		return true;
+	}
+
 	public Object start(IApplicationContext context) throws Exception {
+		packageAdminRef = Activator.getContext().getServiceReference(PackageAdmin.class.getName());
+		setPackageAdmin((PackageAdmin) Activator.getContext().getService(packageAdminRef));
+		if (!startEarly(EXEMPLARY_SETUP)) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.Missing_bundle, EXEMPLARY_SETUP)));
+			return EXIT_ERROR;
+		}
 		return run((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
 	}
 
 	public void stop() {
-		//nothing to do
+		setPackageAdmin(null);
+		Activator.getContext().ungetService(packageAdminRef);
 	}
 
 	private String toString(Properties context) {
@@ -305,6 +418,8 @@ public class Application implements IApplication {
 	}
 
 	private IStatus updateRoamingProperties(IProfile profile) {
+		if (!needsToUpdateRoamingValues)
+			return Status.OK_STATUS;
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		if (!Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
 			return Status.OK_STATUS;

@@ -27,6 +27,7 @@ import org.osgi.framework.Version;
 public class DirectorTask extends Task {
 
 	boolean roaming;
+	boolean list;
 	String profile, flavor, os, ws, nl, arch, installIU, uninstallIU;
 	File destination, bundlePool;
 	URL metadataRepository, artifactRepository;
@@ -93,12 +94,15 @@ public class DirectorTask extends Task {
 			result.add("-p2.nl");
 			result.add(nl);
 		}
+		if (list) {
+			result.add(Application.COMMAND_NAMES[Application.COMMAND_LIST]);
+		}
 		if (installIU != null) {
-			result.add("-installIU");
+			result.add(Application.COMMAND_NAMES[Application.COMMAND_INSTALL]);
 			result.add(installIU);
 		}
 		if (uninstallIU != null) {
-			result.add("-uninstallIU");
+			result.add(Application.COMMAND_NAMES[Application.COMMAND_UNINSTALL]);
 			result.add(uninstallIU);
 		}
 		return (String[]) result.toArray(new String[result.size()]);
@@ -130,6 +134,10 @@ public class DirectorTask extends Task {
 
 	public void setInstallIU(String value) {
 		installIU = value;
+	}
+
+	public void setList(String value) {
+		list = Boolean.valueOf(value).booleanValue();
 	}
 
 	public void setMetadataRepository(String value) {
