@@ -142,7 +142,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			throw new RuntimeException("Framework manipulator not found"); //$NON-NLS-1$
 	}
 
-	private GeneratorBundleInfo createLauncher() {
+	public static GeneratorBundleInfo createLauncher() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("org.eclipse.equinox.launcher"); //$NON-NLS-1$
 		result.setVersion("0.0.0"); //$NON-NLS-1$

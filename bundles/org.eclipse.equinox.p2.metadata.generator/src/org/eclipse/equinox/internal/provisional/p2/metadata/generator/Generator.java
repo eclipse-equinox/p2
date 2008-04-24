@@ -507,6 +507,9 @@ public class Generator {
 			if (bundle == null)
 				continue;
 
+			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
+				bundle = EclipseInstallGeneratorInfoProvider.createLauncher();
+			}
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
