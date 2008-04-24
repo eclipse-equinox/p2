@@ -17,19 +17,18 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.actions.EclipseInstallAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.TestActivator;
-import org.osgi.framework.ServiceReference;
 
 public class JarURLRepositoryTest extends TestCase {
 
-	private ServiceReference managerRef;
 	private IMetadataRepositoryManager manager;
 	private File testRepoJar;
 
@@ -56,21 +55,23 @@ public class JarURLRepositoryTest extends TestCase {
 	}
 
 	protected void setUp() throws Exception {
-		managerRef = TestActivator.getContext().getServiceReference(IMetadataRepositoryManager.class.getName());
-		manager = (IMetadataRepositoryManager) TestActivator.getContext().getService(managerRef);
+		manager = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
 
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		URL base = TestActivator.getContext().getBundle().getEntry("/testData/generator/eclipse3.3");
-		provider.initialize(new File(FileLocator.toFileURL(base).getPath()));
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File testRepo = new File(tempDir, "testRepo");
 		deleteDirectory(testRepo);
 		testRepo.mkdir();
-		provider.setFlavor("jartest");
 		IMetadataRepository repository = manager.createRepository(testRepo.toURL(), "testRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		manager.addRepository(repository.getLocation());
-		provider.setMetadataRepository(repository);
-		IStatus result = new Generator(provider).generate();
+
+		PublisherInfo info = new PublisherInfo();
+		info.setMetadataRepository(repository);
+		IPublishingAction action = new EclipseInstallAction(FileLocator.toFileURL(base).getPath(), "sdk", "3.3", "Test repo", "jartest", null, null, false);
+		// Generate the repository
+		IStatus result = new Publisher(info).publish(new IPublishingAction[] {action});
+		assertTrue(result.isOK());
+
 		FileUtils.zip(new File[] {testRepo}, new File(tempDir, "testRepo.jar"));
 		testRepoJar = new File(tempDir, "testRepo.jar");
 		assertTrue(testRepoJar.exists());
@@ -80,7 +81,6 @@ public class JarURLRepositoryTest extends TestCase {
 
 	protected void tearDown() throws Exception {
 		manager = null;
-		TestActivator.getContext().ungetService(managerRef);
 	}
 
 	public void testJarURLRepository() throws ProvisionException {

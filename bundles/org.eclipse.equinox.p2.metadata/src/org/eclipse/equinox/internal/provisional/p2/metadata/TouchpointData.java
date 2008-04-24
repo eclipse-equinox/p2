@@ -58,4 +58,8 @@ public class TouchpointData {
 	public Map getInstructions() {
 		return Collections.unmodifiableMap(instructions);
 	}
+
+	public String toString() {
+		return instructions.toString();
+	}
 }

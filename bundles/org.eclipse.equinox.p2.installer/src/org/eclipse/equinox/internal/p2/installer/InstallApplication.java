@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
@@ -83,13 +82,19 @@ public class InstallApplication implements IApplication {
 	 */
 	private InstallDescription fetchInstallDescription(SubMonitor monitor) throws CoreException {
 		String site = System.getProperty(SYS_PROP_INSTALL_DESCRIPTION);
-		if (site == null)
-			throw fail(Messages.App_NoSite);
+		// if no description URL was given from the outside, look for an "install.properties" file 
+		// in relative to where the installer is running.  This allows the installer to be self-contained
+		InputStream in = null;
 		try {
-			URL siteURL = new URL(site);
-			return InstallDescriptionParser.loadFromProperties(siteURL.openStream(), monitor);
-		} catch (MalformedURLException e) {
-			throw fail(Messages.App_InvalidSite + site, e);
+			if (site == null) {
+				File file = new File("installer.properties").getAbsoluteFile(); //$NON-NLS-1$
+				if (file.exists())
+					in = new FileInputStream(file);
+				else
+					throw fail(Messages.App_NoSite);
+			} else
+				in = new URL(site).openStream();
+			return InstallDescriptionParser.loadFromProperties(in, monitor);
 		} catch (IOException e) {
 			throw fail(Messages.App_InvalidSite + site, e);
 		}
@@ -191,7 +196,11 @@ public class InstallApplication implements IApplication {
 		IPath agentLocation = description.getAgentLocation();
 		if (agentLocation != null) {
 			String agentArea = System.getProperty("eclipse.p2.data.area"); //$NON-NLS-1$
-			if (agentArea == null || agentArea.length() == 0)
+			// TODO a bit of a hack here.  If the value is already set and it is set to @config/p2 then 
+			// it may well be the default value put in by PDE.  Overwrite it.
+			// Its kind of unclear why we would NOT overwrite.  At this point the user set their choice
+			// of shared or standalone and those dicate where the agent should put its info...
+			if (agentArea == null || agentArea.length() == 0 || agentArea.startsWith("@config")) //$NON-NLS-1$
 				System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
 		}
 		//set bundle pool location if specified

@@ -13,14 +13,16 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
+import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.actions.BundlesAction;
+import org.eclipse.equinox.internal.p2.publisher.actions.FeaturesAction;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
@@ -30,10 +32,13 @@ import org.osgi.framework.ServiceReference;
 
 public class RepositoryListener extends DirectoryChangeListener {
 
-	private static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
-	private static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
-	private static final String FILE_LAST_MODIFIED = "file.lastModified"; //$NON-NLS-1$
-	private static final String FILE_NAME = "file.name"; //$NON-NLS-1$
+	// TODO artifact folder and reference are internal properties of a particular repo implementation.
+	// need to figure a way of using these values.
+	static final String ARTIFACT_FOLDER = "artifact.folder"; //$NON-NLS-1$
+	static final String ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
+
+	static final String FILE_LAST_MODIFIED = "file.lastModified"; //$NON-NLS-1$
+	static final String FILE_NAME = "file.name"; //$NON-NLS-1$
 	private final IMetadataRepository metadataRepository;
 	private final IArtifactRepository artifactRepository;
 	private final BundleDescriptionFactory bundleDescriptionFactory;
@@ -49,7 +54,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 	 * @param hidden <code>true</code> if the repository should be hidden, <code>false</code> if not.
 	 */
 	public RepositoryListener(BundleContext context, String repositoryName, File repositoryFolder, boolean hidden) {
-
 		File stateDir;
 		if (repositoryFolder == null) {
 			String stateDirName = "listener_" + repositoryName.hashCode(); //$NON-NLS-1$
@@ -221,63 +225,77 @@ public class RepositoryListener extends DirectoryChangeListener {
 		return (Long) currentFiles.get(file);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#startPoll()
-	 */
 	public void startPoll() {
 		// do nothing
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#stopPoll()
-	 */
 	public void stopPoll() {
-		if (metadataRepository != null)
-			synchronizeMetadataRepository();
+		PublisherInfo info = new PublisherInfo();
 
+		//TODO set the config list to the current configuration
+		//		info.setConfigurations(AbstractPublishingAction.getArrayFromString(parameter, ",")); //$NON-NLS-1$
+		info.setArtifactOptions(IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH | IPublisherInfo.A_AS_IS);
+		info.setArtifactRepository(artifactRepository);
+		info.setMetadataRepository(metadataRepository);
+
+		if (metadataRepository != null) {
+			Set[] changes = synchronizeMetadataRepository();
+			IPublishingAction[] actions = createActions(changes[0], changes[1]);
+			IStatus result = new Publisher(info).publish(actions);
+			// TODO do something with the result here
+		}
+		// sync the artifact repo after the publishing step
 		if (artifactRepository != null)
 			synchronizeArtifactRepository();
 	}
 
-	private void synchronizeMetadataRepository() {
+	private IPublishingAction[] createActions(Collection features, Collection bundles) {
+		ArrayList result = new ArrayList();
+		result.add(new FeaturesAction((File[]) features.toArray(new File[features.size()])));
+		result.add(new BundlesAction((File[]) bundles.toArray(new File[bundles.size()])));
+		return (IPublishingAction[]) result.toArray(new IPublishingAction[result.size()]);
+	}
+
+	/**
+	 * Returns a collection feature (@0) and bundle (@1) files that have changed 
+	 * according to the metadata repo.
+	 * @return the collection of changed files
+	 */
+	private Set[] synchronizeMetadataRepository() {
 		final Map snapshot = new HashMap(currentFiles);
-		final List featureFiles = new ArrayList();
+		final Set features = new HashSet(11);
+		final Set bundles = new HashSet(11);
 		Query removeQuery = new Query() {
 			public boolean isMatch(Object candidate) {
 				if (!(candidate instanceof IInstallableUnit))
 					return false;
 				IInstallableUnit iu = (IInstallableUnit) candidate;
 				File iuFile = new File(iu.getProperty(FILE_NAME));
-				// feature files generate two ius (group, jar)
-				// check if feature file already matched 
-				if (featureFiles.contains(iuFile))
-					return false;
 				Long iuLastModified = new Long(iu.getProperty(FILE_LAST_MODIFIED));
 				Long snapshotLastModified = (Long) snapshot.get(iuFile);
-				if (snapshotLastModified == null || !snapshotLastModified.equals(iuLastModified))
+				// if the file is gone or its timestamp is different, delete the IU (return true)
+				if (snapshotLastModified == null || !snapshotLastModified.equals(iuLastModified)) {
+					if (isFeature(iuFile))
+						features.add(iuFile);
+					else
+						bundles.add(iuFile);
 					return true;
-
-				// file found. Remove from snapshot to prevent it from being re-added.
-				snapshot.remove(iuFile);
-
-				if (isFeature(iuFile))
-					featureFiles.add(iuFile);
-
+				}
 				return false;
 			}
 		};
 		metadataRepository.removeInstallableUnits(removeQuery, null);
-
-		if (!snapshot.isEmpty()) {
-			IInstallableUnit[] iusToAdd = generateIUs(snapshot.keySet());
-			metadataRepository.addInstallableUnits(iusToAdd);
-		}
+		return new Set[] {features, bundles};
 	}
 
+	/**
+	 * Garbage collect the artifact repo based on the current file set.
+	 */
 	private void synchronizeArtifactRepository() {
 		final Map snapshot = new HashMap(currentFiles);
 		final List keys = new ArrayList(Arrays.asList(artifactRepository.getArtifactKeys()));
 
+		// GC the artifact repo based on the current file set.
 		for (Iterator it = keys.iterator(); it.hasNext();) {
 			IArtifactKey key = (IArtifactKey) it.next();
 			IArtifactDescriptor[] descriptors = artifactRepository.getArtifactDescriptors(key);
@@ -292,112 +310,113 @@ public class RepositoryListener extends DirectoryChangeListener {
 					snapshot.remove(artifactFile);
 			}
 		}
+		if (snapshot.isEmpty())
+			return;
 
-		if (!snapshot.isEmpty()) {
-			List descriptorsToAdd = new ArrayList();
-			for (Iterator it = snapshot.keySet().iterator(); it.hasNext();) {
-				File file = (File) it.next();
-				IArtifactDescriptor descriptor = generateArtifactDescriptor(file);
-				if (descriptor != null)
-					descriptorsToAdd.add(descriptor);
-			}
-			if (!descriptorsToAdd.isEmpty())
-				artifactRepository.addDescriptors((IArtifactDescriptor[]) descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
-		}
+		// TODO this feels like an error case where there are files in the list that are not recognized
+		// as something by the publisher (executed prior to this step.
+		//		List descriptorsToAdd = new ArrayList();
+		//		for (Iterator i = snapshot.keySet().iterator(); i.hasNext();) {
+		//			IArtifactDescriptor descriptor = generateArtifactDescriptor((File) i.next());
+		//			if (descriptor != null)
+		//				descriptorsToAdd.add(descriptor);
+		//		}
+		//		if (!descriptorsToAdd.isEmpty())
+		//			artifactRepository.addDescriptors((IArtifactDescriptor[]) descriptorsToAdd.toArray(new IArtifactDescriptor[descriptorsToAdd.size()]));
 	}
 
-	protected IArtifactDescriptor generateArtifactDescriptor(File candidate) {
+	//	protected IArtifactDescriptor generateArtifactDescriptor(File candidate) {
+	//
+	//		IArtifactDescriptor basicDescriptor = generateBasicDescriptor(candidate);
+	//		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
+	//		try {
+	//			pathDescriptor.setRepositoryProperty(ARTIFACT_REFERENCE, candidate.toURL().toExternalForm());
+	//		} catch (MalformedURLException e) {
+	//			// unexpected
+	//			e.printStackTrace();
+	//			return null;
+	//		}
+	//		if (candidate.isDirectory())
+	//			pathDescriptor.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
+	//
+	//		pathDescriptor.setRepositoryProperty(FILE_NAME, candidate.getAbsolutePath());
+	//		pathDescriptor.setRepositoryProperty(FILE_LAST_MODIFIED, Long.toString(candidate.lastModified()));
+	//
+	//		return pathDescriptor;
+	//	}
 
-		IArtifactDescriptor basicDescriptor = generateBasicDescriptor(candidate);
-		ArtifactDescriptor pathDescriptor = new ArtifactDescriptor(basicDescriptor);
-		try {
-			pathDescriptor.setRepositoryProperty(ARTIFACT_REFERENCE, candidate.toURL().toExternalForm());
-		} catch (MalformedURLException e) {
-			// unexpected
-			e.printStackTrace();
-			return null;
-		}
-		if (candidate.isDirectory())
-			pathDescriptor.setRepositoryProperty(ARTIFACT_FOLDER, Boolean.TRUE.toString());
-
-		pathDescriptor.setRepositoryProperty(FILE_NAME, candidate.getAbsolutePath());
-		pathDescriptor.setRepositoryProperty(FILE_LAST_MODIFIED, Long.toString(candidate.lastModified()));
-
-		return pathDescriptor;
-	}
-
-	private IArtifactDescriptor generateBasicDescriptor(File candidate) {
-
-		if (isFeature(candidate)) {
-			FeatureParser parser = new FeatureParser();
-			Feature feature = parser.parse(candidate);
-			IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
-			return new ArtifactDescriptor(featureKey);
-		}
-
-		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(candidate);
-		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-		return MetadataGeneratorHelper.createArtifactDescriptor(key, candidate, true, false);
-	}
-
-	private IInstallableUnit[] generateIUs(Collection files) {
-		List ius = new ArrayList();
-		for (Iterator it = files.iterator(); it.hasNext();) {
-			File candidate = (File) it.next();
-
-			Properties props = new Properties();
-			props.setProperty(FILE_NAME, candidate.getAbsolutePath());
-			props.setProperty(FILE_LAST_MODIFIED, Long.toString(candidate.lastModified()));
-
-			if (isFeature(candidate)) {
-				IInstallableUnit[] featureIUs = generateFeatureIUs(candidate, props);
-				if (featureIUs != null)
-					ius.addAll(Arrays.asList(featureIUs));
-			} else {
-				IInstallableUnit[] bundleIUs = generateBundleIU(candidate, props);
-				if (bundleIUs != null) {
-					for (int i = 0; i < bundleIUs.length; i++) {
-						ius.add(bundleIUs[i]);
-					}
-				}
-			}
-		}
-		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
-	}
-
-	private IInstallableUnit[] generateFeatureIUs(File featureFile, Properties props) {
-
-		FeatureParser parser = new FeatureParser();
-		Feature feature = parser.parse(featureFile);
-
-		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, props);
-		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU, props);
-
-		return new IInstallableUnit[] {featureIU, groupIU};
-	}
-
-	private IInstallableUnit[] generateBundleIU(File bundleFile, Properties props) {
-
-		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundleFile);
-		if (bundleDescription == null)
-			return null;
-
-		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
-		IInstallableUnit[] ius = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
-
-		// see bug 222370		
-		// we only want to return the bundle IU
-		// exclude all fragment IUs
-		if (ius.length == 0)
-			return ius;
-
-		for (int i = 0; i < ius.length; i++) {
-			if (!ius[i].isFragment())
-				return new IInstallableUnit[] {ius[i]};
-		}
-		throw new IllegalStateException("There should be exactly one Bundle IU"); //$NON-NLS-1$
-	}
-
+	//	private IArtifactDescriptor generateBasicDescriptor(File candidate) {
+	//
+	//		if (isFeature(candidate)) {
+	//			FeatureParser parser = new FeatureParser();
+	//			Feature feature = parser.parse(candidate);
+	//			IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
+	//			return new ArtifactDescriptor(featureKey);
+	//		}
+	//
+	//		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(candidate);
+	//		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+	//		return MetadataGeneratorHelper.createArtifactDescriptor(key, candidate, true, false);
+	//	}
+	//
+	//	private IInstallableUnit[] generateIUs(Collection files) {
+	//		List ius = new ArrayList();
+	//		for (Iterator it = files.iterator(); it.hasNext();) {
+	//			File candidate = (File) it.next();
+	//
+	//			Properties props = new Properties();
+	//			props.setProperty(FILE_NAME, candidate.getAbsolutePath());
+	//			props.setProperty(FILE_LAST_MODIFIED, Long.toString(candidate.lastModified()));
+	//
+	//			if (isFeature(candidate)) {
+	//				IInstallableUnit[] featureIUs = generateFeatureIUs(candidate, props);
+	//				if (featureIUs != null)
+	//					ius.addAll(Arrays.asList(featureIUs));
+	//			} else {
+	//				IInstallableUnit[] bundleIUs = generateBundleIU(candidate, props);
+	//				if (bundleIUs != null) {
+	//					for (int i = 0; i < bundleIUs.length; i++) {
+	//						ius.add(bundleIUs[i]);
+	//					}
+	//				}
+	//			}
+	//		}
+	//		return (IInstallableUnit[]) ius.toArray(new IInstallableUnit[ius.size()]);
+	//	}
+	//
+	//	private IInstallableUnit[] generateFeatureIUs(File featureFile, Properties props) {
+	//
+	//		FeatureParser parser = new FeatureParser();
+	//		Feature feature = parser.parse(featureFile);
+	//
+	//		IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, null, true, props);
+	//		IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU, props);
+	//
+	//		return new IInstallableUnit[] {featureIU, groupIU};
+	//	}
+	//
+	//	private IInstallableUnit[] generateBundleIU(File bundleFile, Properties props) {
+	//
+	//		BundleDescription bundleDescription = bundleDescriptionFactory.getBundleDescription(bundleFile);
+	//		if (bundleDescription == null)
+	//			return null;
+	//
+	//		IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bundleDescription.getSymbolicName(), bundleDescription.getVersion().toString());
+	//		IInstallableUnit[] ius = MetadataGeneratorHelper.createEclipseIU(bundleDescription, (Map) bundleDescription.getUserObject(), false, key, props);
+	//
+	//		// see bug 222370		
+	//		// we only want to return the bundle IU
+	//		// exclude all fragment IUs
+	//		if (ius.length == 0)
+	//			return ius;
+	//
+	//		for (int i = 0; i < ius.length; i++) {
+	//			if (!ius[i].isFragment())
+	//				return new IInstallableUnit[] {ius[i]};
+	//		}
+	//		throw new IllegalStateException("There should be exactly one Bundle IU"); //$NON-NLS-1$
+	//	}
+	//
 	public IMetadataRepository getMetadataRepository() {
 		return metadataRepository;
 	}

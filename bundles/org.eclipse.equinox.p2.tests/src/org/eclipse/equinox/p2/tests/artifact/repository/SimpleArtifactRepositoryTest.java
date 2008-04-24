@@ -14,14 +14,15 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.TestCase;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.actions.EclipseInstallAction;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class SimpleArtifactRepositoryTest extends TestCase {
@@ -60,20 +61,26 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
 	}
 
-	public void testCompressedRepository() throws MalformedURLException, ProvisionException {
+	private IArtifactRepository generateTestRepo(boolean compressed) throws MalformedURLException, ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repoLocation.toURL(), "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
 		artifactRepositoryManager.addRepository(repo.getLocation());
-		repo.setProperty(IRepository.PROP_COMPRESSED, "true");
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setArtifactRepository(repo);
-		provider.initialize(repoLocation);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		new Generator(provider).generate();
+		repo.setProperty(IRepository.PROP_COMPRESSED, Boolean.toString(compressed));
+
+		PublisherInfo info = new PublisherInfo();
+		info.setArtifactRepository(repo);
+		IPublishingAction action = new EclipseInstallAction(repoLocation.getAbsolutePath(), "sdk", "3.3", "Test repo", "tooling", null, null, false);
+		// Generate the repository
+		IStatus result = new Publisher(info).publish(new IPublishingAction[] {action});
+		assertTrue(result.isOK());
+		return repo;
+	}
+
+	public void testCompressedRepository() throws MalformedURLException, ProvisionException {
+		IArtifactRepository repo = generateTestRepo(true);
+		File repoLocation = new File(repo.getLocation().getPath());
 		File files[] = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
@@ -93,19 +100,8 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 	}
 
 	public void testUncompressedRepository() throws MalformedURLException, ProvisionException {
-		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
-		String tempDir = System.getProperty("java.io.tmpdir");
-		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
-		IArtifactRepository repo = artifactRepositoryManager.createRepository(repoLocation.toURL(), "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		artifactRepositoryManager.addRepository(repo.getLocation());
-		repo.setProperty(IRepository.PROP_COMPRESSED, "false");
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setArtifactRepository(repo);
-		provider.initialize(repoLocation);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		new Generator(provider).generate();
+		IArtifactRepository repo = generateTestRepo(false);
+		File repoLocation = new File(repo.getLocation().getPath());
 		File files[] = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;

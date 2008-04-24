@@ -118,16 +118,19 @@ public class FileUtils {
 		}
 	}
 
+	public static void deleteAll(File[] files) {
+		if (files == null)
+			return;
+		for (int i = 0; i < files.length; i++)
+			deleteAll(files[i]);
+	}
+
 	// Delete the given file whether it is a file or a directory
 	public static void deleteAll(File file) {
 		if (!file.exists())
 			return;
-		if (file.isDirectory()) {
-			File[] files = file.listFiles();
-			if (files != null)
-				for (int i = 0; i < files.length; i++)
-					deleteAll(files[i]);
-		}
+		if (file.isDirectory())
+			deleteAll(file.listFiles());
 		file.delete();
 	}
 
@@ -159,6 +162,43 @@ public class FileUtils {
 		}
 	}
 
+	public static void copy(File source, File destination, File root, boolean overwrite) throws IOException {
+		File sourceFile = new File(source, root.getPath());
+		if (!sourceFile.exists())
+			throw new FileNotFoundException("Source: " + sourceFile + " does not exist"); //$NON-NLS-1$//$NON-NLS-2$
+
+		File destinationFile = new File(destination, root.getPath());
+
+		if (destinationFile.exists())
+			if (overwrite)
+				deleteAll(destinationFile);
+			else
+				throw new IOException("Destination: " + destinationFile + " already exists"); //$NON-NLS-1$//$NON-NLS-2$
+		if (sourceFile.isDirectory()) {
+			destinationFile.mkdirs();
+			File[] list = sourceFile.listFiles();
+			for (int i = 0; i < list.length; i++)
+				copy(source, destination, new File(root, list[i].getName()), false);
+		} else {
+			destinationFile.getParentFile().mkdirs();
+			InputStream in = null;
+			OutputStream out = null;
+			try {
+				in = new BufferedInputStream(new FileInputStream(sourceFile));
+				out = new BufferedOutputStream(new FileOutputStream(destinationFile));
+				copyStream(in, false, out, false);
+			} finally {
+				try {
+					if (in != null)
+						in.close();
+				} finally {
+					if (out != null)
+						out.close();
+				}
+			}
+		}
+	}
+
 	public static void zip(File[] sourceFiles, File destinationArchive) throws IOException {
 		zip(sourceFiles, destinationArchive, true);
 	}
@@ -171,6 +211,33 @@ public class FileUtils {
 					zipDir(output, sourceFiles[i], includeRoot ? new Path(sourceFiles[i].getName()) : new Path("")); //$NON-NLS-1$
 				else
 					zipFile(output, sourceFiles[i], new Path(""));//$NON-NLS-1$
+		} finally {
+			try {
+				// Note! This call will fail miserably if no entries were added to the zip!
+				// The file is left open after an exception is thrown.
+				output.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+	}
+
+	public static void zip(File[] sourceFiles, File destinationArchive, File root) throws IOException {
+		ZipOutputStream output = new ZipOutputStream(new FileOutputStream(destinationArchive));
+		try {
+			IPath rootPath = new Path(root.getAbsolutePath());
+			for (int i = 0; i < sourceFiles.length; i++) {
+				// compute the prefix by removing the root from the current file
+				// and trimming off the filename
+				IPath prefix = new Path(sourceFiles[i].getAbsolutePath());
+				prefix = prefix.removeFirstSegments(rootPath.matchingFirstSegments(prefix));
+				prefix = prefix.removeLastSegments(1);
+				prefix = prefix.setDevice(null);
+				if (sourceFiles[i].isDirectory())
+					zipDir(output, sourceFiles[i], prefix);
+				else
+					zipFile(output, sourceFiles[i], prefix);
+			}
 		} finally {
 			try {
 				// Note! This call will fail miserably if no entries were added to the zip!

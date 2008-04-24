@@ -57,7 +57,15 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Determine what top level installable units should be installed by the director
 	 */
 	private IInstallableUnit[] computeUnitsToInstall() throws CoreException {
-		return new IInstallableUnit[] {findUnit(installDescription.getRootId(), installDescription.getRootVersion())};
+		ArrayList result = new ArrayList();
+		VersionedName roots[] = installDescription.getRoots();
+		for (int i = 0; i < roots.length; i++) {
+			VersionedName root = roots[i];
+			IInstallableUnit iu = findUnit(root);
+			if (iu != null)
+				result.add(iu);
+		}
+		return (IInstallableUnit[]) result.toArray(new IInstallableUnit[result.size()]);
 	}
 
 	/**
@@ -78,6 +86,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
+			IPath location = installDescription.getBundleLocation();
+			if (location != null)
+				properties.put(IProfile.PROP_CACHE, location.toString());
 			properties.putAll(installDescription.getProfileProperties());
 			profile = profileRegistry.addProfile(getProfileId(), properties);
 		}
@@ -129,7 +140,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Finds and returns the installable unit with the given id, and optionally the
 	 * given version.
 	 */
-	private IInstallableUnit findUnit(String id, Version version) throws CoreException {
+	private IInstallableUnit findUnit(VersionedName spec) throws CoreException {
+		String id = spec.getId();
+		Version version = spec.getVersion();
 		if (id == null)
 			throw fail(Messages.Op_NoId);
 		VersionRange range = VersionRange.emptyRange;
@@ -138,7 +151,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		Query query = new InstallableUnitQuery(id, range);
 		Collector collector = new Collector();
 		Iterator matches = metadataRepoMan.query(query, collector, null).iterator();
-		//pick the newest match
+		// pick the newest match
 		IInstallableUnit newest = null;
 		while (matches.hasNext()) {
 			IInstallableUnit candidate = (IInstallableUnit) matches.next();

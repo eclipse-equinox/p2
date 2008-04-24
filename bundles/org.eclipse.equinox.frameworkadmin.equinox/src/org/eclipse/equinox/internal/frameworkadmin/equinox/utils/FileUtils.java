@@ -122,6 +122,8 @@ public class FileUtils {
 	}
 
 	public static String getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
+		if (bundlesDir == null)
+			return null;
 		File[] lists = bundlesDir.listFiles();
 		URL ret = null;
 		EclipseVersion maxVersion = null;

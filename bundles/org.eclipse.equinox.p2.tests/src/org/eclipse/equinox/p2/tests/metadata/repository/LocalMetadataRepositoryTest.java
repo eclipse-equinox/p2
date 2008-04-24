@@ -13,11 +13,12 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.Map;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.actions.EclipseInstallAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -49,18 +50,8 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testCompressedRepository() throws MalformedURLException, ProvisionException {
-		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		manager.addRepository(repo.getLocation());
-		repo.setProperty(IRepository.PROP_COMPRESSED, "true");
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setMetadataRepository(repo);
-		provider.initialize(repoLocation);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		// Generate the repository
-		new Generator(provider).generate();
+		generateTestRepo(true);
+
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		boolean xmlFilePresent = false;
@@ -79,6 +70,21 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		if (xmlFilePresent) {
 			fail("Repository should not create content.xml");
 		}
+	}
+
+	private IMetadataRepository generateTestRepo(boolean compressed) throws MalformedURLException, ProvisionException {
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		manager.addRepository(repo.getLocation());
+		repo.setProperty(IRepository.PROP_COMPRESSED, Boolean.toString(compressed));
+
+		PublisherInfo info = new PublisherInfo();
+		info.setMetadataRepository(repo);
+		IPublishingAction action = new EclipseInstallAction(repoLocation.getAbsolutePath(), "sdk", "3.3", "Test repo", "tooling", null, null, false);
+		// Generate the repository
+		IStatus result = new Publisher(info).publish(new IPublishingAction[] {action});
+		assertTrue(result.isOK());
+		return repo;
 	}
 
 	public void testGetProperties() throws MalformedURLException, ProvisionException {
@@ -119,18 +125,8 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	public void testUncompressedRepository() throws MalformedURLException, ProvisionException {
-		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
-		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		manager.addRepository(repo.getLocation());
-		repo.setProperty(IRepository.PROP_COMPRESSED, "false");
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setMetadataRepository(repo);
-		provider.initialize(repoLocation);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		// Generate the repository
-		new Generator(provider).generate();
+		generateTestRepo(false);
+
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		// none of the files in the repository should be the content.xml.jar

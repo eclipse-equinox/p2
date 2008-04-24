@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.1"?>
 
-<product name="Equinox p2 Installer" id="org.eclipse.equinox.p2.installer.product" application="org.eclipse.equinox.p2.installer.application" useFeatures="false">
+<product name="RCP Product" id="org.eclipse.equinox.p2.installer.product" application="org.eclipse.equinox.p2.installer.application" useFeatures="false">
 
    <aboutInfo>
       <image path="product_lg.gif"/>
@@ -13,7 +13,6 @@
    <configIni use="custom" path="/org.eclipse.equinox.p2.installer/config.ini"/>
 
    <launcherArgs>
-      <vmArgs>-Dorg.eclipse.equinox.p2.installDescription=http://update.eclipse.org/testUpdates/sdk-installer.properties</vmArgs>
    </launcherArgs>
 
    <windowImages/>

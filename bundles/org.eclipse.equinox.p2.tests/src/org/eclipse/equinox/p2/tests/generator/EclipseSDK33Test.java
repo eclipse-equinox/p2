@@ -7,21 +7,22 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - Ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.generator;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.publisher.*;
+import org.eclipse.equinox.internal.p2.publisher.actions.FeaturesAction;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IGeneratorInfo;
 import org.eclipse.equinox.p2.tests.*;
 import org.osgi.framework.Bundle;
 
@@ -42,11 +43,13 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 	}
 
 	public void testGeneration() {
-		IGeneratorInfo generatorInfo = createGeneratorInfo();
-		Generator generator = new Generator(generatorInfo);
-		generator.generate();
+		IPublisherInfo info = new TestPublisherInfo();
+		IPublishingAction[] actions = createActions();
+		Publisher publisher = new Publisher(info);
+		IStatus result = publisher.publish(actions);
+		assertTrue(result.isOK());
 
-		TestMetadataRepository repo = (TestMetadataRepository) generatorInfo.getMetadataRepository();
+		TestMetadataRepository repo = (TestMetadataRepository) info.getMetadataRepository();
 		IInstallableUnit unit = repo.find("org.eclipse.cvs.source.feature.group", "1.0.0.v20070606-7C79_79EI99g_Y9e");
 		assertNotNull(unit);
 		assertGroup(unit);
@@ -81,9 +84,16 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 		assertNotNull(unit);
 		assertGroup(unit);
 
-		IArtifactRepository artifactRepo = (TestArtifactRepository) generatorInfo.getArtifactRepository();
+		IArtifactRepository artifactRepo = (TestArtifactRepository) info.getArtifactRepository();
 		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
 		assertTrue(keys.length == 11);
+	}
+
+	private IPublishingAction[] createActions() {
+		File source = getSource();
+		ArrayList actions = new ArrayList();
+		actions.add(new FeaturesAction(new File[] {source}));
+		return (IPublishingAction[]) actions.toArray(new IPublishingAction[actions.size()]);
 	}
 
 	/**
@@ -93,18 +103,17 @@ public class EclipseSDK33Test extends AbstractProvisioningTest {
 		assertEquals("IU is not a group", Boolean.TRUE.toString(), unit.getProperty(IInstallableUnit.PROP_TYPE_GROUP));
 	}
 
-	private IGeneratorInfo createGeneratorInfo() {
+	private File getSource() {
 		Bundle myBundle = TestActivator.getContext().getBundle();
 		URL root = FileLocator.find(myBundle, new Path("testData/generator/eclipse3.3"), null);
 		File rootFile = null;
 		try {
 			root = FileLocator.toFileURL(root);
-			rootFile = new File(root.getPath());
+			return new File(root.getPath());
 		} catch (IOException e) {
 			fail("4.99", e);
 		}
-		TestGeneratorInfo info = new TestGeneratorInfo(rootFile);
-		return info;
+		return null;
 	}
 
 }

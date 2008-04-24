@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IPath;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.p2.installer.VersionedName;
 
 /**
  * An install information captures all the data needed to perform a product install.
@@ -23,13 +23,14 @@ import org.osgi.framework.Version;
  */
 public class InstallDescription {
 	private URL artifactRepo;
-	private IPath installLocation, agentLocation, bundleLocation;
+	private IPath installLocation;
+	private IPath agentLocation;
+	private IPath bundleLocation;
 	private boolean isAutoStart;
 	private String launcherName;
 	private URL metadataRepo;
 	private String productName;
-	private String rootId;
-	private Version rootVersion;
+	private VersionedName[] roots;
 	private final Map profileProperties = new HashMap();
 
 	public InstallDescription(String name) {
@@ -100,22 +101,6 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the id of the root installable unit
-	 * @return the id of the root installable unit
-	 */
-	public String getRootId() {
-		return rootId;
-	}
-
-	/**
-	 * Returns the version of the root installable unit
-	 * @return the version of the root installable unit
-	 */
-	public Version getRootVersion() {
-		return rootVersion;
-	}
-
-	/**
 	 * Returns whether the installed product should be started upon successful
 	 * install.
 	 * @return <code>true</code> if the product should be started upon successful
@@ -161,12 +146,20 @@ public class InstallDescription {
 		profileProperties.putAll(properties);
 	}
 
-	public void setRootId(String root) {
-		this.rootId = root;
+	/**
+	 * Returns the set of roots to be installed for this installation
+	 * @return the roots to install
+	 */
+	public VersionedName[] getRoots() {
+		return roots;
 	}
 
-	public void setRootVersion(Version version) {
-		this.rootVersion = version;
+	/**
+	 * Set the list of roots to install
+	 * @param value the set of roots to install
+	 */
+	public void setRoots(VersionedName[] value) {
+		roots = value;
 	}
 
 }

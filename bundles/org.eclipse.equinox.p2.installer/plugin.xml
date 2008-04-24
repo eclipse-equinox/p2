@@ -16,10 +16,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.equinox.p2.installer.application"
-            name="RCP Product">
+            name="Equinox p2 Installer">
          <property
                name="appName"
-               value="RCP Product">
+               value="Equinox p2 Installer">
          </property>
          <property
                name="aboutImage"
@@ -27,7 +27,7 @@
          </property>
          <property
                name="aboutText"
-               value="P2 Installer">
+               value="p2 Installer">
          </property>
       </product>
    </extension>

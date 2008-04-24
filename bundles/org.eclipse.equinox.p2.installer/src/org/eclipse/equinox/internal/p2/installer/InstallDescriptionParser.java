@@ -16,7 +16,6 @@ import java.util.*;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
-import org.osgi.framework.Version;
 
 /**
  * This class is responsible for loading install descriptions from a stream.
@@ -32,6 +31,7 @@ public class InstallDescriptionParser {
 	private static final String PROP_PROFILE_NAME = "eclipse.p2.profileName";//$NON-NLS-1$
 	private static final String PROP_ROOT_ID = "eclipse.p2.rootId";//$NON-NLS-1$
 	private static final String PROP_ROOT_VERSION = "eclipse.p2.rootVersion";//$NON-NLS-1$
+	private static final String PROP_ROOTS = "eclipse.p2.roots";//$NON-NLS-1$
 
 	/**
 	 * Loads and returns an install description that is stored in a properties file.
@@ -60,10 +60,22 @@ public class InstallDescriptionParser {
 			locationString = properties.getProperty(PROP_BUNDLE_LOCATION);
 			if (locationString != null)
 				description.setBundleLocation(new Path(locationString));
-			description.setRootId(properties.getProperty(PROP_ROOT_ID));
-			String versionString = properties.getProperty(PROP_ROOT_VERSION);
-			Version version = versionString == null ? null : new Version(versionString);
-			description.setRootVersion(version);
+
+			// Process the retro root id and rootVersion properties
+			String id = properties.getProperty(PROP_ROOT_ID);
+			if (id != null) {
+				String version = properties.getProperty(PROP_ROOT_VERSION);
+				description.setRoots(new VersionedName[] {new VersionedName(id, version)});
+			}
+
+			String rootSpec = properties.getProperty(PROP_ROOTS);
+			if (rootSpec != null) {
+				String[] rootList = getArrayFromString(rootSpec, ",");
+				VersionedName[] roots = new VersionedName[rootList.length];
+				for (int i = 0; i < rootList.length; i++)
+					roots[i] = VersionedName.parse(rootList[i]);
+				description.setRoots(roots);
+			}
 
 			//any remaining properties are profile properties
 			Map profileProperties = new HashMap(properties);
@@ -76,6 +88,7 @@ public class InstallDescriptionParser {
 			profileProperties.remove(PROP_BUNDLE_LOCATION);
 			profileProperties.remove(PROP_ROOT_ID);
 			profileProperties.remove(PROP_ROOT_VERSION);
+			profileProperties.remove(PROP_ROOTS);
 			description.setProfileProperties(profileProperties);
 			return description;
 		} finally {
@@ -91,4 +104,21 @@ public class InstallDescriptionParser {
 			//ignore secondary failure during close
 		}
 	}
+
+	/**
+	 * Convert a list of tokens into an array. The list separator has to be
+	 * specified.
+	 */
+	public static String[] getArrayFromString(String list, String separator) {
+		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+			return new String[0];
+		List result = new ArrayList();
+		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
+			String token = tokens.nextToken().trim();
+			if (!token.equals("")) //$NON-NLS-1$
+				result.add(token);
+		}
+		return (String[]) result.toArray(new String[result.size()]);
+	}
+
 }

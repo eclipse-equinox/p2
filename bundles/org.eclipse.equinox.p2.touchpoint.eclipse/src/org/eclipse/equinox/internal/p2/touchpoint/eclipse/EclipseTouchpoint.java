@@ -15,12 +15,15 @@ import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.publisher.BundleDescriptionFactory;
+import org.eclipse.equinox.internal.p2.publisher.MetadataGeneratorHelper;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionFactory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdminRuntimeException;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
@@ -143,11 +146,17 @@ public class EclipseTouchpoint extends Touchpoint {
 				LogHelper.log(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey.toString())));
 				return null;
 			}
-			return MetadataGeneratorUtils.createBundleIU(artifactKey, bundleFile);
+			return createBundleIU(artifactKey, bundleFile);
 		}
 
 		// should not occur
 		throw new IllegalStateException("Unexpected state: prepareIU"); //$NON-NLS-1$
+	}
+
+	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
+		BundleDescriptionFactory factory = BundleDescriptionFactory.getBundleDescriptionFactory(Activator.getContext());
+		BundleDescription bundleDescription = factory.getBundleDescription(bundleFile);
+		return MetadataGeneratorHelper.createBundleIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), artifactKey);
 	}
 
 	public static IStatus loadManipulator(Manipulator manipulator) {

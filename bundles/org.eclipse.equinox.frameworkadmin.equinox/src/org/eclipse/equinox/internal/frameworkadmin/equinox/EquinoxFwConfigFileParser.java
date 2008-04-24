@@ -248,7 +248,8 @@ public class EquinoxFwConfigFileParser {
 			props.load(is);
 		} finally {
 			try {
-				is.close();
+				if (is != null)
+					is.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

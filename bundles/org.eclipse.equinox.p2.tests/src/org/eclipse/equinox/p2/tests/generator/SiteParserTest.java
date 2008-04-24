@@ -11,8 +11,8 @@
 package org.eclipse.equinox.p2.tests.generator;
 
 import java.io.IOException;
-import org.eclipse.equinox.internal.p2.metadata.generator.features.DefaultSiteParser;
-import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteModel;
+import org.eclipse.equinox.internal.p2.publisher.features.DefaultSiteParser;
+import org.eclipse.equinox.internal.p2.publisher.features.SiteModel;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestData;
 import org.xml.sax.SAXException;

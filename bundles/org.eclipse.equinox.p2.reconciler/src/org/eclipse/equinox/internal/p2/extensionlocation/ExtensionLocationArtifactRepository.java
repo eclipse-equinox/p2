@@ -156,7 +156,11 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-		return artifactRepository.getOutputStream(descriptor);
+		return getOutputStream(descriptor, true);
+	}
+
+	public OutputStream getOutputStream(IArtifactDescriptor descriptor, boolean overwrite) throws ProvisionException {
+		return artifactRepository.getOutputStream(descriptor, overwrite);
 	}
 
 	public File getArtifactFile(IArtifactKey key) {
@@ -166,4 +170,5 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
 		return artifactRepository.getArtifactFile(descriptor);
 	}
+
 }
