@@ -21,6 +21,7 @@ public class LinkAction extends ProvisioningAction {
 	public static final String PARM_TARGET_DIR = "targetDir"; //$NON-NLS-1$
 	public static final String PARM_LINK_NAME = "linkName"; //$NON-NLS-1$
 	public static final String PARM_LINK_TARGET = "linkTarget"; //$NON-NLS-1$
+	public static final String PARM_LINK_FORCE = "force"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
 		String targetDir = (String) parameters.get(PARM_TARGET_DIR);
@@ -35,7 +36,9 @@ public class LinkAction extends ProvisioningAction {
 		if (linkName == null)
 			return Util.errorStatus(NLS.bind(Messages.param_not_set, PARM_LINK_NAME, ID), null);
 
-		ln(targetDir, linkTarget, linkName);
+		String force = (String) parameters.get(PARM_LINK_FORCE);
+
+		ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue());
 		return Status.OK_STATUS;
 	}
 
@@ -44,10 +47,10 @@ public class LinkAction extends ProvisioningAction {
 		return null;
 	}
 
-	private void ln(String targetDir, String linkTarget, String linkName) {
+	private void ln(String targetDir, String linkTarget, String linkName, boolean force) {
 		Runtime r = Runtime.getRuntime();
 		try {
-			r.exec(new String[] {"ln", "-s", linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$
+			r.exec(new String[] {"ln", "-s" + (force ? "f" : ""), linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

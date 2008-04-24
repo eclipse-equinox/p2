@@ -44,7 +44,9 @@ public class LinkAction extends ProvisioningAction {
 		if (linkName == null)
 			return Util.createError(NLS.bind(Messages.parameter_not_set, ActionConstants.PARM_LINK_NAME, ID));
 
-		ln(targetDir, linkTarget, linkName);
+		String force = (String) parameters.get(ActionConstants.PARM_LINK_FORCE);
+
+		ln(targetDir, linkTarget, linkName, Boolean.valueOf(force).booleanValue());
 		return Status.OK_STATUS;
 	}
 
@@ -53,10 +55,10 @@ public class LinkAction extends ProvisioningAction {
 		return null;
 	}
 
-	private void ln(String targetDir, String linkTarget, String linkName) {
+	private void ln(String targetDir, String linkTarget, String linkName, boolean force) {
 		Runtime r = Runtime.getRuntime();
 		try {
-			r.exec(new String[] {"ln", "-s", linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$
+			r.exec(new String[] {"ln", "-s" + (force ? "f" : ""), linkTarget, targetDir + IPath.SEPARATOR + linkName}); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
