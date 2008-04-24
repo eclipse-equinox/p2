@@ -100,17 +100,14 @@ public class ProvisioningOperationRunner {
 						}
 						return status;
 					} catch (final ExecutionException e) {
-						final IStatus[] status = new IStatus[1];
-						shell.getDisplay().asyncExec(new Runnable() {
-							public void run() {
-								status[0] = ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), errorStyle);
-								if (noPrompt) {
-									thisJob.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
-									thisJob.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
-								}
-							}
-						});
-						return status[0];
+						if (noPrompt) {
+							thisJob.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
+							thisJob.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
+						}
+						String message = e.getCause().getLocalizedMessage();
+						if (message == null)
+							message = NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel());
+						return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, e.getCause());
 					}
 				}
 			};
@@ -135,7 +132,7 @@ public class ProvisioningOperationRunner {
 							this.setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.TRUE);
 							this.setProperty(IProgressConstants.NO_IMMEDIATE_ERROR_PROMPT_PROPERTY, Boolean.TRUE);
 						}
-						return ProvUI.handleException(e.getCause(), NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), errorStyle);
+						return new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, NLS.bind(ProvUIMessages.ProvisioningOperationRunner_ErrorExecutingOperation, op.getLabel()), e.getCause());
 					}
 				}
 			};

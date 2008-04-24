@@ -23,8 +23,8 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositories;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
@@ -276,7 +276,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			ProvisioningUtil.loadMetadataRepository(location, null);
 		} catch (ProvisionException e) {
 			// ignore because we were doing this "for free." 
-			return;
 		}
 		display.asyncExec(new Runnable() {
 			public void run() {
