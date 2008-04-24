@@ -89,6 +89,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		setTableColumns(table);
 		contentProvider = new RepositoryContentProvider(ProvSDKUIActivator.getDefault().getQueryProvider());
 		repositoryViewer.setComparer(new ProvElementComparer());
+		repositoryViewer.setComparator(new ViewerComparator());
 		repositoryViewer.setContentProvider(contentProvider);
 		repositoryViewer.setLabelProvider(new ProvElementLabelProvider());
 

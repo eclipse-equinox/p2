@@ -9,6 +9,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.viewers.DeferredQueryConte
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.resource.JFaceResources;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
@@ -21,8 +22,9 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.progress.WorkbenchJob;
 
 /**
- * FilteredTree extension that provides a hook for menu creation,
- * and forces synchronous fetching of the tree when the first 
+ * FilteredTree extension that creates a check box tree,
+ * provides a hook for menu creation, and forces synchronous 
+ * fetching of the tree when the first 
  * filtering is performed.
  * 
  * @since 3.4
@@ -38,12 +40,14 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	PatternFilter patternFilter;
 	IViewMenuProvider viewMenuProvider;
 	DeferredQueryContentProvider contentProvider;
+	boolean useCheckBoxTree = false;
 
-	public DeferredFetchFilteredTree(Composite parent, int treeStyle, PatternFilter filter, final IViewMenuProvider viewMenuProvider, Display display) {
+	public DeferredFetchFilteredTree(Composite parent, int treeStyle, PatternFilter filter, final IViewMenuProvider viewMenuProvider, Display display, boolean useCheckBoxViewer) {
 		super(parent);
 		this.display = display;
 		this.viewMenuProvider = viewMenuProvider;
 		this.patternFilter = filter;
+		this.useCheckBoxTree = useCheckBoxViewer;
 		init(treeStyle, filter);
 	}
 
@@ -59,6 +63,12 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 		if (!showFilterControls && viewMenuProvider != null) {
 			createViewMenu(composite);
 		}
+	}
+
+	protected TreeViewer doCreateTreeViewer(Composite composite, int style) {
+		if (useCheckBoxTree)
+			return new ContainerCheckedTreeViewer(composite, style);
+		return super.doCreateTreeViewer(composite, style);
 	}
 
 	protected Composite createFilterControls(Composite filterParent) {

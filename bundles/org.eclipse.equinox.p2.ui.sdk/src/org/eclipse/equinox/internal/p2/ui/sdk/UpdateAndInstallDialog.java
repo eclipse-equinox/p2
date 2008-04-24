@@ -39,6 +39,7 @@ import org.eclipse.jface.window.SameShellProvider;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.GC;
@@ -58,6 +59,8 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
 	private static final int CHAR_INDENT = 5;
+	private static final int SITE_COLUMN_WIDTH_IN_DLUS = 300;
+	private static final int OTHER_COLUMN_WIDTH_IN_DLUS = 200;
 	private static final int VERTICAL_MARGIN_DLU = 2;
 	private static final int DEFAULT_VIEW_TYPE = AvailableIUViewQueryContext.VIEW_BY_REPO;
 	private static final int INDEX_INSTALLED = 0;
@@ -172,7 +175,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// Set widgets according to query context
 		showInstalledCheckbox.setSelection(!queryContext.getHideAlreadyInstalled());
 		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
-
+		updateTreeColumns();
 	}
 
 	private void createTabFolder(Composite parent) {
@@ -331,7 +334,7 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		composite.setLayout(layout);
 
 		// Now the available group 
-		availableIUGroup = new AvailableIUGroup(composite, ProvSDKUIActivator.getDefault().getQueryProvider(), JFaceResources.getDialogFont(), new ProvisioningContext(), queryContext, new AvailableIUPatternFilter(ProvUI.getIUColumnConfig()), ProvUI.getIUColumnConfig(), this);
+		availableIUGroup = new AvailableIUGroup(composite, ProvSDKUIActivator.getDefault().getQueryProvider(), JFaceResources.getDialogFont(), new ProvisioningContext(), queryContext, new AvailableIUPatternFilter(ProvUI.getIUColumnConfig()), ProvUI.getIUColumnConfig(), this, true);
 
 		// Vertical buttons
 		Composite vButtonBar = (Composite) createAvailableIUsVerticalButtonBar(composite);
@@ -339,9 +342,17 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		vButtonBar.setLayoutData(data);
 
-		// Must be done after buttons are created so that the buttons can
+		// Selection listeners must be registered on both the normal selection
+		// events and the check mark events.  Must be done after buttons 
+		// are created so that the buttons can
 		// register and receive their selection notifications before us.
 		availableIUGroup.getStructuredViewer().addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				validateAvailableIUButtons();
+			}
+		});
+
+		availableIUGroup.getCheckMappingSelectionProvider().addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				validateAvailableIUButtons();
 			}
@@ -438,10 +449,11 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		// Add the buttons to the button bar.
 		installButton = createVerticalButton(composite, ProvUI.INSTALL_COMMAND_LABEL, false);
-		IAction installAction = new InstallAction(availableIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), getShell());
+		IAction installAction = new InstallAction(availableIUGroup.getCheckMappingSelectionProvider(), profileId, null, ProvPolicies.getDefault(), getShell());
 		installButton.setData(BUTTONACTION, installAction);
 		availablePropButton = createVerticalButton(composite, ProvSDKMessages.UpdateAndInstallDialog_Properties, false);
 
+		// We use the viewer selection for properties, not the check marks
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer());
 		availablePropButton.setData(BUTTONACTION, propertiesAction);
 
@@ -476,18 +488,35 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	}
 
 	void updateAvailableViewState() {
-		Composite parent = availableIUGroup.getComposite().getParent();
-		parent.setRedraw(false);
+		if (availableIUGroup.getTree() == null || availableIUGroup.getTree().isDisposed())
+			return;
+		final Composite parent = availableIUGroup.getComposite().getParent();
 		validateAvailableIUButtons();
 		availableIUGroup.setUseBoldFontForFilteredItems(queryContext.getViewType() != AvailableIUViewQueryContext.VIEW_FLAT);
-		queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
-		if (showInstalledCheckbox.getSelection())
-			queryContext.showAlreadyInstalled();
-		else
-			queryContext.hideAlreadyInstalled(profileId);
-		availableIUGroup.setQueryContext(queryContext);
-		parent.layout(true);
-		parent.setRedraw(true);
+
+		BusyIndicator.showWhile(display, new Runnable() {
+			public void run() {
+				parent.setRedraw(false);
+				updateTreeColumns();
+				queryContext.setShowLatestVersionsOnly(showLatestVersionsCheckbox.getSelection());
+				if (showInstalledCheckbox.getSelection())
+					queryContext.showAlreadyInstalled();
+				else
+					queryContext.hideAlreadyInstalled(profileId);
+				availableIUGroup.setQueryContext(queryContext);
+				parent.layout(true);
+				parent.setRedraw(true);
+			}
+		});
+	}
+
+	void updateTreeColumns() {
+		if (availableIUGroup.getTree() == null || availableIUGroup.getTree().isDisposed())
+			return;
+		TreeColumn[] columns = availableIUGroup.getTree().getColumns();
+		if (columns.length > 0)
+			columns[0].setWidth(convertHorizontalDLUsToPixels(queryContext.getViewType() == AvailableIUViewQueryContext.VIEW_BY_REPO ? SITE_COLUMN_WIDTH_IN_DLUS : OTHER_COLUMN_WIDTH_IN_DLUS));
+
 	}
 
 	void validateAvailableIUButtons() {

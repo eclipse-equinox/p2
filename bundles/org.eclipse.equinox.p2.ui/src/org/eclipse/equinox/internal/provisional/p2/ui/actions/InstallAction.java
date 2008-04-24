@@ -11,6 +11,7 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
+import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -68,14 +69,12 @@ public class InstallAction extends ProfileModificationAction {
 	protected boolean isEnabledFor(Object[] selectionArray) {
 		if (selectionArray.length < 1)
 			return false;
+		Set children = new HashSet();
 
 		for (int i = 0; i < selectionArray.length; i++) {
-			Set children = ElementUtils.getIUs(selectionArray[i]);
-			if (children.isEmpty())
-				return false;
+			children.addAll(ElementUtils.getIUs(selectionArray[i]));
 		}
-		return true;
-
+		return !children.isEmpty();
 	}
 
 	protected String getTaskName() {

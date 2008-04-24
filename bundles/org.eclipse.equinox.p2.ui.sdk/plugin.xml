@@ -49,7 +49,7 @@
             id="org.eclipse.equinox.internal.p2.ui.sdk.RepositoryPropertyPage">
             <enabledWhen>
             <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement">
+                  type="org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement">
              </adapt>
           </enabledWhen>
       </page>

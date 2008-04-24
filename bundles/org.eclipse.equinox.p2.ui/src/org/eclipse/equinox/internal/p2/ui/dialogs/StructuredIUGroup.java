@@ -37,7 +37,7 @@ public abstract class StructuredIUGroup {
 	private IQueryProvider queryProvider;
 	private ProvisioningContext context;
 	private FontMetrics fm;
-	private StructuredViewer viewer;
+	protected StructuredViewer viewer;
 	private Composite composite;
 
 	/**

@@ -11,6 +11,9 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.URL;
+import java.util.*;
+import java.util.List;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.DeferredFetchFilteredTree;
@@ -48,6 +51,99 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class AvailableIUGroup extends StructuredIUGroup {
 
+	class CheckSelectionProvider implements ISelectionProvider, ICheckStateListener {
+
+		CheckboxTreeViewer checkboxViewer;
+		private ListenerList listeners = new ListenerList();
+		List checkedNotGrayed;
+
+		CheckSelectionProvider(CheckboxTreeViewer v) {
+			this.checkboxViewer = v;
+			v.addCheckStateListener(this);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ISelectionProvider#addSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
+		 */
+		public void addSelectionChangedListener(ISelectionChangedListener listener) {
+			listeners.add(listener);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ISelectionProvider#getSelection()
+		 */
+		public ISelection getSelection() {
+			return new IStructuredSelection() {
+				public Object getFirstElement() {
+					if (size() == 0)
+						return null;
+					return toList().get(0);
+				}
+
+				public Iterator iterator() {
+					return toList().iterator();
+				}
+
+				public int size() {
+					return toList().size();
+				}
+
+				public Object[] toArray() {
+					return toList().toArray();
+				}
+
+				public List toList() {
+					return getCheckedNotGrayed();
+				}
+
+				public boolean isEmpty() {
+					return toList().isEmpty();
+				}
+
+			};
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ISelectionProvider#removeSelectionChangedListener(org.eclipse.jface.viewers.ISelectionChangedListener)
+		 */
+		public void removeSelectionChangedListener(ISelectionChangedListener listener) {
+			listeners.remove(listener);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ISelectionProvider#setSelection(org.eclipse.jface.viewers.ISelection)
+		 */
+		public void setSelection(ISelection selection) {
+			if (selection instanceof IStructuredSelection) {
+				checkboxViewer.setCheckedElements(((IStructuredSelection) selection).toArray());
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ICheckStateListener#checkStateChanged(org.eclipse.jface.viewers.CheckStateChangedEvent)
+		 */
+		public void checkStateChanged(CheckStateChangedEvent event) {
+			final Object[] listenerArray = listeners.getListeners();
+			checkedNotGrayed = null;
+			SelectionChangedEvent selectionEvent = new SelectionChangedEvent(this, this.getSelection());
+			for (int i = 0; i < listenerArray.length; i++) {
+				((ISelectionChangedListener) listenerArray[i]).selectionChanged(selectionEvent);
+			}
+		}
+
+		List getCheckedNotGrayed() {
+			if (checkedNotGrayed == null) {
+				Object[] checked = checkboxViewer.getCheckedElements();
+				checkedNotGrayed = new ArrayList(checked.length);
+				for (int i = 0; i < checked.length; i++)
+					if (!checkboxViewer.getGrayed(checked[i]))
+						checkedNotGrayed.add(checked[i]);
+			}
+			return checkedNotGrayed;
+
+		}
+	}
+
 	QueryContext queryContext;
 	// We restrict the type of the filter used because PatternFilter does
 	// unnecessary accesses of children that cause problems with the deferred
@@ -55,16 +151,18 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	AvailableIUPatternFilter filter;
 	private IViewMenuProvider menuProvider;
 	private boolean useBold = false;
+	private boolean useCheckboxes = false;
 	private IUDetailsLabelProvider labelProvider;
 	private Display display;
 	boolean ignoreEvent = false;
 	DeferredFetchFilteredTree filteredTree;
 	IUColumnConfig[] columnConfig;
 	private int refreshRepoFlags = IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM;
+	ISelectionProvider selectionProvider;
 
 	/**
 	 * Create a group that represents the available IU's but does not use any of the
-	 * view menu or filtering capabilities.
+	 * view menu or check box capabilities.
 	 * 
 	 * @param parent the parent composite for the group
 	 * @param queryProvider the query provider that defines the queries used
@@ -75,7 +173,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * including information about which repositories should be used.
 	 */
 	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context) {
-		this(parent, queryProvider, font, context, null, null, ProvUI.getIUColumnConfig(), null);
+		this(parent, queryProvider, font, context, null, null, ProvUI.getIUColumnConfig(), null, false);
 	}
 
 	/**
@@ -96,13 +194,17 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * will be used.
 	 * @param menuProvider the IMenuProvider that fills the view menu.  If <code>null</code>,
 	 * then there is no view menu shown.
+	 * @param useCheckboxes a boolean indicating whether a checkbox selection model should be
+	 * used.  If <code>true</code>, a check box selection model will be used and the group's 
+	 * implementation of ISelectionProvider will use the checks as the selection.
 	 */
-	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, QueryContext queryContext, AvailableIUPatternFilter filter, IUColumnConfig[] columnConfig, IViewMenuProvider menuProvider) {
+	public AvailableIUGroup(final Composite parent, IQueryProvider queryProvider, Font font, ProvisioningContext context, QueryContext queryContext, AvailableIUPatternFilter filter, IUColumnConfig[] columnConfig, IViewMenuProvider menuProvider, boolean useCheckboxes) {
 		super(parent, queryProvider, font, context);
 		this.display = parent.getDisplay();
 		this.queryContext = queryContext;
 		this.filter = filter;
 		this.menuProvider = menuProvider;
+		this.useCheckboxes = useCheckboxes;
 		if (columnConfig == null)
 			this.columnConfig = ProvUI.getIUColumnConfig();
 		else
@@ -116,8 +218,12 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 	protected StructuredViewer createViewer(Composite parent) {
 		// Table of available IU's
-		filteredTree = new DeferredFetchFilteredTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, menuProvider, parent.getDisplay());
+		filteredTree = new DeferredFetchFilteredTree(parent, SWT.MULTI | SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER, filter, menuProvider, parent.getDisplay(), useCheckboxes);
 		final TreeViewer availableIUViewer = filteredTree.getViewer();
+		if (availableIUViewer instanceof CheckboxTreeViewer)
+			selectionProvider = new CheckSelectionProvider((CheckboxTreeViewer) availableIUViewer);
+		else
+			selectionProvider = availableIUViewer;
 
 		labelProvider = new IUDetailsLabelProvider(filteredTree, columnConfig, getShell());
 		labelProvider.setUseBoldFontForFilteredItems(useBold);
@@ -191,13 +297,13 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 */
 	public void setQueryContext(QueryContext context) {
 		this.queryContext = context;
-		if (getStructuredViewer() == null)
+		if (viewer == null)
 			return;
 
-		Object input = getStructuredViewer().getInput();
+		Object input = viewer.getInput();
 		if (input instanceof QueriedElement) {
 			((QueriedElement) input).setQueryContext(context);
-			getStructuredViewer().refresh();
+			viewer.refresh();
 		}
 	}
 
@@ -241,9 +347,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	}
 
 	public Tree getTree() {
-		if (getStructuredViewer() == null)
+		if (viewer == null)
 			return null;
-		return ((TreeViewer) getStructuredViewer()).getTree();
+		return ((TreeViewer) viewer).getTree();
 	}
 
 	/**
@@ -257,9 +363,8 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		else
 			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, urls);
 		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
-		StructuredViewer v = getStructuredViewer();
-		if (v != null && !v.getControl().isDisposed())
-			v.setInput(getNewInput());
+		if (viewer != null && !viewer.getControl().isDisposed())
+			viewer.setInput(getNewInput());
 	}
 
 	/*
@@ -279,19 +384,19 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		}
 		display.asyncExec(new Runnable() {
 			public void run() {
-				final TreeViewer viewer = filteredTree.getViewer();
+				final TreeViewer treeViewer = filteredTree.getViewer();
 				IWorkbench workbench = PlatformUI.getWorkbench();
 				if (workbench.isClosing())
 					return;
-				viewer.refresh();
-				final Tree tree = viewer.getTree();
+				treeViewer.refresh();
+				final Tree tree = treeViewer.getTree();
 				if (tree != null && !tree.isDisposed()) {
 					TreeItem[] items = tree.getItems();
 					for (int i = 0; i < items.length; i++) {
 						if (items[i].getData() instanceof IRepositoryElement) {
 							URL url = ((IRepositoryElement) items[i].getData()).getLocation();
 							if (url.toExternalForm().equals(location.toExternalForm())) {
-								viewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
+								treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
 								tree.select(items[i]);
 								return;
 							}
@@ -300,5 +405,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 				}
 			}
 		});
+	}
+
+	public ISelectionProvider getCheckMappingSelectionProvider() {
+		return selectionProvider;
 	}
 }
