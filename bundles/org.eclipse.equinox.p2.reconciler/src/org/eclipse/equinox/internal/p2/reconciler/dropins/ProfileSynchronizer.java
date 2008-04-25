@@ -342,6 +342,8 @@ public class ProfileSynchronizer {
 	 * Write out the configuration file.
 	 */
 	private void applyConfiguration() {
+		if ("true".equals(System.getProperty("org.eclipse.equinox.p2.reconciler.noConfig"))) //$NON-NLS-1$//$NON-NLS-2$
+			return;
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(Configurator.class.getName());
 		Configurator configurator = (Configurator) context.getService(reference);
