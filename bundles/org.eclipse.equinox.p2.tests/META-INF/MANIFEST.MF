@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.tests;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Import-Package: org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.equinox.internal.p2.core.helpers,

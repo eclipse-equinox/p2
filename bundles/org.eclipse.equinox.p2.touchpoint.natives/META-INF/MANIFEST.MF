@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.touchpoint.natives;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.touchpoint.natives.Activator
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.engine,

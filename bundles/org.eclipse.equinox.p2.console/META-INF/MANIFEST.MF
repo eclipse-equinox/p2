@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.console;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.console.Activator
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.equinox.internal.p2.console;x-friends:="org.eclipse.equinox.p2.director.app,org.eclipse.equinox.p2.tools"
