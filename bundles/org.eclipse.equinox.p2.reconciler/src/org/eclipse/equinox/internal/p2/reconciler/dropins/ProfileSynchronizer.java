@@ -292,6 +292,9 @@ public class ProfileSynchronizer {
 				toRemove.add(iu);
 		}
 
+		if (toAdd.isEmpty() && toRemove.isEmpty())
+			return null;
+
 		context.setExtraIUs(toAdd);
 		request.addInstallableUnits((IInstallableUnit[]) toAdd.toArray(new IInstallableUnit[toAdd.size()]));
 		request.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]));
