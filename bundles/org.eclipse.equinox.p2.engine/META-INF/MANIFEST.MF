@@ -19,7 +19,8 @@ Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.e
    org.eclipse.equinox.p2.touchpoint.eclipse,
    org.eclipse.equinox.p2.touchpoint.natives,
    org.eclipse.equinox.p2.extensionlocation,
-   org.eclipse.equinox.p2.garbagecollector",
+   org.eclipse.equinox.p2.garbagecollector,
+   org.eclipse.pde.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.engine.phases;x-friends:="org.eclipse.equinox.p2.ui"
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.core.helpers,

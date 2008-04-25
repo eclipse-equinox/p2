@@ -35,7 +35,7 @@ Export-Package: org.eclipse.equinox.internal.p2.ui.sdk;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.externalFiles;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.prefs;x-internal:=true,
  org.eclipse.equinox.internal.p2.ui.sdk.updates;x-internal:=true,
- org.eclipse.equinox.internal.provisional.p2.ui.sdk;x-internal:=true
+ org.eclipse.equinox.internal.provisional.p2.ui.sdk;x-friends:="org.eclipse.pde.p2.ui"
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Eclipse-LazyStart: true

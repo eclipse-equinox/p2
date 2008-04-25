@@ -63,7 +63,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.metadata.generator,
    org.eclipse.equinox.p2.installer,
    org.eclipse.equinox.p2.directorywatcher,
-   org.eclipse.equinox.p2.updatechecker",
+   org.eclipse.equinox.p2.updatechecker,
+   org.eclipse.pde.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.core.eventbus;
   x-friends:="org.eclipse.equinox.p2.metadata,
    org.eclipse.equinox.p2.metadata.generator,
