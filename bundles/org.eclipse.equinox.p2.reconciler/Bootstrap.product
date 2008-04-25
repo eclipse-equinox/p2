@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.4"?>
 
-<product name="P2 Bootstrap" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.equinox.app.error" useFeatures="false">
+<product name="p2 bootstrap" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.equinox.p2.reconciler.application" useFeatures="false">
 
    <configIni use="default">
       <linux>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</linux>
@@ -9,12 +9,14 @@
       <solaris>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</solaris>
       <win32>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</win32>
    </configIni>
-   
+
    <launcherArgs>
+      <vmArgs>-Dorg.eclipse.equinox.p2.reconciler.noConfig=true</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
+
 
    <launcher>
       <solaris/>
@@ -23,12 +25,14 @@
       </win>
    </launcher>
 
-
    <vm>
    </vm>
 
    <plugins>
       <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.net"/>
+      <plugin id="org.eclipse.core.net.win32.x86" fragment="true"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
       <plugin id="org.eclipse.ecf"/>
       <plugin id="org.eclipse.ecf.filetransfer"/>
       <plugin id="org.eclipse.ecf.identity"/>
@@ -45,6 +49,7 @@
       <plugin id="org.eclipse.equinox.p2.exemplarysetup"/>
       <plugin id="org.eclipse.equinox.p2.extensionlocation"/>
       <plugin id="org.eclipse.equinox.p2.garbagecollector"/>
+      <plugin id="org.eclipse.equinox.p2.jarprocessor"/>
       <plugin id="org.eclipse.equinox.p2.metadata"/>
       <plugin id="org.eclipse.equinox.p2.metadata.generator"/>
       <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
@@ -53,6 +58,7 @@
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
       <plugin id="org.eclipse.equinox.security"/>
+      <plugin id="org.eclipse.equinox.security.win32.x86" fragment="true"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator"/>
       <plugin id="org.eclipse.equinox.simpleconfigurator.manipulator"/>
       <plugin id="org.eclipse.osgi"/>

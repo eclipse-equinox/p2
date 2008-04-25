@@ -3,16 +3,39 @@
 <plugin>
 
    <extension
-         id="product"
+         id="org.eclipse.equinox.p2.reconciler.dropins.product"
          point="org.eclipse.core.runtime.products">
       <product
-            application="org.eclipse.equinox.app.error"
-            name="P2 Bootstrap">
+            application="org.eclipse.equinox.p2.reconciler.application"
+            name="p2 reconciliation product">
          <property
                name="appName"
-               value="P2 Bootstrap">
+               value="p2 reconciliation product">
          </property>
       </product>
    </extension>
-
+   <extension
+         id="org.eclipse.equinox.p2.reconciler.application"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            thread="any"
+            visible="true">
+         <run
+               class="org.eclipse.equinox.internal.p2.reconciler.dropins.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.equinox.p2.reconciler.application"
+            name="p2 reconciliation application">
+         <property
+               name="appName"
+               value="p2 reconciliation application">
+         </property>
+      </product>
+   </extension>
 </plugin>
