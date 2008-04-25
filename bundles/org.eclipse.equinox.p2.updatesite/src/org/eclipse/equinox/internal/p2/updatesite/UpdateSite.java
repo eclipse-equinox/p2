@@ -113,18 +113,20 @@ public class UpdateSite {
 	 * Returns a local file containing the contents of the update site at the given location.
 	 */
 	private static File loadSiteFile(URL location, IProgressMonitor monitor) throws ProvisionException {
-		File siteFile;
+		Throwable failure;
 		try {
-			siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
+			File siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
 			OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
 			IStatus transferResult = getTransport().download(getSiteURL(location).toExternalForm(), destination, monitor);
-			if (!transferResult.isOK())
-				throw new ProvisionException(transferResult);
+			if (transferResult.isOK())
+				return siteFile;
+			failure = transferResult.getException();
 		} catch (IOException e) {
-			String msg = NLS.bind(Messages.ErrorReadingSite, location);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
+			failure = e;
 		}
-		return siteFile;
+		int code = (failure instanceof FileNotFoundException) ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ;
+		String msg = NLS.bind(Messages.ErrorReadingSite, location);
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, failure));
 	}
 
 	/*
