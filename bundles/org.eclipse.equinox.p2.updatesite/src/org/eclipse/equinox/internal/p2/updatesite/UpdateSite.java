@@ -319,15 +319,17 @@ public class UpdateSite {
 			URL digestURL = getDigestURL();
 			digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 			BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
-			getTransport().download(digestURL.toExternalForm(), destination, null);
-			Feature[] result = new DigestParser().parse(digestFile);
-			if (result == null)
+			IStatus result = getTransport().download(digestURL.toExternalForm(), destination, null);
+			if (!result.isOK())
 				return null;
-			for (int i = 0; i < result.length; i++) {
-				String key = result[i].getId() + VERSION_SEPARATOR + result[i].getVersion();
-				featureCache.put(key, result[i]);
+			Feature[] features = new DigestParser().parse(digestFile);
+			if (features == null)
+				return null;
+			for (int i = 0; i < features.length; i++) {
+				String key = features[i].getId() + VERSION_SEPARATOR + features[i].getVersion();
+				featureCache.put(key, features[i]);
 			}
-			return result;
+			return features;
 		} catch (FileNotFoundException fnfe) {
 			// we do not track FNF exceptions as we will fall back to the 
 			// standard feature parsing from the site itself, see bug 225587.
