@@ -145,7 +145,7 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that local caching of remote metadata repositories works, and that the
 	 * cache is updated when it becomes stale.
 	 */
-	public void _testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
+	public void testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
 		URL repoLocation = new URL("http://download.eclipse.org/eclipse/updates/3.4milestones/");
 		if (!repoAvailable(repoLocation))
 			return;
@@ -167,15 +167,15 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		// modify the last modified date to be older than the remote file
 		cacheFile.setLastModified(0);
 		// reload the repository and check that the cache was updated
-		manager.removeRepository(repoLocation);
+		manager.addRepository(repoLocation);
 		manager.loadRepository(repoLocation, null);
 		long lastModified = cacheFile.lastModified();
 		assertTrue(0 != lastModified);
 
 		// reload the repository and check that the cache was not updated
-		manager.removeRepository(repoLocation);
+		manager.addRepository(repoLocation);
 		manager.loadRepository(repoLocation, null);
-		assertTrue(lastModified == cacheFile.lastModified());
+		assertEquals(lastModified, cacheFile.lastModified());
 
 		cacheFile.delete();
 	}
