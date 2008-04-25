@@ -65,7 +65,7 @@ public class Util {
 		return location.getDataArea(Activator.ID);
 	}
 
-	static public IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
+	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
 		URL location = getBundlePoolLocation(profile);
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		try {
@@ -79,6 +79,8 @@ public class Util {
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
 			manager.addRepository(bundlePool.getLocation());
+			//re-load the repository to ensure we have the same instance as other callers
+			bundlePool = manager.loadRepository(bundlePool.getLocation(), null);
 			return (IFileArtifactRepository) bundlePool;
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
