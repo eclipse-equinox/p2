@@ -11,6 +11,7 @@
 package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -144,8 +145,10 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that local caching of remote metadata repositories works, and that the
 	 * cache is updated when it becomes stale.
 	 */
-	public void testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
+	public void _testMetadataCachingRemoteRepo() throws MalformedURLException, ProvisionException {
 		URL repoLocation = new URL("http://download.eclipse.org/eclipse/updates/3.4milestones/");
+		if (!repoAvailable(repoLocation))
+			return;
 		AgentLocation agentLocation = (AgentLocation) ServiceHelper.getService(TestActivator.getContext(), AgentLocation.class.getName());
 		URL dataArea = agentLocation.getDataArea("org.eclipse.equinox.p2.metadata.repository/cache/");
 		File dataAreaFile = URLUtil.toFile(dataArea);
@@ -175,6 +178,15 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(lastModified == cacheFile.lastModified());
 
 		cacheFile.delete();
+	}
+
+	private boolean repoAvailable(URL repoLocation) {
+		try {
+			repoLocation.openStream().close();
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
