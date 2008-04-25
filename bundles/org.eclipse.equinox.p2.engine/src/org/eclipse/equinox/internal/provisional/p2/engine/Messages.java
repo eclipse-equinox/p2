@@ -15,6 +15,11 @@ import org.eclipse.osgi.util.NLS;
 //TODO Shouldn't have messages class in API package
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.provisional.p2.engine.messages"; //$NON-NLS-1$
+	public static String CertificateChecker_CertificateError;
+	public static String CertificateChecker_CertificateRejected;
+	public static String CertificateChecker_KeystoreConnectionError;
+	public static String CertificateChecker_SignedContentIOError;
+	public static String CertificateChecker_SignedContentError;
 	public static String action_or_iu_operand_null;
 	public static String not_current_phase;
 	public static String null_operands;

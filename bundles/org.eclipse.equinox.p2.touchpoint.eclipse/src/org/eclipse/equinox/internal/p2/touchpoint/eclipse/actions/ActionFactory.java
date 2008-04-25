@@ -42,6 +42,7 @@ public class ActionFactory {
 		actions.put(RmdirAction.ID, RmdirAction.class);
 		actions.put(LinkAction.ID, LinkAction.class);
 		actions.put(ChmodAction.ID, ChmodAction.class);
+		actions.put(CheckTrustAction.ID, CheckTrustAction.class);
 	}
 
 	public static ProvisioningAction create(String actionId) {

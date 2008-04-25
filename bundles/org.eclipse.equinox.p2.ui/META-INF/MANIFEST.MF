@@ -57,7 +57,8 @@ Export-Package: org.eclipse.equinox.internal.p2.ui;x-internal:=true,
  org.eclipse.equinox.internal.provisional.p2.ui.viewers;x-friends:="org.eclipse.equinox.p2.ui.admin,org.eclipse.equinox.p2.ui.admin.rcp,org.eclipse.equinox.p2.ui.sdk"
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.equinox.simpleconfigurator
+ org.eclipse.equinox.simpleconfigurator,
+ org.eclipse.equinox.security.ui;bundle-version="[1.0.0,2.0.0)"
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1

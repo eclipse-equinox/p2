@@ -10,14 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
+import java.security.cert.Certificate;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.TrustCertificateDialog;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UserValidationDialog;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * The default GUI-based implementation of {@link IServiceUI}.
+ */
 public class ValidationDialogServiceUI implements IServiceUI {
 
 	/*
@@ -42,5 +48,45 @@ public class ValidationDialogServiceUI implements IServiceUI {
 
 		});
 		return result[0];
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.core.IServiceUI#showCertificates(java.lang.Object)
+	 */
+	public Certificate[] showCertificates(final Certificate[][] certificates) {
+		final Object[] result = new Object[1];
+		final TreeNode[] input = createTreeNodes(certificates);
+		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				ILabelProvider labelProvider = new CertificateLabelProvider();
+				TreeNodeContentProvider contentProvider = new TreeNodeContentProvider();
+				TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input, labelProvider, contentProvider);
+				trustCertificateDialog.open();
+				Certificate[] values = new Certificate[trustCertificateDialog.getResult() == null ? 0 : trustCertificateDialog.getResult().length];
+				for (int i = 0; i < values.length; i++) {
+					values[i] = (Certificate) ((TreeNode) trustCertificateDialog.getResult()[i]).getValue();
+				}
+				result[0] = values;
+			}
+		});
+		return (Certificate[]) result[0];
+	}
+
+	private TreeNode[] createTreeNodes(Certificate[][] certificates) {
+		TreeNode[] children = new TreeNode[certificates.length];
+		for (int i = 0; i < certificates.length; i++) {
+			TreeNode head = new TreeNode(certificates[i][0]);
+			TreeNode parent = head;
+			children[i] = head;
+			for (int j = 0; j < certificates[i].length; j++) {
+				TreeNode node = new TreeNode(certificates[i][j]);
+				node.setParent(parent);
+				parent.setChildren(new TreeNode[] {node});
+				parent = node;
+			}
+		}
+		return children;
 	}
 }
