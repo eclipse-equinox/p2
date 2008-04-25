@@ -51,15 +51,15 @@ public class Engine implements IEngine {
 			EngineSession session = new EngineSession(profile, context);
 
 			MultiStatus result = phaseSet.perform(session, profile, operands, context, monitor);
-			if (result.isOK()) {
+			if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
+				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
+				session.rollback();
+			} else {
 				if (profile.isChanged()) {
 					profileRegistry.updateProfile(profile);
 				}
 				eventBus.publishEvent(new CommitOperationEvent(profile, phaseSet, operands, this));
 				session.commit();
-			} else if (result.matches(IStatus.ERROR | IStatus.CANCEL)) {
-				eventBus.publishEvent(new RollbackOperationEvent(profile, phaseSet, operands, this, result));
-				session.rollback();
 			}
 			//if there is only one child status, return that status instead because it will have more context
 			IStatus[] children = result.getChildren();
