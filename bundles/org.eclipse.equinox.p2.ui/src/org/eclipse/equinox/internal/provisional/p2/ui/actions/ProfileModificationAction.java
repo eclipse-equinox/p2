@@ -137,6 +137,8 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	protected int getLock(IInstallableUnit iu) {
 		try {
 			IProfile profile = ProvisioningUtil.getProfile(profileId);
+			if (profile == null)
+				return IInstallableUnit.LOCK_NONE;
 			String value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
 			if (value != null)
 				return Integer.parseInt(value);
