@@ -3,16 +3,18 @@
 
 <product name="P2 Bootstrap" id="org.eclipse.equinox.p2.reconciler.dropins.product" application="org.eclipse.equinox.app.error" useFeatures="false">
 
-
    <configIni use="default">
+      <linux>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</linux>
+      <macosx>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</macosx>
+      <solaris>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</solaris>
+      <win32>/org.eclipse.equinox.p2.reconciler.dropins/config.ini</win32>
    </configIni>
-
+   
    <launcherArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
    <windowImages/>
-
 
    <launcher>
       <solaris/>
