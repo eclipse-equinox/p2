@@ -16,13 +16,12 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
+import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -41,6 +40,18 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private long lastModified = -1l;
 	private Set configRepositories;
 
+	private String toString(String[] list) {
+		if (list == null || list.length == 0)
+			return ""; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < list.length; i++) {
+			buffer.append(list[i]);
+			if (list.length < i + 1)
+				buffer.append(',');
+		}
+		return buffer.toString();
+	}
+
 	/*
 	 * Construct a new listener based on the given platform.xml file.
 	 */
@@ -49,18 +60,6 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		if (!PLATFORM_XML.equals(file.getName()))
 			throw new IllegalArgumentException();
 		this.root = file;
-	}
-
-	/*
-	 * Do a look-up and return the OSGi install area if it is set.
-	 */
-	private static URL getOSGiInstallArea() {
-		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
-		if (location == null)
-			return null;
-		if (!location.isSet())
-			return null;
-		return location.getURL();
 	}
 
 	/* (non-Javadoc)
@@ -115,7 +114,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		if (changed) {
 			lastModified = root.lastModified();
 			try {
-				Configuration configuration = ConfigurationParser.parse(root, getOSGiInstallArea());
+				Configuration configuration = ConfigurationParser.parse(root, Activator.getOSGiInstallArea());
 				synchronizeConfiguration(configuration);
 			} catch (ProvisionException e) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.errorProcessingConfg, e));
@@ -160,11 +159,13 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			IMetadataRepository match = getMatchingRepo(configRepositories, siteURL);
 			if (match == null) {
 				try {
-					URL repoURL = new URL(siteURL);
-					IMetadataRepository newRepo = new ExtensionLocationMetadataRepository(repoURL, site, null);
-					Activator.addRepository(newRepo);
-					Activator.loadArtifactRepository(repoURL);
-					newRepos.add(newRepo);
+					URL location = new URL(siteURL);
+					Map properties = new HashMap();
+					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
+					properties.put(SiteListener.SITE_LIST, toString(site.getList()));
+					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+					newRepos.add(Activator.getMetadataRepository(location, "extension location metadata repository: " + location.toExternalForm(), ExtensionLocationMetadataRepository.TYPE, properties, true)); //$NON-NLS-1$
+					Activator.getArtifactRepository(location, "extension location artifact repository:  " + location.toExternalForm(), ExtensionLocationArtifactRepository.TYPE, properties, true); //$NON-NLS-1$
 				} catch (MalformedURLException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				} catch (ProvisionException e) {

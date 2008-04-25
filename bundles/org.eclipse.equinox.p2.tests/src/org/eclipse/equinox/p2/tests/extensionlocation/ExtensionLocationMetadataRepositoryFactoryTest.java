@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -44,88 +45,103 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		factory = new ExtensionLocationMetadataRepositoryFactory();
 	}
 
-	public void testNonFileURL() throws MalformedURLException {
-		URL nonFileURL = new URL("http://www.eclipse.org");
+	public void testNonFileURL() {
 		try {
-			factory.load(nonFileURL, null);
+			URL nonFileURL = new URL("http://www.eclipse.org");
+			factory.load(nonFileURL, getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-				return;
+			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
 		}
-		fail();
 	}
 
-	public void testNonExistentFile() throws MalformedURLException {
+	public void testNonExistentFile() {
 		File directory = new File(tempDirectory, "nonexistent");
 		delete(directory);
 		try {
-			factory.load(directory.toURL(), null);
+			factory.load(directory.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-				return;
+			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
 		}
-		fail();
 	}
 
-	public void testNotDirectory() throws IOException {
+	public void testNotDirectory() {
 		File file = new File(tempDirectory, "exists.file");
-		file.createNewFile();
 		try {
-			factory.load(file.toURL(), null);
+			file.createNewFile();
+			factory.load(file.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-				return;
+			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		} catch (IOException e) {
+			fail("0.4", e);
 		}
-		fail();
 	}
 
-	public void testNoFeatureOrPluginsDirectory() throws MalformedURLException {
+	public void testNoFeatureOrPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		try {
-			factory.load(directory.toURL(), null);
+			factory.load(directory.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-				return;
+			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
 		}
-		fail();
 	}
 
-	public void testEmptyFeatureAndPluginsDirectory() throws MalformedURLException {
+	public void testEmptyFeatureAndPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		new File(directory, "plugins").mkdir();
 		new File(directory, "features").mkdir();
 		try {
-			factory.load(directory.toURL(), null);
+			factory.load(directory.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			fail();
+			// expected
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
 		}
 	}
 
-	public void testEmptyFeaturesDirectory() throws MalformedURLException {
+	public void testEmptyFeaturesDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		new File(directory, "features").mkdir();
 		try {
-			factory.load(directory.toURL(), null);
+			factory.load(directory.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			fail();
+			// expected
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
 		}
 	}
 
-	public void testEmptyPluginsDirectory() throws MalformedURLException {
+	public void testEmptyPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		new File(directory, "plugins").mkdir();
 		try {
-			factory.load(directory.toURL(), null);
+			factory.load(directory.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			fail();
+			// expected
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
 		}
 	}
 
-	public void testEclipseBaseEmptyFeatureAndPluginsDirectory() throws MalformedURLException {
+	public void testEclipseBaseEmptyFeatureAndPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		File eclipseDirectory = new File(directory, "eclipse");
@@ -133,13 +149,16 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(eclipseDirectory, "plugins").mkdir();
 		new File(eclipseDirectory, "features").mkdir();
 		try {
-			factory.load(directory.toURL(), null);
+			factory.load(directory.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			fail();
+			// expected
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
 		}
 	}
 
-	public void testNotEclipseBaseEmptyFeatureAndPluginsDirectory() throws MalformedURLException {
+	public void testNotEclipseBaseEmptyFeatureAndPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		File eclipseDirectory = new File(directory, "noteclipse");
@@ -147,72 +166,98 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(eclipseDirectory, "plugins").mkdir();
 		new File(eclipseDirectory, "features").mkdir();
 		try {
-			factory.load(directory.toURL(), null);
+			factory.load(directory.toURL(), getMonitor());
+			fail("0.1");
 		} catch (ProvisionException e) {
-			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
-				return;
+			assertEquals("0.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
 		}
-		fail();
 	}
 
-	public void testNormalFeaturesandPluginsDirectory() throws IOException {
+	public void testNormalFeaturesandPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
-		IMetadataRepository repo = null;
 		try {
-			repo = factory.load(directory.toURL(), null);
+			URL location = directory.toURL();
+			IMetadataRepository repo = null;
+			try {
+				repo = factory.load(location, getMonitor());
+				fail("2.0");
+			} catch (ProvisionException ex) {
+				repo = factory.create(location, "testNormalFeaturesandPluginsDirectory", ExtensionLocationMetadataRepository.TYPE, null);
+				if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
+					fail("2.99");
+			}
 		} catch (ProvisionException e) {
-			fail();
+			fail("3.99");
+		} catch (MalformedURLException e) {
+			fail("4.99", e);
 		}
-		if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
-			fail();
 	}
 
-	public void testNormalFeaturesDirectory() throws IOException {
+	public void testNormalFeaturesDirectory() {
 		File directory = new File(tempDirectory, "exists/features");
 		directory.mkdirs();
 		File features = new File(directory, "features");
 		features.mkdir();
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/features"), features);
-		IMetadataRepository repo = null;
 		try {
-			repo = factory.load(directory.toURL(), null);
+			URL location = directory.toURL();
+			IMetadataRepository repo = null;
+			try {
+				repo = factory.load(location, getMonitor());
+				fail("2.0");
+			} catch (ProvisionException ex) {
+				repo = factory.create(location, "testNormalFeaturesDirectory", ExtensionLocationMetadataRepository.TYPE, null);
+				if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 2)
+					fail("3.0");
+			}
 		} catch (ProvisionException e) {
-			fail();
+			fail("4.0");
+		} catch (MalformedURLException e) {
+			fail("4.99", e);
 		}
-		if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 2)
-			fail();
 	}
 
-	public void testNormalPluginsDirectory() throws IOException {
+	public void testNormalPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists/plugins");
 		directory.mkdirs();
 		File plugins = new File(directory, "plugins");
 		plugins.mkdir();
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
-		IMetadataRepository repo = null;
 		try {
-			repo = factory.load(directory.toURL(), null);
+			URL location = directory.toURL();
+			IMetadataRepository repo = null;
+			try {
+				repo = factory.load(location, getMonitor());
+				fail("2.0");
+			} catch (ProvisionException ex) {
+				repo = factory.create(location, "testNormalPluginsDirectory", ExtensionLocationMetadataRepository.TYPE, null);
+				if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 1)
+					fail("3.0");
+			}
 		} catch (ProvisionException e) {
-			fail();
+			fail("4.0");
+		} catch (MalformedURLException e) {
+			fail("4.99", e);
 		}
-		if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 1)
-			fail();
 	}
 
-	public void testEclipseBaseNormalFeaturesandPluginsDirectory() throws IOException {
+	public void testEclipseBaseNormalFeaturesandPluginsDirectory() {
 		File directory = new File(tempDirectory, "exists");
 		directory.mkdirs();
 		File eclipseDirectory = new File(directory, "eclipse");
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), eclipseDirectory);
-		IMetadataRepository repo = null;
 		try {
-			repo = factory.load(directory.toURL(), null);
+			IMetadataRepository repo = factory.load(directory.toURL(), getMonitor());
+			if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
+				fail("3.0");
 		} catch (ProvisionException e) {
-			fail();
+			fail("2.0");
+		} catch (MalformedURLException e) {
+			fail("2.99", e);
 		}
-		if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
-			fail();
 	}
 }

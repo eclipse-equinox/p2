@@ -10,13 +10,11 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
-import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -46,64 +44,53 @@ public class Activator implements BundleActivator {
 	private static IMetadataRepository eclipseProductRepository;
 
 	/**
-	 * Helper method to load a metadata repository from the specified URL.
+	 * Helper method to load a metadata repository from the specified URL. If none
+	 * exists then create one if requested. This method never returns <code>null</code>.
+	 * 
+	 * @throws IllegalStateException
+	 * @throws ProvisionException 
+	 */
+	public static IMetadataRepository getMetadataRepository(URL location, String name, String type, Map properties, boolean create) throws ProvisionException {
+		BundleContext context = getContext();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			if (create) {
+				IMetadataRepository repository = manager.createRepository(location, name, type, properties);
+				manager.addRepository(location);
+				return repository;
+			}
+			// if we didn't want to create in the failure case then return the reason for the failure
+			throw e;
+		}
+	}
+
+	/**
+	 * Helper method to load an artifact repository from the given URL. If none
+	 * exists then we will create one at the given location, if specified to do so.
 	 * This method never returns <code>null</code>.
 	 * 
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IMetadataRepository loadMetadataRepository(URL repoURL) throws ProvisionException {
+	public static IArtifactRepository getArtifactRepository(URL location, String name, String type, Map properties, boolean create) throws ProvisionException {
 		BundleContext context = getContext();
-		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		IMetadataRepositoryManager manager = null;
-		if (reference != null)
-			manager = (IMetadataRepositoryManager) context.getService(reference);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
 		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		try {
-			return manager.loadRepository(repoURL, null);
-		} finally {
-			context.ungetService(reference);
-		}
-	}
-
-	/*
-	 * Helper method to add the given metadata repository to the manager's list.
-	 */
-	public static void addRepository(IMetadataRepository repo) {
-		BundleContext context = getContext();
-		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		IMetadataRepositoryManager manager = null;
-		if (reference != null)
-			manager = (IMetadataRepositoryManager) context.getService(reference);
-		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
-		try {
-			((MetadataRepositoryManager) manager).addRepository(repo);
-		} finally {
-			context.ungetService(reference);
-		}
-	}
-
-	/**
-	 * Helper method to load an artifact repository from the given URL.
-	 * This method never returns <code>null</code>.
-	 * 
-	 * @throws IllegalStateException
-	 * @throws ProvisionException
-	 */
-	public static IArtifactRepository loadArtifactRepository(URL repoURL) throws ProvisionException {
-		BundleContext context = getContext();
-		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
-		IArtifactRepositoryManager manager = null;
-		if (reference != null)
-			manager = (IArtifactRepositoryManager) context.getService(reference);
-		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
-		try {
-			return manager.loadRepository(repoURL, null);
-		} finally {
-			context.ungetService(reference);
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			if (create) {
+				IArtifactRepository repository = manager.createRepository(location, name, type, properties);
+				manager.addRepository(location);
+				return repository;
+			}
+			// if we didn't want to create in the failure case then return the reason for the failure
+			throw e;
 		}
 	}
 
@@ -125,8 +112,9 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 
-		// create a watcher for the main plugins and features directories
-		watchEclipseProduct();
+		// TODO i-build to i-build backwards compatibility code to remove the
+		// old .pooled repositories. Remove this call soon.
+		removeOldRepos();
 		// create the watcher for the "drop-ins" folder
 		watchDropins(profile);
 		// keep an eye on the platform.xml
@@ -143,24 +131,31 @@ public class Activator implements BundleActivator {
 		eclipseProductRepository = null;
 	}
 
-	private void watchEclipseProduct() {
+	/*
+	 * TODO Backwards compatibility code to remove the
+	 * old .pooled repositories from the saved list. Remove
+	 * this method soon.
+	 */
+	private void removeOldRepos() {
+		URL osgiInstallArea = getOSGiInstallArea();
+		if (osgiInstallArea == null)
+			return;
+		URL location = null;
 		try {
-			File configurationLocation = getConfigurationLocation();
-			if (configurationLocation == null) {
-				LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location."));
-				return;
-			}
-			File pool = new File(configurationLocation, "../.pooled").getCanonicalFile(); //$NON-NLS-1$
-			URL pooledURL = pool.toURL();
-			loadArtifactRepository(pooledURL);
-			eclipseProductRepository = loadMetadataRepository(pooledURL);
+			location = new URL(getOSGiInstallArea(), ".pooled"); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
-		} catch (ProvisionException e) {
-			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
-		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while loading repository.", e));
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while removing old repositories.", e)); //$NON-NLS-1$
+			return;
 		}
+		BundleContext context = getContext();
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+		if (artifactManager == null)
+			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
+		artifactManager.removeRepository(location);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		if (metadataManager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		metadataManager.removeRepository(location);
 	}
 
 	private boolean startEarly(String bundleName) throws BundleException {
@@ -231,7 +226,6 @@ public class Activator implements BundleActivator {
 			return;
 
 		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), "dropins:" + dropinsDirectory.getAbsolutePath());
-		//		listener.getArtifactRepository().setProperty(PROFILE_EXTENSION, profile.getProfileId());
 		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
@@ -274,6 +268,18 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
+	 * Do a look-up and return the OSGi install area if it is set.
+	 */
+	public static URL getOSGiInstallArea() {
+		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		if (location == null)
+			return null;
+		if (!location.isSet())
+			return null;
+		return location.getURL();
+	}
+
+	/*
 	 * Helper method to return the eclipse.home location. Return
 	 * null if it is unavailable.
 	 */
@@ -287,11 +293,17 @@ public class Activator implements BundleActivator {
 		return URLUtil.toFile(url);
 	}
 
+	/*
+	 * Return the location of the links directory, or null if it is not available.
+	 */
 	private static File getLinksDirectory() {
 		File root = getEclipseHome();
 		return root == null ? null : new File(root, LINKS);
 	}
 
+	/*
+	 * Return the location of the dropins directory, or null if it is not available.
+	 */
 	private static File getDropinsDirectory() {
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null)
@@ -300,6 +312,9 @@ public class Activator implements BundleActivator {
 		return root == null ? null : new File(root, DROPINS);
 	}
 
+	/*
+	 * Return the current profile or null if it cannot be retrieved.
+	 */
 	public static IProfile getCurrentProfile(BundleContext context) {
 		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
 		if (reference == null)
@@ -316,10 +331,12 @@ public class Activator implements BundleActivator {
 		packageAdmin = service;
 	}
 
+	/*
+	 * Return the bundle with the given symbolic name, or null if it cannot be found.
+	 */
 	static synchronized Bundle getBundle(String symbolicName) {
 		if (packageAdmin == null)
 			return null;
-
 		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
 		if (bundles == null)
 			return null;

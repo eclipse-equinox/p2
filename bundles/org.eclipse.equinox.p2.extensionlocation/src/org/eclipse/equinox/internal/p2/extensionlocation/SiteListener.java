@@ -31,10 +31,14 @@ import org.osgi.framework.ServiceReference;
  */
 public class SiteListener extends RepositoryListener {
 
+	public static final String SITE_POLICY = "org.eclipse.update.site.policy"; //$NON-NLS-1$
+	public static final String SITE_LIST = "org.eclipse.update.site.list"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
+	private String policy;
+	private String[] list;
+	private String url;
 	private DirectoryChangeListener delegate;
-	private Site site;
 	private String[] managedFiles;
 
 	/*
@@ -52,10 +56,17 @@ public class SiteListener extends RepositoryListener {
 	/*
 	 * Create a new site listener on the given site.
 	 */
-	public SiteListener(Site site, DirectoryChangeListener delegate) {
-		super(Activator.getContext(), site.getUrl());
+	public SiteListener(Map properties, String url, DirectoryChangeListener delegate) {
+		super(Activator.getContext(), url);
+		this.url = url;
 		this.delegate = delegate;
-		this.site = site;
+		this.policy = (String) properties.get(SITE_POLICY);
+		Collection listCollection = new HashSet();
+		String listString = (String) properties.get(SITE_LIST);
+		if (listString != null)
+			for (StringTokenizer tokenizer = new StringTokenizer(listString, ","); tokenizer.hasMoreTokens();) //$NON-NLS-1$
+				listCollection.add(tokenizer.nextToken());
+		this.list = (String[]) listCollection.toArray(new String[listCollection.size()]);
 	}
 
 	/* (non-Javadoc)
@@ -66,17 +77,15 @@ public class SiteListener extends RepositoryListener {
 		// the file before we consider it
 		if (!delegate.isInterested(file) || !super.isInterested(file))
 			return false;
-		String policy = site.getPolicy();
-		String[] plugins = site.getList();
 		if (Site.POLICY_MANAGED_ONLY.equals(policy)) {
 			// we only want plug-ins referenced by features
 			return contains(getManagedFiles(), file);
 		} else if (Site.POLICY_USER_EXCLUDE.equals(policy)) {
 			// ensure the file doesn't refer to a plug-in in our list
-			return plugins.length == 0 ? true : !contains(plugins, file);
+			return list.length == 0 ? true : !contains(list, file);
 		} else if (Site.POLICY_USER_INCLUDE.equals(policy)) {
 			// we are only interested in plug-ins in the list
-			return plugins.length == 0 ? false : contains(plugins, file);
+			return list.length == 0 ? false : contains(list, file);
 		}
 		return false;
 	}
@@ -92,9 +101,9 @@ public class SiteListener extends RepositoryListener {
 		List result = new ArrayList();
 		File siteLocation;
 		try {
-			siteLocation = URLUtil.toFile(new URL(site.getUrl()));
+			siteLocation = URLUtil.toFile(new URL(url));
 		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to create a URL from site locatin: " + site.getUrl(), e));
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to create a URL from site locatin: " + url, e));
 			return new String[0];
 		}
 		Map pluginCache = getPlugins(siteLocation);

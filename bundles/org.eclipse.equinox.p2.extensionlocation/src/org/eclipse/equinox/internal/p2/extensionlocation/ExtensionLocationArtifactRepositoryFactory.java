@@ -14,17 +14,36 @@ import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 
 public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 */
 	public IArtifactRepository create(URL location, String name, String type, Map properties) throws ProvisionException {
-		return null;
+		URL repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
+		// unexpected
+		if (repoLocation == null)
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().create(repoLocation, name, type, properties);
+		return new ExtensionLocationArtifactRepository(location, repo, null);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
-		return new ExtensionLocationArtifactRepository(location, monitor);
+		URL repoLocation = ExtensionLocationArtifactRepository.getLocalRepositoryLocation(location);
+		// unexpected
+		if (repoLocation == null)
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		// TODO proper progress monitoring
+		IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().load(repoLocation, null);
+		return new ExtensionLocationArtifactRepository(location, repo, monitor);
 	}
 
 	public IStatus validate(URL location, IProgressMonitor monitor) {

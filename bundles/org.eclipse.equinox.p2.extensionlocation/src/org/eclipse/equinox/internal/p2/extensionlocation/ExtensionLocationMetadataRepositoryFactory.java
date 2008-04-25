@@ -16,18 +16,33 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 
 public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepositoryFactory {
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 */
 	public IMetadataRepository create(URL location, String name, String type, Map properties) throws ProvisionException {
-		return null;
+		URL repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
+		// unexpected
+		if (repoLocation == null)
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		IMetadataRepository repository = new SimpleMetadataRepositoryFactory().create(repoLocation, name, null, properties);
+		return new ExtensionLocationMetadataRepository(location, repository, null);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public IMetadataRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
-		return new ExtensionLocationMetadataRepository(location, null, monitor);
+		URL repoLocation = ExtensionLocationMetadataRepository.getLocalRepositoryLocation(location);
+		// unexpected
+		if (repoLocation == null)
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
+		// TODO proper progress monitoring
+		IMetadataRepository repository = new SimpleMetadataRepositoryFactory().load(repoLocation, null);
+		return new ExtensionLocationMetadataRepository(location, repository, monitor);
 	}
 
 	/* (non-Javadoc)

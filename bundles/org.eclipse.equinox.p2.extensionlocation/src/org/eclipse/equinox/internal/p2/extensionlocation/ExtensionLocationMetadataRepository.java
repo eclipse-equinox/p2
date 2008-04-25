@@ -15,7 +15,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.update.Site;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -23,58 +22,52 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
-import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
 import org.osgi.framework.BundleContext;
 
 public class ExtensionLocationMetadataRepository extends AbstractMetadataRepository {
 
-	private static final String POOLED = ".pooled"; //$NON-NLS-1$
+	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
 	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String FILE = "file"; //$NON-NLS-1$
-	private final IMetadataRepository metadataRepository;
+	private IMetadataRepository metadataRepository;
 
-	public ExtensionLocationMetadataRepository(URL location, Site site, IProgressMonitor monitor) throws ProvisionException {
+	/*
+	 * Return the URL for this repo's nested local repository.
+	 */
+	public static URL getLocalRepositoryLocation(URL location) {
+		BundleContext context = Activator.getContext();
+		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
+		File bundleData = context.getDataFile(null);
+		File stateDir = new File(bundleData, stateDirName);
+		try {
+			return stateDir.toURL();
+		} catch (MalformedURLException e) {
+			// unexpected
+			return null;
+		}
+	}
+
+	/*
+	 * Constructor for the class. Return a new extension location repository based on the 
+	 * given location and specified nested repo.
+	 */
+	public ExtensionLocationMetadataRepository(URL location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		super("Extension: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
+		this.metadataRepository = repository;
 
 		File base = getBaseDirectory(location);
 		File plugins = new File(base, PLUGINS);
 		File features = new File(base, FEATURES);
 
-		BundleContext context = Activator.getContext();
-		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
-		File bundleData = context.getDataFile(null);
-		File stateDir = new File(bundleData, stateDirName);
-		URL localRepositoryURL;
-		try {
-			localRepositoryURL = stateDir.toURL();
-		} catch (MalformedURLException e) {
-			// unexpected
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository, e));
-		}
-
-		metadataRepository = initializeMetadataRepository(localRepositoryURL, "extension location implementation - " + location.toExternalForm()); //$NON-NLS-1$
-
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		DirectoryChangeListener listener = new RepositoryListener(context, metadataRepository, null);
-		if (location.getPath().endsWith(POOLED))
-			listener = new BundlePoolFilteredListener(listener);
-		if (site != null)
-			listener = new SiteListener(site, new BundlePoolFilteredListener(listener));
+		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), metadataRepository, null);
+		if (getProperties().get(SiteListener.SITE_POLICY) != null)
+			listener = new SiteListener(getProperties(), location.toExternalForm(), new BundlePoolFilteredListener(listener));
 
 		watcher.addListener(listener);
 		watcher.poll();
-	}
-
-	private IMetadataRepository initializeMetadataRepository(URL stateDirURL, String repositoryName) {
-		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
-		try {
-			return factory.load(stateDirURL, null);
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
-		return factory.create(stateDirURL, repositoryName, null, null);
 	}
 
 	/* (non-Javadoc)
@@ -115,9 +108,6 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 		String path = url.getPath();
 		File base = new File(path);
-		if (path.endsWith(POOLED)) {
-			base = base.getParentFile();
-		}
 
 		if (!base.isDirectory())
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_directory, null));

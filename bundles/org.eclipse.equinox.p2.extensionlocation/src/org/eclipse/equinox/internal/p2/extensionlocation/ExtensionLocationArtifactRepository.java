@@ -19,12 +19,12 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.BundleContext;
 
 public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository {
 
+	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	//private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
@@ -33,47 +33,42 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	private static final String FILE = "file"; //$NON-NLS-1$
 	private final IFileArtifactRepository artifactRepository;
 
-	public ExtensionLocationArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+	/*
+	 * Return the location of a local repository based on
+	 * the given URL.
+	 */
+	public static URL getLocalRepositoryLocation(URL location) {
+		BundleContext context = Activator.getContext();
+		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
+		File bundleData = context.getDataFile(null);
+		File stateDir = new File(bundleData, stateDirName);
+		try {
+			return stateDir.toURL();
+		} catch (MalformedURLException e) {
+			// unexpected
+			return null;
+		}
+	}
+
+	/*
+	 * Constuctor for the class. Return a new extension location repository based on 
+	 * the given url and nested repository.
+	 */
+	public ExtensionLocationArtifactRepository(URL location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		super("Extension: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
+		this.artifactRepository = repository;
 
 		File base = getBaseDirectory(location);
 		File plugins = new File(base, PLUGINS);
 		File features = new File(base, FEATURES);
 
-		BundleContext context = Activator.getContext();
-		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
-		File bundleData = context.getDataFile(null);
-		File stateDir = new File(bundleData, stateDirName);
-		URL localRepositoryURL;
-		try {
-			localRepositoryURL = stateDir.toURL();
-		} catch (MalformedURLException e) {
-			// unexpected
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_repo, e));
-		}
-
-		artifactRepository = (IFileArtifactRepository) initializeArtifactRepository(localRepositoryURL, "extension location implementation - " + location.toExternalForm()); //$NON-NLS-1$
-
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		DirectoryChangeListener listener = new RepositoryListener(context, null, artifactRepository);
+		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), null, artifactRepository);
 		if (location.getPath().endsWith(POOLED))
 			listener = new BundlePoolFilteredListener(listener);
 
 		watcher.addListener(listener);
 		watcher.poll();
-	}
-
-	private IArtifactRepository initializeArtifactRepository(URL stateDirURL, String repositoryName) {
-		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
-		try {
-			return factory.load(stateDirURL, null);
-
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
-		IArtifactRepository repository = factory.create(stateDirURL, repositoryName, null, null);
-		//repository.setProperty(PROFILE_EXTENSION, "true");
-		return repository;
 	}
 
 	public static void validate(URL location, IProgressMonitor monitor) throws ProvisionException {
