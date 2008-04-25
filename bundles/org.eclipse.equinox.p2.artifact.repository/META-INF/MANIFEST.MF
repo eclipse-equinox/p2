@@ -6,11 +6,36 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.artifact.mirror;x-internal:=true,
- org.eclipse.equinox.internal.p2.artifact.repository;x-friends:="org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.tests",
+ org.eclipse.equinox.internal.p2.artifact.repository;x-friends:="org.eclipse.equinox.p2.metadata.generator",
  org.eclipse.equinox.internal.p2.artifact.repository.simple;x-friends:="org.eclipse.equinox.p2.selfhosting,org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.tests",
- org.eclipse.equinox.internal.provisional.p2.artifact.repository,
- org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing,
- org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository
+ org.eclipse.equinox.internal.provisional.p2.artifact.repository;
+  x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
+   org.eclipse.equinox.p2.artifact.processors,
+   org.eclipse.equinox.p2.directorywatcher,
+   org.eclipse.equinox.p2.metadata.generator,
+   org.eclipse.equinox.p2.updatesite,
+   org.eclipse.equinox.p2.engine,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.ui.admin,
+   org.eclipse.equinox.p2.console,
+   org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.equinox.p2.touchpoint.natives,
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.garbagecollector,
+   org.eclipse.equinox.p2.reconciler.dropins,
+   org.eclipse.equinox.p2.installer",
+ org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing;
+  x-friends:="org.eclipse.equinox.p2.artifact.processors,
+   org.eclipse.equinox.p2.artifact.optimizers,
+   org.eclipse.equinox.p2.artifact.repository,
+   org.eclipse.equinox.p2.metadata.generator,
+   org.eclipse.equinox.p2.ui",
+ org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
+  x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.touchpoint.natives,
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.updatesite"
 Import-Package: javax.xml.parsers,
  org.eclipse.core.runtime.jobs,
  org.eclipse.core.runtime.preferences;resolution:=optional,

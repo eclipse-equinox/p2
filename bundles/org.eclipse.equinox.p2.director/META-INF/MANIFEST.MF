@@ -22,7 +22,15 @@ Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
 Export-Package: org.eclipse.equinox.internal.p2.director;x-friends:="org.eclipse.equinox.p2.exemplarysetup",
  org.eclipse.equinox.internal.p2.resolution;x-internal:=true,
  org.eclipse.equinox.internal.p2.rollback;x-friends:="org.eclipse.equinox.p2.ui",
- org.eclipse.equinox.internal.provisional.p2.director
+ org.eclipse.equinox.internal.provisional.p2.director;
+  x-friends:="org.eclipse.equinox.p2.reconciler.dropins,
+   org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.ui.admin,
+   org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.equinox.p2.director.app,
+   org.eclipse.equinox.p2.installer,
+   org.eclipse.equinox.p2.console,
+   org.eclipse.equinox.p2.updatechecker"
 Bundle-Activator: org.eclipse.equinox.internal.p2.director.DirectorActivator
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,

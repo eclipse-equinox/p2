@@ -26,6 +26,11 @@ Import-Package: javax.xml.parsers,
 Bundle-Activator: org.eclipse.equinox.internal.p2.metadata.generator.Activator
 Export-Package: org.eclipse.equinox.internal.p2.metadata.generator;x-internal:=true,
  org.eclipse.equinox.internal.p2.metadata.generator.features;x-friends:="org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.extensionlocation",
- org.eclipse.equinox.internal.provisional.p2.metadata.generator
+ org.eclipse.equinox.internal.provisional.p2.metadata.generator;
+  x-friends:="org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.directorywatcher,
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.updatesite"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.4

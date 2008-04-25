@@ -6,8 +6,21 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 0.1.0.qualifier
 Export-Package: org.eclipse.equinox.internal.p2.engine;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.touchpoint.natives",
- org.eclipse.equinox.internal.provisional.p2.engine,
- org.eclipse.equinox.internal.provisional.p2.engine.phases
+ org.eclipse.equinox.internal.provisional.p2.engine;
+  x-friends:="org.eclipse.equinox.p2.director.app,
+   org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.reconciler.dropins,
+   org.eclipse.equinox.p2.console,
+   org.eclipse.equinox.p2.director,
+   org.eclipse.equinox.p2.ui.sdk,
+   org.eclipse.equinox.p2.updatechecker,
+   org.eclipse.equinox.p2.installer,
+   org.eclipse.equinox.p2.ui.admin,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.touchpoint.natives,
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.garbagecollector",
+ org.eclipse.equinox.internal.provisional.p2.engine.phases;x-friends:="org.eclipse.equinox.p2.ui"
 Import-Package: javax.xml.parsers,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.metadata,
