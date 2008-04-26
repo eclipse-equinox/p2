@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.equinox.internal.simpleconfigurator.manipulator.Activator
 Eclipse-LazyStart: true
-Import-Package: org.eclipse.equinox.internal.frameworkadmin.utils,
+Import-Package: org.eclipse.equinox.internal.frameworkadmin.equinox,
+ org.eclipse.equinox.internal.frameworkadmin.utils,
  org.eclipse.equinox.internal.provisional.configuratormanipulator,
  org.eclipse.equinox.internal.provisional.frameworkadmin,
  org.osgi.framework;version="1.3.0",

@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -426,26 +427,9 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		if (!configuratorConfigUrl.getProtocol().equals("file"))
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
 		File outputFile = new File(configuratorConfigUrl.getFile());
-		saveConfiguration(setToSimpleConfig, outputFile, getOSGiInstallArea(manipulator.getLauncherData()), backup);
+		saveConfiguration(setToSimpleConfig, outputFile, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()), backup);
 		configData.setFwIndependentProp(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
-	}
-
-	public static File getOSGiInstallArea(LauncherData launcherData) {
-		if (launcherData == null)
-			return null;
-		String[] args = launcherData.getProgramArgs();
-		if (args == null)
-			return null;
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-startup") && i + 1 < args.length && args[i + 1].charAt(1) != '-') {
-				IPath parentFolder = new Path(args[i + 1]).removeLastSegments(1);
-				if (parentFolder.lastSegment().equals("plugins"))
-					return parentFolder.removeLastSegments(1).toFile();
-				return parentFolder.toFile();
-			}
-		}
-		return launcherData.getLauncher().getParentFile();
 	}
 
 	public static void saveConfiguration(List bundleInfoList, File outputFile, File base, boolean backup) throws IOException {
@@ -648,7 +632,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
 
-		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, getOSGiInstallArea(manipulator.getLauncherData()));
+		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()));
 
 		List toUninstall = new LinkedList();
 		if (exclusiveInstallation)
