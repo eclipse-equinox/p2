@@ -23,6 +23,10 @@ public class Messages extends NLS {
 	public static String log_configProps;
 	public static String log_renameSuccessful;
 	public static String log_fwConfigSave;
+	public static String log_shared_config_url;
+	public static String log_shared_config_relative_url;
+	public static String log_shared_config_file_missing;
+	public static String log_failed_reading_properties;
 
 	public static String msg_ConfigFileHeader;
 

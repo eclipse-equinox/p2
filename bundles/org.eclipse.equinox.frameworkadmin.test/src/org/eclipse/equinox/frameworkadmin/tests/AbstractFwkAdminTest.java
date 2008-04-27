@@ -11,8 +11,9 @@
 package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.*;
+import java.net.URL;
 import junit.framework.TestCase;
-import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.FrameworkAdmin;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
@@ -173,5 +174,77 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		} catch (BundleException e) {
 			fail("Exception while starting up " + SIMPLECONFIGURATOR_MANIPULATOR + ' ' + e.getMessage());
 		}
+	}
+	
+	/*
+	 * Copy
+	 * - if we have a file, then copy the file
+	 * - if we have a directory then merge
+	 */
+	public static void copy(String message, File source, File target) {
+		if (!source.exists())
+			return;
+		if (source.isDirectory()) {
+			if (target.exists() && target.isFile())
+				target.delete();
+			if (!target.exists())
+				target.mkdirs();
+			File[] children = source.listFiles();
+			for (int i = 0; i < children.length; i++)
+				copy(message, children[i], new File(target, children[i].getName()));
+			return;
+		}
+		InputStream input = null;
+		OutputStream output = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(source));
+			output = new BufferedOutputStream(new FileOutputStream(target));
+
+			byte[] buffer = new byte[8192];
+			int bytesRead = 0;
+			while ((bytesRead = input.read(buffer)) != -1)
+				output.write(buffer, 0, bytesRead);
+		} catch (IOException e) {
+			fail(message + ": " + e);
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close input stream on: " + source.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
+			if (output != null) {
+				try {
+					output.close();
+				} catch (IOException e) {
+					System.err.println("Exception while trying to close output stream on: " + target.getAbsolutePath());
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	/*
+	 * Look up and return a file handle to the given entry in the bundle.
+	 */
+	protected File getTestData(String message, String entry) {
+		if (entry == null)
+			fail(message + " entry is null.");
+		URL base = Activator.getContext().getBundle().getEntry(entry);
+		if (base == null)
+			fail(message + " entry not found in bundle: " + entry);
+		try {
+			String osPath = new Path(FileLocator.toFileURL(base).getPath()).toOSString();
+			File result = new File(osPath);
+			if (!result.getCanonicalPath().equals(result.getPath()))
+				fail(message + " result path: " + result.getPath() + " does not match canonical path: " + result.getCanonicalFile().getPath());
+			return result;
+		} catch (IOException e) {
+			fail(message + ": " + e);
+		}
+		// avoid compile error... should never reach this code
+		return null;
 	}
 }

@@ -240,23 +240,23 @@ public class EquinoxFwConfigFileParser {
 		LauncherData launcherData = manipulator.getLauncherData();
 		configData.initialize();
 
-		//Load properties
-		Properties props = new Properties();
-		InputStream is = null;
-		try {
-			is = new FileInputStream(inputFile);
-			props.load(is);
-		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			is = null;
-		}
+		// load configuration properties
+		Properties props = loadProperties(inputFile);
 
 		//Start figuring out stuffs 
 		URL rootURL = launcherData.getLauncher() != null ? launcherData.getLauncher().getParentFile().toURL() : null;
+
+		// look for shared configuration to merge
+		String sharedConfigurationArea = props.getProperty(EquinoxConstants.PROP_SHARED_CONFIGURATION_AREA);
+		if (sharedConfigurationArea != null) {
+			File sharedConfigIni = findSharedConfigIniFile(rootURL, sharedConfigurationArea);
+			if (sharedConfigIni != null && sharedConfigIni.exists()) {
+				Properties sharedProps = loadProperties(sharedConfigIni);
+				// merge: shared properties are over-written by user customizations
+				sharedProps.putAll(props);
+				props = sharedProps;
+			}
+		}
 
 		//Extracting fwkJar location needs to be done first 
 		String launcherName = null;
@@ -302,6 +302,63 @@ public class EquinoxFwConfigFileParser {
 		}
 
 		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, inputFile.getAbsolutePath()));
+	}
+
+	private static Properties loadProperties(File inputFile) throws FileNotFoundException, IOException {
+		Properties props = new Properties();
+		InputStream is = null;
+		try {
+			is = new FileInputStream(inputFile);
+			props.load(is);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_failed_reading_properties, inputFile));
+			}
+			is = null;
+		}
+		return props;
+	}
+
+	private File findSharedConfigIniFile(URL rootURL, String sharedConfigurationArea) {
+		URL sharedConfigurationURL = null;
+		try {
+			sharedConfigurationURL = new URL(sharedConfigurationArea);
+		} catch (MalformedURLException e) {
+			// unexpected since this was written by the framework
+			Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_shared_config_url, sharedConfigurationArea));
+			return null;
+		}
+
+		// check for a relative URL
+		if (!sharedConfigurationURL.getPath().startsWith("/")) { //$NON-NLS-1$
+
+			if (!rootURL.getProtocol().equals(sharedConfigurationURL.getProtocol())) {
+				Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_shared_config_relative_url, rootURL.toExternalForm(), sharedConfigurationArea));
+				return null;
+			}
+			try {
+				sharedConfigurationURL = new URL(rootURL, sharedConfigurationArea);
+			} catch (MalformedURLException e) {
+				// unexpected since this was written by the framework
+				Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_shared_config_relative_url, rootURL.toExternalForm(), sharedConfigurationArea));
+				return null;
+			}
+		}
+		File sharedConfigurationFolder = new File(sharedConfigurationURL.getPath());
+		if (!sharedConfigurationFolder.isDirectory()) {
+			Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_shared_config_file_missing, sharedConfigurationFolder));
+			return null;
+		}
+
+		File sharedConfigIni = new File(sharedConfigurationFolder, EquinoxConstants.CONFIG_INI);
+		if (!sharedConfigIni.exists()) {
+			Log.log(LogService.LOG_WARNING, NLS.bind(Messages.log_shared_config_file_missing, sharedConfigIni));
+			return null;
+		}
+
+		return sharedConfigIni;
 	}
 
 	private static Properties makeRelative(Properties props, URL rootURL, File fwJar, File configArea, File osgiInstallArea) throws IOException {
