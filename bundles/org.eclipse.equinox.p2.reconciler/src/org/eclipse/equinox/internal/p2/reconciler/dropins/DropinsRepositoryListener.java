@@ -113,9 +113,10 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			if (file.getName().endsWith(LINK)) {
 				File linkFile = file;
 				String path = getLinkPath(linkFile);
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
-				if (path == null)
+				if (path == null) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
 					return null;
+				}
 				file = new File(path);
 				if (!file.isAbsolute()) {
 					// link support is relative to the install root
