@@ -42,6 +42,8 @@ public class LazyManipulator implements Manipulator {
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(Util.getConfigurationFolder(profile));
 		launcherData.setLauncher(Util.getLauncherPath(profile));
+		launcherData.setLauncherConfigLocation(Util.getLauncherConfigLocation(profile));
+
 		try {
 			manipulator.load();
 		} catch (IllegalStateException e) {

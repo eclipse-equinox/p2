@@ -231,7 +231,7 @@ public class SimplePlanner implements IPlanner {
 
 			List extraIUs = new ArrayList(Arrays.asList(profileChangeRequest.getAddedInstallableUnits()));
 			extraIUs.addAll(Arrays.asList(profileChangeRequest.getRemovedInstallableUnits()));
-			extraIUs.addAll(profileChangeRequest.getProfile().query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+			extraIUs.addAll(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
 			IInstallableUnit[] availableIUs = gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), metadataRepositories, context, sub.newChild(ExpandWork / 4));
 

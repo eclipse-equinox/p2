@@ -357,5 +357,9 @@ public class FormerState {
 		public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 			return query.perform(ius.iterator(), collector);
 		}
+
+		public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+			return query(query, collector, monitor);
+		}
 	}
 }

@@ -37,7 +37,6 @@ public class Util {
 	/**
 	 * TODO "cache" is probably not the right term for this location
 	 */
-	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
 	private static final String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
@@ -94,6 +93,16 @@ public class Util {
 
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		List extensions = getListProfileProperty(profile, CACHE_EXTENSIONS);
+		String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
+		if (sharedCache != null) {
+			try {
+				extensions.add(new File(sharedCache).toURL().toExternalForm());
+			} catch (MalformedURLException e) {
+				// unexpected, URLs should be pre-checked
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+			}
+		}
+
 		for (Iterator iterator = extensions.iterator(); iterator.hasNext();) {
 			try {
 				String extension = (String) iterator.next();
@@ -159,7 +168,7 @@ public class Util {
 	}
 
 	public static File getConfigurationFolder(IProfile profile) {
-		String config = profile.getProperty(CONFIG_FOLDER);
+		String config = profile.getProperty(IProfile.PROP_CONFIGURATION_FOLDER);
 		if (config != null)
 			return new File(config);
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
@@ -271,5 +280,10 @@ public class Util {
 		if (fileLocation == null || !fileLocation.exists())
 			throw new CoreException(createError(NLS.bind(Messages.artifact_file_not_found, artifactKey)));
 		return fileLocation.getAbsolutePath();
+	}
+
+	public static File getLauncherConfigLocation(IProfile profile) {
+		String launcherConfig = profile.getProperty(IProfile.PROP_LAUNCHER_CONFIGURATION);
+		return launcherConfig == null ? null : new File(launcherConfig);
 	}
 }

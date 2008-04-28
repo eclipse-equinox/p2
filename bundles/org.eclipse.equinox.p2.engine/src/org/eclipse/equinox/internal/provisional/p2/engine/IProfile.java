@@ -11,8 +11,9 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.Map;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.query.*;
 
 public interface IProfile extends IQueryable {
 
@@ -24,6 +25,15 @@ public interface IProfile extends IQueryable {
 	 * Profile property constant indicating the install folder for the profile.
 	 */
 	public static final String PROP_INSTALL_FOLDER = "org.eclipse.equinox.p2.installFolder"; //$NON-NLS-1$
+	/**
+	 * Profile property constant indicating the configuration folder for the profile.
+	 */
+	public static final String PROP_CONFIGURATION_FOLDER = "org.eclipse.equinox.p2.configurationFolder"; //$NON-NLS-1$
+	/**
+	 * Profile property constant indicating the location of the launcher configuration file for the profile.
+	 */
+	public static final String PROP_LAUNCHER_CONFIGURATION = "org.eclipse.equinox.p2.launcherConfiguration"; //$NON-NLS-1$
+
 	/**
 	 * Profile property constant indicating the installed language(s) for the profile.
 	 */
@@ -56,6 +66,12 @@ public interface IProfile extends IQueryable {
 	 * Profile property constant indicating the bundle pool cache location.
 	 */
 	public static final String PROP_CACHE = "org.eclipse.equinox.p2.cache"; //$NON-NLS-1$
+
+	/**
+	 * Profile property constant indicating a shared read-only bundle pool cache location.
+	 */
+	public static final String PROP_SHARED_CACHE = "org.eclipse.equinox.p2.cache.shared"; //$NON-NLS-1$
+
 	/**
 	 * Profile property constant for a boolean property indicating if update features should
 	 * be installed in this profile
@@ -111,5 +127,7 @@ public interface IProfile extends IQueryable {
 	public Map getInstallableUnitProperties(IInstallableUnit iu);
 
 	public long getTimestamp();
+
+	public Collector available(Query query, Collector collector, IProgressMonitor monitor);
 
 }

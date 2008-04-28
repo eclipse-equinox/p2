@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.core.helpers.OrderedProperties;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.query.*;
 import org.eclipse.osgi.util.NLS;
@@ -40,6 +41,7 @@ public class Profile implements IQueryable, IProfile {
 	private boolean changed = false;
 
 	private long timestamp;
+	private ISurrogateProfileHandler surrogateProfileHandler;
 
 	public Profile(String profileId, Profile parent, Map properties) {
 		if (profileId == null || profileId.length() == 0) {
@@ -157,6 +159,12 @@ public class Profile implements IQueryable, IProfile {
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		return query.perform(ius.iterator(), collector);
+	}
+
+	public Collector available(Query query, Collector collector, IProgressMonitor monitor) {
+		if (surrogateProfileHandler != null)
+			return surrogateProfileHandler.queryProfile(this, query, collector, monitor);
 		return query.perform(ius.iterator(), collector);
 	}
 
@@ -278,6 +286,8 @@ public class Profile implements IQueryable, IProfile {
 			parentSnapshot = parentProfile.snapshot();
 
 		Profile snapshot = new Profile(profileId, parentSnapshot, storage);
+		if (surrogateProfileHandler != null)
+			snapshot.setSurrogateProfileHandler(surrogateProfileHandler);
 		snapshot.setTimestamp(timestamp);
 
 		if (subProfileIds != null) {
@@ -318,5 +328,9 @@ public class Profile implements IQueryable, IProfile {
 
 	public void setTimestamp(long millis) {
 		timestamp = millis;
+	}
+
+	public void setSurrogateProfileHandler(ISurrogateProfileHandler surrogateProfileHandler) {
+		this.surrogateProfileHandler = surrogateProfileHandler;
 	}
 }

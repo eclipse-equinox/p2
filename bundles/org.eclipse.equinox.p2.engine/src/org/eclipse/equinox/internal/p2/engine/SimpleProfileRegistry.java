@@ -80,10 +80,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	}
 
-	private static final String STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
-
 	private static final String PROFILE_EXT = ".profile"; //$NON-NLS-1$
-
+	public static final String DEFAULT_STORAGE_DIR = "profileRegistry"; //$NON-NLS-1$
 	/**
 	 * Reference to Map of String(Profile id)->Profile. 
 	 */
@@ -95,10 +93,34 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	//Whether the registry has been loaded at all in this session
 	private boolean hasBeenRestored = false;
 
-	private File registryDirectory;
+	private File store;
+
+	ISurrogateProfileHandler surrogateProfileHandler;
+
+	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler) {
+		store = (registryDirectory != null) ? registryDirectory : getDefaultRegistryDirectory();
+		surrogateProfileHandler = handler;
+		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+	}
 
 	public SimpleProfileRegistry() {
+		store = getDefaultRegistryDirectory();
+		surrogateProfileHandler = new SurrogateProfileHandler();
 		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+	}
+
+	private static File getDefaultRegistryDirectory() {
+		File registryDirectory = null;
+		AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
+		try {
+			URL registryURL = new URL(agent.getDataArea(EngineActivator.ID), DEFAULT_STORAGE_DIR);
+			registryDirectory = new File(registryURL.getPath());
+			registryDirectory.mkdirs();
+
+		} catch (MalformedURLException e) {
+			//this is not possible because we know the above URL is valid
+		}
+		return registryDirectory;
 	}
 
 	/**
@@ -144,7 +166,26 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (SELF.equals(id))
 			id = self;
 		Profile profile = (Profile) getProfileMap().get(id);
+		if (profile == null && (self.equals(id)))
+			profile = createSurrogateProfile(id);
+
 		return profile;
+	}
+
+	private Profile createSurrogateProfile(String id) {
+		if (surrogateProfileHandler == null)
+			return null;
+
+		Profile profile = surrogateProfileHandler.createProfile(id);
+		if (profile == null)
+			return null;
+
+		saveProfile(profile);
+
+		// reset profile cache
+		profiles = null;
+		hasBeenRestored = false;
+		return (Profile) getProfileMap().get(id);
 	}
 
 	public synchronized IProfile[] getProfiles() {
@@ -230,6 +271,8 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		}
 
 		Profile profile = new Profile(id, parent, profileProperties);
+		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
+			profile.setSurrogateProfileHandler(surrogateProfileHandler);
 		profileMap.put(id, profile);
 		saveProfile(profile);
 		broadcastChangeEvent(id, ProfileEvent.ADDED);
@@ -265,28 +308,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		((IProvisioningEventBus) ServiceHelper.getService(EngineActivator.getContext(), IProvisioningEventBus.class.getName())).publishEvent(new ProfileEvent(profileId, reason));
 	}
 
-	private File getRegistryDirectory() {
-		if (registryDirectory == null) {
-			AgentLocation agent = (AgentLocation) ServiceHelper.getService(EngineActivator.getContext(), AgentLocation.class.getName());
-			try {
-				URL registryURL = new URL(agent.getDataArea(EngineActivator.ID), STORAGE_DIR);
-				registryDirectory = new File(registryURL.getPath());
-				registryDirectory.mkdirs();
-
-			} catch (MalformedURLException e) {
-				//this is not possible because we know the above URL is valid
-			}
-		}
-		return registryDirectory;
-	}
-
 	/**
 	 * Restores the profile registry from disk, and returns the loaded profile map.
 	 * Returns <code>null</code> if unable to read the registry.
 	 */
 	private Map restore() {
 
-		File store = getRegistryDirectory();
 		if (store == null || !store.isDirectory())
 			throw new IllegalStateException(Messages.reg_dir_not_available);
 
@@ -326,7 +353,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	private void saveProfile(Profile profile) {
 
-		File profileDirectory = new File(registryDirectory, escape(profile.getProfileId()) + PROFILE_EXT);
+		File profileDirectory = new File(store, escape(profile.getProfileId()) + PROFILE_EXT);
 		profileDirectory.mkdir();
 
 		long previousTimestamp = profile.getTimestamp();
@@ -355,7 +382,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	}
 
 	private void deleteProfile(String profileId) {
-		File profileDirectory = new File(registryDirectory, escape(profileId) + PROFILE_EXT);
+		File profileDirectory = new File(store, escape(profileId) + PROFILE_EXT);
 		FileUtils.deleteAll(profileDirectory);
 	}
 
@@ -395,7 +422,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * 	Parser for the contents of a SimpleProfileRegistry,
 	 * 	as written by the Writer class.
 	 */
-	static class Parser extends ProfileParser {
+	class Parser extends ProfileParser {
 		private final Map profileHandlers = new HashMap();
 
 		public Parser(BundleContext context, String bundleId) {
@@ -452,6 +479,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			}
 
 			Profile profile = new Profile(profileId, parentProfile, profileHandler.getProperties());
+			if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(profile))
+				profile.setSurrogateProfileHandler(surrogateProfileHandler);
+
 			profile.setTimestamp(profileHandler.getTimestamp());
 
 			IInstallableUnit[] ius = profileHandler.getInstallableUnits();
