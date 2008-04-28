@@ -43,7 +43,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private List artifactRepositories = new ArrayList();
 
 	public DropinsRepositoryListener(BundleContext context, String repositoryName) {
-		super(context, repositoryName);
+		super(context, repositoryName, null, true);
 		this.context = context;
 	}
 

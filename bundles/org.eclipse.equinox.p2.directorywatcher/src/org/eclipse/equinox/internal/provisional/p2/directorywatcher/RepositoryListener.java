@@ -75,10 +75,6 @@ public class RepositoryListener extends DirectoryChangeListener {
 		bundleDescriptionFactory = initializeBundleDescriptionFactory(context);
 	}
 
-	public RepositoryListener(BundleContext context, String repositoryName) {
-		this(context, repositoryName, null, false);
-	}
-
 	public RepositoryListener(BundleContext context, IMetadataRepository metadataRepository, IArtifactRepository artifactRepository) {
 		this.artifactRepository = artifactRepository;
 		this.metadataRepository = metadataRepository;

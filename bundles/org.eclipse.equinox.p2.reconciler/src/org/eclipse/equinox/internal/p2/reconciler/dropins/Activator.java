@@ -225,7 +225,7 @@ public class Activator implements BundleActivator {
 		if (directories.isEmpty())
 			return;
 
-		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), "dropins:" + dropinsDirectory.getAbsolutePath());
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), dropinsDirectory.getAbsolutePath());
 		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();

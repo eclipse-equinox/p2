@@ -57,7 +57,7 @@ public class SiteListener extends RepositoryListener {
 	 * Create a new site listener on the given site.
 	 */
 	public SiteListener(Map properties, String url, DirectoryChangeListener delegate) {
-		super(Activator.getContext(), url);
+		super(Activator.getContext(), url, null, true);
 		this.url = url;
 		this.delegate = delegate;
 		this.policy = (String) properties.get(SITE_POLICY);
