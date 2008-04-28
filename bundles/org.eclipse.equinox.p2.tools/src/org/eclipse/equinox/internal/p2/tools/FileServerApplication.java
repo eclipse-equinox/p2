@@ -48,7 +48,7 @@ public class FileServerApplication implements IApplication {
 
 	public Object start(IApplicationContext context) throws Exception {
 		Map args = context.getArguments();
-		initializeFromArguments((String[]) args.get("application.args"));
+		initializeFromArguments((String[]) args.get("application.args")); //$NON-NLS-1$
 		registerResources(resources);
 		return null;
 	}
@@ -59,7 +59,7 @@ public class FileServerApplication implements IApplication {
 			String key = (String) i.next();
 			String value = (String) resources.get(key);
 			try {
-				http.registerResources(key, "/", new FileSystemContext(value));
+				http.registerResources(key, "/", new FileSystemContext(value)); //$NON-NLS-1$
 			} catch (NamespaceException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -85,7 +85,7 @@ public class FileServerApplication implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-resource"))
+			if (args[i - 1].equalsIgnoreCase("-resource")) //$NON-NLS-1$
 				resources.put(arg, args[++i]);
 		}
 	}

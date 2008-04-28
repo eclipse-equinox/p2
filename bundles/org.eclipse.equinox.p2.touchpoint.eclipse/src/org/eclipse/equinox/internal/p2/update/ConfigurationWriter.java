@@ -107,7 +107,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 	 * possible and could potentially return platform:/base/.
 	 */
 	private static String getLocation(String value, URL osgiInstallArea) {
-		if (osgiInstallArea == null || !value.startsWith("file:"))
+		if (osgiInstallArea == null || !value.startsWith("file:")) //$NON-NLS-1$
 			return value;
 		try {
 			// if our site represents the osgi install area, then write out platform:/base/
@@ -116,7 +116,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 			if (installArea.getAbsoluteFile().equals(path.getAbsoluteFile()))
 				return ConfigurationParser.PLATFORM_BASE;
 		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while writing configuration.", e));
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while writing configuration.", e)); //$NON-NLS-1$
 		}
 		return Utils.makeRelative(value, osgiInstallArea);
 	}

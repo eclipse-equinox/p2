@@ -28,7 +28,7 @@ public class Zip {
 		File zipFile = new File(source);
 		if (zipFile == null || !zipFile.exists()) {
 			// internal error?
-			Util.log(this.getClass().getName() + " the files to be unzipped is not here");
+			Util.log(this.getClass().getName() + " the files to be unzipped is not here"); //$NON-NLS-1$
 			//			throw Util.coreException(null, NLS.bind(Messages.failed_to_download_artifact, source));
 		}
 
@@ -53,7 +53,7 @@ public class Zip {
 					BackupFiles backupFiles = new BackupFiles(new File(backupDir));
 					backupFiles.backupFilesInZip(backupDir, zipFile.toURL(), new File(destination), null);
 				} catch (IOException e) {
-					Util.log(this.getClass().getName() + " something went wrong when backing up the files");
+					Util.log(this.getClass().getName() + " something went wrong when backing up the files"); //$NON-NLS-1$
 					//				throw Util.coreException(e, NLS.bind(Messages.error_backing_up, zipFile));
 				} finally {
 					//				backupPM.done();
@@ -63,9 +63,9 @@ public class Zip {
 				String taskName = NLS.bind(Messages.unzipping, source);
 				return FileUtils.unzipFile(zipFile, new File(destination), taskName, new NullProgressMonitor());
 			} catch (IOException e) {
-				Util.log(this.getClass().getName() + " something went wrong when unzipping");
-				Util.log("zipfile: " + zipFile.getAbsolutePath());
-				Util.log("destination: " + destination);
+				Util.log(this.getClass().getName() + " something went wrong when unzipping"); //$NON-NLS-1$
+				Util.log("zipfile: " + zipFile.getAbsolutePath()); //$NON-NLS-1$
+				Util.log("destination: " + destination); //$NON-NLS-1$
 				//				throw Util.coreException(e.getMessage());
 			} finally {
 				//				unzipPM.done();
