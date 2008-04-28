@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
@@ -37,11 +38,14 @@ public class UninstallAction extends ProfileModificationAction {
 
 	protected boolean isEnabledFor(Object[] selectionArray) {
 		Object parent = null;
+		IProfile profile = getProfile();
+		if (profile == null)
+			return false;
 		if (selectionArray.length > 0) {
 			for (int i = 0; i < selectionArray.length; i++) {
 				if (selectionArray[i] instanceof InstalledIUElement) {
 					InstalledIUElement element = (InstalledIUElement) selectionArray[i];
-					int lock = getLock(element.getIU());
+					int lock = getLock(profile, element.getIU());
 					if ((lock & IInstallableUnit.LOCK_UNINSTALL) == IInstallableUnit.LOCK_UNINSTALL)
 						return false;
 					if (parent == null) {

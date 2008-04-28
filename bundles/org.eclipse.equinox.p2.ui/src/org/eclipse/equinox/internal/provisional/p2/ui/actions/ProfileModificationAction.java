@@ -30,7 +30,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ProfileModificationAction extends ProvisioningAction {
 
-	String profileId;
+	private String profileId;
 	IProfileChooser profileChooser;
 	Policies policies;
 
@@ -43,13 +43,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected ProvisioningPlan getProvisioningPlan() {
-		// If the profile was not provided, see if we have a
-		// viewer element that can tell us.
-		if (profileId == null && profileChooser != null) {
-			profileId = profileChooser.getProfileId(getShell());
-		}
+		final String id = getProfileId();
 		// We could not figure out a profile to operate on, so return
-		if (profileId == null) {
+		if (id == null) {
 			return null;
 		}
 
@@ -58,7 +54,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		IRunnableWithProgress runnable = new IRunnableWithProgress() {
 			public void run(IProgressMonitor monitor) {
 				try {
-					plan[0] = getProvisioningPlan(ius, profileId, monitor);
+					plan[0] = getProvisioningPlan(ius, id, monitor);
 				} catch (ProvisionException e) {
 					ProvUI.handleException(e, ProvUIMessages.ProfileModificationAction_UnexpectedError, StatusManager.BLOCK | StatusManager.LOG);
 				}
@@ -77,7 +73,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	public void run() {
 		ProvisioningPlan plan = getProvisioningPlan();
 		if (validatePlan(plan))
-			performOperation(getSelectedIUs(), profileId, plan);
+			performOperation(getSelectedIUs(), getProfileId(), plan);
 	}
 
 	/**
@@ -129,24 +125,41 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected final void checkEnablement(Object[] selections) {
-		setEnabled(isEnabledFor(selections) && !ProvisioningOperationRunner.hasScheduledOperationsFor(profileId));
+		setEnabled(isEnabledFor(selections) && !ProvisioningOperationRunner.hasScheduledOperationsFor(getProfileId()));
 	}
 
 	protected abstract boolean isEnabledFor(Object[] selections);
 
-	protected int getLock(IInstallableUnit iu) {
+	protected int getLock(IProfile profile, IInstallableUnit iu) {
+		if (profile == null)
+			return IInstallableUnit.LOCK_NONE;
 		try {
-			IProfile profile = ProvisioningUtil.getProfile(profileId);
-			if (profile == null)
-				return IInstallableUnit.LOCK_NONE;
 			String value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
 			if (value != null)
 				return Integer.parseInt(value);
-		} catch (ProvisionException e) {
-			// ignore, we have bigger problems to report elsewhere
 		} catch (NumberFormatException e) {
 			// ignore and assume no lock
 		}
 		return IInstallableUnit.LOCK_NONE;
+	}
+
+	protected IProfile getProfile() {
+		try {
+			String id = getProfileId();
+			if (id == null)
+				return null;
+			return ProvisioningUtil.getProfile(id);
+		} catch (ProvisionException e) {
+			// ignore, we have bigger problems to report elsewhere
+		}
+		return null;
+	}
+
+	protected String getProfileId() {
+		if (profileId != null)
+			return profileId;
+		if (profileChooser != null)
+			return profileChooser.getProfileId(getShell());
+		return null;
 	}
 }
