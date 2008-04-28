@@ -31,6 +31,7 @@ import org.eclipse.ui.statushandlers.StatusManager;
 public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	private String profileId;
+	private String userChosenProfileId;
 	IProfileChooser profileChooser;
 	Policies policies;
 
@@ -43,7 +44,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected ProvisioningPlan getProvisioningPlan() {
-		final String id = getProfileId();
+		final String id = getProfileId(true);
 		// We could not figure out a profile to operate on, so return
 		if (id == null) {
 			return null;
@@ -73,7 +74,8 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	public void run() {
 		ProvisioningPlan plan = getProvisioningPlan();
 		if (validatePlan(plan))
-			performOperation(getSelectedIUs(), getProfileId(), plan);
+			performOperation(getSelectedIUs(), getProfileId(true), plan);
+		userChosenProfileId = null;
 	}
 
 	/**
@@ -125,7 +127,14 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	}
 
 	protected final void checkEnablement(Object[] selections) {
-		setEnabled(isEnabledFor(selections) && !ProvisioningOperationRunner.hasScheduledOperationsFor(getProfileId()));
+		if (isEnabledFor(selections)) {
+			String id = getProfileId(false);
+			if (id == null)
+				setEnabled(true);
+			else
+				setEnabled(!ProvisioningOperationRunner.hasScheduledOperationsFor(id));
+		} else
+			setEnabled(false);
 	}
 
 	protected abstract boolean isEnabledFor(Object[] selections);
@@ -143,9 +152,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return IInstallableUnit.LOCK_NONE;
 	}
 
-	protected IProfile getProfile() {
+	protected IProfile getProfile(boolean chooseProfile) {
 		try {
-			String id = getProfileId();
+			String id = getProfileId(chooseProfile);
 			if (id == null)
 				return null;
 			return ProvisioningUtil.getProfile(id);
@@ -155,11 +164,15 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 		return null;
 	}
 
-	protected String getProfileId() {
+	protected String getProfileId(boolean chooseProfile) {
 		if (profileId != null)
 			return profileId;
-		if (profileChooser != null)
-			return profileChooser.getProfileId(getShell());
+		if (userChosenProfileId != null)
+			return userChosenProfileId;
+		if (chooseProfile && profileChooser != null) {
+			userChosenProfileId = profileChooser.getProfileId(getShell());
+			return userChosenProfileId;
+		}
 		return null;
 	}
 }

@@ -38,11 +38,9 @@ public class UninstallAction extends ProfileModificationAction {
 
 	protected boolean isEnabledFor(Object[] selectionArray) {
 		Object parent = null;
-		// We cache the profile for performance reasons rather than get it for
-		// each IU.  Note that below we reject any selection
-		// with different parents, so if there were IU's selected from multiple
-		// profiles, we catch this case and disable the action.
-		IProfile profile = getProfile();
+		// We don't want to prompt for a profile during validation,
+		// so we only consider the profile id.
+		IProfile profile = getProfile(false);
 		if (profile == null)
 			return false;
 		if (selectionArray.length > 0) {

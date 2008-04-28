@@ -105,7 +105,7 @@ public class UpdateAction extends ProfileModificationAction {
 		// each IU.  Note that below we reject any selection
 		// with different parents, so if there were IU's selected from multiple
 		// profiles, we catch this case and disable the action.
-		IProfile profile = getProfile();
+		IProfile profile = getProfile(false);
 		if (profile == null)
 			return false;
 		if (selectionArray.length > 0) {
