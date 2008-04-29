@@ -156,7 +156,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	}
 
 	public boolean performFinish() {
-		if (currentPlan != null && currentPlan.getStatus().isOK()) {
+		if (currentStatus != null && currentStatus.getSeverity() != IStatus.ERROR) {
 			ProfileModificationOperation op = createProfileModificationOperation(currentPlan);
 			ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 			return true;
