@@ -82,6 +82,10 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
 
+	public void testNoSelfProfile() {
+		assertNull(registry.getProfile(IProfileRegistry.SELF));
+	}
+
 	private void ungetServices() {
 		registry = null;
 		TestActivator.getContext().ungetService(registryRef);
