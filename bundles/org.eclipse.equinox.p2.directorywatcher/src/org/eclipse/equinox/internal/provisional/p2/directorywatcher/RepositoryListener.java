@@ -231,7 +231,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	boolean isFeature(File file) {
-		return file.isDirectory() && file.getParentFile() != null && file.getParentFile().equals("features") && new File(file, "feature.xml").exists(); //$NON-NLS-1$ //$NON-NLS-2$
+		return file.isDirectory() && file.getParentFile() != null && file.getParentFile().getName().equals("features") && new File(file, "feature.xml").exists(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/* (non-Javadoc)
