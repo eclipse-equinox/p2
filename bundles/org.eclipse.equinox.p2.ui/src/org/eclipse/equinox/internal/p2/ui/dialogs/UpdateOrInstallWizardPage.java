@@ -72,12 +72,11 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 				}
 				if (monitor.isCanceled())
 					return Status.CANCEL_STATUS;
-				if (!getShell().isDisposed()) {
-					getShell().getDisplay().asyncExec(new Runnable() {
+				if (display != null) {
+					display.asyncExec(new Runnable() {
 						public void run() {
 							updateSizingInfo();
 						}
-
 					});
 				}
 				return Status.OK_STATUS;

@@ -53,6 +53,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	CheckboxTableViewer listViewer;
 	Text detailsArea;
 	StaticContentProvider contentProvider;
+	protected Display display;
 
 	protected ProfileModificationWizardPage(String id, IInstallableUnit[] ius, String profileID, ProvisioningPlan initialPlan) {
 		super(id);
@@ -62,6 +63,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	}
 
 	public void createControl(Composite parent) {
+		display = parent.getDisplay();
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = 0;
