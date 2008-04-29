@@ -166,7 +166,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (SELF.equals(id))
 			id = self;
 		Profile profile = (Profile) getProfileMap().get(id);
-		if (profile == null && (self.equals(id)))
+		if (profile == null && self != null && self.equals(id))
 			profile = createSurrogateProfile(id);
 
 		return profile;
