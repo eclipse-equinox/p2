@@ -224,7 +224,6 @@ public class ECFTransport {
 
 	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, IConnectContext context, final IProgressMonitor monitor) throws ProtocolException {
 		final IStatus[] result = new IStatus[1];
-		final long startTime = System.currentTimeMillis();
 		IFileTransferListener listener = new IFileTransferListener() {
 			public void handleTransferEvent(IFileTransferEvent event) {
 				if (event instanceof IIncomingFileTransferReceiveStartEvent) {
