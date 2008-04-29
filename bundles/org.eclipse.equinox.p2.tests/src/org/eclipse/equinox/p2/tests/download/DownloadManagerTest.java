@@ -26,7 +26,7 @@ public class DownloadManagerTest extends TestCase {
 	 * Tests invocation of DownloadManager when there is nothing to download.
 	 */
 	public void testEmpty() {
-		DownloadManager manager = new DownloadManager();
+		DownloadManager manager = new DownloadManager(null);
 		IStatus result = manager.start(null);
 		assertTrue("1.0", result.isOK());
 	}
