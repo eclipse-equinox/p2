@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
@@ -16,9 +17,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 
 public class DownloadManager {
-
+	private ProvisioningContext provContext = null;
 	ArrayList requestsToProcess = new ArrayList();
 
 	private static final String FILE_PROTOCOL = "file"; //$NON-NLS-1$
@@ -42,6 +44,10 @@ public class DownloadManager {
 			return 0;
 		}
 	};
+
+	public DownloadManager(ProvisioningContext context) {
+		provContext = context;
+	}
 
 	/*
 	 * Add the given artifact to the download queue. When it 
@@ -74,8 +80,13 @@ public class DownloadManager {
 		try {
 			if (requestsToProcess.isEmpty())
 				return Status.OK_STATUS;
+
 			IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
-			URL[] repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+			URL[] repositories = null;
+			if (provContext == null || provContext.getArtifactRepositories() == null)
+				repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+			else
+				repositories = provContext.getArtifactRepositories();
 			if (repositories.length == 0)
 				return new Status(IStatus.ERROR, EngineActivator.ID, Messages.download_no_repository);
 			Arrays.sort(repositories, LOCAL_FIRST_COMPARATOR);

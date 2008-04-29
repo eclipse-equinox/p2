@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
@@ -47,7 +48,7 @@ public class Collect extends InstallableUnitPhase {
 	protected IStatus completeInstallableUnitPhase(IProgressMonitor monitor, IProfile profile, Map parameters) {
 		List artifactRequests = (List) parameters.get(PARM_ARTIFACT_REQUESTS);
 
-		DownloadManager dm = new DownloadManager();
+		DownloadManager dm = new DownloadManager(provContext);
 		for (Iterator it = artifactRequests.iterator(); it.hasNext();) {
 			IArtifactRequest[] requests = (IArtifactRequest[]) it.next();
 			dm.add(requests);

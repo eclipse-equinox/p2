@@ -65,7 +65,11 @@ public class Sizing extends InstallableUnitPhase {
 		}
 
 		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
-		URL[] repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+		URL[] repositories = null;
+		if (provContext == null || provContext.getArtifactRepositories() == null)
+			repositories = repoMgr.getKnownRepositories(IArtifactRepositoryManager.REPOSITORIES_ALL);
+		else
+			repositories = provContext.getArtifactRepositories();
 
 		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext();) {
 			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();

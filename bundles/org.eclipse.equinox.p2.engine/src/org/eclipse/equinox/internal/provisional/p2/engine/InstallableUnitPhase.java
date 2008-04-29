@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2007, 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *     WindRiver - https://bugs.eclipse.org/bugs/show_bug.cgi?id=227372
+ *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.*;
@@ -8,12 +19,12 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.osgi.util.NLS;
 
 public abstract class InstallableUnitPhase extends Phase {
-
 	protected static final String PARM_ARTIFACT_REQUESTS = "artifactRequests"; //$NON-NLS-1$
 	protected static final String PARM_ARTIFACT = "artifact"; //$NON-NLS-1$
 	protected static final String PARM_IU = "iu"; //$NON-NLS-1$
 	protected static final String PARM_TOUCHPOINT = "touchpoint"; //$NON-NLS-1$
 
+	protected ProvisioningContext provContext = null;
 	private Map touchpointToTouchpointParameters;
 
 	protected InstallableUnitPhase(String phaseId, int weight) {
@@ -21,6 +32,7 @@ public abstract class InstallableUnitPhase extends Phase {
 	}
 
 	void perform(MultiStatus status, EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
+		provContext = context;
 		touchpointToTouchpointParameters = new HashMap();
 		for (int i = 0; i < operands.length; i++) {
 			if (!(operands[i] instanceof InstallableUnitOperand))
