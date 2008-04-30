@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
 public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository {
@@ -86,7 +87,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		}
 
 		if (!base.isDirectory())
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_directory, null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_directory, url.toExternalForm()), null));
 
 		if (isBaseDirectory(base))
 			return base;
@@ -95,7 +96,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		if (isBaseDirectory(eclipseBase))
 			return eclipseBase;
 
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_eclipse_extension, null));
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_eclipse_extension, url.toExternalForm()), null));
 	}
 
 	private static boolean isBaseDirectory(File base) {
