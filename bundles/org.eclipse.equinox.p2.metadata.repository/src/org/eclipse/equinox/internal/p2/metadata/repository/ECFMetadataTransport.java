@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.net.ProtocolException;
 import java.net.URL;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.*;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
@@ -39,6 +40,40 @@ public class ECFMetadataTransport {
 	 */
 	private static final int LOGIN_RETRIES = 3;
 	private static final ProtocolException ERROR_401 = new ProtocolException();
+
+	/**
+	 * A job that waits on a barrier.
+	 */
+	static class WaitJob extends Job {
+		private final Object[] barrier;
+
+		/**
+		 * Creates a wait job.
+		 * @param location A location string that is used in the job name
+		 * @param barrier The job will wait until the first entry in the barrier is non-null
+		 */
+		WaitJob(String location, Object[] barrier) {
+			super(NLS.bind(Messages.repo_loading, location));
+			this.barrier = barrier;
+			setSystem(true);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.IProgressMonitor)
+		 */
+		protected IStatus run(IProgressMonitor monitor) {
+			synchronized (barrier) {
+				while (barrier[0] == null) {
+					try {
+						barrier.wait();
+					} catch (InterruptedException e) {
+						//ignore
+					}
+				}
+			}
+			return Status.OK_STATUS;
+		}
+	}
 
 	/**
 	 * The singleton transport instance.
@@ -190,31 +225,27 @@ public class ECFMetadataTransport {
 
 	private IRemoteFile checkFile(final IRemoteFileSystemBrowserContainerAdapter retrievalContainer, final String location, IConnectContext context) throws ProtocolException {
 		final Object[] result = new Object[2];
-		final Boolean[] done = new Boolean[1];
-		done[0] = new Boolean(false);
+		final Object FAIL = new Object();
 		IRemoteFileSystemListener listener = new IRemoteFileSystemListener() {
 			public void handleRemoteFileEvent(IRemoteFileSystemEvent event) {
 				Exception exception = event.getException();
 				if (exception != null) {
 					synchronized (result) {
-						result[0] = null;
+						result[0] = FAIL;
 						result[1] = exception;
-						done[0] = new Boolean(true);
 						result.notify();
 					}
 				} else if (event instanceof IRemoteFileSystemBrowseEvent) {
 					IRemoteFileSystemBrowseEvent fsbe = (IRemoteFileSystemBrowseEvent) event;
 					IRemoteFile[] remoteFiles = fsbe.getRemoteFiles();
-					if (remoteFiles != null && remoteFiles.length > 0) {
+					if (remoteFiles != null && remoteFiles.length > 0 && remoteFiles[0] != null) {
 						synchronized (result) {
 							result[0] = remoteFiles[0];
-							done[0] = new Boolean(true);
 							result.notify();
 						}
 					} else {
 						synchronized (result) {
-							result[0] = null;
-							done[0] = new Boolean(true);
+							result[0] = FAIL;
 							result.notify();
 						}
 					}
@@ -229,25 +260,34 @@ public class ECFMetadataTransport {
 		} catch (FileCreateException e) {
 			return null;
 		}
-		synchronized (result) {
-			while (!done[0].booleanValue()) {
-				boolean logged = false;
-				try {
-					result.wait();
-				} catch (InterruptedException e) {
-					if (!logged)
-						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unexpected interrupt while waiting on ECF browse", e)); //$NON-NLS-1$
-				}
-			}
-		}
-		if (result[0] == null && result[1] instanceof IOException) {
+		waitFor(location, result);
+		if (result[0] == FAIL && result[1] instanceof IOException) {
 			IOException ioException = (IOException) result[1];
 			//throw a special exception for authentication failure so we know to prompt for username/password
 			String message = ioException.getMessage();
 			if (message != null && (message.indexOf("401") != -1 || message.indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
 				throw ERROR_401;
 		}
-		return (IRemoteFile) result[0];
+		if (result[0] instanceof IRemoteFile)
+			return (IRemoteFile) result[0];
+		return null;
+	}
+
+	/**
+	 * Waits until the first entry in the given array is non-null.
+	 */
+	private void waitFor(String location, Object[] barrier) {
+		WaitJob wait = new WaitJob(location, barrier);
+		wait.schedule();
+		while (barrier[0] == null) {
+			boolean logged = false;
+			try {
+				wait.join();
+			} catch (InterruptedException e) {
+				if (!logged)
+					LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unexpected interrupt while waiting on ECF transfer", e)); //$NON-NLS-1$
+			}
+		}
 	}
 
 	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, IConnectContext context, final IProgressMonitor monitor) throws ProtocolException {
@@ -301,18 +341,7 @@ public class ECFMetadataTransport {
 		} catch (FileCreateException e) {
 			return e.getStatus();
 		}
-		synchronized (result) {
-			while (result[0] == null) {
-				boolean logged = false;
-				try {
-					result.wait();
-				} catch (InterruptedException e) {
-					if (!logged)
-						LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Unexpected interrupt while waiting on ECF transfer", e)); //$NON-NLS-1$
-				}
-			}
-		}
-
+		waitFor(toDownload, result);
 		return result[0];
 	}
 

@@ -28,6 +28,7 @@ public class Messages extends NLS {
 	public static String PlatformAdminNotRegistered;
 
 	public static String io_failedRead;
+	public static String repo_loading;
 
 	public static String repoMan_internalError;
 
