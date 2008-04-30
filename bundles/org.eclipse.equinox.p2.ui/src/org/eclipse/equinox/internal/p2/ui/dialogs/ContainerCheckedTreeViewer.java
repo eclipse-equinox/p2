@@ -19,12 +19,30 @@ import org.eclipse.swt.widgets.*;
  * CheckboxTreeViewer with special behaviour of the checked / gray state on 
  * container (non-leaf) nodes:
  * Copied from org.eclipse.ui.dialogs
- * Altered so that checking a parent will expand it when we know it's a long
- * running operation to get the children.  
+ * Altered to achieve the following:
+ * (1)checking a parent will also expand it when we know it's a long
+ * running operation that involves a placeholder.
+*  The modified method is doCheckStateChanged().
+*  
+ * (2)when preserving selection, we do not want the check state
+ * of the parents to influence the check state of the children.
+ * When children appear due to relaxed filtering,
+ * we never want to assume they should also be selected.  There are
+ * cases where this is not necessarily the right thing to do, but
+ * there are more cases where it is wrong.
+ * The added methods are preservingSelection(Runnable) and 
+ * updateParentsUsingChildren(TreeItem).
+ * Modified method is updateChildrenItems(TreeItem parent).
+
  * 
- * The modified method is doCheckStateChanged()
+ * (3) API added to update parent selection according to children.
+ * This is used after a filter refresh to ensure that parents are
+ * up to date.  Added method is
+ * updateParentSelectionsUsingChildren()
  */
 public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
+
+	private boolean rippleCheckMarks = true;
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
@@ -112,7 +130,13 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	/**
 	 * Updates the check state of all created children
 	 */
+	// MODIFIED to ignore parent state when in the middle of a 
+	// selection preserving refresh.  
 	private void updateChildrenItems(TreeItem parent) {
+		// We are in the middle of preserving selections, don't
+		// update any children according to parent
+		if (!rippleCheckMarks)
+			return;
 		Item[] children = getChildren(parent);
 		boolean state = parent.getChecked();
 		for (int i = 0; i < children.length; i++) {
@@ -129,6 +153,10 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 	 * Updates the check / gray state of all parent items
 	 */
 	private void updateParentItems(TreeItem item) {
+		// We are in the middle of preserving selections, don't
+		// update any parents according to children
+		if (!rippleCheckMarks)
+			return;
 		if (item != null) {
 			Item[] children = getChildren(item);
 			boolean containsChecked = false;
@@ -212,4 +240,18 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		}
 	}
 
+	// The super implementation doesn't really work because the
+	// non-expanded items are not holding their real elements yet. 
+	// Yet the code that records the checked state uses the 
+	// elements to remember what checkmarks should be restored.
+	// The result is that non-expanded elements are not up to date
+	// and if anything in there should have been checked, it
+	// won't be.  The best we can do is at least turn off all the
+	// rippling checks that happen during this method since we are going
+	// to reset all the checkmarks anyway.
+	protected void preservingSelection(Runnable updateCode) {
+		rippleCheckMarks = false;
+		super.preservingSelection(updateCode);
+		rippleCheckMarks = true;
+	}
 }

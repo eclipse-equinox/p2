@@ -301,4 +301,9 @@ public class ProvisioningUtil {
 		if (artifactManager != null)
 			artifactManager.setEnabled(location, enabled);
 	}
+
+	public static boolean isCategory(IInstallableUnit iu) {
+		String isCategory = iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY);
+		return isCategory != null && Boolean.valueOf(isCategory).booleanValue();
+	}
 }

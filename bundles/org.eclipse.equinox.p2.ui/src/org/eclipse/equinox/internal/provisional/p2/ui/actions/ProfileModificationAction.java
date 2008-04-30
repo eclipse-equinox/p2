@@ -12,6 +12,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -19,7 +21,6 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
@@ -106,8 +107,22 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 
 	protected abstract String getTaskName();
 
+	protected IInstallableUnit getIU(Object element) {
+		return (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
+
+	}
+
 	protected IInstallableUnit[] getSelectedIUs() {
-		return ElementUtils.getIUs(getStructuredSelection().toArray());
+		List elements = getStructuredSelection().toList();
+		List iusList = new ArrayList(elements.size());
+
+		for (int i = 0; i < elements.size(); i++) {
+			IInstallableUnit iu = getIU(elements.get(i));
+			if (iu != null && !ProvisioningUtil.isCategory(iu))
+				iusList.add(iu);
+		}
+
+		return (IInstallableUnit[]) iusList.toArray(new IInstallableUnit[iusList.size()]);
 	}
 
 	protected LicenseManager getLicenseManager() {

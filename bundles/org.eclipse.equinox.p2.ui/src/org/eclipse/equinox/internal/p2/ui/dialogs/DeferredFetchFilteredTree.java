@@ -35,7 +35,6 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	ToolBar toolBar;
 	MenuManager menuManager;
 	ToolItem viewMenuButton;
-	FilteredTree tree;
 	Display display;
 	PatternFilter patternFilter;
 	IViewMenuProvider viewMenuProvider;

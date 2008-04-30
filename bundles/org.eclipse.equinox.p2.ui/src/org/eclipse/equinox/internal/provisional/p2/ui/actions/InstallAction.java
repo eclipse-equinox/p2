@@ -11,8 +11,6 @@
 
 package org.eclipse.equinox.internal.provisional.p2.ui.actions;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -25,7 +23,6 @@ import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.InstallWizard;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ElementUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -67,14 +64,7 @@ public class InstallAction extends ProfileModificationAction {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isEnabledFor(java.lang.Object[])
 	 */
 	protected boolean isEnabledFor(Object[] selectionArray) {
-		if (selectionArray.length < 1)
-			return false;
-		Set children = new HashSet();
-
-		for (int i = 0; i < selectionArray.length; i++) {
-			children.addAll(ElementUtils.getIUs(selectionArray[i]));
-		}
-		return !children.isEmpty();
+		return selectionArray.length > 0;
 	}
 
 	protected String getTaskName() {

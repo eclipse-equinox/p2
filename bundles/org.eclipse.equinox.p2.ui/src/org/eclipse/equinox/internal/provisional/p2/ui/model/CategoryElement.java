@@ -24,7 +24,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  * 
  * @since 3.4
  */
-public class CategoryElement extends RemoteQueriedElement implements IUElement, IUContainerElement {
+public class CategoryElement extends RemoteQueriedElement implements IUElement {
 
 	private ArrayList ius = new ArrayList(1);
 
@@ -98,10 +98,4 @@ public class CategoryElement extends RemoteQueriedElement implements IUElement, 
 		return (RequiredCapability[]) capabilities.toArray(new RequiredCapability[capabilities.size()]);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.IUContainerElement#getIUs()
-	 */
-	public IInstallableUnit[] getIUs() {
-		return ElementUtils.getIUs(getChildren(this));
-	}
 }
