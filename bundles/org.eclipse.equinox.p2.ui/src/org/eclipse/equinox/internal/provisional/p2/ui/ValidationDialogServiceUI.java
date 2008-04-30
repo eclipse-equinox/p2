@@ -36,8 +36,7 @@ public class ValidationDialogServiceUI implements IServiceUI {
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 
 			public void run() {
-				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-
+				Shell shell = ProvUI.getDefaultParentShell();
 				String[] buttonLabels = new String[] {ProvUIMessages.ServiceUI_OK, ProvUIMessages.ServiceUI_Cancel};
 				String message = NLS.bind(ProvUIMessages.ServiceUI_LoginDetails, location);
 				UserValidationDialog dialog = new UserValidationDialog(shell, ProvUIMessages.ServiceUI_LoginRequired, null, message, buttonLabels);
@@ -59,7 +58,7 @@ public class ValidationDialogServiceUI implements IServiceUI {
 		final TreeNode[] input = createTreeNodes(certificates);
 		PlatformUI.getWorkbench().getDisplay().syncExec(new Runnable() {
 			public void run() {
-				Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+				Shell shell = ProvUI.getDefaultParentShell();
 				ILabelProvider labelProvider = new CertificateLabelProvider();
 				TreeNodeContentProvider contentProvider = new TreeNodeContentProvider();
 				TrustCertificateDialog trustCertificateDialog = new TrustCertificateDialog(shell, input, labelProvider, contentProvider);

@@ -22,10 +22,10 @@ import org.eclipse.equinox.internal.provisional.p2.ui.viewers.StructuredViewerPr
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
@@ -120,6 +120,39 @@ public class ProvUI {
 			return object;
 		if (object instanceof IAdaptable)
 			return ((IAdaptable) object).getAdapter(adapterType);
+		return null;
+	}
+
+	/**
+	 * Returns an appropriate shell that is appropriate to use as the parent
+	 * for a modal dialog. This returns the existing modal dialog, if any, to
+	 * avoid multiple modal dialogs being open. Returns <code>null</code>
+	 * if there is no appropriate default parent.
+	 * 
+	 * This method is copied from ProgressManagerUtil#getDefaultParent()
+	 */
+	public static Shell getDefaultParentShell() {
+		//first look for a modal shell
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		Shell[] shells = workbench.getDisplay().getShells();
+		int modal = SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL | SWT.PRIMARY_MODAL;
+		for (int i = 0; i < shells.length; i++) {
+			// Do not worry about shells that will not block the user.
+			if (shells[i].isVisible()) {
+				int style = shells[i].getStyle();
+				if ((style & modal) != 0) {
+					return shells[i];
+				}
+			}
+		}
+		//try the active workbench window
+		IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+		if (window != null)
+			return window.getShell();
+		IWorkbenchWindow[] windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+		if (windows.length > 0)
+			return windows[0].getShell();
+		//there is no modal shell and no active window, so just return a null parent shell
 		return null;
 	}
 
