@@ -472,7 +472,7 @@ public class EquinoxFwConfigFileParser {
 				outputFile = new File(outputFile, EquinoxConstants.CONFIG_INI);
 			}
 		}
-		String header = NLS.bind(Messages.msg_ConfigFileHeader, this.getClass().getName());
+		String header = "This configuration file was written by: " + this.getClass().getName(); //$NON-NLS-1$
 
 		Properties configProps = getConfigProps(bInfos, configData, launcherData, relative, fwJar);
 		if (configProps == null || configProps.size() == 0) {

@@ -28,8 +28,6 @@ public class Messages extends NLS {
 	public static String log_shared_config_file_missing;
 	public static String log_failed_reading_properties;
 
-	public static String msg_ConfigFileHeader;
-
 	static {
 		// load message values from bundle file
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
