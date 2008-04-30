@@ -199,7 +199,7 @@ public interface IMetadataRepositoryManager extends IQueryable {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting is not desired
 	 * @return The refreshed metadata repository
-	 * @throws ProvisionException if the repository could not be created.  Reasons include:
+	 * @throws ProvisionException if the repository could not be refreshed.  Reasons include:
 	 * <ul>
 	 * <li>The location is not known to the repository manager.</li>
 	 * <li>There is no existing repository at that location.</li>
