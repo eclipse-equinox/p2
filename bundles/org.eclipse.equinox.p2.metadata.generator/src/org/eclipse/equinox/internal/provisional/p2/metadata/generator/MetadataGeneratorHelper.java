@@ -685,7 +685,7 @@ public class MetadataGeneratorHelper {
 		}
 		//Always add a requirement on the IU containing the feature jar
 		patchRequirements.add(MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
-		iu.setRequiredCapabilities((RequiredCapability[]) patchRequirements.toArray(new RequiredCapability[requirementChanges.size()]));
+		iu.setRequiredCapabilities((RequiredCapability[]) patchRequirements.toArray(new RequiredCapability[patchRequirements.size()]));
 		iu.setApplicabilityScope(new RequiredCapability[][] {(RequiredCapability[]) applicabilityScope.toArray(new RequiredCapability[applicabilityScope.size()])});
 		iu.setRequirementChanges((RequirementChange[]) requirementChanges.toArray(new RequirementChange[requirementChanges.size()]));
 
