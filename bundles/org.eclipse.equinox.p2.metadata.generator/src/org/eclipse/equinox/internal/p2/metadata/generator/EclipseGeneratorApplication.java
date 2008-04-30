@@ -165,7 +165,7 @@ public class EclipseGeneratorApplication implements IApplication {
 
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		try {
-			IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+			IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			manager.addRepository(result.getLocation());
 			// TODO is this needed?
 			if (metadataRepoName != null)
