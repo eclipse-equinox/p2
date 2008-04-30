@@ -167,6 +167,8 @@ public class ProvAdminQueryProvider implements IQueryProvider {
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case IQueryProvider.INSTALLED_IUS :
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
+				if (profile == null)
+					return null;
 				if (showRootsOnly)
 					query = new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true));
 				else
