@@ -314,12 +314,16 @@ public class ECFTransport {
 	public IConnectContext getConnectionContext(String xmlLocation, boolean prompt) throws UserCancelledException, ProvisionException {
 		ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
 		IPath hostLocation = new Path(xmlLocation).removeLastSegments(1);
-		int repositoryHash = hostLocation.hashCode();
-		ISecurePreferences metadataNode = securePreferences.node(IRepository.PREFERENCE_NODE + "/" + repositoryHash); //$NON-NLS-1$
+		String nodeName = IRepository.PREFERENCE_NODE + '/' + hostLocation.toOSString().replace('/', '\\');
+		ISecurePreferences prefNode = null;
+		if (securePreferences.nodeExists(nodeName))
+			prefNode = securePreferences.node(nodeName);
 		if (!prompt) {
+			if (prefNode == null)
+				return null;
 			try {
-				String username = metadataNode.get(IRepository.PROP_USERNAME, null);
-				String password = metadataNode.get(IRepository.PROP_PASSWORD, null);
+				String username = prefNode.get(IRepository.PROP_USERNAME, null);
+				String password = prefNode.get(IRepository.PROP_PASSWORD, null);
 				//if we don't have stored connection data just return a null connection context
 				if (username == null || password == null)
 					return null;
@@ -341,10 +345,16 @@ public class ECFTransport {
 			throw new UserCancelledException();
 		//save user name and password if requested by user
 		if (loginDetails.saveResult()) {
+			if (prefNode == null)
+				prefNode = securePreferences.node(nodeName);
 			try {
-				metadataNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
-				metadataNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
+				prefNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
+				prefNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
+				prefNode.flush();
 			} catch (StorageException e1) {
+				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+			} catch (IOException e) {
 				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
 				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
 			}
