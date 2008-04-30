@@ -899,7 +899,7 @@ public class Generator {
 			//generate feature IU
 			String location = feature.getLocation();
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
-			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, isExploded);
+			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true);
 			IArtifactKey[] artifacts = featureIU.getArtifacts();
 			storePluginShape(feature, result);
 			for (int arti = 0; arti < artifacts.length; arti++) {
