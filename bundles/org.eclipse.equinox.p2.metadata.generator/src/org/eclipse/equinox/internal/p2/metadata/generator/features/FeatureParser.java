@@ -16,6 +16,10 @@ import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.xml.parsers.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.FeatureEntry;
 import org.eclipse.osgi.util.NLS;
@@ -166,6 +170,8 @@ public class FeatureParser extends DefaultHandler {
 				return parse(input, properties);
 			} catch (IOException e) {
 				e.printStackTrace();
+			} catch (SecurityException e) {
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Exception parsing feature: " + location.getAbsolutePath(), e)); //$NON-NLS-1$
 			} finally {
 				try {
 					if (jar != null)
