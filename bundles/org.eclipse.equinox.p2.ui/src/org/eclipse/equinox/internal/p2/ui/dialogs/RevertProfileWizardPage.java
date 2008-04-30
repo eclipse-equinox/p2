@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
@@ -30,6 +31,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -151,10 +153,27 @@ public class RevertProfileWizardPage extends WizardPage {
 
 	void handleSelectionChanged(IStructuredSelection selection) {
 		if (!selection.isEmpty()) {
-			Object selected = selection.getFirstElement();
-			if (selected instanceof RollbackProfileElement)
-				configContentsViewer.setInput(selected);
+			final Object selected = selection.getFirstElement();
+			if (selected instanceof RollbackProfileElement) {
+				final IProfile[] snapshot = new IProfile[1];
+				BusyIndicator.showWhile(getShell().getDisplay(), new Runnable() {
+					public void run() {
+						try {
+							snapshot[0] = ((RollbackProfileElement) selected).getProfileSnapshot(null);
+						} catch (ProvisionException e) {
+							ProvUI.handleException(e, ProvUIMessages.RollbackProfileElement_InvalidSnapshot, StatusManager.LOG | StatusManager.SHOW);
+						}
+					}
+				});
+				if (snapshot[0] != null) {
+					configContentsViewer.setInput(selected);
+					setPageComplete(true);
+					return;
+				}
+			}
 		}
+		configContentsViewer.setInput(null);
+		setPageComplete(false);
 	}
 
 	private void setTableColumns(Table table) {
@@ -222,9 +241,5 @@ public class RevertProfileWizardPage extends WizardPage {
 			setMessage(ProvUIMessages.RevertDialog_RevertError, IMessageProvider.ERROR);
 		}
 		return false;
-	}
-
-	public boolean isPageComplete() {
-		return getSelectedIU() != null;
 	}
 }

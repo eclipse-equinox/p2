@@ -24,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
-import org.eclipse.osgi.util.NLS;
 
 /**
  * Element wrapper class for an IU that represents a profile snapshot
@@ -61,7 +60,11 @@ public class RollbackProfileElement extends RemoteQueriedElement implements IUEl
 		if (adapter == IInstallableUnit.class)
 			return iu;
 		if (adapter == IProfile.class)
-			return getProfileSnapshot(null);
+			try {
+				return getProfileSnapshot(null);
+			} catch (ProvisionException e) {
+				handleException(e, ProvUIMessages.RollbackProfileElement_InvalidSnapshot);
+			}
 		return super.getAdapter(adapter);
 	}
 
@@ -100,19 +103,20 @@ public class RollbackProfileElement extends RemoteQueriedElement implements IUEl
 	 */
 	public IQueryable getQueryable() {
 		if (queryable == null)
-			return getProfileSnapshot(null);
+			try {
+				queryable = getProfileSnapshot(null);
+			} catch (ProvisionException e) {
+				handleException(e, ProvUIMessages.RollbackProfileElement_InvalidSnapshot);
+			}
 		return queryable;
 	}
 
-	private IProfile getProfileSnapshot(IProgressMonitor monitor) {
-		if (snapshot == null)
-			try {
-				IProfile profile = ProvisioningUtil.getProfile(iu.getId());
-				snapshot = FormerState.IUToProfile(iu, profile, new ProvisioningContext(), monitor);
-				setQueryable(snapshot);
-			} catch (ProvisionException e) {
-				handleException(e, NLS.bind(ProvUIMessages.ProfileElement_InvalidProfile, iu.getId()));
-			}
+	public IProfile getProfileSnapshot(IProgressMonitor monitor) throws ProvisionException {
+		if (snapshot == null) {
+			IProfile profile = ProvisioningUtil.getProfile(iu.getId());
+			snapshot = FormerState.IUToProfile(iu, profile, new ProvisioningContext(), monitor);
+			setQueryable(snapshot);
+		}
 		return snapshot;
 	}
 
