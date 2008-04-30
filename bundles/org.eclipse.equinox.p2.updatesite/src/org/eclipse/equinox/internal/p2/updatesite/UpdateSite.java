@@ -210,9 +210,8 @@ public class UpdateSite {
 	 * Return a URL which represents the location of the given feature.
 	 */
 	public URL getFeatureURL(SiteFeature siteFeature, String id, String version) {
-		URL base = site.getLocationURL();
-		if (base == null)
-			base = location;
+		URL base = getBaseURL();
+
 		if (siteFeature == null) {
 			SiteFeature[] entries = site.getFeatures();
 			for (int i = 0; i < entries.length; i++) {
@@ -227,8 +226,8 @@ public class UpdateSite {
 			if (url != null)
 				return url;
 
-			String urlString = siteFeature.getURLString();
-			url = internalGetURL(base, urlString);
+			String featureURLString = siteFeature.getURLString();
+			url = internalGetURL(base, featureURLString);
 			if (url != null)
 				return url;
 		}
@@ -257,9 +256,7 @@ public class UpdateSite {
 	 * Return a URL which represents the location of the given plug-in.
 	 */
 	public URL getPluginURL(FeatureEntry plugin) {
-		URL base = site.getLocationURL();
-		if (base == null)
-			base = location;
+		URL base = getBaseURL();
 		String path = PLUGIN_DIR + plugin.getId() + VERSION_SEPARATOR + plugin.getVersion() + JAR_EXTENSION;
 		URL url = getArchiveURL(base, path);
 		if (url != null)
@@ -270,6 +267,19 @@ public class UpdateSite {
 			// shouldn't happen
 		}
 		return null;
+	}
+
+	private URL getBaseURL() {
+		URL base = null;
+		String siteURLString = site.getLocationURLString();
+		if (siteURLString != null) {
+			if (!siteURLString.endsWith("/")) //$NON-NLS-1$
+				siteURLString += "/"; //$NON-NLS-1$
+			base = internalGetURL(location, siteURLString);
+		}
+		if (base == null)
+			base = location;
+		return base;
 	}
 
 	/*
@@ -348,8 +358,11 @@ public class UpdateSite {
 	private URL getDigestURL() throws MalformedURLException {
 		URL digestBase = location;
 		String digestURLString = site.getDigestURLString();
-		if (digestURLString != null)
+		if (digestURLString != null) {
+			if (!digestURLString.endsWith("/")) //$NON-NLS-1$
+				digestURLString += "/"; //$NON-NLS-1$
 			digestBase = internalGetURL(location, digestURLString);
+		}
 
 		return getFileURL(digestBase, "digest.zip"); //$NON-NLS-1$
 	}

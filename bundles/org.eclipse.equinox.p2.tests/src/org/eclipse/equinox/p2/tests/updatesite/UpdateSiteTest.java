@@ -37,6 +37,46 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		return new TestSuite(UpdateSiteTest.class);
 	}
 
+	public void testRelativeSiteURL() {
+		File site = getTestData("0.1", "/testData/updatesite/siteurl");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testAbsoluteSiteURL() {
+		File site = getTestData("0.1", "/testData/updatesite/siteurl2");
+		File siteDirectory = getTestData("0.1", "/testData/updatesite/siteurl2/siteurl/");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+			updatesite.getSite().setLocationURLString(siteDirectory.toURL().toExternalForm());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
 	public void testDefaultDigestURL() {
 		File site = getTestData("0.1", "/testData/updatesite/digest");
 		UpdateSite updatesite = null;
@@ -77,7 +117,7 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 
 	public void testAbsoluteDigestURL() {
 		File site = getTestData("0.1", "/testData/updatesite/digesturl2");
-		File digestDirectory = getTestData("0.1", "/testData/updatesite/digesturl/digesturl/");
+		File digestDirectory = getTestData("0.1", "/testData/updatesite/digesturl2/digesturl/");
 		UpdateSite updatesite = null;
 		try {
 			updatesite = UpdateSite.load(site.toURL(), getMonitor());
