@@ -125,7 +125,7 @@ public class Application implements IApplication {
 		if (profileId == null)
 			profileId = IProfileRegistry.SELF;
 		IProfile profile = ProvisioningHelper.getProfile(profileId);
-		if (profile != null && profile != ProvisioningHelper.getProfile(IProfileRegistry.SELF))
+		if (profile != null && (ProvisioningHelper.getProfile(IProfileRegistry.SELF) != null && !profile.getProfileId().equals(ProvisioningHelper.getProfile(IProfileRegistry.SELF).getProfileId())))
 			needsToUpdateRoamingValues = true;
 		if (profile == null) {
 			if (destination == null)
