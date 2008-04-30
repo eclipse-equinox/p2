@@ -46,7 +46,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		StringBuffer buffer = new StringBuffer();
 		for (int i = 0; i < list.length; i++) {
 			buffer.append(list[i]);
-			if (list.length < i + 1)
+			if (i + 1 < list.length)
 				buffer.append(',');
 		}
 		return buffer.toString();
