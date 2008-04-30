@@ -133,7 +133,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			}
 			return repositoryURL;
 		} catch (IOException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while building repository location.", e)); //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while building repository location from file: " + file.getAbsolutePath(), e)); //$NON-NLS-1$
 		}
 		return null;
 	}
