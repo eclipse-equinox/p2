@@ -180,7 +180,11 @@ public class ProvisioningUtil {
 		}
 		SubMonitor mon = SubMonitor.convert(monitor, urls.length * 100);
 		for (int i = 0; i < urls.length; i++) {
-			manager.refreshRepository(urls[i], mon.newChild(100));
+			try {
+				manager.refreshRepository(urls[i], mon.newChild(100));
+			} catch (ProvisionException e) {
+				//ignore problematic repositories when refreshing
+			}
 		}
 	}
 
