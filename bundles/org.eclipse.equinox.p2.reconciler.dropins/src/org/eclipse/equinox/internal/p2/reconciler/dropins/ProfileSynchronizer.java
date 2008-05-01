@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
@@ -35,6 +36,7 @@ import org.osgi.framework.ServiceReference;
  * Synchronizes a profile with a set of repositories.
  */
 public class ProfileSynchronizer {
+	private static final String RECONCILER_APPLICATION_ID = "org.eclipse.equinox.p2.reconciler.application";
 	private static final String TIMESTAMPS_FILE_PREFIX = "timestamps"; //$NON-NLS-1$
 	private static final String PROFILE_TIMESTAMP = "PROFILE"; //$NON-NLS-1$
 	private static final String NO_TIMESTAMP = "-1"; //$NON-NLS-1$
@@ -345,7 +347,7 @@ public class ProfileSynchronizer {
 	 * Write out the configuration file.
 	 */
 	private void applyConfiguration() {
-		if ("true".equals(System.getProperty("org.eclipse.equinox.p2.reconciler.noConfig"))) //$NON-NLS-1$//$NON-NLS-2$
+		if (isReconciliationApplicationRunning())
 			return;
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(Configurator.class.getName());
@@ -357,5 +359,21 @@ public class ProfileSynchronizer {
 		} finally {
 			context.ungetService(reference);
 		}
+	}
+
+	private boolean isReconciliationApplicationRunning() {
+		ServiceReference infoRef = Activator.getContext().getServiceReference(EnvironmentInfo.class.getName());
+		if (infoRef == null)
+			return false;
+		EnvironmentInfo info = (EnvironmentInfo) Activator.getContext().getService(infoRef);
+		if (info == null)
+			return false;
+		String[] args = info.getCommandLineArgs();
+		for (int i = 0; i < args.length; i++) {
+			if (RECONCILER_APPLICATION_ID.equals(args[i].trim())) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
