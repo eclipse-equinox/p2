@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.extensionlocation.*;
+import org.eclipse.equinox.internal.p2.extensionlocation.SiteListener;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -164,8 +164,22 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
 					properties.put(SiteListener.SITE_LIST, toString(site.getList()));
 					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-					newRepos.add(Activator.getMetadataRepository(location, "extension location metadata repository: " + location.toExternalForm(), ExtensionLocationMetadataRepository.TYPE, properties, true)); //$NON-NLS-1$
-					Activator.getArtifactRepository(location, "extension location artifact repository:  " + location.toExternalForm(), ExtensionLocationArtifactRepository.TYPE, properties, true); //$NON-NLS-1$
+
+					// deal with the metadata repository
+					IMetadataRepository metadataRepository = null;
+					try {
+						metadataRepository = Activator.createExtensionLocationMetadataRepository(location, "extension location metadata repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
+					} catch (ProvisionException ex) {
+						metadataRepository = Activator.loadMetadataRepository(location, null);
+					}
+					newRepos.add(metadataRepository);
+
+					// now the artifact repository
+					try {
+						Activator.createExtensionLocationArtifactRepository(location, "extension location artifact repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
+					} catch (ProvisionException ex) {
+						Activator.loadArtifactRepository(location, null);
+					}
 				} catch (MalformedURLException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				} catch (ProvisionException e) {

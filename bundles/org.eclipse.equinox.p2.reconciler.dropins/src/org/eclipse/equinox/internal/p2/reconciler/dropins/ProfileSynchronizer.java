@@ -215,7 +215,7 @@ public class ProfileSynchronizer {
 		for (Iterator it = repositoryMap.keySet().iterator(); it.hasNext();) {
 			String repositoryId = (String) it.next();
 			try {
-				IArtifactRepository repository = Activator.getArtifactRepository(new URL(repositoryId), null, null, null, false);
+				IArtifactRepository repository = Activator.loadArtifactRepository(new URL(repositoryId), null);
 
 				if (repository instanceof IFileArtifactRepository) {
 					currentExtensions.add(repositoryId);

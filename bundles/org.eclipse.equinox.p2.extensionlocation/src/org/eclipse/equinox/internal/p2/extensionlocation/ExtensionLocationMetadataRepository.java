@@ -28,6 +28,8 @@ import org.osgi.framework.BundleContext;
 public class ExtensionLocationMetadataRepository extends AbstractMetadataRepository {
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
+	private static final String EXTENSION_LOCATION = ".eclipseextension"; //$NON-NLS-1$
+	private static final String SITE_XML = "site.xml"; //$NON-NLS-1$
 	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
@@ -100,7 +102,13 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	public static void validate(URL location, IProgressMonitor monitor) throws ProvisionException {
-		getBaseDirectory(location);
+		File base = getBaseDirectory(location);
+		if (new File(base, EXTENSION_LOCATION).exists())
+			return;
+		if (new File(base, SITE_XML).exists()) {
+			String message = NLS.bind(Messages.error_update_site, location.toExternalForm());
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, message, null));
+		}
 	}
 
 	public static File getBaseDirectory(URL url) throws ProvisionException {

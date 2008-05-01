@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepository;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -96,12 +95,13 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		directory.mkdirs();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			assertEquals("0.5", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
+		fail("1.0");
 	}
 
 	public void testEmptyFeatureAndPluginsDirectory() {
@@ -111,9 +111,8 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		new File(directory, "features").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			assertEquals("0.5", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			fail("0.1", e);
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -125,9 +124,8 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		new File(directory, "features").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			assertEquals("0.5", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			fail("0.1", e);
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -139,9 +137,8 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		new File(directory, "plugins").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			assertEquals("0.5", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			fail("0.1", e);
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -156,9 +153,8 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		new File(eclipseDirectory, "features").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			assertEquals("0.5", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			fail("0.1", e);
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -173,12 +169,13 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		new File(eclipseDirectory, "features").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			assertEquals("0.5", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
+		fail("1.0");
 	}
 
 	public void testNormalFeaturesandPluginsDirectory() {
@@ -187,17 +184,13 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
 		try {
 			URL location = directory.toURL();
-			IArtifactRepository repo = null;
 			try {
-				repo = factory.load(location, getMonitor());
-				fail("2.0");
-			} catch (ProvisionException ex) {
-				repo = factory.create(location, "testNormalFeaturesandPluginsDirectory", ExtensionLocationArtifactRepository.TYPE, null);
+				IArtifactRepository repo = factory.load(location, getMonitor());
 				if (repo.getArtifactKeys().length != 2)
 					fail("2.1");
+			} catch (ProvisionException ex) {
+				fail("2.0");
 			}
-		} catch (ProvisionException e) {
-			fail("3.5");
 		} catch (MalformedURLException e) {
 			fail("3.99", e);
 		}
@@ -211,17 +204,13 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/features"), features);
 		try {
 			URL location = directory.toURL();
-			IArtifactRepository repo = null;
 			try {
-				repo = factory.load(location, getMonitor());
-				fail("2.0");
-			} catch (ProvisionException ex) {
-				repo = factory.create(location, "testNormalFeaturesDirectory", ExtensionLocationArtifactRepository.TYPE, null);
+				IArtifactRepository repo = factory.load(location, getMonitor());
 				if (repo.getArtifactKeys().length != 1)
 					fail("2.1");
+			} catch (ProvisionException ex) {
+				fail("2.0");
 			}
-		} catch (ProvisionException e) {
-			fail("3.5", e);
 		} catch (MalformedURLException e) {
 			fail("3.99", e);
 		}
@@ -235,17 +224,13 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
 		try {
 			URL location = directory.toURL();
-			IArtifactRepository repo = null;
 			try {
-				repo = factory.load(location, getMonitor());
-				fail("2.0");
-			} catch (ProvisionException ex) {
-				repo = factory.create(location, "testNormalFeaturesDirectory", ExtensionLocationArtifactRepository.TYPE, null);
+				IArtifactRepository repo = factory.load(location, getMonitor());
 				if (repo.getArtifactKeys().length != 1)
 					fail("2.1");
+			} catch (ProvisionException ex) {
+				fail("2.0");
 			}
-		} catch (ProvisionException e) {
-			fail("3.5", e);
 		} catch (MalformedURLException e) {
 			fail("3.99", e);
 		}

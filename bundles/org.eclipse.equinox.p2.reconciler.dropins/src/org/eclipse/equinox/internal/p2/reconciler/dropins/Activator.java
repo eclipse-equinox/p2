@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -33,7 +34,6 @@ public class Activator implements BundleActivator {
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 	private static final String LINKS = "links"; //$NON-NLS-1$
-	//	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
@@ -44,54 +44,71 @@ public class Activator implements BundleActivator {
 	private static IMetadataRepository eclipseProductRepository;
 
 	/**
-	 * Helper method to load a metadata repository from the specified URL. If none
-	 * exists then create one if requested. This method never returns <code>null</code>.
+	 * Helper method to create an extension location metadata repository at the given URL. 
+	 * If one already exists at that location then an exception will be thrown.
 	 * 
-	 * @throws IllegalStateException
-	 * @throws ProvisionException 
-	 */
-	public static IMetadataRepository getMetadataRepository(URL location, String name, String type, Map properties, boolean create) throws ProvisionException {
-		BundleContext context = getContext();
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
-		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
-		try {
-			return manager.loadRepository(location, null);
-		} catch (ProvisionException e) {
-			if (create) {
-				IMetadataRepository repository = manager.createRepository(location, name, type, properties);
-				manager.addRepository(location);
-				return repository;
-			}
-			// if we didn't want to create in the failure case then return the reason for the failure
-			throw e;
-		}
-	}
-
-	/**
-	 * Helper method to load an artifact repository from the given URL. If none
-	 * exists then we will create one at the given location, if specified to do so.
 	 * This method never returns <code>null</code>.
 	 * 
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IArtifactRepository getArtifactRepository(URL location, String name, String type, Map properties, boolean create) throws ProvisionException {
+	public static IMetadataRepository createExtensionLocationMetadataRepository(URL location, String name, Map properties) throws ProvisionException {
+		BundleContext context = getContext();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
+		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, properties);
+		manager.addRepository(location);
+		return repository;
+	}
+
+	/**
+	 * Helper method to load an extension location metadata repository from the given URL.
+	 * 
+	 * @throws IllegalStateException
+	 * @throws ProvisionException
+	 */
+	public static IMetadataRepository loadMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		BundleContext context = getContext();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		return manager.loadRepository(location, monitor);
+	}
+
+	/**
+	 * Helper method to create an extension location artifact repository at the given URL. 
+	 * If one already exists at that location then an exception will be thrown.
+	 * 
+	 * This method never returns <code>null</code>.
+	 * 
+	 * @throws IllegalStateException
+	 * @throws ProvisionException 
+	 */
+	public static IArtifactRepository createExtensionLocationArtifactRepository(URL location, String name, Map properties) throws ProvisionException {
 		BundleContext context = getContext();
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
 		if (manager == null)
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
-		try {
-			return manager.loadRepository(location, null);
-		} catch (ProvisionException e) {
-			if (create) {
-				IArtifactRepository repository = manager.createRepository(location, name, type, properties);
-				manager.addRepository(location);
-				return repository;
-			}
-			// if we didn't want to create in the failure case then return the reason for the failure
-			throw e;
-		}
+		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
+		IArtifactRepository repository = factory.create(location, name, ExtensionLocationArtifactRepository.TYPE, properties);
+		manager.addRepository(location);
+		return repository;
+	}
+
+	/**
+	 * Helper method to load an extension location metadata repository from the given URL.
+	 * 
+	 * @throws IllegalStateException
+	 * @throws ProvisionException
+	 */
+	public static IArtifactRepository loadArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
+		BundleContext context = getContext();
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+		if (manager == null)
+			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
+		return manager.loadRepository(location, monitor);
 	}
 
 	/* (non-Javadoc)

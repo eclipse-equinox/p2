@@ -140,9 +140,16 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	public void getMetadataRepository(URL repoURL) {
 		try {
-			Map properties = new HashMap();
-			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			metadataRepositories.add(Activator.getMetadataRepository(repoURL, "dropins metadata repo: " + repoURL.toExternalForm(), ExtensionLocationMetadataRepository.TYPE, properties, true)); //$NON-NLS-1$
+			IMetadataRepository repository = null;
+			try {
+				ExtensionLocationMetadataRepository.validate(repoURL, null);
+				Map properties = new HashMap();
+				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				repository = Activator.createExtensionLocationMetadataRepository(repoURL, "dropins metadata repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
+			} catch (ProvisionException e) {
+				repository = Activator.loadMetadataRepository(repoURL, null);
+			}
+			metadataRepositories.add(repository);
 		} catch (ProvisionException ex) {
 			LogHelper.log(ex);
 		}
@@ -150,9 +157,17 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	public void getArtifactRepository(URL repoURL) {
 		try {
-			Map properties = new HashMap();
-			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			artifactRepositories.add(Activator.getArtifactRepository(repoURL, "dropins artifact repo: " + repoURL.toExternalForm(), ExtensionLocationArtifactRepository.TYPE, properties, true)); //$NON-NLS-1$
+			IArtifactRepository repository = null;
+			try {
+				ExtensionLocationArtifactRepository.validate(repoURL, null);
+				Map properties = new HashMap();
+				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				repository = Activator.createExtensionLocationArtifactRepository(repoURL, "dropins artifact repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
+				// fall through here and call the load which then adds the repo to the manager's list
+			} catch (ProvisionException ex) {
+				repository = Activator.loadArtifactRepository(repoURL, null);
+			}
+			artifactRepositories.add(repository);
 		} catch (ProvisionException ex) {
 			LogHelper.log(ex);
 		}

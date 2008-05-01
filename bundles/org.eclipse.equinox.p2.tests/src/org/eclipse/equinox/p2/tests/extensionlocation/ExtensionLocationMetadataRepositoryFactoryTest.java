@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -105,9 +104,8 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(directory, "features").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			// expected
+			fail("0.1");
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -119,9 +117,8 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(directory, "features").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			// expected
+			fail("0.1");
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -133,9 +130,8 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(directory, "plugins").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			// expected
+			fail("0.1");
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -150,9 +146,8 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		new File(eclipseDirectory, "features").mkdir();
 		try {
 			factory.load(directory.toURL(), getMonitor());
-			fail("0.1");
 		} catch (ProvisionException e) {
-			// expected
+			fail("0.1");
 		} catch (MalformedURLException e) {
 			fail("0.99", e);
 		}
@@ -181,17 +176,13 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation"), directory);
 		try {
 			URL location = directory.toURL();
-			IMetadataRepository repo = null;
 			try {
-				repo = factory.load(location, getMonitor());
-				fail("2.0");
-			} catch (ProvisionException ex) {
-				repo = factory.create(location, "testNormalFeaturesandPluginsDirectory", ExtensionLocationMetadataRepository.TYPE, null);
+				IMetadataRepository repo = factory.load(location, getMonitor());
 				if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 3)
 					fail("2.99");
+			} catch (ProvisionException ex) {
+				fail("2.0");
 			}
-		} catch (ProvisionException e) {
-			fail("3.99");
 		} catch (MalformedURLException e) {
 			fail("4.99", e);
 		}
@@ -205,17 +196,13 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/features"), features);
 		try {
 			URL location = directory.toURL();
-			IMetadataRepository repo = null;
 			try {
-				repo = factory.load(location, getMonitor());
-				fail("2.0");
-			} catch (ProvisionException ex) {
-				repo = factory.create(location, "testNormalFeaturesDirectory", ExtensionLocationMetadataRepository.TYPE, null);
+				IMetadataRepository repo = factory.load(location, getMonitor());
 				if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 2)
 					fail("3.0");
+			} catch (ProvisionException ex) {
+				fail("2.0");
 			}
-		} catch (ProvisionException e) {
-			fail("4.0");
 		} catch (MalformedURLException e) {
 			fail("4.99", e);
 		}
@@ -229,17 +216,13 @@ public class ExtensionLocationMetadataRepositoryFactoryTest extends AbstractProv
 		copy("1.0", getTestData("1.1", "/testData/extensionlocation/plugins"), plugins);
 		try {
 			URL location = directory.toURL();
-			IMetadataRepository repo = null;
 			try {
-				repo = factory.load(location, getMonitor());
-				fail("2.0");
-			} catch (ProvisionException ex) {
-				repo = factory.create(location, "testNormalPluginsDirectory", ExtensionLocationMetadataRepository.TYPE, null);
+				IMetadataRepository repo = factory.load(location, getMonitor());
 				if (repo.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection().size() != 1)
 					fail("3.0");
+			} catch (ProvisionException ex) {
+				fail("2.0");
 			}
-		} catch (ProvisionException e) {
-			fail("4.0");
 		} catch (MalformedURLException e) {
 			fail("4.99", e);
 		}
