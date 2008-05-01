@@ -127,6 +127,7 @@ public class CategoryElementCollector extends QueriedElementCollector {
 		CategoryElement element = new UncategorizedCategoryElement(iu);
 		element.setQueryable(queryable);
 		element.setQueryProvider(queryProvider);
+		element.setQueryContext(queryContext);
 		// This is costly, but the only way to know if we need this category is to perform the query in advance.
 		// Note that this will end up querying the contents of all categories to determine which IU's were not
 		// referred to.
