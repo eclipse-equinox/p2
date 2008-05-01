@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
@@ -362,17 +363,15 @@ public class ProfileSynchronizer {
 	}
 
 	private boolean isReconciliationApplicationRunning() {
-		ServiceReference infoRef = Activator.getContext().getServiceReference(EnvironmentInfo.class.getName());
-		if (infoRef == null)
-			return false;
-		EnvironmentInfo info = (EnvironmentInfo) Activator.getContext().getService(infoRef);
+		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 		if (info == null)
 			return false;
 		String[] args = info.getCommandLineArgs();
+		if (args == null)
+			return false;
 		for (int i = 0; i < args.length; i++) {
-			if (RECONCILER_APPLICATION_ID.equals(args[i].trim())) {
+			if (args[i] != null && RECONCILER_APPLICATION_ID.equals(args[i].trim()))
 				return true;
-			}
 		}
 		return false;
 	}
