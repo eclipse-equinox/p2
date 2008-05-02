@@ -50,9 +50,7 @@ public class MetadataCache {
 		try {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			IMetadataRepository repository = manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			manager.addRepository(repository.getLocation());
-			return repository;
+			return manager.createRepository(location, REPOSITORY_NAME, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 			throw new IllegalStateException(Messages.failed_creating_metadata_cache);

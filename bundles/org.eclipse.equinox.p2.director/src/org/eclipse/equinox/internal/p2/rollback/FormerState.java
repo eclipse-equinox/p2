@@ -104,9 +104,7 @@ public class FormerState {
 		try {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			IMetadataRepository repository = manager.createRepository(location, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
-			manager.addRepository(repository.getLocation());
-			return repository;
+			return manager.createRepository(location, "Agent rollback repository", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}

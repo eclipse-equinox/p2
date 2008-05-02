@@ -177,7 +177,6 @@ public class NativeTouchpoint extends Touchpoint {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 			repository = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			manager.addRepository(repository.getLocation());
 		}
 
 		IFileArtifactRepository downloadCache = (IFileArtifactRepository) repository.getAdapter(IFileArtifactRepository.class);

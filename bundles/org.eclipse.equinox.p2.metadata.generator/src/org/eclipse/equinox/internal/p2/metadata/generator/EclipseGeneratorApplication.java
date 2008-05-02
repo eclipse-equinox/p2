@@ -112,6 +112,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		IArtifactRepository result = null;
 		try {
 			result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			manager.removeRepository(location);
 			provider.setArtifactRepository(result);
 			// TODO is this needed?
 			if (artifactRepoName != null)
@@ -166,7 +167,6 @@ public class EclipseGeneratorApplication implements IApplication {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
 		try {
 			IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			manager.addRepository(result.getLocation());
 			// TODO is this needed?
 			if (metadataRepoName != null)
 				result.setName(metadataRepoName);

@@ -16,6 +16,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
+import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -59,7 +60,8 @@ public class Activator implements BundleActivator {
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
 		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, properties);
-		manager.addRepository(location);
+		//we need to add the concrete repository to the repository manager, or its properties will not be correct
+		((MetadataRepositoryManager) manager).addRepository(repository);
 		return repository;
 	}
 

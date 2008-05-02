@@ -76,11 +76,7 @@ public class Util {
 			String repositoryName = Messages.BundlePool;
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
-			manager.addRepository(bundlePool.getLocation());
-			//re-load the repository to ensure we have the same instance as other callers
-			bundlePool = manager.loadRepository(bundlePool.getLocation(), null);
-			return (IFileArtifactRepository) bundlePool;
+			return (IFileArtifactRepository) manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 			throw new IllegalArgumentException(NLS.bind(Messages.bundle_pool_not_writeable, location));

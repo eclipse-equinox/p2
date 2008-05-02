@@ -147,9 +147,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 					name = "artifact listener " + repositoryName; //$NON-NLS-1$
 				}
-				IArtifactRepository repository = manager.createRepository(stateDirURL, name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-				manager.addRepository(repository.getLocation());
-				return repository;
+				return manager.createRepository(stateDirURL, name, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			} catch (ProvisionException e) {
 				LogHelper.log(e);
 				throw new IllegalStateException(NLS.bind(Messages.failed_create_artifact_repo, stateDirURL));
@@ -179,9 +177,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 				name = "metadata listener " + repositoryName; //$NON-NLS-1$
 			}
-			IMetadataRepository repository = manager.createRepository(stateDirURL, name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-			manager.addRepository(stateDirURL);
-			return repository;
+			return manager.createRepository(stateDirURL, name, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 			throw new IllegalStateException(NLS.bind(Messages.failed_create_metadata_repo, stateDirURL));

@@ -15,7 +15,6 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -210,6 +209,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 		clearNotFound(result.getLocation());
+		addRepository(result);
 		return result;
 	}
 
@@ -563,8 +563,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		try {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
-			addRepository(cache);
+			createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}

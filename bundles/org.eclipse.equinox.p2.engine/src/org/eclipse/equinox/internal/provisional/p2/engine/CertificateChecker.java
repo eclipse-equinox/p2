@@ -47,7 +47,7 @@ public class CertificateChecker {
 		ArrayList untrusted = new ArrayList();
 		ArrayList untrustedChain = new ArrayList();
 		IStatus status = Status.OK_STATUS;
-		if (artifacts.size() == 0)
+		if (artifacts.size() == 0 || serviceUI == null)
 			return status;
 		Iterator artifact = artifacts.iterator();
 		TrustEngine trustEngine = (TrustEngine) trustEngineTracker.getService();

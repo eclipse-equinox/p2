@@ -225,6 +225,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 		clearNotFound(location);
+		addRepository(result);
 		return result;
 	}
 

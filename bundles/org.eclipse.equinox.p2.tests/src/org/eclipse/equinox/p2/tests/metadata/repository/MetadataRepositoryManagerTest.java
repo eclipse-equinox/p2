@@ -72,7 +72,6 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		//create a new repository
 		File repoLocation = getTempLocation();
 		IMetadataRepository testRepo = manager.createRepository(repoLocation.toURL(), "MetadataRepositoryManagerTest", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		manager.addRepository(testRepo.getLocation());
 		int newNonSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM).length;
 		int newSystemCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_SYSTEM).length;
 		int newAllCount = manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL).length;
