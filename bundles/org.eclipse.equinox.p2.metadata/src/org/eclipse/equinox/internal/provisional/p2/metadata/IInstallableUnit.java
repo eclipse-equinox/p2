@@ -110,6 +110,14 @@ public interface IInstallableUnit extends Comparable {
 	 * @see #getProperty(String)
 	 */
 	public static final String PROP_DESCRIPTION = "org.eclipse.equinox.p2.description"; //$NON-NLS-1$
+
+	/**
+	 * A property key (value <code>"org.eclipse.equinox.p2.description.url"</code>) for a 
+	 * String property containing a URL to the description of the installable unit.
+	 * 
+	 * @see #getProperty(String)
+	 */
+	public static final String PROP_DESCRIPTION_URL = "org.eclipse.equinox.p2.description.url"; //$NON-NLS-1$
 	/**
 	 * A property key (value <code>"org.eclipse.equinox.p2.doc.url"</code>) for a 
 	 * String property containing a URL for documentation about the installable unit.

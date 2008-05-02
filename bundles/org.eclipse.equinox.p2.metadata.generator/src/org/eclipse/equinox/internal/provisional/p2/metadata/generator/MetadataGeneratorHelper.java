@@ -620,6 +620,10 @@ public class MetadataGeneratorHelper {
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getDescription() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
+		if (feature.getDescriptionURL() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
@@ -659,6 +663,10 @@ public class MetadataGeneratorHelper {
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getDescription() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
+		if (feature.getDescriptionURL() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
