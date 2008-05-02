@@ -35,6 +35,10 @@ public class SignatureVerifier extends ProcessingStep {
 		getOutputStream().write(b);
 	}
 
+	public void write(byte[] bytes, int off, int len) throws IOException {
+		getOutputStream().write(bytes, off, len);
+	}
+
 	private OutputStream getOutputStream() throws IOException {
 		if (tempStream != null)
 			return tempStream;
