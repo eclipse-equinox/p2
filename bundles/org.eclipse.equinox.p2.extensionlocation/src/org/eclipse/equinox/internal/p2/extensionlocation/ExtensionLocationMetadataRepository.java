@@ -25,15 +25,9 @@ import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.Abstr
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
-public class ExtensionLocationMetadataRepository extends AbstractMetadataRepository {
+public class ExtensionLocationMetadataRepository extends AbstractMetadataRepository implements Constants {
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
-	private static final String EXTENSION_LOCATION = ".eclipseextension"; //$NON-NLS-1$
-	private static final String SITE_XML = "site.xml"; //$NON-NLS-1$
-	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
-	private static final String FEATURES = "features"; //$NON-NLS-1$
-	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
-	private static final String FILE = "file"; //$NON-NLS-1$
 	private IMetadataRepository metadataRepository;
 
 	/*

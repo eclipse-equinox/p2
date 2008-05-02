@@ -23,16 +23,10 @@ import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractR
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
-public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository {
+public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository, Constants {
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	private static final String POOLED = ".pooled"; //$NON-NLS-1$
-	private static final String EXTENSION_LOCATION = ".eclipseextension"; //$NON-NLS-1$
-	private static final String SITE_XML = "site.xml"; //$NON-NLS-1$
-	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
-	private static final String FEATURES = "features"; //$NON-NLS-1$
-	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
-	private static final String FILE = "file"; //$NON-NLS-1$
 	private final IFileArtifactRepository artifactRepository;
 
 	/*
