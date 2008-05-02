@@ -131,13 +131,13 @@ public class InstallApplication implements IApplication {
 	public Object start(IApplicationContext appContext) {
 		try {
 			appContext.applicationRunning();
+			initializeProxySupport();
 			advisor = createInstallContext();
 			//fetch description of what to install
 			InstallDescription description = null;
 			try {
 				description = computeInstallDescription();
 				startRequiredBundles(description);
-				initializeProxySupport();
 				//perform long running install operation
 				InstallUpdateProductOperation operation = new InstallUpdateProductOperation(InstallerActivator.getDefault().getContext(), description);
 				IStatus result = advisor.performInstall(operation);
