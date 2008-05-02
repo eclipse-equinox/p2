@@ -28,6 +28,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 	private static final String P2_ENGINE_DIR = "p2/" + EngineActivator.ID + "/"; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 	private static final String ECLIPSE_INI_IGNORED = "eclipse.ini.ignored"; //$NON-NLS-1$
+	private static final String IU_LOCKED = Integer.toString(IInstallableUnit.LOCK_UNINSTALL | IInstallableUnit.LOCK_UPDATE);
 
 	/**
 	 * Profile property constant indicating the bundle pool cache location.
@@ -79,6 +80,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
 			userProfile.addInstallableUnit(iu);
 			userProfile.addInstallableUnitProperties(iu, sharedProfile.getInstallableUnitProperties(iu));
+			userProfile.setInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
 		}
 
 		//update properties
