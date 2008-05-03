@@ -269,7 +269,7 @@ public class FormerState {
 			}
 			profileProperties.remove(IInstallableUnit.PROP_TYPE_PROFILE);
 
-			List extraIUs = new ArrayList(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+			List extraIUs = new ArrayList(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 			extraIUs.add(profileIU);
 
 			IInstallableUnit[] availableIUs = SimplePlanner.gatherAvailableInstallableUnits((IInstallableUnit[]) extraIUs.toArray(new IInstallableUnit[extraIUs.size()]), context.getMetadataRepositories(), context, new NullProgressMonitor());
