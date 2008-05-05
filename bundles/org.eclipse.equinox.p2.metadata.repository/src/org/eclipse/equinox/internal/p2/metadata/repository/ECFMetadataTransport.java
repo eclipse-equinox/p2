@@ -275,7 +275,7 @@ public class ECFMetadataTransport {
 			IOException ioException = (IOException) result[1];
 			//throw a special exception for authentication failure so we know to prompt for username/password
 			String message = ioException.getMessage();
-			if (message != null && (message.indexOf("401") != -1 || message.indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
+			if (message != null && (message.indexOf(" 401 ") != -1 || message.indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
 				throw ERROR_401;
 		}
 		if (result[0] instanceof IRemoteFile)

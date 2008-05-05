@@ -164,7 +164,7 @@ public class ECFTransport extends Transport {
 			IStatus status = e.getStatus();
 			Throwable exception = status.getException();
 			if (exception instanceof IOException) {
-				if (exception.getMessage() != null && (exception.getMessage().indexOf("401") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
+				if (exception.getMessage() != null && (exception.getMessage().indexOf(" 401 ") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
 					throw ERROR_401;
 			}
 			return statusOn(target, status);
