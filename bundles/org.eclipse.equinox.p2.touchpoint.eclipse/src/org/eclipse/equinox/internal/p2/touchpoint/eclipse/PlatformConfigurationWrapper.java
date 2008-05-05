@@ -203,8 +203,10 @@ public class PlatformConfigurationWrapper {
 		Site site = getSite(id, version);
 		if (site == null)
 			site = poolSite;
-		Feature removedFeature = site.removeFeature(makeFeatureURL(id, version));
-		return (removedFeature != null ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, Messages.feature_not_found, null));
+		site.removeFeature(makeFeatureURL(id, version));
+		// if we weren't able to remove the feature from the site because it
+		// didn't exist, then someone already did our job for us and it is ok.
+		return Status.OK_STATUS;
 	}
 
 	/*
