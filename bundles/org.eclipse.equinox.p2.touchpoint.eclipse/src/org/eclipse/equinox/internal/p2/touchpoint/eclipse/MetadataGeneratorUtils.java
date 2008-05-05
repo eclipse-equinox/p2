@@ -25,6 +25,8 @@ public class MetadataGeneratorUtils {
 	public static IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
 		BundleDescriptionFactory factory = initializeBundleDescriptionFactory(Activator.getContext());
 		BundleDescription bundleDescription = factory.getBundleDescription(bundleFile);
+		if (bundleDescription == null)
+			return null;
 		return MetadataGeneratorHelper.createBundleIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), artifactKey);
 	}
 
