@@ -71,10 +71,21 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		File base = getBaseDirectory(location);
 		if (new File(base, EXTENSION_LOCATION).exists())
 			return;
-		if (new File(base, SITE_XML).exists()) {
+		if (containsUpdateSiteFile(base)) {
 			String message = NLS.bind(Messages.error_update_site, location.toExternalForm());
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, message, null));
 		}
+	}
+
+	private static boolean containsUpdateSiteFile(File base) {
+		String[] fileNames = base.list();
+		if (fileNames == null)
+			return false;
+		for (int i = 0; i < fileNames.length; i++) {
+			if (fileNames[i].endsWith(DOT_XML) && fileNames[i].indexOf(SITE) != -1)
+				return true;
+		}
+		return false;
 	}
 
 	public static File getBaseDirectory(URL url) throws ProvisionException {

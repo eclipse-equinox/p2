@@ -21,5 +21,6 @@ public interface Constants {
 	public static final String FILE = "file"; //$NON-NLS-1$
 	public static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	public static final String SITE_XML = "site.xml"; //$NON-NLS-1$
-
+	public static final String SITE = "site"; //$NON-NLS-1$
+	public static final String DOT_XML = ".xml"; //$NON-NLS-1$
 }

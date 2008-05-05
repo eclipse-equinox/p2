@@ -36,6 +36,8 @@ public class UpdateSite {
 	private static final String FEATURE_TEMP_FILE = "feature"; //$NON-NLS-1$
 	private static final String SITE_FILE = "site.xml"; //$NON-NLS-1$
 	private static final String DIR_SEPARATOR = "/"; //$NON-NLS-1$
+	private static final String DOT_XML = ".xml"; //$NON-NLS-1$
+	private static final String SITE = "site"; //$NON-NLS-1$
 	private String checksum;
 	private URL location;
 	private SiteModel site;
@@ -52,11 +54,14 @@ public class UpdateSite {
 	 * Return a new URL for the given file which is based from the specified root.
 	 */
 	public static URL getFileURL(URL root, String fileName) throws MalformedURLException {
-		if (root.getPath().endsWith(fileName))
+		String path = root.getPath();
+		if (path.endsWith(fileName))
 			return root;
-		if (root.getPath().endsWith(SITE_FILE))
+
+		if (constainsUpdateSiteFileName(path))
 			return new URL(root, fileName);
-		if (root.getPath().endsWith(DIR_SEPARATOR))
+
+		if (path.endsWith(DIR_SEPARATOR))
 			return new URL(root.toExternalForm() + fileName);
 		return new URL(root.toExternalForm() + DIR_SEPARATOR + fileName);
 	}
@@ -65,11 +70,23 @@ public class UpdateSite {
 	 * Return a URL based on the given URL, which points to a site.xml file.
 	 */
 	private static URL getSiteURL(URL url) throws MalformedURLException {
-		if (url.getPath().endsWith(SITE_FILE))
+		String path = url.getPath();
+		if (constainsUpdateSiteFileName(path))
 			return url;
-		if (url.getPath().endsWith(DIR_SEPARATOR))
+
+		if (path.endsWith(DIR_SEPARATOR))
 			return new URL(url.toExternalForm() + SITE_FILE);
 		return new URL(url.toExternalForm() + DIR_SEPARATOR + SITE_FILE);
+	}
+
+	private static boolean constainsUpdateSiteFileName(String path) {
+		if (path.endsWith(DOT_XML)) {
+			int lastSlash = path.lastIndexOf('/');
+			String lastSegment = lastSlash == -1 ? path : path.substring(lastSlash + 1);
+			if (lastSegment.indexOf(SITE) != -1)
+				return true;
+		}
+		return false;
 	}
 
 	/*

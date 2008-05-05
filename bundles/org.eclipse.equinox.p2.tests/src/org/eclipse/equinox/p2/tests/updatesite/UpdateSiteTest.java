@@ -195,6 +195,37 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		}
 	}
 
+	public void testXXXSiteXXXXMLURL() {
+		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx/xxxsitexxx.xml");
+		UpdateSite updatesite = null;
+		try {
+			updatesite = UpdateSite.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			fail("0.2", e);
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+		try {
+			int featureCount = updatesite.loadFeatures().length;
+			assertEquals(1, featureCount);
+		} catch (ProvisionException e) {
+			fail("0.4", e);
+		}
+	}
+
+	public void testBadXXXSiteXXXXMLURL() {
+		File siteDir = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
+		File site = new File(siteDir, "site.xml");
+		try {
+			UpdateSite.load(site.toURL(), getMonitor());
+			fail("0.2");
+		} catch (ProvisionException e) {
+			// expected
+		} catch (MalformedURLException e) {
+			fail("0.3", e);
+		}
+	}
+
 	public void testBadDigestGoodSite() {
 		File site = getTestData("0.1", "/testData/updatesite/baddigestgoodsite");
 		UpdateSite updatesite = null;

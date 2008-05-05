@@ -251,4 +251,30 @@ public class ExtensionLocationArtifactRepositoryFactoryTest extends AbstractProv
 			fail("0.99", e);
 		}
 	}
+
+	public void testUpdateSiteXMLURL() {
+		File site = getTestData("0.1", "/testData/updatesite/site");
+		try {
+			factory.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
+		}
+		fail("1.0");
+	}
+
+	public void testXXXSiteXXXXMLURL() {
+		File site = getTestData("0.1", "/testData/updatesite/xxxsitexxx");
+		try {
+			factory.load(site.toURL(), getMonitor());
+		} catch (ProvisionException e) {
+			if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+				return;
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
+		}
+		fail("1.0");
+	}
 }
