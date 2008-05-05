@@ -26,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModifica
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.IProgressConstants;
 import org.eclipse.ui.progress.WorkbenchJob;
@@ -167,10 +166,7 @@ public class ProvisioningOperationRunner {
 			public void run() {
 				if (PlatformUI.getWorkbench().isClosing())
 					return;
-				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				if (window == null || window.getShell() == null || window.getShell().isDisposed())
-					return;
-				int retCode = ApplyProfileChangesDialog.promptForRestart(window.getShell(), restartRequired);
+				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartRequired);
 				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
 					Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
 					try {
