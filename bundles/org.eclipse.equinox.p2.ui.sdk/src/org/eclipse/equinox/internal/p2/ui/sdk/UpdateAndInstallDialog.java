@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
@@ -794,29 +793,18 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 		target.addDropListener(new RepositoryManipulatorDropTarget(getRepositoryManipulator(), control) {
 			protected boolean dropTargetIsValid(DropTargetEvent event) {
-				if (URLTransfer.getInstance().isSupportedType(event.currentDataType)) {
-					// If we are on available features page or tab, all drops are good.
-					if (tabFolder.getSelectionIndex() == INDEX_AVAILABLE)
-						return super.dropTargetIsValid(event);
-					// This is not working
+				// Overridden so that drops are only valid on the available software page.
+				if (tabFolder.getSelectionIndex() == INDEX_AVAILABLE)
+					return super.dropTargetIsValid(event);
+				if (tabFolder.getSelectionIndex() == INDEX_INSTALLED)
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=222120
-					if (tabFolder.getItem(INDEX_AVAILABLE) == event.item)
-						return super.dropTargetIsValid(event);
-					if (tabFolder.getSelectionIndex() == INDEX_INSTALLED) {
-						String path = (String) URLTransfer.getInstance().nativeToJava(event.currentDataType);
-						if (path != null) {
-							URL url = null;
-							try {
-								url = new URL(path);
-							} catch (MalformedURLException e) {
-								return false;
-							}
-							if (url != null && URLValidator.isFileURL(url))
-								return true;
-						}
-					}
-				}
-				return super.dropTargetIsValid(event);
+					// In the future we may wish to check TabItem.getBounds() and 
+					// TabFolder.getItem(point) to determine if the available software
+					// tab got the drop while on the installed software page.
+					// We may also have a different interpretation when the installed software
+					// page is the target.  For now we do nothing.
+					return false;
+				return false;
 			}
 		});
 	}
