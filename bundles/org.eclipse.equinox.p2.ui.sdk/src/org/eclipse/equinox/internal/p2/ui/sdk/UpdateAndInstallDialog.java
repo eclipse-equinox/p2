@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.p2.ui.sdk;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.MetadataGeneratingURLValidator;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
@@ -309,8 +308,8 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				}
 
 				public URLValidator getURLValidator(Shell shell) {
-					MetadataGeneratingURLValidator validator = new MetadataGeneratingURLValidator();
-					validator.setShell(shell);
+					DefaultMetadataURLValidator validator = new DefaultMetadataURLValidator();
+					validator.setKnownRepositoriesFlag(IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM);
 					return validator;
 				}
 			};

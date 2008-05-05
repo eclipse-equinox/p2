@@ -50,12 +50,12 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		Job job = new WorkbenchJob(NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel, manipulator.getAddOperationLabel())) {
 
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				IStatus status = manipulator.getURLValidator(control.getShell()).validateRepositoryURL(url[0], true, monitor);
+				IStatus status = manipulator.getURLValidator(control.getShell()).validateRepositoryURL(url[0], false, monitor);
 				if (status.isOK()) {
 					ProvisioningOperation addOperation = manipulator.getAddOperation(url[0]);
 					ProvisioningOperationRunner.schedule(addOperation, control.getShell(), StatusManager.SHOW | StatusManager.LOG);
 					event.detail = DND.DROP_LINK;
-				} else if (status.getCode() == URLValidator.REPO_AUTO_GENERATED || status.getCode() == URLValidator.ALTERNATE_ACTION_TAKEN) {
+				} else if (status.getCode() == URLValidator.ALTERNATE_ACTION_TAKEN) {
 					event.detail = DND.DROP_COPY;
 				} else if (status.getSeverity() == IStatus.CANCEL) {
 					event.detail = DND.DROP_NONE;
