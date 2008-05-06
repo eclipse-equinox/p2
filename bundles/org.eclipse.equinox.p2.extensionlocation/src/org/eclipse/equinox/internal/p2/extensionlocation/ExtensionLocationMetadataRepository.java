@@ -28,7 +28,8 @@ import org.osgi.framework.BundleContext;
 public class ExtensionLocationMetadataRepository extends AbstractMetadataRepository implements Constants {
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
-	private IMetadataRepository metadataRepository;
+	public static final Integer VERSION = new Integer(1);
+	private final IMetadataRepository metadataRepository;
 
 	/*
 	 * Return the URL for this repo's nested local repository.
@@ -51,7 +52,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * given location and specified nested repo.
 	 */
 	public ExtensionLocationMetadataRepository(URL location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super("Extension: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
+		super("Extension: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
 		this.metadataRepository = repository;
 
 		File base = getBaseDirectory(location);
@@ -147,13 +148,14 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository#getProperties()
 	 */
 	public Map getProperties() {
-		if (metadataRepository == null)
-			return super.getProperties();
-
 		return metadataRepository.getProperties();
 	}
 
 	public void initialize(RepositoryState state) {
 		//nothing to do
+	}
+
+	public String setProperty(String key, String value) {
+		return metadataRepository.setProperty(key, value);
 	}
 }

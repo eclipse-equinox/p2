@@ -38,12 +38,14 @@ import org.osgi.framework.ServiceReference;
 
 public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 
+	public static final String TYPE = "org.eclipse.equinox.p2.updatesite.metadataRepository"; //$NON-NLS-1$
+	public static final Integer VERSION = new Integer(1);
 	private final IMetadataRepository metadataRepository;
 	private static final String FEATURE_VERSION_SEPARATOR = "_"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 
 	public UpdateSiteMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
+		super("update site: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
 		// todo progress monitoring
 		// loading validates before we create repositories
 		UpdateSite updateSite = UpdateSite.load(location, null);
@@ -205,9 +207,7 @@ public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public Map getProperties() {
-		Map result = new HashMap(metadataRepository.getProperties());
-		result.remove(IRepository.PROP_SYSTEM);
-		return result;
+		return metadataRepository.getProperties();
 	}
 
 	public String setProperty(String key, String value) {

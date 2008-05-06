@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -26,6 +27,7 @@ import org.osgi.framework.BundleContext;
 public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository, Constants {
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
+	public static final Integer VERSION = new Integer(1);
 	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	private final IFileArtifactRepository artifactRepository;
 
@@ -51,7 +53,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	 * the given url and nested repository.
 	 */
 	public ExtensionLocationArtifactRepository(URL location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super("Extension: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
+		super("Extension: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
 		this.artifactRepository = repository;
 
 		File base = getBaseDirectory(location);
@@ -172,5 +174,13 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
 		return artifactRepository.getArtifactFile(descriptor);
+	}
+
+	public Map getProperties() {
+		return artifactRepository.getProperties();
+	}
+
+	public String setProperty(String key, String value) {
+		return artifactRepository.setProperty(key, value);
 	}
 }

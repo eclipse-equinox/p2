@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
@@ -28,6 +27,8 @@ import org.osgi.framework.BundleContext;
 
 public class UpdateSiteArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
+	public static final String TYPE = "org.eclipse.equinox.p2.updatesite.artifactRepository"; //$NON-NLS-1$
+	public static final Integer VERSION = new Integer(1);
 	private static final String PROP_ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
@@ -36,7 +37,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	private final IArtifactRepository artifactRepository;
 
 	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), null, null, location, null, null, null); //$NON-NLS-1$
+		super("update site: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
 
 		// todo progress monitoring
 		// loading validates before we create repositories
@@ -110,9 +111,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	}
 
 	public Map getProperties() {
-		Map result = new HashMap(artifactRepository.getProperties());
-		result.remove(IRepository.PROP_SYSTEM);
-		return result;
+		return artifactRepository.getProperties();
 	}
 
 	public String setProperty(String key, String value) {
