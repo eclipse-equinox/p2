@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.4"?>
 
-<product name="RCP Product" id="org.eclipse.equinox.p2.installer.product" application="org.eclipse.equinox.p2.installer.application" useFeatures="false">
+<product name="Equinox p2 Installer" id="org.eclipse.equinox.p2.installer.product" application="org.eclipse.equinox.p2.installer.application" useFeatures="false">
 
    <aboutInfo>
       <image path="product_lg.gif"/>
