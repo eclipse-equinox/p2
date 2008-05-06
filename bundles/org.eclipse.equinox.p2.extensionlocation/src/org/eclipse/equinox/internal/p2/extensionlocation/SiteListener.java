@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
-import java.io.File;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -35,11 +35,13 @@ public class SiteListener extends RepositoryListener {
 	public static final String SITE_LIST = "org.eclipse.update.site.list"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
+	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
 	private String policy;
 	private String[] list;
 	private String url;
 	private DirectoryChangeListener delegate;
 	private String[] managedFiles;
+	private String[] toBeRemoved;
 
 	/*
 	 * Return true if the given list contains the full path of the given file 
@@ -82,12 +84,110 @@ public class SiteListener extends RepositoryListener {
 			return contains(getManagedFiles(), file);
 		} else if (Site.POLICY_USER_EXCLUDE.equals(policy)) {
 			// ensure the file doesn't refer to a plug-in in our list
-			return list.length == 0 ? true : !contains(list, file);
+			if (contains(list, file))
+				return false;
 		} else if (Site.POLICY_USER_INCLUDE.equals(policy)) {
 			// we are only interested in plug-ins in the list
-			return list.length == 0 ? false : contains(list, file);
+			if (!contains(list, file))
+				return false;
+		} else {
+			// shouldn't happen... unknown policy type
+			return false;
+		}
+		// at this point we have either a user-include or user-exclude policy set
+		// and we think we are interested in the file. we should first check to
+		// see if it is in the list of things to be removed
+		return !isToBeRemoved(file);
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not the feature pointed to
+	 * by the given file is in the update manager's list of features to be
+	 * uninstalled in its clean-up phase.
+	 */
+	private boolean isToBeRemoved(File file) {
+		String[] removed = getToBeRemoved();
+		if (removed.length == 0)
+			return false;
+		Feature feature = getFeature(file);
+		if (feature == null)
+			return false;
+		for (int i = 0; i < removed.length; i++) {
+			String line = removed[i];
+			int index = line.indexOf('_');
+			if (index == -1 || index + 1 >= line.length())
+				continue;
+			String id = line.substring(0, index);
+			String version = line.substring(index + 1);
+			if (id.equals(feature.getId()) && version.equals(feature.getVersion()))
+				return true;
 		}
 		return false;
+	}
+
+	/*
+	 * Parse and return the feature.xml file in the given location. 
+	 * Can return null.
+	 */
+	private Feature getFeature(File location) {
+		if (location.isFile())
+			return null;
+		File manifest = new File(location, FEATURE_MANIFEST);
+		if (!manifest.exists())
+			return null;
+		FeatureParser parser = new FeatureParser();
+		return parser.parse(location);
+	}
+
+	/*
+	 * Return an array describing the list of features are are going
+	 * to be removed by the update manager in its clean-up phase.
+	 * The strings are in the format of versioned identifiers: id_version
+	 */
+	private String[] getToBeRemoved() {
+		if (toBeRemoved != null)
+			return toBeRemoved;
+		File configurationLocation = Activator.getConfigurationLocation();
+		if (configurationLocation == null) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to compute the configuration location.")); //$NON-NLS-1$
+			toBeRemoved = new String[0];
+			return toBeRemoved;
+		}
+		File toBeUninstalledFile = new File(configurationLocation, "org.eclipse.update/toBeUninstalled"); //$NON-NLS-1$
+		if (!toBeUninstalledFile.exists()) {
+			toBeRemoved = new String[0];
+			return toBeRemoved;
+		}
+		// set it to be empty here in case we don't have a match in the file
+		toBeRemoved = new String[0];
+		Properties properties = new Properties();
+		InputStream input = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(toBeUninstalledFile));
+			properties.load(input);
+		} catch (IOException e) {
+			// TODO
+		} finally {
+			try {
+				if (input != null)
+					input.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		List result = new ArrayList();
+		for (Enumeration e = properties.elements(); e.hasMoreElements();) {
+			String line = (String) e.nextElement();
+			StringTokenizer tokenizer = new StringTokenizer(line, ";"); //$NON-NLS-1$
+			String targetSite = tokenizer.nextToken();
+			if (targetSite.startsWith("file:") && targetSite.endsWith("/eclipse/")) //$NON-NLS-1$//$NON-NLS-2$
+				targetSite = targetSite.substring(0, targetSite.length() - 8);
+			if (!url.equals(targetSite))
+				continue;
+			result.add(tokenizer.nextToken());
+		}
+		toBeRemoved = (String[]) result.toArray(new String[result.size()]);
+		return toBeRemoved;
 	}
 
 	/*
@@ -103,7 +203,7 @@ public class SiteListener extends RepositoryListener {
 		try {
 			siteLocation = URLUtil.toFile(new URL(url));
 		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to create a URL from site locatin: " + url, e));
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to create a URL from site location: " + url, e)); //$NON-NLS-1$
 			return new String[0];
 		}
 		Map pluginCache = getPlugins(siteLocation);
