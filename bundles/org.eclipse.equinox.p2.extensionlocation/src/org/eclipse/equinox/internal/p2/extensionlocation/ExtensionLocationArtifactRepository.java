@@ -49,11 +49,11 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	/*
-	 * Constuctor for the class. Return a new extension location repository based on 
+	 * Constructor for the class. Return a new extension location repository based on 
 	 * the given url and nested repository.
 	 */
 	public ExtensionLocationArtifactRepository(URL location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super("Extension: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
+		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.artifactRepository = repository;
 
 		File base = getBaseDirectory(location);

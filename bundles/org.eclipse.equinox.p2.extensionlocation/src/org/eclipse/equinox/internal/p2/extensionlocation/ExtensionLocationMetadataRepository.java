@@ -52,7 +52,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * given location and specified nested repo.
 	 */
 	public ExtensionLocationMetadataRepository(URL location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super("Extension: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
+		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.metadataRepository = repository;
 
 		File base = getBaseDirectory(location);

@@ -64,7 +64,7 @@ public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepo
 			IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().load(repoLocation, null);
 			return new ExtensionLocationArtifactRepository(location, repo, monitor);
 		} catch (ProvisionException e) {
-			return create(location, "Extension location repository: " + location.toExternalForm(), ExtensionLocationArtifactRepository.TYPE, null);
+			return create(location, Activator.getRepositoryName(location), ExtensionLocationArtifactRepository.TYPE, null);
 		}
 	}
 

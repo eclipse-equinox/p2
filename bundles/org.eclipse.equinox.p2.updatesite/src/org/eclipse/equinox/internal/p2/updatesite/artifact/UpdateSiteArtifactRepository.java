@@ -37,7 +37,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	private final IArtifactRepository artifactRepository;
 
 	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
+		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 
 		// todo progress monitoring
 		// loading validates before we create repositories

@@ -45,7 +45,7 @@ public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 
 	public UpdateSiteMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), TYPE, VERSION.toString(), location, null, null, null); //$NON-NLS-1$
+		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		// todo progress monitoring
 		// loading validates before we create repositories
 		UpdateSite updateSite = UpdateSite.load(location, null);

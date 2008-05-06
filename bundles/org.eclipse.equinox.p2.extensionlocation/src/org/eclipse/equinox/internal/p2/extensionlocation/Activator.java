@@ -1,5 +1,8 @@
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
+import java.io.File;
+import java.net.URL;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -60,4 +63,11 @@ public class Activator implements BundleActivator {
 		return Util.getBundlePoolRepository(profile);
 	}
 
+	/**
+	 * Returns a reasonable human-readable repository name for the given location.
+	 */
+	public static String getRepositoryName(URL location) {
+		File file = URLUtil.toFile(location);
+		return file == null ? location.toExternalForm() : file.getAbsolutePath();
+	}
 }
