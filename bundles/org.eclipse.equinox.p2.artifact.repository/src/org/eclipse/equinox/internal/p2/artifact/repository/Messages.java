@@ -25,6 +25,8 @@ public class Messages extends NLS {
 	public static String SignatureVerification_failedRead;
 	public static String SignatureVerification_invalidContent;
 	public static String SignatureVerification_invalidFileContent;
+
+	public static String SignatureVerifier_OutOfMemory;
 	public static String io_parseError;
 	public static String mirroring;
 	public static String repoMan_exists;

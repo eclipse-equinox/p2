@@ -85,6 +85,9 @@ public class SignatureVerifier extends ProcessingStep {
 				entries[i].verify();
 			} catch (InvalidContentException e) {
 				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerification_invalidContent + entries[i].getName(), e));
+			} catch (OutOfMemoryError e) {
+				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerifier_OutOfMemory, e));
+				break;
 			}
 		if (allStatus.size() > 0)
 			return new MultiStatus(Activator.ID, IStatus.ERROR, (IStatus[]) allStatus.toArray(new IStatus[allStatus.size()]), Messages.SignatureVerification_invalidFileContent + inputFile, null);
