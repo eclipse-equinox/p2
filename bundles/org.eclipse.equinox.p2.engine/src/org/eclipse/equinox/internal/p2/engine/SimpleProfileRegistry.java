@@ -18,6 +18,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -246,20 +247,20 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		broadcastChangeEvent(id, ProfileEvent.CHANGED);
 	}
 
-	public IProfile addProfile(String id) {
+	public IProfile addProfile(String id) throws ProvisionException {
 		return addProfile(id, null, null);
 	}
 
-	public IProfile addProfile(String id, Map profileProperties) {
+	public IProfile addProfile(String id, Map profileProperties) throws ProvisionException {
 		return addProfile(id, profileProperties, null);
 	}
 
-	public synchronized IProfile addProfile(String id, Map profileProperties, String parentId) {
+	public synchronized IProfile addProfile(String id, Map profileProperties, String parentId) throws ProvisionException {
 		if (SELF.equals(id))
 			id = self;
 		Map profileMap = getProfileMap();
 		if (profileMap.get(id) != null)
-			throw new IllegalArgumentException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
+			throw new ProvisionException(NLS.bind(Messages.Profile_Duplicate_Root_Profile_Id, id));
 
 		Profile parent = null;
 		if (parentId != null) {
@@ -267,7 +268,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 				parentId = self;
 			parent = (Profile) profileMap.get(parentId);
 			if (parent == null)
-				throw new IllegalArgumentException(NLS.bind(Messages.Profile_Parent_Not_Found, parentId));
+				throw new ProvisionException(NLS.bind(Messages.Profile_Parent_Not_Found, parentId));
 		}
 
 		Profile profile = new Profile(id, parent, profileProperties);

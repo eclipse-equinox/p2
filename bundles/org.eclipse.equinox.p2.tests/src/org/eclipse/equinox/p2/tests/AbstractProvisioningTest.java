@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -593,7 +594,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		profileRegistry.removeProfile(name);
 		//create and return a new profile
-		return profileRegistry.addProfile(name, properties, parentId);
+		try {
+			return profileRegistry.addProfile(name, properties, parentId);
+		} catch (ProvisionException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
 	}
 
 	protected IProgressMonitor getMonitor() {

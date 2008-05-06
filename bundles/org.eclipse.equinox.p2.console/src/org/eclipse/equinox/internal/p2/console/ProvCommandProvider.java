@@ -157,7 +157,11 @@ public class ProvCommandProvider implements CommandProvider {
 		if (environments != null)
 			props.setProperty(IProfile.PROP_ENVIRONMENTS, environments);
 
-		ProvisioningHelper.addProfile(profileId, props);
+		try {
+			ProvisioningHelper.addProfile(profileId, props);
+		} catch (ProvisionException e) {
+			interpreter.println("add profile failed " + e.getMessage());
+		}
 	}
 
 	/**

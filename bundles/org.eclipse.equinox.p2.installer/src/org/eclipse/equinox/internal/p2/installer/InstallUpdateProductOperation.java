@@ -70,7 +70,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	/**
 	 * Create and return the profile into which units will be installed.
 	 */
-	private IProfile createProfile() {
+	private IProfile createProfile() throws ProvisionException {
 		IProfile profile = getProfile();
 		if (profile == null) {
 			Map properties = new HashMap();

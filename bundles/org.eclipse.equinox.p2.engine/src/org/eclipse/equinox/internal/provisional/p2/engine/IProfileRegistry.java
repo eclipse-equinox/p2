@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.engine;
 
 import java.util.Map;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
  * This encapsulates the access to the profile registry. 
@@ -41,10 +42,10 @@ public interface IProfileRegistry {
 	 * 
 	 * @param id the profile id
 	 * 
-	 * @throws IllegalArgumentException if a profile
+	 * @throws ProvisionException if a profile
 	 *         with the same id is already present in the registry.
 	 */
-	IProfile addProfile(String id);
+	IProfile addProfile(String id) throws ProvisionException;
 
 	/**
 	 * Add the given profile to this profile registry.
@@ -52,10 +53,10 @@ public interface IProfileRegistry {
 	 * @param id the profile id
 	 * @param properties the profile properties
 	 * 
-	 * @throws IllegalArgumentException if a profile
+	 * @throws ProvisionException if a profile
 	 *         with the same id is already present in the registry.
 	 */
-	IProfile addProfile(String id, Map properties);
+	IProfile addProfile(String id, Map properties) throws ProvisionException;
 
 	/**
 	 * Add the given profile to this profile registry.
@@ -64,10 +65,10 @@ public interface IProfileRegistry {
 	 * @param properties the profile properties
 	 * @param parentId the id of a parent profile
 	 * 
-	 * @throws IllegalArgumentException if a profile
-	 *         with the same id is already present in the registry.
+	 * @throws ProvisionException if a profile
+	 *         with the same id is already present in the registry or the parentId is not a registered Profile.
 	 */
-	IProfile addProfile(String id, Map properties, String parentId);
+	IProfile addProfile(String id, Map properties, String parentId) throws ProvisionException;
 
 	/**
 	 * Remove the given profile from this profile registry.

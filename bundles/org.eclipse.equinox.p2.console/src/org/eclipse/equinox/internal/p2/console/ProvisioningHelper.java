@@ -96,7 +96,7 @@ public class ProvisioningHelper {
 		manager.removeRepository(location);
 	}
 
-	public static IProfile addProfile(String profileId, Properties properties) {
+	public static IProfile addProfile(String profileId, Properties properties) throws ProvisionException {
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(Activator.getContext(), IProfileRegistry.class.getName());
 		if (profileRegistry == null)
 			return null;
