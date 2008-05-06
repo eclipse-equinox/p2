@@ -53,10 +53,11 @@ public class Util {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
 			try {
-				// TODO this is a hack for now.
+				// create a file url
 				return new File(path).toURL();
 			} catch (MalformedURLException e) {
-				// TODO Do nothing and use the default approach
+				// unexpected, URLs should be pre-checked
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 			}
 		AgentLocation location = getAgentLocation();
 		if (location == null)
@@ -66,6 +67,8 @@ public class Util {
 
 	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
 		URL location = getBundlePoolLocation(profile);
+		if (location == null)
+			return null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		try {
 			return (IFileArtifactRepository) manager.loadRepository(location, null);

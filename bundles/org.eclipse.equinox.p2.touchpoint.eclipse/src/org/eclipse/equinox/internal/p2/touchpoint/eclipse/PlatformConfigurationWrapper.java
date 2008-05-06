@@ -88,6 +88,8 @@ public class PlatformConfigurationWrapper {
 			// TODO: Make this a real message
 			throw new IllegalStateException(Messages.error_parsing_configuration);
 		}
+		if (poolURL == null)
+			throw new IllegalStateException("Error creating platform configuration. No bundle pool defined."); //$NON-NLS-1$
 
 		poolSite = getSite(poolURL);
 		if (poolSite == null) {

@@ -81,9 +81,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		LazyManipulator manipulator = new LazyManipulator(profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
-		File configLocatoin = Util.getConfigurationFolder(profile);
+		File configLocation = Util.getConfigurationFolder(profile);
 		URL poolURL = Util.getBundlePoolLocation(profile);
-		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configLocatoin, poolURL, manipulator));
+		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configLocation, poolURL, manipulator));
 		return null;
 	}
 

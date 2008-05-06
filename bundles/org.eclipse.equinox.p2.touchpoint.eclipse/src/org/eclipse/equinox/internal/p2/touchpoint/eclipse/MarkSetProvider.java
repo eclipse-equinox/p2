@@ -39,6 +39,8 @@ public class MarkSetProvider implements IMarkSetProvider {
 	public MarkSet[] getMarkSets(IProfile inProfile) {
 		artifactKeyList = new HashSet();
 		IArtifactRepository repositoryToGC = Util.getBundlePoolRepository(inProfile);
+		if (repositoryToGC == null)
+			return new MarkSet[0];
 		addArtifactKeys(inProfile);
 		IProfile currentProfile = getCurrentProfile();
 		if (currentProfile != null && inProfile.getProfileId().equals(currentProfile.getProfileId())) {

@@ -134,7 +134,7 @@ public class GarbageCollector {
 		ParameterizedSafeRunnable providerExecutor = new ParameterizedSafeRunnable(runAttribute, profile);
 		SafeRunner.run(providerExecutor);
 		MarkSet[] aProfileMarkSets = providerExecutor.getResult();
-		if (aProfileMarkSets[0] == null)
+		if (aProfileMarkSets.length == 0 || aProfileMarkSets[0] == null)
 			return;
 
 		for (int i = 0; i < aProfileMarkSets.length; i++) {
