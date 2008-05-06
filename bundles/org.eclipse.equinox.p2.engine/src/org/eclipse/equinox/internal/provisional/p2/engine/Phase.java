@@ -42,13 +42,23 @@ public abstract class Phase {
 
 	public final MultiStatus perform(EngineSession session, IProfile profile, Operand[] operands, ProvisioningContext context, IProgressMonitor monitor) {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-		perform(status, session, profile, operands, context, monitor);
+		try {
+			perform(status, session, profile, operands, context, monitor);
+		} catch (RuntimeException e) {
+			// "perform" calls user code and might throw an unchecked exception
+			// we catch the error here to gather information on where the problem occurred.
+			status.add(new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e));
+		} catch (LinkageError e) {
+			// Catch linkage errors as these are generally recoverable but let other Errors propagate (see bug 222001)
+			status.add(new Status(IStatus.ERROR, EngineActivator.ID, e.getMessage(), e));
+		}
+
 		if (status.matches(IStatus.CANCEL)) {
 			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, Messages.Engine_Operation_Canceled_By_User, null);
 			result.merge(status);
 			return result;
 		} else if (status.matches(IStatus.ERROR)) {
-			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.CANCEL, getProblemMessage(), null);
+			MultiStatus result = new MultiStatus(EngineActivator.ID, IStatus.ERROR, getProblemMessage(), null);
 			result.merge(status);
 			return result;
 		}
@@ -95,15 +105,7 @@ public abstract class Phase {
 			if (!isApplicable(operand))
 				continue;
 
-			ProvisioningAction[] actions;
-			try {
-				actions = getActions(operand);
-			} catch (Throwable t) {
-				//TODO Should never catch throwable. Use SafeRunner if calling third party code
-				status.add(new Status(IStatus.ERROR, phaseId, t.getMessage(), t));
-				return;
-			}
-
+			ProvisioningAction[] actions = getActions(operand);
 			Map parameters = new HashMap(phaseParameters);
 			parameters.put(PARM_OPERAND, operand);
 			mergeStatus(status, initializeOperand(profile, operand, parameters, subMonitor));

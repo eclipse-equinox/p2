@@ -15,6 +15,7 @@ import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
+import org.eclipse.equinox.internal.provisional.p2.engine.phases.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -31,6 +32,23 @@ import org.osgi.framework.Version;
  * There are ordering dependencies for the tests temporarily 
  */
 public class EngineTest extends AbstractProvisioningTest {
+
+	private static class NPEPhase extends Phase {
+		protected NPEPhase(int weight) {
+			super("NPE", 1);
+		}
+
+		protected ProvisioningAction[] getActions(Operand operand) {
+			throw new NullPointerException();
+		}
+	}
+
+	private static class NPEPhaseSet extends PhaseSet {
+		public NPEPhaseSet() {
+			super(new Phase[] {new Collect(100), new Unconfigure(10), new Uninstall(50), new Property(1), new CheckTrust(10), new Install(50), new Configure(10), new NPEPhase(1)});
+		}
+	}
+
 	private ServiceReference engineRef;
 	private IEngine engine;
 	private File testProvisioning;
@@ -199,8 +217,24 @@ public class EngineTest extends AbstractProvisioningTest {
 		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
 		assertFalse(result.isOK());
 		ius = getInstallableUnits(profile);
-		//TODO Currently this test is failing. See bug 212058
-		//		assertFalse(ius.hasNext());
+		assertFalse(ius.hasNext());
+	}
+
+	public void testPerformRollbackOnError() {
+
+		Map properties = new HashMap();
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+		IProfile profile = createProfile("testPerformRollbackOnError", null, properties);
+		PhaseSet phaseSet = new NPEPhaseSet();
+
+		Iterator ius = getInstallableUnits(profile);
+		assertFalse(ius.hasNext());
+
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertFalse(result.isOK());
+		ius = getInstallableUnits(profile);
+		assertFalse(ius.hasNext());
 	}
 
 	private IInstallableUnit createOSGiIU() {
