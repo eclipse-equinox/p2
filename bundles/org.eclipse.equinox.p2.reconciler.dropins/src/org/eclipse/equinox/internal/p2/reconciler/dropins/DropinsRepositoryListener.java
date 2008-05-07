@@ -48,11 +48,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public boolean isInterested(File file) {
-		if (file.isDirectory())
-			return true;
-
-		String name = file.getName();
-		return name.endsWith(JAR) || name.endsWith(ZIP) || name.endsWith(LINK);
+		return true;
 	}
 
 	public boolean added(File file) {
@@ -110,32 +106,41 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private URL createRepositoryURL(File file) {
 		try {
-			if (file.getName().endsWith(LINK)) {
-				File linkFile = file;
-				String path = getLinkPath(linkFile);
-				if (path == null) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
-					return null;
-				}
-				file = new File(path);
-				if (!file.isAbsolute()) {
-					// link support is relative to the install root
-					File root = Activator.getEclipseHome();
-					if (root != null)
-						file = new File(root, path);
-				}
-			}
+			file = file.getCanonicalFile();
+			String fileName = file.getName();
+			if (fileName.endsWith(LINK))
+				return getLinkRepository(file, true);
 
-			File canonicalFile = file.getCanonicalFile();
-			URL repositoryURL = canonicalFile.toURL();
-			if (canonicalFile.getName().endsWith(ZIP) || canonicalFile.getName().endsWith(JAR)) {
-				repositoryURL = new URL("jar:" + repositoryURL.toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			return repositoryURL;
+			if (file.isDirectory())
+				return file.toURL();
+
+			if (fileName.endsWith(ZIP) || fileName.endsWith(JAR))
+				return new URL("jar:" + file.toURL().toExternalForm() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			// last resort -- we'll try to interpret the file as a link
+			return getLinkRepository(file, false);
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while building repository location from file: " + file.getAbsolutePath(), e)); //$NON-NLS-1$
 		}
 		return null;
+	}
+
+	private URL getLinkRepository(File file, boolean logMissingLink) throws IOException {
+		String path = getLinkPath(file);
+		if (path == null) {
+			if (logMissingLink)
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
+			return null;
+		}
+		File linkedFile = new File(path);
+		if (!linkedFile.isAbsolute()) {
+			// link support is relative to the install root
+			File root = Activator.getEclipseHome();
+			if (root != null)
+				linkedFile = new File(root, path);
+		}
+		File canonicalFile = linkedFile.getCanonicalFile();
+		return canonicalFile.toURL();
 	}
 
 	public void getMetadataRepository(URL repoURL) {
