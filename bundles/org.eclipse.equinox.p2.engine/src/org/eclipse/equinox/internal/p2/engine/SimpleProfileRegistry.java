@@ -325,7 +325,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			try {
 				parser.parse(profileFile);
 			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, Messages.error_parsing_profile, e));
+				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
 			}
 		}
 		return parser.getProfileMap();
@@ -371,7 +371,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		} catch (IOException e) {
 			profile.setTimestamp(previousTimestamp);
 			profileFile.delete();
-			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, Messages.error_persisting_profile, e));
+			LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_persisting_profile, profile.getProfileId()), e));
 		} finally {
 			try {
 				if (os != null)
@@ -535,10 +535,10 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public synchronized void lockProfile(Profile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
 		if (internalProfile == null)
-			throw new IllegalArgumentException(Messages.profile_not_registered);
+			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
 
 		if (profile.isChanged() || !checkTimestamps(profile, internalProfile))
-			throw new IllegalArgumentException(Messages.profile_not_current);
+			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_current, profile.getProfileId()));
 
 		internalLockProfile(internalProfile);
 	}
@@ -567,7 +567,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	public synchronized void unlockProfile(IProfile profile) {
 		Profile internalProfile = internalGetProfile(profile.getProfileId());
 		if (internalProfile == null)
-			throw new IllegalArgumentException(Messages.profile_not_registered);
+			throw new IllegalArgumentException(NLS.bind(Messages.profile_not_registered, profile.getProfileId()));
 		internalUnlockProfile(internalProfile);
 	}
 
