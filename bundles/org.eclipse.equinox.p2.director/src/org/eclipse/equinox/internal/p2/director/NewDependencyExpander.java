@@ -286,7 +286,7 @@ public class NewDependencyExpander {
 		Collection filters = new ArrayList();
 		for (Iterator iterator = ius.iterator(); iterator.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			if ("true".equalsIgnoreCase(iu.getProperty("lineUp"))) {
+			if ("true".equalsIgnoreCase(iu.getProperty("lineUp"))) { //$NON-NLS-1$//$NON-NLS-2$
 				filters.add(new RequirementBasedFilter(iu.getRequiredCapabilities()));
 			}
 		}
@@ -370,7 +370,8 @@ public class NewDependencyExpander {
 					addUnsatisfied(current.req, toAdd, problems);
 			}
 			if (all.size() > 2) {
-				throw new IllegalStateException("Can't deal with three or more different versions of the same IU " + ((Match) all.get(0)).req + ". See bug 200380");
+				Match[] conflictingMatches = (Match[]) all.toArray(new Match[all.size()]);
+				throw new IllegalStateException(NLS.bind(Messages.Old_Resolver_Several_Versions, conflictingMatches));
 			}
 			if (all.size() > 1) {
 				//TODO This algorithm needs to be generalized to consider all the potential candidates.
@@ -388,7 +389,7 @@ public class NewDependencyExpander {
 					}
 				}
 				if (potentialSolution == false) {
-					String msg = "Can't find a solution where both: " + all.get(0) + " and " + all.get(1) + " would be satisfied.";
+					String msg = NLS.bind(Messages.Old_Resolver_Incompatible_Versions, all.get(0), all.get(1));
 					problems.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, msg));
 				}
 			}
