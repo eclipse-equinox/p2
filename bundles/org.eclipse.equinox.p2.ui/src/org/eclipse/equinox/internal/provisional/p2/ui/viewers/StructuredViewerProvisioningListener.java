@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 import java.util.EventObject;
 import org.eclipse.equinox.internal.p2.ui.BatchChangeBeginningEvent;
 import org.eclipse.equinox.internal.p2.ui.BatchChangeCompleteEvent;
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.SynchronousProvisioningListener;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProfileEvent;
@@ -34,7 +34,7 @@ import org.eclipse.ui.PlatformUI;
  * 
  * @since 3.4
  */
-public class StructuredViewerProvisioningListener implements SynchronousProvisioningListener {
+public class StructuredViewerProvisioningListener implements ProvisioningListener {
 
 	public static final int PROV_EVENT_METADATA_REPOSITORY = 0x0001;
 	public static final int PROV_EVENT_IU = 0x0002;

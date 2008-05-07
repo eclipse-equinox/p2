@@ -13,7 +13,8 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
-import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.DeferredFetchFilteredTree;
@@ -34,9 +35,9 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryContext;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.viewers.*;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.IWorkbench;
@@ -159,6 +160,7 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	IUColumnConfig[] columnConfig;
 	private int refreshRepoFlags = IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM;
 	ISelectionProvider selectionProvider;
+	Job lastRequestedLoadJob;
 
 	/**
 	 * Create a group that represents the available IU's but does not use any of the
@@ -224,6 +226,20 @@ public class AvailableIUGroup extends StructuredIUGroup {
 			selectionProvider = new CheckSelectionProvider((CheckboxTreeViewer) availableIUViewer);
 		else
 			selectionProvider = availableIUViewer;
+
+		// If the user expanded or collapsed anything while we were loading a repo
+		// in the background, we would not want to disrupt their work by making
+		// a newly loaded visible and expanding it.  Setting the load job to null 
+		// will take care of this.
+		availableIUViewer.getTree().addTreeListener(new TreeListener() {
+			public void treeCollapsed(TreeEvent e) {
+				lastRequestedLoadJob = null;
+			}
+
+			public void treeExpanded(TreeEvent e) {
+				lastRequestedLoadJob = null;
+			}
+		});
 
 		labelProvider = new IUDetailsLabelProvider(filteredTree, columnConfig, getShell());
 		labelProvider.setUseBoldFontForFilteredItems(useBold);
@@ -371,40 +387,68 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	 * Make the repository with the specified location visible in the viewer.
 	 */
 	void makeRepositoryVisible(final URL location) {
-		// We rely on the fact that repository addition happens
-		// in a job.  We would get burned by this assumption if other
-		// code adds repositories in the UI thread.
-		// For now we assume that loading the repo while receiving
-		// the add event won't block the UI.  Do this
-		// first before expanding.
-		try {
-			ProvisioningUtil.loadMetadataRepository(location, null);
-		} catch (ProvisionException e) {
-			// ignore because we were doing this "for free." 
-		}
+		// First refresh the tree so that the user sees the new repo show up...
 		display.asyncExec(new Runnable() {
 			public void run() {
 				final TreeViewer treeViewer = filteredTree.getViewer();
+				final Tree tree = treeViewer.getTree();
 				IWorkbench workbench = PlatformUI.getWorkbench();
 				if (workbench.isClosing())
 					return;
-				treeViewer.refresh();
-				final Tree tree = treeViewer.getTree();
 				if (tree != null && !tree.isDisposed()) {
-					TreeItem[] items = tree.getItems();
-					for (int i = 0; i < items.length; i++) {
-						if (items[i].getData() instanceof IRepositoryElement) {
-							URL url = ((IRepositoryElement) items[i].getData()).getLocation();
-							if (url.toExternalForm().equals(location.toExternalForm())) {
-								treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
-								tree.select(items[i]);
-								return;
-							}
-						}
-					}
+					treeViewer.refresh();
 				}
 			}
 		});
+
+		// We don't know if loading will be a fast or slow operation.
+		// We do it in a job to be safe, and when it's done, we update
+		// the UI.
+		Job job = new Job(NLS.bind(ProvUIMessages.AvailableIUGroup_LoadingRepository, location.toExternalForm())) {
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					ProvisioningUtil.loadMetadataRepository(location, null);
+					return Status.OK_STATUS;
+				} catch (ProvisionException e) {
+					return e.getStatus();
+				}
+			}
+		};
+		job.setPriority(Job.LONG);
+		job.setSystem(true);
+		job.setUser(false);
+		job.addJobChangeListener(new JobChangeAdapter() {
+			public void done(final IJobChangeEvent event) {
+				if (event.getResult().isOK())
+					display.asyncExec(new Runnable() {
+						public void run() {
+							final TreeViewer treeViewer = filteredTree.getViewer();
+							IWorkbench workbench = PlatformUI.getWorkbench();
+							if (workbench.isClosing())
+								return;
+							// Expand only if there have been no other jobs started for other repos.
+							if (event.getJob() == lastRequestedLoadJob) {
+								final Tree tree = treeViewer.getTree();
+								if (tree != null && !tree.isDisposed()) {
+									TreeItem[] items = tree.getItems();
+									for (int i = 0; i < items.length; i++) {
+										if (items[i].getData() instanceof IRepositoryElement) {
+											URL url = ((IRepositoryElement) items[i].getData()).getLocation();
+											if (url.toExternalForm().equals(location.toExternalForm())) {
+												treeViewer.expandToLevel(items[i].getData(), AbstractTreeViewer.ALL_LEVELS);
+												tree.select(items[i]);
+												return;
+											}
+										}
+									}
+								}
+							}
+						}
+					});
+			}
+		});
+		lastRequestedLoadJob = job;
+		job.schedule();
 	}
 
 	public ISelectionProvider getCheckMappingSelectionProvider() {
