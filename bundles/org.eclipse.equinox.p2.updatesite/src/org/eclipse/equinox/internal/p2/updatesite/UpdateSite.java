@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
@@ -36,6 +37,8 @@ public class UpdateSite {
 	private static final String FEATURE_TEMP_FILE = "feature"; //$NON-NLS-1$
 	private static final String SITE_FILE = "site.xml"; //$NON-NLS-1$
 	private static final String DIR_SEPARATOR = "/"; //$NON-NLS-1$
+	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
+	private static final int RETRY_COUNT = 2;
 	private static final String DOT_XML = ".xml"; //$NON-NLS-1$
 	private static final String SITE = "site"; //$NON-NLS-1$
 	private String checksum;
@@ -116,13 +119,14 @@ public class UpdateSite {
 			String msg = NLS.bind(Messages.ErrorReadingSite, location);
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
-			siteFile.delete();
 			try {
 				if (input != null)
 					input.close();
 			} catch (IOException e) {
 				// ignore
 			}
+			if (!PROTOCOL_FILE.equals(location.getProtocol()))
+				siteFile.delete();
 		}
 	}
 
@@ -131,10 +135,23 @@ public class UpdateSite {
 	 */
 	private static File loadSiteFile(URL location, IProgressMonitor monitor) throws ProvisionException {
 		Throwable failure;
+		File siteFile;
+		IStatus transferResult;
 		try {
-			File siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
-			OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
-			IStatus transferResult = getTransport().download(getSiteURL(location).toExternalForm(), destination, monitor);
+			URL actualLocation = getSiteURL(location);
+			if (PROTOCOL_FILE.equals(actualLocation.getProtocol())) {
+				siteFile = new File(actualLocation.getPath());
+				if (siteFile.exists())
+					transferResult = Status.OK_STATUS;
+				else {
+					String msg = NLS.bind(Messages.ErrorReadingSite, location);
+					transferResult = new Status(IStatus.ERROR, Activator.ID, msg);
+				}
+			} else {
+				siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
+				OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
+				transferResult = getTransport().download(actualLocation.toExternalForm(), destination, monitor);
+			}
 			if (transferResult.isOK())
 				return siteFile;
 			failure = transferResult.getException();
@@ -152,18 +169,24 @@ public class UpdateSite {
 	 */
 	private static Feature parseFeature(FeatureParser featureParser, URL featureURL) {
 		File featureFile = null;
+		if (PROTOCOL_FILE.equals(featureURL.getProtocol())) {
+			featureFile = new File(featureURL.getPath());
+			return featureParser.parse(featureFile);
+		}
 		try {
 			featureFile = File.createTempFile(FEATURE_TEMP_FILE, JAR_EXTENSION);
 			OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
-			IStatus transferResult = getTransport().download(featureURL.toExternalForm(), destination, null);
-			if (!transferResult.isOK()) {
-				//try the download again in case of transient network problems
+			IStatus transferResult = null;
+			//try the download twice in case of transient network problems
+			for (int i = 0; i < RETRY_COUNT; i++) {
 				destination = new BufferedOutputStream(new FileOutputStream(featureFile));
 				transferResult = getTransport().download(featureURL.toExternalForm(), destination, null);
-				if (!transferResult.isOK()) {
-					LogHelper.log(new ProvisionException(transferResult));
-					return null;
-				}
+				if (transferResult.isOK())
+					break;
+			}
+			if (!transferResult.isOK()) {
+				LogHelper.log(new ProvisionException(transferResult));
+				return null;
 			}
 			return featureParser.parse(featureFile);
 		} catch (IOException e) {
@@ -340,15 +363,23 @@ public class UpdateSite {
 	 */
 	private Feature[] loadFeaturesFromDigest() {
 		File digestFile = null;
+		boolean local = false;
 		if (!featureCache.isEmpty())
 			return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
 		try {
 			URL digestURL = getDigestURL();
-			digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
-			BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
-			IStatus result = getTransport().download(digestURL.toExternalForm(), destination, null);
-			if (!result.isOK())
-				return null;
+			if (PROTOCOL_FILE.equals(digestURL.getProtocol())) {
+				digestFile = URLUtil.toFile(digestURL);
+				if (!digestFile.exists())
+					return null;
+				local = true;
+			} else {
+				digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
+				BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
+				IStatus result = getTransport().download(digestURL.toExternalForm(), destination, null);
+				if (!result.isOK())
+					return null;
+			}
 			Feature[] features = new DigestParser().parse(digestFile);
 			if (features == null)
 				return null;
@@ -366,7 +397,7 @@ public class UpdateSite {
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
 		} finally {
-			if (digestFile != null)
+			if (!local && digestFile != null)
 				digestFile.delete();
 		}
 		return null;
