@@ -140,18 +140,7 @@ public class ProvisioningOperationRunner {
 		job.setUser(op.isUser());
 		job.setProperty(OPERATION_KEY, op);
 		job.setProperty(IProgressConstants.ICON_PROPERTY, ProvUIImages.getImageDescriptor(ProvUIImages.IMG_PROFILE));
-		scheduledJobs.add(job);
-		job.addJobChangeListener(new JobChangeAdapter() {
-			public void done(IJobChangeEvent event) {
-				scheduledJobs.remove(event.getJob());
-				if (restartRequested) {
-					requestRestart(restartRequired);
-				}
-			}
-		});
-		Object[] listeners = jobListeners.getListeners();
-		for (int i = 0; i < listeners.length; i++)
-			job.addJobChangeListener((IJobChangeListener) listeners[i]);
+		manageJob(job);
 		job.schedule();
 		return job;
 	}
@@ -216,4 +205,18 @@ public class ProvisioningOperationRunner {
 		return (Job[]) scheduledJobs.toArray(new Job[scheduledJobs.size()]);
 	}
 
+	public static void manageJob(Job job) {
+		scheduledJobs.add(job);
+		job.addJobChangeListener(new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				scheduledJobs.remove(event.getJob());
+				if (restartRequested) {
+					requestRestart(restartRequired);
+				}
+			}
+		});
+		Object[] listeners = jobListeners.getListeners();
+		for (int i = 0; i < listeners.length; i++)
+			job.addJobChangeListener((IJobChangeListener) listeners[i]);
+	}
 }

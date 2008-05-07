@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.ui.query;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -61,22 +60,13 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 	 * @return The collector argument
 	 */
 	public Collector query(Query query, Collector result, IProgressMonitor monitor) {
-		ArrayList repoURLs = new ArrayList();
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null) {
 			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
 			return result;
 		}
+		List repoURLs = getRepoLocations(manager);
 
-		if (repositories.getMetadataRepositories() != null) {
-			repoURLs.addAll(Arrays.asList(repositories.getMetadataRepositories()));
-		} else {
-			repoURLs.addAll(Arrays.asList(manager.getKnownRepositories(repositories.getRepoFlags())));
-			if (repositories.getIncludeDisabledRepositories()) {
-				repoURLs.addAll(Arrays.asList(manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED)));
-			}
-
-		}
 		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.size() * 2);
 		if (sub.isCanceled())
 			return result;
@@ -98,5 +88,46 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Load all of the repositories referenced by this queryable.  This is an expensive operation.
+	 * @param monitor the progress monitor that should be used
+	 */
+	public void loadAll(IProgressMonitor monitor) {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null) {
+			ProvUI.reportStatus(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProvisioningUtil_NoRepositoryManager), StatusManager.SHOW | StatusManager.LOG);
+			return;
+		}
+		List repoURLs = getRepoLocations(manager);
+		SubMonitor sub = SubMonitor.convert(monitor, ProvUIMessages.QueryableMetadataRepositoryManager_RepositoryQueryProgress, repoURLs.size() * 2);
+		if (sub.isCanceled())
+			return;
+		for (int i = 0; i < repoURLs.size(); i++) {
+			if (sub.isCanceled())
+				return;
+			try {
+				manager.loadRepository((URL) repoURLs.get(i), sub.newChild(1));
+			} catch (ProvisionException e) {
+				//ignore unavailable repositories
+				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs.get(i)), StatusManager.LOG);
+			}
+		}
+
+	}
+
+	private List getRepoLocations(IMetadataRepositoryManager manager) {
+		ArrayList locations = new ArrayList();
+		if (repositories.getMetadataRepositories() != null) {
+			locations.addAll(Arrays.asList(repositories.getMetadataRepositories()));
+		} else {
+			locations.addAll(Arrays.asList(manager.getKnownRepositories(repositories.getRepoFlags())));
+			if (repositories.getIncludeDisabledRepositories()) {
+				locations.addAll(Arrays.asList(manager.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_DISABLED)));
+			}
+		}
+		return locations;
 	}
 }

@@ -1,9 +1,12 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.IViewMenuProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.DeferredQueryContentListener;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.jface.action.MenuManager;
@@ -31,6 +34,8 @@ import org.eclipse.ui.progress.WorkbenchJob;
  *
  */
 public class DeferredFetchFilteredTree extends FilteredTree {
+	private static final long FILTER_DELAY_TIME = 200;
+	private static final String WAIT_STRING = ProvUIMessages.DeferredFetchFilteredTree_RetrievingList;
 
 	ToolBar toolBar;
 	MenuManager menuManager;
@@ -40,6 +45,42 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	IViewMenuProvider viewMenuProvider;
 	DeferredQueryContentProvider contentProvider;
 	boolean useCheckBoxTree = false;
+	InputSchedulingRule filterRule;
+	String savedFilterText;
+	Job loadJob;
+	WorkbenchJob filterJob;
+
+	class InputSchedulingRule implements ISchedulingRule {
+		Object input;
+
+		InputSchedulingRule(Object input) {
+			this.input = input;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.core.runtime.jobs.ISchedulingRule#contains(org.eclipse.core.runtime.jobs.ISchedulingRule)
+		 */
+		public boolean contains(ISchedulingRule rule) {
+			return rule == this;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.core.runtime.jobs.ISchedulingRule#isConflicting(org.eclipse.core.runtime.jobs.ISchedulingRule)
+		 */
+		public boolean isConflicting(ISchedulingRule rule) {
+			if (rule instanceof InputSchedulingRule) {
+				InputSchedulingRule other = (InputSchedulingRule) rule;
+				if (input == null)
+					return other.getInput() == null;
+				return input.equals(other.getInput());
+			}
+			return false;
+		}
+
+		Object getInput() {
+			return input;
+		}
+	}
 
 	public DeferredFetchFilteredTree(Composite parent, int treeStyle, PatternFilter filter, final IViewMenuProvider viewMenuProvider, Display display, boolean useCheckBoxViewer) {
 		super(parent);
@@ -78,6 +119,11 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 		}
 		if (viewMenuProvider != null)
 			createViewMenu(filterParent);
+		filterParent.addDisposeListener(new DisposeListener() {
+			public void widgetDisposed(DisposeEvent e) {
+				cancelLoadJob();
+			}
+		});
 		return filterParent;
 	}
 
@@ -121,6 +167,13 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 			public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 				if (newInput == null)
 					return;
+				// Cancel the load and filter jobs and null out the scheduling rule
+				// so that a new one will be created on the new input when needed.
+				cancelLoadJob();
+				cancelAndResetFilterJob();
+				filterRule = null;
+				contentProvider.setSynchronous(false);
+
 				if (showFilterControls && filterText != null && !filterText.isDisposed()) {
 					filterText.setText(getInitialText());
 					filterText.selectAll();
@@ -136,22 +189,120 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	 * @see org.eclipse.ui.dialogs.FilteredTree#doCreateRefreshJob()
 	 */
 	protected WorkbenchJob doCreateRefreshJob() {
-		WorkbenchJob job = super.doCreateRefreshJob();
-		job.addJobChangeListener(new JobChangeAdapter() {
-			public void aboutToRun(IJobChangeEvent event) {
+		filterJob = super.doCreateRefreshJob();
+		filterJob.addJobChangeListener(new JobChangeAdapter() {
+			public void aboutToRun(final IJobChangeEvent event) {
 				display.syncExec(new Runnable() {
 					public void run() {
 						String text = getFilterString();
 						// If we are about to filter and there is
-						// actually filtering to do, set the content
-						// provider to synchronous mode.
+						// actually filtering to do, force a load
+						// of the input and set the content
+						// provider to synchronous mode.  We want the
+						// load job to complete before continuing with filtering.
 						if (text == null || (initialText != null && initialText.equals(text)))
 							return;
-						contentProvider.setSynchronous(true);
+						if (!contentProvider.getSynchronous()) {
+							if (filterText != null && !filterText.isDisposed()) {
+								filterText.setEnabled(false);
+								filterText.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
+								savedFilterText = filterText.getText();
+								filterText.setText(WAIT_STRING);
+							}
+							event.getJob().sleep();
+							scheduleLoadJob();
+							event.getJob().wakeUp(FILTER_DELAY_TIME);
+							contentProvider.setSynchronous(true);
+						}
+					}
+				});
+			}
+
+			public void done(IJobChangeEvent event) {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						restoreFilterText();
+					}
+				});
+			}
+
+			public void awake(IJobChangeEvent event) {
+				display.asyncExec(new Runnable() {
+					public void run() {
+						restoreFilterText();
 					}
 				});
 			}
 		});
-		return job;
+		filterJob.setRule(getFilterJobSchedulingRule());
+		return filterJob;
+	}
+
+	void restoreFilterText() {
+		if (filterText != null && !filterText.isDisposed() && !filterText.isEnabled()) {
+			filterText.setText(savedFilterText);
+			filterText.setEnabled(true);
+			filterText.setCursor(null);
+			filterText.setFocus();
+			filterText.setSelection(savedFilterText.length(), savedFilterText.length());
+		}
+	}
+
+	InputSchedulingRule getFilterJobSchedulingRule() {
+		if (filterRule == null) {
+			Object input = null;
+			if (getViewer() != null)
+				input = getViewer().getInput();
+			filterRule = new InputSchedulingRule(input);
+		}
+		return filterRule;
+	}
+
+	void scheduleLoadJob() {
+		cancelLoadJob();
+		loadJob = new Job(WAIT_STRING) {
+			protected IStatus run(IProgressMonitor monitor) {
+				if (this.getRule() instanceof InputSchedulingRule) {
+					Object input = ((InputSchedulingRule) this.getRule()).getInput();
+					if (input instanceof QueriedElement)
+						if (((QueriedElement) input).getQueryable() instanceof QueryableMetadataRepositoryManager) {
+							QueryableMetadataRepositoryManager q = (QueryableMetadataRepositoryManager) ((QueriedElement) input).getQueryable();
+							q.loadAll(monitor);
+							if (monitor.isCanceled())
+								return Status.CANCEL_STATUS;
+						}
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		loadJob.setSystem(true);
+		loadJob.setUser(false);
+		loadJob.setRule(getFilterJobSchedulingRule());
+		// Telling the operation runner about it ensures that listeners know we are running
+		// a provisioning-related job.
+		ProvisioningOperationRunner.manageJob(loadJob);
+		loadJob.schedule();
+	}
+
+	void cancelLoadJob() {
+		if (loadJob != null) {
+			loadJob.cancel();
+			loadJob = null;
+		}
+	}
+
+	void cancelAndResetFilterJob() {
+		if (filterJob != null) {
+			filterJob.cancel();
+			filterJob.setRule(getFilterJobSchedulingRule());
+		}
+	}
+
+	protected void textChanged() {
+		// Don't refilter if we are merely resetting the filter back
+		// to what it was before loading repositories
+		if (filterText.getText().trim().equals(WAIT_STRING))
+			return;
+		super.textChanged();
 	}
 }
