@@ -249,29 +249,29 @@ public class UpdateSite {
 	/*
 	 * Return a URL which represents the location of the given feature.
 	 */
-	public URL getFeatureURL(SiteFeature siteFeature, String id, String version) {
-		URL base = getBaseURL();
+	public URL getSiteFeatureURL(SiteFeature siteFeature) {
+		URL url = siteFeature.getURL();
+		if (url != null)
+			return url;
 
-		if (siteFeature == null) {
-			SiteFeature[] entries = site.getFeatures();
-			for (int i = 0; i < entries.length; i++) {
-				if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
-					siteFeature = entries[i];
-					break;
-				}
+		URL base = getBaseURL();
+		String featureURLString = siteFeature.getURLString();
+		return internalGetURL(base, featureURLString);
+	}
+
+	/*
+	 * Return a URL which represents the location of the given feature.
+	 */
+	public URL getFeatureURL(String id, String version) {
+
+		SiteFeature[] entries = site.getFeatures();
+		for (int i = 0; i < entries.length; i++) {
+			if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
+				return getSiteFeatureURL(entries[i]);
 			}
 		}
-		if (siteFeature != null) {
-			URL url = siteFeature.getURL();
-			if (url != null)
-				return url;
 
-			String featureURLString = siteFeature.getURLString();
-			url = internalGetURL(base, featureURLString);
-			if (url != null)
-				return url;
-		}
-
+		URL base = getBaseURL();
 		URL url = getArchiveURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
 		if (url != null)
 			return url;
@@ -430,7 +430,7 @@ public class UpdateSite {
 				if (featureCache.containsKey(key))
 					continue;
 			}
-			URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
+			URL featureURL = getSiteFeatureURL(siteFeature);
 			Feature feature = parseFeature(featureParser, featureURL);
 			if (feature == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
@@ -460,7 +460,7 @@ public class UpdateSite {
 			if (featureCache.containsKey(key))
 				continue;
 
-			URL includedFeatureURL = getFeatureURL(null, entry.getId(), entry.getVersion());
+			URL includedFeatureURL = getFeatureURL(entry.getId(), entry.getVersion());
 			Feature includedFeature = parseFeature(featureParser, includedFeatureURL);
 			if (includedFeature == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, includedFeatureURL)));
