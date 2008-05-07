@@ -17,8 +17,7 @@
 
    <windowImages/>
 
-
-   <launcher>
+   <launcher name="eclipse.exe">
       <solaris/>
       <win useIco="false">
          <bmp/>
