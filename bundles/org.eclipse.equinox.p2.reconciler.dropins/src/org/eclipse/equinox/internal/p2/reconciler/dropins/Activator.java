@@ -14,10 +14,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
-import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -61,8 +59,7 @@ public class Activator implements BundleActivator {
 			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
 		IMetadataRepository repository = factory.create(location, name, ExtensionLocationMetadataRepository.TYPE, properties);
-		//we need to add the concrete repository to the repository manager, or its properties will not be correct
-		((MetadataRepositoryManager) manager).addRepository(repository);
+		manager.addRepository(location);
 		return repository;
 	}
 
@@ -96,8 +93,7 @@ public class Activator implements BundleActivator {
 			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 		IArtifactRepository repository = factory.create(location, name, ExtensionLocationArtifactRepository.TYPE, properties);
-		//we need to add the concrete repository to the repository manager, or its properties will not be correct
-		((ArtifactRepositoryManager) manager).addRepository(repository);
+		manager.addRepository(location);
 		return repository;
 	}
 
