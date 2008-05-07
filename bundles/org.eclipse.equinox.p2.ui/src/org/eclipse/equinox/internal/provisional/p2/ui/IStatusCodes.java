@@ -24,4 +24,9 @@ public interface IStatusCodes {
 	//in ProvisionException or we'll see strange results.
 
 	public static final int NOTHING_TO_UPDATE = 10000;
+	public static final int PROFILE_CHANGE_ALTERED = 10001;
+	public static final int IMPLIED_UPDATE = 10002;
+	public static final int IGNORED_IMPLIED_DOWNGRADE = 10003;
+	public static final int IGNORED_ALREADY_INSTALLED = 10004;
+	public static final int UNEXPECTED_NOTHING_TO_DO = 10005;
 }

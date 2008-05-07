@@ -14,8 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.equinox.internal.p2.ui.*;
 import org.eclipse.equinox.internal.p2.ui.model.AvailableIUElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
@@ -122,7 +121,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		if (currentPlan == null)
 			checkedIUsChanged();
 		else
-			currentStatus = currentPlan.getStatus();
+			currentStatus = PlanStatusHelper.computeStatus(currentPlan, ius);
 
 		createSizingInfo(composite);
 
@@ -207,7 +206,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 	protected void checkedIUsChanged() {
 		try {
-			final Object[] selections = getCheckedElements();
+			final IInstallableUnit[] selections = getCheckedIUs();
 			if (selections.length == 0) {
 				currentPlan = null;
 				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationWizardPage_NothingSelected);
@@ -217,7 +216,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 						try {
 							currentPlan = computeProvisioningPlan(selections, monitor);
 							if (currentPlan != null)
-								currentStatus = currentPlan.getStatus();
+								currentStatus = PlanStatusHelper.computeStatus(currentPlan, selections);
 							else
 								currentStatus = NULL_PLAN_STATUS;
 						} catch (ProvisionException e) {

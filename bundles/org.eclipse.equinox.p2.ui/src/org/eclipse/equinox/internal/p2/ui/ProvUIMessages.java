@@ -125,6 +125,13 @@ public class ProvUIMessages extends NLS {
 	public static String MetadataRepositoryElement_RepositoryLoadError;
 	public static String UpdateAction_UpdatesAvailableMessage;
 	public static String UpdateAction_UpdatesAvailableTitle;
+	public static String PlanStatusHelper_IgnoringImpliedDowngrade;
+	public static String PlanStatusHelper_ImpliedUpdate;
+	public static String PlanStatusHelper_Items;
+	public static String PlanStatusHelper_NothingToDo;
+	public static String PlanStatusHelper_AlreadyInstalled;
+	public static String PlanStatusHelper_RequestAltered;
+	public static String PlanStatusHelper_UnexpectedError;
 	public static String PlatformUpdateTitle;
 	public static String PlatformRestartMessage;
 	public static String ProvUI_ErrorDuringApplyConfig;
