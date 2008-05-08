@@ -30,6 +30,8 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	public static final Integer VERSION = new Integer(1);
 	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	private final IFileArtifactRepository artifactRepository;
+	private boolean initialized = false;
+	private File base;
 
 	/*
 	 * Return the location of a local repository based on
@@ -55,18 +57,21 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	public ExtensionLocationArtifactRepository(URL location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.artifactRepository = repository;
+		this.base = getBaseDirectory(location);
+	}
 
-		File base = getBaseDirectory(location);
+	private void ensureInitialized() {
+		if (initialized)
+			return;
 		File plugins = new File(base, PLUGINS);
 		File features = new File(base, FEATURES);
-
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
 		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), null, artifactRepository);
 		if (location.getPath().endsWith(POOLED))
 			listener = new BundlePoolFilteredListener(listener);
-
 		watcher.addListener(listener);
 		watcher.poll();
+		initialized = true;
 	}
 
 	public static void validate(URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -141,38 +146,47 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
+		ensureInitialized();
 		return artifactRepository.contains(descriptor);
 	}
 
 	public boolean contains(IArtifactKey key) {
+		ensureInitialized();
 		return artifactRepository.contains(key);
 	}
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		ensureInitialized();
 		return artifactRepository.getArtifact(descriptor, destination, monitor);
 	}
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+		ensureInitialized();
 		return artifactRepository.getArtifactDescriptors(key);
 	}
 
 	public IArtifactKey[] getArtifactKeys() {
+		ensureInitialized();
 		return artifactRepository.getArtifactKeys();
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
+		ensureInitialized();
 		return artifactRepository.getArtifacts(requests, monitor);
 	}
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
+		ensureInitialized();
 		return artifactRepository.getOutputStream(descriptor);
 	}
 
 	public File getArtifactFile(IArtifactKey key) {
+		ensureInitialized();
 		return artifactRepository.getArtifactFile(key);
 	}
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
+		ensureInitialized();
 		return artifactRepository.getArtifactFile(descriptor);
 	}
 

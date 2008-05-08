@@ -35,12 +35,16 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
 		// ensure that we aren't trying to create a repository at a location
 		// where one already exists
+		boolean failed = false;
 		try {
 			new SimpleMetadataRepositoryFactory().load(repoLocation, null);
-			String msg = NLS.bind(Messages.repo_already_exists, location.toExternalForm());
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
+			failed = true;
 		} catch (ProvisionException e) {
 			// expected
+		}
+		if (failed) {
+			String msg = NLS.bind(Messages.repo_already_exists, location.toExternalForm());
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
 		IMetadataRepository repository = new SimpleMetadataRepositoryFactory().create(repoLocation, name, null, properties);
 		return new ExtensionLocationMetadataRepository(location, repository, null);

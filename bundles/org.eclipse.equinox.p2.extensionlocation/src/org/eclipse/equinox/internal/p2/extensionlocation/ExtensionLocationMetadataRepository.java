@@ -30,6 +30,8 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
 	private final IMetadataRepository metadataRepository;
+	private boolean initialized = false;
+	private File base;
 
 	/*
 	 * Return the URL for this repo's nested local repository.
@@ -54,18 +56,21 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	public ExtensionLocationMetadataRepository(URL location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
 		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.metadataRepository = repository;
+		this.base = getBaseDirectory(location);
+	}
 
-		File base = getBaseDirectory(location);
+	private void ensureInitialized() {
+		if (initialized)
+			return;
 		File plugins = new File(base, PLUGINS);
 		File features = new File(base, FEATURES);
-
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
 		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), metadataRepository, null);
 		if (getProperties().get(SiteListener.SITE_POLICY) != null)
 			listener = new SiteListener(getProperties(), location.toExternalForm(), new BundlePoolFilteredListener(listener));
-
 		watcher.addListener(listener);
 		watcher.poll();
+		initialized = true;
 	}
 
 	/* (non-Javadoc)
@@ -93,6 +98,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * @see org.eclipse.equinox.internal.provisional.p2.query.IQueryable#query(org.eclipse.equinox.internal.provisional.p2.query.Query, org.eclipse.equinox.internal.provisional.p2.query.Collector, org.eclipse.core.runtime.IProgressMonitor)
 	 */
 	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+		ensureInitialized();
 		return metadataRepository.query(query, collector, monitor);
 	}
 

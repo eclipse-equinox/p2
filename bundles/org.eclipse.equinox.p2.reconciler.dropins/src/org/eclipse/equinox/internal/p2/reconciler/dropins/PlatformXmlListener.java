@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.extensionlocation.SiteListener;
 import org.eclipse.equinox.internal.p2.update.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
@@ -154,7 +155,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site site = (Site) iter.next();
 			String siteURL = site.getUrl();
-			if (siteURL.startsWith("file:") && siteURL.endsWith("/eclipse/")) //$NON-NLS-1$//$NON-NLS-2$
+			if (siteURL.startsWith("file:") && new Path(siteURL).lastSegment().equals("eclipse")) //$NON-NLS-1$ //$NON-NLS-2$
 				siteURL = siteURL.substring(0, siteURL.length() - 8);
 			IMetadataRepository match = getMatchingRepo(configRepositories, siteURL);
 			if (match == null) {
@@ -171,6 +172,12 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 						metadataRepository = Activator.createExtensionLocationMetadataRepository(location, "extension location metadata repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
 					} catch (ProvisionException ex) {
 						metadataRepository = Activator.loadMetadataRepository(location, null);
+						// set the repository properties here in case they have changed since the last time we loaded
+						for (Iterator inner = properties.keySet().iterator(); inner.hasNext();) {
+							String key = (String) inner.next();
+							String value = (String) properties.get(key);
+							metadataRepository.setProperty(key, value);
+						}
 					}
 					newRepos.add(metadataRepository);
 
@@ -178,7 +185,13 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					try {
 						Activator.createExtensionLocationArtifactRepository(location, "extension location artifact repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
 					} catch (ProvisionException ex) {
-						Activator.loadArtifactRepository(location, null);
+						IArtifactRepository artifactRepository = Activator.loadArtifactRepository(location, null);
+						// set the repository properties here in case they have changed since the last time we loaded
+						for (Iterator inner = properties.keySet().iterator(); inner.hasNext();) {
+							String key = (String) inner.next();
+							String value = (String) properties.get(key);
+							artifactRepository.setProperty(key, value);
+						}
 					}
 				} catch (MalformedURLException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));

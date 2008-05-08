@@ -14,8 +14,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
@@ -180,7 +179,7 @@ public class SiteListener extends RepositoryListener {
 			String line = (String) e.nextElement();
 			StringTokenizer tokenizer = new StringTokenizer(line, ";"); //$NON-NLS-1$
 			String targetSite = tokenizer.nextToken();
-			if (targetSite.startsWith("file:") && targetSite.endsWith("/eclipse/")) //$NON-NLS-1$//$NON-NLS-2$
+			if (targetSite.startsWith("file:") && new Path(targetSite).lastSegment().equals("eclipse")) //$NON-NLS-1$//$NON-NLS-2$
 				targetSite = targetSite.substring(0, targetSite.length() - 8);
 			if (!url.equals(targetSite))
 				continue;

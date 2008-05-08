@@ -36,12 +36,16 @@ public class ExtensionLocationArtifactRepositoryFactory implements IArtifactRepo
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.failed_create_local_artifact_repository));
 		// make sure that we aren't trying to create a repo at a location
 		// where one already exists
+		boolean failed = false;
 		try {
 			new SimpleArtifactRepositoryFactory().load(repoLocation, null);
-			String msg = NLS.bind(Messages.repo_already_exists, location.toExternalForm());
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
+			failed = true;
 		} catch (ProvisionException e) {
 			// expected
+		}
+		if (failed) {
+			String msg = NLS.bind(Messages.repo_already_exists, location.toExternalForm());
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_EXISTS, msg, null));
 		}
 		IFileArtifactRepository repo = (IFileArtifactRepository) new SimpleArtifactRepositoryFactory().create(repoLocation, name, type, properties);
 		return new ExtensionLocationArtifactRepository(location, repo, null);
