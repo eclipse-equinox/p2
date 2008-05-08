@@ -454,4 +454,10 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	public ISelectionProvider getCheckMappingSelectionProvider() {
 		return selectionProvider;
 	}
+
+	public Control getDefaultFocusControl() {
+		if (filteredTree != null)
+			return filteredTree.getFilterControl();
+		return null;
+	}
 }

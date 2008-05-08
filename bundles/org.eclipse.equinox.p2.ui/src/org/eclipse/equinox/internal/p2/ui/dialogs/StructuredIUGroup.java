@@ -23,8 +23,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 
 /**
  * A StructuredIUGroup is a reusable UI component that displays a
@@ -75,7 +74,6 @@ public abstract class StructuredIUGroup {
 		data.grabExcessHorizontalSpace = true;
 		data.grabExcessVerticalSpace = true;
 		viewer.getControl().setLayoutData(data);
-
 	}
 
 	protected abstract StructuredViewer createViewer(Composite parent);
@@ -118,5 +116,11 @@ public abstract class StructuredIUGroup {
 
 	protected IQueryProvider getQueryProvider() {
 		return queryProvider;
+	}
+
+	protected Control getDefaultFocusControl() {
+		if (viewer != null)
+			return viewer.getControl();
+		return null;
 	}
 }

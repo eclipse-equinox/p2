@@ -174,6 +174,13 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		showInstalledCheckbox.setSelection(!queryContext.getHideAlreadyInstalled());
 		showLatestVersionsCheckbox.setSelection(queryContext.getShowLatestVersionsOnly());
 		updateTreeColumns();
+		Control focusControl = null;
+		if (tabFolder.getSelectionIndex() == INDEX_INSTALLED)
+			focusControl = installedIUGroup.getDefaultFocusControl();
+		else
+			focusControl = availableIUGroup.getDefaultFocusControl();
+		if (focusControl != null)
+			focusControl.setFocus();
 	}
 
 	private void createTabFolder(Composite parent) {
@@ -203,6 +210,16 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		availableTab.setControl(createAvailableIUsPage(tabFolder));
 
 		setDropTarget(tabFolder);
+
+		tabFolder.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent event) {
+				TabItem item = (TabItem) event.item;
+				Control control = item.getControl();
+				if (control != null) {
+					control.setFocus();
+				}
+			}
+		});
 	}
 
 	private void createProgressArea(Composite parent) {

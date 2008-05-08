@@ -107,4 +107,8 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	public StructuredViewer getStructuredViewer() {
 		return super.getStructuredViewer();
 	}
+
+	public Control getDefaultFocusControl() {
+		return super.getDefaultFocusControl();
+	}
 }
