@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
+import org.eclipse.osgi.util.NLS;
 
 public abstract class AbstractBufferingStep extends ProcessingStep {
 	private static final String WORK_DIR_PREFIX = "work"; //$NON-NLS-1$
@@ -91,9 +92,9 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 			return workDir;
 		workDir = File.createTempFile(WORK_DIR_PREFIX, WORK_DIR_SUFFIX);
 		if (!workDir.delete())
-			throw new IOException(Messages.Can_not_delete_temp_dir);
+			throw new IOException(NLS.bind(Messages.Can_not_delete_temp_dir, workDir));
 		if (!workDir.mkdirs())
-			throw new IOException(Messages.Can_not_create_temp_dir);
+			throw new IOException(NLS.bind(Messages.Can_not_create_temp_dir, workDir));
 		return workDir;
 	}
 
