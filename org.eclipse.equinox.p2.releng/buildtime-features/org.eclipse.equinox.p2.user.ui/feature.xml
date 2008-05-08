@@ -21,15 +21,6 @@
    <url>
       <update label="%updateSiteName" url="http://download.eclipse.org/eclipse/updates/3.4"/>
    </url>
-   
-   <requires>
-      <import plugin="org.eclipse.ecf" version="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.filetransfer" version="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.identity" version="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer" version="2.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.provider.filetransfer.ssl" version="1.0.0" match="compatible"/>
-      <import plugin="org.eclipse.ecf.ssl" version="1.0.0" match="compatible"/>      
-   </requires>
 
    <plugin
          id="org.eclipse.equinox.p2.director"
@@ -80,7 +71,7 @@
          version="0.0.0"
          unpack="false"/>
 
-  <!-- <plugin
+   <plugin
          id="org.eclipse.ecf"
          download-size="0"
          install-size="0"
@@ -99,7 +90,7 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/> -->
+         unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.exemplarysetup"
@@ -143,12 +134,12 @@
          version="0.0.0"
          unpack="false"/>
 
-   <!-- <plugin
+   <plugin
          id="org.eclipse.ecf.provider.filetransfer"
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/> -->
+         unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.simpleconfigurator.manipulator"
@@ -248,7 +239,7 @@
          version="0.0.0"
          unpack="false"/>
 
- <!--  <plugin
+   <plugin
          id="org.eclipse.ecf.provider.filetransfer.ssl"
          download-size="0"
          install-size="0"
@@ -262,7 +253,7 @@
          install-size="0"
          version="0.0.0"
          fragment="true"
-         unpack="false"/> -->
+         unpack="false"/>
 
    <plugin
          id="org.eclipse.equinox.p2.director.app"
