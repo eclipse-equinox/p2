@@ -49,4 +49,19 @@ public class Pack200ProcessorTest extends TestCase {
 		// Compare
 		assertTrue(Arrays.equals(expected.toByteArray(), destination.toByteArray()));
 	}
+
+	public void testUnpackFailsBecauseOfZeroLengthPackedFile() throws IOException {
+		// Setup the processor
+		ProcessingStep step = new Pack200ProcessorStep();
+		ByteArrayOutputStream destination = new ByteArrayOutputStream();
+		step.link(destination, new NullProgressMonitor());
+
+		// drive the source data (zero length) through the step
+		InputStream inputStream = new ByteArrayInputStream(new byte[0]);
+		FileUtils.copyStream(inputStream, true, step, true);
+
+		// This must fail, i.e. the status is not ok!
+		assertFalse(step.getStatus().isOK());
+	}
+
 }

@@ -12,10 +12,14 @@
 package org.eclipse.equinox.internal.p2.artifact.optimizers;
 
 import java.io.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 
 public abstract class AbstractBufferingStep extends ProcessingStep {
+	private static final String WORK_DIR_PREFIX = "work"; //$NON-NLS-1$
+	private static final String WORK_DIR_SUFFIX = ""; //$NON-NLS-1$
 	protected static final String JAR_SUFFIX = ".jar"; //$NON-NLS-1$
 	protected static final String INCOMING_ROOT = "p2.optimizers.incoming"; //$NON-NLS-1$
 	protected static final String RESULT_ROOT = "p2.optimizers.result"; //$NON-NLS-1$
@@ -45,14 +49,16 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 
 	public void close() throws IOException {
 		// When we go to close we must have seen all the content we are going to see.
-		// If no one wrote to the temp stream then there is nothing to do. If there is 
-		// content then close the temporary stream and perform the optimization.
-		// Performing the optimization should result in the new content being written to 
+		// If no one wrote to the temp stream then we return an error. If there is 
+		// content then close the temporary stream and perform the processing.
+		// Performing the step should result in the new content being written to 
 		// the destination.  Make sure we delete the temporary file if any.
 		try {
 			if (incomingStream != null) {
 				incomingStream.close();
 				performProcessing();
+			} else {
+				setStatus(new Status(IStatus.ERROR, Activator.ID, Messages.Empty_stream));
 			}
 		} finally {
 			incomingStream = null;
@@ -83,11 +89,11 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 	protected File getWorkDir() throws IOException {
 		if (workDir != null)
 			return workDir;
-		workDir = File.createTempFile("work", "");
+		workDir = File.createTempFile(WORK_DIR_PREFIX, WORK_DIR_SUFFIX);
 		if (!workDir.delete())
-			throw new IOException("Could not delete file for creating temporary working dir.");
+			throw new IOException(Messages.Can_not_delete_temp_dir);
 		if (!workDir.mkdirs())
-			throw new IOException("Could not create temporary working dir.");
+			throw new IOException(Messages.Can_not_create_temp_dir);
 		return workDir;
 	}
 
