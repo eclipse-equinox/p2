@@ -281,6 +281,7 @@ public class ProfileSynchronizer {
 				// mark all IUs with special property
 				request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
 				request.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
+				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, Integer.toString(IInstallableUnit.LOCK_UNINSTALL));
 				toAdd.add(iu);
 			}
 		}
