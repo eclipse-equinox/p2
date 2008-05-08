@@ -11,10 +11,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ecf.core.*;
@@ -314,7 +312,14 @@ public class ECFTransport {
 	public IConnectContext getConnectionContext(String xmlLocation, boolean prompt) throws UserCancelledException, ProvisionException {
 		ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
 		IPath hostLocation = new Path(xmlLocation).removeLastSegments(1);
-		String nodeName = IRepository.PREFERENCE_NODE + '/' + hostLocation.toOSString().replace('/', '\\');
+		String nodeKey;
+		try {
+			nodeKey = URLEncoder.encode(hostLocation.toString(), "UTF-8"); //$NON-NLS-1$
+		} catch (UnsupportedEncodingException e2) {
+			//fall back to default platform encoding
+			nodeKey = URLEncoder.encode(hostLocation.toString());
+		}
+		String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
 		ISecurePreferences prefNode = null;
 		if (securePreferences.nodeExists(nodeName))
 			prefNode = securePreferences.node(nodeName);
