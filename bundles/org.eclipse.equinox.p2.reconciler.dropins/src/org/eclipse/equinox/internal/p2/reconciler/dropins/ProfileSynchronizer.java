@@ -209,7 +209,9 @@ public class ProfileSynchronizer {
 				//ignore
 			}
 		}
-		return new ProvisioningContext((URL[]) repoURLs.toArray(new URL[repoURLs.size()]));
+		ProvisioningContext result = new ProvisioningContext((URL[]) repoURLs.toArray(new URL[repoURLs.size()]));
+		result.setArtifactRepositories(new URL[0]);
+		return result;
 	}
 
 	private IStatus synchronizeCacheExtensions() {
