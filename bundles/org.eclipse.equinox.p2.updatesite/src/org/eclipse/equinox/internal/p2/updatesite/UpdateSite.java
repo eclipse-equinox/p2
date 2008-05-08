@@ -263,13 +263,12 @@ public class UpdateSite {
 	 * Return a URL which represents the location of the given feature.
 	 */
 	public URL getFeatureURL(String id, String version) {
-
-			SiteFeature[] entries = site.getFeatures();
-			for (int i = 0; i < entries.length; i++) {
-				if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
+		SiteFeature[] entries = site.getFeatures();
+		for (int i = 0; i < entries.length; i++) {
+			if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
 				return getSiteFeatureURL(entries[i]);
-				}
 			}
+		}
 
 		URL base = getBaseURL();
 		URL url = getArchiveURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
