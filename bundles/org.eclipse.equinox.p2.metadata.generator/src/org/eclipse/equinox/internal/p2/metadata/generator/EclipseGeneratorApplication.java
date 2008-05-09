@@ -402,6 +402,14 @@ public class EclipseGeneratorApplication implements IApplication {
 		this.metadataLocation = location;
 	}
 
+	public void setMetadataRepositoryName(String name) {
+		this.metadataRepoName = name;
+	}
+
+	public void setArtifactRepositoryName(String name) {
+		this.artifactRepoName = name;
+	}
+
 	public void setIncrementalResult(Generator.GeneratorResult ius) {
 		this.incrementalResult = ius;
 	}

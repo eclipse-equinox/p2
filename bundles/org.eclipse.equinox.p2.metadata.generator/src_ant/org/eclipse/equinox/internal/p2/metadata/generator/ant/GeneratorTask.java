@@ -58,6 +58,12 @@ public class GeneratorTask extends Task {
 		generator.setArtifactLocation(location);
 	}
 
+	public void setArtifactRepositoryName(String name) {
+		if (generator == null)
+			generator = new EclipseGeneratorApplication();
+		generator.setArtifactRepositoryName(name);
+	}
+
 	public void setBase(String value) {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
@@ -128,6 +134,12 @@ public class GeneratorTask extends Task {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
 		generator.setMetadataLocation(location);
+	}
+
+	public void setMetadataRepositoryName(String name) {
+		if (generator == null)
+			generator = new EclipseGeneratorApplication();
+		generator.setMetadataRepositoryName(name);
 	}
 
 	public void setNoDefaultIUs(String value) {
