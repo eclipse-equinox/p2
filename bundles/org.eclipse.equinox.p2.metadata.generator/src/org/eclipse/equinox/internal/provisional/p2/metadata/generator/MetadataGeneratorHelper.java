@@ -12,8 +12,6 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -22,6 +20,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
+import org.eclipse.equinox.internal.p2.metadata.generator.LocalizationHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
@@ -112,7 +111,6 @@ public class MetadataGeneratorHelper {
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
-	static final String MANIFEST_LOCALIZATIONS = "eclipse.p2.manifest.localizations"; //$NON-NLS-1$
 
 	static final String BUNDLE_ADVICE_FILE = "META-INF/p2.inf"; //$NON-NLS-1$
 	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
@@ -562,6 +560,13 @@ public class MetadataGeneratorHelper {
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getDescription() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
+		if (feature.getDescriptionURL() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
+		if (feature.getProviderName() != null)
+			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
@@ -585,7 +590,12 @@ public class MetadataGeneratorHelper {
 			iu.setProperty(ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
 		}
 
-		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(id, version));
+		providedCapabilities.add(FEATURE_CAPABILITY);
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version));
+
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
 
 		if (isExploded) {
@@ -595,6 +605,22 @@ public class MetadataGeneratorHelper {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
+
+		Map localizations = feature.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(id, locale));
+			}
+		}
+
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
 
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
@@ -624,6 +650,8 @@ public class MetadataGeneratorHelper {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
 		if (feature.getDescriptionURL() != null)
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
+		if (feature.getProviderName() != null)
+			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
@@ -643,7 +671,26 @@ public class MetadataGeneratorHelper {
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
-		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(id, version));
+
+		Map localizations = feature.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(id, locale));
+			}
+		}
+
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
 
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
@@ -667,6 +714,8 @@ public class MetadataGeneratorHelper {
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
 		if (feature.getDescriptionURL() != null)
 			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
+		if (feature.getProviderName() != null)
+			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
@@ -711,7 +760,26 @@ public class MetadataGeneratorHelper {
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
-		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+		
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(id, version));
+
+		Map localizations = feature.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(id, locale));
+			}
+		}
+
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
 
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
@@ -1098,9 +1166,11 @@ public class MetadataGeneratorHelper {
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
-			localizations = getJarManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			//localizations = getJarManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
 		} else {
-			localizations = getDirManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			// localizations = getDirManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
 		}
 
 		return localizations;
@@ -1129,165 +1199,14 @@ public class MetadataGeneratorHelper {
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
-			localizations = getJarManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			//localizations = getJarManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
 		} else {
-			localizations = getDirManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			// localizations = getDirManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
 		}
 
 		return localizations;
-	}
-
-	private static Map getJarManifestLocalization(File bundleLocation, String bundleLocalization, Locale defaultLocale, String[] bundleManifestValues) {
-		ZipFile jarFile = null;
-		Map localizations = new HashMap(4);
-		try {
-			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-			for (Enumeration entries = jarFile.entries(); entries.hasMoreElements();) {
-				ZipEntry nextEntry = (ZipEntry) entries.nextElement();
-				String nextName = nextEntry.getName();
-				String localeString = getLocaleString(nextName, bundleLocalization);
-
-				if (!nextEntry.isDirectory() && localeString != null) {
-					Locale nextLocale = getLocale(localeString);
-					InputStream stream = null;
-					try {
-						stream = jarFile.getInputStream(nextEntry);
-						Properties properties = new Properties();
-						properties.load(stream);
-						Properties localizedStrings = getLocalizedProperties(bundleManifestValues, properties);
-						if (localizedStrings.size() > 0) {
-							localizations.put(nextLocale, localizedStrings);
-							if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
-								localizations.put(nextLocale, localizedStrings);
-							}
-						}
-					} finally {
-						if (stream != null)
-							stream.close();
-					}
-				}
-			}
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} finally {
-			if (jarFile != null) {
-				try {
-					jarFile.close();
-				} catch (IOException ioe) {
-					// do nothing
-				}
-			}
-		}
-
-		return localizations;
-	}
-
-	private static Map getDirManifestLocalization(File bundleLocation, String bundleLocalization, Locale defaultLocale, String[] hostBundleManifestValues) {
-		File localizationPath = new File(bundleLocation, bundleLocalization);
-		File localizationDir = localizationPath.getParentFile();
-		final String localizationFile = localizationPath.getName();
-		MetadataGeneratorHelper foo = new MetadataGeneratorHelper();
-		String[] localizationFiles = localizationDir.list(foo.new LocalizationFileFilter() {
-			public boolean accept(File directory, String filename) {
-				return (getLocaleString(filename, localizationFile) != null ? true : false);
-			}
-		});
-
-		HashMap localizations = null;
-
-		if (localizationFiles != null) {
-			localizations = new HashMap(localizationFiles.length);
-			for (int i = 0; i < localizationFiles.length; i++) {
-				String nextFile = localizationFiles[i];
-				Locale nextLocale = getLocale(getLocaleString(nextFile, localizationFile));
-
-				try {
-					Properties properties = loadProperties(bundleLocation, nextFile);
-					Properties localizedStrings = getLocalizedProperties(hostBundleManifestValues, properties);
-					if (localizedStrings.size() > 0) {
-						localizations.put(nextLocale, localizedStrings);
-						if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
-							localizations.put(nextLocale, localizedStrings);
-						}
-					}
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-			}
-		}
-
-		return localizations;
-	}
-
-	private abstract class LocalizationFileFilter implements FilenameFilter {
-
-		public LocalizationFileFilter() {
-			// Nothing to do
-		}
-
-		/* (non-Javadoc)
-		 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-		 */
-		public abstract boolean accept(File directory, String filename);
-	}
-
-	static public String getLocaleString(String filename, String filenamePrefix) {
-		String localeString = null;
-		if (filename.startsWith(filenamePrefix) && filename.endsWith(PROPERTIES_FILE_EXTENSION)) {
-			if (filename.length() > filenamePrefix.length() + PROPERTIES_FILE_EXTENSION.length()) {
-				localeString = filename.substring(filenamePrefix.length() + 1, filename.length() - PROPERTIES_FILE_EXTENSION.length());
-			} else {
-				localeString = ""; //$NON-NLS-1$
-			}
-		}
-		return localeString;
-	}
-
-	private static Properties loadProperties(File bundleLocation, String localizationFile) throws IOException {
-		Properties result = new Properties();
-		InputStream propertyStream = null;
-		try {
-			try {
-				if (bundleLocation.isDirectory())
-					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
-				else {
-					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection(); //$NON-NLS-1$ //$NON-NLS-2$
-					connection.setUseCaches(false);
-					propertyStream = connection.getInputStream();
-				}
-			} catch (FileNotFoundException e) {
-				// if there is no messages file then just return;
-				return result;
-			}
-			result.load(propertyStream);
-		} finally {
-			if (propertyStream != null)
-				propertyStream.close();
-		}
-		return result;
-	}
-
-	static private Locale getLocale(String localeString) {
-		Locale locale = DEFAULT_LOCALE;
-		if (localeString.length() == 5 && localeString.indexOf('_') == 2) {
-			locale = new Locale(localeString.substring(0, 2), localeString.substring(3, 5));
-		} else if (localeString.length() == 2) {
-			locale = new Locale(localeString.substring(0, 2));
-		}
-		return locale;
-	}
-
-	static private Properties getLocalizedProperties(String[] bundleManifestKeys, Properties properties) {
-		Properties localizedProperties = new Properties();
-		for (int i = 0; i < BUNDLE_LOCALIZED_PROPERTIES.length; i++) {
-			String key = bundleManifestKeys[i];
-			if (key != null) {
-				String localizedValue = properties.getProperty(key);
-				if (localizedValue != null)
-					localizedProperties.put(key, localizedValue);
-			}
-		}
-		return localizedProperties;
 	}
 
 }
