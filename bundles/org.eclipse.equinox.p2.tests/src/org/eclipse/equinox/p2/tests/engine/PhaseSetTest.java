@@ -38,6 +38,12 @@ public class PhaseSetTest extends AbstractProvisioningTest {
 		fail();
 	}
 
+	public void testNoTrustCheck() {
+		PhaseSet set1 = new DefaultPhaseSet();
+		PhaseSet set2 = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_CHECK_TRUST);
+		assertTrue("1.0", !set1.equals(set2));
+	}
+
 	public void testEmptyPhases() {
 		IProfile profile = createProfile("PhaseSetTest");
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
