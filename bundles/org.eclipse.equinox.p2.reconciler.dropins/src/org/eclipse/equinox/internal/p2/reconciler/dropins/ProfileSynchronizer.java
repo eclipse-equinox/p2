@@ -37,7 +37,7 @@ import org.osgi.framework.ServiceReference;
  * Synchronizes a profile with a set of repositories.
  */
 public class ProfileSynchronizer {
-	private static final String RECONCILER_APPLICATION_ID = "org.eclipse.equinox.p2.reconciler.application";
+	private static final String RECONCILER_APPLICATION_ID = "org.eclipse.equinox.p2.reconciler.application"; //$NON-NLS-1$
 	private static final String TIMESTAMPS_FILE_PREFIX = "timestamps"; //$NON-NLS-1$
 	private static final String PROFILE_TIMESTAMP = "PROFILE"; //$NON-NLS-1$
 	private static final String NO_TIMESTAMP = "-1"; //$NON-NLS-1$
@@ -339,7 +339,7 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
-			PhaseSet phaseSet = new DefaultPhaseSet();
+			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_CHECK_TRUST);
 			IStatus engineResult = engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
 			return engineResult;
 		} finally {
