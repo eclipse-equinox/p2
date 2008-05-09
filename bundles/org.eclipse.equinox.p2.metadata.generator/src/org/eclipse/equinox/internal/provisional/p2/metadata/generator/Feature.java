@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * 
@@ -43,6 +44,8 @@ public class Feature {
 
 	private String location;
 
+	private Map localizations;
+
 	public Feature(String id, String version) {
 		if (id == null)
 			throw new IllegalArgumentException();
@@ -50,14 +53,14 @@ public class Feature {
 		this.version = version;
 	}
 
-	public void addDiscoverySite(String label, String url) {
-		if (label == null && url == null)
+	public void addDiscoverySite(String siteLabel, String url) {
+		if (siteLabel == null && url == null)
 			return;
 
 		if (this.discoverySites == null)
 			this.discoverySites = new ArrayList();
 
-		URLEntry entry = new URLEntry(url, label);
+		URLEntry entry = new URLEntry(url, siteLabel);
 		this.discoverySites.add(entry);
 	}
 
@@ -141,6 +144,10 @@ public class Feature {
 		if (license != null)
 			return license.getURL();
 		return null;
+	}
+
+	public Map getLocalizations() {
+		return this.localizations;
 	}
 
 	public String getLocation() {
@@ -242,6 +249,10 @@ public class Feature {
 		this.license.setURL(licenseURL);
 	}
 
+	public void setLocalizations(Map localizations) {
+		this.localizations = localizations;
+	}
+
 	public void setLocation(String location) {
 		this.location = location;
 	}
@@ -263,6 +274,7 @@ public class Feature {
 	}
 
 	public void setURL(String value) {
+		//
 	}
 
 	public void setVersion(String version) {
