@@ -17,25 +17,112 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ISurrogateProfileHandler;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.datalocation.Location;
+import org.eclipse.osgi.util.NLS;
 
 public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 
-	private static final String ORG_ECLIPSE_EQUINOX_P2_NATIVE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
-	private static final String ORG_ECLIPSE_EQUINOX_P2_TYPE_ROOT = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
+	private static final String NATIVE_TOUCHPOINT_TYPE = "org.eclipse.equinox.p2.native"; //$NON-NLS-1$
+	private static final String PROP_TYPE_ROOT = "org.eclipse.equinox.p2.type.root"; //$NON-NLS-1$
 	private static final String P2_ENGINE_DIR = "p2/" + EngineActivator.ID + "/"; //$NON-NLS-1$//$NON-NLS-2$
 	private static final String OSGI_INSTALL_AREA = "osgi.install.area"; //$NON-NLS-1$
 	private static final String ECLIPSE_INI_IGNORED = "eclipse.ini.ignored"; //$NON-NLS-1$
 	private static final String IU_LOCKED = Integer.toString(IInstallableUnit.LOCK_UNINSTALL | IInstallableUnit.LOCK_UPDATE);
-
-	/**
-	 * Profile property constant indicating the bundle pool cache location.
-	 */
-	public static final String PROP_SURROGATE = "org.eclipse.equinox.p2.surrogate"; //$NON-NLS-1$
+	private static final String PROP_SURROGATE = "org.eclipse.equinox.p2.surrogate"; //$NON-NLS-1$
+	private static final String PROP_SHARED_TIMESTAMP = "org.eclipse.equinox.p2.shared.timestamp"; //$NON-NLS-1$
+	private static final String PROP_BASE = "org.eclipse.equinox.p2.base"; //$NON-NLS-1$
+	private static final String PROP_RESOLVE = "org.eclipse.equinox.p2.resolve"; //$NON-NLS-1$
+	private static final String OPTIONAL = "OPTIONAL"; //$NON-NLS-1$
+	private static final String PROP_INCLUSION_RULES = "org.eclipse.equinox.p2.internal.inclusion.rules"; //$NON-NLS-1$
 
 	private SimpleProfileRegistry profileRegistry;
+
+	private static void addSharedProfileBaseIUs(final IProfile sharedProfile, final Profile userProfile) {
+		Query rootIUQuery = new Query() {
+			public boolean isMatch(Object candidate) {
+				if (candidate instanceof IInstallableUnit) {
+					IInstallableUnit iu = (IInstallableUnit) candidate;
+					if (Boolean.valueOf(sharedProfile.getInstallableUnitProperty(iu, PROP_TYPE_ROOT)).booleanValue())
+						return true;
+					if (iu.getTouchpointType().getId().equals(NATIVE_TOUCHPOINT_TYPE))
+						return true;
+				}
+				return false;
+			}
+		};
+		Collector rootIUs = sharedProfile.query(rootIUQuery, new Collector(), null);
+		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			userProfile.addInstallableUnit(iu);
+			userProfile.addInstallableUnitProperties(iu, sharedProfile.getInstallableUnitProperties(iu));
+			userProfile.setInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
+			userProfile.setInstallableUnitProperty(iu, PROP_BASE, Boolean.TRUE.toString());
+		}
+	}
+
+	private static void removeUserProfileBaseIUs(final Profile userProfile) {
+		Query rootIUQuery = new Query() {
+			public boolean isMatch(Object candidate) {
+				if (candidate instanceof IInstallableUnit) {
+					IInstallableUnit iu = (IInstallableUnit) candidate;
+					if (Boolean.valueOf(userProfile.getInstallableUnitProperty(iu, PROP_BASE)).booleanValue())
+						return true;
+				}
+				return false;
+			}
+		};
+		Collector rootIUs = userProfile.query(rootIUQuery, new Collector(), null);
+		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			userProfile.removeInstallableUnit(iu);
+		}
+	}
+
+	private static void markRootsOptional(final Profile userProfile) {
+		Query rootIUQuery = new Query() {
+			public boolean isMatch(Object candidate) {
+				if (candidate instanceof IInstallableUnit) {
+					IInstallableUnit iu = (IInstallableUnit) candidate;
+					if (Boolean.valueOf(userProfile.getInstallableUnitProperty(iu, PROP_TYPE_ROOT)).booleanValue())
+						return true;
+				}
+				return false;
+			}
+		};
+		Collector rootIUs = userProfile.query(rootIUQuery, new Collector(), null);
+		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+			userProfile.setInstallableUnitProperty(iu, PROP_INCLUSION_RULES, OPTIONAL);
+		}
+	}
+
+	private static void updateProperties(final IProfile sharedProfile, Profile userProfile) {
+		userProfile.setProperty(PROP_SHARED_TIMESTAMP, Long.toString(sharedProfile.getTimestamp()));
+		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		File installFolder = new File(installLocation.getURL().getPath());
+
+		if (Boolean.valueOf(sharedProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue()) {
+			userProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.getAbsolutePath());
+			userProfile.setProperty(IProfile.PROP_SHARED_CACHE, installFolder.getAbsolutePath());
+			userProfile.setProperty(IProfile.PROP_ROAMING, Boolean.FALSE.toString());
+		} else {
+			String cache = sharedProfile.getProperty(IProfile.PROP_CACHE);
+			if (cache != null)
+				userProfile.setProperty(IProfile.PROP_SHARED_CACHE, cache);
+		}
+
+		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		File configurationFolder = new File(configurationLocation.getURL().getPath());
+
+		userProfile.setProperty(IProfile.PROP_CACHE, configurationFolder.getParentFile().getAbsolutePath());
+		userProfile.setProperty(IProfile.PROP_CONFIGURATION_FOLDER, configurationFolder.getAbsolutePath());
+
+		File launcherConfigFile = new File(configurationFolder, ECLIPSE_INI_IGNORED);
+		userProfile.setProperty(IProfile.PROP_LAUNCHER_CONFIGURATION, launcherConfigFile.getAbsolutePath());
+	}
 
 	private synchronized SimpleProfileRegistry getProfileRegistry() {
 		if (profileRegistry == null) {
@@ -59,53 +146,11 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 		if (sharedProfile == null)
 			return null;
 
-		Query rootIUQuery = new Query() {
-			public boolean isMatch(Object candidate) {
-				if (candidate instanceof IInstallableUnit) {
-					IInstallableUnit iu = (IInstallableUnit) candidate;
-					if (Boolean.valueOf(sharedProfile.getInstallableUnitProperty(iu, ORG_ECLIPSE_EQUINOX_P2_TYPE_ROOT)).booleanValue())
-						return true;
-					if (iu.getTouchpointType().getId().equals(ORG_ECLIPSE_EQUINOX_P2_NATIVE))
-						return true;
-				}
-				return false;
-			}
-		};
-
-		Collector rootIUs = sharedProfile.query(rootIUQuery, new Collector(), null);
-
 		Profile userProfile = new Profile(id, null, sharedProfile.getProperties());
-		userProfile.setSurrogateProfileHandler(this);
-		for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			userProfile.addInstallableUnit(iu);
-			userProfile.addInstallableUnitProperties(iu, sharedProfile.getInstallableUnitProperties(iu));
-			userProfile.setInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, IU_LOCKED);
-		}
-
-		//update properties
 		userProfile.setProperty(PROP_SURROGATE, Boolean.TRUE.toString());
-		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
-		File installFolder = new File(installLocation.getURL().getPath());
-
-		if (Boolean.valueOf(userProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue()) {
-			userProfile.setProperty(IProfile.PROP_INSTALL_FOLDER, installFolder.getAbsolutePath());
-			userProfile.setProperty(IProfile.PROP_SHARED_CACHE, installFolder.getAbsolutePath());
-			userProfile.setProperty(IProfile.PROP_ROAMING, Boolean.FALSE.toString());
-		} else {
-			String cache = userProfile.getProperty(IProfile.PROP_CACHE);
-			if (cache != null)
-				userProfile.setProperty(IProfile.PROP_SHARED_CACHE, cache);
-		}
-
-		Location configurationLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
-		File configurationFolder = new File(configurationLocation.getURL().getPath());
-
-		userProfile.setProperty(IProfile.PROP_CACHE, configurationFolder.getParentFile().getAbsolutePath());
-		userProfile.setProperty(IProfile.PROP_CONFIGURATION_FOLDER, configurationFolder.getAbsolutePath());
-
-		File launcherConfigFile = new File(configurationFolder, ECLIPSE_INI_IGNORED);
-		userProfile.setProperty(IProfile.PROP_LAUNCHER_CONFIGURATION, launcherConfigFile.getAbsolutePath());
+		userProfile.setSurrogateProfileHandler(this);
+		updateProperties(sharedProfile, userProfile);
+		addSharedProfileBaseIUs(sharedProfile, userProfile);
 		return userProfile;
 	}
 
@@ -125,5 +170,26 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			sharedProfile.query(query, collector, monitor);
 
 		return profile.query(query, collector, monitor);
+	}
+
+	public boolean updateProfile(Profile userProfile) {
+		final IProfile sharedProfile = getProfileRegistry().getProfile(userProfile.getProfileId());
+		if (sharedProfile == null)
+			throw new IllegalStateException(NLS.bind(Messages.shared_profile_not_found, userProfile.getProfileId()));
+
+		String sharedTimeStamp = Long.toString(sharedProfile.getTimestamp());
+		String userSharedTimeStamp = userProfile.getProperty(PROP_SHARED_TIMESTAMP);
+
+		if (userSharedTimeStamp != null && userSharedTimeStamp.equals(sharedTimeStamp))
+			return false;
+
+		updateProperties(sharedProfile, userProfile);
+		removeUserProfileBaseIUs(userProfile);
+		if (!userProfile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty()) {
+			userProfile.setProperty(PROP_RESOLVE, Boolean.TRUE.toString());
+			markRootsOptional(userProfile);
+		}
+		addSharedProfileBaseIUs(sharedProfile, userProfile);
+		return true;
 	}
 }

@@ -13,4 +13,6 @@ public interface ISurrogateProfileHandler {
 
 	public abstract Collector queryProfile(IProfile profile, Query query, Collector collector, IProgressMonitor monitor);
 
+	public abstract boolean updateProfile(Profile selfProfile);
+
 }

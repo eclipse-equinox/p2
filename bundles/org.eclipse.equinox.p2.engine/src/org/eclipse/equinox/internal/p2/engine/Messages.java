@@ -55,6 +55,8 @@ class Messages extends NLS {
 	public static String TouchpointManager_Required_Touchpoint_Not_Found;
 	public static String TouchpointManager_Touchpoint_Type_Mismatch;
 
+	public static String shared_profile_not_found;
+
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

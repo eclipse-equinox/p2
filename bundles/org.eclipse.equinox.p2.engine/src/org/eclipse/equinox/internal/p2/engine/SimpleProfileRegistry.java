@@ -128,15 +128,26 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 	 * If the current profile for self is marked as a roaming profile, we need
 	 * to update its install and bundle pool locations.
 	 */
-	private void updateRoamingProfile(Map profileMap) {
+	private void updateSelfProfile(Map profileMap) {
 		if (profileMap == null)
 			return;
 		Profile selfProfile = (Profile) profileMap.get(self);
 		if (selfProfile == null)
 			return;
+
+		boolean changed = false;
 		//only update if self is a roaming profile
-		if (!Boolean.valueOf(selfProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
-			return;
+		if (Boolean.valueOf(selfProfile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
+			changed = updateRoamingProfile(selfProfile);
+
+		if (surrogateProfileHandler != null && surrogateProfileHandler.isSurrogate(selfProfile))
+			changed = changed || surrogateProfileHandler.updateProfile(selfProfile);
+
+		if (changed)
+			saveProfile(selfProfile);
+	}
+
+	private boolean updateRoamingProfile(Profile selfProfile) {
 		Location installLocation = (Location) ServiceHelper.getService(EngineActivator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
 		File location = new File(installLocation.getURL().getPath());
 		boolean changed = false;
@@ -148,8 +159,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			selfProfile.setProperty(IProfile.PROP_CACHE, location.getAbsolutePath());
 			changed = true;
 		}
-		if (changed)
-			saveProfile(selfProfile);
+		return changed;
 	}
 
 	public synchronized String toString() {
@@ -216,7 +226,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (!hasBeenRestored) {
 			//update roaming profile on first load
 			hasBeenRestored = true;
-			updateRoamingProfile(result);
+			updateSelfProfile(result);
 		}
 		return result;
 	}

@@ -256,6 +256,11 @@ public class ProfileSynchronizer {
 
 	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
+
+		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue();
+		if (resolve)
+			request.removeProfileProperty("org.eclipse.equinox.p2.resolve");
+
 		List toAdd = new ArrayList();
 		List toRemove = new ArrayList();
 
@@ -298,7 +303,7 @@ public class ProfileSynchronizer {
 				toRemove.add(iu);
 		}
 
-		if (toAdd.isEmpty() && toRemove.isEmpty())
+		if (toAdd.isEmpty() && toRemove.isEmpty() && !resolve)
 			return null;
 
 		context.setExtraIUs(toAdd);
