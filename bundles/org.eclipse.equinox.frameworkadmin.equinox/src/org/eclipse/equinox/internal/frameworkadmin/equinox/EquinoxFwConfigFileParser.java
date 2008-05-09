@@ -536,7 +536,7 @@ public class EquinoxFwConfigFileParser {
 		for (int t = 0; t < tokens.length; t++) {
 			int idx = s.length();
 			for (int i = s.length(); i != 0 && idx != -1; i--) {
-				idx = s.lastIndexOf(tokens[t], idx);
+				idx = s.toString().lastIndexOf(tokens[t], idx);
 				if (idx != -1)
 					s.replace(idx, idx + tokens[t].length(), "^"); //$NON-NLS-1$
 			}
