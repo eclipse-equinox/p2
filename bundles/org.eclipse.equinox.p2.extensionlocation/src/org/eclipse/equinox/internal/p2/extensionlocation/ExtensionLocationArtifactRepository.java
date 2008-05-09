@@ -28,7 +28,6 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
-	private static final String POOLED = ".pooled"; //$NON-NLS-1$
 	private final IFileArtifactRepository artifactRepository;
 	private boolean initialized = false;
 	private File base;
@@ -67,8 +66,6 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		File features = new File(base, FEATURES);
 		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
 		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), null, artifactRepository);
-		if (location.getPath().endsWith(POOLED))
-			listener = new BundlePoolFilteredListener(listener);
 		watcher.addListener(listener);
 		watcher.poll();
 		initialized = true;
@@ -101,9 +98,6 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 
 		String path = url.getPath();
 		File base = new File(path);
-		if (path.endsWith(POOLED)) {
-			base = base.getParentFile();
-		}
 
 		if (!base.isDirectory())
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_directory, url.toExternalForm()), null));
