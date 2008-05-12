@@ -37,7 +37,7 @@ public class FeatureParser extends DefaultHandler {
 
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private SAXParser parser;
-	private Feature result;
+	protected Feature result;
 	private URL url;
 	private StringBuffer characters = null;
 

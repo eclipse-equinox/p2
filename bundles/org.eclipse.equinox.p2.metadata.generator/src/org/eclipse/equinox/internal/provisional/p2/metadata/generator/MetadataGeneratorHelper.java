@@ -638,10 +638,16 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
+		return createGroupIU(feature, featureIU, extraProperties, true);
+	}
+
+	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties, boolean transformIds) {
 		if (isPatch(feature))
 			return createPatchIU(feature, featureIU, extraProperties);
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
+		String id = feature.getId();
+		if (transformIds)
+			id = getTransformedId(id, /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
@@ -659,12 +665,18 @@ public class MetadataGeneratorHelper {
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
-		RequiredCapability[] required = new RequiredCapability[entries.length + 1];
+		RequiredCapability[] required = new RequiredCapability[entries.length + (featureIU == null ? 0 : 1)];
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
-			required[i] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			String requiredId = entries[i].getId();
+			if (transformIds)
+				requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
+			required[i] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false);
 		}
-		required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
+		// the feature IU could be null if we are just generating a feature structure rather than 
+		// actual features.
+		if (featureIU != null)
+			required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(TouchpointType.NONE);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
@@ -1054,17 +1066,14 @@ public class MetadataGeneratorHelper {
 			return new VersionRange(version, true, version, true);
 		}
 		String match = entry.getMatch();
-		if (match == null)
-			// TODO should really be returning VersionRange.emptyRange here...
-			return null;
+		if (match == null || match.equals("compatible")) { //$NON-NLS-1$
+			Version upper = new Version(version.getMajor() + 1, 0, 0);
+			return new VersionRange(version, true, upper, false);
+		}
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
 			Version upper = new Version(version.getMajor(), version.getMinor() + 1, 0);
-			return new VersionRange(version, true, upper, false);
-		}
-		if (match.equals("compatible")) { //$NON-NLS-1$
-			Version upper = new Version(version.getMajor() + 1, 0, 0);
 			return new VersionRange(version, true, upper, false);
 		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$

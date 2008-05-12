@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
  */
 public class FeatureEntry {
 	private final String id;
-	private final String version;
+	private String version;
 	private String url;
 	private String os;
 	private String ws;
@@ -165,6 +165,10 @@ public class FeatureEntry {
 
 	public void setURL(String value) {
 		url = value;
+	}
+
+	public void setVersion(String value) {
+		version = value;
 	}
 
 	public String toString() {

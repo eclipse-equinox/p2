@@ -43,31 +43,31 @@ public class Generator {
 	public static class GeneratorResult {
 		public static final String CONFIGURATION_CUS = "CONFIGURATION_CUS"; //$NON-NLS-1$
 
-		final Map pluginShape = new HashMap();
+		final public Map pluginShape = new HashMap();
 
 		/**
 		 * The set of generated IUs that will be children of the root IU
 		 */
-		final Set rootIUs = new HashSet();
+		final public Set rootIUs = new HashSet();
 		/**
 		 * The set of generated IUs that will not be children of the root IU
 		 */
-		final Set nonRootIUs = new HashSet();
+		final public Set nonRootIUs = new HashSet();
 
 		/**
 		 * Map of symbolic name to a set of generated CUs for that IU
 		 */
-		final Map configurationIUs = new HashMap();
+		final public Map configurationIUs = new HashMap();
 
 		/**
 		 * Map launcherConfig to config.ini ConfigData
 		 */
-		final Map configData = new HashMap();
+		final public Map configData = new HashMap();
 
 		/**
 		 * Returns all IUs generated during this execution of the generator.
 		 */
-		Set allGeneratedIUs() {
+		public Set allGeneratedIUs() {
 			HashSet all = new HashSet();
 			all.addAll(rootIUs);
 			all.addAll(nonRootIUs);
@@ -77,7 +77,7 @@ public class Generator {
 		/**
 		 * Returns the IU in this result with the given id.
 		 */
-		IInstallableUnit getInstallableUnit(String id) {
+		public IInstallableUnit getInstallableUnit(String id) {
 			for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 				IInstallableUnit tmp = (IInstallableUnit) iterator.next();
 				if (tmp.getId().equals(id))
@@ -107,7 +107,7 @@ public class Generator {
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 
-	private final IGeneratorInfo info;
+	protected final IGeneratorInfo info;
 
 	private GeneratorResult incrementalResult = null;
 	private ProductFile productFile = null;
@@ -1059,7 +1059,7 @@ public class Generator {
 		return null;
 	}
 
-	private Feature[] getFeatures(File folder) {
+	protected Feature[] getFeatures(File folder) {
 		if (folder == null || !folder.exists())
 			return new Feature[0];
 		File[] locations = folder.listFiles();

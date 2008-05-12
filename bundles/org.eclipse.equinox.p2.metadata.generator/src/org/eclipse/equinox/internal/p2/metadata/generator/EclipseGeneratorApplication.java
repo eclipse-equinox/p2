@@ -89,13 +89,21 @@ public class EclipseGeneratorApplication implements IApplication {
 			provider.initialize(new File(argument), null, null, new File[] {new File(argument, "plugins")}, new File(argument, "features")); //$NON-NLS-1$ //$NON-NLS-2$
 			initializeForInplace(provider);
 		} else {
-			if (base != null && bundles != null && features != null)
-				provider.initialize(new File(base), null, null, new File[] {new File(bundles)}, new File(features));
+			// base is set but we expect everything else to have been set using 
+			// explicit args.  Note that if we are coming in via an Ant task, we have
+			// to ensure all the values are passed in
+			if (base != null) {
+				File[] bundlesLocation = bundles == null ? null : new File[] {new File(bundles)};
+				File featuresLocation = features == null ? null : new File(features);
+				provider.initialize(new File(base), null, null, bundlesLocation, featuresLocation);
+			}
 		}
 		initializeRepositories(provider);
 	}
 
 	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
+		if (artifactLocation == null)
+			return;
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
 		URL location;
 		try {
@@ -344,15 +352,8 @@ public class EclipseGeneratorApplication implements IApplication {
 		System.out.println(NLS.bind(Messages.message_generatingMetadata, provider.getBaseLocation()));
 
 		long before = System.currentTimeMillis();
+		IStatus result = generate(provider);
 
-		Generator generator = new Generator(provider);
-
-		if (incrementalResult != null)
-			generator.setIncrementalResult(incrementalResult);
-		generator.setGenerateRootIU(generateRootIU);
-		IStatus result = generator.generate();
-
-		incrementalResult = null;
 		long after = System.currentTimeMillis();
 		if (result.isOK()) {
 			System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
@@ -360,6 +361,16 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		System.out.println(result);
 		return new Integer(1);
+	}
+
+	protected IStatus generate(EclipseInstallGeneratorInfoProvider provider) {
+		Generator generator = new Generator(provider);
+		if (incrementalResult != null)
+			generator.setIncrementalResult(incrementalResult);
+		generator.setGenerateRootIU(generateRootIU);
+		IStatus result = generator.generate();
+		incrementalResult = null;
+		return result;
 	}
 
 	public Object start(IApplicationContext context) throws Exception {
