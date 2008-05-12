@@ -155,8 +155,6 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site site = (Site) iter.next();
 			String siteURL = site.getUrl();
-			if (siteURL.startsWith("file:") && new Path(siteURL).lastSegment().equals("eclipse")) //$NON-NLS-1$ //$NON-NLS-2$
-				siteURL = siteURL.substring(0, siteURL.length() - 8);
 			IMetadataRepository match = getMatchingRepo(configRepositories, siteURL);
 			if (match == null) {
 				try {
