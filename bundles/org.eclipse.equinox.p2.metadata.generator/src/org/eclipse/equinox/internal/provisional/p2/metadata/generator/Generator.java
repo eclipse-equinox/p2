@@ -1103,7 +1103,7 @@ public class Generator {
 			//remove site.xml file reference
 			int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
 			if (index != -1)
-				mirrors = mirrors.substring(0, index) + mirrors.substring(index + 9);
+				mirrors = mirrors.substring(0, index) + mirrors.substring(index + "site.xml".length()); //$NON-NLS-1$
 			info.getMetadataRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 			info.getArtifactRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 		}
