@@ -17,8 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.installer.IInstallOperation;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 
@@ -273,6 +272,12 @@ public class InstallDialog {
 		settingsLocation = new Text(locationFieldGroup, SWT.SINGLE | SWT.BORDER);
 		settingsLocation.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		settingsLocation.addListener(SWT.Modify, validateListener);
+		settingsLocation.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent event) {
+				if (event.character == SWT.CR || event.character == SWT.KEYPAD_CR)
+					buttonPressed(OK);
+			}
+		});
 		settingsBrowse = new Button(locationFieldGroup, SWT.PUSH);
 		settingsBrowse.setLayoutData(new GridData(BUTTON_WIDTH, SWT.DEFAULT));
 		settingsBrowse.setText(Messages.Dialog_BrowseButton);
