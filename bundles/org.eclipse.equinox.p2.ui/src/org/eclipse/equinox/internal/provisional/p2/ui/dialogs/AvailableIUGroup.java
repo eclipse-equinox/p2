@@ -155,7 +155,6 @@ public class AvailableIUGroup extends StructuredIUGroup {
 	private boolean useCheckboxes = false;
 	private IUDetailsLabelProvider labelProvider;
 	private Display display;
-	boolean ignoreEvent = false;
 	DeferredFetchFilteredTree filteredTree;
 	IUColumnConfig[] columnConfig;
 	private int refreshRepoFlags = IMetadataRepositoryManager.REPOSITORIES_NON_SYSTEM;
@@ -267,15 +266,10 @@ public class AvailableIUGroup extends StructuredIUGroup {
 
 		final StructuredViewerProvisioningListener listener = new StructuredViewerProvisioningListener(availableIUViewer, StructuredViewerProvisioningListener.PROV_EVENT_METADATA_REPOSITORY, getQueryProvider()) {
 			protected void repositoryAdded(final RepositoryEvent event) {
-				if (ignoreEvent) {
-					ignoreEvent = false;
+				// Ignore disabled repositories
+				if (!event.isRepositoryEnabled())
 					return;
-				}
 				makeRepositoryVisible(event.getRepositoryLocation());
-			}
-
-			protected void repositoryDiscovered(RepositoryEvent event) {
-				ignoreEvent = true;
 			}
 		};
 		ProvUIActivator.getDefault().addProvisioningListener(listener);
