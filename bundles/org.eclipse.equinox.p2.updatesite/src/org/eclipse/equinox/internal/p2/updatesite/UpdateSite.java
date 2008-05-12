@@ -291,6 +291,18 @@ public class UpdateSite {
 		return location;
 	}
 
+	public String getMirrorsURL() {
+		//copy mirror information from update site to p2 repositories
+		String mirrors = site.getMirrorsURL();
+		if (mirrors == null)
+			return null;
+		//remove site.xml file reference
+		int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
+		if (index != -1)
+			mirrors = mirrors.substring(0, index) + mirrors.substring(index + "site.xml".length()); //$NON-NLS-1$
+		return mirrors;
+	}
+
 	/*
 	 * Return a URL which represents the location of the given plug-in.
 	 */

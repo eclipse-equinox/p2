@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
@@ -53,7 +54,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		} catch (MalformedURLException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.ErrorCreatingRepository, e));
 		}
-		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm()); //$NON-NLS-1$
+		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm(), updateSite); //$NON-NLS-1$
 
 		String savedChecksum = (String) artifactRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
@@ -99,15 +100,21 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		UpdateSite.validate(url, monitor);
 	}
 
-	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL, String repositoryName) {
+	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL, String repositoryName, UpdateSite updateSite) {
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
 			return factory.load(stateDirURL, null);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		// TODO might want to pass along repository properties?
-		return factory.create(stateDirURL, repositoryName, null, null);
+		Map props = new HashMap(5);
+		String mirrors = updateSite.getMirrorsURL();
+		if (mirrors != null) {
+			props.put(IRepository.PROP_MIRRORS_URL, mirrors);
+			//set the mirror base URL relative to the real remote repository rather than our local cache
+			props.put(IRepository.PROP_MIRRORS_BASE_URL, getLocation().toExternalForm());
+		}
+		return factory.create(stateDirURL, repositoryName, null, props);
 	}
 
 	public Map getProperties() {

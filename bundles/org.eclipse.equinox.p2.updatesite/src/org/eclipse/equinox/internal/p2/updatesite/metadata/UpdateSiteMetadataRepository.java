@@ -63,7 +63,7 @@ public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.ErrorCreatingRepository, e));
 		}
 
-		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm()); //$NON-NLS-1$
+		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm(), updateSite); //$NON-NLS-1$
 
 		String savedChecksum = (String) metadataRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
@@ -179,15 +179,21 @@ public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 		UpdateSite.validate(url, monitor);
 	}
 
-	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) {
+	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName, UpdateSite updateSite) {
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
 			return factory.load(stateDirURL, null);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		// TODO might want to pass along repository properties?
-		return factory.create(stateDirURL, repositoryName, null, null);
+		Map props = new HashMap(5);
+		String mirrors = updateSite.getMirrorsURL();
+		if (mirrors != null) {
+			props.put(IRepository.PROP_MIRRORS_URL, mirrors);
+			//set the mirror base URL relative to the real remote repository rather than our local cache
+			props.put(IRepository.PROP_MIRRORS_BASE_URL, getLocation().toExternalForm());
+		}
+		return factory.create(stateDirURL, repositoryName, null, props);
 	}
 
 	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {

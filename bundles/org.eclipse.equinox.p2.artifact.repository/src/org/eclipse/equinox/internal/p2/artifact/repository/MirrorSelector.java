@@ -60,7 +60,7 @@ public class MirrorSelector {
 				return this.failureCount - that.failureCount;
 			//faster is better
 			if (this.bytesPerSecond != that.bytesPerSecond)
-				return (int) (this.bytesPerSecond - that.failureCount);
+				return (int) (this.bytesPerSecond - that.bytesPerSecond);
 			//trust that initial rank indicates geographical proximity
 			return this.initialRank - that.initialRank;
 		}
@@ -89,9 +89,14 @@ public class MirrorSelector {
 	public MirrorSelector(IRepository repository) {
 		this.repository = repository;
 		try {
-			URL repositoryURL = repository.getLocation();
-			if (repositoryURL != null)
-				this.baseURI = URLUtil.toURI(repositoryURL);
+			String base = (String) repository.getProperties().get(IRepository.PROP_MIRRORS_BASE_URL);
+			if (base != null) {
+				this.baseURI = new URI(base);
+			} else {
+				URL repositoryURL = repository.getLocation();
+				if (repositoryURL != null)
+					this.baseURI = URLUtil.toURI(repositoryURL);
+			}
 		} catch (URISyntaxException e) {
 			log("Error initializing mirrors for: " + repository.getLocation(), e); //$NON-NLS-1$
 		}
@@ -129,7 +134,7 @@ public class MirrorSelector {
 				infos[i] = new MirrorInfo(infoURL, i);
 			}
 			//p2: add the base site as the last resort mirror so we can track download speed and failure rate
-			infos[mirrorCount] = new MirrorInfo(repository.getLocation().toExternalForm(), mirrorCount);
+			infos[mirrorCount] = new MirrorInfo(baseURI.toString(), mirrorCount);
 			return infos;
 		} catch (Exception e) {
 			// log if absolute url
