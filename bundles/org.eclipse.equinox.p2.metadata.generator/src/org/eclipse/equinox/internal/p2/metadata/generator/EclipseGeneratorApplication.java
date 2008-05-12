@@ -123,13 +123,16 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 
 		IArtifactRepository repository = manager.loadRepository(location, null);
-		if (!repository.isModifiable())
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
-		provider.setArtifactRepository(repository);
-		if (provider.reuseExistingPack200Files())
-			repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-		if (!provider.append())
-			repository.removeAll();
+		if (repository != null) {
+			manager.removeRepository(location);
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
+			provider.setArtifactRepository(repository);
+			if (provider.reuseExistingPack200Files())
+				repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
+			if (!provider.append())
+				repository.removeAll();
+		}
 		return;
 	}
 
@@ -179,6 +182,7 @@ public class EclipseGeneratorApplication implements IApplication {
 
 		IMetadataRepository repository = manager.loadRepository(location, null);
 		if (repository != null) {
+			manager.removeRepository(location);
 			// don't set the compress flag here because we don't want to change the format
 			// of an already existing repository
 			if (!repository.isModifiable())
