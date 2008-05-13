@@ -26,6 +26,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
@@ -40,6 +41,10 @@ public class Util {
 	private static final String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
+
+	public static final int AGGREGATE_CACHE = 0x01;
+	public static final int AGGREGATE_SHARED_CACHE = 0x02;
+	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
 	public static AgentLocation getAgentLocation() {
 		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
@@ -87,27 +92,41 @@ public class Util {
 	}
 
 	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile) {
-		Set bundleRepositories = new HashSet();
-		bundleRepositories.add(Util.getBundlePoolRepository(profile));
+		return getAggregatedBundleRepository(profile, AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
+	}
 
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		List extensions = getListProfileProperty(profile, CACHE_EXTENSIONS);
-		String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
-		if (sharedCache != null) {
-			try {
-				extensions.add(new File(sharedCache).toURL().toExternalForm());
-			} catch (MalformedURLException e) {
-				// unexpected, URLs should be pre-checked
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile, int repoFilter) {
+		Set bundleRepositories = new HashSet();
+
+		if ((repoFilter & AGGREGATE_CACHE) != 0) {
+			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+			if (bundlePool != null)
+				bundleRepositories.add(bundlePool);
+		}
+
+		List repos = new ArrayList();
+		if ((repoFilter & AGGREGATE_SHARED_CACHE) != 0) {
+			String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
+			if (sharedCache != null) {
+				try {
+					repos.add(new File(sharedCache).toURL().toExternalForm());
+				} catch (MalformedURLException e) {
+					// unexpected, URLs should be pre-checked
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+				}
 			}
 		}
 
-		for (Iterator iterator = extensions.iterator(); iterator.hasNext();) {
+		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0)
+			repos.addAll(getListProfileProperty(profile, CACHE_EXTENSIONS));
+
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
+		for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
 			try {
-				String extension = (String) iterator.next();
-				URL extensionURL = new URL(extension);
-				IArtifactRepository repository = manager.loadRepository(extensionURL, null);
-				if (repository != null)
+				String repo = (String) iterator.next();
+				URL repoURL = new URL(repo);
+				IArtifactRepository repository = manager.loadRepository(repoURL, null);
+				if (repository != null && repository instanceof IFileArtifactRepository)
 					bundleRepositories.add(repository);
 			} catch (ProvisionException e) {
 				//skip repositories that could not be read
@@ -171,6 +190,32 @@ public class Util {
 		if (config != null)
 			return new File(config);
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
+	}
+
+	/*
+	 * Do a look-up and return the OSGi install area if it is set.
+	 */
+	public static URL getOSGiInstallArea() {
+		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		if (location == null)
+			return null;
+		if (!location.isSet())
+			return null;
+		return location.getURL();
+	}
+
+	/*
+	 * Helper method to return the eclipse.home location. Return
+	 * null if it is unavailable.
+	 */
+	public static File getEclipseHome() {
+		Location eclipseHome = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
+		if (eclipseHome == null || !eclipseHome.isSet())
+			return null;
+		URL url = eclipseHome.getURL();
+		if (url == null)
+			return null;
+		return URLUtil.toFile(url);
 	}
 
 	/**

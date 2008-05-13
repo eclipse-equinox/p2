@@ -86,7 +86,7 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return null;
 
-		return Util.getBundlePoolRepository(profile);
+		return Util.getAggregatedBundleRepository(profile, Util.AGGREGATE_CACHE | Util.AGGREGATE_SHARED_CACHE);
 	}
 
 	/**
