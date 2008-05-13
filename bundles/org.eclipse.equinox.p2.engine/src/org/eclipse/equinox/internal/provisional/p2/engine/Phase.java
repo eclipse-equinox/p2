@@ -44,6 +44,9 @@ public abstract class Phase {
 		MultiStatus status = new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
 		try {
 			perform(status, session, profile, operands, context, monitor);
+		} catch (OperationCanceledException e) {
+			// propagate operation cancellation
+			status.add(new Status(IStatus.CANCEL, EngineActivator.ID, e.getMessage(), e));
 		} catch (RuntimeException e) {
 			// "perform" calls user code and might throw an unchecked exception
 			// we catch the error here to gather information on where the problem occurred.
@@ -109,17 +112,21 @@ public abstract class Phase {
 			Map parameters = new HashMap(phaseParameters);
 			parameters.put(PARM_OPERAND, operand);
 			mergeStatus(status, initializeOperand(profile, operand, parameters, subMonitor));
+			if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+				return;
 			parameters = Collections.unmodifiableMap(parameters);
 			if (actions != null) {
 				for (int j = 0; j < actions.length; j++) {
 					ProvisioningAction action = actions[j];
 					session.recordAction(action, operand);
 					mergeStatus(status, action.execute(parameters));
-					if (!status.isOK())
+					if (status.matches(IStatus.ERROR | IStatus.CANCEL))
 						return;
 				}
 			}
 			mergeStatus(status, completeOperand(profile, operand, parameters, subMonitor));
+			if (status.matches(IStatus.ERROR | IStatus.CANCEL))
+				return;
 			subMonitor.worked(1);
 		}
 	}
