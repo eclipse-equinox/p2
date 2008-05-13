@@ -47,7 +47,7 @@ public class RepositoryManipulatorDropTarget extends URLDropAdapter {
 		if (url[0] == null)
 			return;
 
-		Job job = new WorkbenchJob(NLS.bind(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel, manipulator.getAddOperationLabel())) {
+		Job job = new WorkbenchJob(ProvUIMessages.RepositoryManipulatorDropTarget_DragAndDropJobLabel) {
 
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				IStatus status = manipulator.getURLValidator(control.getShell()).validateRepositoryURL(url[0], false, monitor);
