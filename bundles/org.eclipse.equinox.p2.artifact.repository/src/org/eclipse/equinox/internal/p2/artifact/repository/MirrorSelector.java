@@ -236,11 +236,14 @@ public class MirrorSelector {
 		//this is a function that randomly selects a mirror based on a logarithmic
 		//distribution. Mirror 0 has a 1/2 chance of being selected, mirror 1 has a 1/4 chance, 
 		// mirror 2 has a 1/8 chance, etc. This introduces some variation in the mirror 
-		//selection, while still favoring better mirrors
-		int result = (int) (Math.log(random.nextInt(1 << Math.min(15, mirrorCount)) + 1) / LOG2);
-		if (result >= mirrorCount)
-			result = mirrorCount - 1;
-		MirrorInfo selected = mirrors[mirrorCount - 1 - result];
+		//selection, while still heavily favoring better mirrors
+		//the algorithm computes the most significant digit in a binary number by computing the base 2 logarithm
+		//if the first digit is most significant, mirror 0 is selected, if the second is most significant, mirror 1 is selected, etc
+		int highestMirror = Math.min(15, mirrorCount);
+		int result = (int) (Math.log(random.nextInt(1 << highestMirror) + 1) / LOG2);
+		if (result >= highestMirror || result < 0)
+			result = highestMirror - 1;
+		MirrorInfo selected = mirrors[highestMirror - 1 - result];
 		//if we selected a mirror that has failed in the past, revert to best available mirror
 		if (selected.failureCount > 0)
 			selected = mirrors[0];
