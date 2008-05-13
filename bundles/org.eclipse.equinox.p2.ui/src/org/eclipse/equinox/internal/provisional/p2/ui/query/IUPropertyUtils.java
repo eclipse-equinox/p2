@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.query;
 
+import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
@@ -24,12 +25,59 @@ public class IUPropertyUtils {
 	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
 	static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
 
+	// Get the license in the default locale.
+	public static License getLicense(IInstallableUnit iu) {
+		return getLicense(iu, getCurrentLocale());
+	}
+
+	// Get the copyright in the default locale.
+	public static Copyright getCopyright(IInstallableUnit iu) {
+		return getCopyright(iu, getCurrentLocale());
+	}
+
+	// Get a property in the default locale
+	public static String getIUProperty(IInstallableUnit iu, String propertyKey) {
+		return getIUProperty(iu, propertyKey, getCurrentLocale());
+	}
+
+	public static License getLicense(IInstallableUnit iu, Locale locale) {
+		License license = iu.getLicense();
+		String body = (license != null ? license.getBody() : null);
+		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
+			return license;
+		final String actualKey = body.substring(1); // Strip off the %
+		body = getLocalizedIUProperty(iu, actualKey, locale);
+		URL url = license.getURL();
+		return new License((url != null ? url.toExternalForm() : null), body);
+	}
+
+	public static Copyright getCopyright(IInstallableUnit iu, Locale locale) {
+		Copyright copyright = iu.getCopyright();
+		String body = (copyright != null ? copyright.getBody() : null);
+		if (body == null || body.length() <= 1 || body.charAt(0) != '%')
+			return copyright;
+		final String actualKey = body.substring(1); // Strip off the %
+		body = getLocalizedIUProperty(iu, actualKey, locale);
+		URL url = copyright.getURL();
+		return new Copyright((url != null ? url.toExternalForm() : null), body);
+	}
+
 	public static String getIUProperty(IInstallableUnit iu, String propertyKey, Locale locale) {
 		String value = iu.getProperty(propertyKey);
 		if (value == null || value.length() <= 1 || value.charAt(0) != '%')
 			return value;
 		// else have a localizable property
 		final String actualKey = value.substring(1); // Strip off the %
+		return getLocalizedIUProperty(iu, actualKey, locale);
+	}
+
+	private static String getLocalizedIUProperty(IInstallableUnit iu, String actualKey, Locale locale) {
+		// Short circuit query if iu provides value for matching locale	
+		String localizedKey = makeLocalizedKey(actualKey, locale.toString());
+		String localizedValue = iu.getProperty(localizedKey);
+		if (localizedValue != null)
+			return localizedValue;
+
 		final List locales = buildLocaleVariants(locale);
 		final IInstallableUnit theUnit = iu;
 
@@ -89,12 +137,15 @@ public class IUPropertyUtils {
 			}
 		}
 
-		String defaultKey = makeLocalizedKey(actualKey, DEFAULT_LOCALE.toString());
-		String defaultValue = iu.getProperty(defaultKey);
-		if (defaultValue != null)
-			return defaultValue;
+		for (Iterator iter = locales.iterator(); iter.hasNext();) {
+			String nextLocale = (String) iter.next();
+			String localeKey = makeLocalizedKey(actualKey, nextLocale);
+			String nextValue = iu.getProperty(localeKey);
+			if (nextValue != null)
+				return nextValue;
+		}
 
-		return value;
+		return actualKey;
 	}
 
 	/**
@@ -111,12 +162,16 @@ public class IUPropertyUtils {
 			nl = nl.substring(0, lastSeparator);
 		}
 		// Add the default locale (most general)
-		result.add(DEFAULT_LOCALE);
+		result.add(DEFAULT_LOCALE.toString());
 		return result;
 	}
 
 	private static String makeLocalizedKey(String actualKey, String localeImage) {
 		return localeImage + '.' + actualKey;
+	}
+
+	private static Locale getCurrentLocale() {
+		return Locale.getDefault();
 	}
 
 }

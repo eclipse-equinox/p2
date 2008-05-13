@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Locale;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -54,18 +53,18 @@ public class IUGeneralInfoPropertyPage extends IUPropertyPage {
 		layout.marginHeight = 0;
 		composite.setLayout(layout);
 		composite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		Locale currentLocale = Locale.getDefault();
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME, currentLocale));
+		// Get general info in the default locale
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_NameLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME));
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_IdentifierLabel, iu.getId());
 		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_VersionLabel, iu.getVersion().toString());
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER, currentLocale));
-		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ContactLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_CONTACT, currentLocale));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ProviderLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_PROVIDER));
+		addField(composite, ProvUIMessages.IUGeneralInfoPropertyPage_ContactLabel, IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_CONTACT));
 
 	}
 
 	private void createDescriptionSection(Composite parent, IInstallableUnit iu) {
-		Locale currentLocale = Locale.getDefault();
-		String description = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION, currentLocale);
+		// Get the iu description in the default locale
+		String description = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION);
 		if (description != null && description.length() > 0) {
 			Group group = new Group(parent, SWT.NONE);
 			group.setText(ProvUIMessages.IUGeneralInfoPropertyPage_DescriptionLabel);

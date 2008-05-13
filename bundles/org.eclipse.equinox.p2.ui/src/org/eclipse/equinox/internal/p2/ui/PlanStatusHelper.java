@@ -17,6 +17,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand
 import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.IStatusCodes;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -83,7 +84,8 @@ public class PlanStatusHelper {
 	private static String getIUString(IInstallableUnit iu) {
 		if (iu == null)
 			return ProvUIMessages.PlanStatusHelper_Items;
-		String name = iu.getProperty(IInstallableUnit.PROP_NAME);
+		// Get the iu name in the default locale
+		String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
 		if (name != null)
 			return name;
 		return iu.getId();

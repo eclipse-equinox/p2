@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
@@ -33,10 +34,11 @@ public class IUComparator extends ViewerComparator {
 
 		String key1, key2;
 		if (key == IU_NAME) {
-			key1 = iu1.getProperty(IInstallableUnit.PROP_NAME);
+			// Compare the iu names in the default locale
+			key1 = IUPropertyUtils.getIUProperty(iu1, IInstallableUnit.PROP_NAME);
 			if (key1 == null)
 				key1 = ""; //$NON-NLS-1$
-			key2 = iu2.getProperty(IInstallableUnit.PROP_NAME);
+			key2 = IUPropertyUtils.getIUProperty(iu2, IInstallableUnit.PROP_NAME);
 			if (key2 == null)
 				key2 = ""; //$NON-NLS-1$
 		} else {

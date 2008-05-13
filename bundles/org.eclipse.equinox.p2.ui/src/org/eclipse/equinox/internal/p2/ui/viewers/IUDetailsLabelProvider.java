@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.osgi.util.NLS;
@@ -88,7 +89,8 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			case IUColumnConfig.COLUMN_ID :
 				return iu.getId();
 			case IUColumnConfig.COLUMN_NAME :
-				String name = iu.getProperty(IInstallableUnit.PROP_NAME);
+				// Get the iu name in the current locale
+				String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
 				if (name != null)
 					return name;
 				return BLANK;
@@ -193,7 +195,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 		IInstallableUnit iu = (IInstallableUnit) ProvUI.getAdapter(element, IInstallableUnit.class);
 		if (iu == null || toolTipProperty == null)
 			return null;
-		return iu.getProperty(toolTipProperty);
+		return IUPropertyUtils.getIUProperty(iu, toolTipProperty);
 	}
 
 	/* (non-Javadoc)

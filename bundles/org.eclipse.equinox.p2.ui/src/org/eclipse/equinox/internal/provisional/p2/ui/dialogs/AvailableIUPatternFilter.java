@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.dialogs;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.CategoryElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.IUElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.dialogs.PatternFilter;
@@ -89,7 +90,8 @@ public class AvailableIUPatternFilter extends PatternFilter {
 		if (element instanceof IUElement) {
 			IInstallableUnit iu = ((IUElement) element).getIU();
 			if (checkName) {
-				text = iu.getProperty(IInstallableUnit.PROP_NAME);
+				// Get the iu name in the default locale
+				text = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
 				if (text != null && wordMatches(text))
 					return true;
 			}

@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.dialogs.IUPropertyPage;
 import org.eclipse.equinox.internal.provisional.p2.metadata.Copyright;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,7 +31,8 @@ import org.eclipse.swt.widgets.*;
 public class IUCopyrightPropertyPage extends IUPropertyPage {
 
 	protected Control createIUPage(Composite parent, IInstallableUnit iu) {
-		final Copyright copyright = iu.getCopyright();
+		// Get the copyright in the current locale
+		final Copyright copyright = IUPropertyUtils.getCopyright(iu);
 		if (copyright != null && copyright.getBody().length() > 0) {
 			Composite composite = new Composite(parent, SWT.NONE);
 			GridLayout layout = new GridLayout();

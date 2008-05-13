@@ -25,6 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IMessageProvider;
@@ -329,7 +330,8 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 	}
 
 	protected String getIUDescription(IInstallableUnit iu) {
-		String description = iu.getProperty(IInstallableUnit.PROP_DESCRIPTION);
+		// Get the iu description in the default locale
+		String description = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_DESCRIPTION);
 		if (description == null)
 			description = ""; //$NON-NLS-1$
 		return description;
