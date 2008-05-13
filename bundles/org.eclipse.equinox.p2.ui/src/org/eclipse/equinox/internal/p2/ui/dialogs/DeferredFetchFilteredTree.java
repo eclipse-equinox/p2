@@ -10,6 +10,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRep
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.DeferredQueryContentListener;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.DeferredQueryContentProvider;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -34,7 +35,6 @@ import org.eclipse.ui.progress.WorkbenchJob;
  *
  */
 public class DeferredFetchFilteredTree extends FilteredTree {
-	private static final long FILTER_DELAY_TIME = 200;
 	private static final String WAIT_STRING = ProvUIMessages.DeferredFetchFilteredTree_RetrievingList;
 
 	ToolBar toolBar;
@@ -49,6 +49,8 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	String savedFilterText;
 	Job loadJob;
 	WorkbenchJob filterJob;
+	ControlEnableState enableState;
+	Object viewerInput;
 
 	class InputSchedulingRule implements ISchedulingRule {
 		Object input;
@@ -167,16 +169,20 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 			public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 				if (newInput == null)
 					return;
+				// Store the input because it's not reset in the viewer until
+				// after this listener is run.
+				viewerInput = newInput;
 				// Cancel the load and filter jobs and null out the scheduling rule
 				// so that a new one will be created on the new input when needed.
+				filterRule = null;
 				cancelLoadJob();
 				cancelAndResetFilterJob();
-				filterRule = null;
 				contentProvider.setSynchronous(false);
 
 				if (showFilterControls && filterText != null && !filterText.isDisposed()) {
-					filterText.setText(getInitialText());
-					filterText.selectAll();
+					// We cancelled the load and if it was in progress the filter
+					// would have been disabled.  
+					restoreAfterLoading(getInitialText());
 				}
 			}
 
@@ -192,6 +198,8 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 		filterJob = super.doCreateRefreshJob();
 		filterJob.addJobChangeListener(new JobChangeAdapter() {
 			public void aboutToRun(final IJobChangeEvent event) {
+				final boolean[] shouldLoad = new boolean[1];
+				shouldLoad[0] = false;
 				display.syncExec(new Runnable() {
 					public void run() {
 						String text = getFilterString();
@@ -202,64 +210,72 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 						// load job to complete before continuing with filtering.
 						if (text == null || (initialText != null && initialText.equals(text)))
 							return;
-						if (!contentProvider.getSynchronous()) {
+						if (!contentProvider.getSynchronous() && loadJob == null) {
 							if (filterText != null && !filterText.isDisposed()) {
-								filterText.setEnabled(false);
-								filterText.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
-								savedFilterText = filterText.getText();
-								filterText.setText(WAIT_STRING);
+								disableWhileLoading();
+								shouldLoad[0] = true;
 							}
-							event.getJob().sleep();
-							scheduleLoadJob();
-							event.getJob().wakeUp(FILTER_DELAY_TIME);
-							contentProvider.setSynchronous(true);
 						}
 					}
 				});
+				if (shouldLoad[0]) {
+					event.getJob().sleep();
+					scheduleLoadJob();
+				}
+
 			}
 
 			public void done(IJobChangeEvent event) {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						restoreFilterText();
-					}
-				});
-			}
-
-			public void awake(IJobChangeEvent event) {
-				display.asyncExec(new Runnable() {
-					public void run() {
-						restoreFilterText();
-					}
-				});
+				// To be safe, we always reset the scheduling
+				// rule because the input may have changed since the last run.
+				event.getJob().setRule(getFilterJobSchedulingRule());
 			}
 		});
 		filterJob.setRule(getFilterJobSchedulingRule());
 		return filterJob;
 	}
 
-	void restoreFilterText() {
+	void disableWhileLoading() {
+		// We already disabled.
+		if (enableState != null)
+			return;
+		// TODO Knowledge of our client's parent structure is cheating
+		// but for now our only usage is in one particular widget tree and
+		// we want to disable at the right place.
+		if (parent != null && !parent.isDisposed()) {
+			enableState = ControlEnableState.disable(parent.getParent());
+		}
+		if (filterText != null && !filterText.isDisposed()) {
+			filterText.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
+			savedFilterText = filterText.getText();
+			filterText.setText(WAIT_STRING);
+		}
+
+	}
+
+	void restoreAfterLoading(String filterTextToRestore) {
 		if (filterText != null && !filterText.isDisposed() && !filterText.isEnabled()) {
-			filterText.setText(savedFilterText);
-			filterText.setEnabled(true);
+			filterText.setText(filterTextToRestore);
 			filterText.setCursor(null);
 			filterText.setFocus();
-			filterText.setSelection(savedFilterText.length(), savedFilterText.length());
+			filterText.setSelection(filterTextToRestore.length(), filterTextToRestore.length());
+		}
+		if (enableState != null && parent != null && !parent.isDisposed()) {
+			enableState.restore();
+			enableState = null;
 		}
 	}
 
 	InputSchedulingRule getFilterJobSchedulingRule() {
 		if (filterRule == null) {
-			Object input = null;
-			if (getViewer() != null)
-				input = getViewer().getInput();
-			filterRule = new InputSchedulingRule(input);
+			filterRule = new InputSchedulingRule(viewerInput);
 		}
 		return filterRule;
 	}
 
 	void scheduleLoadJob() {
-		cancelLoadJob();
+		if (loadJob != null)
+			return;
 		loadJob = new Job(WAIT_STRING) {
 			protected IStatus run(IProgressMonitor monitor) {
 				if (this.getRule() instanceof InputSchedulingRule) {
@@ -275,6 +291,21 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 				return Status.OK_STATUS;
 			}
 		};
+		loadJob.addJobChangeListener(new JobChangeAdapter() {
+			public void done(IJobChangeEvent event) {
+				if (event.getResult().isOK()) {
+					contentProvider.setSynchronous(true);
+					display.asyncExec(new Runnable() {
+						public void run() {
+							restoreAfterLoading(savedFilterText);
+						}
+					});
+					if (filterJob != null)
+						filterJob.wakeUp();
+				}
+				loadJob = null;
+			}
+		});
 		loadJob.setSystem(true);
 		loadJob.setUser(false);
 		loadJob.setRule(getFilterJobSchedulingRule());
@@ -294,7 +325,10 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	void cancelAndResetFilterJob() {
 		if (filterJob != null) {
 			filterJob.cancel();
-			filterJob.setRule(getFilterJobSchedulingRule());
+			// callers have likely reset the filtering rule.
+			// We can't reset it here because we don't know that
+			// the job actually stopped, so we do it in the
+			// done() handler.
 		}
 	}
 
