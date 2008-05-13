@@ -156,6 +156,11 @@ public class ProvisioningOperationRunner {
 				if (PlatformUI.getWorkbench().isClosing())
 					return;
 				int retCode = ApplyProfileChangesDialog.promptForRestart(ProvUI.getDefaultParentShell(), restartRequired);
+				// Now that we have asked, regardless of answer, we won't need to
+				// ask again until the next profile changing operation.  Don't reset
+				// the restart required flag so that the next time we ask, if it
+				// was required before, it will still be required.
+				restartRequested = false;
 				if (retCode == ApplyProfileChangesDialog.PROFILE_APPLYCHANGES) {
 					Configurator configurator = (Configurator) ServiceHelper.getService(ProvUIActivator.getContext(), Configurator.class.getName());
 					try {
