@@ -7,13 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
@@ -53,13 +52,6 @@ public class InstallApplication implements IApplication {
 	/**
 	 * Throws an exception of severity error with the given error message.
 	 */
-	private static CoreException fail(String message) {
-		return fail(message, null);
-	}
-
-	/**
-	 * Throws an exception of severity error with the given error message.
-	 */
 	private static CoreException fail(String message, Throwable throwable) {
 		return new CoreException(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, message, throwable));
 	}
@@ -84,13 +76,8 @@ public class InstallApplication implements IApplication {
 	 */
 	private InstallDescription fetchInstallDescription(SubMonitor monitor) throws CoreException {
 		String site = System.getProperty(SYS_PROP_INSTALL_DESCRIPTION);
-		if (site == null)
-			throw fail(Messages.App_NoSite);
 		try {
-			URL siteURL = new URL(site);
-			return InstallDescriptionParser.loadFromProperties(siteURL.openStream(), monitor);
-		} catch (MalformedURLException e) {
-			throw fail(Messages.App_InvalidSite + site, e);
+			return InstallDescriptionParser.createDescription(site, monitor);
 		} catch (IOException e) {
 			throw fail(Messages.App_InvalidSite + site, e);
 		}
@@ -201,7 +188,11 @@ public class InstallApplication implements IApplication {
 		IPath agentLocation = description.getAgentLocation();
 		if (agentLocation != null) {
 			String agentArea = System.getProperty("eclipse.p2.data.area"); //$NON-NLS-1$
-			if (agentArea == null || agentArea.length() == 0)
+			// TODO a bit of a hack here.  If the value is already set and it is set to @config/p2 then 
+			// it may well be the default value put in by PDE.  Overwrite it.
+			// Its kind of unclear why we would NOT overwrite.  At this point the user set their choice
+			// of shared or standalone and those dicate where the agent should put its info...
+			if (agentArea == null || agentArea.length() == 0 || agentArea.startsWith("@config")) //$NON-NLS-1$
 				System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
 		}
 		//start up p2

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.installer;
 
@@ -14,7 +15,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.core.runtime.IPath;
-import org.osgi.framework.Version;
+import org.eclipse.equinox.internal.p2.installer.VersionedName;
 
 /**
  * An install information captures all the data needed to perform a product install.
@@ -22,19 +23,16 @@ import org.osgi.framework.Version;
  * be installed, and where it will be installed.
  */
 public class InstallDescription {
-	private URL artifactRepo;
-	private IPath installLocation, agentLocation, bundleLocation;
+	private URL[] artifactRepos;
+	private IPath installLocation;
+	private IPath agentLocation;
+	private IPath bundleLocation;
 	private boolean isAutoStart;
 	private String launcherName;
-	private URL metadataRepo;
+	private URL[] metadataRepos;
 	private String productName;
-	private String rootId;
-	private Version rootVersion;
+	private VersionedName[] roots;
 	private final Map profileProperties = new HashMap();
-
-	public InstallDescription(String name) {
-		this.productName = name;
-	}
 
 	/**
 	 * Returns the p2 agent location, or <code>null</code> to indicate
@@ -45,11 +43,11 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the location of the artifact repository to install from
-	 * @return an artifact repository URL
+	 * Returns the locations of the artifact repositories to install from
+	 * @return a list of artifact repository URLs
 	 */
-	public URL getArtifactRepository() {
-		return artifactRepo;
+	public URL[] getArtifactRepositories() {
+		return artifactRepos;
 	}
 
 	/**
@@ -77,11 +75,11 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the location of the metadata repository to install from
-	 * @return a metadata repository URL
+	 * Returns the locations of the metadata repositories to install from
+	 * @return a list of metadata repository URLs
 	 */
-	public URL getMetadataRepository() {
-		return metadataRepo;
+	public URL[] getMetadataRepositories() {
+		return metadataRepos;
 	}
 
 	/**
@@ -100,22 +98,6 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the id of the root installable unit
-	 * @return the id of the root installable unit
-	 */
-	public String getRootId() {
-		return rootId;
-	}
-
-	/**
-	 * Returns the version of the root installable unit
-	 * @return the version of the root installable unit
-	 */
-	public Version getRootVersion() {
-		return rootVersion;
-	}
-
-	/**
 	 * Returns whether the installed product should be started upon successful
 	 * install.
 	 * @return <code>true</code> if the product should be started upon successful
@@ -129,8 +111,8 @@ public class InstallDescription {
 		this.agentLocation = agentLocation;
 	}
 
-	public void setArtifactRepository(URL repository) {
-		this.artifactRepo = repository;
+	public void setArtifactRepositories(URL[] value) {
+		this.artifactRepos = value;
 	}
 
 	public void setAutoStart(boolean value) {
@@ -149,8 +131,8 @@ public class InstallDescription {
 		this.launcherName = name;
 	}
 
-	public void setMetadataRepository(URL repository) {
-		this.metadataRepo = repository;
+	public void setMetadataRepositories(URL[] value) {
+		this.metadataRepos = value;
 	}
 
 	/**
@@ -161,12 +143,28 @@ public class InstallDescription {
 		profileProperties.putAll(properties);
 	}
 
-	public void setRootId(String root) {
-		this.rootId = root;
+	/**
+	 * Returns the set of roots to be installed for this installation
+	 * @return the roots to install
+	 */
+	public VersionedName[] getRoots() {
+		return roots;
 	}
 
-	public void setRootVersion(Version version) {
-		this.rootVersion = version;
+	/**
+	 * Set the list of roots to install
+	 * @param value the set of roots to install
+	 */
+	public void setRoots(VersionedName[] value) {
+		roots = value;
+	}
+
+	/**
+	 * Set the name of the product being installed.
+	 * @param value the new name of the product to install
+	 */
+	public void setProductName(String value) {
+		productName = value;
 	}
 
 }

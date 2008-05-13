@@ -27,7 +27,7 @@
          </property>
          <property
                name="aboutText"
-               value="p2 Installer">
+               value="P2 Installer">
          </property>
       </product>
    </extension>
