@@ -349,6 +349,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 						return info.description;
 					if (IRepository.PROP_NAME.equals(key))
 						return info.name;
+					if (IRepository.PROP_SYSTEM.equals(key))
+						return Boolean.toString(info.isSystem);
 					// Key not known, return null
 					return null;
 				}
@@ -397,7 +399,12 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 				return result;
 			}
 		}
-		rememberNotFound(location);
+
+		if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
+			removeRepository(location);
+		else
+			rememberNotFound(location);
+
 		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		return null;
 	}

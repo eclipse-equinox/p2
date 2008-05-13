@@ -373,6 +373,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 						return info.description;
 					if (IRepository.PROP_NAME.equals(key))
 						return info.name;
+					if (IRepository.PROP_SYSTEM.equals(key))
+						return Boolean.toString(info.isSystem);
 					// Key not known, return null
 					return null;
 				}
@@ -426,7 +428,11 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		} finally {
 			sub.done();
 		}
-		rememberNotFound(location);
+
+		if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
+			removeRepository(location);
+		else
+			rememberNotFound(location);
 		throw new ProvisionException(notFoundStatus);
 	}
 
