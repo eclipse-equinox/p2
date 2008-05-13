@@ -15,8 +15,8 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 
 /**
@@ -37,10 +37,7 @@ public class InstallDescriptionParser {
 
 	/**
 	 * Loads and returns an install description that is stored in a properties file.
-	 * @param site The site of the install properties file.
-	 * @param stream The stream to load the install description from. The stream
-	 * will be closed prior to this method returning, whether the description is
-	 * read successfully or not.
+	 * @param site The URL of the install properties file.
 	 */
 	public static InstallDescription createDescription(String site, SubMonitor monitor) throws IOException {
 		// if no description URL was given from the outside, look for an "install.properties" file 
@@ -152,8 +149,7 @@ public class InstallDescriptionParser {
 			try {
 				result.add(new URL(urlSpecs[i]));
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpecs[i], e)); //$NON-NLS-1$
 			}
 		}
 		return (URL[]) result.toArray(new URL[result.size()]);
