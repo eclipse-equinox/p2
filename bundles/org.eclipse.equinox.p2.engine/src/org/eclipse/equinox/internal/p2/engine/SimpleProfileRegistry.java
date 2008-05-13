@@ -91,17 +91,18 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 	private String self;
 
-	//Whether the registry has been loaded at all in this session
-	private boolean hasBeenRestored = false;
+	//Whether the registry should update the self profile when the registry is restored
+	private boolean updateSelfProfile = true;
 
 	private File store;
 
 	ISurrogateProfileHandler surrogateProfileHandler;
 
-	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler) {
+	public SimpleProfileRegistry(File registryDirectory, ISurrogateProfileHandler handler, boolean updateSelfProfile) {
 		store = (registryDirectory != null) ? registryDirectory : getDefaultRegistryDirectory();
 		surrogateProfileHandler = handler;
 		self = EngineActivator.getContext().getProperty("eclipse.p2.profile"); //$NON-NLS-1$
+		this.updateSelfProfile = updateSelfProfile;
 	}
 
 	public SimpleProfileRegistry() {
@@ -195,7 +196,7 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		// reset profile cache
 		profiles = null;
-		hasBeenRestored = false;
+		updateSelfProfile = true;
 		return (Profile) getProfileMap().get(id);
 	}
 
@@ -223,9 +224,9 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		if (result == null)
 			result = new LinkedHashMap(8);
 		profiles = new SoftReference(result);
-		if (!hasBeenRestored) {
-			//update roaming profile on first load
-			hasBeenRestored = true;
+		if (updateSelfProfile) {
+			//update self profile on first load
+			updateSelfProfile = false;
 			updateSelfProfile(result);
 		}
 		return result;

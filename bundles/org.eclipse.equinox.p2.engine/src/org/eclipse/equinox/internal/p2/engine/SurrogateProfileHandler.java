@@ -130,7 +130,7 @@ public class SurrogateProfileHandler implements ISurrogateProfileHandler {
 			try {
 				URL registryURL = new URL(installArea + P2_ENGINE_DIR + SimpleProfileRegistry.DEFAULT_STORAGE_DIR);
 				File sharedRegistryDirectory = new File(registryURL.getPath());
-				profileRegistry = new SimpleProfileRegistry(sharedRegistryDirectory, null);
+				profileRegistry = new SimpleProfileRegistry(sharedRegistryDirectory, null, false);
 			} catch (MalformedURLException e) {
 				//this is not possible because we know the above URL is valid
 			}
