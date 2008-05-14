@@ -157,11 +157,13 @@ public class EclipseGeneratorApplication implements IApplication {
 	}
 
 	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
+		if (metadataLocation == null)
+			return;
 		URL location;
 		try {
 			location = new URL(metadataLocation);
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, artifactLocation));
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, metadataLocation));
 		}
 
 		// 	First try to create a simple repo, this will fail if one already exists
@@ -343,6 +345,17 @@ public class EclipseGeneratorApplication implements IApplication {
 			System.out.println(Messages.exception_baseLocationNotSpecified);
 			return new Integer(-1);
 		}
+
+		if (provider.getArtifactRepository() == null) {
+			System.out.println(Messages.exception_artifactRepoNotSpecified);
+			return new Integer(-1);
+		}
+
+		if (provider.getMetadataRepository() == null) {
+			System.out.println(Messages.exception_metadataRepoNotSpecified);
+			return new Integer(-1);
+		}
+
 		System.out.println(NLS.bind(Messages.message_generatingMetadata, provider.getBaseLocation()));
 
 		long before = System.currentTimeMillis();

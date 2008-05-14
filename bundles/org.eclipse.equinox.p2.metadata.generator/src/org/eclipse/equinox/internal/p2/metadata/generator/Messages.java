@@ -20,8 +20,10 @@ public class Messages extends NLS {
 	public static String exception_sourceDirectoryInvalid;
 	public static String exception_artifactRepoLocationURL;
 	public static String exception_artifactRepoNotWritable;
+	public static String exception_artifactRepoNotSpecified;
 	public static String exception_metadataRepoLocationURL;
 	public static String exception_metadataRepoNotWritable;
+	public static String exception_metadataRepoNotSpecified;
 	public static String exception_baseLocationNotSpecified;
 
 	public static String message_generatingMetadata;
