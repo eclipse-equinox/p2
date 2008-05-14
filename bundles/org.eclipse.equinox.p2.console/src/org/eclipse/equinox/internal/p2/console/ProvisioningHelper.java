@@ -154,13 +154,17 @@ public class ProvisioningHelper {
 	 * @return The IUs that match the query
 	 */
 	public static Collector getInstallableUnits(URL location, Query query, IProgressMonitor monitor) {
+		return getInstallableUnits(location, query, new Collector(), monitor);
+	}
+
+	public static Collector getInstallableUnits(URL location, Query query, Collector collector, IProgressMonitor monitor) {
 		IQueryable queryable = null;
 		if (location == null) {
 			queryable = (IQueryable) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		} else {
 			queryable = getMetadataRepository(location);
 		}
-		return queryable.query(query, new Collector(), null);
+		return queryable.query(query, collector, null);
 	}
 
 	public static URL[] getMetadataRepositories() {

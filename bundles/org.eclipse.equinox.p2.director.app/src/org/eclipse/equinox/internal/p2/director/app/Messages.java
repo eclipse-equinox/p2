@@ -33,6 +33,9 @@ public class Messages extends NLS {
 
 	public static String Installing;
 	public static String Uninstalling;
+
+	public static String Ignored_repo;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

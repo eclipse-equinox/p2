@@ -12,6 +12,7 @@
 package org.eclipse.equinox.internal.p2.director.app;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
@@ -51,9 +52,9 @@ public class Application implements IApplication {
 
 	private Path destination;
 
-	private URL artifactRepositoryLocation;
+	private URL[] artifactRepositoryLocations;
 
-	private URL metadataRepositoryLocation;
+	private URL[] metadataRepositoryLocations;
 
 	private String root;
 	private Version version = null;
@@ -159,12 +160,15 @@ public class Application implements IApplication {
 	}
 
 	private void initializeRepositories() throws CoreException {
-		if (artifactRepositoryLocation == null)
+		if (artifactRepositoryLocations == null)
 			missingArgument("artifactRepository"); //$NON-NLS-1$
-		if (metadataRepositoryLocation == null)
+		for (int i = 0; i < artifactRepositoryLocations.length; i++)
+			ProvisioningHelper.addArtifactRepository(artifactRepositoryLocations[i]);
+
+		if (metadataRepositoryLocations == null)
 			missingArgument("metadataRepository"); //$NON-NLS-1$
-		ProvisioningHelper.addArtifactRepository(artifactRepositoryLocation);
-		ProvisioningHelper.addMetadataRepository(metadataRepositoryLocation);
+		for (int i = 0; i < metadataRepositoryLocations.length; i++)
+			ProvisioningHelper.addMetadataRepository(metadataRepositoryLocations[i]);
 	}
 
 	private void initializeServices() {
@@ -257,11 +261,11 @@ public class Application implements IApplication {
 			if (opt.equalsIgnoreCase("-bundlepool") || opt.equalsIgnoreCase("-bp")) //$NON-NLS-1$ //$NON-NLS-2$
 				bundlePool = new Path(arg).toOSString();
 
-			if (opt.equalsIgnoreCase("-metadataRepository") || opt.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$
-				metadataRepositoryLocation = new URL(arg);
+			if (opt.equalsIgnoreCase("-metadataRepository") || opt.equalsIgnoreCase("-metadataRepositories") || opt.equalsIgnoreCase("-mr")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				metadataRepositoryLocations = getURLs(arg);
 
-			if (opt.equalsIgnoreCase("-artifactRepository") || opt.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$
-				artifactRepositoryLocation = new URL(arg);
+			if (opt.equalsIgnoreCase("-artifactRepository") || opt.equalsIgnoreCase("-artifactRepositories") || opt.equalsIgnoreCase("-ar")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				artifactRepositoryLocations = getURLs(arg);
 
 			if (opt.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 				flavor = arg;
@@ -334,7 +338,7 @@ public class Application implements IApplication {
 				initializeRepositories();
 
 				query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
-				roots = ProvisioningHelper.getInstallableUnits(null, query, new NullProgressMonitor());
+				roots = ProvisioningHelper.getInstallableUnits(null, query, new LatestIUVersionCollector(), new NullProgressMonitor());
 				if (roots.size() <= 0)
 					roots = profile.query(query, roots, new NullProgressMonitor());
 				if (roots.size() <= 0) {
@@ -354,14 +358,17 @@ public class Application implements IApplication {
 				break;
 			case COMMAND_LIST :
 				query = new InstallableUnitQuery(null, VersionRange.emptyRange);
-				if (metadataRepositoryLocation == null)
+				if (metadataRepositoryLocations == null)
 					missingArgument("metadataRepository"); //$NON-NLS-1$
-				roots = ProvisioningHelper.getInstallableUnits(metadataRepositoryLocation, query, new NullProgressMonitor());
 
-				Iterator unitIterator = roots.iterator();
-				while (unitIterator.hasNext()) {
-					IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
-					System.out.println(iu.getId());
+				for (int i = 0; i < metadataRepositoryLocations.length; i++) {
+					roots = ProvisioningHelper.getInstallableUnits(metadataRepositoryLocations[i], query, new NullProgressMonitor());
+
+					Iterator unitIterator = roots.iterator();
+					while (unitIterator.hasNext()) {
+						IInstallableUnit iu = (IInstallableUnit) unitIterator.next();
+						System.out.println(iu.getId());
+					}
 				}
 				break;
 		}
@@ -438,4 +445,36 @@ public class Application implements IApplication {
 
 		return engine.perform(profile, new DefaultPhaseSet(), result.getOperands(), new ProvisioningContext(), new NullProgressMonitor());
 	}
+
+	private static URL[] getURLs(String spec) {
+		if (spec == null)
+			return null;
+		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
+		ArrayList result = new ArrayList(urlSpecs.length);
+		for (int i = 0; i < urlSpecs.length; i++) {
+			try {
+				result.add(new URL(urlSpecs[i]));
+			} catch (MalformedURLException e) {
+				NLS.bind(Messages.Ignored_repo, urlSpecs[i]);
+			}
+		}
+		return (URL[]) result.toArray(new URL[result.size()]);
+	}
+
+	/**
+	 * Convert a list of tokens into an array. The list separator has to be
+	 * specified.
+	 */
+	public static String[] getArrayFromString(String list, String separator) {
+		if (list == null || list.trim().equals("")) //$NON-NLS-1$
+			return new String[0];
+		List result = new ArrayList();
+		for (StringTokenizer tokens = new StringTokenizer(list, separator); tokens.hasMoreTokens();) {
+			String token = tokens.nextToken().trim();
+			if (!token.equals("")) //$NON-NLS-1$
+				result.add(token);
+		}
+		return (String[]) result.toArray(new String[result.size()]);
+	}
+
 }
