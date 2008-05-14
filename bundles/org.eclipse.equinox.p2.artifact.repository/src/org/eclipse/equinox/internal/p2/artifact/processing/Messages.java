@@ -6,7 +6,7 @@
  * 
  * Contributors: IBM Corporation - initial API and implementation
  ******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.optimizers;
+package org.eclipse.equinox.internal.p2.artifact.processing;
 
 import org.eclipse.osgi.util.NLS;
 

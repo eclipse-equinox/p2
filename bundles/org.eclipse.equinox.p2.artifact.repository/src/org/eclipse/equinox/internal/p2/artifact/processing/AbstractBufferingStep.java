@@ -9,11 +9,12 @@
  * 	compeople AG (Stefan Liebig) - initial API and implementation
  * 	IBM Corporation - ongoing development
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.artifact.optimizers;
+package org.eclipse.equinox.internal.p2.artifact.processing;
 
 import java.io.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.osgi.util.NLS;
