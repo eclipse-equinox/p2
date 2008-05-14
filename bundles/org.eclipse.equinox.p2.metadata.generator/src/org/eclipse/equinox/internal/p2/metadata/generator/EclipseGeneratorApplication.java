@@ -112,7 +112,7 @@ public class EclipseGeneratorApplication implements IApplication {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, artifactLocation));
 		}
 
-		String repositoryName = artifactRepoName != null ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
+		String repositoryName = (artifactRepoName != null && artifactRepoName.length() > 0) ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
 		Map properties = new HashMap(1);
 		properties.put(IRepository.PROP_COMPRESSED, compress);
 		if (provider.reuseExistingPack200Files())
@@ -122,9 +122,6 @@ public class EclipseGeneratorApplication implements IApplication {
 			result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			manager.removeRepository(location);
 			provider.setArtifactRepository(result);
-			// TODO is this needed?
-			if (artifactRepoName != null)
-				result.setName(artifactRepoName);
 			return;
 		} catch (ProvisionException e) {
 			//fall through a load existing repo
@@ -171,7 +168,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		//  We try creating a repo first instead of just loading what is there because we don't want a repo based
 		//  on a site.xml if there is one there.
 
-		String repositoryName = metadataRepoName == null ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
+		String repositoryName = (metadataRepoName == null || metadataRepoName.length() == 0) ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
 		Map properties = new HashMap(1);
 		properties.put(IRepository.PROP_COMPRESSED, compress);
 
@@ -179,9 +176,6 @@ public class EclipseGeneratorApplication implements IApplication {
 		try {
 			IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 			manager.removeRepository(location);
-			// TODO is this needed?
-			if (metadataRepoName != null)
-				result.setName(metadataRepoName);
 			provider.setMetadataRepository(result);
 			return;
 		} catch (ProvisionException e) {
