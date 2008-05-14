@@ -11,7 +11,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata;
    org.eclipse.equinox.p2.engine,
    org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.artifact.optimizers,
-   org.eclipse.equinox.p2.artifact.processors",
+   org.eclipse.equinox.p2.artifact.processors,
+   org.eclipse.equinox.p2.ui",
  org.eclipse.equinox.internal.provisional.p2.metadata;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,

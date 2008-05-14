@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
@@ -72,9 +73,15 @@ public class IUPropertyUtils {
 	}
 
 	private static String getLocalizedIUProperty(IInstallableUnit iu, String actualKey, Locale locale) {
-		// Short circuit query if iu provides value for matching locale	
 		String localizedKey = makeLocalizedKey(actualKey, locale.toString());
-		String localizedValue = iu.getProperty(localizedKey);
+		String localizedValue = null;
+
+		//first check for a cached localized value
+		if (iu instanceof InstallableUnit)
+			localizedValue = ((InstallableUnit) iu).getLocalizedProperty(localizedKey);
+		//next check if the localized value is stored in the same IU (common case)
+		if (localizedValue == null)
+			localizedValue = iu.getProperty(localizedKey);
 		if (localizedValue != null)
 			return localizedValue;
 
@@ -132,7 +139,7 @@ public class IUPropertyUtils {
 					String localeKey = makeLocalizedKey(actualKey, (String) jter.next());
 					translation = localizationIU.getProperty(localeKey);
 					if (translation != null)
-						return translation;
+						return cacheResult(iu, localizedKey, translation);
 				}
 			}
 		}
@@ -142,10 +149,22 @@ public class IUPropertyUtils {
 			String localeKey = makeLocalizedKey(actualKey, nextLocale);
 			String nextValue = iu.getProperty(localeKey);
 			if (nextValue != null)
-				return nextValue;
+				return cacheResult(iu, localizedKey, nextValue);
 		}
 
-		return actualKey;
+		return cacheResult(iu, localizedKey, actualKey);
+	}
+
+	/**
+	 * Cache the translated property value to optimize future retrieval of the same value.
+	 * Currently we just cache on the installable unit object in memory. In future
+	 * we should push support for localized property retrieval into IInstallableUnit
+	 * so we aren't required to reach around the API here.
+	 */
+	private static String cacheResult(IInstallableUnit iu, String localizedKey, String localizedValue) {
+		if (iu instanceof InstallableUnit)
+			((InstallableUnit) iu).setLocalizedProperty(localizedKey, localizedValue);
+		return localizedValue;
 	}
 
 	/**

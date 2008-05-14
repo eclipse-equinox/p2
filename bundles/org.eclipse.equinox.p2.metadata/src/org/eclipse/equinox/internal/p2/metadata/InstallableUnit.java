@@ -31,6 +31,7 @@ public class InstallableUnit implements IInstallableUnit {
 	private String id;
 
 	private OrderedProperties properties;
+	private OrderedProperties localizedProperties;
 	ProvidedCapability[] providedCapabilities = NO_PROVIDES;
 	private RequiredCapability[] requires;
 
@@ -141,6 +142,16 @@ public class InstallableUnit implements IInstallableUnit {
 		return OrderedProperties.unmodifiableProperties(properties());
 	}
 
+	/*
+	 * Helper method to cache localized properties
+	 */
+	public String getLocalizedProperty(String key) {
+		String result = null;
+		if (localizedProperties != null)
+			result = localizedProperties.getProperty(key);
+		return result;
+	}
+
 	public String getProperty(String key) {
 		return properties().getProperty(key);
 	}
@@ -216,6 +227,15 @@ public class InstallableUnit implements IInstallableUnit {
 	public void setImmutableTouchpointData(TouchpointData immutableData) {
 		ensureTouchpointDataCapacity(4);
 		touchpointData.add(immutableData);
+	}
+
+	/*
+	 * Helper method to cache localized properties
+	 */
+	public String setLocalizedProperty(String key, String value) {
+		if (localizedProperties == null)
+			localizedProperties = new OrderedProperties();
+		return (String) localizedProperties.put(key, value);
 	}
 
 	public String setProperty(String key, String value) {
