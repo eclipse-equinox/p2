@@ -11,38 +11,48 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.widgets.*;
 
 /**
- * CheckboxTreeViewer with special behaviour of the checked / gray state on 
- * container (non-leaf) nodes:
- * Copied from org.eclipse.ui.dialogs
- * Altered to achieve the following:
- * (1)checking a parent will also expand it when we know it's a long
+ * Copy of ContainerCheckedTreeViewer which is specialized for use
+ * with DeferredFetchFilteredTree.  Originally copied from
+ * org.eclipse.ui.dialogs and altered to achieve the following:
+ * 
+ * (1)checking a parent will expand it when we know it's a long
  * running operation that involves a placeholder.
 *  The modified method is doCheckStateChanged().
 *  
  * (2)when preserving selection, we do not want the check state
- * of the parents to influence the check state of the children.
- * When children appear due to relaxed filtering,
- * we never want to assume they should also be selected.  There are
- * cases where this is not necessarily the right thing to do, but
- * there are more cases where it is wrong.
- * The added methods are preservingSelection(Runnable) and 
- * updateParentsUsingChildren(TreeItem).
- * Modified method is updateChildrenItems(TreeItem parent).
-
+ * to be rippled through the child and parent nodes.
+ * Since we know that preservingSelection(Runnable) isn't working
+ * properly, no need to do a bunch of work here.
+ * The added methods is preservingSelection(Runnable).
+ * Modified methods are updateChildrenItems(TreeItem parent) and
+ * updateParentItems(TreeItem parent).
  * 
- * (3) API added to update parent selection according to children.
- * This is used after a filter refresh to ensure that parents are
- * up to date.  Added method is
- * updateParentSelectionsUsingChildren()
+ * (3)we correct the problem with preservingSelection(Runnable) by
+ * remembering the check state and restoring it after a refresh.  We
+ * fire a check state event so clients monitoring the selection will know
+ * what's going on.  Added methods are internalRefresh(Object, boolean), 
+ * saveCheckedState(), restoreCheckedState(), and 
+ * fireCheckStateChanged(Object, boolean).  That last method is public
+ * so that DeferredFetchFilteredTree can do the same thing when it 
+ * remembers selections.
+ * 
+ * This class does not correct the general problem reported in
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=170521
+ * That is handled by preserving selections additively in 
+ * DeferredFetchFilteredTree.  This class simply provides the API
+ * needed by that class and manages the parent state according to the
+ * children.
  */
 public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 
 	private boolean rippleCheckMarks = true;
+	private ArrayList savedCheckState;
 
 	/**
 	 * Constructor for ContainerCheckedTreeViewer.
@@ -253,5 +263,44 @@ public class ContainerCheckedTreeViewer extends CheckboxTreeViewer {
 		rippleCheckMarks = false;
 		super.preservingSelection(updateCode);
 		rippleCheckMarks = true;
+	}
+
+	protected void internalRefresh(Object element, boolean updateLabels) {
+		saveCheckedState();
+		super.internalRefresh(element, updateLabels);
+		restoreCheckedState();
+	}
+
+	// We only remember the leaves.  This is specific to our
+	// use case, not necessarily a good idea for fixing the general
+	// problem.
+	private void saveCheckedState() {
+		Object[] checked = getCheckedElements();
+		savedCheckState = new ArrayList(checked.length);
+		for (int i = 0; i < checked.length; i++)
+			if (!isExpandable(checked[i]) && !getGrayed(checked[i]))
+				savedCheckState.add(checked[i]);
+	}
+
+	// Now we restore checked state.  
+	private void restoreCheckedState() {
+		setCheckedElements(new Object[0]);
+		setGrayedElements(new Object[0]);
+		Object element = null;
+		// We are assuming that once a leaf, always a leaf.
+		Iterator iter = savedCheckState.iterator();
+		while (iter.hasNext()) {
+			element = iter.next();
+			setChecked(element, true);
+		}
+		// Listeners need to know something changed.
+		if (element != null)
+			fireCheckStateChanged(element, true);
+	}
+
+	// This method is public so that the DeferredFetchFilteredTree can also
+	// call it.
+	public void fireCheckStateChanged(Object element, boolean state) {
+		fireCheckStateChanged(new CheckStateChangedEvent(this, element, state));
 	}
 }

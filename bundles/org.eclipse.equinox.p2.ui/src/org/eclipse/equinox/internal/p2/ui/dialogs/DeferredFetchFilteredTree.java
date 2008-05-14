@@ -1,5 +1,7 @@
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.*;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
@@ -13,8 +15,7 @@ import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.dialogs.PopupDialog;
 import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Point;
@@ -51,6 +52,7 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	WorkbenchJob filterJob;
 	ControlEnableState enableState;
 	Object viewerInput;
+	ArrayList checkState = new ArrayList();
 
 	class InputSchedulingRule implements ISchedulingRule {
 		Object input;
@@ -108,8 +110,31 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	}
 
 	protected TreeViewer doCreateTreeViewer(Composite composite, int style) {
-		if (useCheckBoxTree)
-			return new ContainerCheckedTreeViewer(composite, style);
+		if (useCheckBoxTree) {
+			final ContainerCheckedTreeViewer v = new ContainerCheckedTreeViewer(composite, style);
+			v.addCheckStateListener(new ICheckStateListener() {
+				public void checkStateChanged(CheckStateChangedEvent event) {
+					// We use an additive check state cache so we need to remove
+					// previously checked items if the user unchecked them.
+					if (!event.getChecked() && checkState != null) {
+						Iterator iter = checkState.iterator();
+						ArrayList toRemove = new ArrayList(1);
+						while (iter.hasNext()) {
+							Object element = iter.next();
+							if (v.getComparer().equals(element, event.getElement())) {
+								toRemove.add(element);
+								// Do not break out of the loop.  We may have duplicate equal
+								// elements in the cache.  Since the cache is additive, we want
+								// to be sure we've gotten everything.
+							}
+						}
+						checkState.removeAll(toRemove);
+					}
+
+				}
+			});
+			return v;
+		}
 		return super.doCreateTreeViewer(composite, style);
 	}
 
@@ -172,6 +197,9 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 				// Store the input because it's not reset in the viewer until
 				// after this listener is run.
 				viewerInput = newInput;
+
+				// Reset the state for remembering check marks
+				checkState = new ArrayList();
 				// Cancel the load and filter jobs and null out the scheduling rule
 				// so that a new one will be created on the new input when needed.
 				filterRule = null;
@@ -195,7 +223,70 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	 * @see org.eclipse.ui.dialogs.FilteredTree#doCreateRefreshJob()
 	 */
 	protected WorkbenchJob doCreateRefreshJob() {
-		filterJob = super.doCreateRefreshJob();
+		// See bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229735
+		// Ideally we would not have to copy the filtering job, but this
+		// gives us the most precise control over how and when to preserve
+		// the check mark state.  We have modified the superclass job so
+		// that everything is expanded rather than recursively expanding
+		// the tree and checking for the stop time.  This simplifies the
+		// restoration of the correct checkmarks.
+		filterJob = new WorkbenchJob("Refresh Filter") {//$NON-NLS-1$
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				if (treeViewer.getControl().isDisposed()) {
+					return Status.CANCEL_STATUS;
+				}
+
+				String text = getFilterString();
+				if (text == null) {
+					return Status.OK_STATUS;
+				}
+
+				if (monitor.isCanceled())
+					return Status.CANCEL_STATUS;
+				boolean initial = initialText != null && initialText.equals(text);
+				if (initial) {
+					patternFilter.setPattern(null);
+				} else if (text != null) {
+					patternFilter.setPattern(text);
+				}
+
+				Control redrawFalseControl = treeComposite != null ? treeComposite : treeViewer.getControl();
+				try {
+					// don't want the user to see updates that will be made to
+					// the tree
+					// we are setting redraw(false) on the composite to avoid
+					// dancing scrollbar
+					redrawFalseControl.setRedraw(false);
+					treeViewer.getTree().setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
+					rememberLeafCheckState();
+					treeViewer.refresh(true);
+					// The superclass did a recursive expand so it could be more responsive to subsequent
+					// typing.  We are expanding all so that we know everything is realized when we go to
+					// restore the check state afterward.
+					treeViewer.expandAll();
+					if (text.length() > 0 && !initial) {
+						// enabled toolbar - there is text to clear
+						// and the list is currently being filtered
+						updateToolbar(true);
+					} else {
+						// disabled toolbar - there is no text to clear
+						// and the list is currently not filtered
+						updateToolbar(false);
+					}
+				} finally {
+					// done updating the tree - set redraw back to true
+					TreeItem[] items = getViewer().getTree().getItems();
+					if (items.length > 0 && getViewer().getTree().getSelectionCount() == 0) {
+						treeViewer.getTree().setTopItem(items[0]);
+					}
+					restoreLeafCheckState();
+					redrawFalseControl.setRedraw(true);
+					treeViewer.getTree().setCursor(null);
+				}
+				return Status.OK_STATUS;
+			}
+		};
+
 		filterJob.addJobChangeListener(new JobChangeAdapter() {
 			public void aboutToRun(final IJobChangeEvent event) {
 				final boolean[] shouldLoad = new boolean[1];
@@ -247,6 +338,7 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 		}
 		if (filterText != null && !filterText.isDisposed()) {
 			filterText.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
+			getViewer().getTree().setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
 			savedFilterText = filterText.getText();
 			filterText.setText(WAIT_STRING);
 		}
@@ -257,6 +349,7 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 		if (filterText != null && !filterText.isDisposed() && !filterText.isEnabled()) {
 			filterText.setText(filterTextToRestore);
 			filterText.setCursor(null);
+			getViewer().getTree().setCursor(null);
 			filterText.setFocus();
 			filterText.setSelection(filterTextToRestore.length(), filterTextToRestore.length());
 		}
@@ -297,6 +390,14 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 					contentProvider.setSynchronous(true);
 					display.asyncExec(new Runnable() {
 						public void run() {
+							// We have just loaded all content.  Trigger a viewer expand.
+							// This really only need be done before filtering, but it can
+							// be slow the very first time, so we may as well do it while
+							// the user is already waiting rather than after they expect
+							// things to be responsive.
+							if (getViewer() != null && !getViewer().getTree().isDisposed()) {
+								getViewer().expandAll();
+							}
 							restoreAfterLoading(savedFilterText);
 						}
 					});
@@ -338,5 +439,44 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 		if (filterText.getText().trim().equals(WAIT_STRING))
 			return;
 		super.textChanged();
+	}
+
+	void rememberLeafCheckState() {
+		if (!useCheckBoxTree)
+			return;
+		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
+		Object[] checked = v.getCheckedElements();
+		if (checkState == null)
+			checkState = new ArrayList(checked.length);
+		for (int i = 0; i < checked.length; i++)
+			if (!v.getGrayed(checked[i]))
+				checkState.add(checked[i]);
+	}
+
+	void restoreLeafCheckState() {
+		if (!useCheckBoxTree)
+			return;
+		ContainerCheckedTreeViewer v = (ContainerCheckedTreeViewer) getViewer();
+		if (v == null || v.getTree().isDisposed())
+			return;
+		if (checkState == null)
+			return;
+
+		v.setCheckedElements(new Object[0]);
+		v.setGrayedElements(new Object[0]);
+		// Now we are only going to set the check state of the leaf nodes
+		// and rely on our container checked code to update the parents properly.
+		Iterator iter = checkState.iterator();
+		Object element = null;
+		while (iter.hasNext()) {
+			element = iter.next();
+			if (!v.isExpandable(element)) {
+				// setChecked does an internal expand
+				v.setChecked(element, true);
+			}
+		}
+		// We are only firing one event, knowing that this is enough for our listeners.
+		if (element != null)
+			v.fireCheckStateChanged(element, true);
 	}
 }
