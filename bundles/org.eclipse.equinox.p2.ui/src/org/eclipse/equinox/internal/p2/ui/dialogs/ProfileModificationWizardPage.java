@@ -109,7 +109,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		});
 
 		// Filters and sorters before establishing content, so we don't refresh unnecessarily.
-		listViewer.setComparator(new IUComparator(IUComparator.IU_ID));
+		listViewer.setComparator(new IUComparator(IUComparator.IU_NAME));
 		listViewer.setComparer(new ProvElementComparer());
 
 		contentProvider = new StaticContentProvider(list.toArray());
