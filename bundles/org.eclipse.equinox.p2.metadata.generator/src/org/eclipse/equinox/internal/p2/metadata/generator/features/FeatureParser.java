@@ -176,7 +176,7 @@ public class FeatureParser extends DefaultHandler {
 				feature = parse(input, properties);
 				if (feature != null) {
 					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
-					feature.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(location, "feature", null, keyStrings)); //$NON-NLS-1$
+					feature.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(location, "feature", null, keyStrings)); //$NON-NLS-1$
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
