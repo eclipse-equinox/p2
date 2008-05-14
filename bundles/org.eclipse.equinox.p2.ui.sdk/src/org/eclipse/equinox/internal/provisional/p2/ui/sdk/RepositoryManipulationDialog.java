@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.ui.*;
+import org.eclipse.equinox.internal.provisional.p2.ui.actions.PropertyDialogAction;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.RepositoryManipulatorDropTarget;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
@@ -32,7 +33,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.dialogs.PropertyDialogAction;
 
 /**
  * Dialog that allows users to update, add, or remove repositories.
@@ -49,6 +49,8 @@ public class RepositoryManipulationDialog extends TrayDialog {
 	private IRepositoryManipulator manipulator;
 	private RepositoryContentProvider contentProvider;
 	private boolean changed = false;
+
+	Button propertiesButton, removeButton;
 
 	/**
 	 * Create an instance of this Dialog.
@@ -105,6 +107,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 				}
 			}
 		});
+
 		DropTarget target = new DropTarget(repositoryViewer.getControl(), DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_LINK);
 		target.setTransfer(new Transfer[] {URLTransfer.getInstance(), FileTransfer.getInstance()});
 		target.addDropListener(new RepositoryManipulatorDropTarget(manipulator, repositoryViewer.getControl()));
@@ -122,6 +125,15 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		verticalButtonBar.setLayoutData(data);
 		listener = getViewerProvisioningListener();
+
+		// Must be done after buttons are created so they
+		// get selection notifications first and can update their
+		// enablement
+		repositoryViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			public void selectionChanged(SelectionChangedEvent event) {
+				validateButtons();
+			}
+		});
 		ProvUI.addProvisioningListener(listener);
 		composite.addDisposeListener(new DisposeListener() {
 			public void widgetDisposed(DisposeEvent event) {
@@ -129,6 +141,7 @@ public class RepositoryManipulationDialog extends TrayDialog {
 			}
 		});
 		Dialog.applyDialogFont(composite);
+		validateButtons();
 		return composite;
 	}
 
@@ -212,15 +225,15 @@ public class RepositoryManipulationDialog extends TrayDialog {
 	}
 
 	private void createVerticalButtons(Composite parent) {
-		Button button = createVerticalButton(parent, ProvSDKMessages.RepositoryManipulationDialog_PropertiesButton, false);
-		button.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), repositoryViewer));
+		propertiesButton = createVerticalButton(parent, ProvSDKMessages.RepositoryManipulationDialog_PropertiesButton, false);
+		propertiesButton.setData(BUTTONACTION, new PropertyDialogAction(new SameShellProvider(parent.getShell()), repositoryViewer));
 		// spacer
 		new Label(parent, SWT.NONE);
 
-		button = createVerticalButton(parent, ProvSDKMessages.RepositoryManipulationDialog_AddButton, false);
+		Button button = createVerticalButton(parent, ProvSDKMessages.RepositoryManipulationDialog_AddButton, false);
 		button.setData(BUTTONACTION, new AddColocatedRepositoryAction(repositoryViewer, getShell()));
-		button = createVerticalButton(parent, ProvSDKMessages.RepositoryManipulationDialog_RemoveButton, false);
-		button.setData(BUTTONACTION, new RemoveColocatedRepositoryAction(repositoryViewer, getShell()));
+		removeButton = createVerticalButton(parent, ProvSDKMessages.RepositoryManipulationDialog_RemoveButton, false);
+		removeButton.setData(BUTTONACTION, new RemoveColocatedRepositoryAction(repositoryViewer, getShell()));
 
 		// spacer
 		new Label(parent, SWT.NONE);
@@ -293,4 +306,14 @@ public class RepositoryManipulationDialog extends TrayDialog {
 		}
 		return (MetadataRepositoryElement[]) list.toArray(new MetadataRepositoryElement[list.size()]);
 	}
+
+	void validateButtons() {
+		IAction action = (IAction) propertiesButton.getData(BUTTONACTION);
+		if (action != null)
+			propertiesButton.setEnabled(action.isEnabled());
+		action = (IAction) removeButton.getData(BUTTONACTION);
+		if (action != null)
+			removeButton.setEnabled(action.isEnabled());
+	}
+
 }
