@@ -42,6 +42,7 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.dnd.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
@@ -57,7 +58,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	private static final String BUTTONACTION = "buttonAction"; //$NON-NLS-1$
 	private static final int DEFAULT_HEIGHT = 240;
 	private static final int DEFAULT_WIDTH = 300;
-	private static final int CHAR_INDENT = 5;
 	private static final int SITE_COLUMN_WIDTH_IN_DLUS = 300;
 	private static final int OTHER_COLUMN_WIDTH_IN_DLUS = 200;
 	private static final int VERTICAL_MARGIN_DLU = 2;
@@ -76,9 +76,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	TabFolder tabFolder;
 	AvailableIUGroup availableIUGroup;
 	InstalledIUGroup installedIUGroup;
+	Composite availableIUButtonBar;
 	IRepositoryManipulator repositoryManipulator;
 	ChangeViewAction viewByRepo, viewFlat, viewCategory;
-	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, revertButton, manipulateRepoButton, addRepoButton, removeRepoButton;
+	Button installedPropButton, availablePropButton, installButton, uninstallButton, updateButton, revertButton, manipulateRepoButton, addRepoButton;
 	Button showInstalledCheckbox, showLatestVersionsCheckbox;
 	ProgressIndicator progressIndicator;
 	Label progressLabel;
@@ -167,6 +168,20 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		createProgressArea(comp);
 		initializeWidgetState();
 		Dialog.applyDialogFont(comp);
+
+		// Now we want to ensure our button bar on the available
+		// group lines up with the tree.
+		// Layout so far so we know how to line up the buttons
+		getShell().layout();
+		// Get the tree location and map back into button bar coordinates
+		Point location = availableIUGroup.getTree().getLocation();
+		location = availableIUGroup.getTree().getParent().toDisplay(location);
+		location = availableIUButtonBar.toControl(location);
+		if (availableIUButtonBar.getLayout() instanceof GridLayout) {
+			((GridLayout) availableIUButtonBar.getLayout()).marginTop = location.y;
+			getShell().layout();
+		}
+
 		return comp;
 	}
 
@@ -343,9 +358,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		layout.marginWidth = 0;
-		layout.marginTop = 0;
-		// breathing room underneath last checkboxes
-		layout.marginBottom = convertVerticalDLUsToPixels(VERTICAL_MARGIN_DLU);
 
 		composite.setLayout(layout);
 
@@ -355,7 +367,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// Vertical buttons
 		Composite vButtonBar = (Composite) createAvailableIUsVerticalButtonBar(composite);
 		GridData data = new GridData(GridData.FILL_VERTICAL);
-		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		vButtonBar.setLayoutData(data);
 
 		// Selection listeners must be registered on both the normal selection
@@ -405,7 +416,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 2;
-		gd.horizontalIndent = convertWidthInCharsToPixels(CHAR_INDENT);
 		gd.verticalIndent = convertVerticalDLUsToPixels(VERTICAL_MARGIN_DLU);
 		showLatestVersionsCheckbox = new Button(composite, SWT.CHECK);
 		showLatestVersionsCheckbox.setText(ProvSDKMessages.UpdateAndInstallDialog_ShowLatestVersionsOnly);
@@ -433,7 +443,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		});
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		gd.horizontalSpan = 2;
-		gd.horizontalIndent = convertWidthInCharsToPixels(CHAR_INDENT);
 		showInstalledCheckbox.setLayoutData(gd);
 
 		validateAvailableIUButtons();
@@ -451,7 +460,8 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 	private Control createAvailableIUsVerticalButtonBar(Composite parent) {
 		// Create composite.
-		Composite composite = new Composite(parent, SWT.NULL);
+		// Cached so we can line things up later.
+		availableIUButtonBar = new Composite(parent, SWT.NULL);
 
 		// create a layout with spacing and margins appropriate for the font
 		// size.
@@ -461,29 +471,27 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		layout.marginHeight = 0;
 		layout.horizontalSpacing = convertHorizontalDLUsToPixels(IDialogConstants.HORIZONTAL_SPACING);
 		layout.verticalSpacing = convertVerticalDLUsToPixels(IDialogConstants.VERTICAL_SPACING);
-		composite.setLayout(layout);
+		availableIUButtonBar.setLayout(layout);
 
 		// Add the buttons to the button bar.
 		// We use the check box selection provider to determine what to install.  For other actions we use the normal selection provider.
 		IAction installAction = new InstallAction(availableIUGroup.getCheckMappingSelectionProvider(), profileId, null, ProvPolicies.getDefault(), getShell());
-		installButton = createVerticalButton(composite, installAction, false);
+		installButton = createVerticalButton(availableIUButtonBar, installAction, false);
+
+		// spacer to separate the actions that close the dialog from the others.
+		new Label(availableIUButtonBar, SWT.NONE);
 
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), availableIUGroup.getStructuredViewer());
 		propertiesAction.setText(ProvSDKMessages.UpdateAndInstallDialog_Properties);
-		availablePropButton = createVerticalButton(composite, propertiesAction, false);
+		availablePropButton = createVerticalButton(availableIUButtonBar, propertiesAction, false);
 
 		// spacer
-		new Label(composite, SWT.NONE);
-		IAction refreshAction = new RefreshAction(availableIUGroup.getStructuredViewer(), availableIUGroup.getStructuredViewer().getControl()) {
-			protected void refresh() {
-				availableIUGroup.refresh();
-			}
-		};
-		refreshAction.setToolTipText(ProvSDKMessages.UpdateAndInstallDialog_RefreshTooltip);
-		createVerticalButton(composite, refreshAction, false);
+		new Label(availableIUButtonBar, SWT.NONE);
 
-		// spacer
-		new Label(composite, SWT.NONE);
+		IAction addSites = new AddColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell());
+		// Change the text so it's clear this is adding sites, not just "add".  Since items in the list are not all sites.
+		addSites.setText(ProvSDKMessages.UpdateAndInstallDialog_AddSiteButtonText);
+		addRepoButton = createVerticalButton(availableIUButtonBar, addSites, false);
 
 		IAction manipulateRepos = new Action() {
 			public void runWithEvent(Event event) {
@@ -492,19 +500,22 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		};
 		manipulateRepos.setText(ProvSDKMessages.UpdateAndInstallDialog_ManageSites);
 		manipulateRepos.setToolTipText(ProvSDKMessages.UpdateAndInstallDialog_ManageSitesTooltip);
-		manipulateRepoButton = createVerticalButton(composite, manipulateRepos, false);
+		manipulateRepoButton = createVerticalButton(availableIUButtonBar, manipulateRepos, false);
 
-		IAction addSites = new AddColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell());
-		// Change the text so it's clear this is adding sites, not just "add".  Since items in the list are not all sites.
-		addSites.setText(ProvSDKMessages.UpdateAndInstallDialog_AddSiteButtonText);
-		addRepoButton = createVerticalButton(composite, addSites, false);
+		// spacer
+		new Label(availableIUButtonBar, SWT.NONE);
 
-		IAction removeSites = new RemoveColocatedRepositoryAction(availableIUGroup.getStructuredViewer(), getShell());
-		removeRepoButton = createVerticalButton(composite, removeSites, false);
+		IAction refreshAction = new RefreshAction(availableIUGroup.getStructuredViewer(), availableIUGroup.getStructuredViewer().getControl()) {
+			protected void refresh() {
+				availableIUGroup.refresh();
+			}
+		};
+		refreshAction.setToolTipText(ProvSDKMessages.UpdateAndInstallDialog_RefreshTooltip);
+		createVerticalButton(availableIUButtonBar, refreshAction, false);
 
 		createMenu(availableIUGroup.getStructuredViewer().getControl(), new IAction[] {installAction, propertiesAction, refreshAction});
 
-		return composite;
+		return availableIUButtonBar;
 	}
 
 	void updateAvailableViewState() {
@@ -546,10 +557,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		updateEnablement(availablePropButton);
 		updateEnablement(manipulateRepoButton);
 		updateEnablement(addRepoButton);
-		updateEnablement(removeRepoButton);
-		boolean showRepos = queryContext.getViewType() == AvailableIUViewQueryContext.VIEW_BY_REPO;
-		addRepoButton.setVisible(showRepos);
-		removeRepoButton.setVisible(showRepos);
 	}
 
 	private Control createInstalledIUsPage(Composite parent) {
@@ -561,7 +568,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
 		layout.marginWidth = 0;
-		layout.marginHeight = 0;
 		composite.setLayout(layout);
 
 		// Table of installed IU's
@@ -570,7 +576,6 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		// Vertical buttons
 		Composite vButtonBar = (Composite) createInstalledIUsVerticalButtonBar(composite, ProvSDKUIActivator.getDefault().getQueryProvider());
 		GridData data = new GridData(GridData.FILL_VERTICAL);
-		data.verticalIndent = convertVerticalDLUsToPixels(IDialogConstants.BUTTON_BAR_HEIGHT);
 		vButtonBar.setLayoutData(data);
 
 		// Must be done after buttons are created so that the buttons can
@@ -630,6 +635,9 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 		IAction uninstallAction = new UninstallAction(installedIUGroup.getStructuredViewer(), profileId, null, ProvPolicies.getDefault(), parent.getShell());
 		uninstallButton = createVerticalButton(composite, uninstallAction, false);
+
+		// spacer
+		new Label(composite, SWT.NONE);
 
 		IAction propertiesAction = new PropertyDialogAction(new SameShellProvider(parent.getShell()), installedIUGroup.getStructuredViewer());
 		propertiesAction.setText(ProvSDKMessages.UpdateAndInstallDialog_Properties);
