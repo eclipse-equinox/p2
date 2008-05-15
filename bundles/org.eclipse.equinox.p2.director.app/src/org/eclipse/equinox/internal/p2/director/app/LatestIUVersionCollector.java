@@ -24,9 +24,14 @@ public class LatestIUVersionCollector extends Collector {
 			if (matchElement != null)
 				getList().remove(matchElement);
 			uniqueIds.put(iu.getId(), matchElement);
+			matchElement = makeDefaultElement(iu);
 			return super.accept(matchElement);
 		}
 		return true;
+	}
+
+	private Object makeDefaultElement(IInstallableUnit iu) {
+		return iu;
 	}
 
 	protected IInstallableUnit getIU(Object matchElement) {
