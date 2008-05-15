@@ -17,7 +17,7 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
-import org.eclipse.equinox.internal.p2.extensionlocation.SiteListener;
+import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -157,10 +157,11 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site site = (Site) iter.next();
 			String siteURL = site.getUrl();
-			IMetadataRepository match = getMatchingRepo(configRepositories, siteURL);
+			String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
+			IMetadataRepository match = getMatchingRepo(configRepositories, eclipseExtensionURL);
 			if (match == null) {
 				try {
-					URL location = new URL(siteURL);
+					URL location = new URL(eclipseExtensionURL);
 					Map properties = new HashMap();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
 					properties.put(SiteListener.SITE_LIST, toString(site.getList()));
@@ -175,8 +176,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 							metadataRepository = Activator.loadMetadataRepository(location, null);
 						} catch (ProvisionException inner) {
 							// handle the case where someone has removed the extension location from
-							// disk
-							File file = URLUtil.toFile(location);
+							// disk. Note: we use the siteURL not the eclipseextensionURL
+							URL fileURL = new URL(siteURL);
+							File file = URLUtil.toFile(fileURL);
 							if (file != null && !file.exists()) {
 								toBeRemoved.add(site);
 								continue;
@@ -189,6 +191,11 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 							String value = (String) properties.get(key);
 							metadataRepository.setProperty(key, value);
 						}
+						// now that we know we have the right properties set on the repository
+						// we will force initialization so things like the timestamp will be updated
+						// if necessary
+						if (metadataRepository instanceof ExtensionLocationMetadataRepository)
+							((ExtensionLocationMetadataRepository) metadataRepository).ensureInitialized();
 					}
 					newRepos.add(metadataRepository);
 
@@ -203,6 +210,11 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 							String value = (String) properties.get(key);
 							artifactRepository.setProperty(key, value);
 						}
+						// now that we know we have the right properties set on the repository
+						// we will force initialization so things like the timestamp will be updated
+						// if necessary
+						if (artifactRepository instanceof ExtensionLocationArtifactRepository)
+							((ExtensionLocationArtifactRepository) artifactRepository).ensureInitialized();
 					}
 				} catch (MalformedURLException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));

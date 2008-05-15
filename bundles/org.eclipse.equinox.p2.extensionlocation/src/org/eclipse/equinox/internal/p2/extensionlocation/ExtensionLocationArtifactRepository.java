@@ -59,7 +59,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		this.base = getBaseDirectory(location);
 	}
 
-	private void ensureInitialized() {
+	public void ensureInitialized() {
 		if (initialized)
 			return;
 		File plugins = new File(base, PLUGINS);
@@ -97,6 +97,8 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_file_protocol, null));
 
 		String path = url.getPath();
+		if (path.endsWith(EXTENSION_LOCATION))
+			path = path.substring(0, path.length() - EXTENSION_LOCATION.length());
 		File base = new File(path);
 
 		if (!base.isDirectory())
