@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ray Braithwood (ray@genuitec.com) - fix for bug 220605
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
