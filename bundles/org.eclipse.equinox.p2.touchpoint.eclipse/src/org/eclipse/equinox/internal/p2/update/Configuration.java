@@ -95,6 +95,10 @@ public class Configuration {
 		sites.add(site);
 	}
 
+	public boolean removeSite(Site site) {
+		return sites.remove(site);
+	}
+
 	public String getDate() {
 		return date;
 	}

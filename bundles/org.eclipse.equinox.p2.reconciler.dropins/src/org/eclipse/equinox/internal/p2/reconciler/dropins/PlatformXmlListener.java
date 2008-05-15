@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.extensionlocation.SiteListener;
 import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
@@ -152,6 +153,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	protected void synchronizeConfiguration(Configuration config) {
 		List sites = config.getSites();
 		Set newRepos = new LinkedHashSet();
+		Set toBeRemoved = new HashSet();
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site site = (Site) iter.next();
 			String siteURL = site.getUrl();
@@ -169,7 +171,18 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					try {
 						metadataRepository = Activator.createExtensionLocationMetadataRepository(location, "extension location metadata repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
 					} catch (ProvisionException ex) {
-						metadataRepository = Activator.loadMetadataRepository(location, null);
+						try {
+							metadataRepository = Activator.loadMetadataRepository(location, null);
+						} catch (ProvisionException inner) {
+							// handle the case where someone has removed the extension location from
+							// disk
+							File file = URLUtil.toFile(location);
+							if (file != null && !file.exists()) {
+								toBeRemoved.add(site);
+								continue;
+							}
+							throw inner;
+						}
 						// set the repository properties here in case they have changed since the last time we loaded
 						for (Iterator inner = properties.keySet().iterator(); inner.hasNext();) {
 							String key = (String) inner.next();
@@ -198,6 +211,15 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				}
 			} else {
 				newRepos.add(match);
+			}
+		}
+		if (!toBeRemoved.isEmpty()) {
+			for (Iterator iter = toBeRemoved.iterator(); iter.hasNext();)
+				config.removeSite((Site) iter.next());
+			try {
+				config.save(root, Activator.getOSGiInstallArea());
+			} catch (ProvisionException e) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while saving configuration at: " + root, e)); //$NON-NLS-1$
 			}
 		}
 		configRepositories = newRepos;
