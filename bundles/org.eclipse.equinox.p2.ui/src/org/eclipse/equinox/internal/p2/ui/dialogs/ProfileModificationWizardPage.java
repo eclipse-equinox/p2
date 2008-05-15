@@ -22,8 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProfileModificationOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.*;
@@ -210,7 +209,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			final IInstallableUnit[] selections = getCheckedIUs();
 			if (selections.length == 0) {
 				currentPlan = null;
-				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, ProvUIMessages.ProfileModificationWizardPage_NothingSelected);
+				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.EXPECTED_NOTHING_TO_DO, ProvUIMessages.ProfileModificationWizardPage_NothingSelected, null);
 			} else
 				getContainer().run(true, true, new IRunnableWithProgress() {
 					public void run(IProgressMonitor monitor) {
@@ -265,9 +264,15 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 			if (severity == IStatus.ERROR) {
 				messageType = IMessageProvider.ERROR;
 				pageComplete = false;
-			} else if (severity == IStatus.WARNING)
+				// Log errors for later support, but not if these are 
+				// simple UI validation errors.
+				if (currentStatus.getCode() != IStatusCodes.EXPECTED_NOTHING_TO_DO)
+					ProvUI.reportStatus(currentStatus, StatusManager.LOG);
+			} else if (severity == IStatus.WARNING) {
 				messageType = IMessageProvider.WARNING;
-			ProvUI.reportStatus(currentStatus, StatusManager.LOG);
+				// Log warnings for later support
+				ProvUI.reportStatus(currentStatus, StatusManager.LOG);
+			}
 		}
 		setPageComplete(pageComplete);
 		setMessage(getMessageText(), messageType);
