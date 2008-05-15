@@ -111,6 +111,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	String profileId;
 	AutomaticUpdatesPopup popup;
 	ProvisioningListener profileChangeListener;
+	IJobChangeListener provisioningJobListener;
 	boolean alreadyValidated = false;
 	boolean alreadyDownloaded = false;
 	private static final String AUTO_UPDATE_STATUS_ITEM = "AutoUpdatesStatus"; //$NON-NLS-1$
@@ -135,6 +136,7 @@ public class AutomaticUpdater implements IUpdateListener {
 			return;
 		}
 		registerProfileChangeListener();
+		registerProvisioningJobListener();
 
 		// Download the items if the preference dictates before
 		// showing the user that updates are available.
@@ -187,7 +189,7 @@ public class AutomaticUpdater implements IUpdateListener {
 	 * If isKnownToBeAvailable is false, then recheck that the update is
 	 * available.  isKnownToBeAvailable should be false when the update list 
 	 * might be stale (Reminding the user of updates may happen long
-	 * after the update.  This reduces the risk of notifying the user
+	 * after the update check.  This reduces the risk of notifying the user
 	 * of updates and then not finding them .)
 	 */
 
@@ -196,7 +198,7 @@ public class AutomaticUpdater implements IUpdateListener {
 		for (int i = 0; i < iusWithUpdates.length; i++) {
 			try {
 				if (isKnownToBeAvailable || ProvisioningUtil.getPlanner().updatesFor(iusWithUpdates[i], new ProvisioningContext(), monitor).length > 0) {
-					if (!updateLocked(iusWithUpdates[i]))
+					if (validToUpdate(iusWithUpdates[i]))
 						list.add(iusWithUpdates[i]);
 				}
 			} catch (ProvisionException e) {
@@ -207,19 +209,24 @@ public class AutomaticUpdater implements IUpdateListener {
 		iusWithUpdates = (IInstallableUnit[]) list.toArray(new IInstallableUnit[list.size()]);
 	}
 
-	private boolean updateLocked(IInstallableUnit iu) {
+	// A proposed update is valid if it is still visible to the user as an installed item (it is a root)
+	// and if it is not locked for updating.
+	private boolean validToUpdate(IInstallableUnit iu) {
 		int lock = IInstallableUnit.LOCK_NONE;
+		boolean isRoot = false;
 		try {
 			IProfile profile = ProvisioningUtil.getProfile(profileId);
 			String value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
 			if (value != null)
 				lock = Integer.parseInt(value);
+			value = profile.getInstallableUnitProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU);
+			isRoot = value == null ? false : Boolean.valueOf(value).booleanValue();
 		} catch (ProvisionException e) {
 			// ignore
 		} catch (NumberFormatException e) {
 			// ignore and assume no lock
 		}
-		return (lock & IInstallableUnit.LOCK_UPDATE) == IInstallableUnit.LOCK_UPDATE;
+		return isRoot && (lock & IInstallableUnit.LOCK_UPDATE) == 0;
 	}
 
 	Shell getWorkbenchWindowShell() {
@@ -295,6 +302,21 @@ public class AutomaticUpdater implements IUpdateListener {
 		IStatusLineManager manager = getStatusLineManager();
 		if (manager != null) {
 			manager.update(true);
+		}
+	}
+
+	void checkUpdateAffordanceEnablement() {
+		// We don't currently support enablement in the affordance,
+		// so we hide it if it should not be enabled.
+		if (updateAffordance == null)
+			return;
+		boolean shouldBeVisible = !ProvisioningOperationRunner.hasScheduledOperations();
+		if (updateAffordance.isVisible() != shouldBeVisible) {
+			IStatusLineManager manager = getStatusLineManager();
+			if (manager != null) {
+				updateAffordance.setVisible(shouldBeVisible);
+				manager.update(true);
+			}
 		}
 	}
 
@@ -382,6 +404,39 @@ public class AutomaticUpdater implements IUpdateListener {
 		}
 	}
 
+	private void registerProvisioningJobListener() {
+		if (provisioningJobListener == null) {
+			provisioningJobListener = new JobChangeAdapter() {
+				public void done(IJobChangeEvent event) {
+					IWorkbench workbench = PlatformUI.getWorkbench();
+					if (workbench == null || workbench.isClosing())
+						return;
+					if (workbench.getDisplay() == null)
+						return;
+					workbench.getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							checkUpdateAffordanceEnablement();
+						}
+					});
+				}
+
+				public void scheduled(final IJobChangeEvent event) {
+					IWorkbench workbench = PlatformUI.getWorkbench();
+					if (workbench == null || workbench.isClosing())
+						return;
+					if (workbench.getDisplay() == null)
+						return;
+					workbench.getDisplay().asyncExec(new Runnable() {
+						public void run() {
+							checkUpdateAffordanceEnablement();
+						}
+					});
+				}
+			};
+			ProvisioningOperationRunner.addJobChangeListener(provisioningJobListener);
+		}
+	}
+
 	/*
 	 * The profile has changed.  Make sure our toUpdate list is
 	 * still valid and if there is nothing to update, get rid
@@ -409,6 +464,10 @@ public class AutomaticUpdater implements IUpdateListener {
 	}
 
 	public void shutdown() {
+		if (provisioningJobListener != null) {
+			ProvisioningOperationRunner.removeJobChangeListener(provisioningJobListener);
+			provisioningJobListener = null;
+		}
 		if (profileChangeListener == null)
 			return;
 		IProvisioningEventBus bus = ProvSDKUIActivator.getDefault().getProvisioningEventBus();
