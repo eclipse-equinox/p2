@@ -36,6 +36,8 @@ import org.eclipse.ui.statushandlers.StatusManager;
  */
 public class QueryableMetadataRepositoryManager implements IQueryable {
 	private MetadataRepositories repositories;
+	private ArrayList notFound = new ArrayList();
+	private MultiStatus accumulatedNotFound = null;
 
 	public QueryableMetadataRepositoryManager(MetadataRepositories repositories) {
 		this.repositories = repositories;
@@ -77,14 +79,18 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 				result.accept(repoURLs.get(i));
 				sub.worked(2);
 			} else {
+				URL url = (URL) repoURLs.get(i);
 				try {
-					IMetadataRepository repo = manager.loadRepository((URL) repoURLs.get(i), sub.newChild(1));
+					IMetadataRepository repo = manager.loadRepository(url, sub.newChild(1));
 					repo.query(query, result, sub.newChild(1));
 				} catch (ProvisionException e) {
-					//ignore unavailable repositories
-					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+					if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+						handleNotFound(e, url);
+					else
 						ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs.get(i)), StatusManager.LOG);
 				}
+				reportAccumulatedStatus();
+
 			}
 		}
 		return result;
@@ -107,14 +113,17 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		for (int i = 0; i < repoURLs.size(); i++) {
 			if (sub.isCanceled())
 				return;
+			URL url = (URL) repoURLs.get(i);
 			try {
-				manager.loadRepository((URL) repoURLs.get(i), sub.newChild(1));
+				manager.loadRepository(url, sub.newChild(1));
 			} catch (ProvisionException e) {
-				//ignore unavailable repositories
-				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND)
+					handleNotFound(e, url);
+				else
 					ProvUI.handleException(e, NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, repoURLs.get(i)), StatusManager.LOG);
 			}
 		}
+		reportAccumulatedStatus();
 
 	}
 
@@ -129,5 +138,32 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 			}
 		}
 		return locations;
+	}
+
+	private void handleNotFound(ProvisionException e, URL missingRepo) {
+		// If we've already reported a URL is not found, don't report again.
+		if (notFound.contains(missingRepo.toExternalForm()))
+			return;
+		notFound.add(missingRepo.toExternalForm());
+		if (accumulatedNotFound == null) {
+			accumulatedNotFound = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(ProvUIMessages.ProvisioningUtil_RepositoryNotFound, missingRepo.toExternalForm()), null);
+		}
+		accumulatedNotFound.add(e.getStatus());
+	}
+
+	private void reportAccumulatedStatus() {
+		// If we've discovered not found repos we didn't know about, report them
+		if (accumulatedNotFound != null) {
+			// If we didn't find several repos in one pass, use a more generic top level message.
+			if (accumulatedNotFound.getChildren().length > 1) {
+				MultiStatus multiples = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND, "Some repositories could not be found.  Check the details.", null);
+				multiples.addAll(accumulatedNotFound);
+				accumulatedNotFound = multiples;
+
+			}
+			ProvUI.reportStatus(accumulatedNotFound, StatusManager.SHOW);
+		}
+		// Reset the accumulated status so that next time we only report the newly not found repos.
+		accumulatedNotFound = null;
 	}
 }

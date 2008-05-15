@@ -68,11 +68,7 @@ public class ProvisioningUtil {
 		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager == null)
 			throw new ProvisionException(ProvUIMessages.ProvisioningUtil_NoRepositoryManager);
-		IMetadataRepository repo = manager.loadRepository(location, monitor);
-		if (repo == null) {
-			throw new ProvisionException(NLS.bind(ProvUIMessages.ProvisioningUtil_LoadRepositoryFailure, location.toExternalForm()));
-		}
-		return repo;
+		return manager.loadRepository(location, monitor);
 	}
 
 	public static IStatus validateMetadataRepositoryLocation(URL location, IProgressMonitor monitor) {

@@ -65,6 +65,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvisioningUtil_NoPlannerFound;
 	public static String ProvisioningUtil_NoDirectorFound;
 	public static String ProvisioningUtil_NoEngineFound;
+	public static String ProvisioningUtil_RepositoryNotFound;
 
 	// viewer support
 	public static String ProvDropAdapter_InvalidDropTarget;
@@ -124,6 +125,7 @@ public class ProvUIMessages extends NLS {
 	public static String DeferredFetchFilteredTree_RetrievingList;
 	public static String Label_Profiles;
 	public static String Label_Repositories;
+	public static String MetadataRepositoryElement_NotFound;
 	public static String MetadataRepositoryElement_RepositoryLoadError;
 	public static String UpdateAction_UpdatesAvailableMessage;
 	public static String UpdateAction_UpdatesAvailableTitle;

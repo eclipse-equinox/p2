@@ -18,10 +18,12 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
+import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Element wrapper class for a metadata repository that gets its
@@ -33,6 +35,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 
 	URL url;
 	boolean isEnabled;
+	boolean alreadyReportedNotFound = false;
 
 	public MetadataRepositoryElement(URL url) {
 		this(url, true);
@@ -87,7 +90,19 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 			try {
 				queryable = ProvisioningUtil.loadMetadataRepository(url, monitor);
 			} catch (ProvisionException e) {
-				handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
+				// If repository could not be found, report to the user, but only once.
+				// If the user refreshes the repositories, new elements will be created and
+				// then a failure would be reported again on the next try.
+				if (e.getStatus().getCode() == ProvisionException.REPOSITORY_NOT_FOUND) {
+					if (!alreadyReportedNotFound) {
+						// report the status, not the exception, to the user because we
+						// do not want to show them stack trace and exception detail.
+						ProvUI.reportStatus(e.getStatus(), StatusManager.SHOW);
+						alreadyReportedNotFound = true;
+					}
+				} else
+					// handle other exceptions the normal way
+					handleException(e, NLS.bind(ProvUIMessages.MetadataRepositoryElement_RepositoryLoadError, url));
 			}
 		return (IMetadataRepository) queryable;
 
@@ -130,6 +145,8 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement#getDescription()
 	 */
 	public String getDescription() {
+		if (alreadyReportedNotFound)
+			return ProvUIMessages.MetadataRepositoryElement_NotFound;
 		try {
 			String description = ProvisioningUtil.getMetadataRepositoryProperty(url, IRepository.PROP_DESCRIPTION);
 			if (description == null)
