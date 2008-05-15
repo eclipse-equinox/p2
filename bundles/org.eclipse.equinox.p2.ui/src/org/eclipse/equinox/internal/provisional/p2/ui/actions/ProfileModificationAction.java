@@ -26,15 +26,17 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.*;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ProfileModificationAction extends ProvisioningAction {
-
+	public static final int ACTION_NOT_RUN = -1;
 	private String profileId;
 	private String userChosenProfileId;
 	IProfileChooser profileChooser;
 	Policies policies;
+	int result = ACTION_NOT_RUN;
 
 	protected ProfileModificationAction(String text, ISelectionProvider selectionProvider, String profileId, IProfileChooser profileChooser, Policies policies, Shell shell) {
 		super(text, selectionProvider, shell);
@@ -75,8 +77,22 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	public void run() {
 		ProvisioningPlan plan = getProvisioningPlan();
 		if (validatePlan(plan))
-			performOperation(getSelectedIUs(), getProfileId(true), plan);
+			result = performOperation(getSelectedIUs(), getProfileId(true), plan);
+		else
+			result = Window.CANCEL;
 		userChosenProfileId = null;
+	}
+
+	/**
+	 * Get the integer return code returned by any wizards launched by this
+	 * action.  If the action has not been run, return ACTION_NOT_RUN.  If the
+	 * action does not open a wizard, return Window.OK if the operation was performed,
+	 * and Window.CANCEL if it was canceled.
+	 * 
+	 * @return integer return code
+	 */
+	public int getReturnCode() {
+		return result;
 	}
 
 	/**
@@ -103,7 +119,7 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 */
 	protected abstract ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException;
 
-	protected abstract void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan);
+	protected abstract int performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan);
 
 	protected abstract String getTaskName();
 

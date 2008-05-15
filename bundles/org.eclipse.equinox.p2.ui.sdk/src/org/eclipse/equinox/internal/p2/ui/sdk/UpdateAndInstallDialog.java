@@ -34,6 +34,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.window.SameShellProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -717,6 +718,10 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 		if (action != null) {
 			action.runWithEvent(event);
 		}
+		// Close this dialog if we were performing a profile
+		// modifying operation and it succeeded.
+		if (action instanceof ProfileModificationAction && ((ProfileModificationAction) action).getReturnCode() == Window.OK)
+			close();
 	}
 
 	private IAction getButtonAction(Widget widget) {

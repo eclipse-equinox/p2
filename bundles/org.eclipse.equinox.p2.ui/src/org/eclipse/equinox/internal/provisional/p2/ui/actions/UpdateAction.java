@@ -44,7 +44,7 @@ public class UpdateAction extends ProfileModificationAction {
 		setToolTipText(ProvUI.UPDATE_COMMAND_TOOLTIP);
 	}
 
-	protected void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+	protected int performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
 		// Caches should have been created while formulating the plan
 		Assert.isNotNull(latestReplacements);
 		Assert.isNotNull(allReplacements);
@@ -52,7 +52,7 @@ public class UpdateAction extends ProfileModificationAction {
 
 		UpdateWizard wizard = new UpdateWizard(targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan, getLicenseManager());
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		dialog.open();
+		return dialog.open();
 	}
 
 	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {

@@ -68,10 +68,10 @@ public class UninstallAction extends ProfileModificationAction {
 		return ProvUIMessages.UninstallIUProgress;
 	}
 
-	protected void performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
+	protected int performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
 		UninstallWizard wizard = new UninstallWizard(targetProfileId, ius, plan);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
-		dialog.open();
+		return dialog.open();
 	}
 
 	protected ProvisioningPlan getProvisioningPlan(IInstallableUnit[] ius, String targetProfileId, IProgressMonitor monitor) throws ProvisionException {

@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.statushandlers.StatusManager;
 
@@ -37,9 +38,10 @@ public class RevertAction extends ProfileModificationAction {
 		return null;
 	}
 
-	protected void performOperation(IInstallableUnit[] toBecome, String targetProfileId, ProvisioningPlan plan) {
+	protected int performOperation(IInstallableUnit[] toBecome, String targetProfileId, ProvisioningPlan plan) {
 		ProvisioningOperation op = new ProfileModificationOperation(ProvUIMessages.RevertIUOperationLabel, targetProfileId, plan);
 		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
+		return Window.OK;
 	}
 
 	/*
