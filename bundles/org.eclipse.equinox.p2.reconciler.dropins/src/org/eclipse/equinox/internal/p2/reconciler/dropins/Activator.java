@@ -9,7 +9,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
-import java.io.File;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -36,14 +36,14 @@ public class Activator implements BundleActivator {
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 	private static final String LINKS = "links"; //$NON-NLS-1$
+	private static final String PLATFORM_CFG = "org.eclipse.update/platform.xml"; //$NON-NLS-1$
+	private static final String CACHE_FILENAME = "cache.timestamps"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
 	private List watchers = new ArrayList();
 	private static Collection dropinRepositories;
 	private static Collection configurationRepositories;
-	private static IMetadataRepository[] linksRepositories;
-	private static IMetadataRepository eclipseProductRepository;
 
 	/**
 	 * Helper method to create an extension location metadata repository at the given URL. 
@@ -133,6 +133,8 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 
+		if (isUpToDate())
+			return;
 		// TODO i-build to i-build backwards compatibility code to remove the
 		// old .pooled repositories. Remove this call soon.
 		removeOldRepos();
@@ -142,14 +144,131 @@ public class Activator implements BundleActivator {
 		watchConfiguration();
 
 		synchronize(null);
+		writeTimestamps();
 
 		// we should probably be holding on to these repos by URL
 		// see Bug 223422
 		// for now explicitly nulling out these repos to allow GC to occur
 		dropinRepositories = null;
 		configurationRepositories = null;
-		linksRepositories = null;
-		eclipseProductRepository = null;
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not we need to run
+	 * the reconciler due to changes in the file-system.
+	 */
+	private boolean isUpToDate() {
+		// the user might want to force a reconciliation
+		if ("true".equals(getContext().getProperty("osgi.checkConfiguration")))
+			return false;
+		// read timestamps
+		Properties timestamps = readTimestamps();
+		if (timestamps.isEmpty())
+			return false;
+		// check platform.xml
+		File configuration = getConfigurationLocation();
+		if (configuration != null) {
+			configuration = new File(configuration, PLATFORM_CFG);
+			if (!Long.toString(configuration.lastModified()).equals(timestamps.getProperty(configuration.getAbsolutePath())))
+				return false;
+			// the plugins and features directories are always siblings to the configuration directory
+			File parent = configuration.getParentFile();
+			if (parent != null) {
+				File plugins = new File(parent, "plugins");
+				if (!Long.toString(plugins.lastModified()).equals(timestamps.getProperty(plugins.getAbsolutePath())))
+					return false;
+				File features = new File(parent, "features");
+				if (!Long.toString(features.lastModified()).equals(timestamps.getProperty(features.getAbsolutePath())))
+					return false;
+			}
+		}
+		// check dropins folder
+		File dropins = getDropinsDirectory();
+		if (dropins != null) {
+			if (!Long.toString(dropins.lastModified()).equals(timestamps.getProperty(dropins.getAbsolutePath())))
+				return false;
+		}
+		// check links folder
+		File links = getLinksDirectory();
+		if (links != null) {
+			if (!Long.toString(links.lastModified()).equals(timestamps.getProperty(links.getAbsolutePath())))
+				return false;
+		}
+		return true;
+	}
+
+	/*
+	 * Restore the cached timestamp values.
+	 */
+	private Properties readTimestamps() {
+		Properties result = new Properties();
+		File file = Activator.getContext().getDataFile(CACHE_FILENAME);
+		if (!file.exists())
+			return result;
+		InputStream input = null;
+		try {
+			input = new BufferedInputStream(new FileInputStream(file));
+			result.load(input);
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while reading cached timestamps for reconciliation.", e)); //$NON-NLS-1$
+		} finally {
+			try {
+				if (input != null)
+					input.close();
+			} catch (IOException e) {
+				// ignore
+			}
+		}
+		return result;
+	}
+
+	/*
+	 * Persist the cache timestamp values.
+	 */
+	private void writeTimestamps() {
+		Properties timestamps = new Properties();
+		// cache the platform.xml file timestamp
+		File configuration = getConfigurationLocation();
+		if (configuration != null) {
+			configuration = new File(configuration, PLATFORM_CFG);
+			// always write out the timestamp even if it doesn't exist so we can detect addition/removal
+			timestamps.put(configuration.getAbsolutePath(), Long.toString(configuration.lastModified()));
+			File parent = configuration.getParentFile();
+			if (parent != null) {
+				File plugins = new File(parent, "plugins");
+				timestamps.put(plugins.getAbsolutePath(), Long.toString(plugins.lastModified()));
+				File features = new File(parent, "features");
+				timestamps.put(features.getAbsolutePath(), Long.toString(features.lastModified()));
+			}
+		}
+		// cache the dropins folder timestamp
+		// always write out the timestamp even if it doesn't exist so we can detect addition/removal
+		File dropins = getDropinsDirectory();
+		if (dropins != null)
+			timestamps.put(dropins.getAbsolutePath(), Long.toString(dropins.lastModified()));
+		// cache links folder timestamp
+		// always write out the timestamp even if it doesn't exist so we can detect addition/removal
+		File links = getLinksDirectory();
+		if (links != null)
+			timestamps.put(links.getAbsolutePath(), Long.toString(links.lastModified()));
+
+		// write out the file
+		File file = Activator.getContext().getDataFile(CACHE_FILENAME);
+		OutputStream output = null;
+		try {
+			file.delete();
+			output = new BufferedOutputStream(new FileOutputStream(file));
+			timestamps.store(output, null);
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while writing cache timestamps for reconciliation.", e)); //$NON-NLS-1$
+		} finally {
+			if (output != null)
+				try {
+					output.close();
+				} catch (IOException e) {
+					// ignore
+				}
+		}
 	}
 
 	/*
@@ -202,12 +321,6 @@ public class Activator implements BundleActivator {
 		if (configurationRepositories != null)
 			repositories.addAll(configurationRepositories);
 
-		if (linksRepositories != null)
-			repositories.addAll(Arrays.asList(linksRepositories));
-
-		if (eclipseProductRepository != null)
-			repositories.add(eclipseProductRepository);
-
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
 		if (!result.isOK())
@@ -224,7 +337,7 @@ public class Activator implements BundleActivator {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location."));
 			return;
 		}
-		configFile = new File(configFile, "org.eclipse.update/platform.xml"); //$NON-NLS-1$
+		configFile = new File(configFile, PLATFORM_CFG);
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
 		watcher.addListener(listener);
