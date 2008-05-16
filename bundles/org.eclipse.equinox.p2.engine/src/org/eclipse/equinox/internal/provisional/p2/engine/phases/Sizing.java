@@ -12,8 +12,7 @@ package org.eclipse.equinox.internal.provisional.p2.engine.phases;
 
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.EngineActivator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
@@ -64,6 +63,9 @@ public class Sizing extends InstallableUnitPhase {
 			}
 		}
 
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
+
 		IArtifactRepositoryManager repoMgr = (IArtifactRepositoryManager) ServiceHelper.getService(EngineActivator.getContext(), IArtifactRepositoryManager.class.getName());
 		URL[] repositories = null;
 		if (provContext == null || provContext.getArtifactRepositories() == null)
@@ -71,15 +73,17 @@ public class Sizing extends InstallableUnitPhase {
 		else
 			repositories = provContext.getArtifactRepositories();
 
-		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = artifactsToObtain.iterator(); iterator.hasNext() && !monitor.isCanceled();) {
 			IArtifactRequest artifactRequest = (IArtifactRequest) iterator.next();
 			for (int i = 0; i < repositories.length; i++) {
 				IArtifactRepository repo;
 				try {
-					repo = repoMgr.loadRepository(repositories[i], null);
+					repo = repoMgr.loadRepository(repositories[i], monitor);
 				} catch (ProvisionException e) {
 					continue;//skip unresponsive repositories
 				}
+				if (monitor.isCanceled())
+					return Status.CANCEL_STATUS;
 				IArtifactDescriptor[] descriptors = repo.getArtifactDescriptors(artifactRequest.getArtifactKey());
 				if (descriptors.length > 0) {
 					if (descriptors[0].getProperty(IArtifactDescriptor.ARTIFACT_SIZE) != null)
