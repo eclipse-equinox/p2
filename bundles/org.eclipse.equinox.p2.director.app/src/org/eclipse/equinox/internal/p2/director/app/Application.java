@@ -333,10 +333,9 @@ public class Application implements IApplication {
 		Collector roots;
 		switch (command) {
 			case COMMAND_INSTALL :
+				initializeRepositories();
 			case COMMAND_UNINSTALL :
 				IProfile profile = initializeProfile();
-				initializeRepositories();
-
 				query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
 				roots = ProvisioningHelper.getInstallableUnits(null, query, new LatestIUVersionCollector(), new NullProgressMonitor());
 				if (roots.size() <= 0)
