@@ -159,7 +159,7 @@ public class Activator implements BundleActivator {
 	 */
 	private boolean isUpToDate() {
 		// the user might want to force a reconciliation
-		if ("true".equals(getContext().getProperty("osgi.checkConfiguration")))
+		if ("true".equals(getContext().getProperty("osgi.checkConfiguration"))) //$NON-NLS-1$//$NON-NLS-2$
 			return false;
 		// read timestamps
 		Properties timestamps = readTimestamps();
@@ -174,10 +174,10 @@ public class Activator implements BundleActivator {
 			// the plugins and features directories are always siblings to the configuration directory
 			File parent = configuration.getParentFile();
 			if (parent != null) {
-				File plugins = new File(parent, "plugins");
+				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
 				if (!Long.toString(plugins.lastModified()).equals(timestamps.getProperty(plugins.getAbsolutePath())))
 					return false;
-				File features = new File(parent, "features");
+				File features = new File(parent, "features"); //$NON-NLS-1$
 				if (!Long.toString(features.lastModified()).equals(timestamps.getProperty(features.getAbsolutePath())))
 					return false;
 			}
@@ -235,9 +235,9 @@ public class Activator implements BundleActivator {
 			timestamps.put(configuration.getAbsolutePath(), Long.toString(configuration.lastModified()));
 			File parent = configuration.getParentFile();
 			if (parent != null) {
-				File plugins = new File(parent, "plugins");
+				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
 				timestamps.put(plugins.getAbsolutePath(), Long.toString(plugins.lastModified()));
-				File features = new File(parent, "features");
+				File features = new File(parent, "features"); //$NON-NLS-1$
 				timestamps.put(features.getAbsolutePath(), Long.toString(features.lastModified()));
 			}
 		}
