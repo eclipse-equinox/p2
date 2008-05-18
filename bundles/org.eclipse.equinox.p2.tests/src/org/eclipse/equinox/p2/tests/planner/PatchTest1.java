@@ -41,6 +41,7 @@ public class PatchTest1 extends AbstractProvisioningTest {
 	}
 
 	public void testInstall() {
+		//The requirement from A to B is broken because there is no B satisifying. Therefore A can only install if the P is installed as well
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
