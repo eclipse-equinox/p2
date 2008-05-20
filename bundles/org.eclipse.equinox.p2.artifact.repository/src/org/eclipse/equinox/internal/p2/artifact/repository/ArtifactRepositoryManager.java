@@ -477,9 +477,22 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 
 	public IArtifactRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		clearNotFound(location);
+		boolean wasEnabled = isEnabled(location);
+		//remove the repository so  event is broadcast and repositories can clear their caches
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return loadRepository(location, monitor, null, false);
+		try {
+			IArtifactRepository result = loadRepository(location, monitor, null, true);
+			if (!wasEnabled)
+				setEnabled(location, false);
+			return result;
+		} catch (ProvisionException e) {
+			//if we failed to load, make sure the repository is not lost
+			addRepository(location);
+			if (!wasEnabled)
+				setEnabled(location, false);
+			throw e;
+		}
 	}
 
 	/*
