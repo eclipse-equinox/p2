@@ -160,6 +160,7 @@ public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 			}
 			allSiteIUs.add(featureIU);
 			allSiteIUs.add(groupIU);
+			publishSites(feature);
 		}
 
 		for (int i = 0; i < siteCategories.length; i++) {
@@ -239,6 +240,35 @@ public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 
 	public void initialize(RepositoryState state) {
 		//nothing to do
+	}
+
+	/**
+	 * Broadcast events for any discovery sites associated with the feature
+	 * so the repository managers add them to their list of known repositories.
+	 */
+	private void publishSites(Feature feature) {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		URLEntry[] discoverySites = feature.getDiscoverySites();
+		for (int i = 0; i < discoverySites.length; i++)
+			publishSite(feature, bus, discoverySites[i].getURL(), false);
+		String updateSite = feature.getUpdateSiteURL();
+		if (updateSite != null)
+			publishSite(feature, bus, updateSite, true);
+	}
+
+	/**
+	 * Broadcast a discovery event for the given repository location.
+	 */
+	private void publishSite(Feature feature, IProvisioningEventBus bus, String locationString, boolean isEnabled) {
+		try {
+			URL siteLocation = new URL(locationString);
+			bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED, isEnabled));
+			bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, isEnabled));
+		} catch (MalformedURLException e) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature references invalid site: " + feature.getId(), e)); //$NON-NLS-1$
+		}
 	}
 
 }
