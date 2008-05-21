@@ -32,6 +32,7 @@ public class ProvUIMessages extends NLS {
 	public static String AcceptLicensesWizardPage_NoLicensesDescription;
 	public static String AcceptLicensesWizardPage_RejectMultiple;
 	public static String AcceptLicensesWizardPage_RejectSingle;
+	public static String AcceptLicensesWizardPage_ReviewExtraLicensesDescription;
 	public static String AcceptLicensesWizardPage_ReviewLicensesDescription;
 	public static String AcceptLicensesWizardPage_Title;
 	public static String ApplyProfileChangesDialog_ApplyChanges;

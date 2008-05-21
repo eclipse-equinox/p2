@@ -15,6 +15,9 @@ import java.util.List;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.p2.ui.viewers.StaticContentProvider;
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
+import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
+import org.eclipse.equinox.internal.provisional.p2.engine.Operand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
@@ -40,23 +43,24 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	Text licenseTextBox;
 	Button acceptButton;
 	Button declineButton;
-	private IInstallableUnit[] ius;
+	private IInstallableUnit[] originalIUs;
+	private IInstallableUnit[] iusWithUnacceptedLicenses;
 	private LicenseManager licenseManager;
 	private static final int DEFAULT_COLUMN_WIDTH = 40;
 
-	public AcceptLicensesWizardPage(IInstallableUnit[] ius, LicenseManager licenseManager) {
+	public AcceptLicensesWizardPage(IInstallableUnit[] ius, LicenseManager licenseManager, ProvisioningPlan plan) {
 		super("AcceptLicenses"); //$NON-NLS-1$
 		setTitle(ProvUIMessages.AcceptLicensesWizardPage_Title);
 		this.licenseManager = licenseManager;
-		update(ius);
+		update(ius, plan);
 	}
 
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
-		if (ius.length == 0) {
+		if (iusWithUnacceptedLicenses.length == 0) {
 			Label label = new Label(parent, SWT.NONE);
 			setControl(label);
-		} else if (ius.length == 1) {
+		} else if (iusWithUnacceptedLicenses.length == 1) {
 			createLicenseSection(parent, true);
 		} else {
 			SashForm composite = new SashForm(parent, SWT.HORIZONTAL);
@@ -87,15 +91,11 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		label.setText(ProvUIMessages.AcceptLicensesWizardPage_ItemsLabel);
 		iuViewer = new TableViewer(composite, SWT.FULL_SELECTION | SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
 		setTableColumns(iuViewer.getTable());
-		iuViewer.setContentProvider(new StaticContentProvider(new Object[0]));
-		iuViewer.setInput(ius);
+		iuViewer.setContentProvider(new StaticContentProvider(iusWithUnacceptedLicenses));
 		iuViewer.setLabelProvider(new IUDetailsLabelProvider());
-		iuViewer.setComparator(new ViewerComparator(new Comparator() {
-			// This comparator sorts in reverse order so that we see the newest configs first
-			public int compare(Object o1, Object o2) {
-				return ((String) o2).compareTo((String) o1);
-			}
-		}));
+		iuViewer.setComparator(new ViewerComparator());
+		iuViewer.setInput(iusWithUnacceptedLicenses);
+
 		iuViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 			public void selectionChanged(SelectionChangedEvent event) {
 				handleSelectionChanged((IStructuredSelection) event.getSelection());
@@ -162,7 +162,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		createLicenseAcceptSection(composite, !singleLicense);
 
 		if (singleLicense) {
-			licenseTextBox.setText(getLicenseBody(ius[0]));
+			licenseTextBox.setText(getLicenseBody(iusWithUnacceptedLicenses[0]));
 			setControl(composite);
 		}
 	}
@@ -193,13 +193,14 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	public boolean hasLicensesToAccept() {
-		return ius.length > 0;
+		return iusWithUnacceptedLicenses.length > 0;
 	}
 
-	public void update(IInstallableUnit[] theIUs) {
-		this.ius = iusWithUnacceptedLicenses(theIUs);
+	public void update(IInstallableUnit[] theIUs, ProvisioningPlan currentPlan) {
+		this.originalIUs = theIUs;
+		this.iusWithUnacceptedLicenses = iusWithUnacceptedLicenses(theIUs, currentPlan);
 		setDescription();
-		setPageComplete(ius.length == 0);
+		setPageComplete(iusWithUnacceptedLicenses.length == 0);
 		if (getControl() != null) {
 			Composite parent = getControl().getParent();
 			getControl().dispose();
@@ -217,31 +218,76 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		return ""; //$NON-NLS-1$
 	}
 
-	private IInstallableUnit[] iusWithUnacceptedLicenses(IInstallableUnit[] allIUs) {
+	private IInstallableUnit[] iusWithUnacceptedLicenses(IInstallableUnit[] selectedIUs, ProvisioningPlan currentPlan) {
+		IInstallableUnit[] iusToCheck;
+		if (currentPlan == null)
+			iusToCheck = selectedIUs;
+		else {
+			List allIUs = new ArrayList();
+			Operand[] operands = currentPlan.getOperands();
+			for (int i = 0; i < operands.length; i++)
+				if (operands[i] instanceof InstallableUnitOperand) {
+					IInstallableUnit addedIU = ((InstallableUnitOperand) operands[i]).second();
+					if (addedIU != null)
+						allIUs.add(addedIU);
+				}
+			iusToCheck = (IInstallableUnit[]) allIUs.toArray(new IInstallableUnit[allIUs.size()]);
+		}
+
+		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=218532
+		// Current metadata generation can result with a feature group IU and the feature jar IU
+		// having the same name and license.  We will weed out duplicates if the license and name are both
+		// the same.  
+		// Note this algorithm is not generalized...we only save the first iu of any name found and this
+		// algorithm would allow duplicates if subsequent licenses found for an iu name did not match the
+		// first license yet still duplicated each other. Since this is not likely to happen we keep it
+		// simple.  The UI for licenses will soon be reworked.
+		HashMap iusByName = new HashMap();
 		List unaccepted = new ArrayList();
-		for (int i = 0; i < allIUs.length; i++) {
-			IInstallableUnit iu = allIUs[i];
+		// We can't be sure that the viewer is created or the right label provider has been installed, so make another one.
+		IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
+		for (int i = 0; i < iusToCheck.length; i++) {
+			IInstallableUnit iu = iusToCheck[i];
+			String name = labelProvider.getText(iu);
 			License license = iu.getLicense();
 			// It has a license, is it already accepted?
 			if (license != null) {
-				if (licenseManager == null || !licenseManager.isAccepted(iu))
-					unaccepted.add(iu);
+				if (licenseManager == null || !licenseManager.isAccepted(iu)) {
+					// Have we already found an IU with this user name?
+					IInstallableUnit potentialDuplicate = (IInstallableUnit) iusByName.get(name);
+					// If we have no duplicate or the duplicate's license doesn't match, add it
+					if (potentialDuplicate == null || !potentialDuplicate.getLicense().equals(license))
+						unaccepted.add(iu);
+					// We didn't have a duplicate, need to record this one
+					if (potentialDuplicate == null)
+						iusByName.put(name, iu);
+				}
 			}
 		}
+		// Wasn't that fun?
 		return (IInstallableUnit[]) unaccepted.toArray(new IInstallableUnit[unaccepted.size()]);
 	}
 
 	private void rememberAcceptedLicenses() {
-		for (int i = 0; i < ius.length; i++) {
+		for (int i = 0; i < iusWithUnacceptedLicenses.length; i++) {
 			if (licenseManager != null)
-				licenseManager.accept(ius[i]);
+				licenseManager.accept(iusWithUnacceptedLicenses[i]);
 		}
 	}
 
 	private void setDescription() {
-		if (ius.length == 0)
+		// No licenses but the page is open.  Shouldn't happen, but just in case...
+		if (iusWithUnacceptedLicenses.length == 0)
 			setDescription(ProvUIMessages.AcceptLicensesWizardPage_NoLicensesDescription);
-		else
+		// We have licenses.  Use a generic message if we think we aren't showing
+		// licenses from required IU's.  This check is not entirely accurate, for example
+		// one root IU could have no license and the next one has two different
+		// IU's with different licenses.  But this cheaply catches the common cases.
+		else if (iusWithUnacceptedLicenses.length <= originalIUs.length)
 			setDescription(ProvUIMessages.AcceptLicensesWizardPage_ReviewLicensesDescription);
+		else {
+			// Without a doubt we know we are showing extra licenses.
+			setDescription(ProvUIMessages.AcceptLicensesWizardPage_ReviewExtraLicensesDescription);
+		}
 	}
 }

@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
 import org.eclipse.jface.wizard.IWizardPage;
@@ -23,9 +24,9 @@ public abstract class UpdateOrInstallWizard extends Wizard {
 
 	UpdateOrInstallWizardPage mainPage;
 	AcceptLicensesWizardPage licensePage;
-	String profileId;
-	IInstallableUnit[] ius;
-	LicenseManager licenseManager;
+	protected String profileId;
+	protected IInstallableUnit[] ius;
+	protected LicenseManager licenseManager;
 
 	public UpdateOrInstallWizard(String profileId, IInstallableUnit[] ius, LicenseManager licenseManager) {
 		super();
@@ -37,10 +38,11 @@ public abstract class UpdateOrInstallWizard extends Wizard {
 	}
 
 	public void addPages() {
-		mainPage = createMainPage(profileId, ius);
-		addPage(mainPage);
-		addPage(licensePage = new AcceptLicensesWizardPage(ius, licenseManager));
+		addPage(mainPage = createMainPage());
+		addPage(licensePage = createLicensesPage());
 	}
+
+	protected abstract AcceptLicensesWizardPage createLicensesPage();
 
 	/*
 	 * (non-Javadoc)
@@ -57,11 +59,11 @@ public abstract class UpdateOrInstallWizard extends Wizard {
 		return mainPage.performFinish();
 	}
 
-	public void iusChanged(IInstallableUnit[] theIUs) {
-		this.ius = theIUs;
-		licensePage.update(ius);
+	public void planChanged(IInstallableUnit[] selectedIUs, ProvisioningPlan plan) {
+		this.ius = selectedIUs;
+		licensePage.update(selectedIUs, plan);
 	}
 
-	protected abstract UpdateOrInstallWizardPage createMainPage(String theProfileId, IInstallableUnit[] theIUs);
+	protected abstract UpdateOrInstallWizardPage createMainPage();
 
 }

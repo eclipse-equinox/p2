@@ -26,20 +26,7 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 	IInstallableUnit[] suggestedReplacements;
 	Object[] initialSelections = new Object[0];
 
-	public UpdateWizardPage(IInstallableUnit[] iusToReplace, AvailableUpdateElement[] elements, Object[] initialSelections, String profileId, ProvisioningPlan plan, UpdateOrInstallWizard wizard) {
-		super("UpdateWizardPage", iusToReplace, profileId, plan, wizard); //$NON-NLS-1$
-		this.updateElements = elements;
-		this.initialSelections = initialSelections;
-		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
-		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
-	}
-
-	protected void makeElements(IInstallableUnit[] ius, List elements) {
-		for (int i = 0; i < updateElements.length; i++)
-			elements.add(updateElements[i]);
-	}
-
-	private IInstallableUnit[] getIUsToReplace(Object[] replacementElements) {
+	public static IInstallableUnit[] getIUsToReplace(Object[] replacementElements) {
 		Set iusToReplace = new HashSet();
 		for (int i = 0; i < replacementElements.length; i++) {
 			if (replacementElements[i] instanceof AvailableUpdateElement) {
@@ -49,6 +36,33 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 		return (IInstallableUnit[]) iusToReplace.toArray(new IInstallableUnit[iusToReplace.size()]);
 	}
 
+	public static IInstallableUnit[] getReplacementIUs(Object[] replacementElements) {
+		Set replacements = new HashSet();
+		for (int i = 0; i < replacementElements.length; i++) {
+			if (replacementElements[i] instanceof AvailableUpdateElement) {
+				replacements.add(((AvailableUpdateElement) replacementElements[i]).getIU());
+			}
+		}
+		return (IInstallableUnit[]) replacements.toArray(new IInstallableUnit[replacements.size()]);
+	}
+
+	public UpdateWizardPage(IInstallableUnit[] iusToReplace, AvailableUpdateElement[] elements, Object[] initialSelections, String profileId, ProvisioningPlan plan, UpdateOrInstallWizard wizard) {
+		super("UpdateWizardPage", iusToReplace, profileId, plan, wizard); //$NON-NLS-1$
+		this.updateElements = elements;
+		this.initialSelections = initialSelections;
+		setTitle(ProvUIMessages.UpdateAction_UpdatesAvailableTitle);
+		setDescription(ProvUIMessages.UpdateAction_UpdatesAvailableMessage);
+	}
+
+	protected void makeElements(IInstallableUnit[] ius, List elements) {
+		// ignore the originally selected ius, we want to use the
+		// update elements computed by the creator of the wizard,
+		// which contains both the elements to be replaced, and the
+		// replacements
+		for (int i = 0; i < updateElements.length; i++)
+			elements.add(updateElements[i]);
+	}
+
 	protected String getOperationLabel() {
 		return ProvUIMessages.UpdateIUOperationLabel;
 	}
@@ -56,7 +70,7 @@ public class UpdateWizardPage extends UpdateOrInstallWizardPage {
 	protected ProvisioningPlan computeProvisioningPlan(Object[] selectedElements, IProgressMonitor monitor) throws ProvisionException {
 		ProfileChangeRequest request = ProfileChangeRequest.createByProfileId(getProfileId());
 		request.removeInstallableUnits(getIUsToReplace(selectedElements));
-		request.addInstallableUnits(elementsToIUs(selectedElements));
+		request.addInstallableUnits(getReplacementIUs(selectedElements));
 		ProvisioningPlan plan = ProvisioningUtil.getProvisioningPlan(request, getProvisioningContext(), monitor);
 		computeSizing(plan, getProfileId());
 		return plan;

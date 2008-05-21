@@ -36,7 +36,11 @@ public class UpdateWizard extends UpdateOrInstallWizard {
 		this.initialSelections = initialSelections;
 	}
 
-	protected UpdateOrInstallWizardPage createMainPage(String profileId, IInstallableUnit[] ius) {
+	protected UpdateOrInstallWizardPage createMainPage() {
 		return new UpdateWizardPage(ius, elements, initialSelections, profileId, plan, this);
+	}
+
+	protected AcceptLicensesWizardPage createLicensesPage() {
+		return new AcceptLicensesWizardPage(UpdateWizardPage.getReplacementIUs(initialSelections), licenseManager, plan);
 	}
 }

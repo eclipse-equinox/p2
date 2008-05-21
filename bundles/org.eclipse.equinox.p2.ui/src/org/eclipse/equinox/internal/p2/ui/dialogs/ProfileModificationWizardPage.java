@@ -165,7 +165,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return false;
 	}
 
-	private Object[] getCheckedElements() {
+	protected Object[] getCheckedElements() {
 		return listViewer.getCheckedElements();
 	}
 
@@ -188,10 +188,6 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		return units[0];
 	}
 
-	protected IInstallableUnit[] getCheckedIUs() {
-		return elementsToIUs(getCheckedElements());
-	}
-
 	protected String getProfileId() {
 		return profileId;
 	}
@@ -206,7 +202,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 	protected void checkedIUsChanged() {
 		try {
-			final IInstallableUnit[] selections = getCheckedIUs();
+			final Object[] selections = getCheckedElements();
 			if (selections.length == 0) {
 				currentPlan = null;
 				currentStatus = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, IStatusCodes.EXPECTED_NOTHING_TO_DO, ProvUIMessages.ProfileModificationWizardPage_NothingSelected, null);
@@ -216,7 +212,7 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 						try {
 							currentPlan = computeProvisioningPlan(selections, monitor);
 							if (currentPlan != null)
-								currentStatus = PlanStatusHelper.computeStatus(currentPlan, selections);
+								currentStatus = PlanStatusHelper.computeStatus(currentPlan, elementsToIUs(selections));
 							else
 								currentStatus = NULL_PLAN_STATUS;
 						} catch (ProvisionException e) {

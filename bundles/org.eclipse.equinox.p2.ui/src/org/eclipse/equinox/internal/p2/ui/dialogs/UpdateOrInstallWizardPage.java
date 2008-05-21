@@ -99,8 +99,14 @@ public abstract class UpdateOrInstallWizardPage extends ProfileModificationWizar
 	}
 
 	protected void checkedIUsChanged() {
-		wizard.iusChanged(getCheckedIUs());
+		// First ensure that a new plan is computed.
 		super.checkedIUsChanged();
+		// Now update the license page accordingly.  This requires the plan so
+		// that licenses for required items can also be checked.
+		wizard.planChanged(elementsToIUs(getCheckedElements()), currentPlan);
+		// status of license page could change status of wizard next button
+		getContainer().updateButtons();
+
 	}
 
 	protected void updateSizingInfo() {

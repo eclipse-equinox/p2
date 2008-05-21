@@ -31,7 +31,11 @@ public class InstallWizard extends UpdateOrInstallWizard {
 		this.plan = initialProvisioningPlan;
 	}
 
-	protected UpdateOrInstallWizardPage createMainPage(String profileId, IInstallableUnit[] ius) {
+	protected UpdateOrInstallWizardPage createMainPage() {
 		return new InstallWizardPage(ius, profileId, plan, this);
+	}
+
+	protected AcceptLicensesWizardPage createLicensesPage() {
+		return new AcceptLicensesWizardPage(ius, licenseManager, plan);
 	}
 }

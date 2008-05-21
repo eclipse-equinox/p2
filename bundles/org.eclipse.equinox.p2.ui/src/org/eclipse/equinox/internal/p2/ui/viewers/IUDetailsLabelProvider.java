@@ -43,6 +43,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 	private String toolTipProperty = null;
 	private FilteredTree filteredTree;
 	private boolean useBoldFont = false;
+	private boolean showingId = false;
 
 	private IUColumnConfig[] columnConfig;
 	Shell shell;
@@ -58,6 +59,11 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 			this.columnConfig = ProvUI.getIUColumnConfig();
 		else
 			this.columnConfig = columnConfig;
+		for (int i = 0; i < this.columnConfig.length; i++)
+			if (this.columnConfig[i].columnField == IUColumnConfig.COLUMN_ID) {
+				showingId = true;
+				break;
+			}
 		this.shell = shell;
 	}
 
@@ -93,7 +99,12 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 				String name = IUPropertyUtils.getIUProperty(iu, IInstallableUnit.PROP_NAME);
 				if (name != null)
 					return name;
-				return BLANK;
+				// If the iu name is not available, we return blank if we know know we are
+				// showing id in another column.  Otherwise we return id so the user doesn't
+				// see blank iu's.  
+				if (showingId)
+					return BLANK;
+				return iu.getId();
 			case IUColumnConfig.COLUMN_VERSION :
 				// If it's an element, determine if version should be shown
 				if (element instanceof IUElement) {
