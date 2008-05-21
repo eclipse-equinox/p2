@@ -159,16 +159,22 @@ public class Application implements IApplication {
 		return profile;
 	}
 
-	private void initializeRepositories() throws CoreException {
-		if (artifactRepositoryLocations == null)
-			missingArgument("artifactRepository"); //$NON-NLS-1$
-		for (int i = 0; i < artifactRepositoryLocations.length; i++)
-			ProvisioningHelper.addArtifactRepository(artifactRepositoryLocations[i]);
+	private void initializeRepositories(boolean throwException) throws CoreException {
+		if (artifactRepositoryLocations == null) {
+			if (throwException)
+				missingArgument("artifactRepository"); //$NON-NLS-1$
+		} else {
+			for (int i = 0; i < artifactRepositoryLocations.length; i++)
+				ProvisioningHelper.addArtifactRepository(artifactRepositoryLocations[i]);
+		}
 
-		if (metadataRepositoryLocations == null)
-			missingArgument("metadataRepository"); //$NON-NLS-1$
-		for (int i = 0; i < metadataRepositoryLocations.length; i++)
-			ProvisioningHelper.addMetadataRepository(metadataRepositoryLocations[i]);
+		if (metadataRepositoryLocations == null) {
+			if (throwException)
+				missingArgument("metadataRepository"); //$NON-NLS-1$
+		} else {
+			for (int i = 0; i < metadataRepositoryLocations.length; i++)
+				ProvisioningHelper.addMetadataRepository(metadataRepositoryLocations[i]);
+		}
 	}
 
 	private void initializeServices() {
@@ -333,8 +339,9 @@ public class Application implements IApplication {
 		Collector roots;
 		switch (command) {
 			case COMMAND_INSTALL :
-				initializeRepositories();
 			case COMMAND_UNINSTALL :
+				initializeRepositories(command == COMMAND_INSTALL);
+
 				IProfile profile = initializeProfile();
 				query = new InstallableUnitQuery(root, version == null ? VersionRange.emptyRange : new VersionRange(version, true, version, true));
 				roots = ProvisioningHelper.getInstallableUnits(null, query, new LatestIUVersionCollector(), new NullProgressMonitor());
