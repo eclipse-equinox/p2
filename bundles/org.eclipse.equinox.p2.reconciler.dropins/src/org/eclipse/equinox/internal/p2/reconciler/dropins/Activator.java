@@ -182,16 +182,16 @@ public class Activator implements BundleActivator {
 					return false;
 			}
 		}
-		// check dropins folder
-		File dropins = getDropinsDirectory();
-		if (dropins != null) {
-			if (!Long.toString(dropins.lastModified()).equals(timestamps.getProperty(dropins.getAbsolutePath())))
+		// check dropins folders
+		File[] dropins = getDropinsDirectories();
+		for (int i = 0; i < dropins.length; i++) {
+			if (!Long.toString(dropins[i].lastModified()).equals(timestamps.getProperty(dropins[i].getAbsolutePath())))
 				return false;
 		}
 		// check links folder
-		File links = getLinksDirectory();
-		if (links != null) {
-			if (!Long.toString(links.lastModified()).equals(timestamps.getProperty(links.getAbsolutePath())))
+		File[] links = getLinksDirectories();
+		for (int i = 0; i < links.length; i++) {
+			if (!Long.toString(links[i].lastModified()).equals(timestamps.getProperty(links[i].getAbsolutePath())))
 				return false;
 		}
 		return true;
@@ -241,16 +241,18 @@ public class Activator implements BundleActivator {
 				timestamps.put(features.getAbsolutePath(), Long.toString(features.lastModified()));
 			}
 		}
-		// cache the dropins folder timestamp
+		// cache the dropins folders timestamp
 		// always write out the timestamp even if it doesn't exist so we can detect addition/removal
-		File dropins = getDropinsDirectory();
-		if (dropins != null)
-			timestamps.put(dropins.getAbsolutePath(), Long.toString(dropins.lastModified()));
-		// cache links folder timestamp
+		File[] dropins = getDropinsDirectories();
+		for (int i = 0; i < dropins.length; i++) {
+			timestamps.put(dropins[i].getAbsolutePath(), Long.toString(dropins[i].lastModified()));
+		}
+		// cache links folders timestamps
 		// always write out the timestamp even if it doesn't exist so we can detect addition/removal
-		File links = getLinksDirectory();
-		if (links != null)
-			timestamps.put(links.getAbsolutePath(), Long.toString(links.lastModified()));
+		File[] links = getLinksDirectories();
+		for (int i = 0; i < links.length; i++) {
+			timestamps.put(links[i].getAbsolutePath(), Long.toString(links[i].lastModified()));
+		}
 
 		// write out the file
 		File file = Activator.getContext().getDataFile(CACHE_FILENAME);
@@ -350,16 +352,14 @@ public class Activator implements BundleActivator {
 	 */
 	private void watchDropins(IProfile profile) {
 		List directories = new ArrayList();
-		File dropinsDirectory = getDropinsDirectory();
-		if (dropinsDirectory != null)
-			directories.add(dropinsDirectory);
-		File linksDirectory = getLinksDirectory();
-		if (linksDirectory != null)
-			directories.add(linksDirectory);
+		File[] dropinsDirectories = getDropinsDirectories();
+		directories.addAll(Arrays.asList(dropinsDirectories));
+		File[] linksDirectories = getLinksDirectories();
+		directories.addAll(Arrays.asList(linksDirectories));
 		if (directories.isEmpty())
 			return;
 
-		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), dropinsDirectory.getAbsolutePath());
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), DROPINS);
 		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
@@ -402,6 +402,25 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
+	 * Helper method to get the shared configuration location. Return null if
+	 * it is unavailable.
+	 */
+	public static File getParentConfigurationLocation() {
+		Location configurationLocation = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		if (configurationLocation == null || !configurationLocation.isSet())
+			return null;
+
+		Location sharedConfigurationLocation = configurationLocation.getParentLocation();
+		if (sharedConfigurationLocation == null)
+			return null;
+
+		URL url = sharedConfigurationLocation.getURL();
+		if (url == null)
+			return null;
+		return URLUtil.toFile(url);
+	}
+
+	/*
 	 * Do a look-up and return the OSGi install area if it is set.
 	 */
 	public static URL getOSGiInstallArea() {
@@ -428,22 +447,41 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * Return the location of the links directory, or null if it is not available.
+	 * Return the locations of the links directories.
 	 */
-	private static File getLinksDirectory() {
+	private static File[] getLinksDirectories() {
+		List linksDirectories = new ArrayList();
 		File root = getEclipseHome();
-		return root == null ? null : new File(root, LINKS);
+		if (root != null)
+			linksDirectories.add(new File(root, LINKS));
+
+		if (getParentConfigurationLocation() != null) {
+			File configuration = getConfigurationLocation();
+			if (configuration != null && configuration.getParentFile() != null)
+				linksDirectories.add(new File(configuration.getParentFile(), LINKS));
+		}
+		return (File[]) linksDirectories.toArray(new File[linksDirectories.size()]);
 	}
 
 	/*
-	 * Return the location of the dropins directory, or null if it is not available.
+	 * Return the location of the dropins directories.
 	 */
-	private static File getDropinsDirectory() {
+	private static File[] getDropinsDirectories() {
+		List dropinsDirectories = new ArrayList();
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null)
-			return new File(watchedDirectoryProperty);
+			dropinsDirectories.add(new File(watchedDirectoryProperty));
+
 		File root = getEclipseHome();
-		return root == null ? null : new File(root, DROPINS);
+		if (root != null)
+			dropinsDirectories.add(new File(root, DROPINS));
+
+		if (getParentConfigurationLocation() != null) {
+			File configuration = getConfigurationLocation();
+			if (configuration != null && configuration.getParentFile() != null)
+				dropinsDirectories.add(new File(configuration.getParentFile(), DROPINS));
+		}
+		return (File[]) dropinsDirectories.toArray(new File[dropinsDirectories.size()]);
 	}
 
 	/*
@@ -482,5 +520,4 @@ public class Activator implements BundleActivator {
 		}
 		return null;
 	}
-
 }
