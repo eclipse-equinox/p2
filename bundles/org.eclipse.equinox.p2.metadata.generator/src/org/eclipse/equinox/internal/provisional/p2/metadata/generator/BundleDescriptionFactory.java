@@ -105,11 +105,11 @@ public class BundleDescriptionFactory {
 			ManifestElement.parseBundleManifest(manifestStream, entries);
 			return getBundleDescription(entries, bundleLocation);
 		} catch (IOException e) {
-			String message = "An error occurred while reading the bundle description.";
+			String message = "An error occurred while reading the bundle description " + (bundleLocation == null ? "" : bundleLocation.getAbsolutePath() + '.'); //$NON-NLS-1$ //$NON-NLS-2$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
 		} catch (BundleException e) {
-			String message = "An error occurred while reading the bundle description.";
+			String message = "An error occurred while reading the bundle description " + (bundleLocation == null ? "" : bundleLocation.getAbsolutePath() + '.'); //$NON-NLS-1$ //$NON-NLS-2$
 			IStatus status = new Status(IStatus.ERROR, Activator.ID, message, e);
 			LogHelper.log(status);
 		}
@@ -133,7 +133,7 @@ public class BundleDescriptionFactory {
 			}
 		} catch (IOException e) {
 			//ignore but log
-			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "An error occurred while loading the bundle manifest.", e));
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "An error occurred while loading the bundle manifest " + bundleLocation, e)); //$NON-NLS-1$
 		}
 
 		Dictionary manifest = null;
@@ -144,10 +144,10 @@ public class BundleDescriptionFactory {
 				// real answer is to have people expect a Map but that is a wider change.
 				manifest = new Hashtable(manifestMap);
 			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest.", e));
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest " + bundleLocation, e)); //$NON-NLS-1$
 				return null;
 			} catch (BundleException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest.", e));
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "An error occurred while loading the bundle manifest " + bundleLocation, e)); //$NON-NLS-1$
 				return null;
 			} finally {
 				try {
@@ -172,188 +172,6 @@ public class BundleDescriptionFactory {
 			return null;
 
 		manifest.put(BUNDLE_FILE_KEY, bundleLocation.isDirectory() ? DIR : JAR);
-		getManifestLocalizations(manifest, bundleLocation);
-		// localizeManifest(manifest, bundleLocation);
 		return manifest;
 	}
-
-	//	private Properties loadProperties(File bundleLocation, String localizationFile) throws IOException {
-	//		Properties result = new Properties();
-	//		InputStream propertyStream = null;
-	//		try {
-	//			try {
-	//				if (bundleLocation.isDirectory())
-	//					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
-	//				else {
-	//					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection(); //$NON-NLS-1$ //$NON-NLS-2$
-	//					connection.setUseCaches(false);
-	//					propertyStream = connection.getInputStream();
-	//				}
-	//			} catch (FileNotFoundException e) {
-	//				// if there is no messages file then just return;
-	//				return result;
-	//			}
-	//			result.load(propertyStream);
-	//		} finally {
-	//			if (propertyStream != null)
-	//				propertyStream.close();
-	//		}
-	//		return result;
-	//	}
-
-	// Collect the manifest localizations from the bundle directory
-	// and store them in the manifest.
-	private void getManifestLocalizations(Dictionary manifest, File bundleLocation) {
-		//		Map localizations;
-		//		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
-		//		String bundleLocalization = (String) manifest.get(Constants.BUNDLE_LOCALIZATION);
-		//		if (bundleLocalization == null || bundleLocalization.trim().length() == 0)
-		//			bundleLocalization = DEFAULT_BUNDLE_LOCALIZATION;
-		//
-		//		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
-		//				bundleLocation.isFile()) {
-		//			localizations = getJarManifestLocalization(bundleLocation, bundleLocalization, manifest, defaultLocale);
-		//		} else {
-		//			localizations = getDirManifestLocalization(bundleLocation, bundleLocalization, manifest, defaultLocale);
-		//		}
-		//
-		//		if (localizations.size() > 0) {
-		//			manifest.put(MANIFEST_LOCALIZATIONS, localizations);
-		//		}
-	}
-
-	//	private Map getJarManifestLocalization(File bundleLocation, String bundleLocalization, Dictionary manifest, Locale defaultLocale) {
-	//		ZipFile jarFile = null;
-	//		Map localizations = new HashMap(4);
-	//		try {
-	//			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-	//			for (Enumeration entries = jarFile.entries(); entries.hasMoreElements();) {
-	//				ZipEntry nextEntry = (ZipEntry) entries.nextElement();
-	//				String nextName = nextEntry.getName();
-	//				String localeString = getLocaleString(nextName, bundleLocalization);
-	//
-	//				if (!nextEntry.isDirectory() && localeString != null) {
-	//					Locale nextLocale = getLocale(localeString);
-	//					InputStream stream = null;
-	//					try {
-	//						stream = jarFile.getInputStream(nextEntry);
-	//						Properties properties = new Properties();
-	//						properties.load(stream);
-	//						Properties localizedStrings = getLocalizedProperties(manifest, properties);
-	//						if (localizedStrings.size() > 0) {
-	//							localizations.put(nextLocale, localizedStrings);
-	//							if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
-	//								localizations.put(nextLocale, localizedStrings);
-	//							}
-	//						}
-	//					} finally {
-	//						if (stream != null)
-	//							stream.close();
-	//					}
-	//				}
-	//			}
-	//		} catch (IOException ioe) {
-	//			ioe.printStackTrace();
-	//		} finally {
-	//			if (jarFile != null) {
-	//				try {
-	//					jarFile.close();
-	//				} catch (IOException ioe) {
-	//					// do nothing
-	//				}
-	//			}
-	//		}
-	//
-	//		return localizations;
-	//	}
-	//
-	//	private Map getDirManifestLocalization(File bundleLocation, String bundleLocalization, Dictionary manifest, Locale defaultLocale) {
-	//		File localizationPath = new File(bundleLocation, bundleLocalization);
-	//		File localizationDir = localizationPath.getParentFile();
-	//		String localizationFile = localizationPath.getName();
-	//		String[] localizationFiles = localizationDir.list(new LocalizationFileFilter(localizationFile));
-	//
-	//		HashMap localizations = null;
-	//
-	//		if (localizationFiles != null) {
-	//			localizations = new HashMap(localizationFiles.length);
-	//			for (int i = 0; i < localizationFiles.length; i++) {
-	//				String nextFile = localizationFiles[i];
-	//				Locale nextLocale = getLocale(getLocaleString(nextFile, localizationFile));
-	//
-	//				try {
-	//					Properties properties = loadProperties(bundleLocation, nextFile);
-	//					Properties localizedStrings = getLocalizedProperties(manifest, properties);
-	//					if (localizedStrings.size() > 0) {
-	//						localizations.put(nextLocale, localizedStrings);
-	//						if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
-	//							localizations.put(nextLocale, localizedStrings);
-	//						}
-	//					}
-	//				} catch (IOException ioe) {
-	//					ioe.printStackTrace();
-	//				}
-	//			}
-	//		}
-	//
-	//		return localizations;
-	//	}
-
-	//	private class LocalizationFileFilter implements FilenameFilter {
-	//
-	//		String filenamePrefix;
-	//
-	//		public LocalizationFileFilter(String filenamePrefix) {
-	//			this.filenamePrefix = filenamePrefix;
-	//		}
-	//
-	//		/* (non-Javadoc)
-	//		 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-	//		 */
-	//		public boolean accept(File directory, String filename) {
-	//			return (getLocaleString(filename, filenamePrefix) != null ? true : false);
-	//		}
-	//	}
-
-	//	static public String getLocaleString(String filename, String filenamePrefix) {
-	//		String localeString = null;
-	//		if (filename.startsWith(filenamePrefix) && filename.endsWith(PROPERTIES_FILE_EXTENSION)) {
-	//			if (filename.length() > filenamePrefix.length() + PROPERTIES_FILE_EXTENSION.length()) {
-	//				localeString = filename.substring(filenamePrefix.length() + 1, filename.length() - PROPERTIES_FILE_EXTENSION.length());
-	//			} else {
-	//				localeString = ""; //$NON-NLS-1$
-	//			}
-	//		}
-	//		return localeString;
-	//	}
-
-	//	static private Locale getLocale(String localeString) {
-	//		Locale locale = DEFAULT_LOCALE;
-	//		if (localeString.length() == 5 && localeString.indexOf('_') == 2) {
-	//			locale = new Locale(localeString.substring(0, 2), localeString.substring(3, 5));
-	//		} else if (localeString.length() == 2) {
-	//			locale = new Locale(localeString.substring(0, 2));
-	//		}
-	//		return locale;
-	//	}
-	//
-	//	static private Properties getLocalizedProperties(Dictionary manifest, Properties properties) {
-	//		// Walk over the manifest and find all %xxx with the string value
-	//		// in the properties file and copy them to the localized properties.
-	//		Properties localizedProperties = new Properties();
-	//		for (Enumeration e = manifest.keys(); e.hasMoreElements();) {
-	//			String key = (String) e.nextElement();
-	//			Object value = manifest.get(key);
-	//			if (value instanceof String) {
-	//				String stringValue = (String) value;
-	//				if (stringValue.startsWith("%")) { //$NON-NLS-1$
-	//					String newValue = properties.getProperty(stringValue.substring(1));
-	//					if (newValue != null)
-	//						localizedProperties.put(key, newValue);
-	//				}
-	//			}
-	//		}
-	//		return localizedProperties;
-	//	}
-
 }
