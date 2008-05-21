@@ -854,9 +854,6 @@ public class Generator {
 		String configurationData = dataStrings[0];
 		String unconfigurationData = dataStrings[1];
 
-		if (configurationData.length() == 0)
-			return;
-
 		InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
 		String configUnitId = info.getFlavor() + productFile.getId() + ".ini." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
 		Version cuVersion = new Version(version);
