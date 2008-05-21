@@ -23,6 +23,7 @@ public class AllTests extends TestCase {
 		// DISABLING TEST UNTIL WE UPDATE REPOSITORY FILES
 		//suite.addTestSuite(JarURLRepositoryTest.class);
 		suite.addTestSuite(FoldersRepositoryTest.class);
+		suite.addTestSuite(MirrorSelectorTest.class);
 		suite.addTestSuite(SimpleArtifactRepositoryTest.class);
 		return suite;
 	}

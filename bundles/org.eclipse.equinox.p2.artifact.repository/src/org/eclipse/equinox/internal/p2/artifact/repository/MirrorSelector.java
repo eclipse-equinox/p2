@@ -33,13 +33,13 @@ public class MirrorSelector {
 	/**
 	 * Encapsulates information about a single mirror
 	 */
-	static class MirrorInfo implements Comparable {
+	public static class MirrorInfo implements Comparable {
 		long bytesPerSecond;
 		int failureCount;
 		private final int initialRank;
 		String locationString;
 
-		MirrorInfo(String location, int initialRank) {
+		public MirrorInfo(String location, int initialRank) {
 			this.initialRank = initialRank;
 			this.locationString = location;
 			if (!locationString.endsWith("/")) //$NON-NLS-1$
@@ -60,9 +60,17 @@ public class MirrorSelector {
 				return this.failureCount - that.failureCount;
 			//faster is better
 			if (this.bytesPerSecond != that.bytesPerSecond)
-				return (int) (this.bytesPerSecond - that.bytesPerSecond);
+				return (int) (that.bytesPerSecond - this.bytesPerSecond);
 			//trust that initial rank indicates geographical proximity
 			return this.initialRank - that.initialRank;
+		}
+
+		public void incrementFailureCount() {
+			this.failureCount++;
+		}
+
+		public void setBytesPerSecond(long newValue) {
+			this.bytesPerSecond = newValue;
 		}
 
 		public String toString() {
@@ -207,14 +215,14 @@ public class MirrorSelector {
 			MirrorInfo mirror = mirrors[i];
 			if (toDownload.startsWith(mirror.locationString)) {
 				if (!result.isOK() && result.getSeverity() != IStatus.CANCEL)
-					mirror.failureCount++;
+					mirror.incrementFailureCount();
 				if (result instanceof DownloadStatus) {
 					long oldRate = mirror.bytesPerSecond;
 					long newRate = ((DownloadStatus) result).getTransferRate();
 					//average old and new rate so one slow download doesn't ruin the mirror's reputation
 					if (oldRate > 0)
 						newRate = (oldRate + newRate) / 2;
-					mirror.bytesPerSecond = newRate;
+					mirror.setBytesPerSecond(newRate);
 				}
 				if (Tracing.DEBUG_MIRRORS)
 					Tracing.debug("Updated mirror " + mirror); //$NON-NLS-1$
