@@ -109,7 +109,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		// save the given repository in the preferences.
 		remember(repository, suffix);
 		if (added && signalAdd)
-			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
 	}
 
 	public void addRepository(URL location) {
