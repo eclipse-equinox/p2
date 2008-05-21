@@ -166,13 +166,13 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		// modify the last modified date to be older than the remote file
 		cacheFile.setLastModified(0);
 		// reload the repository and check that the cache was updated
-		manager.addRepository(repoLocation);
+		manager.removeRepository(repoLocation);
 		manager.loadRepository(repoLocation, null);
 		long lastModified = cacheFile.lastModified();
 		assertTrue(0 != lastModified);
 
 		// reload the repository and check that the cache was not updated
-		manager.addRepository(repoLocation);
+		manager.removeRepository(repoLocation);
 		manager.loadRepository(repoLocation, null);
 		assertEquals(lastModified, cacheFile.lastModified());
 

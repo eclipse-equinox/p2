@@ -27,6 +27,22 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
 public class SimpleArtifactRepositoryTest extends TestCase {
+	//artifact repository to remove on tear down
+	private File repositoryFile = null;
+	private URL repositoryURL = null;
+
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		//repository location is not used by all tests
+		if (repositoryURL != null) {
+			getArtifactRepositoryManager().removeRepository(repositoryURL);
+			repositoryURL = null;
+		}
+		if (repositoryFile != null) {
+			delete(repositoryFile);
+			repositoryFile = null;
+		}
+	}
 
 	public void testGetActualLocation1() throws MalformedURLException {
 		URL base = new URL("http://localhost/artifactRepository");
@@ -65,19 +81,20 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 	public void testCompressedRepository() throws MalformedURLException, ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
-		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
+		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
+		delete(repositoryFile);
+		repositoryURL = repositoryFile.toURL();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
-		IArtifactRepository repo = artifactRepositoryManager.createRepository(repoLocation.toURL(), "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		artifactRepositoryManager.addRepository(repo.getLocation());
+		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURL, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setArtifactRepository(repo);
-		provider.initialize(repoLocation);
+		provider.initialize(repositoryFile);
 		provider.setRootVersion("3.3");
 		provider.setRootId("sdk");
 		provider.setFlavor("tooling");
 		new Generator(provider).generate();
-		File files[] = repoLocation.listFiles();
+		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
 		for (int i = 0; i < files.length; i++) {
@@ -92,25 +109,25 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 			fail("Repository should create JAR for artifact.xml");
 		if (artifactFilePresent)
 			fail("Repository should not create artifact.xml");
-		delete(repoLocation);
 	}
 
 	public void testUncompressedRepository() throws MalformedURLException, ProvisionException {
 		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
 		String tempDir = System.getProperty("java.io.tmpdir");
-		File repoLocation = new File(tempDir, "SimpleArtifactRepositoryTest");
+		repositoryFile = new File(tempDir, "SimpleArtifactRepositoryTest");
+		delete(repositoryFile);
+		repositoryURL = repositoryFile.toURL();
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
-		IArtifactRepository repo = artifactRepositoryManager.createRepository(repoLocation.toURL(), "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		artifactRepositoryManager.addRepository(repo.getLocation());
+		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURL, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
 		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setArtifactRepository(repo);
-		provider.initialize(repoLocation);
+		provider.initialize(repositoryFile);
 		provider.setRootVersion("3.3");
 		provider.setRootId("sdk");
 		provider.setFlavor("tooling");
 		new Generator(provider).generate();
-		File files[] = repoLocation.listFiles();
+		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
 		for (int i = 0; i < files.length; i++) {
@@ -125,7 +142,6 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 			fail("Repository should not create JAR for artifact.xml");
 		if (!artifactFilePresent)
 			fail("Repository should create artifact.xml");
-		delete(repoLocation);
 	}
 
 	private boolean delete(File file) {

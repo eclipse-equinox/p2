@@ -131,6 +131,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
+			if (contains(location))
+				return;
 			added = repositories.put(getKey(location), info) == null;
 		}
 		// save the given repository in the preferences.
@@ -173,6 +175,23 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 				badRepos.remove(location);
 				return;
 			}
+		}
+	}
+
+	private boolean contains(URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			String key = getKey(location);
+			if (repositories.containsKey(key))
+				return true;
+			//try alternate key with different trailing slash
+			int len = key.length();
+			if (key.charAt(len - 1) == '_')
+				key = key.substring(0, len - 1);
+			else
+				key = key + '_';
+			return repositories.containsKey(key);
 		}
 	}
 
