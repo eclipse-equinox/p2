@@ -341,6 +341,16 @@ public class Activator implements BundleActivator {
 			return;
 		}
 		configFile = new File(configFile, PLATFORM_CFG);
+		if (!configFile.exists()) {
+			// try parent configuration
+			File parentConfiguration = getParentConfigurationLocation();
+			if (parentConfiguration == null)
+				return;
+
+			configFile = new File(parentConfiguration, PLATFORM_CFG);
+			if (!configFile.exists())
+				return;
+		}
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
 		watcher.addListener(listener);
