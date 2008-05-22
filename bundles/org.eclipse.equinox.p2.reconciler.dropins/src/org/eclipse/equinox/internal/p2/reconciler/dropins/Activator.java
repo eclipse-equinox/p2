@@ -42,8 +42,7 @@ public class Activator implements BundleActivator {
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
 	private List watchers = new ArrayList();
-	private static Collection dropinRepositories;
-	private static Collection configurationRepositories;
+	private final static Set repositories = new HashSet();
 
 	/**
 	 * Helper method to create an extension location metadata repository at the given URL. 
@@ -115,6 +114,14 @@ public class Activator implements BundleActivator {
 		return manager.loadRepository(location, monitor);
 	}
 
+	/*
+	 * Return the set of metadata repositories known to this bundle. It is constructed from the repos
+	 * for the drop-ins as well as the ones in the configuration.
+	 */
+	public static Set getRepositories() {
+		return repositories;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
 	 */
@@ -149,8 +156,7 @@ public class Activator implements BundleActivator {
 		// we should probably be holding on to these repos by URL
 		// see Bug 223422
 		// for now explicitly nulling out these repos to allow GC to occur
-		dropinRepositories = null;
-		configurationRepositories = null;
+		repositories.clear();
 	}
 
 	/*
@@ -316,18 +322,10 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 		// create the profile synchronizer on all available repositories
-		Set repositories = new HashSet();
-		if (dropinRepositories != null)
-			repositories.addAll(dropinRepositories);
-
-		if (configurationRepositories != null)
-			repositories.addAll(configurationRepositories);
-
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
 		if (!result.isOK())
 			LogHelper.log(result);
-
 	}
 
 	/*
@@ -344,7 +342,7 @@ public class Activator implements BundleActivator {
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
 		watcher.addListener(listener);
 		watcher.poll();
-		configurationRepositories = listener.getMetadataRepositories();
+		repositories.addAll(listener.getMetadataRepositories());
 	}
 
 	/*
@@ -363,8 +361,7 @@ public class Activator implements BundleActivator {
 		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
-
-		dropinRepositories = listener.getMetadataRepositories();
+		repositories.addAll(listener.getMetadataRepositories());
 	}
 
 	/* (non-Javadoc)

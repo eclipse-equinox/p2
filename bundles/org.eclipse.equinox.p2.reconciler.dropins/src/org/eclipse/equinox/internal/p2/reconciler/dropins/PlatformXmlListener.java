@@ -126,6 +126,8 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	}
 
 	public Collection getMetadataRepositories() {
+		if (configRepositories == null)
+			return Collections.EMPTY_SET;
 		return configRepositories;
 	}
 
@@ -143,6 +145,19 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 			Path repoPath = new Path(repo.getLocation().toExternalForm());
 			if (repoPath.makeAbsolute().equals(urlPath))
 				return repo;
+			// normalize the URLs to be the same
+			if (repo instanceof ExtensionLocationMetadataRepository) {
+				try {
+					File one = ExtensionLocationMetadataRepository.getBaseDirectory(repo.getLocation());
+					File two = ExtensionLocationMetadataRepository.getBaseDirectory(new URL(urlString));
+					if (one.equals(two))
+						return repo;
+				} catch (ProvisionException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
+				} catch (MalformedURLException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
+				}
+			}
 		}
 		return null;
 	}
@@ -157,10 +172,10 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		for (Iterator iter = sites.iterator(); iter.hasNext();) {
 			Site site = (Site) iter.next();
 			String siteURL = site.getUrl();
-			String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
-			IMetadataRepository match = getMatchingRepo(configRepositories, eclipseExtensionURL);
+			IMetadataRepository match = getMatchingRepo(Activator.getRepositories(), siteURL);
 			if (match == null) {
 				try {
+					String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
 					URL location = new URL(eclipseExtensionURL);
 					Map properties = new HashMap();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
