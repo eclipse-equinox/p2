@@ -124,27 +124,23 @@ public class ProvUI {
 	}
 
 	/**
-	 * Returns an appropriate shell that is appropriate to use as the parent
-	 * for a modal dialog. This returns the existing modal dialog, if any, to
-	 * avoid multiple modal dialogs being open. Returns <code>null</code>
+	 * Returns a shell that is appropriate to use as the parent
+	 * for a modal dialog. This returns the existing modal dialog, if any,
+	 * or a workbench window if no modal dialogs open. Returns <code>null</code>
 	 * if there is no appropriate default parent.
 	 * 
 	 * This method is copied from ProgressManagerUtil#getDefaultParent()
 	 */
 	public static Shell getDefaultParentShell() {
-		//first look for a modal shell
 		IWorkbench workbench = PlatformUI.getWorkbench();
-		Shell[] shells = workbench.getDisplay().getShells();
-		int modal = SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL | SWT.PRIMARY_MODAL;
-		for (int i = 0; i < shells.length; i++) {
-			// Do not worry about shells that will not block the user.
-			if (shells[i].isVisible()) {
-				int style = shells[i].getStyle();
-				if ((style & modal) != 0) {
-					return shells[i];
-				}
-			}
+
+		//look first for the topmost modal shell
+		Shell shell = getDefaultParentShell(workbench.getDisplay().getShells());
+
+		if (shell != null) {
+			return shell;
 		}
+
 		//try the active workbench window
 		IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
 		if (window != null)
@@ -153,6 +149,38 @@ public class ProvUI {
 		if (windows.length > 0)
 			return windows[0].getShell();
 		//there is no modal shell and no active window, so just return a null parent shell
+		return null;
+	}
+
+	/**
+	 * Return the modal shell that is currently open. If there isn't one then
+	 * return null.
+	 * 
+	 * @param shells shells to search for modal children
+	 * @return the most specific modal child, or null if none
+	 *
+	 * This method is copied from ProgressManagerUtil#getDefaultParent()
+	 */
+
+	private static Shell getDefaultParentShell(Shell[] shells) {
+		//first look for a modal shell
+		for (int i = 0; i < shells.length; i++) {
+			Shell shell = shells[i];
+
+			// Check if this shell has a modal child
+			Shell modalChild = getDefaultParentShell(shell.getShells());
+			if (modalChild != null) {
+				return modalChild;
+			}
+
+			// Do not worry about shells that will not block the user.
+			if (shell.isVisible()) {
+				int modal = SWT.APPLICATION_MODAL | SWT.SYSTEM_MODAL | SWT.PRIMARY_MODAL;
+				if ((shell.getStyle() & modal) != 0) {
+					return shell;
+				}
+			}
+		}
 		return null;
 	}
 
