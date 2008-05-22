@@ -130,6 +130,11 @@ public class Activator implements BundleActivator {
 		setPackageAdmin((PackageAdmin) context.getService(packageAdminRef));
 		bundleContext = context;
 
+		// check to see if there is really any work to do. Do this after setting the context, and
+		// doing other initialization in case others call our public methods later.
+		if (isUpToDate())
+			return;
+
 		if (!startEarly("org.eclipse.equinox.p2.exemplarysetup")) //$NON-NLS-1$
 			return;
 		if (!startEarly("org.eclipse.equinox.simpleconfigurator.manipulator")) //$NON-NLS-1$
@@ -140,8 +145,6 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 
-		if (isUpToDate())
-			return;
 		// TODO i-build to i-build backwards compatibility code to remove the
 		// old .pooled repositories. Remove this call soon.
 		removeOldRepos();
