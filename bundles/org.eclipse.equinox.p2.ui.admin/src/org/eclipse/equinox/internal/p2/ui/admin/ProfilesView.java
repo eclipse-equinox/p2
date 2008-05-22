@@ -159,7 +159,6 @@ public class ProfilesView extends ProvView {
 		removeProfileAction.setEnabled(false);
 		if (ss.size() == 1) {
 			propertiesAction.setEnabled(true);
-			IProfile profile = (IProfile) ProvUI.getAdapter(ss.getFirstElement(), IProfile.class);
 		}
 		Object[] selectionArray = ss.toArray();
 		if (selectionArray.length > 0) {
