@@ -59,7 +59,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		this.base = getBaseDirectory(location);
 	}
 
-	public void ensureInitialized() {
+	public synchronized void ensureInitialized() {
 		if (initialized)
 			return;
 		File plugins = new File(base, PLUGINS);

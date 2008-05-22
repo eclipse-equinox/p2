@@ -67,7 +67,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * to be installed in Java.  Can the URL have any protocol?
 	 * @return the URL of the repository.
 	 */
-	public URL getLocation() {
+	public synchronized URL getLocation() {
 		return location;
 	}
 
@@ -83,7 +83,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns a read-only collection of the properties of the repository.
 	 * @return the properties of this repository.
 	 */
-	public Map getProperties() {
+	public synchronized Map getProperties() {
 		return OrderedProperties.unmodifiableProperties(properties);
 	}
 
@@ -99,7 +99,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns a string representing the type of the repository.
 	 * @return the type of the repository.
 	 */
-	public String getType() {
+	public synchronized String getType() {
 		return type;
 	}
 
@@ -107,7 +107,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 	 * Returns a string representing the version for the repository type.
 	 * @return the version of the type of the repository.
 	 */
-	public String getVersion() {
+	public synchronized String getVersion() {
 		return version;
 	}
 
@@ -123,7 +123,7 @@ public abstract class AbstractRepository extends PlatformObject implements IRepo
 		this.name = value;
 	}
 
-	public String setProperty(String key, String value) {
+	public synchronized String setProperty(String key, String value) {
 		assertModifiable();
 		return (String) (value == null ? properties.remove(key) : properties.put(key, value));
 	}

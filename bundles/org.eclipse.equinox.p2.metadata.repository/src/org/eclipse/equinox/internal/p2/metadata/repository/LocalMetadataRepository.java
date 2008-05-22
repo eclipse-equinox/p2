@@ -81,28 +81,30 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		save();
 	}
 
-	public void addInstallableUnits(IInstallableUnit[] installableUnits) {
+	public synchronized void addInstallableUnits(IInstallableUnit[] installableUnits) {
 		if (installableUnits == null || installableUnits.length == 0)
 			return;
 		units.addAll(Arrays.asList(installableUnits));
 		save();
 	}
 
-	public void addReference(URL repositoryLocation, int repositoryType, int options) {
+	public synchronized void addReference(URL repositoryLocation, int repositoryType, int options) {
 		assertModifiable();
 		repositories.add(new RepositoryReference(repositoryLocation, repositoryType, options));
 	}
 
 	public void initialize(RepositoryState state) {
-		this.name = state.Name;
-		this.type = state.Type;
-		this.version = state.Version.toString();
-		this.provider = state.Provider;
-		this.description = state.Description;
-		this.location = state.Location;
-		this.properties = state.Properties;
-		this.units.addAll(Arrays.asList(state.Units));
-		this.repositories.addAll(Arrays.asList(state.Repositories));
+		synchronized (this) {
+			this.name = state.Name;
+			this.type = state.Type;
+			this.version = state.Version.toString();
+			this.provider = state.Provider;
+			this.description = state.Description;
+			this.location = state.Location;
+			this.properties = state.Properties;
+			this.units.addAll(Arrays.asList(state.Units));
+			this.repositories.addAll(Arrays.asList(state.Repositories));
+		}
 		publishRepositoryReferences();
 	}
 
@@ -113,15 +115,23 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.SERVICE_NAME);
 		if (bus == null)
 			return;
-		for (Iterator it = repositories.iterator(); it.hasNext();) {
+
+		List repositoriesSnapshot = createRepositoriesSnapshot();
+		for (Iterator it = repositoriesSnapshot.iterator(); it.hasNext();) {
 			RepositoryReference reference = (RepositoryReference) it.next();
 			boolean isEnabled = (reference.Options & IRepository.ENABLED) != 0;
 			bus.publishEvent(new RepositoryEvent(reference.Location, reference.Type, RepositoryEvent.DISCOVERED, isEnabled));
 		}
 	}
 
+	private synchronized List createRepositoriesSnapshot() {
+		if (repositories.isEmpty())
+			return Collections.EMPTY_LIST;
+		return new ArrayList(repositories);
+	}
+
 	// use this method to setup any transient fields etc after the object has been restored from a stream
-	public void initializeAfterLoad(URL aLocation) {
+	public synchronized void initializeAfterLoad(URL aLocation) {
 		this.location = aLocation;
 	}
 
@@ -129,16 +139,16 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return true;
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(units.iterator(), collector);
 	}
 
-	public void removeAll() {
+	public synchronized void removeAll() {
 		units.clear();
 		save();
 	}
 
-	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
+	public synchronized boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
 		boolean changed = false;
 		for (Iterator it = units.iterator(); it.hasNext();)
 			if (query.isMatch(it.next())) {
@@ -150,7 +160,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		return changed;
 	}
 
-	public void revertToBackup(LocalMetadataRepository backup) {
+	public synchronized void revertToBackup(LocalMetadataRepository backup) {
 		name = backup.name;
 		type = backup.type;
 		version = backup.version;
@@ -161,6 +171,7 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 		units = backup.units;
 	}
 
+	// caller should be synchronized
 	private void save() {
 		File file = getActualLocation(location);
 		File jarFile = getActualLocation(location, JAR_EXTENSION);
@@ -199,10 +210,13 @@ public class LocalMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	public String setProperty(String key, String newValue) {
-		String oldValue = super.setProperty(key, newValue);
-		if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
-			return oldValue;
-		save();
+		String oldValue = null;
+		synchronized (this) {
+			oldValue = super.setProperty(key, newValue);
+			if (oldValue == newValue || (oldValue != null && oldValue.equals(newValue)))
+				return oldValue;
+			save();
+		}
 		//force repository manager to reload this repository because it caches properties
 		MetadataRepositoryManager manager = (MetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		if (manager.removeRepository(getLocation()))

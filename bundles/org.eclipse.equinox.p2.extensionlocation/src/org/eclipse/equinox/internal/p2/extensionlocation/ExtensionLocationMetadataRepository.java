@@ -59,7 +59,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		this.base = getBaseDirectory(location);
 	}
 
-	public void ensureInitialized() {
+	public synchronized void ensureInitialized() {
 		if (initialized)
 			return;
 		File plugins = new File(base, PLUGINS);

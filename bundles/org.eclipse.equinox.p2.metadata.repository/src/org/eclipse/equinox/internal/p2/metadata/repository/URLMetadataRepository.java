@@ -67,11 +67,12 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		content = getActualLocation(location);
 	}
 
-	protected URL getContentURL() {
+	// this is synchronized because content can be initialized in initializeAfterLoad
+	protected synchronized URL getContentURL() {
 		return content;
 	}
 
-	public void initialize(RepositoryState state) {
+	public synchronized void initialize(RepositoryState state) {
 		this.name = state.Name;
 		this.type = state.Type;
 		this.version = state.Version.toString();
@@ -83,7 +84,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 	}
 
 	// Use this method to setup any transient fields etc after the object has been restored from a stream
-	public void initializeAfterLoad(URL repoLocation) {
+	public synchronized void initializeAfterLoad(URL repoLocation) {
 		this.location = repoLocation;
 		content = getActualLocation(location);
 	}
@@ -92,7 +93,7 @@ public class URLMetadataRepository extends AbstractMetadataRepository {
 		return false;
 	}
 
-	public Collector query(Query query, Collector collector, IProgressMonitor monitor) {
+	public synchronized Collector query(Query query, Collector collector, IProgressMonitor monitor) {
 		return query.perform(units.iterator(), collector);
 	}
 }
