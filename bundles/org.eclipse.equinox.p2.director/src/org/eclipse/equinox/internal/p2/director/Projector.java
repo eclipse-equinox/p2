@@ -38,7 +38,6 @@ public class Projector {
 	private Map variables; //key IU, value corresponding variable in the problem
 	private Map noopVariables; //key IU, value corresponding no optionality variable in the problem, 
 	private List abstractVariables;
-	private List abstractVarsForPatches;
 
 	private TwoTierMap slice; //The IUs that have been considered to be part of the problem
 
@@ -68,7 +67,6 @@ public class Projector {
 		dependencies = new ArrayList();
 		selectionContext = context;
 		abstractVariables = new ArrayList();
-		abstractVarsForPatches = new ArrayList();
 		result = new MultiStatus(DirectorActivator.PI_DIRECTOR, IStatus.OK, Messages.Planner_Problems_resolving_plan, null);
 	}
 
@@ -290,6 +288,8 @@ public class Projector {
 	}
 
 	public void processIU(IInstallableUnit iu) {
+		iu = iu.unresolved();
+
 		slice.put(iu.getId(), iu.getVersion(), iu);
 		explanation.append(" ").append(getVariable(iu)); //$NON-NLS-1$
 		if (!isApplicable(iu)) {
@@ -315,81 +315,63 @@ public class Projector {
 			//Patches are applicable to the IU
 
 			//Unmodified dependencies
-			Map allRequirements = new HashMap(iu.getRequiredCapabilities().length);
-
+			Map unchangedRequirements = new HashMap(iu.getRequiredCapabilities().length);
 			for (Iterator iterator = patches.iterator(); iterator.hasNext();) {
 				IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator.next();
 				RequiredCapability[][] reqs = mergeRequirements(iu, patch);
 				if (reqs.length == 0)
 					return;
 
-				List variablesResultingFromPatchApplication = new ArrayList();
-				int count = -1;
 				for (int i = 0; i < reqs.length; i++) {
-					if (reqs[i][0] == reqs[i][1]) //The requirement has not changed
+					//The requirement is unchanged
+					if (reqs[i][0] == reqs[i][1]) {
+						if (!isApplicable(reqs[i][0]))
+							continue;
+
+						List patchesAppliedElseWhere = (List) unchangedRequirements.get(reqs[i][0]);
+						if (patchesAppliedElseWhere == null) {
+							patchesAppliedElseWhere = new ArrayList();
+							unchangedRequirements.put(reqs[i][0], patchesAppliedElseWhere);
+						}
+						patchesAppliedElseWhere.add(patch);
 						continue;
-					if (!isApplicable(reqs[i][1])) //TODO We may have to do something here
-						continue;
-
-					//create IU & Patch -> reqVar
-					String appliedPatchVar = getVariableForAppliedPatches(iu, patch, reqs[i][0]);
-					commentsCount++;
-					dependencies.add("* " + iu + " & " + patch + "->" + appliedPatchVar); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-					dependencies.add("-1 " + getVariable(iu) + " -1" + getVariable(patch) + " +1 " + appliedPatchVar + " = -1;"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-
-					variablesResultingFromPatchApplication.add(appliedPatchVar);
-					//Collect variable used to patch the requirement
-					List appliedPatchesVarForRequirement = (List) allRequirements.get(reqs[i][0]);
-					if (appliedPatchesVarForRequirement == null) {
-						appliedPatchesVarForRequirement = new ArrayList();
-						allRequirements.put(reqs[i][0], appliedPatchesVarForRequirement);
 					}
-					appliedPatchesVarForRequirement.add(appliedPatchVar);
 
-					expandRequirement(appliedPatchVar, iu, reqs[i][1]);
-					count++;
-				}
-				for (Iterator iterator2 = variablesResultingFromPatchApplication.iterator(); iterator2.hasNext();) {
-					String var = (String) iterator2.next();
-					commentsCount++;
-					dependencies.add("* " + patch + " -> " + var);
-					dependencies.add(implies(getVariable(patch), var));
-				}
-			}
-
-			//Generate expressions for requirements that have not been patched 
-			RequiredCapability[] reqs = iu.getRequiredCapabilities();
-			if (reqs.length == 0) {
-				return;
-			}
-			for (int i = 0; i < reqs.length; i++) {
-				if (!isApplicable(reqs[i]))
-					continue;
-				String varForAllPatchedRequirement = null;
-				if (allRequirements.get(reqs[i]) != null) {
-					//generate the no patch expression summing all the req applications and generate a new variable
-					//A & !allRequissss -> AbsctVar
-					String expression = "-1 " + getVariable(iu); //$NON-NLS-1$
-					for (Iterator iterator = ((ArrayList) allRequirements.get(reqs[i])).iterator(); iterator.hasNext();) {
-						expression += " +1 " + (String) iterator.next(); //$NON-NLS-1$
+					//Generate dependency when the patch is applied
+					//P1 -> A -> D (equiv P1 & A -> D equiv -1 P1 -1 A + 1 B >= -1)
+					if (isApplicable(reqs[i][1])) {
+						genericExpandRequirement(" -1 " + getVariable(patch) + " -1 " + getVariable(iu), iu, reqs[i][1], " >= -1", " 1 " + getVariable(patch) + "=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 					}
-					varForAllPatchedRequirement = getVariableForAppliedPatches(null, null, null);
-					commentsCount++;
-					dependencies.add("* " + iu + " & !reqsvars ->" + varForAllPatchedRequirement);
-					expression += " +1 " + varForAllPatchedRequirement + " >= -1 ;"; //$NON-NLS-1$
-					dependencies.add(expression);
+					//Generate dependency when the patch is not applied
+					//-P1 -> A -> B ( equiv. -P1 & A -> B equiv 1 P1 - 1 A + 1 B >= 0)
+					if (isApplicable(reqs[i][0]))
+						genericExpandRequirement(" 1 " + getVariable(patch) + " -1 " + getVariable(iu), iu, reqs[i][0], " >= 0", implies(getVariable(iu), getVariable(patch))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
-
-				expandRequirement(varForAllPatchedRequirement, iu, reqs[i]);
+				addOptionalityExpression();
 			}
-			addOptionalityExpression();
+			for (Iterator iterator = unchangedRequirements.entrySet().iterator(); iterator.hasNext();) {
+				Entry entry = (Entry) iterator.next();
+				StringBuffer expression = new StringBuffer();
+				List patchesApplied = (List) entry.getValue();
+				List allPatches = new ArrayList(patches.toCollection());
+				allPatches.removeAll(patchesApplied);
+				for (Iterator iterator2 = allPatches.iterator(); iterator2.hasNext();) {
+					IInstallableUnitPatch patch = (IInstallableUnitPatch) iterator2.next();
+					expression.append(" 1 " + getVariable(patch)); //$NON-NLS-1$
+				}
+				if (allPatches.size() != 0)
+					genericExpandRequirement(expression.toString(), iu, (RequiredCapability) entry.getKey(), " >= 0", " 1 " + getVariable(iu) + "=0;"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				else
+					expandRequirement(null, iu, (RequiredCapability) entry.getKey());
+			}
 		}
 	}
 
-	private String getVariableForAppliedPatches(IInstallableUnit iu1, IInstallableUnit iu2, RequiredCapability req) {
-		String newVar = new String("x" + varCount++); //$NON-NLS-1$
-		abstractVarsForPatches.add(newVar);
-		return newVar;
+	private void genericExpandRequirement(String var, IInstallableUnit iu, RequiredCapability req, String value, String negationExpression) {
+		if (req.isOptional())
+			genericOptionalRequirementExpansion(var, iu, req, value);
+		else
+			genericRequirementExpansion(var, iu, req, value, negationExpression);
 	}
 
 	//Return a new array of requirements representing the application of the patch
@@ -444,9 +426,9 @@ public class Projector {
 		if (optionalityExpression == null)
 			optionalityExpression = " -1 " + iuVar + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
 		StringBuffer comment = new StringBuffer();
-		comment.append("* ");
+		comment.append("* "); //$NON-NLS-1$
 		comment.append(iu.toString());
-		comment.append(" requires optionaly either ");
+		comment.append(" requires optionaly either "); //$NON-NLS-1$
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();
@@ -470,6 +452,67 @@ public class Projector {
 			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
+	private void genericOptionalRequirementExpansion(String iuVar, IInstallableUnit iu, RequiredCapability req, String value) {
+		String abstractVar = getAbstractVariable();
+		String expression = iuVar;
+		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
+		if (optionalityExpression == null)
+			optionalityExpression = " -1 " + getVariable(iu) + " 1 " + getNoOperationVariable(iu); //$NON-NLS-1$ //$NON-NLS-2$ 
+		StringBuffer comment = new StringBuffer();
+		comment.append("* "); //$NON-NLS-1$
+		comment.append(iu.toString());
+		comment.append(" requires optionaly either "); //$NON-NLS-1$
+		int countMatches = 0;
+		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+			IInstallableUnit match = (IInstallableUnit) iterator.next();
+			if (isApplicable(match)) {
+				countMatches++;
+				expression += " 1 " + getVariable(match); //$NON-NLS-1$
+				comment.append(match.toString());
+				comment.append(' ');
+			}
+		}
+		countOptionalIUs += countMatches;
+		if (countMatches > 0) {
+			dependencies.add(comment.toString());
+			commentsCount++;
+			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
+			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
+			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
+		}
+
+		if (DEBUG)
+			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
+	}
+
+	private void genericRequirementExpansion(String varIu, IInstallableUnit iu, RequiredCapability req, String value, String negationExpression) {
+		String expression = varIu;
+		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
+		StringBuffer comment = new StringBuffer();
+		comment.append("* "); //$NON-NLS-1$
+		comment.append(iu.toString());
+		comment.append(" requires either "); //$NON-NLS-1$
+		int countMatches = 0;
+		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+			IInstallableUnit match = (IInstallableUnit) iterator.next();
+			if (isApplicable(match)) {
+				countMatches++;
+				expression += " +1 " + getVariable(match); //$NON-NLS-1$
+				comment.append(match.toString());
+				comment.append(' ');
+			}
+		}
+
+		if (countMatches > 0) {
+			dependencies.add(comment.toString());
+			commentsCount++;
+			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			result.add(new Status(IStatus.WARNING, DirectorActivator.PI_DIRECTOR, NLS.bind(Messages.Planner_Unsatisfied_dependency, iu, req)));
+			dependencies.add(negationExpression);
+		}
+	}
+
 	private void expandNormalRequirement(String varIu, IInstallableUnit iu, RequiredCapability req) {
 		//Generate the regular requirement
 		if (varIu == null)
@@ -477,9 +520,9 @@ public class Projector {
 		String expression = "-1 " + varIu; //$NON-NLS-1$
 		Collector matches = picker.query(new CapabilityQuery(req), new Collector(), null);
 		StringBuffer comment = new StringBuffer();
-		comment.append("* ");
+		comment.append("* "); //$NON-NLS-1$
 		comment.append(iu.toString());
-		comment.append(" requires either ");
+		comment.append(" requires either "); //$NON-NLS-1$
 		int countMatches = 0;
 		for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
 			IInstallableUnit match = (IInstallableUnit) iterator.next();

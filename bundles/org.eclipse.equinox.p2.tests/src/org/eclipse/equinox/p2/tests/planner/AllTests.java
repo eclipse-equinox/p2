@@ -29,6 +29,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(GreedyRequirement.class);
 		suite.addTestSuite(InclusionRuleTest.class);
 		suite.addTestSuite(InclusionRuleTest2.class);
+		suite.addTestSuite(IUProperties.class);
 		suite.addTestSuite(IUPropertyRemoval.class);
 		suite.addTestSuite(IUWithFilter.class);
 		suite.addTestSuite(IUWithFilter2.class);
@@ -46,8 +47,12 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(MultipleProvider.class);
 		suite.addTestSuite(MultipleSingleton.class);
 		suite.addTestSuite(NoRequirements.class);
+		//		suite.addTestSuite(PatchFailingToInstall.class);
 		suite.addTestSuite(PatchTest1.class);
 		suite.addTestSuite(PatchTest10.class);
+		suite.addTestSuite(PatchTest11.class);
+		suite.addTestSuite(PatchTest12.class);
+		suite.addTestSuite(PatchTest13.class);
 		suite.addTestSuite(PatchTest1b.class);
 		suite.addTestSuite(PatchTest1c.class);
 		suite.addTestSuite(PatchTest2.class);
@@ -59,6 +64,15 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(PatchTest7b.class);
 		suite.addTestSuite(PatchTest8.class);
 		suite.addTestSuite(PatchTest9.class);
+		suite.addTestSuite(PatchTestMultiplePatch.class);
+		suite.addTestSuite(PatchTestOptional.class);
+		suite.addTestSuite(PatchTestOptional2.class);
+		suite.addTestSuite(PatchTestOptional3.class);
+		suite.addTestSuite(PatchTestUninstall.class);
+		suite.addTestSuite(PatchTestUpdate.class);
+		suite.addTestSuite(PatchTestUpdate2.class);
+		suite.addTestSuite(PatchTestUpdate3.class);
+		//		suite.addTestSuite(PP2ShouldFailToInstall.class);
 		suite.addTestSuite(SimpleOptionalTest.class);
 		suite.addTestSuite(SimpleOptionalTest2.class);
 		suite.addTestSuite(SimpleOptionalTest3.class);

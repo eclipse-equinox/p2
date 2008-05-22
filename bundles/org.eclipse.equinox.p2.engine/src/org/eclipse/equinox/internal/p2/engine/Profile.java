@@ -238,6 +238,7 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	public void addInstallableUnit(IInstallableUnit iu) {
+		iu = iu.unresolved();
 		if (ius.contains(iu))
 			return;
 
@@ -246,6 +247,7 @@ public class Profile implements IQueryable, IProfile {
 	}
 
 	public void removeInstallableUnit(IInstallableUnit iu) {
+		iu = iu.unresolved();
 		ius.remove(iu);
 		changed = true;
 	}

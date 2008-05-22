@@ -43,34 +43,16 @@ public class PatchTest11 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallBogusInstallFilterInPatch() {
-		//Verify that a1 installs properly
-		//		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		//		req1.addInstallableUnits(new IInstallableUnit[] {a1});
-		//		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		//		assertTrue(IStatus.ERROR != plan1.getStatus().getSeverity());
-		//		assertNoOperand(plan1, p1);
-		//		assertNoOperand(plan1, b2);
-		//		assertNoOperand(plan1, p1);
-		//		assertInstallOperand(plan1, a1);
-		//		assertInstallOperand(plan1, b1);
-
-		//Try to install a1 and p1 optionally
+		//P1 changes the requirement from A on B to be filtered (the filter evaluates to false): A requires B [1.0.0, 1.0.0] becomes when the patch is applied A requires B [1.1.0, 1.3.0) if "foo=bar"
+		//The result is a bit counter intuitive but correct. Only A1 and P1 are installed. No be get installed since the dependency on B is filtered out. 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
 		assertTrue(IStatus.ERROR != plan2.getStatus().getSeverity());
-		assertNoOperand(plan2, p1);
+		assertNoOperand(plan2, b1);
 		assertNoOperand(plan2, b2);
-		assertNoOperand(plan2, p1);
 		assertInstallOperand(plan2, a1);
-		assertInstallOperand(plan2, b1);
-
-		//Try to install a1 and p1. This should fail because the patch adds an invalid filter 
-		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
-		req3.addInstallableUnits(new IInstallableUnit[] {a1, p1});
-		ProvisioningPlan plan3 = planner.getProvisioningPlan(req3, null, null);
-		assertTrue(IStatus.ERROR == plan3.getStatus().getSeverity());
-
+		assertInstallOperand(plan2, p1);
 	}
 }

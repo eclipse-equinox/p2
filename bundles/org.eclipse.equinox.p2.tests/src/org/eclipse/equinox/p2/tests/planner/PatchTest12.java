@@ -32,7 +32,7 @@ public class PatchTest12 extends AbstractProvisioningTest {
 		a1 = createIU("A", new Version("1.0.0"), new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.0.0, 1.1.0)"), null, false, true, true)});
 		b1 = createIU("B", new Version(1, 0, 0), true);
 		b2 = createIU("B", new Version(1, 2, 0), true);
-		RequirementChange change = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.4.0, 1.5.0)"), null, false, false, true));
+		RequirementChange change = new RequirementChange(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", VersionRange.emptyRange, null, false, false, false), MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "B", new VersionRange("[1.4.0, 1.5.0)"), null, false, true, true));
 		p1 = createIUPatch("P", new Version("1.0.0"), true, new RequirementChange[] {change}, new RequiredCapability[][] {{MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, "A", VersionRange.emptyRange, null, false, false)}}, null);
 
 		createTestMetdataRepository(new IInstallableUnit[] {a1, b1, b2, p1});
@@ -43,18 +43,9 @@ public class PatchTest12 extends AbstractProvisioningTest {
 	}
 
 	public void testInstallBogusInstallFilterInPatch() {
-		//Verify that a1 installs properly
-		//		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
-		//		req1.addInstallableUnits(new IInstallableUnit[] {a1});
-		//		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		//		assertTrue(IStatus.ERROR != plan1.getStatus().getSeverity());
-		//		assertNoOperand(plan1, p1);
-		//		assertNoOperand(plan1, b2);
-		//		assertNoOperand(plan1, p1);
-		//		assertInstallOperand(plan1, a1);
-		//		assertInstallOperand(plan1, b1);
-
 		//Try to install a1 and p1 optionally
+		//p1 ends up being not installed because the new requirements that it sets on A for B can not be met (no B are matching).
+		//the only thing that ends up being installed are A 1.0.0 and B 1.0.0
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		req2.setInstallableUnitInclusionRules(p1, PlannerHelper.createOptionalInclusionRule(p1));

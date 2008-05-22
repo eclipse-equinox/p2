@@ -740,4 +740,25 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			repoMan.removeRepository(repos[i]);
 		}
 	}
+
+	protected IStatus install(IProfile profile, IInstallableUnit[] ius, boolean strict, IPlanner planner, IEngine engine) {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.addInstallableUnits(ius);
+		for (int i = 0; i < ius.length; i++) {
+			req.setInstallableUnitInclusionRules(ius[i], strict ? PlannerHelper.createStrictInclusionRule(ius[i]) : PlannerHelper.createOptionalInclusionRule(ius[i]));
+		}
+
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		if (plan.getStatus().getSeverity() == IStatus.ERROR)
+			return plan.getStatus();
+		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+	}
+
+	protected IStatus uninstall(IProfile profile, IInstallableUnit[] ius, IPlanner planner, IEngine engine) {
+		ProfileChangeRequest req = new ProfileChangeRequest(profile);
+		req.removeInstallableUnits(ius);
+
+		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
+		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
+	}
 }

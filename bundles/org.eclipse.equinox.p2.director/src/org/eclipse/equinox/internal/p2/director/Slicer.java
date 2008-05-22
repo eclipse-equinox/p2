@@ -104,6 +104,8 @@ public class Slicer {
 	}
 
 	private void processIU(IInstallableUnit iu) {
+		iu = iu.unresolved();
+
 		slice.put(iu.getId(), iu.getVersion(), iu);
 		if (!isApplicable(iu)) {
 			return;
