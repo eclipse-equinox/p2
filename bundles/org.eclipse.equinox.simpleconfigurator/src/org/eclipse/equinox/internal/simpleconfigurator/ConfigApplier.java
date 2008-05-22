@@ -18,11 +18,13 @@ import org.osgi.service.startlevel.StartLevel;
 
 class ConfigApplier {
 	private static final String LAST_BUNDLES_TXT = "last.bundles.info"; //$NON-NLS-1$
+	private static final String PROP_DEVMODE = "osgi.dev"; //$NON-NLS-1$
 
 	private BundleContext manipulatingContext;
 	private PackageAdmin adminService = null;
 	private StartLevel startLevelService = null;
 	private final boolean runningOnEquinox;
+	private final boolean inDevMode;
 	private boolean checkManifestBeforeInstall = false;
 
 	private Bundle callingBundle;
@@ -33,6 +35,7 @@ class ConfigApplier {
 		//String vendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
 		//System.out.println("vendor=" + vendor);
 		this.runningOnEquinox = "Eclipse".equals(context.getProperty(Constants.FRAMEWORK_VENDOR)); //$NON-NLS-1$
+		this.inDevMode = manipulatingContext.getProperty(PROP_DEVMODE) != null;
 		ServiceReference packageAdminRef = manipulatingContext.getServiceReference(PackageAdmin.class.getName());
 		if (packageAdminRef == null)
 			throw new IllegalStateException("No PackageAdmin service is available."); //$NON-NLS-1$
@@ -153,7 +156,7 @@ class ConfigApplier {
 	}
 
 	private ArrayList installBundles(BundleInfo[] finalList, Collection toStart) {
-		ArrayList installed = new ArrayList();
+		ArrayList toRefresh = new ArrayList();
 		//printSystemBundle();
 
 		boolean useReference = true;
@@ -196,22 +199,46 @@ class ConfigApplier {
 			if (symbolicName != null && version != null)
 				matches = adminService.getBundles(symbolicName, getVersionRange(version));
 
+			String location = finalList[i].getLocation();
+			if (location == null)
+				continue;
+			if (runningOnEquinox && useReference && location.startsWith("file:")) //$NON-NLS-1$
+				location = "reference:" + location; //$NON-NLS-1$
 			Bundle current = matches == null ? null : (matches.length == 0 ? null : matches[0]);
 			if (current == null) {
 				try {
-					String location = finalList[i].getLocation();
-					if (location == null)
-						continue;
-					if (runningOnEquinox && useReference && location.startsWith("file:")) //$NON-NLS-1$
-						location = "reference:" + location; //$NON-NLS-1$
-
 					//TODO Need to eliminate System Bundle.
 					// If a system bundle doesn't have a SymbolicName header, like Knopflerfish 4.0.0,
 					// it will be installed unfortunately. 
 					current = manipulatingContext.installBundle(location);
 					if (Activator.DEBUG)
 						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
-					installed.add(current);
+					toRefresh.add(current);
+				} catch (BundleException e) {
+					if (Activator.DEBUG) {
+						System.err.println("Can't install " + symbolicName + '/' + version + " from location " + finalList[i].getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
+						e.printStackTrace();
+					}
+					continue;
+				}
+			} else if (inDevMode && current.getBundleId() != 0 && current != manipulatingContext.getBundle() && !location.equals(current.getLocation()) && !current.getLocation().startsWith("initial@")) {
+				// We do not do this for the system bundle (id==0), the manipulating bundle or any bundle installed from the osgi.bundles list (locations starting with "@initial"
+				// The bundle exists; but the location is different.  Unintall the current and install the new one (bug 229700)
+				try {
+					current.uninstall();
+					toRefresh.add(current);
+				} catch (BundleException e) {
+					if (Activator.DEBUG) {
+						System.err.println("Can't uninstalll " + symbolicName + '/' + version + " from location " + current.getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
+						e.printStackTrace();
+					}
+					continue;
+				}
+				try {
+					current = manipulatingContext.installBundle(location);
+					if (Activator.DEBUG)
+						System.out.println("installed bundle:" + finalList[i]); //$NON-NLS-1$
+					toRefresh.add(current);
 				} catch (BundleException e) {
 					if (Activator.DEBUG) {
 						System.err.println("Can't install " + symbolicName + '/' + version + " from location " + finalList[i].getLocation()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -236,7 +263,7 @@ class ConfigApplier {
 				toStart.add(current);
 			}
 		}
-		return installed;
+		return toRefresh;
 	}
 
 	private void refreshPackages(Bundle[] bundles, BundleContext context) {
