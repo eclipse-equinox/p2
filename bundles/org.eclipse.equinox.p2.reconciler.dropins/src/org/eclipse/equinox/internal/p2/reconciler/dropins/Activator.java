@@ -336,7 +336,7 @@ public class Activator implements BundleActivator {
 	private void watchConfiguration() {
 		File configFile = getConfigurationLocation();
 		if (configFile == null) {
-			LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location."));
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location.")); //$NON-NLS-1$
 			return;
 		}
 		configFile = new File(configFile, PLATFORM_CFG);
@@ -447,7 +447,8 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * Return the locations of the links directories.
+	 * Return the locations of the links directories. There is a potential for
+	 * more than one to be returned here if we are running in shared mode.
 	 */
 	private static File[] getLinksDirectories() {
 		List linksDirectories = new ArrayList();
@@ -455,6 +456,9 @@ public class Activator implements BundleActivator {
 		if (root != null)
 			linksDirectories.add(new File(root, LINKS));
 
+		// check to see if we are in shared mode. if so, then add the user's local
+		// links directory. (the shared one will have been added above with the
+		// reference to Eclipse home)
 		if (getParentConfigurationLocation() != null) {
 			File configuration = getConfigurationLocation();
 			if (configuration != null && configuration.getParentFile() != null)
@@ -464,18 +468,26 @@ public class Activator implements BundleActivator {
 	}
 
 	/*
-	 * Return the location of the dropins directories.
+	 * Return the location of the dropins directories. These include the one specified by
+	 * the "org.eclipse.equinox.p2.reconciler.dropins.directory" System property and the one
+	 * in the Eclipse home directory. If we are in shared mode, then also add the user's
+	 * local dropins directory.
 	 */
 	private static File[] getDropinsDirectories() {
 		List dropinsDirectories = new ArrayList();
+		// did the user specify one via System properties?
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
 		if (watchedDirectoryProperty != null)
 			dropinsDirectories.add(new File(watchedDirectoryProperty));
 
+		// always add the one in the Eclipse home directory
 		File root = getEclipseHome();
 		if (root != null)
 			dropinsDirectories.add(new File(root, DROPINS));
 
+		// check to see if we are in shared mode. if so, then add the user's local
+		// dropins directory. (the shared one will have been added above with the
+		// reference to Eclipse home)
 		if (getParentConfigurationLocation() != null) {
 			File configuration = getConfigurationLocation();
 			if (configuration != null && configuration.getParentFile() != null)
