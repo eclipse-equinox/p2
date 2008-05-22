@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -18,6 +19,8 @@ import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.InstalledIUCollector;
 import org.eclipse.osgi.util.NLS;
 
 /**
@@ -28,6 +31,9 @@ import org.eclipse.osgi.util.NLS;
  */
 public class ProfileElement extends RemoteQueriedElement {
 	String profileId;
+
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=232413
+	private boolean queryChildNames = false;
 
 	public ProfileElement(String profileId) {
 		this.profileId = profileId;
@@ -83,4 +89,27 @@ public class ProfileElement extends RemoteQueriedElement {
 	public boolean isContainer() {
 		return super.getChildren(this).length > 0;
 	}
+
+	// Make these two methods public to fix
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=232413
+	public Object[] fetchChildren(Object o, IProgressMonitor monitor) {
+		if (queryChildNames) {
+			if (getQueryProvider() == null)
+				return new Object[0];
+			ElementQueryDescriptor queryDescriptor = getQueryProvider().getQueryDescriptor(this, getQueryType());
+			if (queryDescriptor == null || !isSufficientForQuery(queryDescriptor))
+				return new Object[0];
+			if (queryDescriptor.collector instanceof InstalledIUCollector)
+				((InstalledIUCollector) queryDescriptor.collector).fetchNamePropertyWhileCollecting();
+			queryDescriptor.queryable.query(queryDescriptor.query, queryDescriptor.collector, monitor);
+			return queryDescriptor.collector.toArray(Object.class);
+
+		}
+		return super.fetchChildren(o, monitor);
+	}
+
+	public void preloadIUNamesWhileCollecting() {
+		queryChildNames = true;
+	}
+
 }

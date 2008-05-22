@@ -24,6 +24,9 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
  */
 public class InstalledIUCollector extends QueriedElementCollector {
 
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=232413
+	private boolean queryNameProperty = false;
+
 	public InstalledIUCollector(IQueryProvider queryProvider, IProfile profile, QueryContext queryContext) {
 		super(queryProvider, profile, queryContext);
 	}
@@ -38,10 +41,20 @@ public class InstalledIUCollector extends QueriedElementCollector {
 	public boolean accept(Object match) {
 		if (!(match instanceof IInstallableUnit))
 			return true;
-		if (queryable instanceof IProfile)
+		if (queryable instanceof IProfile) {
+			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=232413
+			// access the IU's name while collecting to prevent a later lockup in the UI thread.
+			if (queryNameProperty)
+				IUPropertyUtils.getIUProperty((IInstallableUnit) match, IInstallableUnit.PROP_NAME);
 			return super.accept(new InstalledIUElement(((IProfile) queryable).getProfileId(), (IInstallableUnit) match));
+		}
 		// shouldn't happen, but is possible if a client reset the queryable to a non-profile.
 		return super.accept(match);
+	}
+
+	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=232413
+	public void fetchNamePropertyWhileCollecting() {
+		this.queryNameProperty = true;
 	}
 
 }

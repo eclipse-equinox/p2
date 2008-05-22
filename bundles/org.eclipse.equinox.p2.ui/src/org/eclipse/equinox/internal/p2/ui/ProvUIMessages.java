@@ -124,6 +124,8 @@ public class ProvUIMessages extends NLS {
 	public static String AvailableIUGroup_RefreshOperationLabel;
 	public static String AvailableIUGroup_ViewByToolTipText;
 	public static String DeferredFetchFilteredTree_RetrievingList;
+	public static String DeferredQueryContentProvider_FetchJobName;
+	public static String DeferredQueryContentProvider_Pending;
 	public static String Label_Profiles;
 	public static String Label_Repositories;
 	public static String MetadataRepositoryElement_NotFound;
