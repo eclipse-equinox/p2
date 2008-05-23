@@ -31,7 +31,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 public class UncategorizedElementCollector extends QueriedElementCollector {
 
 	private ArrayList categories = new ArrayList();
-	private HashMap allOthersById = new HashMap();
+	private Set allOthers = new HashSet();
 	private Collector resultCollector;
 
 	public UncategorizedElementCollector(IQueryProvider queryProvider, IQueryable queryable, QueryContext queryContext, Collector resultCollector) {
@@ -51,7 +51,7 @@ public class UncategorizedElementCollector extends QueriedElementCollector {
 			if (Boolean.toString(true).equals(iu.getProperty(IInstallableUnit.PROP_TYPE_CATEGORY)))
 				categories.add(iu);
 			else
-				allOthersById.put(iu.getId(), iu);
+				allOthers.add(iu);
 		}
 		return true;
 	}
@@ -99,13 +99,16 @@ public class UncategorizedElementCollector extends QueriedElementCollector {
 			RequiredCapability[] requirements = categoryIU.getRequiredCapabilities();
 			for (int i = 0; i < requirements.length; i++) {
 				if (requirements[i].getNamespace().equals(IInstallableUnit.NAMESPACE_IU_ID)) {
-					allOthersById.remove(requirements[i].getName());
+					IInstallableUnit[] arrayAllOthers = (IInstallableUnit[]) allOthers.toArray(new IInstallableUnit[allOthers.size()]);
+					for (int j = 0; j < arrayAllOthers.length; j++)
+						if (arrayAllOthers[j].getId().equals(requirements[i].getName()))
+							allOthers.remove(arrayAllOthers[j]);
 				}
 			}
 		}
-		// Now allOthersById has the correct content, so just
+		// Now allOthers has the correct content, so just
 		// collect results in the result collector.
-		iter = allOthersById.values().iterator();
+		iter = allOthers.iterator();
 		while (iter.hasNext())
 			resultCollector.accept(iter.next());
 	}
