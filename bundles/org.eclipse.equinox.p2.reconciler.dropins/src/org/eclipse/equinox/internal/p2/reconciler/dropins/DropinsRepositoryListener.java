@@ -31,6 +31,8 @@ import org.osgi.framework.ServiceReference;
 
 public class DropinsRepositoryListener extends RepositoryListener {
 
+	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
+	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String JAR = ".jar"; //$NON-NLS-1$
 	private static final String LINK = ".link"; //$NON-NLS-1$
 	private static final String ZIP = ".zip"; //$NON-NLS-1$
@@ -111,8 +113,22 @@ public class DropinsRepositoryListener extends RepositoryListener {
 			if (fileName.endsWith(LINK))
 				return getLinkRepository(file, true);
 
-			if (file.isDirectory())
+			if (file.isDirectory()) {
+				// Check if the directory is either the plugins directory of an extension location
+				// or the features directory and the plugins folder is not present.
+				// This extra check on the features directory is done to avoid adding the parent URL twice
+				if (file.getName().equals(PLUGINS)) {
+					File parentFile = file.getParentFile();
+					return (parentFile != null) ? parentFile.toURL() : null;
+				}
+				if (file.getName().equals(FEATURES)) {
+					File parentFile = file.getParentFile();
+					if (parentFile == null || new File(parentFile, PLUGINS).isDirectory())
+						return null;
+					return parentFile.toURL();
+				}
 				return file.toURL();
+			}
 
 			if (fileName.endsWith(ZIP) || fileName.endsWith(JAR))
 				return new URL("jar:" + file.toURL().toExternalForm() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
