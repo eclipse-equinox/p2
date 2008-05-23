@@ -293,18 +293,20 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 				shouldLoad[0] = false;
 				display.syncExec(new Runnable() {
 					public void run() {
-						String text = getFilterString();
-						// If we are about to filter and there is
-						// actually filtering to do, force a load
-						// of the input and set the content
-						// provider to synchronous mode.  We want the
-						// load job to complete before continuing with filtering.
-						if (text == null || (initialText != null && initialText.equals(text)))
-							return;
-						if (!contentProvider.getSynchronous() && loadJob == null) {
-							if (filterText != null && !filterText.isDisposed()) {
-								disableWhileLoading();
-								shouldLoad[0] = true;
+						if (filterText != null && !filterText.isDisposed()) {
+							String text = getFilterString();
+							// If we are about to filter and there is
+							// actually filtering to do, force a load
+							// of the input and set the content
+							// provider to synchronous mode.  We want the
+							// load job to complete before continuing with filtering.
+							if (text == null || (initialText != null && initialText.equals(text)))
+								return;
+							if (!contentProvider.getSynchronous() && loadJob == null) {
+								if (filterText != null && !filterText.isDisposed()) {
+									disableWhileLoading();
+									shouldLoad[0] = true;
+								}
 							}
 						}
 					}

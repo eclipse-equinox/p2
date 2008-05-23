@@ -807,7 +807,25 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 	 *            the button bar composite
 	 */
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, IDialogConstants.CLOSE_ID, IDialogConstants.CLOSE_LABEL, true);
+		Button button = createButton(parent, IDialogConstants.CLOSE_ID, IDialogConstants.CLOSE_LABEL, true);
+		// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=231998
+		TraverseListener traverseListener = new TraverseListener() {
+			public void keyTraversed(TraverseEvent e) {
+				if (e.detail != SWT.TRAVERSE_MNEMONIC)
+					return;
+				if (tabFolder.getSelectionIndex() == INDEX_AVAILABLE && (e.stateMask & SWT.ALT) != SWT.ALT) {
+					Control filter = availableIUGroup.getDefaultFocusControl();
+					e.doit = filter.isEnabled();
+					e.detail = SWT.TRAVERSE_NONE;
+				}
+			}
+		};
+
+		Control control = button;
+		while (!(control instanceof Shell)) {
+			control.addTraverseListener(traverseListener);
+			control = control.getParent();
+		}
 	}
 
 	protected void buttonPressed(int buttonId) {
