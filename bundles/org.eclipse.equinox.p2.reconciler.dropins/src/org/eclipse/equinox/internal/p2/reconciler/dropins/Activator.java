@@ -174,11 +174,12 @@ public class Activator implements BundleActivator {
 		Properties timestamps = readTimestamps();
 		if (timestamps.isEmpty())
 			return false;
+
 		// check platform.xml
 		File configuration = getConfigurationLocation();
 		if (configuration != null) {
-			configuration = new File(configuration, PLATFORM_CFG);
-			if (!Long.toString(configuration.lastModified()).equals(timestamps.getProperty(configuration.getAbsolutePath())))
+			File platformXML = new File(configuration, PLATFORM_CFG);
+			if (!Long.toString(platformXML.lastModified()).equals(timestamps.getProperty(platformXML.getAbsolutePath())))
 				return false;
 			// the plugins and features directories are always siblings to the configuration directory
 			File parent = configuration.getParentFile();
@@ -191,6 +192,25 @@ public class Activator implements BundleActivator {
 					return false;
 			}
 		}
+
+		// if we are in shared mode then check the timestamps of the parent configuration
+		File parentConfiguration = getParentConfigurationLocation();
+		if (parentConfiguration != null) {
+			File platformXML = new File(parentConfiguration, PLATFORM_CFG);
+			if (!Long.toString(platformXML.lastModified()).equals(timestamps.getProperty(platformXML.getAbsolutePath())))
+				return false;
+			// the plugins and features directories are always siblings to the configuration directory
+			File parent = parentConfiguration.getParentFile();
+			if (parent != null) {
+				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
+				if (!Long.toString(plugins.lastModified()).equals(timestamps.getProperty(plugins.getAbsolutePath())))
+					return false;
+				File features = new File(parent, "features"); //$NON-NLS-1$
+				if (!Long.toString(features.lastModified()).equals(timestamps.getProperty(features.getAbsolutePath())))
+					return false;
+			}
+		}
+
 		// check dropins folders
 		File[] dropins = getDropinsDirectories();
 		for (int i = 0; i < dropins.length; i++) {
@@ -239,9 +259,9 @@ public class Activator implements BundleActivator {
 		// cache the platform.xml file timestamp
 		File configuration = getConfigurationLocation();
 		if (configuration != null) {
-			configuration = new File(configuration, PLATFORM_CFG);
+			File platformXML = new File(configuration, PLATFORM_CFG);
 			// always write out the timestamp even if it doesn't exist so we can detect addition/removal
-			timestamps.put(configuration.getAbsolutePath(), Long.toString(configuration.lastModified()));
+			timestamps.put(platformXML.getAbsolutePath(), Long.toString(platformXML.lastModified()));
 			File parent = configuration.getParentFile();
 			if (parent != null) {
 				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
@@ -250,6 +270,21 @@ public class Activator implements BundleActivator {
 				timestamps.put(features.getAbsolutePath(), Long.toString(features.lastModified()));
 			}
 		}
+		// if we are in shared mode then write out the information for the parent configuration
+		File parentConfiguration = getParentConfigurationLocation();
+		if (parentConfiguration != null) {
+			File platformXML = new File(parentConfiguration, PLATFORM_CFG);
+			// always write out the timestamp even if it doesn't exist so we can detect addition/removal
+			timestamps.put(platformXML.getAbsolutePath(), Long.toString(platformXML.lastModified()));
+			File parent = parentConfiguration.getParentFile();
+			if (parent != null) {
+				File plugins = new File(parent, "plugins"); //$NON-NLS-1$
+				timestamps.put(plugins.getAbsolutePath(), Long.toString(plugins.lastModified()));
+				File features = new File(parent, "features"); //$NON-NLS-1$
+				timestamps.put(features.getAbsolutePath(), Long.toString(features.lastModified()));
+			}
+		}
+
 		// cache the dropins folders timestamp
 		// always write out the timestamp even if it doesn't exist so we can detect addition/removal
 		File[] dropins = getDropinsDirectories();
