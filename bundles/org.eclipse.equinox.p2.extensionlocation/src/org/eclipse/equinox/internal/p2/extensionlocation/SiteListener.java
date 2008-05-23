@@ -114,12 +114,8 @@ public class SiteListener extends RepositoryListener {
 			return false;
 		for (int i = 0; i < removed.length; i++) {
 			String line = removed[i];
-			int index = line.indexOf('_');
-			if (index == -1 || index + 1 >= line.length())
-				continue;
-			String id = line.substring(0, index);
-			String version = line.substring(index + 1);
-			if (id.equals(feature.getId()) && version.equals(feature.getVersion()))
+			// the line is a versioned identifier which is id_version
+			if (line.equals(feature.getId() + '_' + feature.getVersion()))
 				return true;
 		}
 		return false;
@@ -175,12 +171,15 @@ public class SiteListener extends RepositoryListener {
 				// ignore
 			}
 		}
+		String urlString = url;
+		if (urlString.endsWith(Constants.EXTENSION_LOCATION))
+			urlString = urlString.substring(0, urlString.length() - Constants.EXTENSION_LOCATION.length());
 		List result = new ArrayList();
 		for (Enumeration e = properties.elements(); e.hasMoreElements();) {
 			String line = (String) e.nextElement();
 			StringTokenizer tokenizer = new StringTokenizer(line, ";"); //$NON-NLS-1$
 			String targetSite = tokenizer.nextToken();
-			if (!url.equals(targetSite))
+			if (!urlString.equals(targetSite))
 				continue;
 			result.add(tokenizer.nextToken());
 		}
