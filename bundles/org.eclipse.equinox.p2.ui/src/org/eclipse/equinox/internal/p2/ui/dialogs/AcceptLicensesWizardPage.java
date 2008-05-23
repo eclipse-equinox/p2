@@ -22,6 +22,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.equinox.internal.provisional.p2.ui.viewers.IUColumnConfig;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.*;
@@ -210,7 +211,7 @@ public class AcceptLicensesWizardPage extends WizardPage {
 	}
 
 	private String getLicenseBody(IInstallableUnit iu) {
-		License license = iu.getLicense();
+		License license = IUPropertyUtils.getLicense(iu);
 		if (license != null && license.getBody() != null)
 			return license.getBody();
 		// shouldn't happen because we already reduced the list to those
@@ -242,25 +243,25 @@ public class AcceptLicensesWizardPage extends WizardPage {
 		// algorithm would allow duplicates if subsequent licenses found for an iu name did not match the
 		// first license yet still duplicated each other. Since this is not likely to happen we keep it
 		// simple.  The UI for licenses will soon be reworked.
-		HashMap iusByName = new HashMap();
+		HashMap licensesByIUName = new HashMap();//map of String(iu name)->License
 		List unaccepted = new ArrayList();
 		// We can't be sure that the viewer is created or the right label provider has been installed, so make another one.
 		IUDetailsLabelProvider labelProvider = new IUDetailsLabelProvider();
 		for (int i = 0; i < iusToCheck.length; i++) {
 			IInstallableUnit iu = iusToCheck[i];
 			String name = labelProvider.getText(iu);
-			License license = iu.getLicense();
+			License license = IUPropertyUtils.getLicense(iu);
 			// It has a license, is it already accepted?
 			if (license != null) {
 				if (licenseManager == null || !licenseManager.isAccepted(iu)) {
-					// Have we already found an IU with this user name?
-					IInstallableUnit potentialDuplicate = (IInstallableUnit) iusByName.get(name);
-					// If we have no duplicate or the duplicate's license doesn't match, add it
-					if (potentialDuplicate == null || !potentialDuplicate.getLicense().equals(license))
+					// Have we already found a license with this IU name?
+					License potentialDuplicate = (License) licensesByIUName.get(name);
+					// If we have no duplicate or the duplicate license doesn't match, add it
+					if (potentialDuplicate == null || !potentialDuplicate.equals(license))
 						unaccepted.add(iu);
 					// We didn't have a duplicate, need to record this one
 					if (potentialDuplicate == null)
-						iusByName.put(name, iu);
+						licensesByIUName.put(name, license);
 				}
 			}
 		}

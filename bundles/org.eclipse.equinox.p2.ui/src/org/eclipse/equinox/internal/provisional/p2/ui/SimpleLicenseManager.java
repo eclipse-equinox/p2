@@ -19,6 +19,7 @@ import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.License;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.LicenseManager;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.IUPropertyUtils;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -34,21 +35,21 @@ public class SimpleLicenseManager extends LicenseManager {
 	java.util.Set accepted = new HashSet();
 
 	public boolean accept(IInstallableUnit iu) {
-		License license = iu.getLicense();
+		License license = IUPropertyUtils.getLicense(iu);
 		if (license != null)
 			accepted.add(license.getDigest());
 		return true;
 	}
 
 	public boolean reject(IInstallableUnit iu) {
-		License license = iu.getLicense();
+		License license = IUPropertyUtils.getLicense(iu);
 		if (license != null)
 			accepted.remove(license.getDigest());
 		return true;
 	}
 
 	public boolean isAccepted(IInstallableUnit iu) {
-		License license = iu.getLicense();
+		License license = IUPropertyUtils.getLicense(iu);
 		if (license == null)
 			return true;
 		return accepted.contains(license.getDigest());
