@@ -346,7 +346,8 @@ public class EclipseGeneratorApplication implements IApplication {
 			return new Integer(-1);
 		}
 
-		if (provider.getArtifactRepository() == null) {
+		// if we asked for artifacts to be published in some form, there must be a repo given
+		if ((provider.publishArtifactRepository() || provider.publishArtifacts()) && provider.getArtifactRepository() == null) {
 			System.out.println(Messages.exception_artifactRepoNotSpecified);
 			return new Integer(-1);
 		}
