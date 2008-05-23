@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.query;
 
+import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -25,6 +26,10 @@ public class IUPropertyUtils {
 	// TODO: these constants should come from API, eg. IInstallableUnit or ???
 	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
 	static final String NAMESPACE_IU_LOCALIZATION = "org.eclipse.equinox.p2.localization"; //$NON-NLS-1$
+
+	// Cache the IU fragments that provide localizations for a given locale.
+	//    map: locale => soft reference to a collector
+	private static Map LocaleCollectorCache = new HashMap(2);
 
 	// Get the license in the default locale.
 	public static License getLicense(IInstallableUnit iu) {
@@ -88,10 +93,11 @@ public class IUPropertyUtils {
 		final List locales = buildLocaleVariants(locale);
 		final IInstallableUnit theUnit = iu;
 
+		Collector localizationFragments = getLocalizationFragments(locale, locales);
+
 		Collector hostLocalizationCollector = new Collector() {
 			public boolean accept(Object object) {
 				boolean haveHost = false;
-				boolean haveLocale = false;
 				if (object instanceof IInstallableUnitFragment) {
 					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
 					RequiredCapability[] hosts = fragment.getHost();
@@ -105,32 +111,14 @@ public class IUPropertyUtils {
 							break;
 						}
 					}
-
-					if (haveHost) {
-						ProvidedCapability[] provides = fragment.getProvidedCapabilities();
-						for (int j = 0; j < provides.length && !haveLocale; j++) {
-							ProvidedCapability nextProvide = provides[j];
-							if (NAMESPACE_IU_LOCALIZATION.equals(nextProvide.getNamespace())) {
-								String providedLocale = nextProvide.getName();
-								if (providedLocale != null) {
-									for (Iterator iter = locales.iterator(); iter.hasNext();) {
-										if (providedLocale.equals(iter.next())) {
-											haveLocale = true;
-											break;
-										}
-									}
-								}
-							}
-						}
-					}
 				}
-				return (haveHost && haveLocale ? super.accept(object) : false);
+				return (haveHost ? super.accept(object) : false);
 			}
 		};
 
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
 		IUPropertyQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		Collector collected = repoMgr.query(iuQuery, hostLocalizationCollector, null);
+		Collector collected = iuQuery.perform(localizationFragments.iterator(), hostLocalizationCollector);
+
 		if (!collected.isEmpty()) {
 			String translation = null;
 			for (Iterator iter = collected.iterator(); iter.hasNext() && translation == null;) {
@@ -165,6 +153,54 @@ public class IUPropertyUtils {
 		if (iu instanceof InstallableUnit)
 			((InstallableUnit) iu).setLocalizedProperty(localizedKey, localizedValue);
 		return localizedValue;
+	}
+
+	/**
+	 * @param localeVariants TODO
+	 * 
+	 */
+	private static synchronized Collector getLocalizationFragments(Locale locale, List localeVariants) {
+		SoftReference collectorRef = (SoftReference) LocaleCollectorCache.get(locale);
+		if (collectorRef != null) {
+			Collector cached = (Collector) collectorRef.get();
+			if (cached != null)
+				return cached;
+		}
+
+		final List locales = localeVariants;
+
+		Collector localeFragmentCollector = new Collector() {
+			public boolean accept(Object object) {
+				boolean haveLocale = false;
+				if (object instanceof IInstallableUnitFragment) {
+					IInstallableUnitFragment fragment = (IInstallableUnitFragment) object;
+					ProvidedCapability[] provides = fragment.getProvidedCapabilities();
+					for (int j = 0; j < provides.length && !haveLocale; j++) {
+						ProvidedCapability nextProvide = provides[j];
+						if (NAMESPACE_IU_LOCALIZATION.equals(nextProvide.getNamespace())) {
+							String providedLocale = nextProvide.getName();
+							if (providedLocale != null) {
+								for (Iterator iter = locales.iterator(); iter.hasNext();) {
+									if (providedLocale.equals(iter.next())) {
+										haveLocale = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				return (haveLocale ? super.accept(object) : false);
+			}
+		};
+
+		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		IUPropertyQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
+		Collector collected = repoMgr.query(iuQuery, localeFragmentCollector, null);
+
+		LocaleCollectorCache.put(locale, new SoftReference(collected));
+
+		return collected;
 	}
 
 	/**
