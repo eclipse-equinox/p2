@@ -99,7 +99,17 @@ public class InstallAction extends ProfileModificationAction {
 	 * @see org.eclipse.equinox.internal.provisional.p2.ui.actions.ProfileModificationAction#isEnabledFor(java.lang.Object[])
 	 */
 	protected boolean isEnabledFor(Object[] selectionArray) {
-		return selectionArray.length > 0;
+		if (selectionArray.length == 0)
+			return false;
+		// We allow non-IU's to be selected at this point, but there
+		// must be at least one installable unit selected that is
+		// not a category.  
+		for (int i = 0; i < selectionArray.length; i++) {
+			IInstallableUnit iu = getIU(selectionArray[i]);
+			if (iu != null && !ProvisioningUtil.isCategory(iu))
+				return true;
+		}
+		return false;
 	}
 
 	protected String getTaskName() {
