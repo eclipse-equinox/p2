@@ -750,6 +750,18 @@ public class Generator {
 		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+
+		IInstallableUnit launcherNameIU = null;
+
+		File executableLocation = info.getExecutableLocation();
+		if (executableLocation != null) {
+			if (!executableLocation.exists() && Constants.OS_WIN32.equals(os) && !executableLocation.getName().endsWith(".exe")) //$NON-NLS-1$
+				executableLocation = new File(executableLocation.getParentFile(), executableLocation.getName() + ".exe"); //$NON-NLS-1$
+
+			if (executableLocation.exists() && executableLocation.isFile())
+				launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(executableLocation.getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+		}
+
 		if (Constants.OS_MACOSX.equals(os)) {
 			File[] appFolders = root.listFiles(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
@@ -762,19 +774,27 @@ public class Generator {
 					File[] launcherFiles = macOSFolder.listFiles();
 					for (int j = 0; j < launcherFiles.length; j++) {
 						configurationData += " chmod(targetDir:${installFolder}/" + appFolders[i].getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[j].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						if (new Path(launcherFiles[j].getName()).getFileExtension() == null)
-							MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+						if (executableLocation == null && launcherFiles[i].isFile() && new Path(launcherFiles[j].getName()).getFileExtension() == null)
+							launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 					}
 				}
 			}
-		}
-		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
+		} else if (!Constants.OS_WIN32.equals(os)) {
 			File[] launcherFiles = root.listFiles();
-			for (int i = 0; i < launcherFiles.length; i++) {
+			for (int i = 0; launcherFiles != null && i < launcherFiles.length; i++) {
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
-				if (new Path(launcherFiles[i].getName()).getFileExtension() == null)
-					MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+				if (executableLocation == null && launcherFiles[i].isFile() && new Path(launcherFiles[i].getName()).getFileExtension() == null)
+					launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 			}
+		} else if (launcherNameIU == null) {
+			//windows
+			File[] launcherFiles = root.listFiles(new FilenameFilter() {
+				public boolean accept(File parent, String name) {
+					return name.endsWith(".exe"); //$NON-NLS-1$
+				}
+			});
+			if (launcherFiles != null && launcherFiles.length > 0)
+				launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[0].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -785,9 +805,13 @@ public class Generator {
 		//The Product Query will need to include the launcher CU fragments as a workaround to bug 218890
 		if (result.configurationIUs.containsKey(launcherIdPrefix)) {
 			((Set) result.configurationIUs.get(launcherIdPrefix)).add(unit);
+			if (launcherNameIU != null)
+				((Set) result.configurationIUs.get(launcherIdPrefix)).add(launcherNameIU);
 		} else {
 			Set set = new HashSet();
 			set.add(unit);
+			if (launcherNameIU != null)
+				set.add(launcherNameIU);
 			result.configurationIUs.put(launcherIdPrefix, set);
 		}
 

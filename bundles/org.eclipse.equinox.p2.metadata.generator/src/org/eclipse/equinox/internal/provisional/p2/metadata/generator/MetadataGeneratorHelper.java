@@ -772,7 +772,7 @@ public class MetadataGeneratorHelper {
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
-		
+
 		// Create set of provided capabilities
 		ArrayList providedCapabilities = new ArrayList();
 		providedCapabilities.add(createSelfCapability(id, version));
@@ -923,23 +923,27 @@ public class MetadataGeneratorHelper {
 		return createArtifactDescriptor(key, launcher, false, true);
 	}
 
-	public static void generateLauncherSetter(String launcherName, String iuId, Version version, String os, String ws, String arch, Set result) {
+	public static IInstallableUnit generateLauncherSetter(String launcherName, String iuId, Version version, String os, String ws, String arch, Set result) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId(iuId + '.' + launcherName);
 		iud.setVersion(version);
 		iud.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
+		iud.setCapabilities(new ProvidedCapability[] {createSelfCapability(iuId + '.' + launcherName, version)});
 
 		if (os != null || ws != null || arch != null) {
-			String filterOs = os != null ? "(os=" + os + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterWs = ws != null ? "(ws=" + ws + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterArch = arch != null ? "(arch=" + arch + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterOs = os != null ? "(osgi.os=" + os + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterWs = ws != null ? "(osgi.ws=" + ws + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterArch = arch != null ? "(osgi.arch=" + arch + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			iud.setFilter("(& " + filterOs + filterWs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		Map touchpointData = new HashMap();
 		touchpointData.put("configure", "setLauncherName(name:" + launcherName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		result.add(MetadataFactory.createInstallableUnit(iud));
+
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
+		result.add(iu);
+		return iu;
 	}
 
 	public static ProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
