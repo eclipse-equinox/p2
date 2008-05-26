@@ -18,7 +18,13 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Dorg.eclipse.equinox.p2.installDescription=http://download.eclipse.org/eclipse/testUpdates/sdk-installer.properties</vmArgs>
+      <vmArgs>-Declipse.p2.roots=epp.java
+-Declipse.p2.metadata=http://download.eclipse.org/eclipse/updates/3.4milestones/,http://download.eclipse.org/releases/ganymede/,http://code9.com/
+-Declipse.p2.artifacts=http://download.eclipse.org/eclipse/updates/3.4milestones/,http://download.eclipse.org/releases/ganymede/
+-Declipse.p2.flavor=tooling
+-Declipse.p2.profileName=ProfileNameHere
+-Declipse.p2.launcherName=eclipse
+-Declipse.p2.autoStart</vmArgs>
    </launcherArgs>
 
    <windowImages/>
