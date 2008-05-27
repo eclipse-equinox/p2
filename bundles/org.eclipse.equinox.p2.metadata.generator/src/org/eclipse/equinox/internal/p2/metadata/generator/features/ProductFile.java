@@ -224,7 +224,7 @@ public class ProductFile extends DefaultHandler {
 	}
 
 	public String getVersion() {
-		return (version == null) ? "0.0.0" : version; //$NON-NLS-1$
+		return (version == null || version.length() == 0) ? "0.0.0" : version; //$NON-NLS-1$
 	}
 
 	public String getVMArguments(String os) {

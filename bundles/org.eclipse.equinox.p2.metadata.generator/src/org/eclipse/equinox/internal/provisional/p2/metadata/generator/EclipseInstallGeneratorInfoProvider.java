@@ -347,7 +347,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public String getRootVersion() {
-		if (rootVersion == null)
+		if (rootVersion == null || rootVersion.length() == 0)
 			return "0.0.0"; //$NON-NLS-1$
 		return rootVersion;
 	}

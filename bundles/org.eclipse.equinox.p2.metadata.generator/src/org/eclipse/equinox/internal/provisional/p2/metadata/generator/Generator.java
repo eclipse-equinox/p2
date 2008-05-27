@@ -159,6 +159,15 @@ public class Generator {
 		this.incrementalResult = result;
 	}
 
+	private String getProductVersion() {
+		String version = "1.0.0"; //$NON-NLS-1$
+		if (productFile != null && !productFile.getVersion().equals("0.0.0")) //$NON-NLS-1$
+			version = productFile.getVersion();
+		else if (!info.getRootVersion().equals("0.0.0")) //$NON-NLS-1$
+			version = info.getRootVersion();
+		return version;
+	}
+
 	protected IInstallableUnit createProductIU(GeneratorResult result) {
 		generateProductConfigCUs(result);
 
@@ -170,9 +179,7 @@ public class Generator {
 			productContents.rootIUs.add(iterator.next());
 		}
 
-		String version = productFile.getVersion();
-		if (version.equals("0.0.0") && info.getRootVersion() != null) //$NON-NLS-1$
-			version = info.getRootVersion();
+		String version = getProductVersion();
 		VersionRange range = new VersionRange(new Version(version), true, new Version(version), true);
 		ArrayList requires = new ArrayList(1);
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_LAUCHER_SUFFIX, range, null, false, true));
@@ -835,7 +842,9 @@ public class Generator {
 
 			InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
 			String configUnitId = info.getFlavor() + productFile.getId() + ".config." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
-			Version cuVersion = new Version(productFile.getVersion());
+
+			String version = getProductVersion();
+			Version cuVersion = new Version(version);
 			cu.setId(configUnitId);
 			cu.setVersion(cuVersion);
 			cu.setSingleton(true);
@@ -968,9 +977,7 @@ public class Generator {
 
 		if (info.getLauncherConfig() != null) {
 			String[] config = parseConfigSpec(info.getLauncherConfig());
-			String version = "1.0.0"; //$NON-NLS-1$
-			if (productFile != null && !productFile.getVersion().equals("0.0.0")) //$NON-NLS-1$
-				version = productFile.getVersion();
+			String version = getProductVersion();
 			generateExecutableIUs(config[1], config[0], config[2], version, executableLocation.getParentFile(), result, destination);
 			generateProductIniCU(config[1], config[0], config[2], version, result);
 			return;
