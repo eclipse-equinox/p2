@@ -921,10 +921,10 @@ public class Generator {
 			//publish feature site references
 			String updateURL = feature.getUpdateSiteURL();
 			if (updateURL != null)
-				generateSiteReference(updateURL, true);
+				generateSiteReference(updateURL, feature.getId(), true);
 			URLEntry[] discoverySites = feature.getDiscoverySites();
 			for (int j = 0; j < discoverySites.length; j++)
-				generateSiteReference(discoverySites[j].getURL(), false);
+				generateSiteReference(discoverySites[j].getURL(), feature.getId(), false);
 
 			//generate feature IU
 			String location = feature.getLocation();
@@ -1017,9 +1017,10 @@ public class Generator {
 	/**
 	 * Generates and publishes a reference to an update site location
 	 * @param location The update site location
+	 * @param featureId the identifier of the feature where the error occurred, or null
 	 * @param isEnabled Whether the site should be enabled by default
 	 */
-	private void generateSiteReference(String location, boolean isEnabled) {
+	private void generateSiteReference(String location, String featureId, boolean isEnabled) {
 		IMetadataRepository metadataRepo = info.getMetadataRepository();
 		try {
 			URL associateLocation = new URL(location);
@@ -1027,7 +1028,10 @@ public class Generator {
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, flags);
 			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, flags);
 		} catch (MalformedURLException e) {
-			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Invalid site reference: " + location)); //$NON-NLS-1$
+			String message = "Invalid site reference: " + location; //$NON-NLS-1$
+			if (featureId != null)
+				message = message + " in feature: " + featureId; //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
 		}
 	}
 
@@ -1140,7 +1144,7 @@ public class Generator {
 		URLEntry[] associatedSites = site.getAssociatedSites();
 		if (associatedSites != null)
 			for (int i = 0; i < associatedSites.length; i++)
-				generateSiteReference(associatedSites[i].getURL(), true);
+				generateSiteReference(associatedSites[i].getURL(), null, true);
 
 		SiteFeature[] features = site.getFeatures();
 		for (int i = 0; i < features.length; i++) {
