@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.osgi.signedcontent.*;
 
 /**
- * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.   
+ * Processing step validating the signature of the artifact being downloaded  
  */
 public class SignatureVerifier extends ProcessingStep {
 	private File inputFile;
