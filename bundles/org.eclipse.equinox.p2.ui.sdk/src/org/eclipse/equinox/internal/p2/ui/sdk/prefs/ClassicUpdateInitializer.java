@@ -10,41 +10,20 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.preferences.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.activities.IMutableActivityManager;
-import org.eclipse.ui.activities.IWorkbenchActivitySupport;
 import org.eclipse.ui.statushandlers.StatusManager;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class ClassicUpdateInitializer extends AbstractPreferenceInitializer {
 
 	private static final String P_ENABLED = "enabled"; //$NON-NLS-1$
-	private static final String ACTIVITY_ID = "org.eclipse.equinox.p2.ui.sdk.classicUpdate"; //$NON-NLS-1$
 	private static final String UPDATE_PLUGIN_ID = "org.eclipse.update.scheduler"; //$NON-NLS-1$
 
 	public void initializeDefaultPreferences() {
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		if (workbench != null) {
-			final IWorkbenchActivitySupport activitySupport = workbench.getActivitySupport();
-			IMutableActivityManager createWorkingCopy = activitySupport.createWorkingCopy();
-			Set activityIds = createWorkingCopy.getEnabledActivityIds();
-			final Set enabledActivityIds = new HashSet(activityIds);
-			enabledActivityIds.remove(ACTIVITY_ID);
-			workbench.getDisplay().asyncExec(new Runnable() {
-				public void run() {
-					//activity change listeners may touch widgets
-					activitySupport.setEnabledActivityIds(enabledActivityIds);
-				}
-			});
-		}
 		Preferences prefP2 = ProvSDKUIActivator.getDefault().getPluginPreferences();
 		//only migrate auto-update preference from UM once
 		boolean autoUpdateInit = prefP2.getBoolean(PreferenceConstants.PREF_AUTO_UPDATE_INIT);
