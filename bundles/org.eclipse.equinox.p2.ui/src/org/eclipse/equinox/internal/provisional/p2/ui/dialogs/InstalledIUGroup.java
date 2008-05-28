@@ -98,8 +98,6 @@ public class InstalledIUGroup extends StructuredIUGroup {
 	Object getInput() {
 		ProfileElement element = new ProfileElement(profileId);
 		element.setQueryProvider(getQueryProvider());
-		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=232413
-		element.preloadIUNamesWhileCollecting();
 		return element;
 	}
 

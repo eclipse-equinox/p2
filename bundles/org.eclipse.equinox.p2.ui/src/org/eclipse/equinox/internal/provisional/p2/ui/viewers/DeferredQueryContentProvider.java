@@ -13,18 +13,14 @@ package org.eclipse.equinox.internal.provisional.p2.ui.viewers;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.jobs.*;
-import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
+import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.equinox.internal.p2.ui.model.ProvElement;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryTreeContentManager;
 import org.eclipse.equinox.internal.p2.ui.viewers.DeferredQueryTreeListener;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.ProfileElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement;
 import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.widgets.Display;
 
 /**
  * Content provider that retrieves children asynchronously where
@@ -44,11 +40,6 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 	AbstractTreeViewer viewer = null;
 	ListenerList listeners = new ListenerList();
 	boolean synchronous = false;
-	TableViewer tableViewer = null;
-	Job profileFetchJob = null;
-	Display display = null;
-	String placeholder;
-	Object[] realChildren;
 
 	public DeferredQueryContentProvider(IQueryProvider queryProvider) {
 		this.queryProvider = queryProvider;
@@ -63,18 +54,11 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 	}
 
 	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-		// cache display while in UI thread
-		display = v.getControl().getDisplay();
 		if (manager != null)
 			manager.cancel(oldInput);
-		if (profileFetchJob != null) {
-			profileFetchJob.cancel();
-			profileFetchJob = null;
-		}
 		if (v instanceof AbstractTreeViewer) {
 			manager = new DeferredQueryTreeContentManager((AbstractTreeViewer) v);
 			viewer = (AbstractTreeViewer) v;
-			tableViewer = null;
 			manager.setListener(new DeferredQueryTreeListener() {
 
 				public void fetchingDeferredChildren(Object parent, Object placeholder) {
@@ -85,11 +69,8 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 					queryCompleted.add(parent);
 				}
 			});
-		} else {
+		} else
 			viewer = null;
-			if (v instanceof TableViewer)
-				tableViewer = (TableViewer) v;
-		}
 		alreadyQueried = new HashMap();
 		queryCompleted = new HashSet();
 		currentInput = newInput;
@@ -100,48 +81,7 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 
 	}
 
-	public Object[] getElements(final Object input) {
-		if (input instanceof ProfileElement) {
-			if (profileFetchJob == null && tableViewer != null) {
-				final ProfileElement element = (ProfileElement) input;
-				element.setQueryProvider(queryProvider);
-				placeholder = ProvUIMessages.DeferredQueryContentProvider_Pending;
-				profileFetchJob = new Job(ProvUIMessages.DeferredQueryContentProvider_FetchJobName) {
-					public IStatus run(IProgressMonitor monitor) {
-						if (monitor.isCanceled())
-							return Status.CANCEL_STATUS;
-						realChildren = element.fetchChildren(input, monitor);
-						return Status.OK_STATUS;
-					}
-				};
-				profileFetchJob.addJobChangeListener(new JobChangeAdapter() {
-					public void done(IJobChangeEvent event) {
-						// whether finished or cancelled, get rid of the placeholder.
-						if (display == null || placeholder == null)
-							return;
-						final boolean addChildren = event.getResult().isOK();
-						display.asyncExec(new Runnable() {
-							public void run() {
-								if (!tableViewer.getControl().isDisposed()) {
-									tableViewer.remove(placeholder);
-									if (addChildren) {
-										tableViewer.add(realChildren);
-										// Set the selection explicitly so listeners can
-										// change their validation
-										tableViewer.setSelection(StructuredSelection.EMPTY);
-									}
-								}
-								placeholder = null;
-							}
-						});
-					}
-				});
-				profileFetchJob.schedule();
-				realChildren = new Object[] {placeholder};
-			}
-			// realChildren could contain the placeholder or the real stuff
-			return realChildren;
-		}
+	public Object[] getElements(Object input) {
 		if (input instanceof QueriedElement) {
 			QueriedElement element = (QueriedElement) input;
 			element.setQueryProvider(queryProvider);
@@ -153,10 +93,6 @@ public class DeferredQueryContentProvider implements ITreeContentProvider {
 	public void dispose() {
 		if (manager != null) {
 			manager.cancel(currentInput);
-		}
-		if (profileFetchJob != null) {
-			profileFetchJob.cancel();
-			profileFetchJob = null;
 		}
 	}
 
