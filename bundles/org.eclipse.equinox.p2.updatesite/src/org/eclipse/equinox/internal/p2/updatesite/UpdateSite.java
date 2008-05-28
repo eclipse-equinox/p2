@@ -135,8 +135,9 @@ public class UpdateSite {
 	 */
 	private static File loadSiteFile(URL location, IProgressMonitor monitor) throws ProvisionException {
 		Throwable failure;
-		File siteFile;
+		File siteFile = null;
 		IStatus transferResult;
+		boolean deleteSiteFile = false;
 		try {
 			URL actualLocation = getSiteURL(location);
 			if (PROTOCOL_FILE.equals(actualLocation.getProtocol())) {
@@ -148,15 +149,23 @@ public class UpdateSite {
 					transferResult = new Status(IStatus.ERROR, Activator.ID, msg, new FileNotFoundException(siteFile.getAbsolutePath()));
 				}
 			} else {
+				// creating a temp file. In the event of an error we want to delete it.
+				deleteSiteFile = true;
 				siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
 				OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
 				transferResult = getTransport().download(actualLocation.toExternalForm(), destination, monitor);
 			}
-			if (transferResult.isOK())
+			if (transferResult.isOK()) {
+				// successful. If the siteFile is the download of a remote site.xml it will get cleaned up later
+				deleteSiteFile = false;
 				return siteFile;
+			}
 			failure = transferResult.getException();
 		} catch (IOException e) {
 			failure = e;
+		} finally {
+			if (deleteSiteFile && siteFile != null)
+				siteFile.delete();
 		}
 		int code = (failure instanceof FileNotFoundException) ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ;
 		String msg = NLS.bind(Messages.ErrorReadingSite, location);
@@ -175,11 +184,10 @@ public class UpdateSite {
 		}
 		try {
 			featureFile = File.createTempFile(FEATURE_TEMP_FILE, JAR_EXTENSION);
-			OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
 			IStatus transferResult = null;
 			//try the download twice in case of transient network problems
 			for (int i = 0; i < RETRY_COUNT; i++) {
-				destination = new BufferedOutputStream(new FileOutputStream(featureFile));
+				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
 				transferResult = getTransport().download(featureURL.toExternalForm(), destination, null);
 				if (transferResult.isOK())
 					break;
