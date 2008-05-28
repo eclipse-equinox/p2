@@ -70,7 +70,7 @@ public class OperationGenerator {
 		Set removedFromTo = new HashSet();
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
 			IInstallableUnit iuTo = (IInstallableUnit) to.get(toIdx);
-			if (iuTo.getId().equals(next(from, toIdx).getId())) {
+			if (iuTo.getId().equals(next(to, toIdx).getId())) {
 				toIdx = skip(to, iuTo, toIdx) - 1;
 				//System.out.println("Can't update " + iuTo + " because another iu with same id is in the target state");
 				continue;
@@ -125,7 +125,7 @@ public class OperationGenerator {
 	private int skip(List c, IInstallableUnit id, int idx) {
 		int i = idx;
 		for (; i < c.size(); i++) {
-			if (!id.getId().equals(((IInstallableUnit) c.get(idx)).getId()))
+			if (!id.getId().equals(((IInstallableUnit) c.get(i)).getId()))
 				return i;
 		}
 		return i;

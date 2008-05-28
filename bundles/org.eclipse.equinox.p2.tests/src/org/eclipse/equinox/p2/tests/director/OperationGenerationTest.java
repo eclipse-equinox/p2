@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.eclipse.equinox.internal.p2.director.OperationGenerator;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
+import org.eclipse.equinox.internal.provisional.p2.engine.InstallableUnitOperand;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
@@ -38,7 +39,10 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
-		new OperationGenerator().generateOperation(from, to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 1 x install
+		// 1 x uninstall
+		assertEquals(2, operands.length);
 	}
 
 	public void test1() {
@@ -59,7 +63,9 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
-		new OperationGenerator().generateOperation(from, to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 1 x install
+		assertEquals(1, operands.length);
 	}
 
 	public void test2() {
@@ -80,7 +86,58 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
-		new OperationGenerator().generateOperation(from, to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 1 x uninstall
+		assertEquals(1, operands.length);
+	}
+
+	public void testUpdate1() {
+		IInstallableUnit a = createIU("a", new Version(1, 0, 0), false);
+
+		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
+		b.setId("b");
+		b.setVersion(new Version(1, 0, 0));
+		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
+
+		Collection from;
+		from = new ArrayList();
+		from.add(a);
+
+		Collection to;
+		to = new ArrayList();
+		to.add(MetadataFactory.createInstallableUnit(b));
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 1 x upgrade
+		assertEquals(1, operands.length);
+	}
+
+	public void testUpdate2() {
+		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
+		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
+
+		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
+		b.setId("b");
+		b.setVersion(new Version(1, 0, 0));
+		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 3.0.0)"), IUpdateDescriptor.NORMAL, null));
+
+		Collection from;
+		from = new ArrayList();
+		from.add(a1);
+		from.add(a2);
+
+		Collection to;
+		to = new ArrayList();
+		to.add(MetadataFactory.createInstallableUnit(b));
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 1 x install
+		// 2 x uninstall
+		assertEquals(3, operands.length);
 	}
 
 	public void testUpdate3() {
@@ -109,51 +166,66 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
-		new OperationGenerator().generateOperation(from, to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 2 x update
+		assertEquals(2, operands.length);
 	}
 
-	public void testUpdate2() {
+	public void testUpdate4() {
 		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
 		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
+		IInstallableUnit b1 = createIU("b", new Version(1, 0, 0), false);
 
-		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
-		b.setId("b");
-		b.setVersion(new Version(1, 0, 0));
-		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 3.0.0)"), IUpdateDescriptor.NORMAL, null));
+		InstallableUnitDescription b2 = new MetadataFactory.InstallableUnitDescription();
+		b2.setId("b");
+		b2.setVersion(new Version(2, 0, 0));
+		b2.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("b", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
 
 		Collection from;
 		from = new ArrayList();
 		from.add(a1);
 		from.add(a2);
+		from.add(b1);
 
 		Collection to;
 		to = new ArrayList();
-		to.add(MetadataFactory.createInstallableUnit(b));
+		to.add(a1);
+		to.add(a2);
+		to.add(MetadataFactory.createInstallableUnit(b2));
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
-		new OperationGenerator().generateOperation(from, to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 1 x update
+		assertEquals(1, operands.length);
 	}
 
-	public void testUpdate1() {
-		IInstallableUnit a = createIU("a", new Version(1, 0, 0), false);
+	public void testUpdate5() {
+		IInstallableUnit a1 = createIU("a", new Version(1, 0, 0), false);
+		IInstallableUnit a2 = createIU("a", new Version(2, 0, 0), false);
+		IInstallableUnit b1 = createIU("b", new Version(1, 0, 0), false);
 
-		InstallableUnitDescription b = new MetadataFactory.InstallableUnitDescription();
-		b.setId("b");
-		b.setVersion(new Version(1, 0, 0));
-		b.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("a", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
+		InstallableUnitDescription b2 = new MetadataFactory.InstallableUnitDescription();
+		b2.setId("b");
+		b2.setVersion(new Version(2, 0, 0));
+		b2.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor("b", new VersionRange("[1.0.0, 2.0.0)"), IUpdateDescriptor.NORMAL, null));
 
 		Collection from;
 		from = new ArrayList();
-		from.add(a);
+		from.add(a1);
+		from.add(a2);
+		from.add(b1);
 
 		Collection to;
 		to = new ArrayList();
-		to.add(MetadataFactory.createInstallableUnit(b));
+		to.add(a1);
+		to.add(MetadataFactory.createInstallableUnit(b2));
 
 		from = new ResolutionHelper(null, null).attachCUs(from);
 		to = new ResolutionHelper(null, null).attachCUs(to);
-		new OperationGenerator().generateOperation(from, to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		// 1 x update
+		// 1 x uninstall
+		assertEquals(2, operands.length);
 	}
-
 }
