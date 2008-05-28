@@ -13,12 +13,16 @@ package org.eclipse.equinox.internal.provisional.p2.ui.query;
 import java.lang.ref.SoftReference;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 
 public class IUPropertyUtils {
@@ -156,8 +160,7 @@ public class IUPropertyUtils {
 	}
 
 	/**
-	 * @param localeVariants TODO
-	 * 
+	 * Collects the installable unit fragments that contain locale data for the given locales.
 	 */
 	private static synchronized Collector getLocalizationFragments(Locale locale, List localeVariants) {
 		SoftReference collectorRef = (SoftReference) LocaleCollectorCache.get(locale);
@@ -194,12 +197,20 @@ public class IUPropertyUtils {
 			}
 		};
 
-		IMetadataRepositoryManager repoMgr = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		//Due to performance problems we restrict locale lookup to the current profile (see bug 233958)
+		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(ProvUIActivator.getContext(), IProfileRegistry.class.getName());
+		if (profileRegistry == null) {
+			LogHelper.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, "Profile registry unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
+			return new Collector();
+		}
+		IProfile profile = profileRegistry.getProfile(IProfileRegistry.SELF);
+		if (profile == null) {
+			LogHelper.log(new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, "Profile unavailable. Default language will be used.", new RuntimeException())); //$NON-NLS-1$
+			return new Collector();
+		}
 		IUPropertyQuery iuQuery = new IUPropertyQuery(IInstallableUnit.PROP_TYPE_FRAGMENT, "true"); //$NON-NLS-1$
-		Collector collected = repoMgr.query(iuQuery, localeFragmentCollector, null);
-
+		Collector collected = profile.query(iuQuery, localeFragmentCollector, null);
 		LocaleCollectorCache.put(locale, new SoftReference(collected));
-
 		return collected;
 	}
 
