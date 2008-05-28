@@ -58,7 +58,9 @@ public abstract class AbstractBufferingStep extends ProcessingStep {
 		try {
 			if (incomingStream != null) {
 				incomingStream.close();
-				performProcessing();
+				// if canceled then skip processing
+				if (getStatus() != null && getStatus().getSeverity() != IStatus.CANCEL)
+					performProcessing();
 			} else {
 				setStatus(new Status(IStatus.ERROR, Activator.ID, Messages.Empty_stream));
 			}

@@ -142,8 +142,13 @@ public class ECFTransport extends Transport {
 				if (event instanceof IIncomingFileTransferReceiveDataEvent) {
 					IIncomingFileTransfer source = ((IIncomingFileTransferReceiveDataEvent) event).getSource();
 					if (monitor != null) {
-						if (monitor.isCanceled())
-							source.cancel();
+						if (monitor.isCanceled()) {
+							synchronized (result) {
+								result[0] = Status.CANCEL_STATUS;
+								source.cancel();
+								result.notify();
+							}
+						}
 					}
 				}
 				if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
