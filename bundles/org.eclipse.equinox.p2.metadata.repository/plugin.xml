@@ -6,4 +6,16 @@
 		<filter suffix="content.xml"/>
 		<factory class="org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory"/>
    </extension>
+   <extension
+         id="mirrorApplication"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="1"
+            thread="main"
+            visible="true">
+         <run
+               class="org.eclipse.equinox.internal.p2.metadata.mirror.MirrorApplication">
+         </run>
+      </application>
+   </extension>
 </plugin>

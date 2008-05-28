@@ -24,6 +24,7 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata.repository;x-friends:="
    org.eclipse.pde.p2.ui",
  org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.updatesite"
 Import-Package: org.eclipse.core.runtime.preferences,
+ org.eclipse.equinox.app;resolution:=optional,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.metadata,
  org.eclipse.equinox.internal.p2.persistence,
