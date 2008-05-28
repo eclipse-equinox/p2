@@ -13,9 +13,7 @@ package org.eclipse.equinox.internal.provisional.p2.artifact.repository.processi
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful;
 
@@ -90,8 +88,12 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 		return status;
 	}
 
-	public void setStatus(IStatus status) {
-		this.status = status == null ? Status.OK_STATUS : status;
+	public void setStatus(IStatus value) {
+		if (value == null)
+			value = Status.OK_STATUS;
+		if (status != null && status.getSeverity() >= value.getSeverity())
+			return;
+		status = value;
 	}
 
 	/**
@@ -119,26 +121,6 @@ public abstract class ProcessingStep extends OutputStream implements IStateful {
 	 * @return the requested status 
 	 */
 	public IStatus getStatus(boolean deep) {
-		if (!deep)
-			return getStatus();
-		ArrayList list = new ArrayList();
-		int severity = collectStatus(list);
-		if (severity == IStatus.OK)
-			return Status.OK_STATUS;
-		IStatus[] result = (IStatus[]) list.toArray(new IStatus[list.size()]);
-		return new MultiStatus(Activator.ID, severity, result, "Result of processing steps", null);
-	}
-
-	private int collectStatus(ArrayList list) {
-		list.add(getStatus());
-		if (!(destination instanceof ProcessingStep))
-			return getStatus().getSeverity();
-		int result = ((ProcessingStep) destination).collectStatus(list);
-		// TODO greater than test here is a little brittle but it is very unlikely that we will add
-		// a new status severity.
-		if (getStatus().getSeverity() > result)
-			return getStatus().getSeverity();
-		return result;
-
+		return ProcessingStepHandler.getStatus(this, deep);
 	}
 }

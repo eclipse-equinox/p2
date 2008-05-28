@@ -54,6 +54,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		private OutputStream destination;
 		private File file;
 		private IStatus status = Status.OK_STATUS;
+		private OutputStream firstLink;
 
 		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor) {
 			this(os, descriptor, null);
@@ -85,7 +86,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			// TODO the count check is a bit bogus but helps in some error cases (e.g., the optimizer)
 			// where errors occurred in a processing step earlier in the chain.  We likely need a better
 			// or more explicit way of handling this case.
-			if (getStatus().isOK() && ProcessingStepHandler.checkStatus(destination).isOK() && count > 0) {
+			OutputStream testStream = firstLink == null ? this : firstLink;
+			if (ProcessingStepHandler.checkStatus(testStream).isOK() && count > 0) {
 				((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
 				addDescriptor(descriptor);
 			} else if (file != null)
@@ -95,6 +97,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		public IStatus getStatus() {
 			return status;
+		}
+
+		public OutputStream getDestination() {
+			return destination;
 		}
 
 		public void setStatus(IStatus status) {
@@ -114,6 +120,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		public void write(int b) throws IOException {
 			destination.write(b);
 			count++;
+		}
+
+		public void setFirstLink(OutputStream value) {
+			firstLink = value;
 		}
 	}
 
@@ -298,6 +308,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList steps = new ArrayList();
+		//		steps.add(new ZipVerifierStep());
 		// Add steps here if needed
 		if (steps.isEmpty())
 			return destination;
@@ -409,6 +420,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation, result);
+		if (result.getSeverity() == IStatus.CANCEL)
+			return result;
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
 		if (result.isOK() || baseLocation.equals(mirrorLocation))
 			return result;
 		//maybe we hit a bad mirror - try the base location
@@ -756,7 +771,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.sar_reportStatus, descriptor.getArtifactKey().toExternalForm()), e);
 		}
 
-		IStatus stepStatus = ((ProcessingStep) destination).getStatus(true);
+		IStatus stepStatus = ProcessingStepHandler.getStatus(destination, true);
 		// if the steps all ran ok and there is no interesting information, return the status from this method
 		if (!stepStatus.isMultiStatus() && stepStatus.isOK())
 			return status;

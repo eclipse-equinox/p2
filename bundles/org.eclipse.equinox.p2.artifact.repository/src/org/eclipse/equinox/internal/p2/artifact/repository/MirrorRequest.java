@@ -107,7 +107,15 @@ public class MirrorRequest extends ArtifactRequest {
 			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
 
 		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
-		// if ok or transfer has already been done with the canonical form return with status set 
+		// if ok, cancelled or transfer has already been done with the canonical form return with status set 
+		if (status.getSeverity() == IStatus.CANCEL) {
+			setResult(status);
+			return;
+		}
+		if (monitor.isCanceled()) {
+			setResult(Status.CANCEL_STATUS);
+			return;
+		}
 		if (status.isOK() || descriptor == canonical || canonical == null) {
 			setResult(status);
 			return;
