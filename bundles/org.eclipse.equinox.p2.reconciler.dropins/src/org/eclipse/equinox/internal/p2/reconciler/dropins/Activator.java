@@ -18,6 +18,8 @@ import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryMan
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.update.Configuration;
+import org.eclipse.equinox.internal.p2.update.Utils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -36,6 +38,7 @@ public class Activator implements BundleActivator {
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
 	private static final String LINKS = "links"; //$NON-NLS-1$
+	private static final String CONFIG_INI = "config.ini"; //$NON-NLS-1$
 	private static final String PLATFORM_CFG = "org.eclipse.update/platform.xml"; //$NON-NLS-1$
 	private static final String CACHE_FILENAME = "cache.timestamps"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
@@ -145,6 +148,8 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 
+		checkConfigIni();
+
 		// TODO i-build to i-build backwards compatibility code to remove the
 		// old .pooled repositories. Remove this call soon.
 		removeOldRepos();
@@ -160,6 +165,39 @@ public class Activator implements BundleActivator {
 		// see Bug 223422
 		// for now explicitly nulling out these repos to allow GC to occur
 		repositories.clear();
+	}
+
+	private void checkConfigIni() {
+		File configuration = getConfigurationLocation();
+		if (configuration == null) {
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location.")); //$NON-NLS-1$
+			return;
+		}
+
+		File configIni = new File(configuration, CONFIG_INI);
+		if (!configIni.exists()) {
+			// try parent configuration
+			File parentConfiguration = getParentConfigurationLocation();
+			if (parentConfiguration == null)
+				return;
+
+			// write shared configuration
+			Properties props = new Properties();
+			try {
+				OutputStream os = null;
+				try {
+					os = new BufferedOutputStream(new FileOutputStream(configIni));
+					String externalForm = Utils.makeRelative(parentConfiguration.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
+					props.put("osgi.sharedConfiguration.area", externalForm); //$NON-NLS-1$
+					props.store(os, "Linked configuration"); //$NON-NLS-1$
+				} finally {
+					if (os != null)
+						os.close();
+				}
+			} catch (IOException e) {
+				LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to create linked configuration location.", e)); //$NON-NLS-1$
+			}
+		}
 	}
 
 	/*
@@ -375,6 +413,7 @@ public class Activator implements BundleActivator {
 			LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location.")); //$NON-NLS-1$
 			return;
 		}
+
 		configFile = new File(configFile, PLATFORM_CFG);
 		if (!configFile.exists()) {
 			// try parent configuration
@@ -382,9 +421,27 @@ public class Activator implements BundleActivator {
 			if (parentConfiguration == null)
 				return;
 
-			configFile = new File(parentConfiguration, PLATFORM_CFG);
-			if (!configFile.exists())
+			File shareConfigFile = new File(parentConfiguration, PLATFORM_CFG);
+			if (!shareConfigFile.exists())
 				return;
+
+			Configuration config = new Configuration();
+			config.setDate(Long.toString(new Date().getTime()));
+			config.setVersion("3.0"); //$NON-NLS-1$
+			try {
+				String sharedUR = Utils.makeRelative(shareConfigFile.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
+				config.setSharedUR(sharedUR);
+				// ensure that org.eclipse.update directory that holds platform.xml is pre-created.
+				configFile.getParentFile().mkdirs();
+				config.save(configFile, getOSGiInstallArea());
+			} catch (IOException e) {
+				LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to create linked platform.xml.", e)); //$NON-NLS-1$
+				return;
+			} catch (ProvisionException e) {
+				LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to create linked platform.xml.", e)); //$NON-NLS-1$
+				return;
+			}
+
 		}
 		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
 		PlatformXmlListener listener = new PlatformXmlListener(configFile);
