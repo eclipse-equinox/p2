@@ -132,15 +132,21 @@ public class XMLWriter implements XMLConstants {
 					replace = "&amp;"; //$NON-NLS-1$
 					break;
 				default :
-					if (buffer != null)
-						buffer.append(c);
-					continue;
+					// this is the set of legal xml characters in unicode excluding high surrogates since they cannot be represented with a char
+					// see http://www.w3.org/TR/REC-xml/#charsets
+					if ((c >= '\u0020' && c <= '\uD7FF') || c == '\t' || c == '\n' || c == '\r' || (c >= '\uE000' && c <= '\uFFFD')) {
+						if (buffer != null)
+							buffer.append(c);
+						continue;
+					}
+					replace = Character.isWhitespace(c) ? " " : null; //$NON-NLS-1$
 			}
 			if (buffer == null) {
 				buffer = new StringBuffer(txt.length() + 16);
 				buffer.append(txt.substring(0, i));
 			}
-			buffer.append(replace);
+			if (replace != null)
+				buffer.append(replace);
 		}
 
 		if (buffer == null)
