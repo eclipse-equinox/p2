@@ -348,17 +348,22 @@ public class DeferredFetchFilteredTree extends FilteredTree {
 	}
 
 	void restoreAfterLoading(String filterTextToRestore) {
+		// If the filter text was previously disabled, reset the text to
+		// the previous filter text.
 		if (filterText != null && !filterText.isDisposed() && !filterText.isEnabled()) {
 			filterText.setText(filterTextToRestore);
 			filterText.setCursor(null);
 			getViewer().getTree().setCursor(null);
-			filterText.setFocus();
 			filterText.setSelection(filterTextToRestore.length(), filterTextToRestore.length());
 		}
+		// Now enable all of the controls
 		if (enableState != null && parent != null && !parent.isDisposed()) {
 			enableState.restore();
 			enableState = null;
 		}
+		// Now set the focus back to the filter text
+		if (filterText != null && !filterText.isDisposed())
+			filterText.setFocus();
 	}
 
 	InputSchedulingRule getFilterJobSchedulingRule() {
