@@ -23,6 +23,11 @@ public class Feature {
 	private String version;
 	private String label;
 	private String image;
+	private String pluginId;
+	private boolean primary = false;
+	private boolean exclusive = false;
+	private String application;
+	private String colocationAffinity;
 
 	private URLEntry description;
 	private URLEntry license;
@@ -70,8 +75,16 @@ public class Feature {
 		entries.add(plugin);
 	}
 
+	public String getApplication() {
+		return application;
+	}
+
 	public String getArch() {
 		return arch;
+	}
+
+	public String getColocationAffinity() {
+		return colocationAffinity;
 	}
 
 	public String getCopyright() {
@@ -162,6 +175,10 @@ public class Feature {
 		return os;
 	}
 
+	public String getPlugin() {
+		return pluginId;
+	}
+
 	public String getProviderName() {
 		return providerName;
 	}
@@ -184,6 +201,22 @@ public class Feature {
 
 	public String getWS() {
 		return ws;
+	}
+
+	public boolean isExclusive() {
+		return exclusive;
+	}
+
+	public boolean isPrimary() {
+		return primary;
+	}
+
+	public void setApplication(String application) {
+		this.application = application;
+	}
+
+	public void setColocationAffinity(String colocationAffinity) {
+		this.colocationAffinity = colocationAffinity;
 	}
 
 	public void setCopyright(String copyright) {
@@ -215,6 +248,10 @@ public class Feature {
 		this.ws = ws;
 		this.arch = arch;
 		this.nl = nl;
+	}
+
+	public void setExclusive(boolean exclusive) {
+		this.exclusive = exclusive;
 	}
 
 	public void setImage(String image) {
@@ -255,6 +292,14 @@ public class Feature {
 
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public void setPlugin(String pluginId) {
+		this.pluginId = pluginId;
+	}
+
+	public void setPrimary(boolean primary) {
+		this.primary = primary;
 	}
 
 	public void setProviderName(String value) {

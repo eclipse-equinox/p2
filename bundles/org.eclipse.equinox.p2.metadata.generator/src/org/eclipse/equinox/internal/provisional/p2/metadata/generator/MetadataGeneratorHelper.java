@@ -96,6 +96,10 @@ public class MetadataGeneratorHelper {
 	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
 
 	private static final String ECLIPSE_INSTALL_HANDLER_PROP = "org.eclipse.update.installHandler"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_APPLICATION_PROP = "org.eclipse.update.feature.application"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PLUGIN_PROP = "org.eclipse.update.feature.plugin"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_EXCLUSIVE_PROP = "org.eclipse.update.feature.exclusive"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PRIMARY_PROP = "org.eclipse.update.feature.primary"; //$NON-NLS-1$
 
 	//TODO - need to come up with a way to infer launcher version
 	private static final Version LAUNCHER_VERSION = new Version(1, 0, 0);
@@ -571,6 +575,14 @@ public class MetadataGeneratorHelper {
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+		if (feature.getApplication() != null)
+			iu.setProperty(UPDATE_FEATURE_APPLICATION_PROP, feature.getApplication());
+		if (feature.getPlugin() != null)
+			iu.setProperty(UPDATE_FEATURE_PLUGIN_PROP, feature.getPlugin());
+		if (feature.isExclusive())
+			iu.setProperty(UPDATE_FEATURE_EXCLUSIVE_PROP, Boolean.TRUE.toString());
+		if (feature.isPrimary())
+			iu.setProperty(UPDATE_FEATURE_PRIMARY_PROP, Boolean.TRUE.toString());
 
 		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
 

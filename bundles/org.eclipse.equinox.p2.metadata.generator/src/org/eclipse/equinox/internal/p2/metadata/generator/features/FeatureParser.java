@@ -251,6 +251,12 @@ public class FeatureParser extends DefaultHandler {
 			String arch = attributes.getValue("arch"); //$NON-NLS-1$
 			result.setEnvironment(os, ws, arch, nl);
 
+			result.setApplication(attributes.getValue("application")); //$NON-NLS-1$
+			result.setPlugin(attributes.getValue("plugin")); //$NON-NLS-1$
+			result.setExclusive(Boolean.valueOf(attributes.getValue("exclusive")).booleanValue()); //$NON-NLS-1$
+			result.setPrimary(Boolean.valueOf(attributes.getValue("primary")).booleanValue()); //$NON-NLS-1$
+			result.setColocationAffinity(attributes.getValue("colocation-affinity")); //$NON-NLS-1$
+
 			//TODO rootURLs
 			if (url != null && "file".equals(url.getProtocol())) { //$NON-NLS-1$
 				File f = new File(url.getFile().replace('/', File.separatorChar));

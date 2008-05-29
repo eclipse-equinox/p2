@@ -20,6 +20,9 @@ import org.eclipse.osgi.util.NLS;
 
 public class InstallFeatureAction extends ProvisioningAction {
 	public static final String ID = "installFeature"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_APPLICATION_PROP = "org.eclipse.update.feature.application"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PLUGIN_PROP = "org.eclipse.update.feature.plugin"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PRIMARY_PROP = "org.eclipse.update.feature.primary"; //$NON-NLS-1$
 
 	public IStatus execute(Map parameters) {
 		return InstallFeatureAction.installFeature(parameters);
@@ -65,6 +68,11 @@ public class InstallFeatureAction extends ProvisioningAction {
 		if (file == null || !file.exists()) {
 			return Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey));
 		}
-		return configuration.addFeatureEntry(file, featureId, featureVersion, artifactKey.getId(), artifactKey.getVersion().toString(), /*primary*/false, /*application*/null, /*root*/null);
+		String pluginId = iu.getProperty(UPDATE_FEATURE_PLUGIN_PROP);
+		boolean isPrimary = Boolean.valueOf(iu.getProperty(UPDATE_FEATURE_PRIMARY_PROP)).booleanValue();
+		String application = iu.getProperty(UPDATE_FEATURE_APPLICATION_PROP);
+		// TODO this isn't right... but we will leave it for now because we don't actually use the value in the install
+		String pluginVersion = artifactKey.getVersion().toString();
+		return configuration.addFeatureEntry(file, featureId, featureVersion, pluginId, pluginVersion, isPrimary, application, /*root*/null);
 	}
 }

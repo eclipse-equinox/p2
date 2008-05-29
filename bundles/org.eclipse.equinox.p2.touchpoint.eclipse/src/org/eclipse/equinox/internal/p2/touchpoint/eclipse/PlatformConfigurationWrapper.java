@@ -190,6 +190,11 @@ public class PlatformConfigurationWrapper {
 		addedFeature.setId(id);
 		addedFeature.setVersion(version);
 		addedFeature.setUrl(makeFeatureURL(id, version));
+		addedFeature.setApplication(application);
+		addedFeature.setPluginIdentifier(pluginIdentifier);
+		addedFeature.setPluginVersion(pluginVersion);
+		addedFeature.setRoots(root);
+		addedFeature.setPrimary(primary);
 		site.addFeature(addedFeature);
 		return Status.OK_STATUS;
 	}
