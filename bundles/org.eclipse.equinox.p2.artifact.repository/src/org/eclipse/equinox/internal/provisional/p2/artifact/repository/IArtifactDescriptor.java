@@ -19,6 +19,8 @@ public interface IArtifactDescriptor {
 	public static final String DOWNLOAD_SIZE = "download.size"; //$NON-NLS-1$
 	public static final String ARTIFACT_SIZE = "artifact.size"; //$NON-NLS-1$
 	public static final String DOWNLOAD_MD5 = "download.md5"; //$NON-NLS-1$
+	public static final String DOWNLOAD_CONTENTTYPE = "download.contentType"; //$NON-NLS-1$
+	public static final String TYPE_ZIP = "application/zip"; //$NON-NLS-1$
 	public static final String ARTIFACT_MD5 = "artifact.md5"; //$NON-NLS-1$
 	public static final String FORMAT = "format"; //$NON-NLS-1$
 

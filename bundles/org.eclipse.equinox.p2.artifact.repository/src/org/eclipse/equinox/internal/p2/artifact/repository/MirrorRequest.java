@@ -90,22 +90,7 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 
-		// Get the output stream to store the artifact
-		// Since we are mirroring, ensure we clear out data from the original descriptor that may
-		// not apply in the new repo location.
-		// TODO this is brittle.  perhaps the repo itself should do this?  there are cases where
-		// we really do need to give the repo the actual descriptor to use however...
-		ArtifactDescriptor destinationDescriptor = new ArtifactDescriptor(getArtifactDescriptor());
-		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
-		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
-		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, null);
-
-		if (targetDescriptorProperties != null)
-			destinationDescriptor.addProperties(targetDescriptorProperties);
-
-		if (targetRepositoryProperties != null)
-			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
-
+		ArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor);
 		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
 		// if ok, cancelled or transfer has already been done with the canonical form return with status set 
 		if (status.getSeverity() == IStatus.CANCEL) {
@@ -124,7 +109,25 @@ public class MirrorRequest extends ArtifactRequest {
 		// retry with canonical, first remove possibly erroneously added descriptor
 		if (target.contains(destinationDescriptor))
 			target.removeDescriptor(destinationDescriptor);
-		setResult(transfer(destinationDescriptor, canonical, monitor));
+		setResult(transfer(getDestinationDescriptor(canonical), canonical, monitor));
+	}
+
+	private ArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor) {
+		// Get the descriptor to use to store the artifact
+		// Since we are mirroring, ensure we clear out data from the original descriptor that may
+		// not apply in the new repo location.
+		// TODO this is brittle.  perhaps the repo itself should do this?  there are cases where
+		// we really do need to give the repo the actual descriptor to use however...
+		ArtifactDescriptor destinationDescriptor = new ArtifactDescriptor(sourceDescriptor);
+		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
+		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
+		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, null);
+		destinationDescriptor.setProperty(IArtifactDescriptor.FORMAT, null);
+		if (targetDescriptorProperties != null)
+			destinationDescriptor.addProperties(targetDescriptorProperties);
+		if (targetRepositoryProperties != null)
+			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
+		return destinationDescriptor;
 	}
 
 	private IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
@@ -137,7 +140,7 @@ public class MirrorRequest extends ArtifactRequest {
 
 		// Do the actual transfer
 		try {
-			return getSourceRepository().getArtifact(descriptor, destination, monitor);
+			return getSourceRepository().getArtifact(sourceDescriptor, destination, monitor);
 		} finally {
 			try {
 				destination.close();

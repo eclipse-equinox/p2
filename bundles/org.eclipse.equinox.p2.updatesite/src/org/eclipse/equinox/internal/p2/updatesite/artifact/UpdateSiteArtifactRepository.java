@@ -77,6 +77,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
 			URL featureURL = updateSite.getFeatureURL(feature.getId(), feature.getVersion());
 			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toExternalForm());
+			featureArtifactDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			allSiteArtifacts.add(featureArtifactDescriptor);
 
 			FeatureEntry[] featureEntries = feature.getEntries();
@@ -87,6 +88,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 					ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
 					URL pluginURL = updateSite.getPluginURL(entry);
 					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toExternalForm());
+					artifactDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 					allSiteArtifacts.add(artifactDescriptor);
 				}
 			}

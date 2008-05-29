@@ -18,11 +18,11 @@ import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -308,7 +308,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList steps = new ArrayList();
-		//		steps.add(new ZipVerifierStep());
+		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
+			steps.add(new ZipVerifierStep());
 		// Add steps here if needed
 		if (steps.isEmpty())
 			return destination;
