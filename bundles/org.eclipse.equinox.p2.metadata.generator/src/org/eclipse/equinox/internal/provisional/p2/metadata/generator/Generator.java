@@ -20,8 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -365,6 +364,7 @@ public class Generator {
 
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
+						((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 						File bundleFile = new File(bd.getLocation());
 						if (bundleFile.isDirectory())
 							publishArtifact(ad, bundleFile.listFiles(), destination, false);
@@ -920,8 +920,10 @@ public class Generator {
 			Feature feature = features[i];
 			//publish feature site references
 			String updateURL = feature.getUpdateSiteURL();
+			//don't enable feature update sites by default since this results in too many
+			//extra sites being loaded and searched (Bug 234177)
 			if (updateURL != null)
-				generateSiteReference(updateURL, feature.getId(), true);
+				generateSiteReference(updateURL, feature.getId(), false);
 			URLEntry[] discoverySites = feature.getDiscoverySites();
 			for (int j = 0; j < discoverySites.length; j++)
 				generateSiteReference(discoverySites[j].getURL(), feature.getId(), false);
@@ -1214,6 +1216,7 @@ public class Generator {
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				FileUtils.zip(files, tempFile);
 				if (!destination.contains(descriptor)) {
+					destination.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
 				}

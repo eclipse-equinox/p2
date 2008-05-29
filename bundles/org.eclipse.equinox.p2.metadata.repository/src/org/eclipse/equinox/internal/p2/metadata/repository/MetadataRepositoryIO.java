@@ -279,6 +279,12 @@ public class MetadataRepositoryIO {
 					} else {
 						duplicateElement(this, name, attributes);
 					}
+				} else if (REPOSITORY_REFERENCES_ELEMENT.equals(name)) {
+					if (repositoryReferencesHandler == null) {
+						repositoryReferencesHandler = new RepositoryReferencesHandler(this, attributes);
+					} else {
+						duplicateElement(this, name, attributes);
+					}
 				} else {
 					invalidElement(name, attributes);
 				}
