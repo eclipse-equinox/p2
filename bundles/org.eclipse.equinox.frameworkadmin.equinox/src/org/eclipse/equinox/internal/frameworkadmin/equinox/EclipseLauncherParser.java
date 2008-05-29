@@ -298,8 +298,9 @@ public class EclipseLauncherParser {
 		} finally {
 			if (bw != null)
 				bw.close();
-			if (launcherData.getPreviousLauncherIni() != null)
-				launcherData.getPreviousLauncherIni().delete();
+			File previousLauncherIni = launcherData.getPreviousLauncherIni();
+			if (previousLauncherIni != null && !previousLauncherIni.equals(launcherConfigFile))
+				previousLauncherIni.delete();
 		}
 	}
 }
