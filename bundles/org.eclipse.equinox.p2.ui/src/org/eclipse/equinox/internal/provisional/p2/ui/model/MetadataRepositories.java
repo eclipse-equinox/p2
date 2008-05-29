@@ -16,6 +16,7 @@ import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.ui.policy.IQueryProvider;
 import org.eclipse.equinox.internal.provisional.p2.ui.query.ElementQueryDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.ui.query.QueryableMetadataRepositoryManager;
 
 /**
  * Element class that represents some collection of metadata repositories.
@@ -132,5 +133,25 @@ public class MetadataRepositories extends RemoteQueriedElement {
 	// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=224504
 	protected boolean isSufficientForQuery(ElementQueryDescriptor queryDescriptor) {
 		return queryDescriptor.collector != null && queryDescriptor.queryable != null;
+	}
+
+	/*
+	 * Overridden to check whether the queryable repository manager
+	 * has loaded all repositories or not.
+	 * This is necessary to prevent background loading of already loaded repositories
+	 * by the DeferredTreeContentManager, which will add redundant children to the
+	 * viewer.  
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#hasQueryable()
+	 */
+	public boolean hasQueryable() {
+		// We use the superclass implementation if we don't have a queryable or
+		// don't recognize it.  Also, if we are merely iterating sites rather
+		// than loading them to obtain further results, use the superclass
+		if (queryable == null || !(queryable instanceof QueryableMetadataRepositoryManager) || getQueryType() == IQueryProvider.METADATA_REPOS)
+			return super.hasQueryable();
+		return ((QueryableMetadataRepositoryManager) queryable).areRepositoriesLoaded();
 	}
 }

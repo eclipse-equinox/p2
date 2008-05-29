@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.ui.ProvUIActivator
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.metadata,
+ org.eclipse.equinox.internal.p2.metadata.repository,
  org.eclipse.equinox.internal.p2.rollback,
  org.eclipse.equinox.internal.provisional.configurator,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,

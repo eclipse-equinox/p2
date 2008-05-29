@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -165,5 +166,34 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		}
 		// Reset the accumulated status so that next time we only report the newly not found repos.
 		accumulatedNotFound = null;
+	}
+
+	/**
+	 * Return a boolean indicating whether the repositories to be queried
+	 * are already loaded.
+	 * 
+	 * @return <code>true</code> if all repositories to be queried by the
+	 * receiver are loaded, <code>false</code> if they
+	 * are not.
+	 * 
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
+	 */
+	public boolean areRepositoriesLoaded() {
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null || !(manager instanceof MetadataRepositoryManager)) {
+			return false;
+		}
+		MetadataRepositoryManager mgr = (MetadataRepositoryManager) manager;
+		List repoURLs = getRepoLocations(mgr);
+		for (int i = 0; i < repoURLs.size(); i++) {
+			if (repoURLs.get(i) instanceof URL) {
+				IMetadataRepository repo = mgr.getRepository((URL) repoURLs.get(i));
+				if (repo == null)
+					return false;
+			}
+		}
+		return true;
+
 	}
 }

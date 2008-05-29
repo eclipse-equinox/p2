@@ -12,11 +12,15 @@ package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
 import java.net.URL;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.ui.ProvUIActivator;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.model.RemoteQueriedElement;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.equinox.internal.provisional.p2.ui.ProvUIImages;
@@ -169,5 +173,30 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 	 */
 	public void setEnabled(boolean enabled) {
 		isEnabled = enabled;
+	}
+
+	/*
+	 * Overridden to check whether a repository instance has already been loaded.
+	 * This is necessary to prevent background loading of an already loaded repository
+	 * by the DeferredTreeContentManager, which will add redundant children to the
+	 * viewer.  
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=229069
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=226343
+	 * (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.p2.ui.query.QueriedElement#hasQueryable()
+	 */
+	public boolean hasQueryable() {
+		if (queryable != null)
+			return true;
+		if (url == null)
+			return false;
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(ProvUIActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (manager == null || !(manager instanceof MetadataRepositoryManager))
+			return false;
+		IMetadataRepository repo = ((MetadataRepositoryManager) manager).getRepository(url);
+		if (repo == null)
+			return false;
+		queryable = repo;
+		return true;
 	}
 }
