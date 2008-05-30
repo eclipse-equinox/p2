@@ -149,6 +149,7 @@ public class ProvUIMessages extends NLS {
 	public static String ProvUILicenseManager_ParsingError;
 	public static String OptionalPlatformRestartMessage;
 	public static String QueryableArtifactRepositoryManager_RepositoryQueryProgress;
+	public static String QueryableMetadataRepositoryManager_MultipleRepositoriesNotFound;
 	public static String QueryableMetadataRepositoryManager_RepositoryQueryProgress;
 	public static String QueryableProfileRegistry_QueryProfileProgress;
 	public static String QueryableUpdates_UpdateListProgress;

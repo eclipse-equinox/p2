@@ -12,6 +12,8 @@
 package org.eclipse.equinox.internal.provisional.p2.ui;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.*;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.operations.*;
 import org.eclipse.core.runtime.*;
@@ -48,6 +50,7 @@ public class ProvUI {
 	static ObjectUndoContext provisioningUndoContext;
 	private static final int DEFAULT_COLUMN_WIDTH = 200;
 	private static IUColumnConfig[] iuColumnConfig = new IUColumnConfig[] {new IUColumnConfig(ProvUIMessages.ProvUI_NameColumnTitle, IUColumnConfig.COLUMN_NAME, DEFAULT_COLUMN_WIDTH), new IUColumnConfig(ProvUIMessages.ProvUI_VersionColumnTitle, IUColumnConfig.COLUMN_VERSION, DEFAULT_COLUMN_WIDTH)};
+	private static final List reposNotFound = Collections.synchronizedList(new ArrayList());
 
 	public static Shell getShell(IAdaptable uiInfo) {
 		Shell shell;
@@ -76,6 +79,38 @@ public class ProvUI {
 		IStatus status = new Status(IStatus.ERROR, ProvUIActivator.PLUGIN_ID, 0, message, t);
 		StatusManager.getManager().handle(status, style);
 		return status;
+	}
+
+	public static void reportNotFoundStatus(URL url, IStatus status, int style) {
+		if (!hasNotFoundStatusBeenReported(url)) {
+			reposNotFound.add(url);
+			reportStatus(status, style);
+		}
+	}
+
+	// This assumes that callers already checked whether it *should*
+	// be reported so that we don't need to loop through the list
+	// when the caller just has done so in order to know whether
+	// to report.
+	public static void notFoundStatusReported(URL url) {
+		reposNotFound.add(url);
+	}
+
+	// We don't simply use a set data structure to keep the URLs unique
+	// because using equals() for URLs is notoriously slow
+	// We don't check for things like case variants or end slash variants
+	// because we know that the repository managers already did this.
+	public static boolean hasNotFoundStatusBeenReported(URL url) {
+		synchronized (reposNotFound) {
+			for (int i = 0; i < reposNotFound.size(); i++)
+				if (reposNotFound.get(i) instanceof URL && ((URL) reposNotFound.get(i)).toExternalForm().equals(url.toExternalForm()))
+					return true;
+		}
+		return false;
+	}
+
+	public static void clearRepositoriesNotFound() {
+		reposNotFound.clear();
 	}
 
 	public static void reportStatus(IStatus status, int style) {

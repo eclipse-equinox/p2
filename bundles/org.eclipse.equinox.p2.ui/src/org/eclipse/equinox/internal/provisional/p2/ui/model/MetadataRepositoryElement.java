@@ -101,7 +101,7 @@ public class MetadataRepositoryElement extends RemoteQueriedElement implements I
 					if (!alreadyReportedNotFound) {
 						// report the status, not the exception, to the user because we
 						// do not want to show them stack trace and exception detail.
-						ProvUI.reportStatus(e.getStatus(), StatusManager.SHOW);
+						ProvUI.reportNotFoundStatus(url, e.getStatus(), StatusManager.SHOW);
 						alreadyReportedNotFound = true;
 					}
 				} else

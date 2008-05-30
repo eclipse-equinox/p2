@@ -41,6 +41,8 @@ public class RefreshMetadataRepositoriesOperation extends RepositoryOperation {
 	}
 
 	protected IStatus doBatchedExecute(IProgressMonitor monitor, IAdaptable uiInfo) throws ProvisionException {
+		// Clear the not found cache so that repos not found are reported again.
+		ProvUI.clearRepositoriesNotFound();
 		ProvisioningUtil.refreshMetadataRepositories(urls, monitor);
 		return Status.OK_STATUS;
 	}

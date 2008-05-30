@@ -145,24 +145,35 @@ public class QueryableMetadataRepositoryManager implements IQueryable {
 		// If we've already reported a URL is not found, don't report again.
 		if (notFound.contains(missingRepo.toExternalForm()))
 			return;
-		notFound.add(missingRepo.toExternalForm());
-		if (accumulatedNotFound == null) {
-			accumulatedNotFound = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(ProvUIMessages.ProvisioningUtil_RepositoryNotFound, missingRepo.toExternalForm()), null);
+		// If someone else reported a URL is not found, don't report again.
+		if (ProvUI.hasNotFoundStatusBeenReported(missingRepo)) {
+			notFound.add(missingRepo.toExternalForm());
+			return;
 		}
-		accumulatedNotFound.add(e.getStatus());
+		notFound.add(missingRepo.toExternalForm());
+		ProvUI.notFoundStatusReported(missingRepo);
+		// Empty multi statuses have a severity OK.  The platform status handler doesn't handle
+		// this well.  We correct this by recreating a status with error severity
+		// so that the platform status handler does the right thing.
+		IStatus status = e.getStatus();
+		if (status instanceof MultiStatus && ((MultiStatus) status).getChildren().length == 0)
+			status = new Status(IStatus.ERROR, status.getPlugin(), status.getCode(), status.getMessage(), status.getException());
+		if (accumulatedNotFound == null) {
+			accumulatedNotFound = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND, new IStatus[] {status}, ProvUIMessages.QueryableMetadataRepositoryManager_MultipleRepositoriesNotFound, null);
+		} else {
+			accumulatedNotFound.add(status);
+		}
 	}
 
 	private void reportAccumulatedStatus() {
 		// If we've discovered not found repos we didn't know about, report them
 		if (accumulatedNotFound != null) {
-			// If we didn't find several repos in one pass, use a more generic top level message.
-			if (accumulatedNotFound.getChildren().length > 1) {
-				MultiStatus multiples = new MultiStatus(ProvUIActivator.PLUGIN_ID, ProvisionException.REPOSITORY_NOT_FOUND, "Some repositories could not be found.  Check the details.", null);
-				multiples.addAll(accumulatedNotFound);
-				accumulatedNotFound = multiples;
-
+			// If there is only missing repo to report, use the specific message rather than the generic.
+			if (accumulatedNotFound.getChildren().length == 1) {
+				ProvUI.reportStatus(accumulatedNotFound.getChildren()[0], StatusManager.SHOW);
+			} else {
+				ProvUI.reportStatus(accumulatedNotFound, StatusManager.SHOW);
 			}
-			ProvUI.reportStatus(accumulatedNotFound, StatusManager.SHOW);
 		}
 		// Reset the accumulated status so that next time we only report the newly not found repos.
 		accumulatedNotFound = null;
