@@ -69,7 +69,7 @@ public class PlanStatusHelper {
 					break;
 				}
 			if (!iusInPlan) {
-				MultiStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, NLS.bind(ProvUIMessages.PlanStatusHelper_NothingToDo, getIUString(ius)), null);
+				MultiStatus status = new MultiStatus(ProvUIActivator.PLUGIN_ID, IStatusCodes.UNEXPECTED_NOTHING_TO_DO, ProvUIMessages.PlanStatusHelper_NothingToDo, null);
 				status.add(getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null));
 				if (plan.getStatus() != null)
 					status.merge(plan.getStatus());
@@ -90,22 +90,4 @@ public class PlanStatusHelper {
 			return name;
 		return iu.getId();
 	}
-
-	private static String getIUString(IInstallableUnit[] ius) {
-		if (ius == null || ius.length == 0)
-			return ProvUIMessages.PlanStatusHelper_Items;
-		if (ius.length == 1)
-			return getIUString(ius[0]);
-		final StringBuffer stringBuffer = new StringBuffer();
-		stringBuffer.append("("); //$NON-NLS-1$
-		for (int i = 0; i < ius.length; i++) {
-			stringBuffer.append(getIUString(ius[i]));
-			if (i != ius.length - 1) {
-				stringBuffer.append(',');
-			}
-		}
-		stringBuffer.append(')');
-		return stringBuffer.toString();
-	}
-
 }
