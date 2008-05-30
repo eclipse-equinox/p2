@@ -33,6 +33,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Dialog that allows users to update, add, or remove repositories.
@@ -63,6 +64,8 @@ public class RepositoryManipulationDialog extends TrayDialog {
 
 	protected void configureShell(Shell shell) {
 		shell.setText(ProvSDKMessages.RepositoryManipulationDialog_UpdateSitesDialogTitle);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(shell, IProvSDKHelpContextIds.REPOSITORY_MANIPULATION_DIALOG);
+
 		super.configureShell(shell);
 	}
 

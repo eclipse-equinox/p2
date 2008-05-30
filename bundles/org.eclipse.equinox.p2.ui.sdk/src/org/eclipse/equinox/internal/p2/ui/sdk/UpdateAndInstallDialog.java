@@ -124,6 +124,8 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 
 	protected void configureShell(Shell shell) {
 		shell.setText(ProvSDKMessages.UpdateAndInstallDialog_Title);
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(shell, IProvSDKHelpContextIds.UPDATE_AND_INSTALL_DIALOG);
+
 		super.configureShell(shell);
 	}
 
@@ -652,11 +654,14 @@ public class UpdateAndInstallDialog extends TrayDialog implements IViewMenuProvi
 				WizardDialog dialog = new WizardDialog(getShell(), wizard);
 				dialog.create();
 				dialog.getShell().setSize(600, 500);
+				PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.REVERT_CONFIGURATION_WIZARD);
+
 				dialog.open();
 			}
 		};
 		revertAction.setText(ProvSDKMessages.UpdateAndInstallDialog_RevertActionLabel);
 		revertAction.setToolTipText(ProvSDKMessages.UpdateAndInstallDialog_RevertTooltip);
+
 		revertButton = createVerticalButton(composite, revertAction, false);
 
 		createMenu(installedIUGroup.getStructuredViewer().getControl(), new IAction[] {updateAction, uninstallAction, propertiesAction});

@@ -19,8 +19,7 @@ import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.ProvisioningContext;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
-import org.eclipse.equinox.internal.provisional.p2.ui.IProfileChooser;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
+import org.eclipse.equinox.internal.provisional.p2.ui.*;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.UninstallWizard;
 import org.eclipse.equinox.internal.provisional.p2.ui.model.InstalledIUElement;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningUtil;
@@ -28,6 +27,7 @@ import org.eclipse.equinox.internal.provisional.p2.ui.policy.Policies;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 public class UninstallAction extends ProfileModificationAction {
 
@@ -71,6 +71,9 @@ public class UninstallAction extends ProfileModificationAction {
 	protected int performOperation(IInstallableUnit[] ius, String targetProfileId, ProvisioningPlan plan) {
 		UninstallWizard wizard = new UninstallWizard(targetProfileId, ius, plan);
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		dialog.create();
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UNINSTALL_WIZARD);
+
 		return dialog.open();
 	}
 

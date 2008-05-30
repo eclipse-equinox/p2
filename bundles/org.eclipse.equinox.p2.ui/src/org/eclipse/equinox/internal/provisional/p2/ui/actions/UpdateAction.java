@@ -33,6 +33,7 @@ import org.eclipse.equinox.internal.provisional.p2.updatechecker.UpdateEvent;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 public class UpdateAction extends ProfileModificationAction {
 
@@ -52,6 +53,9 @@ public class UpdateAction extends ProfileModificationAction {
 
 		UpdateWizard wizard = new UpdateWizard(targetProfileId, ius, (AvailableUpdateElement[]) allReplacements.toArray(new AvailableUpdateElement[allReplacements.size()]), latestReplacements.values().toArray(), plan, getLicenseManager());
 		WizardDialog dialog = new WizardDialog(getShell(), wizard);
+		dialog.create();
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(dialog.getShell(), IProvHelpContextIds.UPDATE_WIZARD);
+
 		return dialog.open();
 	}
 
