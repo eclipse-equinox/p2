@@ -131,10 +131,19 @@ public class XMLWriter implements XMLConstants {
 				case '&' :
 					replace = "&amp;"; //$NON-NLS-1$
 					break;
+				case '\t' :
+					replace = "&#x9;"; //$NON-NLS-1$
+					break;
+				case '\n' :
+					replace = "&#xA;"; //$NON-NLS-1$
+					break;
+				case '\r' :
+					replace = "&#xD;"; //$NON-NLS-1$
+					break;
 				default :
-					// this is the set of legal xml characters in unicode excluding high surrogates since they cannot be represented with a char
+					// this is the set of legal xml scharacters in unicode excluding high surrogates since they cannot be represented with a char
 					// see http://www.w3.org/TR/REC-xml/#charsets
-					if ((c >= '\u0020' && c <= '\uD7FF') || c == '\t' || c == '\n' || c == '\r' || (c >= '\uE000' && c <= '\uFFFD')) {
+					if ((c >= '\u0020' && c <= '\uD7FF') || (c >= '\uE000' && c <= '\uFFFD')) {
 						if (buffer != null)
 							buffer.append(c);
 						continue;
