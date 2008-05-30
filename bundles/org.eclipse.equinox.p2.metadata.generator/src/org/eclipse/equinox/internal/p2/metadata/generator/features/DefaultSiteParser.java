@@ -66,6 +66,9 @@ public class DefaultSiteParser extends DefaultHandler {
 	// Current State Information
 	Stack stateStack = new Stack();
 
+	// List of string keys for translated strings
+	private final List messageKeys = new ArrayList(4);
+
 	private MultiStatus status;
 
 	/*
@@ -548,7 +551,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		if (objectStack.isEmpty())
 			throw new SAXException(Messages.DefaultSiteParser_NoSiteTag);
 		if (objectStack.peek() instanceof SiteModel) {
-			return (SiteModel) objectStack.pop();
+			SiteModel site = (SiteModel) objectStack.pop();
+			site.setMessageKeys(messageKeys);
+			return site;
 		}
 		String stack = ""; //$NON-NLS-1$
 		Iterator iter = objectStack.iterator();
@@ -603,6 +608,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		SiteCategory category = new SiteCategory();
 		String name = attributes.getValue("name"); //$NON-NLS-1$
 		String label = attributes.getValue("label"); //$NON-NLS-1$
+		checkTranslated(label);
 		category.setName(name);
 		category.setLabel(label);
 
@@ -658,6 +664,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		if (label != null) {
 			if ("".equals(label.trim())) //$NON-NLS-1$
 				label = null;
+			checkTranslated(label);
 		}
 		feature.setLabel(label);
 
@@ -753,7 +760,7 @@ public class DefaultSiteParser extends DefaultHandler {
 			site.setSupportsPack200(true);
 		}
 
-		String digestURL = attributes.getValue("digestURL");
+		String digestURL = attributes.getValue("digestURL"); //$NON-NLS-1$
 		if (digestURL != null)
 			site.setDigestURLString(digestURL);
 
@@ -844,4 +851,10 @@ public class DefaultSiteParser extends DefaultHandler {
 		return Character.isWhitespace(str.charAt(str.length() - 1));
 	}
 
+	// Add translatable strings from the site.xml
+	// to the list of message keys.
+	private void checkTranslated(String value) {
+		if (value != null && value.length() > 1 && value.startsWith("%")) //$NON-NLS-1$
+			messageKeys.add(value.substring(1));
+	}
 }

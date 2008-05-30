@@ -404,7 +404,8 @@ public class MetadataGeneratorHelper {
 	public static IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
 		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
 		cat.setSingleton(true);
-		cat.setId(category.getName());
+		String categoryId = category.getName();
+		cat.setId(categoryId);
 		cat.setVersion(Version.emptyVersion);
 		cat.setProperty(IInstallableUnit.PROP_NAME, category.getLabel());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
@@ -420,7 +421,27 @@ public class MetadataGeneratorHelper {
 			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
 		}
 		cat.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
-		cat.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, category.getName(), Version.emptyVersion)});
+
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(categoryId, Version.emptyVersion));
+
+		Map localizations = category.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					cat.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(categoryId, locale));
+			}
+		}
+
+		cat.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+
 		cat.setArtifacts(new IArtifactKey[0]);
 		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);

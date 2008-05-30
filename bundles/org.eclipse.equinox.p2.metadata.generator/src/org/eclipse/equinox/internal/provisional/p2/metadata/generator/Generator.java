@@ -106,6 +106,8 @@ public class Generator {
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 
+	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
+
 	protected final IGeneratorInfo info;
 
 	private GeneratorResult incrementalResult = null;
@@ -1151,6 +1153,22 @@ public class Generator {
 		if (associatedSites != null)
 			for (int i = 0; i < associatedSites.length; i++)
 				generateSiteReference(associatedSites[i].getURL(), null, true);
+
+		if (PROTOCOL_FILE.equals(siteLocation.getProtocol())) {
+			File siteFile = new File(siteLocation.getFile());
+			if (siteFile.exists()) {
+				File siteParent = siteFile.getParentFile();
+
+				List messageKeys = site.getMessageKeys();
+				if (siteParent.isDirectory()) {
+					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					site.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
+				} else if (siteFile.getName().endsWith(".jar")) { //$NON-NLS-1$
+					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					site.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
+				}
+			}
+		}
 
 		SiteFeature[] features = site.getFeatures();
 		for (int i = 0; i < features.length; i++) {
