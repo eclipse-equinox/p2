@@ -115,7 +115,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		// save the given repository in the preferences.
 		remember(repository, suffix);
 		if (added && signalAdd)
-			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true);
 	}
 
 	public void addRepository(URL location) {
@@ -138,16 +138,16 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		// save the given repository in the preferences.
 		remember(info);
 		if (added)
-			broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
+			broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, isEnabled);
 	}
 
 	/**
 	 * TODO Eliminate duplication with ArtifactRepositoryManager.
 	 */
-	protected void broadcastChangeEvent(URL location, int repositoryType, int kind) {
+	protected void broadcastChangeEvent(URL location, int repositoryType, int kind, boolean isEnabled) {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
 		if (bus != null)
-			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind, true));
+			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind, isEnabled));
 	}
 
 	/**
@@ -649,7 +649,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
-		broadcastChangeEvent(toRemove, IRepository.TYPE_METADATA, RepositoryEvent.REMOVED);
+		//TODO: compute and pass appropriate isEnabled flag
+		broadcastChangeEvent(toRemove, IRepository.TYPE_METADATA, RepositoryEvent.REMOVED, true);
 		return true;
 	}
 

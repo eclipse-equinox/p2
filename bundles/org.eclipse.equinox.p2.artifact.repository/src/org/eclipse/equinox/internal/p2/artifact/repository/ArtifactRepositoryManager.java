@@ -109,7 +109,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		// save the given repository in the preferences.
 		remember(repository, suffix);
 		if (added && signalAdd)
-			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED, true);
 	}
 
 	public void addRepository(URL location) {
@@ -132,7 +132,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		// save the given repository in the preferences.
 		remember(info);
 		if (added)
-			broadcastChangeEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
+			broadcastChangeEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED, isEnabled);
 	}
 
 	/**
@@ -581,7 +581,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
-		broadcastChangeEvent(toRemove, IRepository.TYPE_ARTIFACT, RepositoryEvent.REMOVED);
+		//TODO: compute and pass appropriate isEnabled flag
+		broadcastChangeEvent(toRemove, IRepository.TYPE_ARTIFACT, RepositoryEvent.REMOVED, true);
 		return true;
 	}
 
