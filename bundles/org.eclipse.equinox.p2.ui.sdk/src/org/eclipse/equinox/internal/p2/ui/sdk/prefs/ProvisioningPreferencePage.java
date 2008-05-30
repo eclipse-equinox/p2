@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
 import org.eclipse.core.runtime.Preferences;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.PreferencePage;
@@ -20,8 +19,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.*;
 
 /**
  * Preference page for general provisioning preferences.
@@ -36,6 +34,8 @@ public class ProvisioningPreferencePage extends PreferencePage implements IWorkb
 	private Button alwaysShowFailedPlan, neverShowFailedPlan, promptOnFailedPlan;
 
 	protected Control createContents(Composite parent) {
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvSDKHelpContextIds.PROVISIONING_PREFERENCE_PAGE);
+
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = layout.marginHeight = 0;

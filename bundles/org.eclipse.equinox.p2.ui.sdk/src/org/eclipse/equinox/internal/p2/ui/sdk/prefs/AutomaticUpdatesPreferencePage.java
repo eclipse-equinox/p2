@@ -21,8 +21,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.*;
 
 public class AutomaticUpdatesPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -41,6 +40,8 @@ public class AutomaticUpdatesPreferencePage extends PreferencePage implements IW
 	}
 
 	protected Control createContents(Composite parent) {
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvSDKHelpContextIds.AUTOMATIC_UPDATES_PREFERENCE_PAGE);
+
 		Composite container = new Composite(parent, SWT.NULL);
 		GridLayout layout = new GridLayout();
 		layout.marginWidth = layout.marginHeight = 0;
