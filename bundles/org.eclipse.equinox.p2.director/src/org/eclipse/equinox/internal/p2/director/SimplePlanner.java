@@ -13,8 +13,7 @@ package org.eclipse.equinox.internal.p2.director;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.resolution.ResolutionHelper;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -254,6 +253,11 @@ public class SimplePlanner implements IPlanner {
 				}
 				return new ProvisioningPlan(s);
 			}
+			//The resolution succeeded. We can forget about the warnings since there is a solution.
+			if (Tracing.DEBUG && s.getSeverity() != IStatus.OK)
+				LogHelper.log(s);
+			s = Status.OK_STATUS;
+
 			Collection newState = projector.extractSolution();
 			newState.remove(allIUs[0]);
 
