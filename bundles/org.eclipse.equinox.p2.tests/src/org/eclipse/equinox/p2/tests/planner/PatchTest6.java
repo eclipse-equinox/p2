@@ -64,7 +64,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {c1, pp1});
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
-		assertEquals(IStatus.WARNING, plan2.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 
 		//Verify that p1 can be installed alone (kind of meaningless)
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
@@ -76,7 +76,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
-		assertEquals(IStatus.WARNING, plan4.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan4.getStatus().getSeverity());
 		assertInstallOperand(plan4, a1);
 		assertInstallOperand(plan4, p1);
 		assertInstallOperand(plan4, pp1);
@@ -86,7 +86,7 @@ public class PatchTest6 extends AbstractProvisioningTest {
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);
 		req5.addInstallableUnits(new IInstallableUnit[] {a1, c1, p1});
 		ProvisioningPlan plan5 = planner.getProvisioningPlan(req5, null, null);
-		assertEquals(IStatus.WARNING, plan5.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan5.getStatus().getSeverity());
 		assertInstallOperand(plan4, a1);
 		assertInstallOperand(plan4, p1);
 		assertInstallOperand(plan4, b1);

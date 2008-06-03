@@ -57,7 +57,7 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		ProfileChangeRequest req8 = new ProfileChangeRequest(profile1);
 		req8.addInstallableUnits(new IInstallableUnit[] {a1, p6});
 		ProvisioningPlan plan8 = planner.getProvisioningPlan(req8, null, null);
-		assertEquals(IStatus.WARNING, plan8.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan8.getStatus().getSeverity());
 
 		//p7 does not apply therefore A should not be installable 
 		ProfileChangeRequest req7 = new ProfileChangeRequest(profile1);
@@ -69,13 +69,13 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		ProfileChangeRequest req6 = new ProfileChangeRequest(profile1);
 		req6.addInstallableUnits(new IInstallableUnit[] {a1, p5});
 		ProvisioningPlan plan6 = planner.getProvisioningPlan(req6, null, null);
-		assertEquals(IStatus.WARNING, plan6.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan6.getStatus().getSeverity());
 
 		//Ensure that p1 causes a1 to resolve
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile1);
 		req2.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan2 = planner.getProvisioningPlan(req2, null, null);
-		assertEquals(IStatus.WARNING, plan2.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan2.getStatus().getSeverity());
 
 		//p2 does not causes a1 to resolve therefore the application fails
 		ProfileChangeRequest req3 = new ProfileChangeRequest(profile1);
@@ -87,7 +87,7 @@ public class PatchTest2 extends AbstractProvisioningTest {
 		ProfileChangeRequest req4 = new ProfileChangeRequest(profile1);
 		req4.addInstallableUnits(new IInstallableUnit[] {a1, p3});
 		ProvisioningPlan plan4 = planner.getProvisioningPlan(req4, null, null);
-		assertEquals(IStatus.WARNING, plan4.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan4.getStatus().getSeverity());
 
 		//p4 does not causes a1 to resolve therefore the application fails
 		ProfileChangeRequest req5 = new ProfileChangeRequest(profile1);

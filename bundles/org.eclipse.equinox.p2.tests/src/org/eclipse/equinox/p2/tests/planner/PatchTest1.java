@@ -45,6 +45,6 @@ public class PatchTest1 extends AbstractProvisioningTest {
 		ProfileChangeRequest req1 = new ProfileChangeRequest(profile1);
 		req1.addInstallableUnits(new IInstallableUnit[] {a1, p1});
 		ProvisioningPlan plan1 = planner.getProvisioningPlan(req1, null, null);
-		assertEquals(IStatus.WARNING, plan1.getStatus().getSeverity());
+		assertEquals(IStatus.OK, plan1.getStatus().getSeverity());
 	}
 }
