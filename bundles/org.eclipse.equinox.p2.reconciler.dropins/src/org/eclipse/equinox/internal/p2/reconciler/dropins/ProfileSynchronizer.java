@@ -296,6 +296,15 @@ public class ProfileSynchronizer {
 		Collection all = allIUs.toCollection();
 		for (Iterator iter = profileIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			// the STRICT policy is set when we install things via the UI, we use it to differentiate between IUs installed
+			// via the dropins and the UI. (dropins are considered optional) If an IU has both properties set it means that
+			// it was initially installed via the dropins but then upgraded via the UI. (properties are copied from the old IU
+			// to the new IU during an upgrade) In this case we want to remove the "from dropins" property so the upgrade
+			// will stick.
+			if ("STRICT".equals(profile.getInstallableUnitProperty(iu, "org.eclipse.equinox.p2.internal.inclusion.rules"))) { //$NON-NLS-1$//$NON-NLS-2$
+				request.removeInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS);
+				continue;
+			}
 			// remove the IUs that are in the intersection between the 2 sets
 			if (all.contains(iu))
 				toAdd.remove(iu);
