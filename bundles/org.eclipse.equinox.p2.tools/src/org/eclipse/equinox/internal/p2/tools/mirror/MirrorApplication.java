@@ -72,10 +72,9 @@ public class MirrorApplication implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		long time = -System.currentTimeMillis();
 		initializeFromArguments((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
-		RepositoryMirroring operation = new RepositoryMirroring(metadataSourceLocation, metadataDestinationLocation, artifactSourceLocation, artifactDestinationLocation);
+		RepositoryMirroring operation = new RepositoryMirroring(metadataSourceLocation, metadataDestinationLocation, artifactSourceLocation, artifactDestinationLocation, overwrite);
 		operation.setTransitive(transitive);
 		operation.setRaw(raw);
-		operation.setOverwrite(overwrite);
 		operation.setVerbose(verbose);
 		operation.mirror(iuSpecs, artifactSpecs);
 		time += System.currentTimeMillis();

@@ -46,7 +46,8 @@ public class RepositoryMirroring {
 	private boolean overwrite = false;
 	private boolean verbose = false;
 
-	public RepositoryMirroring(URL metadataSourceLocation, URL metadataDestinationLocation, URL artifactSourceLocation, URL artifactDestinationLocation) throws ProvisionException {
+	public RepositoryMirroring(URL metadataSourceLocation, URL metadataDestinationLocation, URL artifactSourceLocation, URL artifactDestinationLocation, boolean overwrite2) throws ProvisionException {
+		this.overwrite = overwrite;
 		if (metadataSourceLocation != null && metadataDestinationLocation != null) {
 			MetadataRepositoryManager metadataRepoManager = new MetadataRepositoryManager();
 			metadataSourceRepository = metadataRepoManager.loadRepository(metadataSourceLocation, null);
@@ -208,10 +209,6 @@ public class RepositoryMirroring {
 
 	public void setTransitive(boolean value) {
 		transitive = value;
-	}
-
-	public void setOverwrite(boolean value) {
-		overwrite = value;
 	}
 
 	public void setRaw(boolean value) {
