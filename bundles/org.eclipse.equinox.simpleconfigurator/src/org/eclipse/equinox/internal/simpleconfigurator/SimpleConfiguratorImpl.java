@@ -65,8 +65,9 @@ public class SimpleConfiguratorImpl implements Configurator {
 			URL url = null;
 			String file = specifiedURL;
 			while (!done) {
+				// TODO what is this while loop for?  nested file:file:file: urls?
 				try {
-					url = new URL(file);
+					url = Utils.buildURL(file);
 					file = url.getFile();
 				} catch (java.net.MalformedURLException e) {
 					done = true;
@@ -97,7 +98,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 
 		//Last resort
 		try {
-			return new URL(specifiedURL);
+			return Utils.buildURL(specifiedURL);
 		} catch (MalformedURLException e) {
 			//Ignore
 		}
