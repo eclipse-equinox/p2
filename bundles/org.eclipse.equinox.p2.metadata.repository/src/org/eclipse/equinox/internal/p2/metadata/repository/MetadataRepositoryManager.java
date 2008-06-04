@@ -119,10 +119,18 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	public void addRepository(URL location) {
-		addRepository(location, true);
+		addRepository(location, true, true);
 	}
 
-	private void addRepository(URL location, boolean isEnabled) {
+	/**
+	 * Adds the repository to the list of known repositories. 
+	 * @param location The repository location
+	 * @param isEnabled Whether the repository should be enabled
+	 * @param signalAdd Whether a repository add event should be broadcast
+	 * @return <code>true</code> if the repository was actually added, and 
+	 * <code>false</code> otherwise.
+	 */
+	private boolean addRepository(URL location, boolean isEnabled, boolean signalAdd) {
 		Assert.isNotNull(location);
 		RepositoryInfo info = new RepositoryInfo();
 		info.location = location;
@@ -132,13 +140,14 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 			if (repositories == null)
 				restoreRepositories();
 			if (contains(location))
-				return;
+				return false;
 			added = repositories.put(getKey(location), info) == null;
 		}
 		// save the given repository in the preferences.
 		remember(info);
-		if (added)
+		if (added && signalAdd)
 			broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, isEnabled);
+		return added;
 	}
 
 	/**
@@ -436,18 +445,25 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 			throw new ProvisionException(notFoundStatus);
 		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.repoMan_adding, suffixes.length * 100);
+		//add the repository first so that it will be enabled, but don't send add event until after the load
+		boolean added = addRepository(location, true, false);
 		try {
 			for (int i = 0; i < suffixes.length; i++) {
 				result = loadRepository(location, suffixes[i], type, sub.newChild(100), notFoundStatus);
 				if (result != null) {
-					addRepository(result, signalAdd, suffixes[i]);
+					addRepository(result, false, suffixes[i]);
+					//broadcast the add event now
+					if (added && signalAdd)
+						broadcastChangeEvent(location, IRepository.TYPE_METADATA, RepositoryEvent.ADDED, true);
 					return result;
 				}
 			}
 		} finally {
 			sub.done();
 		}
-
+		//if we just added the repository, remove it because it cannot be loaded
+		if (added)
+			removeRepository(location, false);
 		if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
 			removeRepository(location);
 		else
@@ -507,7 +523,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		if (o instanceof RepositoryEvent) {
 			RepositoryEvent event = (RepositoryEvent) o;
 			if (event.getKind() == RepositoryEvent.DISCOVERED && event.getRepositoryType() == IRepository.TYPE_METADATA)
-				addRepository(event.getRepositoryLocation(), event.isRepositoryEnabled());
+				addRepository(event.getRepositoryLocation(), event.isRepositoryEnabled(), true);
 		}
 	}
 
@@ -634,6 +650,10 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 	}
 
 	public boolean removeRepository(URL toRemove) {
+		return removeRepository(toRemove, true);
+	}
+
+	public boolean removeRepository(URL toRemove, boolean signalRemove) {
 		Assert.isNotNull(toRemove);
 		final String repoKey = getKey(toRemove);
 		synchronized (repositoryLock) {
@@ -650,7 +670,8 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
 		//TODO: compute and pass appropriate isEnabled flag
-		broadcastChangeEvent(toRemove, IRepository.TYPE_METADATA, RepositoryEvent.REMOVED, true);
+		if (signalRemove)
+			broadcastChangeEvent(toRemove, IRepository.TYPE_METADATA, RepositoryEvent.REMOVED, true);
 		return true;
 	}
 
