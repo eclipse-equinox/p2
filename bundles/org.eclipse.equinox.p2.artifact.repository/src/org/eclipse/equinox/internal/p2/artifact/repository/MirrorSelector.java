@@ -232,6 +232,16 @@ public class MirrorSelector {
 		}
 	}
 
+	/** 
+	 * Return whether or not all the mirrors for this selector have proven to be invalid
+	 * @return whether or not there is a vaild mirror in this selector.
+	 */
+	public synchronized boolean hasValidMirror() {
+		// return true if there is a mirror and it has not failed.  Since the mirrors
+		// list is sorted with failures last, we only have to test the first element for failure.
+		return mirrors != null && mirrors.length > 0 && mirrors[0].failureCount == 0;
+	}
+
 	/**
 	 * Selects a mirror from the given list of mirrors. Returns null if a mirror
 	 * could not be found.

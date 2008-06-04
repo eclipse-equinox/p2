@@ -130,7 +130,25 @@ public class MirrorRequest extends ArtifactRequest {
 		return destinationDescriptor;
 	}
 
+	/**
+	 * Keep retrying the source repository until it reports back that it will be impossible
+	 * to get the artifact from it.
+	 * @param destinationDescriptor
+	 * @param sourceDescriptor
+	 * @param monitor
+	 * @return the status of the transfer operation
+	 */
 	private IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
+		IStatus status = Status.OK_STATUS;
+		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
+		// TODO this needs to be redone with a much better mirror management scheme.
+		do {
+			status = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
+		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY);
+		return status;
+	}
+
+	private IStatus transferSingle(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
 		OutputStream destination;
 		try {
 			destination = target.getOutputStream(destinationDescriptor);

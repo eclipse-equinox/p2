@@ -421,14 +421,17 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation, result);
-		if (result.getSeverity() == IStatus.CANCEL)
+		if (result.isOK() || result.getSeverity() == IStatus.CANCEL)
 			return result;
 		if (monitor.isCanceled())
 			return Status.CANCEL_STATUS;
-		if (result.isOK() || baseLocation.equals(mirrorLocation))
-			return result;
-		//maybe we hit a bad mirror - try the base location
-		return getTransport().download(baseLocation, destination, monitor);
+		// If there are more valid mirrors then return an error with a special code that tells the caller
+		// to keep trying.  Note that the message in the status is largely irrelevant but the child
+		// status tells the story of why we failed on this try.
+		// TODO find a better way of doing this.
+		if (mirrors != null && mirrors.hasValidMirror())
+			return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {result}, "Retry another mirror", null); //$NON-NLS-1$
+		return result;
 	}
 
 	/**
@@ -466,7 +469,13 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return status;
 
 		status = downloadArtifact(descriptor, destination, monitor);
-		return reportStatus(descriptor, destination, status);
+		IStatus result = reportStatus(descriptor, destination, status);
+		// if the original status was RETRY then ensure that we return that status.  It is
+		// however important to call reportStatus() either way as it updates information
+		// in addition to collecting status.
+		// TODO we should remove this when there is more time for testing.
+		return status.getCode() == CODE_RETRY ? status : result;
+
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
