@@ -12,11 +12,13 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URL;
+import java.util.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -45,6 +47,7 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 	}
 
 	protected void tearDown() throws Exception {
+		getMetadataRepositoryManager().removeRepository(repoLocation.toURL());
 		delete(repoLocation);
 		super.tearDown();
 	}
@@ -142,6 +145,95 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		if (jarFilePresent) {
 			fail("Repository should not create JAR for content.xml");
 		}
+	}
 
+	/**
+	 * Tests loading a repository that has a reference to itself as a disabled repository.
+	 * @throws MalformedURLException 
+	 * @throws ProvisionException 
+	 */
+	public void testLoadSelfReference() throws MalformedURLException, ProvisionException {
+		//setup a repository that has a reference to itself in disabled state
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		Map properties = new HashMap();
+		properties.put(IRepository.PROP_COMPRESSED, "false");
+		final URL repoURL = repoLocation.toURL();
+		IMetadataRepository repo = manager.createRepository(repoURL, "testLoadSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		repo.addReference(repoURL, IRepository.TYPE_METADATA, IRepository.NONE);
+		//adding a reference doesn't save the repository, but setting a property does
+		repo.setProperty("changed", "false");
+
+		final int[] callCount = new int[] {0};
+		final boolean[] wasEnabled = new boolean[] {false};
+		//add a listener to ensure we receive add events with the repository enabled
+		ProvisioningListener listener = new SynchronousProvisioningListener() {
+			public void notify(EventObject o) {
+				if (!(o instanceof RepositoryEvent))
+					return;
+				RepositoryEvent event = (RepositoryEvent) o;
+				if (event.getKind() != RepositoryEvent.ADDED)
+					return;
+				if (!event.getRepositoryLocation().equals(repoURL))
+					return;
+				wasEnabled[0] = event.isRepositoryEnabled();
+				callCount[0]++;
+			}
+		};
+		getEventBus().addListener(listener);
+		try {
+			//now remove and reload the repository
+			manager.removeRepository(repoURL);
+			repo = manager.loadRepository(repoURL, null);
+			assertTrue("1.0", manager.isEnabled(repoURL));
+			assertTrue("1.1", wasEnabled[0]);
+			assertEquals("1.2", 1, callCount[0]);
+		} finally {
+			getEventBus().removeListener(listener);
+		}
+	}
+
+	public void testRefreshSelfReference() throws MalformedURLException, ProvisionException {
+		//setup a repository that has a reference to itself in disabled state
+		IMetadataRepositoryManager manager = getMetadataRepositoryManager();
+		Map properties = new HashMap();
+		properties.put(IRepository.PROP_COMPRESSED, "false");
+		final URL repoURL = repoLocation.toURL();
+		IMetadataRepository repo = manager.createRepository(repoURL, "testRefreshSelfReference", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		repo.addReference(repoURL, IRepository.TYPE_METADATA, IRepository.NONE);
+		//adding a reference doesn't save the repository, but setting a property does
+		repo.setProperty("changed", "false");
+
+		final int[] callCount = new int[] {0};
+		final boolean[] wasEnabled = new boolean[] {false};
+		//add a listener to ensure we receive add events with the repository enabled
+		ProvisioningListener listener = new SynchronousProvisioningListener() {
+			public void notify(EventObject o) {
+				if (!(o instanceof RepositoryEvent))
+					return;
+				RepositoryEvent event = (RepositoryEvent) o;
+				if (event.getKind() != RepositoryEvent.ADDED)
+					return;
+				if (!event.getRepositoryLocation().equals(repoURL))
+					return;
+				wasEnabled[0] = event.isRepositoryEnabled();
+				callCount[0]++;
+			}
+		};
+		getEventBus().addListener(listener);
+		try {
+			//ensure refreshing the repository doesn't disable it
+			manager.refreshRepository(repoURL, null);
+			assertTrue("1.0", manager.isEnabled(repoURL));
+			assertTrue("1.1", wasEnabled[0]);
+			assertEquals("1.2", 1, callCount[0]);
+		} finally {
+			getEventBus().removeListener(listener);
+		}
+	}
+
+	private IProvisioningEventBus getEventBus() {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(TestActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		assertNotNull(bus);
+		return bus;
 	}
 }
