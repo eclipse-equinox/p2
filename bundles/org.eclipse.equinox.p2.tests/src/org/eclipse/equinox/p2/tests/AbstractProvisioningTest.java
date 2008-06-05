@@ -658,8 +658,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 		URL[] urls = repoMan.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < urls.length; i++) {
-			if (urls[i].toExternalForm().indexOf("cache") != -1 || urls[i].toExternalForm().indexOf("rollback") != -1)
-				repoMan.loadRepository(urls[i], null).removeAll();
+			try {
+				if (urls[i].toExternalForm().indexOf("cache") != -1 || urls[i].toExternalForm().indexOf("rollback") != -1)
+					repoMan.loadRepository(urls[i], null).removeAll();
+			} catch (ProvisionException e) {
+				//if the repository didn't load, then it doesn't exist and we don't need to clear it up
+			}
 		}
 		//remove all profiles created by this test
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
