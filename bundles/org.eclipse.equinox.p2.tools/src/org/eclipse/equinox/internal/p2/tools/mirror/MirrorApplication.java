@@ -28,10 +28,11 @@ public class MirrorApplication implements IApplication {
 	private URL metadataDestinationLocation;
 	private URL artifactSourceLocation;
 	private URL artifactDestinationLocation;
-	private boolean transitive = false;
+	private boolean referencedIUs = false;
 	private boolean raw = false;
 	private boolean overwrite = false;
 	private boolean verbose = false;
+	private boolean compressed = false;
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
@@ -72,8 +73,8 @@ public class MirrorApplication implements IApplication {
 	public Object start(IApplicationContext context) throws Exception {
 		long time = -System.currentTimeMillis();
 		initializeFromArguments((String[]) context.getArguments().get("application.args")); //$NON-NLS-1$
-		RepositoryMirroring operation = new RepositoryMirroring(metadataSourceLocation, metadataDestinationLocation, artifactSourceLocation, artifactDestinationLocation, overwrite);
-		operation.setTransitive(transitive);
+		RepositoryMirroring operation = new RepositoryMirroring(metadataSourceLocation, metadataDestinationLocation, artifactSourceLocation, artifactDestinationLocation, overwrite, compressed);
+		operation.setReferencedIUs(referencedIUs);
 		operation.setRaw(raw);
 		operation.setVerbose(verbose);
 		operation.mirror(iuSpecs, artifactSpecs);
@@ -93,13 +94,15 @@ public class MirrorApplication implements IApplication {
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
 			if (args[i].equalsIgnoreCase("-referencedIUs")) //$NON-NLS-1$
-				transitive = true;
+				referencedIUs = true;
 			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
 				raw = true;
 			if (args[i].equalsIgnoreCase("-overwrite")) //$NON-NLS-1$
 				overwrite = true;
 			if (args[i].equalsIgnoreCase("-verbose")) //$NON-NLS-1$
 				verbose = true;
+			if (args[i].equalsIgnoreCase("-compressed")) //$NON-NLS-1$
+				compressed = true;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
@@ -125,12 +128,12 @@ public class MirrorApplication implements IApplication {
 			if (args[i - 1].equalsIgnoreCase("-artifactsource")) //$NON-NLS-1$
 				artifactSourceLocation = new URL(arg);
 			if (args[i - 1].equalsIgnoreCase("-ius")) //$NON-NLS-1$
-				if (arg.equalsIgnoreCase("all") || arg.equalsIgnoreCase("*")) //$NON-NLS-1$ //$NON-NLS-2$
+				if (arg.equalsIgnoreCase("all")) //$NON-NLS-1$ 
 					iuSpecs = new String[0];
 				else
 					iuSpecs = getArrayArgsFromString(arg, COMMA_SEPARATOR);
 			if (args[i - 1].equalsIgnoreCase("-artifacts")) //$NON-NLS-1$
-				if (arg.equalsIgnoreCase("all") || arg.equalsIgnoreCase("*")) //$NON-NLS-1$ //$NON-NLS-2$
+				if (arg.equalsIgnoreCase("all")) //$NON-NLS-1$ 
 					artifactSpecs = new String[0];
 				else
 					artifactSpecs = getArrayArgsFromString(arg, "{", "}", COMMA_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$

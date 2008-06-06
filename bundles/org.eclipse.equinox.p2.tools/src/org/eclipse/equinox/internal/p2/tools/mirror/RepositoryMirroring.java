@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.tools.mirror;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
 import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
@@ -21,6 +23,7 @@ import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -38,35 +41,39 @@ public class RepositoryMirroring {
 	private IMetadataRepository metadataDestinationRepository;
 	private IArtifactRepository artifactSourceRepository;
 	private IArtifactRepository artifactDestinationRepository;
-	private boolean transitive = false;
+	private boolean referencedIUs = false;
 	private boolean validArtifactRepos = false;
 	private boolean validMetadataRepos = false;
 	private boolean mirrorArtifactsWithMetadata = false;
 	private boolean raw = false;
 	private boolean overwrite = false;
 	private boolean verbose = false;
+	private boolean compressed = false;
 
-	public RepositoryMirroring(URL metadataSourceLocation, URL metadataDestinationLocation, URL artifactSourceLocation, URL artifactDestinationLocation, boolean overwrite2) throws ProvisionException {
+	public RepositoryMirroring(URL metadataSourceLocation, URL metadataDestinationLocation, URL artifactSourceLocation, URL artifactDestinationLocation, boolean overwrite, boolean compressed) throws ProvisionException {
 		this.overwrite = overwrite;
+		this.compressed = compressed;
 		if (metadataSourceLocation != null && metadataDestinationLocation != null) {
 			MetadataRepositoryManager metadataRepoManager = new MetadataRepositoryManager();
 			metadataSourceRepository = metadataRepoManager.loadRepository(metadataSourceLocation, null);
+			metadataRepoManager.removeRepository(metadataSourceLocation);
 			metadataDestinationRepository = initializeMetadataDestination(metadataRepoManager, metadataDestinationLocation);
 			validMetadataRepos = validateMetadataRepositories();
 		}
 		if (artifactSourceLocation != null && artifactDestinationLocation != null) {
 			ArtifactRepositoryManager artifactRepoManager = new ArtifactRepositoryManager();
 			artifactSourceRepository = artifactRepoManager.loadRepository(artifactSourceLocation, null);
+			artifactRepoManager.removeRepository(artifactSourceLocation);
 			artifactDestinationRepository = initializeArtifactDestination(artifactRepoManager, artifactDestinationLocation);
 			validArtifactRepos = validateArtifactRepositories();
 		}
 	}
 
 	public void mirror(String[] iuSpecs, String[] artifactSpecs) throws ProvisionException {
-		mirrorArtifactsWithMetadata = validArtifactRepos && artifactSpecs != null && artifactSpecs.length == 0 && iuSpecs != null && iuSpecs.length == 0;
-		if (validMetadataRepos)
+		mirrorArtifactsWithMetadata = validArtifactRepos && artifactSpecs != null && artifactSpecs.length == 0 && iuSpecs != null;
+		if (validMetadataRepos && iuSpecs != null)
 			mirrorMetadata(iuSpecs);
-		if (validArtifactRepos && !mirrorArtifactsWithMetadata)
+		if (validArtifactRepos && !mirrorArtifactsWithMetadata && artifactSpecs != null)
 			mirrorArtifacts(artifactSpecs, raw);
 	}
 
@@ -87,7 +94,7 @@ public class RepositoryMirroring {
 	}
 
 	private void mirrorMetadata(IInstallableUnit[] ius) throws ProvisionException {
-		if (transitive)
+		if (referencedIUs)
 			ius = addTransitiveIUs(metadataSourceRepository, ius);
 		for (int i = 0; i < ius.length; i++) {
 			IInstallableUnit iu = ius[i];
@@ -101,6 +108,8 @@ public class RepositoryMirroring {
 
 	private void mirrorArtifact(IArtifactDescriptor descriptor) throws ProvisionException {
 		IArtifactDescriptor newDescriptor = raw ? descriptor : new ArtifactDescriptor(descriptor);
+		if (artifactDestinationRepository.contains(descriptor))
+			return;
 		OutputStream repositoryStream = null;
 		try {
 			repositoryStream = artifactDestinationRepository.getOutputStream(newDescriptor);
@@ -172,23 +181,45 @@ public class RepositoryMirroring {
 		return true;
 	}
 
-	private IMetadataRepository initializeMetadataDestination(MetadataRepositoryManager repoManager, URL destinationLocation) throws ProvisionException {
+	private IMetadataRepository initializeMetadataDestination(MetadataRepositoryManager manager, URL destinationLocation) throws ProvisionException {
+		IMetadataRepository repository;
 		try {
-			IMetadataRepository repository = repoManager.loadRepository(destinationLocation, null);
+			String repositoryName = destinationLocation + " - metadata"; //$NON-NLS-1$
+			Map properties = null;
+			if (compressed) {
+				properties = new HashMap(1);
+				properties.put(IRepository.PROP_COMPRESSED, String.valueOf(compressed));
+			}
+			repository = manager.createRepository(destinationLocation, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			manager.removeRepository(destinationLocation);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Metadata repository not modifiable: " + destinationLocation); //$NON-NLS-1$
 			return repository;
 		} catch (ProvisionException e) {
 			//fall through and create repo
 		}
-		String repositoryName = destinationLocation + " - metadata"; //$NON-NLS-1$
-		return repoManager.createRepository(destinationLocation, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		repository = manager.loadRepository(destinationLocation, null);
+		if (repository != null)
+			manager.removeRepository(destinationLocation);
+		if (!repository.isModifiable())
+			throw new IllegalArgumentException("Metadata repository not modifiable: " + destinationLocation); //$NON-NLS-1$
+		return repository;
 	}
 
 	private IArtifactRepository initializeArtifactDestination(ArtifactRepositoryManager repoManager, URL destinationLocation) throws ProvisionException {
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepository repository;
 		try {
-			IArtifactRepository repository = manager.loadRepository(destinationLocation, null);
+			String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$
+			Map properties = null;
+			if (compressed) {
+				properties = new HashMap(1);
+				properties.put(IRepository.PROP_COMPRESSED, String.valueOf(compressed));
+			}
+			repository = manager.createRepository(destinationLocation, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			if (repository != null)
+				manager.removeRepository(destinationLocation);
+
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Artifact repository not modifiable: " + destinationLocation); //$NON-NLS-1$
 			if (overwrite)
@@ -198,20 +229,24 @@ public class RepositoryMirroring {
 			//fall through and create a new repository below
 		}
 		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a Simple repo by default.
-		String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$
-		return manager.createRepository(destinationLocation, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		repository = manager.loadRepository(destinationLocation, null);
+		manager.removeRepository(destinationLocation);
+		return repository;
 	}
 
 	public void setVerbose(boolean value) {
 		verbose = value;
 	}
 
-	public void setTransitive(boolean value) {
-		transitive = value;
+	public void setReferencedIUs(boolean value) {
+		referencedIUs = value;
 	}
 
 	public void setRaw(boolean value) {
 		raw = value;
+	}
+
+	public void setCompressed(boolean value) {
+		compressed = value;
 	}
 }
