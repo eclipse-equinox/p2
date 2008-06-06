@@ -418,6 +418,23 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		//download from the best available mirror
 		String baseLocation = getLocation(descriptor);
 		String mirrorLocation = getMirror(baseLocation);
+		IStatus status = downloadArtifact(descriptor, mirrorLocation, destination, monitor);
+		IStatus result = reportStatus(descriptor, destination, status);
+		// if the original download went reasonably but the reportStatus found some issues
+		// (e..g, in the processing steps/validators) then mark the mirror as bad and return
+		// a retry code (assuming we have more mirrors)
+		if ((status.isOK() || status.matches(IStatus.INFO | IStatus.WARNING)) && result.getSeverity() == IStatus.ERROR) {
+			if (mirrors != null) {
+				mirrors.reportResult(mirrorLocation, result);
+				if (mirrors.hasValidMirror())
+					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {result}, "Retry another mirror", null); //$NON-NLS-1$
+			}
+		}
+		// if the original status was a retry, don't lose that.
+		return status.getCode() == CODE_RETRY ? status : result;
+	}
+
+	private IStatus downloadArtifact(IArtifactDescriptor descriptor, String mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
 		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation, result);
@@ -468,14 +485,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (!status.isOK() && status.getSeverity() != IStatus.INFO)
 			return status;
 
-		status = downloadArtifact(descriptor, destination, monitor);
-		IStatus result = reportStatus(descriptor, destination, status);
-		// if the original status was RETRY then ensure that we return that status.  It is
-		// however important to call reportStatus() either way as it updates information
-		// in addition to collecting status.
-		// TODO we should remove this when there is more time for testing.
-		return status.getCode() == CODE_RETRY ? status : result;
-
+		return downloadArtifact(descriptor, destination, monitor);
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
