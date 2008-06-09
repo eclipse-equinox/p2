@@ -399,6 +399,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		if (isFolderBased(descriptor)) {
 			File artifactFolder = getArtifactFile(descriptor);
+			if (artifactFolder == null)
+				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, descriptor.getArtifactKey())));
 			// TODO: optimize and ensure manifest is written first
 			File zipFile = null;
 			try {
@@ -407,12 +409,12 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				FileInputStream fis = new FileInputStream(zipFile);
 				FileUtils.copyStream(fis, true, destination, false);
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
+				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, e.getMessage()));
 			} finally {
 				if (zipFile != null)
 					zipFile.delete();
 			}
-			return Status.OK_STATUS;
+			return reportStatus(descriptor, destination, Status.OK_STATUS);
 		}
 
 		//download from the best available mirror
