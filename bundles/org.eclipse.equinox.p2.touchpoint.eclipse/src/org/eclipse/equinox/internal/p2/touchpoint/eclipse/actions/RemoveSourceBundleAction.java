@@ -53,12 +53,11 @@ public class RemoveSourceBundleAction extends ProvisioningAction {
 		if (artifactKey == null)
 			throw new IllegalArgumentException(NLS.bind(Messages.no_matching_artifact, bundleId));
 
+		// the bundleFile might be null here, that's OK.
 		File bundleFile = Util.getArtifactFile(artifactKey, profile);
-		if (bundleFile == null || !bundleFile.exists())
-			return Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey));
 
 		try {
-			manipulator.removeBundle(bundleFile);
+			manipulator.removeBundle(bundleFile, artifactKey.getId(), artifactKey.getVersion());
 		} catch (IOException e) {
 			return Util.createError(NLS.bind(Messages.cannot_configure_source_bundle, artifactKey));
 		}

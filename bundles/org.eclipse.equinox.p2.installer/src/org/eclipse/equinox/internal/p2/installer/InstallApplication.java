@@ -7,18 +7,19 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
-import java.io.*;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
+import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
 import org.osgi.framework.Bundle;
@@ -51,13 +52,6 @@ public class InstallApplication implements IApplication {
 	/**
 	 * Throws an exception of severity error with the given error message.
 	 */
-	private static CoreException fail(String message) {
-		return fail(message, null);
-	}
-
-	/**
-	 * Throws an exception of severity error with the given error message.
-	 */
 	private static CoreException fail(String message, Throwable throwable) {
 		return new CoreException(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, message, throwable));
 	}
@@ -82,19 +76,8 @@ public class InstallApplication implements IApplication {
 	 */
 	private InstallDescription fetchInstallDescription(SubMonitor monitor) throws CoreException {
 		String site = System.getProperty(SYS_PROP_INSTALL_DESCRIPTION);
-		// if no description URL was given from the outside, look for an "install.properties" file 
-		// in relative to where the installer is running.  This allows the installer to be self-contained
-		InputStream in = null;
 		try {
-			if (site == null) {
-				File file = new File("installer.properties").getAbsoluteFile(); //$NON-NLS-1$
-				if (file.exists())
-					in = new FileInputStream(file);
-				else
-					throw fail(Messages.App_NoSite);
-			} else
-				in = new URL(site).openStream();
-			return InstallDescriptionParser.loadFromProperties(in, monitor);
+			return InstallDescriptionParser.createDescription(site, monitor);
 		} catch (IOException e) {
 			throw fail(Messages.App_InvalidSite + site, e);
 		}
@@ -135,6 +118,7 @@ public class InstallApplication implements IApplication {
 	public Object start(IApplicationContext appContext) {
 		try {
 			appContext.applicationRunning();
+			initializeProxySupport();
 			advisor = createInstallContext();
 			//fetch description of what to install
 			InstallDescription description = null;
@@ -172,6 +156,14 @@ public class InstallApplication implements IApplication {
 		}
 	}
 
+	private void initializeProxySupport() {
+		IProxyService proxies = (IProxyService) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
+		if (proxies == null)
+			return;
+		proxies.setProxiesEnabled(true);
+		proxies.setSystemProxiesEnabled(true);
+	}
+
 	/**
 	 * Returns whether the configuration described by the given install
 	 * description can be started automatically.
@@ -203,11 +195,6 @@ public class InstallApplication implements IApplication {
 			if (agentArea == null || agentArea.length() == 0 || agentArea.startsWith("@config")) //$NON-NLS-1$
 				System.setProperty("eclipse.p2.data.area", agentLocation.toOSString()); //$NON-NLS-1$ 
 		}
-		//set bundle pool location if specified
-		IPath bundleLocation = description.getBundleLocation();
-		if (bundleLocation != null && System.getProperty(IProfile.PROP_CACHE) == null)
-			System.setProperty(IProfile.PROP_CACHE, bundleLocation.toString());
-
 		//start up p2
 		try {
 			InstallerActivator.getDefault().getBundle("org.eclipse.equinox.p2.exemplarysetup").start(Bundle.START_TRANSIENT); //$NON-NLS-1$

@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
@@ -23,22 +24,24 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.osgi.framework.*;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
+import org.eclipse.osgi.service.environment.EnvironmentInfo;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
 /**
  * Synchronizes a profile with a set of repositories.
  */
 public class ProfileSynchronizer {
+	private static final String RECONCILER_APPLICATION_ID = "org.eclipse.equinox.p2.reconciler.application"; //$NON-NLS-1$
 	private static final String TIMESTAMPS_FILE_PREFIX = "timestamps"; //$NON-NLS-1$
 	private static final String PROFILE_TIMESTAMP = "PROFILE"; //$NON-NLS-1$
 	private static final String NO_TIMESTAMP = "-1"; //$NON-NLS-1$
-
-	private static final String SUPER_IU = "org.eclipse.equinox.p2.dropins"; //$NON-NLS-1$
+	private static final String PROP_FROM_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 
 	public class ListCollector extends Collector {
 		public List getList() {
@@ -141,6 +144,10 @@ public class ProfileSynchronizer {
 	}
 
 	private boolean isUpToDate() {
+		//Backward compatibility to be removed post M7
+		if (profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.dropins"), new Collector(), null).size() > 0)
+			return false;
+		//End of backward compatibility to be removed post M7
 		String lastKnownProfileTimeStamp = (String) timestamps.remove(PROFILE_TIMESTAMP);
 		if (lastKnownProfileTimeStamp == null)
 			return false;
@@ -202,7 +209,9 @@ public class ProfileSynchronizer {
 				//ignore
 			}
 		}
-		return new ProvisioningContext((URL[]) repoURLs.toArray(new URL[repoURLs.size()]));
+		ProvisioningContext result = new ProvisioningContext((URL[]) repoURLs.toArray(new URL[repoURLs.size()]));
+		result.setArtifactRepositories(new URL[0]);
+		return result;
 	}
 
 	private IStatus synchronizeCacheExtensions() {
@@ -211,7 +220,7 @@ public class ProfileSynchronizer {
 		for (Iterator it = repositoryMap.keySet().iterator(); it.hasNext();) {
 			String repositoryId = (String) it.next();
 			try {
-				IArtifactRepository repository = Activator.loadArtifactRepository(new URL(repositoryId));
+				IArtifactRepository repository = Activator.loadArtifactRepository(new URL(repositoryId), null);
 
 				if (repository instanceof IFileArtifactRepository) {
 					currentExtensions.add(repositoryId);
@@ -245,60 +254,71 @@ public class ProfileSynchronizer {
 		return executeOperands(new ProvisioningContext(new URL[0]), new Operand[] {operand}, null);
 	}
 
-	private IInstallableUnit createRootIU(List children) {
-		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		iu.setId(SUPER_IU);
-		iu.setVersion(new Version("1.0.0.v" + System.currentTimeMillis()));
-		List required = new ArrayList();
-		for (Iterator iter = children.iterator(); iter.hasNext();) {
-			IInstallableUnit next = (IInstallableUnit) iter.next();
-			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, next.getId(), null, null, false /* optional */, false, true));
-		}
-		if (required.size() > 0)
-			iu.setRequiredCapabilities((RequiredCapability[]) required.toArray(new RequiredCapability[required.size()]));
-		return MetadataFactory.createInstallableUnit(iu);
-	}
-
-	private ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
-		List toAdd = new ArrayList();
-		List defaults = new ArrayList();
-
-		Collector allIUs = getAllIUsFromRepos();
-
-		//Nothing has changed
-		IInstallableUnit previous = getIU(SUPER_IU);
-		//Empty repo
-
+	public ProfileChangeRequest createProfileChangeRequest(ProvisioningContext context) {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
-		if (allIUs.size() == 0) {
-			if (previous == null)
-				return null;
 
-			//Request the removal of the super IU
-			request.removeInstallableUnits(new IInstallableUnit[] {previous});
-			return request;
+		boolean resolve = Boolean.valueOf(profile.getProperty("org.eclipse.equinox.p2.resolve")).booleanValue();
+		if (resolve)
+			request.removeProfileProperty("org.eclipse.equinox.p2.resolve");
+
+		List toAdd = new ArrayList();
+		List toRemove = new ArrayList();
+
+		//Backward compatibility
+		Collector collect = profile.query(new InstallableUnitQuery("org.eclipse.equinox.p2.dropins"), new Collector(), null); //$NON-NLS-1$
+		toRemove.addAll(collect.toCollection());
+		//End of backward compatibility
+
+		// get all IUs from all our repos (toAdd)
+		Collector allIUs = getAllIUsFromRepos();
+		for (Iterator iter = allIUs.iterator(); iter.hasNext();) {
+			final IInstallableUnit iu = (IInstallableUnit) iter.next();
+			// if the IU is already installed in the profile then skip it
+			Query query = new Query() {
+				public boolean isMatch(Object candidate) {
+					return iu.equals(candidate);
+				}
+			};
+			Collector collector = profile.query(query, new Collector(), null);
+			if (collector.size() == 0) {
+				if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
+					request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+				// mark all IUs with special property
+				request.setInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS, Boolean.TRUE.toString());
+				request.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
+				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, Integer.toString(IInstallableUnit.LOCK_UNINSTALL));
+				toAdd.add(iu);
+			}
 		}
 
-		for (Iterator iterator = allIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			defaults.add(createDefaultIU(iu));
-			toAdd.add(createIncludedIU(iu));
-			if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
-				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
+		// get all IUs from profile with marked property (existing)
+		Collector profileIUs = profile.query(new IUProfilePropertyQuery(profile, PROP_FROM_DROPINS, Boolean.toString(true)), new Collector(), null);
+		Collection all = allIUs.toCollection();
+		for (Iterator iter = profileIUs.iterator(); iter.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) iter.next();
+			// the STRICT policy is set when we install things via the UI, we use it to differentiate between IUs installed
+			// via the dropins and the UI. (dropins are considered optional) If an IU has both properties set it means that
+			// it was initially installed via the dropins but then upgraded via the UI. (properties are copied from the old IU
+			// to the new IU during an upgrade) In this case we want to remove the "from dropins" property so the upgrade
+			// will stick.
+			if ("STRICT".equals(profile.getInstallableUnitProperty(iu, "org.eclipse.equinox.p2.internal.inclusion.rules"))) { //$NON-NLS-1$//$NON-NLS-2$
+				request.removeInstallableUnitProfileProperty(iu, PROP_FROM_DROPINS);
+				request.removeInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU);
+				continue;
+			}
+			// remove the IUs that are in the intersection between the 2 sets
+			if (all.contains(iu))
+				toAdd.remove(iu);
+			else
+				toRemove.add(iu);
 		}
 
-		List extra = new ArrayList();
-		extra.addAll(defaults);
-		extra.addAll(toAdd);
-		context.setExtraIUs(extra);
+		if (toAdd.isEmpty() && toRemove.isEmpty() && !resolve)
+			return null;
 
-		// only add one IU to the request. it will contain all the other IUs we want to install
-		IInstallableUnit rootIU = createRootIU(toAdd);
-		request.addInstallableUnits(new IInstallableUnit[] {rootIU});
-
-		//Request the removal of the previous super IU
-		if (previous != null)
-			request.removeInstallableUnits(new IInstallableUnit[] {previous});
+		context.setExtraIUs(toAdd);
+		request.addInstallableUnits((IInstallableUnit[]) toAdd.toArray(new IInstallableUnit[toAdd.size()]));
+		request.removeInstallableUnits((IInstallableUnit[]) toRemove.toArray(new IInstallableUnit[toRemove.size()]));
 		return request;
 	}
 
@@ -310,31 +330,6 @@ public class ProfileSynchronizer {
 			repository.query(InstallableUnitQuery.ANY, allRepos, null).iterator();
 		}
 		return allRepos;
-	}
-
-	private IInstallableUnit createIncludedIU(IInstallableUnit iu) {
-		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-		iud.setId(iu.getId());
-		iud.setVersion(new Version(0, 0, 0, Long.toString(System.currentTimeMillis())));
-		RequiredCapability[] reqs = new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), null, null, false, false, true)};
-		iud.setRequiredCapabilities(reqs);
-		return MetadataFactory.createInstallableUnit(iud);
-	}
-
-	private IInstallableUnit createDefaultIU(IInstallableUnit iu) {
-		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
-		iud.setId(iu.getId());
-		iud.setVersion(new Version(0, 0, 0));
-		iud.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), new Version(0, 0, 0))});
-		return MetadataFactory.createInstallableUnit(iud);
-	}
-
-	private IInstallableUnit getIU(String iuId) {
-		ListCollector collector = new ListCollector();
-		profile.query(new InstallableUnitQuery(iuId), collector, null);
-		if (collector.size() > 0)
-			return (IInstallableUnit) collector.iterator().next();
-		return null;
 	}
 
 	private ProvisioningPlan createProvisioningPlan(ProfileChangeRequest request, ProvisioningContext provisioningContext, IProgressMonitor monitor) {
@@ -359,7 +354,7 @@ public class ProfileSynchronizer {
 		ServiceReference reference = context.getServiceReference(IEngine.class.getName());
 		IEngine engine = (IEngine) context.getService(reference);
 		try {
-			PhaseSet phaseSet = new DefaultPhaseSet();
+			PhaseSet phaseSet = DefaultPhaseSet.createDefaultPhaseSet(DefaultPhaseSet.PHASE_CHECK_TRUST);
 			IStatus engineResult = engine.perform(profile, phaseSet, operands, provisioningContext, monitor);
 			return engineResult;
 		} finally {
@@ -371,6 +366,8 @@ public class ProfileSynchronizer {
 	 * Write out the configuration file.
 	 */
 	private void applyConfiguration() {
+		if (isReconciliationApplicationRunning())
+			return;
 		BundleContext context = Activator.getContext();
 		ServiceReference reference = context.getServiceReference(Configurator.class.getName());
 		Configurator configurator = (Configurator) context.getService(reference);
@@ -381,5 +378,19 @@ public class ProfileSynchronizer {
 		} finally {
 			context.ungetService(reference);
 		}
+	}
+
+	private boolean isReconciliationApplicationRunning() {
+		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+		if (info == null)
+			return false;
+		String[] args = info.getCommandLineArgs();
+		if (args == null)
+			return false;
+		for (int i = 0; i < args.length; i++) {
+			if (args[i] != null && RECONCILER_APPLICATION_ID.equals(args[i].trim()))
+				return true;
+		}
+		return false;
 	}
 }

@@ -43,10 +43,16 @@ public class SourceManipulator {
 		sourceBundles.add(sourceInfo);
 	}
 
-	public void removeBundle(File bundleFile) throws MalformedURLException, IOException {
+	public void removeBundle(File bundleFile, String bundleId, Version bundleVersion) throws MalformedURLException, IOException {
 		if (sourceBundles == null)
 			load();
-		sourceBundles.remove(new BundleInfo(bundleFile.toURL().toString()));
+
+		BundleInfo sourceInfo = new BundleInfo();
+		if (bundleFile != null)
+			sourceInfo.setLocation(bundleFile.toURL().toString());
+		sourceInfo.setSymbolicName(bundleId);
+		sourceInfo.setVersion(bundleVersion.toString());
+		sourceBundles.remove(sourceInfo);
 	}
 
 	public void save() throws IOException {

@@ -30,5 +30,11 @@ public class ActionConstants {
 	public static final String PARM_DEFAULT_VALUE = "default"; //$NON-NLS-1$
 	public static final String PARM_LAUNCHERNAME = "name"; //$NON-NLS-1$
 	public static final String PARM_PATH = "path"; //$NON-NLS-1$
+	public static final String PARM_TARGET_DIR = "targetDir"; //$NON-NLS-1$
+	public static final String PARM_LINK_NAME = "linkName"; //$NON-NLS-1$
+	public static final String PARM_LINK_FORCE = "force"; //$NON-NLS-1$
+	public static final String PARM_LINK_TARGET = "linkTarget"; //$NON-NLS-1$
+	public static final String PARM_TARGET_FILE = "targetFile"; //$NON-NLS-1$
+	public static final String PARM_PERMISSIONS = "permissions"; //$NON-NLS-1$
 
 }

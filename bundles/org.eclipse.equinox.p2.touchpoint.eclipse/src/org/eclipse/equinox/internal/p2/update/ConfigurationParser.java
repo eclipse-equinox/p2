@@ -11,10 +11,13 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import javax.xml.parsers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -24,6 +27,7 @@ import org.xml.sax.SAXException;
  * @since 1.0
  */
 public class ConfigurationParser implements ConfigurationConstants {
+	static final String PLATFORM_BASE = "platform:/base/"; //$NON-NLS-1$
 	private URL osgiInstallArea;
 
 	/*
@@ -53,6 +57,41 @@ public class ConfigurationParser implements ConfigurationConstants {
 		String version = getAttribute(node, ATTRIBUTE_VERSION);
 		if (version != null)
 			result.setVersion(version);
+		String pluginIdentifier = getAttribute(node, ATTRIBUTE_PLUGIN_IDENTIFIER);
+		if (pluginIdentifier != null)
+			result.setPluginIdentifier(pluginIdentifier);
+		String pluginVersion = getAttribute(node, ATTRIBUTE_PLUGIN_VERSION);
+		// plug-in version is the same as the feature version if it is missing
+		if (pluginVersion == null)
+			pluginVersion = version;
+		if (pluginVersion != null)
+			result.setPluginVersion(pluginVersion);
+		String application = getAttribute(node, ATTRIBUTE_APPLICATION);
+		if (application != null)
+			result.setApplication(application);
+
+		// get primary flag
+		String flag = getAttribute(node, ATTRIBUTE_PRIMARY);
+		if (flag != null && Boolean.valueOf(flag).booleanValue())
+			result.setPrimary(true);
+
+		// get install locations
+		String locations = getAttribute(node, ATTRIBUTE_ROOT);
+		if (locations != null) {
+			StringTokenizer tokenizer = new StringTokenizer(locations, ","); //$NON-NLS-1$
+			ArrayList rootList = new ArrayList();
+			while (tokenizer.hasMoreTokens()) {
+				try {
+					URL rootEntry = new URL(tokenizer.nextToken().trim());
+					rootList.add(rootEntry);
+				} catch (MalformedURLException e) {
+					// skip bad entries ...
+				}
+			}
+			URL[] roots = (URL[]) rootList.toArray(new URL[rootList.size()]);
+			result.setRoots(roots);
+		}
+
 		return result;
 	}
 
@@ -89,12 +128,8 @@ public class ConfigurationParser implements ConfigurationConstants {
 		if (updateable != null)
 			result.setUpdateable(Boolean.valueOf(updateable).booleanValue());
 		String url = getAttribute(node, ATTRIBUTE_URL);
-		if (url != null) {
-			if (osgiInstallArea == null)
-				result.setUrl(url);
-			else
-				result.setUrl(Utils.makeAbsolute(url, osgiInstallArea));
-		}
+		if (url != null)
+			result.setUrl(getLocation(url));
 		String linkFile = getAttribute(node, ATTRIBUTE_LINKFILE);
 		if (linkFile != null)
 			result.setLinkFile(linkFile);
@@ -104,6 +139,19 @@ public class ConfigurationParser implements ConfigurationConstants {
 				result.addPlugin(tokenizer.nextToken());
 		createFeatures(node, result);
 		return result;
+	}
+
+	/*
+	 * Convert the given url string to an absolute url. If the string is 
+	 * platform:/base/ then return a string which represents the osgi
+	 * install area.
+	 */
+	private String getLocation(String urlString) {
+		if (osgiInstallArea == null)
+			return urlString;
+		if (PLATFORM_BASE.equals(urlString))
+			return osgiInstallArea.toExternalForm();
+		return Utils.makeAbsolute(urlString, osgiInstallArea);
 	}
 
 	/*
@@ -148,11 +196,11 @@ public class ConfigurationParser implements ConfigurationConstants {
 			Document document = load(input);
 			return process(document);
 		} catch (IOException e) {
-			throw new ProvisionException("An error occurred reading the platform configuration file: " + file, e);
+			throw new ProvisionException(NLS.bind(Messages.error_reading_config, file), e);
 		} catch (ParserConfigurationException e) {
-			throw new ProvisionException("An error occurred reading the platform configuration", e);
+			throw new ProvisionException(Messages.error_parsing_config, e);
 		} catch (SAXException e) {
-			throw new ProvisionException("An error occurred reading the platform configuration", e);
+			throw new ProvisionException(Messages.error_parsing_config, e);
 		}
 	}
 

@@ -27,6 +27,13 @@ import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.Abstr
  * </p>
  */
 public interface IArtifactRepository extends IRepository {
+
+	/** 
+	 * The return code to use when a client could/should retry a failed getArtifact() operation.
+	 * For example, the repository may have additional mirrors that could be consulted.
+	 */
+	public static int CODE_RETRY = 13;
+
 	/**
 	 * Add the given descriptor to the set of descriptors in this repository.  This is 
 	 * a relatively low-level operation that should be used only when the actual related 
@@ -99,8 +106,6 @@ public interface IArtifactRepository extends IRepository {
 	 * </ul>
 	 */
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException;
-
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor, boolean overwrite) throws ProvisionException;
 
 	/**
 	 * Remove the all keys, descriptors, and contents from this repository.

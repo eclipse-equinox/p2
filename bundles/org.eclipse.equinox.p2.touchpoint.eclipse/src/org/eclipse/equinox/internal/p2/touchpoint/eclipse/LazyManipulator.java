@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.IOException;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.osgi.framework.*;
@@ -36,22 +37,24 @@ public class LazyManipulator implements Manipulator {
 
 		manipulator = getFrameworkManipulator();
 		if (manipulator == null)
-			throw new IllegalStateException("Could not acquire the framework manipulator service."); //$NON-NLS-1$
+			throw new IllegalStateException(Messages.failed_acquire_framework_manipulator);
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		launcherData.setFwConfigLocation(Util.getConfigurationFolder(profile));
 		launcherData.setLauncher(Util.getLauncherPath(profile));
+		launcherData.setLauncherConfigLocation(Util.getLauncherConfigLocation(profile));
+
 		try {
 			manipulator.load();
-		} catch (IllegalStateException e2) {
-			// TODO if fwJar is not included, this exception will be thrown. But ignore it. 
-			//				e2.printStackTrace();
-		} catch (FrameworkAdminRuntimeException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		} catch (IllegalStateException e) {
+			//if fwJar is not included, this exception will be thrown. But ignore it. 
+			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
+		} catch (FrameworkAdminRuntimeException e) {
+			// TODO: consider throwing an exception
+			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
+		} catch (IOException e) {
+			// TODO: consider throwing an exception
+			LogHelper.log(Util.createError(Messages.error_loading_manipulator, e));
 		}
 		//TODO These values should be inserted by a configuration unit (bug 204124)
 		manipulator.getConfigData().setFwDependentProp("eclipse.p2.profile", profile.getProfileId()); //$NON-NLS-1$

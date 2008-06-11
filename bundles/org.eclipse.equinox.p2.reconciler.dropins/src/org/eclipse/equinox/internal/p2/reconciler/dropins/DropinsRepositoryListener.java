@@ -14,6 +14,11 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationArtifactRepository;
+import org.eclipse.equinox.internal.p2.extensionlocation.ExtensionLocationMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -26,6 +31,8 @@ import org.osgi.framework.ServiceReference;
 
 public class DropinsRepositoryListener extends RepositoryListener {
 
+	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
+	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String JAR = ".jar"; //$NON-NLS-1$
 	private static final String LINK = ".link"; //$NON-NLS-1$
 	private static final String ZIP = ".zip"; //$NON-NLS-1$
@@ -38,16 +45,12 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private List artifactRepositories = new ArrayList();
 
 	public DropinsRepositoryListener(BundleContext context, String repositoryName) {
-		super(context, repositoryName);
+		super(context, repositoryName, null, true);
 		this.context = context;
 	}
 
 	public boolean isInterested(File file) {
-		if (file.isDirectory())
-			return true;
-
-		String name = file.getName();
-		return name.endsWith(JAR) || name.endsWith(ZIP) || name.endsWith(LINK);
+		return true;
 	}
 
 	public boolean added(File file) {
@@ -56,8 +59,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 		URL repositoryURL = createRepositoryURL(file);
 		if (repositoryURL != null) {
-			loadMetadataRepository(repositoryURL);
-			loadArtifactRepository(repositoryURL);
+			getMetadataRepository(repositoryURL);
+			getArtifactRepository(repositoryURL);
 		}
 		return true;
 	}
@@ -68,8 +71,8 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 		URL repositoryURL = createRepositoryURL(file);
 		if (repositoryURL != null) {
-			loadMetadataRepository(repositoryURL);
-			loadArtifactRepository(repositoryURL);
+			getMetadataRepository(repositoryURL);
+			getArtifactRepository(repositoryURL);
 		}
 		return true;
 	}
@@ -105,55 +108,95 @@ public class DropinsRepositoryListener extends RepositoryListener {
 
 	private URL createRepositoryURL(File file) {
 		try {
-			if (file.getName().endsWith(LINK)) {
-				File linkFile = file;
-				String path = getLinkPath(linkFile);
-				// todo log
-				if (path == null)
-					return null;
-				file = new File(path);
-				if (!file.isAbsolute()) {
-					// link support is relative to the install root
-					// For now we will use the parent of dropins folder
-					file = new File(Activator.getDropinsDirectory().getParentFile(), path);
+			file = file.getCanonicalFile();
+			String fileName = file.getName();
+			if (fileName.endsWith(LINK))
+				return getLinkRepository(file, true);
+
+			if (file.isDirectory()) {
+				// Check if the directory is either the plugins directory of an extension location
+				// or the features directory and the plugins folder is not present.
+				// This extra check on the features directory is done to avoid adding the parent URL twice
+				if (file.getName().equals(PLUGINS)) {
+					File parentFile = file.getParentFile();
+					return (parentFile != null) ? parentFile.toURL() : null;
 				}
+				if (file.getName().equals(FEATURES)) {
+					File parentFile = file.getParentFile();
+					if (parentFile == null || new File(parentFile, PLUGINS).isDirectory())
+						return null;
+					return parentFile.toURL();
+				}
+				return file.toURL();
 			}
 
-			File canonicalFile = file.getCanonicalFile();
-			URL repositoryURL = canonicalFile.toURL();
-			if (canonicalFile.getName().endsWith(ZIP) || canonicalFile.getName().endsWith(JAR)) {
-				repositoryURL = new URL("jar:" + repositoryURL.toString() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			return repositoryURL;
+			if (fileName.endsWith(ZIP) || fileName.endsWith(JAR))
+				return new URL("jar:" + file.toURL().toExternalForm() + "!/"); //$NON-NLS-1$ //$NON-NLS-2$
+
+			// last resort -- we'll try to interpret the file as a link
+			return getLinkRepository(file, false);
 		} catch (IOException e) {
-			// todo log			
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while building repository location from file: " + file.getAbsolutePath(), e)); //$NON-NLS-1$
 		}
 		return null;
 	}
 
-	public void loadMetadataRepository(URL repoURL) {
+	private URL getLinkRepository(File file, boolean logMissingLink) throws IOException {
+		String path = getLinkPath(file);
+		if (path == null) {
+			if (logMissingLink)
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to determine link location from file: " + file.getAbsolutePath())); //$NON-NLS-1$
+			return null;
+		}
+		File linkedFile = new File(path);
+		if (!linkedFile.isAbsolute()) {
+			// link support is relative to the install root
+			File root = Activator.getEclipseHome();
+			if (root != null)
+				linkedFile = new File(root, path);
+		}
+		File canonicalFile = linkedFile.getCanonicalFile();
+		return canonicalFile.toURL();
+	}
+
+	public void getMetadataRepository(URL repoURL) {
 		try {
-			metadataRepositories.add(Activator.loadMetadataRepository(repoURL));
-		} catch (ProvisionException e) {
-			//TODO: log
-			// ignore
+			IMetadataRepository repository = null;
+			try {
+				ExtensionLocationMetadataRepository.validate(repoURL, null);
+				Map properties = new HashMap();
+				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				repository = Activator.createExtensionLocationMetadataRepository(repoURL, "dropins metadata repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
+			} catch (ProvisionException e) {
+				repository = Activator.loadMetadataRepository(repoURL, null);
+			}
+			metadataRepositories.add(repository);
+		} catch (ProvisionException ex) {
+			LogHelper.log(ex);
 		}
 	}
 
-	public void loadArtifactRepository(URL repoURL) {
+	public void getArtifactRepository(URL repoURL) {
 		try {
-			artifactRepositories.add(Activator.loadArtifactRepository(repoURL));
-		} catch (ProvisionException e) {
-			//TODO: log
-			// ignore
+			IArtifactRepository repository = null;
+			try {
+				ExtensionLocationArtifactRepository.validate(repoURL, null);
+				Map properties = new HashMap();
+				properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+				repository = Activator.createExtensionLocationArtifactRepository(repoURL, "dropins artifact repo: " + repoURL.toExternalForm(), properties); //$NON-NLS-1$
+				// fall through here and call the load which then adds the repo to the manager's list
+			} catch (ProvisionException ex) {
+				repository = Activator.loadArtifactRepository(repoURL, null);
+			}
+			artifactRepositories.add(repository);
+		} catch (ProvisionException ex) {
+			LogHelper.log(ex);
 		}
 	}
 
 	public void stopPoll() {
-
 		synchronizeDropinMetadataRepositories();
 		synchronizeDropinArtifactRepositories();
-
 		super.stopPoll();
 	}
 
@@ -179,13 +222,12 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		if (reference != null)
 			manager = (IMetadataRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
+			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
 
 		try {
 			manager.removeRepository(new URL(urlString));
 		} catch (MalformedURLException e) {
-			// TODO: log
-			// ignore
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating URL from: " + urlString, e)); //$NON-NLS-1$
 		} finally {
 			context.ungetService(reference);
 		}
@@ -213,13 +255,12 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		if (reference != null)
 			manager = (IArtifactRepositoryManager) context.getService(reference);
 		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
+			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
 
 		try {
 			manager.removeRepository(new URL(urlString));
 		} catch (MalformedURLException e) {
-			//TODO: log
-			// ignore
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating URL from: " + urlString, e)); //$NON-NLS-1$
 		} finally {
 			context.ungetService(reference);
 		}
@@ -229,7 +270,7 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		List listProperty = new ArrayList();
 		String dropinRepositories = (String) repository.getProperties().get(key);
 		if (dropinRepositories != null) {
-			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE); //$NON-NLS-1$			
+			StringTokenizer tokenizer = new StringTokenizer(dropinRepositories, PIPE);
 			while (tokenizer.hasMoreTokens()) {
 				listProperty.add(tokenizer.nextToken());
 			}
@@ -249,10 +290,10 @@ public class DropinsRepositoryListener extends RepositoryListener {
 		repository.setProperty(key, value);
 	}
 
-	public IMetadataRepository[] getMetadataRepositories() {
+	public Collection getMetadataRepositories() {
 		List result = new ArrayList(metadataRepositories);
 		result.add(getMetadataRepository());
-		return (IMetadataRepository[]) result.toArray(new IMetadataRepository[0]);
+		return result;
 	}
 
 }

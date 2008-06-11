@@ -10,6 +10,7 @@ package org.eclipse.equinox.internal.simpleconfigurator.console;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.eclipse.equinox.internal.simpleconfigurator.utils.Utils;
 import org.eclipse.osgi.framework.console.CommandInterpreter;
 import org.eclipse.osgi.framework.console.CommandProvider;
 import org.osgi.framework.BundleContext;
@@ -29,7 +30,7 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 	 */
 	private URL toURL(CommandInterpreter interpreter, String urlString) {
 		try {
-			return new URL(urlString);
+			return Utils.buildURL(urlString);
 		} catch (MalformedURLException e) {
 			interpreter.println(e.getMessage());
 			return null;

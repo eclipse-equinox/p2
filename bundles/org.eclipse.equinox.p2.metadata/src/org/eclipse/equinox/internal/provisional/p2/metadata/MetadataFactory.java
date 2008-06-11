@@ -118,6 +118,26 @@ public class MetadataFactory {
 		}
 	}
 
+	public static class InstallableUnitPatchDescription extends InstallableUnitDescription {
+		public void setRequirementChanges(RequirementChange[] changes) {
+			((InstallableUnitPatch) unit()).setRequirementsChange(changes);
+		}
+
+		InstallableUnit unit() {
+			if (unit == null)
+				unit = new InstallableUnitPatch();
+			return unit;
+		}
+
+		public void setApplicabilityScope(RequiredCapability[][] applyTo) {
+			((InstallableUnitPatch) unit()).setApplicabilityScope(applyTo);
+		}
+
+		public void setLifeCycle(RequiredCapability lifeCycle) {
+			((InstallableUnitPatch) unit()).setLifeCycle(lifeCycle);
+		}
+	}
+
 	/**
 	 * Singleton touchpoint data for a touchpoint with no instructions.
 	 */
@@ -133,7 +153,7 @@ public class MetadataFactory {
 	 * discarded from the description object.
 	 * 
 	 * @param description The description of the unit to create
-	 * @return The created installable unit or fragment
+	 * @return The created installable unit
 	 */
 	public static IInstallableUnit createInstallableUnit(InstallableUnitDescription description) {
 		Assert.isNotNull(description);
@@ -146,11 +166,24 @@ public class MetadataFactory {
 	 * discarded from the description object.
 	 * 
 	 * @param description The description of the unit to create
-	 * @return The created installable unit or fragment
+	 * @return The created installable unit fragment
 	 */
 	public static IInstallableUnitFragment createInstallableUnitFragment(InstallableUnitFragmentDescription description) {
 		Assert.isNotNull(description);
 		return (IInstallableUnitFragment) description.unitCreate();
+	}
+
+	/**
+	 * Returns an {@link IInstallableUnitPatch} based on the given 
+	 * description.  Once the patch installable unit has been created, the information is 
+	 * discarded from the description object.
+	 * 
+	 * @param description The description of the unit to create
+	 * @return The created installable unit patch
+	 */
+	public static IInstallableUnitPatch createInstallableUnitPatch(InstallableUnitPatchDescription description) {
+		Assert.isNotNull(description);
+		return (IInstallableUnitPatch) description.unitCreate();
 	}
 
 	/**

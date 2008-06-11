@@ -16,13 +16,27 @@ public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.touchpoint.eclipse.messages"; //$NON-NLS-1$
 	public static String error_loading_manipulator;
 	public static String BundlePool;
+	public static String failed_acquire_framework_manipulator;
 	public static String failed_prepareIU;
+	public static String feature_not_found;
 	public static String error_saving_manipulator;
 	public static String error_saving_platform_configuration;
 	public static String error_saving_source_bundles_list;
 	public static String error_constructing_platform_configuration_url;
+	public static String error_parsing_configuration;
 	public static String generator_not_available;
 	public static String artifact_file_not_found;
+	public static String iu_contains_no_arifacts;
+	public static String artifact_retrieval_unsupported;
+	public static String bundle_pool_not_writeable;
+	public static String cannot_calculate_extension_location;
+	public static String cannot_create_url_from_file;
+	public static String config_dir_not_absolute;
+	public static String parent_dir_features;
+	public static String platform_config_unavailable;
+	public static String platformadmin_not_registered;
+	public static String protocol_handler_error;
+	public static String unexpected_prepareiu_error;
 
 	static {
 		// load message values from bundle file and assign to fields below

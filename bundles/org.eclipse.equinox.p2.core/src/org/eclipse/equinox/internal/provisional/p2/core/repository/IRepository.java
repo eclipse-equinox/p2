@@ -47,6 +47,12 @@ public interface IRepository extends IAdaptable {
 	public static final String PROP_DESCRIPTION = "description"; //$NON-NLS-1$
 
 	/**
+	 * The key for a string property providing the common base URL that should
+	 * be replaced with the mirror URL.
+	 */
+	public static final String PROP_MIRRORS_BASE_URL = "p2.mirrorsBaseURL"; //$NON-NLS-1$
+
+	/**
 	 * The key for a string property providing a URL that can return mirrors of this
 	 * repository.
 	 */

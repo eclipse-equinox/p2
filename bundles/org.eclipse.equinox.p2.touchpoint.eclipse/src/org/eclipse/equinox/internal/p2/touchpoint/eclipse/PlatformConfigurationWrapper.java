@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.p2.update.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.osgi.util.NLS;
 
 /**	
  * 	This class provides a wrapper for reading and writing platform.xml.
@@ -66,9 +67,9 @@ public class PlatformConfigurationWrapper {
 		return parentFolder.toFile();
 	}
 
-	public PlatformConfigurationWrapper(URL configDir, URL featurePool, Manipulator manipulator) {
+	public PlatformConfigurationWrapper(File configDir, URL featurePool, Manipulator manipulator) {
 		this.configuration = null;
-		this.configFile = new File(configDir.getFile(), "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
+		this.configFile = new File(configDir, "/org.eclipse.update/platform.xml"); //$NON-NLS-1$
 		this.poolURL = featurePool;
 		this.manipulator = manipulator;
 	}
@@ -85,23 +86,39 @@ public class PlatformConfigurationWrapper {
 			}
 		} catch (ProvisionException pe) {
 			// TODO: Make this a real message
-			throw new IllegalStateException("Error parsing platform configuration."); //$NON-NLS-1$;
+			throw new IllegalStateException(Messages.error_parsing_configuration);
 		}
+		if (poolURL == null)
+			throw new IllegalStateException("Error creating platform configuration. No bundle pool defined."); //$NON-NLS-1$
 
 		poolSite = getSite(poolURL);
 		if (poolSite == null) {
-			poolSite = createSite(poolURL);
+			poolSite = createSite(poolURL, getDefaultPolicy());
 			configuration.add(poolSite);
 		}
 	}
 
 	/*
+	 * Return the default policy to use when creating a new site. If there are
+	 * any sites with the MANAGED-ONLY policy, then that is the default.
+	 * Otherwise the default is USER-EXCLUDE.
+	 */
+	private String getDefaultPolicy() {
+		for (Iterator iter = configuration.getSites().iterator(); iter.hasNext();) {
+			Site site = (Site) iter.next();
+			if (Site.POLICY_MANAGED_ONLY.equals(site.getPolicy()))
+				return Site.POLICY_MANAGED_ONLY;
+		}
+		return Site.POLICY_USER_EXCLUDE;
+	}
+
+	/*
 	 * Create and return a site object based on the given location.
 	 */
-	private Site createSite(URL location) {
+	private Site createSite(URL location, String policy) {
 		Site result = new Site();
 		result.setUrl(location.toExternalForm());
-		result.setPolicy(Site.POLICY_MANAGED_ONLY);
+		result.setPolicy(policy);
 		result.setEnabled(true);
 		return result;
 	}
@@ -145,32 +162,39 @@ public class PlatformConfigurationWrapper {
 	public IStatus addFeatureEntry(File file, String id, String version, String pluginIdentifier, String pluginVersion, boolean primary, String application, URL[] root) {
 		loadDelegate();
 		if (configuration == null)
-			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
+			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
 
 		URL fileURL = null;
 		try {
 			File featureDir = file.getParentFile();
-			if (featureDir == null || !featureDir.getName().equals("features"))
-				return new Status(IStatus.ERROR, Activator.ID, "Parent directory should be \"features\": " + file.getAbsolutePath(), null);
+			if (featureDir == null || !featureDir.getName().equals("features")) //$NON-NLS-1$
+				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.parent_dir_features, file.getAbsolutePath()), null);
 			File locationDir = featureDir.getParentFile();
 			if (locationDir == null)
-				return new Status(IStatus.ERROR, Activator.ID, "Unable to calculate extension location for: " + file.getAbsolutePath(), null);
+				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_calculate_extension_location, file.getAbsolutePath()), null);
 
 			fileURL = locationDir.toURL();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return new Status(IStatus.ERROR, Activator.ID, "Unable to create URL from file: " + file.getAbsolutePath(), null);
+			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.cannot_create_url_from_file, file.getAbsolutePath()), e);
 		}
 		Site site = getSite(fileURL);
 		if (site == null) {
-			site = createSite(fileURL);
+			site = createSite(fileURL, getDefaultPolicy());
 			configuration.add(site);
+		} else {
+			// check to see if the feature already exists in this site
+			if (site.getFeature(id, version) != null)
+				return Status.OK_STATUS;
 		}
 		Feature addedFeature = new Feature(site);
 		addedFeature.setId(id);
 		addedFeature.setVersion(version);
 		addedFeature.setUrl(makeFeatureURL(id, version));
+		addedFeature.setApplication(application);
+		addedFeature.setPluginIdentifier(pluginIdentifier);
+		addedFeature.setPluginVersion(pluginVersion);
+		addedFeature.setRoots(root);
+		addedFeature.setPrimary(primary);
 		site.addFeature(addedFeature);
 		return Status.OK_STATUS;
 	}
@@ -181,13 +205,15 @@ public class PlatformConfigurationWrapper {
 	public IStatus removeFeatureEntry(String id, String version) {
 		loadDelegate();
 		if (configuration == null)
-			return new Status(IStatus.WARNING, Activator.ID, "Platform configuration not available.", null); //$NON-NLS-1$
+			return new Status(IStatus.WARNING, Activator.ID, Messages.platform_config_unavailable, null);
 
 		Site site = getSite(id, version);
 		if (site == null)
 			site = poolSite;
-		Feature removedFeature = site.removeFeature(makeFeatureURL(id, version));
-		return (removedFeature != null ? Status.OK_STATUS : new Status(IStatus.ERROR, Activator.ID, "A feature with the specified id was not found.", null)); //$NON-NLS-1$
+		site.removeFeature(makeFeatureURL(id, version));
+		// if we weren't able to remove the feature from the site because it
+		// didn't exist, then someone already did our job for us and it is ok.
+		return Status.OK_STATUS;
 	}
 
 	/*

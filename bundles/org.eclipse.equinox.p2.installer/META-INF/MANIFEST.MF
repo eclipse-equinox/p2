@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.installer;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.installer.InstallerActivator
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.osgi,
@@ -16,9 +16,10 @@ Require-Bundle: org.eclipse.osgi,
  org.eclipse.equinox.p2.engine,
  org.eclipse.equinox.p2.core,
  org.eclipse.equinox.p2.artifact.repository,
- org.eclipse.swt
+ org.eclipse.swt,
+ org.eclipse.core.net;bundle-version="1.1.0"
 Bundle-RequiredExecutionEnvironment: CDC-1.1/Foundation-1.1,
  J2SE-1.4
 Export-Package: org.eclipse.equinox.internal.p2.installer;x-internal:=true,
  org.eclipse.equinox.internal.p2.installer.ui;x-internal:=true,
- org.eclipse.equinox.internal.provisional.p2.installer
+ org.eclipse.equinox.internal.provisional.p2.installer;x-internal:=true

@@ -15,7 +15,6 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -110,7 +109,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		// save the given repository in the preferences.
 		remember(repository, suffix);
 		if (added && signalAdd)
-			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_METADATA, RepositoryEvent.ADDED);
+			broadcastChangeEvent(repository.getLocation(), IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED, true);
 	}
 
 	public void addRepository(URL location) {
@@ -126,12 +125,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
+			if (contains(location))
+				return;
 			added = repositories.put(getKey(location), info) == null;
 		}
 		// save the given repository in the preferences.
 		remember(info);
 		if (added)
-			broadcastChangeEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED);
+			broadcastChangeEvent(location, IRepository.TYPE_ARTIFACT, RepositoryEvent.ADDED, isEnabled);
 	}
 
 	/**
@@ -159,6 +160,23 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 				badRepos.remove(location);
 				return;
 			}
+		}
+	}
+
+	boolean contains(URL location) {
+		synchronized (repositoryLock) {
+			if (repositories == null)
+				restoreRepositories();
+			String key = getKey(location);
+			if (repositories.containsKey(key))
+				return true;
+			//try alternate key with different trailing slash
+			int len = key.length();
+			if (key.charAt(len - 1) == '_')
+				key = key.substring(0, len - 1);
+			else
+				key = key + '_';
+			return repositories.containsKey(key);
 		}
 	}
 
@@ -210,6 +228,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		if (result == null)
 			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
 		clearNotFound(result.getLocation());
+		addRepository(result);
 		return result;
 	}
 
@@ -349,6 +368,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 						return info.description;
 					if (IRepository.PROP_NAME.equals(key))
 						return info.name;
+					if (IRepository.PROP_SYSTEM.equals(key))
+						return Boolean.toString(info.isSystem);
 					// Key not known, return null
 					return null;
 				}
@@ -397,7 +418,12 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 				return result;
 			}
 		}
-		rememberNotFound(location);
+
+		if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
+			removeRepository(location);
+		else
+			rememberNotFound(location);
+
 		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		return null;
 	}
@@ -470,9 +496,22 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 
 	public IArtifactRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
 		clearNotFound(location);
+		boolean wasEnabled = isEnabled(location);
+		//remove the repository so  event is broadcast and repositories can clear their caches
 		if (!removeRepository(location))
 			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		return loadRepository(location, monitor, null, false);
+		try {
+			IArtifactRepository result = loadRepository(location, monitor, null, true);
+			if (!wasEnabled)
+				setEnabled(location, false);
+			return result;
+		} catch (ProvisionException e) {
+			//if we failed to load, make sure the repository is not lost
+			addRepository(location);
+			if (!wasEnabled)
+				setEnabled(location, false);
+			throw e;
+		}
 	}
 
 	/*
@@ -542,7 +581,8 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		} catch (BackingStoreException e) {
 			log("Error saving preferences", e); //$NON-NLS-1$
 		}
-		broadcastChangeEvent(toRemove, IRepository.TYPE_ARTIFACT, RepositoryEvent.REMOVED);
+		//TODO: compute and pass appropriate isEnabled flag
+		broadcastChangeEvent(toRemove, IRepository.TYPE_ARTIFACT, RepositoryEvent.REMOVED, true);
 		return true;
 	}
 
@@ -553,10 +593,17 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 			// TODO should do something here since we are failing to restore.
 			return;
 		try {
+			loadRepository(location.getArtifactRepositoryURL(), null);
+			return;
+		} catch (ProvisionException e) {
+			// log but still continue and try to create a new one
+			if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading download cache.", e)); //$NON-NLS-1$
+		}
+		try {
 			Map properties = new HashMap(1);
 			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
-			SimpleArtifactRepository cache = (SimpleArtifactRepository) createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
-			addRepository(cache);
+			createRepository(location.getArtifactRepositoryURL(), "download cache", TYPE_SIMPLE_REPOSITORY, properties); //$NON-NLS-1$
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
 		}

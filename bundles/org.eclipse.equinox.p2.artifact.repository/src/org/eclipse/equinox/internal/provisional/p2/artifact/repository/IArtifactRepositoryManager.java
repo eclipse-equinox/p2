@@ -108,9 +108,9 @@ public interface IArtifactRepositoryManager {
 	 * Creates and returns a new empty artifact repository of the given type at 
 	 * the given location.
 	 * <p>
-	 * The resulting repository is <b>not</b> added to the list of repositories tracked by
-	 * the repository manager. Clients must make a subsequent call to {@link #addRepository(URL)}
-	 * if they want the repository manager to remember the repository for subsequent
+	 * The resulting repository is added to the list of repositories tracked by
+	 * the repository manager. Clients must make a subsequent call to {@link #removeRepository(URL)}
+	 * if they do not want the repository manager to remember the repository for subsequent
 	 * load attempts.
 	 * </p>
 	 * 

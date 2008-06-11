@@ -19,10 +19,10 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEve
  * Common code shared between artifact and metadata repository managers.
  */
 public class AbstractRepositoryManager {
-	protected void broadcastChangeEvent(URL location, int repositoryType, int kind) {
+	protected void broadcastChangeEvent(URL location, int repositoryType, int kind, boolean isEnabled) {
 		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getContext(), IProvisioningEventBus.class.getName());
 		if (bus != null)
-			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind, true));
+			bus.publishEvent(new RepositoryEvent(location, repositoryType, kind, isEnabled));
 	}
 
 }

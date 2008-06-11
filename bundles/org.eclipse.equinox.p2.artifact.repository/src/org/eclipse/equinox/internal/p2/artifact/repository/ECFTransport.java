@@ -11,9 +11,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ProtocolException;
+import java.net.URLEncoder;
 import org.eclipse.core.runtime.*;
 import org.eclipse.ecf.core.security.ConnectContextFactory;
 import org.eclipse.ecf.core.security.IConnectContext;
@@ -142,8 +142,13 @@ public class ECFTransport extends Transport {
 				if (event instanceof IIncomingFileTransferReceiveDataEvent) {
 					IIncomingFileTransfer source = ((IIncomingFileTransferReceiveDataEvent) event).getSource();
 					if (monitor != null) {
-						if (monitor.isCanceled())
-							source.cancel();
+						if (monitor.isCanceled()) {
+							synchronized (result) {
+								result[0] = Status.CANCEL_STATUS;
+								source.cancel();
+								result.notify();
+							}
+						}
 					}
 				}
 				if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
@@ -164,7 +169,7 @@ public class ECFTransport extends Transport {
 			IStatus status = e.getStatus();
 			Throwable exception = status.getException();
 			if (exception instanceof IOException) {
-				if (exception.getMessage() != null && (exception.getMessage().indexOf("401") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
+				if (exception.getMessage() != null && (exception.getMessage().indexOf(" 401 ") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
 					throw ERROR_401;
 			}
 			return statusOn(target, status);
@@ -201,12 +206,23 @@ public class ECFTransport extends Transport {
 	public IConnectContext getConnectionContext(String xmlLocation, boolean prompt) throws UserCancelledException, ProvisionException {
 		ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
 		IPath hostLocation = new Path(xmlLocation).removeLastSegments(1);
-		int repositoryHash = hostLocation.hashCode();
-		ISecurePreferences metadataNode = securePreferences.node(IRepository.PREFERENCE_NODE + "/" + repositoryHash); //$NON-NLS-1$
+		String nodeKey;
+		try {
+			nodeKey = URLEncoder.encode(hostLocation.toString(), "UTF-8"); //$NON-NLS-1$
+		} catch (UnsupportedEncodingException e2) {
+			//fall back to default platform encoding
+			nodeKey = URLEncoder.encode(hostLocation.toString());
+		}
+		String nodeName = IRepository.PREFERENCE_NODE + '/' + nodeKey;
+		ISecurePreferences prefNode = null;
+		if (securePreferences.nodeExists(nodeName))
+			prefNode = securePreferences.node(nodeName);
 		if (!prompt) {
+			if (prefNode == null)
+				return null;
 			try {
-				String username = metadataNode.get(IRepository.PROP_USERNAME, null);
-				String password = metadataNode.get(IRepository.PROP_PASSWORD, null);
+				String username = prefNode.get(IRepository.PROP_USERNAME, null);
+				String password = prefNode.get(IRepository.PROP_PASSWORD, null);
 				//if we don't have stored connection data just return a null connection context
 				if (username == null || password == null)
 					return null;
@@ -228,10 +244,16 @@ public class ECFTransport extends Transport {
 			throw new UserCancelledException();
 		//save user name and password if requested by user
 		if (loginDetails.saveResult()) {
+			if (prefNode == null)
+				prefNode = securePreferences.node(nodeName);
 			try {
-				metadataNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
-				metadataNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
+				prefNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
+				prefNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
+				prefNode.flush();
 			} catch (StorageException e1) {
+				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+			} catch (IOException e) {
 				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
 				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
 			}

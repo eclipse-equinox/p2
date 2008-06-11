@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.core;
 
+import java.security.cert.Certificate;
+
 /**
  * Callback API for prompting for user information from within lower level code.
  */
@@ -48,4 +50,12 @@ public interface IServiceUI {
 	 * @return The authentication result
 	 */
 	public AuthenticationInfo getUsernamePassword(String location);
+
+	/**
+	 * Displays a list of certificates to the user.
+	 *  
+	 * @param certificates - a list of certificates to display to the user
+	 * @return An array of certificates that have been accepted.
+	 */
+	public Certificate[] showCertificates(Certificate[][] certificates);
 }

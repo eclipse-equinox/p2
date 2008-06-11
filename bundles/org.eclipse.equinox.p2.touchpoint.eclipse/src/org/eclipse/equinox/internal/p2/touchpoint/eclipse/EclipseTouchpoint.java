@@ -10,7 +10,6 @@ package org.eclipse.equinox.internal.p2.touchpoint.eclipse;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
@@ -71,19 +70,6 @@ public class EclipseTouchpoint extends Touchpoint {
 		return Status.OK_STATUS;
 	}
 
-	private URL getConfigurationURL(IProfile profile) throws CoreException {
-		File configDir = Util.getConfigurationFolder(profile);
-		URL configURL = null;
-		try {
-			configURL = configDir.toURI().toURL();
-		} catch (IllegalArgumentException e) {
-			throw new CoreException(Util.createError("Configuration directory is not absolute.", e)); //$NON-NLS-1$
-		} catch (MalformedURLException e) {
-			throw new CoreException(Util.createError("No URL protocol handler.", e)); //$NON-NLS-1$
-		}
-		return configURL;
-	}
-
 	public ProvisioningAction getAction(String actionId) {
 		return ActionFactory.create(actionId);
 	}
@@ -98,14 +84,9 @@ public class EclipseTouchpoint extends Touchpoint {
 		LazyManipulator manipulator = new LazyManipulator(profile);
 		touchpointParameters.put(PARM_MANIPULATOR, manipulator);
 		touchpointParameters.put(PARM_SOURCE_BUNDLES, new SourceManipulator(profile));
-		try {
-			URL configURL = getConfigurationURL(profile);
-			URL poolURL = Util.getBundlePoolLocation(profile);
-			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configURL, poolURL, manipulator));
-		} catch (CoreException ce) {
-			touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(null, null, null));
-			return Util.createError(Messages.error_constructing_platform_configuration_url, ce);
-		}
+		File configLocation = Util.getConfigurationFolder(profile);
+		URL poolURL = Util.getBundlePoolLocation(profile);
+		touchpointParameters.put(PARM_PLATFORM_CONFIGURATION, new PlatformConfigurationWrapper(configLocation, poolURL, manipulator));
 		return null;
 	}
 
@@ -150,7 +131,7 @@ public class EclipseTouchpoint extends Touchpoint {
 		}
 
 		// should not occur
-		throw new IllegalStateException("Unexpected state: prepareIU"); //$NON-NLS-1$
+		throw new IllegalStateException(Messages.unexpected_prepareiu_error);
 	}
 
 	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {

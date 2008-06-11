@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.sdk.prefs;
 
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKMessages;
-import org.eclipse.equinox.internal.p2.ui.sdk.ProvSDKUIActivator;
+import org.eclipse.equinox.internal.p2.ui.sdk.*;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.*;
 
 /**
  * Preference page for provisioning preferences.
@@ -28,6 +28,11 @@ public class ExternalFilesPreferencePage extends FieldEditorPreferencePage imple
 	public ExternalFilesPreferencePage() {
 		super(GRID);
 		setPreferenceStore(ProvSDKUIActivator.getDefault().getPreferenceStore());
+	}
+
+	protected Control createContents(Composite parent) {
+		PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, IProvSDKHelpContextIds.EXTERNAL_FILES_PREFERENCE_PAGE);
+		return super.createContents(parent);
 	}
 
 	protected void createFieldEditors() {

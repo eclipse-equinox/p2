@@ -42,5 +42,4 @@ public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
 		result.put(RepositoryListener.FILE_LAST_MODIFIED, Long.toString(location.lastModified()));
 		return result;
 	}
-
 }

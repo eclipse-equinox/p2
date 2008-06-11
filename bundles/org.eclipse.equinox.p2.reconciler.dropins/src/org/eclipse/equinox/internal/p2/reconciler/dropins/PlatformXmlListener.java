@@ -11,36 +11,57 @@
 package org.eclipse.equinox.internal.p2.reconciler.dropins;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.equinox.internal.p2.reconciler.dropins.SiteDelta.Change;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.update.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.osgi.util.NLS;
 
 /**
+ * This class watches a platform.xml file. Note that we don't really need to use the DirectoryChangeListener
+ * framework since we are doing a single poll on startup, but we will leave the code here in case we
+ * want to watch for changes during a session. Note that the code to actually synchronize the repositories
+ * is on the Activator so we will need to call out to that if this behaviour is changed.
+ * 
  * @since 1.0
  */
 public class PlatformXmlListener extends DirectoryChangeListener {
 
 	private static final String PLATFORM_XML = "platform.xml"; //$NON-NLS-1$
 	private boolean changed = false;
-	private Map sites = new HashMap();
 	private File root;
 	private long lastModified = -1l;
+	private Set configRepositories;
 
-	public PlatformXmlListener(File file) throws ProvisionException {
+	private String toString(String[] list) {
+		if (list == null || list.length == 0)
+			return ""; //$NON-NLS-1$
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < list.length; i++) {
+			buffer.append(list[i]);
+			if (i + 1 < list.length)
+				buffer.append(',');
+		}
+		return buffer.toString();
+	}
+
+	/*
+	 * Construct a new listener based on the given platform.xml file.
+	 */
+	public PlatformXmlListener(File file) {
 		super();
 		if (!PLATFORM_XML.equals(file.getName()))
 			throw new IllegalArgumentException();
 		this.root = file;
-		// don't need to set the "sites" variable since we will treat
-		// everything as "added" in the delta if it is null
-		process();
 	}
 
 	/* (non-Javadoc)
@@ -66,126 +87,11 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 		return new Long(0);
 	}
 
-	/*
-	 * Parse the platform.xml file and return the list of sites.
-	 */
-	private List parseConfiguration() throws ProvisionException {
-		Configuration cfg = ConfigurationParser.parse(root, (URL) null);
-		return cfg == null ? new ArrayList(0) : cfg.getSites();
-	}
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryChangeListener#isInterested(java.io.File)
 	 */
 	public boolean isInterested(File file) {
 		return file.getName().equals(PLATFORM_XML) && lastModified != file.lastModified();
-	}
-
-	private List getSites() {
-		List result = new ArrayList();
-		for (Iterator iter = sites.values().iterator(); iter.hasNext();) {
-			SiteInfo info = (SiteInfo) iter.next();
-			result.add(info.getSite());
-		}
-		return result;
-	}
-
-	/*
-	 * This is where we reconcile the platform.xml and bundles.info.
-	 */
-	private void process() throws ProvisionException {
-		lastModified = root.lastModified();
-		SiteDelta delta = SiteDelta.create(getSites(), parseConfiguration());
-		if (delta.isEmpty())
-			return;
-		added(delta.added());
-		removed(delta.removed());
-		changed(delta.changed());
-		//Activator.synchronize(getMetadataRepositories(), null); // TODO proper progress monitoring?
-	}
-
-	// iterate over the site listeners and collect the metadata repositories
-	public List getMetadataRepositories() {
-		List result = new ArrayList();
-		for (Iterator iter = sites.values().iterator(); iter.hasNext();) {
-			SiteInfo info = (SiteInfo) iter.next();
-			result.add(info.getRepository());
-		}
-		return result;
-	}
-
-	/*
-	 * The given list of sites has been added so add directory
-	 * watchers for each of them.
-	 */
-	private void added(Site[] added) throws ProvisionException {
-		if (added == null || added.length == 0)
-			return;
-		for (int i = 0; i < added.length; i++) {
-			Site site = added[i];
-			// TODO skip for now
-			if ("platform:/base/".equals(site.getUrl())) //$NON-NLS-1$
-				continue;
-			try {
-				URL url = new URL(site.getUrl());
-				try {
-					url = FileLocator.resolve(url);
-				} catch (IOException e) {
-					throw new ProvisionException(Messages.errorProcessingConfg, e);
-				}
-				IMetadataRepository repo = Activator.loadMetadataRepository(url);
-				if (repo == null) {
-					// todo
-				} else
-					sites.put(site.getUrl(), new SiteInfo(site, repo));
-			} catch (MalformedURLException e) {
-				throw new ProvisionException(Messages.errorProcessingConfg, e);
-			}
-		}
-	}
-
-	/*
-	 * The given list of sites has been removed so act accordingly.
-	 * Remove all the registered directory watchers.
-	 */
-	private void removed(Site[] removed) {
-		if (removed == null || removed.length == 0)
-			return;
-		for (int i = 0; i < removed.length; i++) {
-			Site site = removed[i];
-			SiteInfo info = (SiteInfo) sites.get(site.getUrl());
-			// TODO I think this should be an error?
-			if (info == null) {
-				// 
-			}
-
-			sites.remove(site.getUrl());
-		}
-	}
-
-	/*
-	 * The given set of sites has had their contents changed.
-	 */
-	private void changed(Change[] changes) throws ProvisionException {
-		for (int i = 0; i < changes.length; i++) {
-			Change change = changes[i];
-			if (majorChange(change)) {
-				removed(new Site[] {change.oldSite});
-				added(new Site[] {change.newSite});
-			}
-		}
-	}
-
-	/*
-	 * Return true if the differences between the 2 sites should cause
-	 * a new listener to be created.
-	 */
-	private boolean majorChange(Change change) {
-		Site one = change.oldSite;
-		Site two = change.newSite;
-		if (!Utils.equals(one.getPolicy(), two.getPolicy()))
-			return true;
-		return !Utils.equals(one.getList(), two.getList());
 	}
 
 	/* (non-Javadoc)
@@ -207,13 +113,142 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	 * @see org.eclipse.equinox.internal.provisional.p2.directorywatcher.IDirectoryChangeListener#stopPoll()
 	 */
 	public void stopPoll() {
-		if (changed)
+		if (changed) {
+			lastModified = root.lastModified();
 			try {
-				process();
+				Configuration configuration = ConfigurationParser.parse(root, Activator.getOSGiInstallArea());
+				synchronizeConfiguration(configuration);
 			} catch (ProvisionException e) {
-				e.printStackTrace();
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.errorProcessingConfg, e));
 			}
+		}
 		changed = false;
 	}
 
+	public Collection getMetadataRepositories() {
+		if (configRepositories == null)
+			return Collections.EMPTY_SET;
+		return configRepositories;
+	}
+
+	/*
+	 * Look through the given list of repositories and see if there is one
+	 * currently associated with the given url string. Return null if one could not
+	 * be found.
+	 */
+	private IMetadataRepository getMatchingRepo(Collection repositoryList, String urlString) {
+		if (repositoryList == null)
+			return null;
+		IPath urlPath = new Path(urlString).makeAbsolute();
+		for (Iterator iter = repositoryList.iterator(); iter.hasNext();) {
+			IMetadataRepository repo = (IMetadataRepository) iter.next();
+			Path repoPath = new Path(repo.getLocation().toExternalForm());
+			if (repoPath.makeAbsolute().equals(urlPath))
+				return repo;
+			// normalize the URLs to be the same
+			if (repo instanceof ExtensionLocationMetadataRepository) {
+				try {
+					File one = ExtensionLocationMetadataRepository.getBaseDirectory(repo.getLocation());
+					File two = ExtensionLocationMetadataRepository.getBaseDirectory(new URL(urlString));
+					if (one.equals(two))
+						return repo;
+				} catch (ProvisionException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
+				} catch (MalformedURLException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
+				}
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * Ensure that we have a repository for each site in the given configuration.
+	 */
+	protected void synchronizeConfiguration(Configuration config) {
+		List sites = config.getSites();
+		Set newRepos = new LinkedHashSet();
+		Set toBeRemoved = new HashSet();
+		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+			Site site = (Site) iter.next();
+			String siteURL = site.getUrl();
+			IMetadataRepository match = getMatchingRepo(Activator.getRepositories(), siteURL);
+			if (match == null) {
+				try {
+					String eclipseExtensionURL = siteURL + Constants.EXTENSION_LOCATION;
+					URL location = new URL(eclipseExtensionURL);
+					Map properties = new HashMap();
+					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
+					properties.put(SiteListener.SITE_LIST, toString(site.getList()));
+					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+
+					// deal with the metadata repository
+					IMetadataRepository metadataRepository = null;
+					try {
+						metadataRepository = Activator.createExtensionLocationMetadataRepository(location, "extension location metadata repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
+					} catch (ProvisionException ex) {
+						try {
+							metadataRepository = Activator.loadMetadataRepository(location, null);
+						} catch (ProvisionException inner) {
+							// handle the case where someone has removed the extension location from
+							// disk. Note: we use the siteURL not the eclipseextensionURL
+							URL fileURL = new URL(siteURL);
+							File file = URLUtil.toFile(fileURL);
+							if (file != null && !file.exists()) {
+								toBeRemoved.add(site);
+								continue;
+							}
+							throw inner;
+						}
+						// set the repository properties here in case they have changed since the last time we loaded
+						for (Iterator inner = properties.keySet().iterator(); inner.hasNext();) {
+							String key = (String) inner.next();
+							String value = (String) properties.get(key);
+							metadataRepository.setProperty(key, value);
+						}
+						// now that we know we have the right properties set on the repository
+						// we will force initialization so things like the timestamp will be updated
+						// if necessary
+						if (metadataRepository instanceof ExtensionLocationMetadataRepository)
+							((ExtensionLocationMetadataRepository) metadataRepository).ensureInitialized();
+					}
+					newRepos.add(metadataRepository);
+
+					// now the artifact repository
+					try {
+						Activator.createExtensionLocationArtifactRepository(location, "extension location artifact repository: " + location.toExternalForm(), properties); //$NON-NLS-1$
+					} catch (ProvisionException ex) {
+						IArtifactRepository artifactRepository = Activator.loadArtifactRepository(location, null);
+						// set the repository properties here in case they have changed since the last time we loaded
+						for (Iterator inner = properties.keySet().iterator(); inner.hasNext();) {
+							String key = (String) inner.next();
+							String value = (String) properties.get(key);
+							artifactRepository.setProperty(key, value);
+						}
+						// now that we know we have the right properties set on the repository
+						// we will force initialization so things like the timestamp will be updated
+						// if necessary
+						if (artifactRepository instanceof ExtensionLocationArtifactRepository)
+							((ExtensionLocationArtifactRepository) artifactRepository).ensureInitialized();
+					}
+				} catch (MalformedURLException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
+				} catch (ProvisionException e) {
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
+				}
+			} else {
+				newRepos.add(match);
+			}
+		}
+		if (!toBeRemoved.isEmpty()) {
+			for (Iterator iter = toBeRemoved.iterator(); iter.hasNext();)
+				config.removeSite((Site) iter.next());
+			try {
+				config.save(root, Activator.getOSGiInstallArea());
+			} catch (ProvisionException e) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while saving configuration at: " + root, e)); //$NON-NLS-1$
+			}
+		}
+		configRepositories = newRepos;
+	}
 }

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.installer;
 
@@ -78,7 +79,7 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	/**
 	 * Create and return the profile into which units will be installed.
 	 */
-	private IProfile createProfile() {
+	private IProfile createProfile() throws ProvisionException {
 		IProfile profile = getProfile();
 		if (profile == null) {
 			Map properties = new HashMap();
@@ -86,10 +87,10 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), EnvironmentInfo.class.getName());
 			String env = "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			properties.put(IProfile.PROP_ENVIRONMENTS, env);
+			properties.putAll(installDescription.getProfileProperties());
 			IPath location = installDescription.getBundleLocation();
 			if (location != null)
-				properties.put(IProfile.PROP_CACHE, location.toString());
-			properties.putAll(installDescription.getProfileProperties());
+				properties.put(IProfile.PROP_CACHE, location.toOSString());
 			profile = profileRegistry.addProfile(getProfileId(), properties);
 		}
 		return profile;
@@ -99,8 +100,8 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 * Performs the actual product install or update.
 	 */
 	private void doInstall(SubMonitor monitor) throws CoreException {
-		prepareMetadataRepository();
-		prepareArtifactRepository();
+		prepareMetadataRepositories();
+		prepareArtifactRepositories();
 		IProfile p = createProfile();
 		IInstallableUnit[] toInstall = computeUnitsToInstall();
 		monitor.worked(5);
@@ -142,9 +143,9 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 	 */
 	private IInstallableUnit findUnit(VersionedName spec) throws CoreException {
 		String id = spec.getId();
-		Version version = spec.getVersion();
 		if (id == null)
 			throw fail(Messages.Op_NoId);
+		Version version = spec.getVersion();
 		VersionRange range = VersionRange.emptyRange;
 		if (version != null && !version.equals(Version.emptyVersion))
 			range = new VersionRange(version, true, version, true);
@@ -247,15 +248,19 @@ public class InstallUpdateProductOperation implements IInstallOperation {
 		profileRegistry = (IProfileRegistry) getService(IProfileRegistry.class.getName());
 	}
 
-	private void prepareArtifactRepository() throws ProvisionException {
-		URL artifactRepo = installDescription.getArtifactRepository();
-		if (artifactRepo != null)
-			artifactRepoMan.loadRepository(artifactRepo, null);
+	private void prepareArtifactRepositories() throws ProvisionException {
+		URL[] repos = installDescription.getArtifactRepositories();
+		if (repos == null)
+			return;
+		for (int i = 0; i < repos.length; i++)
+			artifactRepoMan.loadRepository(repos[i], null);
 	}
 
-	private void prepareMetadataRepository() throws ProvisionException {
-		URL metadataRepo = installDescription.getMetadataRepository();
-		if (metadataRepo != null)
-			metadataRepoMan.loadRepository(metadataRepo, null);
+	private void prepareMetadataRepositories() throws ProvisionException {
+		URL[] repos = installDescription.getMetadataRepositories();
+		if (repos == null)
+			return;
+		for (int i = 0; i < repos.length; i++)
+			metadataRepoMan.loadRepository(repos[i], null);
 	}
 }

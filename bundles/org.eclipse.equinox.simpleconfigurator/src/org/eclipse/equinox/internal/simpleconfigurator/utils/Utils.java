@@ -1,12 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
@@ -18,14 +16,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.equinox.internal.simpleconfigurator.Activator;
 
-/**
- * This class was copied from 
- * org.eclipse.equinox.internal.frameworkadmin.utils package of
- * org.eclipse.equinox.frameworkadmin plugin on March 3 2007.
+/*
+ * This class was copied from org.eclipse.equinox.internal.frameworkadmin.utils
+ * package of org.eclipse.equinox.frameworkadmin plugin on March 3 2007.
  * 
- * The reason why it was copied is to make simpleconfigurator dependent on 
- * any bundles(org.eclipse.equinox.framework).
- * 
+ * The reason why it was copied is to make simpleconfigurator dependent on any
+ * bundles(org.eclipse.equinox.framework).
  */
 
 public class Utils {
@@ -169,9 +165,9 @@ public class Utils {
 		String fromSt = Utils.removeLastCh(from.toExternalForm(), '/');
 		if (path.startsWith("/")) {
 			String fileSt = from.getFile();
-			return new URL(fromSt.substring(0, fromSt.lastIndexOf(fileSt) - 1) + path);
+			return Utils.buildURL(fromSt.substring(0, fromSt.lastIndexOf(fileSt) - 1) + path);
 		}
-		return new URL(fromSt + "/" + path);
+		return Utils.buildURL(fromSt + "/" + path);
 	}
 
 	public static String removeLastCh(String target, char ch) {
@@ -220,5 +216,18 @@ public class Utils {
 		if (e != null)
 			e.printStackTrace();
 //			}
+	}
+
+	public static URL buildURL(String spec) throws MalformedURLException {
+		if (spec == null)
+			throw new NullPointerException("URL spec is null."); //$NON-NLS-1$
+		// Construct the URL carefully so as to preserve UNC paths etc.
+		if (spec.startsWith("file:")) { //$NON-NLS-1$
+			// need to do this for UNC paths
+			File file = new File(spec.substring(5));
+			if (file.isAbsolute())
+				return file.toURL();
+		}
+		return new URL(spec);
 	}
 }

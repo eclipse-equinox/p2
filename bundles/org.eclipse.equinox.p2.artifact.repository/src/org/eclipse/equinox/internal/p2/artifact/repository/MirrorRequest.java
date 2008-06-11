@@ -90,24 +90,17 @@ public class MirrorRequest extends ArtifactRequest {
 			return;
 		}
 
-		// Get the output stream to store the artifact
-		// Since we are mirroring, ensure we clear out data from the original descriptor that may
-		// not apply in the new repo location.
-		// TODO this is brittle.  perhaps the repo itself should do this?  there are cases where
-		// we really do need to give the repo the actual descriptor to use however...
-		ArtifactDescriptor destinationDescriptor = new ArtifactDescriptor(getArtifactDescriptor());
-		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
-		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
-		//		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, null);
-
-		if (targetDescriptorProperties != null)
-			destinationDescriptor.addProperties(targetDescriptorProperties);
-
-		if (targetRepositoryProperties != null)
-			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
-
+		ArtifactDescriptor destinationDescriptor = getDestinationDescriptor(descriptor);
 		IStatus status = transfer(destinationDescriptor, descriptor, monitor);
-		// if ok or transfer has already been done with the canonical form return with status set 
+		// if ok, cancelled or transfer has already been done with the canonical form return with status set 
+		if (status.getSeverity() == IStatus.CANCEL) {
+			setResult(status);
+			return;
+		}
+		if (monitor.isCanceled()) {
+			setResult(Status.CANCEL_STATUS);
+			return;
+		}
 		if (status.isOK() || descriptor == canonical || canonical == null) {
 			setResult(status);
 			return;
@@ -116,10 +109,46 @@ public class MirrorRequest extends ArtifactRequest {
 		// retry with canonical, first remove possibly erroneously added descriptor
 		if (target.contains(destinationDescriptor))
 			target.removeDescriptor(destinationDescriptor);
-		setResult(transfer(destinationDescriptor, canonical, monitor));
+		setResult(transfer(getDestinationDescriptor(canonical), canonical, monitor));
 	}
 
+	private ArtifactDescriptor getDestinationDescriptor(IArtifactDescriptor sourceDescriptor) {
+		// Get the descriptor to use to store the artifact
+		// Since we are mirroring, ensure we clear out data from the original descriptor that may
+		// not apply in the new repo location.
+		// TODO this is brittle.  perhaps the repo itself should do this?  there are cases where
+		// we really do need to give the repo the actual descriptor to use however...
+		ArtifactDescriptor destinationDescriptor = new ArtifactDescriptor(sourceDescriptor);
+		destinationDescriptor.setProcessingSteps(EMPTY_STEPS);
+		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_MD5, null);
+		destinationDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, null);
+		destinationDescriptor.setProperty(IArtifactDescriptor.FORMAT, null);
+		if (targetDescriptorProperties != null)
+			destinationDescriptor.addProperties(targetDescriptorProperties);
+		if (targetRepositoryProperties != null)
+			destinationDescriptor.addRepositoryProperties(targetRepositoryProperties);
+		return destinationDescriptor;
+	}
+
+	/**
+	 * Keep retrying the source repository until it reports back that it will be impossible
+	 * to get the artifact from it.
+	 * @param destinationDescriptor
+	 * @param sourceDescriptor
+	 * @param monitor
+	 * @return the status of the transfer operation
+	 */
 	private IStatus transfer(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
+		IStatus status = Status.OK_STATUS;
+		// go until we get one (OK), there are no more mirrors to consider or the operation is cancelled.
+		// TODO this needs to be redone with a much better mirror management scheme.
+		do {
+			status = transferSingle(destinationDescriptor, sourceDescriptor, monitor);
+		} while (status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY);
+		return status;
+	}
+
+	private IStatus transferSingle(IArtifactDescriptor destinationDescriptor, IArtifactDescriptor sourceDescriptor, IProgressMonitor monitor) {
 		OutputStream destination;
 		try {
 			destination = target.getOutputStream(destinationDescriptor);
@@ -127,16 +156,21 @@ public class MirrorRequest extends ArtifactRequest {
 			return e.getStatus();
 		}
 
+		IStatus status = null;
 		// Do the actual transfer
 		try {
-			return getSourceRepository().getArtifact(descriptor, destination, monitor);
+			status = getSourceRepository().getArtifact(sourceDescriptor, destination, monitor);
 		} finally {
 			try {
 				destination.close();
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+				if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
+					status = new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+				else
+					status = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
 			}
 		}
+		return status;
 	}
 
 	public String toString() {

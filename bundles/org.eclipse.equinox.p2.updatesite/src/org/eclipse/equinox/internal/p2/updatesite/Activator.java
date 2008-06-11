@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite;
 
+import java.io.File;
+import java.net.URL;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -38,6 +41,14 @@ public class Activator implements BundleActivator {
 
 	public synchronized static BundleContext getBundleContext() {
 		return bundleContext;
+	}
+
+	/**
+	 * Returns a reasonable human-readable repository name for the given location.
+	 */
+	public static String getRepositoryName(URL location) {
+		File file = URLUtil.toFile(location);
+		return file == null ? location.toExternalForm() : file.getAbsolutePath();
 	}
 
 }

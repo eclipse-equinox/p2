@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.update;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /*
  * Represents a site in a platform.xml file.
@@ -23,11 +22,11 @@ public class Site {
 	public final static String POLICY_USER_INCLUDE = "USER-INCLUDE"; //$NON-NLS-1$
 
 	private String policy;
-	private boolean enabled;
-	private boolean updateable;
+	private boolean enabled = true;
+	private boolean updateable = true;
 	private String url;
 	private String linkFile;
-	private List features = new ArrayList();
+	private Collection features = new HashSet();
 	private List list = new ArrayList();
 
 	public void addFeature(Feature feature) {
@@ -42,12 +41,30 @@ public class Site {
 		return (Feature[]) features.toArray(new Feature[features.size()]);
 	}
 
-	public Feature removeFeature(String featureURL) {
-		for (int i = 0; i < features.size(); i++) {
-			String nextURL = ((Feature) features.get(i)).getUrl();
-			if (nextURL != null && nextURL.equals(featureURL)) {
-				return (Feature) features.remove(i);
+	/*
+	 * Return the feature object with the specific id and version. Return null 
+	 * if there is no match or the id is null. If the version is null then return the
+	 * first feature with a matching id.
+	 */
+	public Feature getFeature(String id, String version) {
+		if (id == null)
+			return null;
+		for (Iterator iter = features.iterator(); iter.hasNext();) {
+			Feature feature = (Feature) iter.next();
+			if (id.equals(feature.getId())) {
+				if (version == null || version.equals(feature.getVersion()))
+					return feature;
 			}
+		}
+		return null;
+	}
+
+	public Feature removeFeature(String featureURL) {
+		for (Iterator iter = features.iterator(); iter.hasNext();) {
+			Feature feature = (Feature) iter.next();
+			String nextURL = feature.getUrl();
+			if (nextURL != null && nextURL.equals(featureURL))
+				return features.remove(feature) ? feature : null;
 		}
 		return null;
 	}

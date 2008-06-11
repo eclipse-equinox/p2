@@ -14,6 +14,7 @@ import java.net.URL;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.director.IUProfilePropertyQuery;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.IUPropertyQuery;
@@ -178,6 +179,12 @@ public class ProvSDKQueryProvider implements IQueryProvider {
 				return new ElementQueryDescriptor(updateQueryable, allQuery, collector);
 			case IQueryProvider.INSTALLED_IUS :
 				profile = (IProfile) ProvUI.getAdapter(element, IProfile.class);
+				if (profile == null)
+					return null;
+				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=229352
+				// Rollback profiles are specialized/temporary instances so we must use a query that uses the profile instance, not the id.
+				if (element instanceof RollbackProfileElement)
+					return new ElementQueryDescriptor(profile, new IUProfilePropertyQuery(profile, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile, queryContext));
 				return new ElementQueryDescriptor(profile, new IUProfilePropertyByIdQuery(profile.getProfileId(), IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.toString(true)), new InstalledIUCollector(this, profile, queryContext));
 			case IQueryProvider.METADATA_REPOS :
 				if (element instanceof MetadataRepositories) {

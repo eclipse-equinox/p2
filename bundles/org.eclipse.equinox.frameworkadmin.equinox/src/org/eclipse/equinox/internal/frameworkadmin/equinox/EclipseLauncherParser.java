@@ -138,11 +138,11 @@ public class EclipseLauncherParser {
 				launcherData.addJvmArg(line);
 				continue;
 			}
-			if (line.startsWith("-vmargs")) {
+			if (line.equalsIgnoreCase(EquinoxConstants.OPTION_VMARGS)) {
 				vmArgsFlag = true;
 				continue;
 			}
-			if (line.startsWith(EquinoxConstants.OPTION_CONFIGURATION)) {
+			if (line.equalsIgnoreCase(EquinoxConstants.OPTION_CONFIGURATION)) {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
 				if (!file.isAbsolute())
@@ -150,11 +150,11 @@ public class EclipseLauncherParser {
 				fwPersistentDataLoc = file;
 				needToUpdate = true;
 				continue;
-			} else if (line.startsWith(EquinoxConstants.OPTION_CLEAN)) {
+			} else if (line.equalsIgnoreCase(EquinoxConstants.OPTION_CLEAN)) {
 				clean = true;
 				needToUpdate = true;
 				continue;
-			} else if (line.startsWith(EquinoxConstants.OPTION_VM)) {
+			} else if (line.equalsIgnoreCase(EquinoxConstants.OPTION_VM)) {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
 				if (!file.isAbsolute()) {
@@ -162,7 +162,7 @@ public class EclipseLauncherParser {
 				}
 				launcherData.setJvm(file);
 				continue;
-			} else if (line.startsWith(EquinoxConstants.OPTION_FW)) {
+			} else if (line.equalsIgnoreCase(EquinoxConstants.OPTION_FW)) {
 				final String nextLine = lines[++i].trim();
 				File file = new File(nextLine);
 				if (!file.isAbsolute()) {
@@ -277,6 +277,17 @@ public class EclipseLauncherParser {
 							i++;
 							continue;
 						}
+						Path configLocation = new Path(lines[i + 1]);
+						Path osgiPath = new Path(osgiInstallArea);
+						int commonSegments = osgiPath.matchingFirstSegments(configLocation.removeLastSegments(1));
+						if (commonSegments == configLocation.segmentCount() - 1) {
+							String path = "";
+							for (int j = osgiPath.segmentCount() - commonSegments; j != 0; j--) {
+								path += "../";
+							}
+							path += "configuration";
+							lines[i + 1] = path;
+						}
 					}
 				}
 				bw.write(lines[i]);
@@ -287,8 +298,9 @@ public class EclipseLauncherParser {
 		} finally {
 			if (bw != null)
 				bw.close();
-			if (launcherData.getPreviousLauncherIni() != null)
-				launcherData.getPreviousLauncherIni().delete();
+			File previousLauncherIni = launcherData.getPreviousLauncherIni();
+			if (previousLauncherIni != null && !previousLauncherIni.equals(launcherConfigFile))
+				previousLauncherIni.delete();
 		}
 	}
 }

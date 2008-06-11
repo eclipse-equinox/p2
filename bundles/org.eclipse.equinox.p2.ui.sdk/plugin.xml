@@ -49,7 +49,7 @@
             id="org.eclipse.equinox.internal.p2.ui.sdk.RepositoryPropertyPage">
             <enabledWhen>
             <adapt
-                  type="org.eclipse.equinox.internal.provisional.p2.ui.model.RepositoryElement">
+                  type="org.eclipse.equinox.internal.provisional.p2.ui.model.IRepositoryElement">
              </adapt>
           </enabledWhen>
       </page>
@@ -69,14 +69,6 @@
             category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
             class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.AutomaticUpdatesPreferencePage"
             id="org.eclipse.equinox.internal.p2.ui.sdk.AutomaticUpdatesPreferencePage">
-            <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
-      </page>
-      
-      <page
-            name="%externalFilesPrefPage"
-            category="org.eclipse.equinox.internal.p2.ui.sdk.ProvisioningPreferencePage"
-            class="org.eclipse.equinox.internal.p2.ui.sdk.prefs.ExternalFilesPreferencePage"
-            id="org.eclipse.equinox.internal.p2.ui.sdk.ExternalFilesPreferencePage">
             <keywordReference id="org.eclipse.equinox.p2.ui.sdk.updates.general"/>
       </page>
    </extension>

@@ -11,30 +11,35 @@
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.equinox.internal.p2.publisher.MetadataGeneratorHelper;
 import org.eclipse.equinox.internal.p2.publisher.actions.FeaturesAction;
-import org.eclipse.equinox.internal.p2.publisher.features.*;
+import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 
 public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryFactory {
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 */
+	public IArtifactRepository create(URL location, String name, String type, Map properties) {
+		return null;
+	}
 
 	private static final String PROP_ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
 
-	public IArtifactRepository create(URL location, String name, String type) {
-		return null;
-	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory#load(java.net.URL, org.eclipse.core.runtime.IProgressMonitor)
+	 */
 	public IArtifactRepository load(URL location, IProgressMonitor monitor) throws ProvisionException {
 		IArtifactRepository repository = loadRepository(location, monitor);
 		initializeRepository(repository, location, monitor);
@@ -50,7 +55,7 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 			//fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location.toExternalForm(); //$NON-NLS-1$
-		return factory.create(localRepositoryURL, repositoryName, null);
+		return factory.create(localRepositoryURL, repositoryName, null, null);
 	}
 
 	public void initializeRepository(IArtifactRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -73,7 +78,7 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 			Feature feature = features[i];
 			IArtifactKey featureKey = FeaturesAction.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 			ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
-			URL featureURL = updateSite.getFeatureURL(null, feature.getId(), feature.getVersion());
+			URL featureURL = updateSite.getFeatureURL(feature.getId(), feature.getVersion());
 			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toExternalForm());
 			allSiteArtifacts.add(featureArtifactDescriptor);
 

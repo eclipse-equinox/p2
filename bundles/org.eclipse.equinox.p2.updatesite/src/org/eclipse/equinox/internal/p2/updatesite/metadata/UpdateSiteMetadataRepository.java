@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ray Braithwood (ray@genuitec.com) - fix for bug 220605
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
@@ -15,34 +16,41 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.publisher.BundleDescriptionFactory;
-import org.eclipse.equinox.internal.p2.publisher.MetadataGeneratorHelper;
-import org.eclipse.equinox.internal.p2.publisher.features.*;
-import org.eclipse.equinox.internal.p2.updatesite.Activator;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
+import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.p2.updatesite.Messages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
-import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
-import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.osgi.service.resolver.*;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 
-public class UpdateSiteMetadataRepository extends AbstractRepository implements IMetadataRepository {
+public class UpdateSiteMetadataRepository extends AbstractMetadataRepository {
 
+	public static final String TYPE = "org.eclipse.equinox.p2.updatesite.metadataRepository"; //$NON-NLS-1$
+	public static final Integer VERSION = new Integer(1);
 	private final IMetadataRepository metadataRepository;
 	private static final String FEATURE_VERSION_SEPARATOR = "_"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
 
 	public UpdateSiteMetadataRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
+		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		// todo progress monitoring
 		// loading validates before we create repositories
 		UpdateSite updateSite = UpdateSite.load(location, null);
+		broadcastAssociateSites(updateSite);
 
 		BundleContext context = Activator.getBundleContext();
 		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
@@ -56,18 +64,49 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.ErrorCreatingRepository, e));
 		}
 
-		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm()); //$NON-NLS-1$
+		metadataRepository = initializeMetadataRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm(), updateSite); //$NON-NLS-1$
 
 		String savedChecksum = (String) metadataRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
 			return;
-		metadataRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		metadataRepository.removeAll();
 		generateMetadata(updateSite);
+		metadataRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
+	}
+
+	/**
+	 * Broadcast events for any associated sites for this repository so repository
+	 * managers are aware of them.
+	 */
+	private void broadcastAssociateSites(UpdateSite baseSite) {
+		if (baseSite == null)
+			return;
+		URLEntry[] sites = baseSite.getSite().getAssociatedSites();
+		if (sites == null || sites.length == 0)
+			return;
+
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		for (int i = 0; i < sites.length; i++) {
+			try {
+				URL siteLocation = new URL(sites[i].getURL());
+				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED, true));
+				bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, true));
+			} catch (MalformedURLException e) {
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Site has invalid associate site: " + baseSite.getLocation(), e)); //$NON-NLS-1$
+			}
+		}
+
 	}
 
 	private void generateMetadata(UpdateSite updateSite) throws ProvisionException {
 		SiteModel siteModel = updateSite.getSite();
+
+		// we load the features here to ensure that all site features are fully populated with
+		// id and version information before looking at category information
+		Feature[] features = updateSite.loadFeatures();
+
 		SiteCategory[] siteCategories = siteModel.getCategories();
 		Map categoryNameToFeatureIUs = new HashMap();
 		for (int i = 0; i < siteCategories.length; i++)
@@ -81,11 +120,10 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			featureKeyToCategoryNames.put(featureKey, siteFeature.getCategoryNames());
 		}
 
-		Feature[] features = updateSite.loadFeatures();
 		Properties extraProperties = new Properties();
 		extraProperties.put(IInstallableUnit.PROP_PARTIAL_IU, Boolean.TRUE.toString());
 		Set allSiteIUs = new HashSet();
-		BundleDescriptionFactory bundleDesciptionFactory = BundleDescriptionFactory.getBundleDescriptionFactory(Activator.getBundleContext());
+		BundleDescriptionFactory bundleDesciptionFactory = initializeBundleDescriptionFactory(Activator.getBundleContext());
 
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
@@ -107,7 +145,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 				}
 			}
 
-			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, null, true, null);
+			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true, null);
 			IInstallableUnit groupIU = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
 
 			String featureKey = feature.getId() + FEATURE_VERSION_SEPARATOR + feature.getVersion();
@@ -122,6 +160,7 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 			}
 			allSiteIUs.add(featureIU);
 			allSiteIUs.add(groupIU);
+			publishSites(feature);
 		}
 
 		for (int i = 0; i < siteCategories.length; i++) {
@@ -135,20 +174,48 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 		metadataRepository.addInstallableUnits(ius);
 	}
 
-	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName) {
+	/*(non-Javadoc)
+	 * @see IMetadataRepositoryFactory#validate(URL, IProgressMonitor)
+	 */
+	public static void validate(URL url, IProgressMonitor monitor) throws ProvisionException {
+		UpdateSite.validate(url, monitor);
+	}
+
+	private IMetadataRepository initializeMetadataRepository(BundleContext context, URL stateDirURL, String repositoryName, UpdateSite updateSite) {
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
 			return factory.load(stateDirURL, null);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		return factory.create(stateDirURL, repositoryName, null);
+		Map props = new HashMap(5);
+		String mirrors = updateSite.getMirrorsURL();
+		if (mirrors != null) {
+			props.put(IRepository.PROP_MIRRORS_URL, mirrors);
+			//set the mirror base URL relative to the real remote repository rather than our local cache
+			props.put(IRepository.PROP_MIRRORS_BASE_URL, getLocation().toExternalForm());
+		}
+		return factory.create(stateDirURL, repositoryName, null, props);
+	}
+
+	private BundleDescriptionFactory initializeBundleDescriptionFactory(BundleContext context) {
+		ServiceReference reference = context.getServiceReference(PlatformAdmin.class.getName());
+		if (reference == null)
+			throw new IllegalStateException(Messages.PlatformAdminNotRegistered);
+		PlatformAdmin platformAdmin = (PlatformAdmin) context.getService(reference);
+		if (platformAdmin == null)
+			throw new IllegalStateException(Messages.PlatformAdminNotRegistered);
+
+		try {
+			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();
+			return new BundleDescriptionFactory(stateObjectFactory, null);
+		} finally {
+			context.ungetService(reference);
+		}
 	}
 
 	public Map getProperties() {
-		Map result = new HashMap(metadataRepository.getProperties());
-		result.remove(IRepository.PROP_SYSTEM);
-		return result;
+		return metadataRepository.getProperties();
 	}
 
 	public String setProperty(String key, String value) {
@@ -169,6 +236,39 @@ public class UpdateSiteMetadataRepository extends AbstractRepository implements 
 
 	public boolean removeInstallableUnits(Query query, IProgressMonitor monitor) {
 		return metadataRepository.removeInstallableUnits(query, monitor);
+	}
+
+	public void initialize(RepositoryState state) {
+		//nothing to do
+	}
+
+	/**
+	 * Broadcast events for any discovery sites associated with the feature
+	 * so the repository managers add them to their list of known repositories.
+	 */
+	private void publishSites(Feature feature) {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(Activator.getBundleContext(), IProvisioningEventBus.SERVICE_NAME);
+		if (bus == null)
+			return;
+		URLEntry[] discoverySites = feature.getDiscoverySites();
+		for (int i = 0; i < discoverySites.length; i++)
+			publishSite(feature, bus, discoverySites[i].getURL(), false);
+		String updateSite = feature.getUpdateSiteURL();
+		if (updateSite != null)
+			publishSite(feature, bus, updateSite, true);
+	}
+
+	/**
+	 * Broadcast a discovery event for the given repository location.
+	 */
+	private void publishSite(Feature feature, IProvisioningEventBus bus, String locationString, boolean isEnabled) {
+		try {
+			URL siteLocation = new URL(locationString);
+			bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_METADATA, RepositoryEvent.DISCOVERED, isEnabled));
+			bus.publishEvent(new RepositoryEvent(siteLocation, IRepository.TYPE_ARTIFACT, RepositoryEvent.DISCOVERED, isEnabled));
+		} catch (MalformedURLException e) {
+			LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Feature references invalid site: " + feature.getId(), e)); //$NON-NLS-1$
+		}
 	}
 
 }

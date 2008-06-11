@@ -17,7 +17,10 @@ import org.eclipse.osgi.util.NLS;
  */
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.reconciler.dropins.messages"; //$NON-NLS-1$
+	public static String artifact_repo_manager_not_registered;
+	public static String errorLoadingRepository;
 	public static String errorProcessingConfg;
+	public static String metadata_repo_manager_not_registered;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

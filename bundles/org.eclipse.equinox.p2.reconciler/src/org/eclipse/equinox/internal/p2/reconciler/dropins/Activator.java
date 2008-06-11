@@ -13,9 +13,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -24,6 +23,7 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -31,59 +31,66 @@ public class Activator implements BundleActivator {
 
 	public static final String ID = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
 	private static final String DROPINS_DIRECTORY = "org.eclipse.equinox.p2.reconciler.dropins.directory"; //$NON-NLS-1$
-	private static final String OSGI_CONFIGURATION_AREA = "osgi.configuration.area"; //$NON-NLS-1$
 	private static final String DROPINS = "dropins"; //$NON-NLS-1$
+	private static final String LINKS = "links"; //$NON-NLS-1$
 	//	private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
 	private static PackageAdmin packageAdmin;
 	private static BundleContext bundleContext;
 	private ServiceReference packageAdminRef;
 	private List watchers = new ArrayList();
-	private static IMetadataRepository[] dropinRepositories;
-	private static IMetadataRepository[] configurationRepositories;
+	private static Collection dropinRepositories;
+	private static Collection configurationRepositories;
 	private static IMetadataRepository[] linksRepositories;
 	private static IMetadataRepository eclipseProductRepository;
 
 	/**
-	 * Helper method to load a metadata repository from the specified URL.
+	 * Helper method to load a metadata repository from the specified URL. If none
+	 * exists then create one if requested. This method never returns <code>null</code>.
+	 * 
+	 * @throws IllegalStateException
+	 * @throws ProvisionException 
+	 */
+	public static IMetadataRepository getMetadataRepository(URL location, String name, String type, Map properties, boolean create) throws ProvisionException {
+		BundleContext context = getContext();
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		if (manager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		try {
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			if (create) {
+				IMetadataRepository repository = manager.createRepository(location, name, type, properties);
+				manager.addRepository(location);
+				return repository;
+			}
+			// if we didn't want to create in the failure case then return the reason for the failure
+			throw e;
+		}
+	}
+
+	/**
+	 * Helper method to load an artifact repository from the given URL. If none
+	 * exists then we will create one at the given location, if specified to do so.
 	 * This method never returns <code>null</code>.
 	 * 
 	 * @throws IllegalStateException
 	 * @throws ProvisionException 
 	 */
-	public static IMetadataRepository loadMetadataRepository(URL repoURL) throws ProvisionException {
+	public static IArtifactRepository getArtifactRepository(URL location, String name, String type, Map properties, boolean create) throws ProvisionException {
 		BundleContext context = getContext();
-		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		IMetadataRepositoryManager manager = null;
-		if (reference != null)
-			manager = (IMetadataRepositoryManager) context.getService(reference);
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
 		if (manager == null)
-			throw new IllegalStateException("MetadataRepositoryManager not registered.");
+			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
 		try {
-			return manager.loadRepository(repoURL, null);
-		} finally {
-			context.ungetService(reference);
-		}
-	}
-
-	/**
-	 * Helper method to load an artifact repository from the given URL.
-	 * This method never returns <code>null</code>.
-	 * 
-	 * @throws IllegalStateException
-	 * @throws ProvisionException
-	 */
-	public static IArtifactRepository loadArtifactRepository(URL repoURL) throws ProvisionException {
-		BundleContext context = getContext();
-		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
-		IArtifactRepositoryManager manager = null;
-		if (reference != null)
-			manager = (IArtifactRepositoryManager) context.getService(reference);
-		if (manager == null)
-			throw new IllegalStateException("ArtifactRepositoryManager not registered.");
-		try {
-			return manager.loadRepository(repoURL, null);
-		} finally {
-			context.ungetService(reference);
+			return manager.loadRepository(location, null);
+		} catch (ProvisionException e) {
+			if (create) {
+				IArtifactRepository repository = manager.createRepository(location, name, type, properties);
+				manager.addRepository(location);
+				return repository;
+			}
+			// if we didn't want to create in the failure case then return the reason for the failure
+			throw e;
 		}
 	}
 
@@ -105,17 +112,17 @@ public class Activator implements BundleActivator {
 		if (profile == null)
 			return;
 
-		// create a watcher for the main plugins and features directories
-		watchEclipseProduct();
+		// TODO i-build to i-build backwards compatibility code to remove the
+		// old .pooled repositories. Remove this call soon.
+		removeOldRepos();
 		// create the watcher for the "drop-ins" folder
 		watchDropins(profile);
 		// keep an eye on the platform.xml
-		if (false)
-			watchConfiguration();
+		watchConfiguration();
 
-		synchronize(new ArrayList(0), null);
+		synchronize(null);
 
-		// we should probably be  holding on to these repos by URL
+		// we should probably be holding on to these repos by URL
 		// see Bug 223422
 		// for now explicitly nulling out these repos to allow GC to occur
 		dropinRepositories = null;
@@ -124,22 +131,31 @@ public class Activator implements BundleActivator {
 		eclipseProductRepository = null;
 	}
 
-	private void watchEclipseProduct() {
-
-		URL baseURL;
+	/*
+	 * TODO Backwards compatibility code to remove the
+	 * old .pooled repositories from the saved list. Remove
+	 * this method soon.
+	 */
+	private void removeOldRepos() {
+		URL osgiInstallArea = getOSGiInstallArea();
+		if (osgiInstallArea == null)
+			return;
+		URL location = null;
 		try {
-			baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
-			URL pooledURL = new URL(baseURL, "../.pooled"); //$NON-NLS-1$
-			loadArtifactRepository(pooledURL);
-			eclipseProductRepository = loadMetadataRepository(pooledURL);
+			location = new URL(getOSGiInstallArea(), ".pooled"); //$NON-NLS-1$
 		} catch (MalformedURLException e) {
-			// TODO proper logging
-			e.printStackTrace();
-		} catch (ProvisionException e) {
-			// TODO proper logging
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Error occurred while removing old repositories.", e)); //$NON-NLS-1$
+			return;
 		}
-
+		BundleContext context = getContext();
+		IArtifactRepositoryManager artifactManager = (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+		if (artifactManager == null)
+			throw new IllegalStateException("ArtifactRepositoryManager not registered."); //$NON-NLS-1$
+		artifactManager.removeRepository(location);
+		IMetadataRepositoryManager metadataManager = (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+		if (metadataManager == null)
+			throw new IllegalStateException("MetadataRepositoryManager not registered."); //$NON-NLS-1$
+		metadataManager.removeRepository(location);
 	}
 
 	private boolean startEarly(String bundleName) throws BundleException {
@@ -153,17 +169,17 @@ public class Activator implements BundleActivator {
 	/*
 	 * Synchronize the profile.
 	 */
-	public static synchronized void synchronize(List extraRepositories, IProgressMonitor monitor) {
+	public static synchronized void synchronize(IProgressMonitor monitor) {
 		IProfile profile = getCurrentProfile(bundleContext);
 		if (profile == null)
 			return;
 		// create the profile synchronizer on all available repositories
-		Set repositories = new HashSet(extraRepositories);
+		Set repositories = new HashSet();
 		if (dropinRepositories != null)
-			repositories.addAll(Arrays.asList(dropinRepositories));
+			repositories.addAll(dropinRepositories);
 
 		if (configurationRepositories != null)
-			repositories.addAll(Arrays.asList(configurationRepositories));
+			repositories.addAll(configurationRepositories);
 
 		if (linksRepositories != null)
 			repositories.addAll(Arrays.asList(linksRepositories));
@@ -182,19 +198,17 @@ public class Activator implements BundleActivator {
 	 * Watch the platform.xml file.
 	 */
 	private void watchConfiguration() {
-		File configFile = new File("configuration/org.eclipse.update/platform.xml"); //$NON-NLS-1$
-		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
-		try {
-			PlatformXmlListener listener = new PlatformXmlListener(configFile);
-			watcher.addListener(listener);
-			watcher.poll();
-			List repositories = listener.getMetadataRepositories();
-			if (repositories != null)
-				configurationRepositories = (IMetadataRepository[]) repositories.toArray(new IMetadataRepository[0]);
-		} catch (ProvisionException e) {
-			// TODO proper logging
-			e.printStackTrace();
+		File configFile = getConfigurationLocation();
+		if (configFile == null) {
+			LogHelper.log(new Status(IStatus.ERROR, ID, "Unable to determine configuration location."));
+			return;
 		}
+		configFile = new File(configFile, "org.eclipse.update/platform.xml"); //$NON-NLS-1$
+		DirectoryWatcher watcher = new DirectoryWatcher(configFile.getParentFile());
+		PlatformXmlListener listener = new PlatformXmlListener(configFile);
+		watcher.addListener(listener);
+		watcher.poll();
+		configurationRepositories = listener.getMetadataRepositories();
 	}
 
 	/*
@@ -211,8 +225,7 @@ public class Activator implements BundleActivator {
 		if (directories.isEmpty())
 			return;
 
-		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), "dropins:" + dropinsDirectory.getAbsolutePath());
-		//		listener.getArtifactRepository().setProperty(PROFILE_EXTENSION, profile.getProfileId());
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), dropinsDirectory.getAbsolutePath());
 		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
@@ -240,82 +253,68 @@ public class Activator implements BundleActivator {
 		return bundleContext;
 	}
 
+	/*
+	 * Helper method to get the configuration location. Return null if
+	 * it is unavailable.
+	 */
+	public static File getConfigurationLocation() {
+		Location configurationLocation = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.CONFIGURATION_FILTER);
+		if (configurationLocation == null || !configurationLocation.isSet())
+			return null;
+		URL url = configurationLocation.getURL();
+		if (url == null)
+			return null;
+		return URLUtil.toFile(url);
+	}
+
+	/*
+	 * Do a look-up and return the OSGi install area if it is set.
+	 */
+	public static URL getOSGiInstallArea() {
+		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		if (location == null)
+			return null;
+		if (!location.isSet())
+			return null;
+		return location.getURL();
+	}
+
+	/*
+	 * Helper method to return the eclipse.home location. Return
+	 * null if it is unavailable.
+	 */
+	public static File getEclipseHome() {
+		Location eclipseHome = (Location) ServiceHelper.getService(getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
+		if (eclipseHome == null || !eclipseHome.isSet())
+			return null;
+		URL url = eclipseHome.getURL();
+		if (url == null)
+			return null;
+		return URLUtil.toFile(url);
+	}
+
+	/*
+	 * Return the location of the links directory, or null if it is not available.
+	 */
 	private static File getLinksDirectory() {
-		try {
-			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
-			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
-			URL folderURL = new URL(baseURL, "../links"); //$NON-NLS-1$
-			return new File(folderURL.getPath());
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return null;
+		File root = getEclipseHome();
+		return root == null ? null : new File(root, LINKS);
 	}
 
-	public static File getDropinsDirectory() {
+	/*
+	 * Return the location of the dropins directory, or null if it is not available.
+	 */
+	private static File getDropinsDirectory() {
 		String watchedDirectoryProperty = bundleContext.getProperty(DROPINS_DIRECTORY);
-		if (watchedDirectoryProperty != null) {
-			File folder = new File(watchedDirectoryProperty);
-			return folder;
-		}
-		try {
-			//TODO: a proper install area would be better. osgi.install.area is relative to the framework jar
-			URL baseURL = new URL(bundleContext.getProperty(OSGI_CONFIGURATION_AREA));
-			URL folderURL = new URL(baseURL, "../" + DROPINS); //$NON-NLS-1$
-			File folder = new File(folderURL.getPath());
-			return folder;
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		return null;
+		if (watchedDirectoryProperty != null)
+			return new File(watchedDirectoryProperty);
+		File root = getEclipseHome();
+		return root == null ? null : new File(root, DROPINS);
 	}
 
-	// Disabled for now
-
-	//	private void removeUnwatchedRepositories(BundleContext context, Profile profile, File watchedFolder) {
-	//		removeUnwatchedMetadataRepositories(context, profile, watchedFolder);
-	//		removeUnwatchedArtifactRepositories(context, profile, watchedFolder);
-	//	}
-	//
-	//	private void removeUnwatchedArtifactRepositories(BundleContext context, Profile profile, File watchedFolder) {
-	//		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
-	//		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) context.getService(reference);
-	//		try {
-	//			IArtifactRepository[] repositories = manager.getKnownRepositories();
-	//			for (int i = 0; i < repositories.length; i++) {
-	//				Map properties = repositories[i].getProperties();
-	//				String profileId = (String) properties.get("profileId");
-	//				String folderName = (String) properties.get("folder");
-	//
-	//				if (profile.getProfileId().equals(profileId) && !watchedFolder.getAbsolutePath().equals(folderName)) {
-	//					manager.removeRepository(repositories[i]);
-	//				}
-	//			}
-	//		} finally {
-	//			context.ungetService(reference);
-	//		}
-	//	}
-	//
-	//	private void removeUnwatchedMetadataRepositories(BundleContext context, Profile profile, File watchedFolder) {
-	//		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-	//		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) context.getService(reference);
-	//		try {
-	//			IMetadataRepository[] repositories = manager.getKnownRepositories();
-	//			for (int i = 0; i < repositories.length; i++) {
-	//				Map properties = repositories[i].getProperties();
-	//				String profileId = (String) properties.get("profileId");
-	//				if (profile.getProfileId().equals(profileId)) {
-	//					String folderName = (String) properties.get("folder");
-	//					if ((folderName != null) && !watchedFolder.getAbsolutePath().equals(folderName)) {
-	//						manager.removeRepository(repositories[i].getLocation());
-	//					}
-	//				}
-	//			}
-	//		} finally {
-	//			context.ungetService(reference);
-	//		}
-	//	}
-
+	/*
+	 * Return the current profile or null if it cannot be retrieved.
+	 */
 	public static IProfile getCurrentProfile(BundleContext context) {
 		ServiceReference reference = context.getServiceReference(IProfileRegistry.class.getName());
 		if (reference == null)
@@ -332,10 +331,12 @@ public class Activator implements BundleActivator {
 		packageAdmin = service;
 	}
 
+	/*
+	 * Return the bundle with the given symbolic name, or null if it cannot be found.
+	 */
 	static synchronized Bundle getBundle(String symbolicName) {
 		if (packageAdmin == null)
 			return null;
-
 		Bundle[] bundles = packageAdmin.getBundles(symbolicName, null);
 		if (bundles == null)
 			return null;

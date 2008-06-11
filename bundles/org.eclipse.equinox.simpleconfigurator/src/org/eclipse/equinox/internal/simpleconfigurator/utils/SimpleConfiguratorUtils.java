@@ -60,7 +60,7 @@ public class SimpleConfiguratorUtils {
 					} else
 						tok.nextToken(); // ,
 					try {
-						new URL(urlSt);
+						Utils.buildURL(urlSt);
 					} catch (MalformedURLException e) {
 						urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
 					}
@@ -70,7 +70,7 @@ public class SimpleConfiguratorUtils {
 					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
 					// URL urlBundle = null;
 					// try {
-					// urlBundle = new URL(urlSt);
+					// urlBundle = Utils.buildURL(urlSt);
 					// } catch (MalformedURLException e) {
 					// urlBundle = Utils.getFullUrl(urlSt, baseUrl);
 					// }

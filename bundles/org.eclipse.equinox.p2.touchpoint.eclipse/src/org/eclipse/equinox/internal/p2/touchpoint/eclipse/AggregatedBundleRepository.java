@@ -25,7 +25,7 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	private final Collection bundleRepositories;
 
 	public AggregatedBundleRepository(Collection bundleRepositories) {
-		super(REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null);
+		super(REPOSITORY_TYPE, REPOSITORY_TYPE, "1.0", null, null, null, null); //$NON-NLS-1$
 		this.bundleRepositories = bundleRepositories;
 	}
 
@@ -90,10 +90,10 @@ public class AggregatedBundleRepository extends AbstractArtifactRepository imple
 	}
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
-		throw new UnsupportedOperationException("Repository does not support artifact retrieval");
+		throw new UnsupportedOperationException(Messages.artifact_retrieval_unsupported);
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
-		throw new UnsupportedOperationException("Repository does not support artifact retrieval");
+		throw new UnsupportedOperationException(Messages.artifact_retrieval_unsupported);
 	}
 }

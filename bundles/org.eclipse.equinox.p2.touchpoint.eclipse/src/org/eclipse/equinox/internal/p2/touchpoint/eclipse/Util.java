@@ -18,16 +18,18 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.actions.ActionConstants;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.p2.metadata.TouchpointData;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.util.ManifestElement;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 
@@ -36,10 +38,13 @@ public class Util {
 	/**
 	 * TODO "cache" is probably not the right term for this location
 	 */
-	private final static String CONFIG_FOLDER = "eclipse.configurationFolder"; //$NON-NLS-1$
 	private static final String REPOSITORY_TYPE = IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY;
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
+
+	public static final int AGGREGATE_CACHE = 0x01;
+	public static final int AGGREGATE_SHARED_CACHE = 0x02;
+	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
 	public static AgentLocation getAgentLocation() {
 		return (AgentLocation) ServiceHelper.getService(Activator.getContext(), AgentLocation.class.getName());
@@ -53,10 +58,11 @@ public class Util {
 		String path = profile.getProperty(IProfile.PROP_CACHE);
 		if (path != null)
 			try {
-				// TODO this is a hack for now.
+				// create a file url
 				return new File(path).toURL();
 			} catch (MalformedURLException e) {
-				// TODO Do nothing and use the default approach
+				// unexpected, URLs should be pre-checked
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
 			}
 		AgentLocation location = getAgentLocation();
 		if (location == null)
@@ -64,8 +70,10 @@ public class Util {
 		return location.getDataArea(Activator.ID);
 	}
 
-	static public IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
+	public static synchronized IFileArtifactRepository getBundlePoolRepository(IProfile profile) {
 		URL location = getBundlePoolLocation(profile);
+		if (location == null)
+			return null;
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		try {
 			return (IFileArtifactRepository) manager.loadRepository(location, null);
@@ -74,28 +82,51 @@ public class Util {
 		}
 		try {
 			String repositoryName = Messages.BundlePool;
-			IArtifactRepository bundlePool = manager.createRepository(location, repositoryName, REPOSITORY_TYPE);
-			manager.addRepository(bundlePool.getLocation());
-			bundlePool.setProperty(IRepository.PROP_SYSTEM, Boolean.valueOf(true).toString());
-			return (IFileArtifactRepository) bundlePool;
+			Map properties = new HashMap(1);
+			properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			return (IFileArtifactRepository) manager.createRepository(location, repositoryName, REPOSITORY_TYPE, properties);
 		} catch (ProvisionException e) {
 			LogHelper.log(e);
-			throw new IllegalArgumentException("Bundle pool repository not writeable: " + location); //$NON-NLS-1$
+			throw new IllegalArgumentException(NLS.bind(Messages.bundle_pool_not_writeable, location));
 		}
 	}
 
 	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile) {
+		return getAggregatedBundleRepository(profile, AGGREGATE_CACHE | AGGREGATE_SHARED_CACHE | AGGREGATE_CACHE_EXTENSIONS);
+	}
+
+	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile, int repoFilter) {
 		Set bundleRepositories = new HashSet();
-		bundleRepositories.add(Util.getBundlePoolRepository(profile));
+
+		if ((repoFilter & AGGREGATE_CACHE) != 0) {
+			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+			if (bundlePool != null)
+				bundleRepositories.add(bundlePool);
+		}
+
+		List repos = new ArrayList();
+		if ((repoFilter & AGGREGATE_SHARED_CACHE) != 0) {
+			String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
+			if (sharedCache != null) {
+				try {
+					repos.add(new File(sharedCache).toURL().toExternalForm());
+				} catch (MalformedURLException e) {
+					// unexpected, URLs should be pre-checked
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+				}
+			}
+		}
+
+		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0)
+			repos.addAll(getListProfileProperty(profile, CACHE_EXTENSIONS));
 
 		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		List extensions = getListProfileProperty(profile, CACHE_EXTENSIONS);
-		for (Iterator iterator = extensions.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
 			try {
-				String extension = (String) iterator.next();
-				URL extensionURL = new URL(extension);
-				IArtifactRepository repository = manager.loadRepository(extensionURL, null);
-				if (repository != null)
+				String repo = (String) iterator.next();
+				URL repoURL = new URL(repo);
+				IArtifactRepository repository = manager.loadRepository(repoURL, null);
+				if (repository != null && repository instanceof IFileArtifactRepository)
 					bundleRepositories.add(repository);
 			} catch (ProvisionException e) {
 				//skip repositories that could not be read
@@ -155,14 +186,45 @@ public class Util {
 	}
 
 	public static File getConfigurationFolder(IProfile profile) {
-		String config = profile.getProperty(CONFIG_FOLDER);
+		String config = profile.getProperty(IProfile.PROP_CONFIGURATION_FOLDER);
 		if (config != null)
 			return new File(config);
 		return new File(getInstallFolder(profile), "configuration"); //$NON-NLS-1$
 	}
 
+	/*
+	 * Do a look-up and return the OSGi install area if it is set.
+	 */
+	public static URL getOSGiInstallArea() {
+		Location location = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.INSTALL_FILTER);
+		if (location == null)
+			return null;
+		if (!location.isSet())
+			return null;
+		return location.getURL();
+	}
+
+	/*
+	 * Helper method to return the eclipse.home location. Return
+	 * null if it is unavailable.
+	 */
+	public static File getEclipseHome() {
+		Location eclipseHome = (Location) ServiceHelper.getService(Activator.getContext(), Location.class.getName(), Location.ECLIPSE_HOME_FILTER);
+		if (eclipseHome == null || !eclipseHome.isSet())
+			return null;
+		URL url = eclipseHome.getURL();
+		if (url == null)
+			return null;
+		return URLUtil.toFile(url);
+	}
+
+	/**
+	 * Returns the install folder for the profile, or <code>null</code>
+	 * if no install folder is defined.
+	 */
 	public static File getInstallFolder(IProfile profile) {
-		return new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER));
+		String folder = profile.getProperty(IProfile.PROP_INSTALL_FOLDER);
+		return folder == null ? null : new File(folder);
 	}
 
 	public static File getLauncherPath(IProfile profile) {
@@ -185,7 +247,15 @@ public class Util {
 			name = "eclipse"; //$NON-NLS-1$
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
-			return name + ".app/Contents/MacOS/" + name.toLowerCase(); //$NON-NLS-1$
+			IPath path = new Path(name);
+			if (path.segment(0).endsWith(".app")) //$NON-NLS-1$
+				return name;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(name.substring(0, 1).toUpperCase());
+			buffer.append(name.substring(1));
+			buffer.append(".app/Contents/MacOS/"); //$NON-NLS-1$
+			buffer.append(name.toLowerCase());
+			return buffer.toString();
 		}
 		return name;
 	}
@@ -241,4 +311,23 @@ public class Util {
 		return new Status(IStatus.ERROR, Activator.ID, message, e);
 	}
 
+	public static String resolveArtifactParam(Map parameters) throws CoreException {
+		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
+		IInstallableUnit iu = (IInstallableUnit) parameters.get(EclipseTouchpoint.PARM_IU);
+		IArtifactKey[] artifacts = iu.getArtifacts();
+		if (artifacts == null || artifacts.length == 0)
+			throw new CoreException(createError(NLS.bind(Messages.iu_contains_no_arifacts, iu)));
+
+		IArtifactKey artifactKey = artifacts[0];
+
+		File fileLocation = Util.getArtifactFile(artifactKey, profile);
+		if (fileLocation == null || !fileLocation.exists())
+			throw new CoreException(createError(NLS.bind(Messages.artifact_file_not_found, artifactKey)));
+		return fileLocation.getAbsolutePath();
+	}
+
+	public static File getLauncherConfigLocation(IProfile profile) {
+		String launcherConfig = profile.getProperty(IProfile.PROP_LAUNCHER_CONFIGURATION);
+		return launcherConfig == null ? null : new File(launcherConfig);
+	}
 }

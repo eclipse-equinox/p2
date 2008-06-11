@@ -7,12 +7,14 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Ray Braithwood (ray@genuitec.com) - fix for bug 220605
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.metadata;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.features.UpdateSite;
@@ -40,7 +42,10 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 		return localRepositoryURL;
 	}
 
-	public IMetadataRepository create(URL location, String name, String type) {
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory#create(java.net.URL, java.lang.String, java.lang.String, java.util.Map)
+	 */
+	public IMetadataRepository create(URL location, String name, String type, Map properties) {
 		return null;
 	}
 
@@ -68,7 +73,7 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 			//fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location.toExternalForm(); //$NON-NLS-1$
-		return factory.create(localRepositoryURL, repositoryName, null);
+		return factory.create(localRepositoryURL, repositoryName, null, null);
 	}
 
 	public void initializeRepository(IMetadataRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {

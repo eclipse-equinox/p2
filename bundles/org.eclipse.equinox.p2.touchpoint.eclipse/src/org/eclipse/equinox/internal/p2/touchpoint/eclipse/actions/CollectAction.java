@@ -13,8 +13,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.osgi.util.NLS;
 
 public class CollectAction extends ProvisioningAction {
 	public static final String ID = "collect"; //$NON-NLS-1$
@@ -23,7 +25,12 @@ public class CollectAction extends ProvisioningAction {
 	public IStatus execute(Map parameters) {
 		IProfile profile = (IProfile) parameters.get(ActionConstants.PARM_PROFILE);
 		InstallableUnitOperand operand = (InstallableUnitOperand) parameters.get(ActionConstants.PARM_OPERAND);
-		IArtifactRequest[] requests = CollectAction.collect(operand.second(), profile);
+		IArtifactRequest[] requests;
+		try {
+			requests = CollectAction.collect(operand.second(), profile);
+		} catch (ProvisionException e) {
+			return e.getStatus();
+		}
 
 		Collection artifactRequests = (Collection) parameters.get(ActionConstants.PARM_ARTIFACT_REQUESTS);
 		artifactRequests.add(requests);
@@ -55,13 +62,16 @@ public class CollectAction extends ProvisioningAction {
 	}
 
 	// TODO: Here we may want to consult multiple caches
-	public static IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) {
+	public static IArtifactRequest[] collect(IInstallableUnit installableUnit, IProfile profile) throws ProvisionException {
 		IArtifactKey[] toDownload = installableUnit.getArtifacts();
 		if (toDownload == null || toDownload.length == 0)
 			return IArtifactRepositoryManager.NO_ARTIFACT_REQUEST;
 
 		IArtifactRepository aggregatedRepositoryView = Util.getAggregatedBundleRepository(profile);
 		IArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+		if (bundlePool == null)
+			throw new ProvisionException(Util.createError(NLS.bind(Messages.no_bundle_pool, profile.getProfileId())));
+
 		List requests = new ArrayList();
 		for (int i = 0; i < toDownload.length; i++) {
 			IArtifactKey key = toDownload[i];

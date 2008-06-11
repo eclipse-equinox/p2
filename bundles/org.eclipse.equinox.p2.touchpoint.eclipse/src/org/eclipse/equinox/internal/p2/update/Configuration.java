@@ -11,9 +11,16 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Activator;
+import org.eclipse.equinox.internal.p2.touchpoint.eclipse.Util;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
@@ -48,11 +55,48 @@ public class Configuration {
 	}
 
 	public List getSites() {
-		return sites;
+		return internalGetSites(true);
+	}
+
+	List internalGetSites(boolean includeParent) {
+		if (!includeParent)
+			return sites;
+		String shared = getSharedUR();
+		if (shared == null)
+			return sites;
+		List result = new ArrayList(sites);
+		try {
+			URL url = new URL(shared);
+			File location = URLUtil.toFile(url);
+			if (location == null)
+				return result;
+
+			if (!location.isAbsolute()) {
+				File eclipseHome = Util.getEclipseHome();
+				if (eclipseHome == null)
+					return null;
+
+				location = new File(eclipseHome, location.getPath());
+			}
+			Configuration parent = Configuration.load(location, Util.getOSGiInstallArea());
+			if (parent == null)
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Unable to load parent configuration from: " + location)); //$NON-NLS-1$
+			else
+				result.addAll(parent.getSites());
+		} catch (MalformedURLException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while getting parent configuration location.", e)); //$NON-NLS-1$
+		} catch (ProvisionException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while loading parent configuratin from: " + shared, e)); //$NON-NLS-1$
+		}
+		return result;
 	}
 
 	public void add(Site site) {
 		sites.add(site);
+	}
+
+	public boolean removeSite(Site site) {
+		return sites.remove(site);
 	}
 
 	public String getDate() {

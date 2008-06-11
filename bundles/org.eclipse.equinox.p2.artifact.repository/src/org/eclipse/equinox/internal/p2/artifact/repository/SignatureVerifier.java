@@ -21,7 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processin
 import org.eclipse.osgi.signedcontent.*;
 
 /**
- * The Pack200Unpacker expects an input containing ".jar.pack.gz" data.   
+ * Processing step validating the signature of the artifact being downloaded  
  */
 public class SignatureVerifier extends ProcessingStep {
 	private File inputFile;
@@ -33,6 +33,10 @@ public class SignatureVerifier extends ProcessingStep {
 
 	public void write(int b) throws IOException {
 		getOutputStream().write(b);
+	}
+
+	public void write(byte[] bytes, int off, int len) throws IOException {
+		getOutputStream().write(bytes, off, len);
 	}
 
 	private OutputStream getOutputStream() throws IOException {
@@ -81,6 +85,9 @@ public class SignatureVerifier extends ProcessingStep {
 				entries[i].verify();
 			} catch (InvalidContentException e) {
 				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerification_invalidContent + entries[i].getName(), e));
+			} catch (OutOfMemoryError e) {
+				allStatus.add(new Status(IStatus.ERROR, Activator.ID, Messages.SignatureVerifier_OutOfMemory, e));
+				break;
 			}
 		if (allStatus.size() > 0)
 			return new MultiStatus(Activator.ID, IStatus.ERROR, (IStatus[]) allStatus.toArray(new IStatus[allStatus.size()]), Messages.SignatureVerification_invalidFileContent + inputFile, null);

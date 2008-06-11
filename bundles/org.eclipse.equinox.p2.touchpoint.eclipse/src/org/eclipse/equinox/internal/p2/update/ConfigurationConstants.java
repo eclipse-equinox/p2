@@ -19,12 +19,17 @@ public interface ConfigurationConstants {
 	final String ELEMENT_FEATURE = "feature"; //$NON-NLS-1$
 	final String ELEMENT_SITE = "site"; //$NON-NLS-1$
 
+	final String ATTRIBUTE_APPLICATION = "application"; //$NON-NLS-1$
 	final String ATTRIBUTE_DATE = "date"; //$NON-NLS-1$
 	final String ATTRIBUTE_ENABLED = "enabled"; //$NON-NLS-1$
 	final String ATTRIBUTE_ID = "id"; //$NON-NLS-1$
 	final String ATTRIBUTE_LINKFILE = "linkfile"; //$NON-NLS-1$
 	final String ATTRIBUTE_LIST = "list"; //$NON-NLS-1$
+	final String ATTRIBUTE_PLUGIN_IDENTIFIER = "plugin-identifier"; //$NON-NLS-1$
+	final String ATTRIBUTE_PLUGIN_VERSION = "plugin-version"; //$NON-NLS-1$
+	final String ATTRIBUTE_PRIMARY = "primary"; //$NON-NLS-1$
 	final String ATTRIBUTE_POLICY = "policy"; //$NON-NLS-1$
+	final String ATTRIBUTE_ROOT = "root"; //$NON-NLS-1$
 	final String ATTRIBUTE_SHARED_UR = "shared_ur"; //$NON-NLS-1$
 	final String ATTRIBUTE_TRANSIENT = "transient"; //$NON-NLS-1$
 	final String ATTRIBUTE_UPDATEABLE = "updateable"; //$NON-NLS-1$

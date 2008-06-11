@@ -33,13 +33,13 @@ public class MirrorSelector {
 	/**
 	 * Encapsulates information about a single mirror
 	 */
-	static class MirrorInfo implements Comparable {
+	public static class MirrorInfo implements Comparable {
 		long bytesPerSecond;
 		int failureCount;
 		private final int initialRank;
 		String locationString;
 
-		MirrorInfo(String location, int initialRank) {
+		public MirrorInfo(String location, int initialRank) {
 			this.initialRank = initialRank;
 			this.locationString = location;
 			if (!locationString.endsWith("/")) //$NON-NLS-1$
@@ -60,9 +60,17 @@ public class MirrorSelector {
 				return this.failureCount - that.failureCount;
 			//faster is better
 			if (this.bytesPerSecond != that.bytesPerSecond)
-				return (int) (this.bytesPerSecond - that.failureCount);
+				return (int) (that.bytesPerSecond - this.bytesPerSecond);
 			//trust that initial rank indicates geographical proximity
 			return this.initialRank - that.initialRank;
+		}
+
+		public void incrementFailureCount() {
+			this.failureCount++;
+		}
+
+		public void setBytesPerSecond(long newValue) {
+			this.bytesPerSecond = newValue;
 		}
 
 		public String toString() {
@@ -89,9 +97,14 @@ public class MirrorSelector {
 	public MirrorSelector(IRepository repository) {
 		this.repository = repository;
 		try {
-			URL repositoryURL = repository.getLocation();
-			if (repositoryURL != null)
-				this.baseURI = URLUtil.toURI(repositoryURL);
+			String base = (String) repository.getProperties().get(IRepository.PROP_MIRRORS_BASE_URL);
+			if (base != null) {
+				this.baseURI = new URI(base);
+			} else {
+				URL repositoryURL = repository.getLocation();
+				if (repositoryURL != null)
+					this.baseURI = URLUtil.toURI(repositoryURL);
+			}
 		} catch (URISyntaxException e) {
 			log("Error initializing mirrors for: " + repository.getLocation(), e); //$NON-NLS-1$
 		}
@@ -129,7 +142,7 @@ public class MirrorSelector {
 				infos[i] = new MirrorInfo(infoURL, i);
 			}
 			//p2: add the base site as the last resort mirror so we can track download speed and failure rate
-			infos[mirrorCount] = new MirrorInfo(repository.getLocation().toExternalForm(), mirrorCount);
+			infos[mirrorCount] = new MirrorInfo(baseURI.toString(), mirrorCount);
 			return infos;
 		} catch (Exception e) {
 			// log if absolute url
@@ -202,14 +215,14 @@ public class MirrorSelector {
 			MirrorInfo mirror = mirrors[i];
 			if (toDownload.startsWith(mirror.locationString)) {
 				if (!result.isOK() && result.getSeverity() != IStatus.CANCEL)
-					mirror.failureCount++;
+					mirror.incrementFailureCount();
 				if (result instanceof DownloadStatus) {
 					long oldRate = mirror.bytesPerSecond;
 					long newRate = ((DownloadStatus) result).getTransferRate();
 					//average old and new rate so one slow download doesn't ruin the mirror's reputation
 					if (oldRate > 0)
 						newRate = (oldRate + newRate) / 2;
-					mirror.bytesPerSecond = newRate;
+					mirror.setBytesPerSecond(newRate);
 				}
 				if (Tracing.DEBUG_MIRRORS)
 					Tracing.debug("Updated mirror " + mirror); //$NON-NLS-1$
@@ -217,6 +230,16 @@ public class MirrorSelector {
 				return;
 			}
 		}
+	}
+
+	/** 
+	 * Return whether or not all the mirrors for this selector have proven to be invalid
+	 * @return whether or not there is a vaild mirror in this selector.
+	 */
+	public synchronized boolean hasValidMirror() {
+		// return true if there is a mirror and it has not failed.  Since the mirrors
+		// list is sorted with failures last, we only have to test the first element for failure.
+		return mirrors != null && mirrors.length > 0 && mirrors[0].failureCount == 0;
 	}
 
 	/**
@@ -231,11 +254,14 @@ public class MirrorSelector {
 		//this is a function that randomly selects a mirror based on a logarithmic
 		//distribution. Mirror 0 has a 1/2 chance of being selected, mirror 1 has a 1/4 chance, 
 		// mirror 2 has a 1/8 chance, etc. This introduces some variation in the mirror 
-		//selection, while still favoring better mirrors
-		int result = (int) (Math.log(random.nextInt(1 << Math.min(15, mirrorCount)) + 1) / LOG2);
-		if (result >= mirrorCount)
-			result = mirrorCount - 1;
-		MirrorInfo selected = mirrors[mirrorCount - 1 - result];
+		//selection, while still heavily favoring better mirrors
+		//the algorithm computes the most significant digit in a binary number by computing the base 2 logarithm
+		//if the first digit is most significant, mirror 0 is selected, if the second is most significant, mirror 1 is selected, etc
+		int highestMirror = Math.min(15, mirrorCount);
+		int result = (int) (Math.log(random.nextInt(1 << highestMirror) + 1) / LOG2);
+		if (result >= highestMirror || result < 0)
+			result = highestMirror - 1;
+		MirrorInfo selected = mirrors[highestMirror - 1 - result];
 		//if we selected a mirror that has failed in the past, revert to best available mirror
 		if (selected.failureCount > 0)
 			selected = mirrors[0];

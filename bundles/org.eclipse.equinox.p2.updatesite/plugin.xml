@@ -2,8 +2,8 @@
 <?eclipse version="3.2"?>
 <plugin>
       <extension
-      id="updatesiteRepository"
-         point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
+            id="metadataRepository"
+            point="org.eclipse.equinox.p2.metadata.repository.metadataRepositories">
       <factory
             class="org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory">
       </factory>
@@ -12,6 +12,7 @@
       </filter>
    </extension>
       <extension
+            id="artifactRepository"
             point="org.eclipse.equinox.p2.artifact.repository.artifactRepositories">
          <factory
                class="org.eclipse.equinox.internal.p2.updatesite.artifact.UpdateSiteArtifactRepositoryFactory">

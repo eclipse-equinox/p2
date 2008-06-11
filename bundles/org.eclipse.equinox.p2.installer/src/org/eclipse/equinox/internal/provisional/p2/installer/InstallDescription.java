@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.installer;
 
@@ -22,20 +23,16 @@ import org.eclipse.equinox.internal.p2.installer.VersionedName;
  * be installed, and where it will be installed.
  */
 public class InstallDescription {
-	private URL artifactRepo;
+	private URL[] artifactRepos;
 	private IPath installLocation;
 	private IPath agentLocation;
 	private IPath bundleLocation;
 	private boolean isAutoStart;
 	private String launcherName;
-	private URL metadataRepo;
+	private URL[] metadataRepos;
 	private String productName;
 	private VersionedName[] roots;
 	private final Map profileProperties = new HashMap();
-
-	public InstallDescription(String name) {
-		this.productName = name;
-	}
 
 	/**
 	 * Returns the p2 agent location, or <code>null</code> to indicate
@@ -46,11 +43,11 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the location of the artifact repository to install from
-	 * @return an artifact repository URL
+	 * Returns the locations of the artifact repositories to install from
+	 * @return a list of artifact repository URLs
 	 */
-	public URL getArtifactRepository() {
-		return artifactRepo;
+	public URL[] getArtifactRepositories() {
+		return artifactRepos;
 	}
 
 	/**
@@ -78,11 +75,11 @@ public class InstallDescription {
 	}
 
 	/**
-	 * Returns the location of the metadata repository to install from
-	 * @return a metadata repository URL
+	 * Returns the locations of the metadata repositories to install from
+	 * @return a list of metadata repository URLs
 	 */
-	public URL getMetadataRepository() {
-		return metadataRepo;
+	public URL[] getMetadataRepositories() {
+		return metadataRepos;
 	}
 
 	/**
@@ -114,8 +111,8 @@ public class InstallDescription {
 		this.agentLocation = agentLocation;
 	}
 
-	public void setArtifactRepository(URL repository) {
-		this.artifactRepo = repository;
+	public void setArtifactRepositories(URL[] value) {
+		this.artifactRepos = value;
 	}
 
 	public void setAutoStart(boolean value) {
@@ -134,8 +131,8 @@ public class InstallDescription {
 		this.launcherName = name;
 	}
 
-	public void setMetadataRepository(URL repository) {
-		this.metadataRepo = repository;
+	public void setMetadataRepositories(URL[] value) {
+		this.metadataRepos = value;
 	}
 
 	/**
@@ -160,6 +157,14 @@ public class InstallDescription {
 	 */
 	public void setRoots(VersionedName[] value) {
 		roots = value;
+	}
+
+	/**
+	 * Set the name of the product being installed.
+	 * @param value the new name of the product to install
+	 */
+	public void setProductName(String value) {
+		productName = value;
 	}
 
 }

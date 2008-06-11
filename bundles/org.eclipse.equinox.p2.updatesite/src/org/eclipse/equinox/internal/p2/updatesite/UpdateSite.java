@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
@@ -37,6 +37,10 @@ public class UpdateSite {
 	private static final String FEATURE_TEMP_FILE = "feature"; //$NON-NLS-1$
 	private static final String SITE_FILE = "site.xml"; //$NON-NLS-1$
 	private static final String DIR_SEPARATOR = "/"; //$NON-NLS-1$
+	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
+	private static final int RETRY_COUNT = 2;
+	private static final String DOT_XML = ".xml"; //$NON-NLS-1$
+	private static final String SITE = "site"; //$NON-NLS-1$
 	private String checksum;
 	private URL location;
 	private SiteModel site;
@@ -53,43 +57,39 @@ public class UpdateSite {
 	 * Return a new URL for the given file which is based from the specified root.
 	 */
 	public static URL getFileURL(URL root, String fileName) throws MalformedURLException {
-		if (root.getPath().endsWith(fileName))
+		String path = root.getPath();
+		if (path.endsWith(fileName))
 			return root;
-		if (root.getPath().endsWith(SITE_FILE))
+
+		if (constainsUpdateSiteFileName(path))
 			return new URL(root, fileName);
-		if (root.getPath().endsWith(DIR_SEPARATOR))
+
+		if (path.endsWith(DIR_SEPARATOR))
 			return new URL(root.toExternalForm() + fileName);
 		return new URL(root.toExternalForm() + DIR_SEPARATOR + fileName);
-	}
-
-	/*
-	 * Open and return the input stream for the given URL.
-	 */
-	private static InputStream getSiteInputStream(URL url) throws ProvisionException {
-		try {
-			return getSiteURL(url).openStream();
-		} catch (MalformedURLException e) {
-			String msg = NLS.bind(Messages.InvalidRepositoryLocation, url);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
-		} catch (IllegalArgumentException e) {
-			//see bug 221600 - URL.openStream can throw IllegalArgumentException
-			String msg = NLS.bind(Messages.InvalidRepositoryLocation, url);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
-		} catch (IOException e) {
-			String msg = NLS.bind(Messages.ErrorReadingSite, url);
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, msg, e));
-		}
 	}
 
 	/*
 	 * Return a URL based on the given URL, which points to a site.xml file.
 	 */
 	private static URL getSiteURL(URL url) throws MalformedURLException {
-		if (url.getPath().endsWith(SITE_FILE))
+		String path = url.getPath();
+		if (constainsUpdateSiteFileName(path))
 			return url;
-		if (url.getPath().endsWith(DIR_SEPARATOR))
+
+		if (path.endsWith(DIR_SEPARATOR))
 			return new URL(url.toExternalForm() + SITE_FILE);
 		return new URL(url.toExternalForm() + DIR_SEPARATOR + SITE_FILE);
+	}
+
+	private static boolean constainsUpdateSiteFileName(String path) {
+		if (path.endsWith(DOT_XML)) {
+			int lastSlash = path.lastIndexOf('/');
+			String lastSegment = lastSlash == -1 ? path : path.substring(lastSlash + 1);
+			if (lastSegment.indexOf(SITE) != -1)
+				return true;
+		}
+		return false;
 	}
 
 	/*
@@ -101,14 +101,15 @@ public class UpdateSite {
 		UpdateSite result = (UpdateSite) siteCache.get(location.toExternalForm());
 		if (result != null)
 			return result;
-		InputStream input = getSiteInputStream(location);
+		InputStream input = null;
+		File siteFile = loadSiteFile(location, monitor);
 		try {
 			DefaultSiteParser siteParser = new DefaultSiteParser();
 			Checksum checksum = new CRC32();
-			input = new CheckedInputStream(new BufferedInputStream(input), checksum);
+			input = new CheckedInputStream(new BufferedInputStream(new FileInputStream(siteFile)), checksum);
 			SiteModel siteModel = siteParser.parse(input);
 			String checksumString = Long.toString(checksum.getValue());
-			result = new UpdateSite(siteModel, location, checksumString);
+			result = new UpdateSite(siteModel, getSiteURL(location), checksumString);
 			siteCache.put(location.toExternalForm(), result);
 			return result;
 		} catch (SAXException e) {
@@ -119,39 +120,106 @@ public class UpdateSite {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		} finally {
 			try {
-				input.close();
+				if (input != null)
+					input.close();
 			} catch (IOException e) {
 				// ignore
 			}
+			if (!PROTOCOL_FILE.equals(location.getProtocol()))
+				siteFile.delete();
 		}
+	}
+
+	/**
+	 * Returns a local file containing the contents of the update site at the given location.
+	 */
+	private static File loadSiteFile(URL location, IProgressMonitor monitor) throws ProvisionException {
+		Throwable failure;
+		File siteFile = null;
+		IStatus transferResult;
+		boolean deleteSiteFile = false;
+		try {
+			URL actualLocation = getSiteURL(location);
+			if (PROTOCOL_FILE.equals(actualLocation.getProtocol())) {
+				siteFile = new File(actualLocation.getPath());
+				if (siteFile.exists())
+					transferResult = Status.OK_STATUS;
+				else {
+					String msg = NLS.bind(Messages.ErrorReadingSite, location);
+					transferResult = new Status(IStatus.ERROR, Activator.ID, msg, new FileNotFoundException(siteFile.getAbsolutePath()));
+				}
+			} else {
+				// creating a temp file. In the event of an error we want to delete it.
+				deleteSiteFile = true;
+				siteFile = File.createTempFile("site", ".xml"); //$NON-NLS-1$//$NON-NLS-2$
+				OutputStream destination = new BufferedOutputStream(new FileOutputStream(siteFile));
+				transferResult = getTransport().download(actualLocation.toExternalForm(), destination, monitor);
+			}
+			if (transferResult.isOK()) {
+				// successful. If the siteFile is the download of a remote site.xml it will get cleaned up later
+				deleteSiteFile = false;
+				return siteFile;
+			}
+			failure = transferResult.getException();
+		} catch (IOException e) {
+			failure = e;
+		} finally {
+			if (deleteSiteFile && siteFile != null)
+				siteFile.delete();
+		}
+		int code = (failure instanceof FileNotFoundException) ? ProvisionException.REPOSITORY_NOT_FOUND : ProvisionException.REPOSITORY_FAILED_READ;
+		String msg = NLS.bind(Messages.ErrorReadingSite, location);
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, code, msg, failure));
 	}
 
 	/*
 	 * Parse the feature.xml specified by the given input stream and return the feature object.
+	 * In case of failure, the failure is logged and null is returned
 	 */
-	private static Feature parseFeature(FeatureParser featureParser, URL featureURL) throws IOException, FileNotFoundException, ProvisionException {
-		File featureFile = File.createTempFile(FEATURE_TEMP_FILE, JAR_EXTENSION);
-		try {
-			FileUtils.copyStream(featureURL.openStream(), true, new BufferedOutputStream(new FileOutputStream(featureFile)), true);
+	private static Feature parseFeature(FeatureParser featureParser, URL featureURL) {
+		File featureFile = null;
+		if (PROTOCOL_FILE.equals(featureURL.getProtocol())) {
+			featureFile = new File(featureURL.getPath());
 			return featureParser.parse(featureFile);
-		} catch (IllegalArgumentException e) {
-			//see bug 221600 - URL.openStream can throw IllegalArgumentException
-			String msg = NLS.bind(Messages.InvalidRepositoryLocation, featureURL.toExternalForm());
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
-		} finally {
-			featureFile.delete();
 		}
+		try {
+			featureFile = File.createTempFile(FEATURE_TEMP_FILE, JAR_EXTENSION);
+			IStatus transferResult = null;
+			//try the download twice in case of transient network problems
+			for (int i = 0; i < RETRY_COUNT; i++) {
+				OutputStream destination = new BufferedOutputStream(new FileOutputStream(featureFile));
+				transferResult = getTransport().download(featureURL.toExternalForm(), destination, null);
+				if (transferResult.isOK())
+					break;
+			}
+			if (!transferResult.isOK()) {
+				LogHelper.log(new ProvisionException(transferResult));
+				return null;
+			}
+			return featureParser.parse(featureFile);
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e));
+		} finally {
+			if (featureFile != null)
+				featureFile.delete();
+		}
+		return null;
 	}
 
 	/*
 	 * Throw an exception if the site pointed to by the given URL is not valid.
 	 */
 	public static void validate(URL url, IProgressMonitor monitor) throws ProvisionException {
-		InputStream input = getSiteInputStream(url);
 		try {
-			input.close();
-		} catch (IOException e) {
-			// ignore
+			URL siteURL = getSiteURL(url);
+			long lastModified = getTransport().getLastModified(siteURL);
+			if (lastModified == 0) {
+				String msg = NLS.bind(Messages.ErrorReadingSite, url);
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, null));
+			}
+		} catch (MalformedURLException e) {
+			String msg = NLS.bind(Messages.ErrorReadingSite, url);
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, msg, e));
 		}
 	}
 
@@ -189,27 +257,32 @@ public class UpdateSite {
 	/*
 	 * Return a URL which represents the location of the given feature.
 	 */
-	public URL getFeatureURL(SiteFeature siteFeature, String id, String version) {
-		URL base = site.getLocationURL();
-		if (base == null)
-			base = location;
-		if (siteFeature == null) {
-			SiteFeature[] entries = site.getFeatures();
-			for (int i = 0; i < entries.length; i++) {
-				if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
-					siteFeature = entries[i];
-					break;
-				}
+	public URL getSiteFeatureURL(SiteFeature siteFeature) {
+		URL url = siteFeature.getURL();
+		if (url != null)
+			return url;
+
+		URL base = getBaseURL();
+		String featureURLString = siteFeature.getURLString();
+		return internalGetURL(base, featureURLString);
+	}
+
+	/*
+	 * Return a URL which represents the location of the given feature.
+	 */
+	public URL getFeatureURL(String id, String version) {
+		SiteFeature[] entries = site.getFeatures();
+		for (int i = 0; i < entries.length; i++) {
+			if (id.equals(entries[i].getFeatureIdentifier()) && version.equals(entries[i].getFeatureVersion())) {
+				return getSiteFeatureURL(entries[i]);
 			}
 		}
-		if (siteFeature != null) {
-			URL url = siteFeature.getURL();
-			if (url != null)
-				return url;
-			url = getArchiveURL(base, id);
-			if (url != null)
-				return url;
-		}
+
+		URL base = getBaseURL();
+		URL url = getArchiveURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
+		if (url != null)
+			return url;
+
 		// fall through to default URL
 		try {
 			return getFileURL(base, FEATURE_DIR + id + VERSION_SEPARATOR + version + JAR_EXTENSION);
@@ -226,13 +299,23 @@ public class UpdateSite {
 		return location;
 	}
 
+	public String getMirrorsURL() {
+		//copy mirror information from update site to p2 repositories
+		String mirrors = site.getMirrorsURL();
+		if (mirrors == null)
+			return null;
+		//remove site.xml file reference
+		int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
+		if (index != -1)
+			mirrors = mirrors.substring(0, index) + mirrors.substring(index + "site.xml".length()); //$NON-NLS-1$
+		return mirrors;
+	}
+
 	/*
 	 * Return a URL which represents the location of the given plug-in.
 	 */
 	public URL getPluginURL(FeatureEntry plugin) {
-		URL base = site.getLocationURL();
-		if (base == null)
-			base = location;
+		URL base = getBaseURL();
 		String path = PLUGIN_DIR + plugin.getId() + VERSION_SEPARATOR + plugin.getVersion() + JAR_EXTENSION;
 		URL url = getArchiveURL(base, path);
 		if (url != null)
@@ -243,6 +326,19 @@ public class UpdateSite {
 			// shouldn't happen
 		}
 		return null;
+	}
+
+	private URL getBaseURL() {
+		URL base = null;
+		String siteURLString = site.getLocationURLString();
+		if (siteURLString != null) {
+			if (!siteURLString.endsWith("/")) //$NON-NLS-1$
+				siteURLString += "/"; //$NON-NLS-1$
+			base = internalGetURL(location, siteURLString);
+		}
+		if (base == null)
+			base = location;
+		return base;
 	}
 
 	/*
@@ -285,28 +381,32 @@ public class UpdateSite {
 	 * digest file, if it exists.
 	 */
 	private Feature[] loadFeaturesFromDigest() {
+		File digestFile = null;
+		boolean local = false;
 		if (!featureCache.isEmpty())
 			return (Feature[]) featureCache.values().toArray(new Feature[featureCache.size()]);
 		try {
-			URL digestURL = getFileURL(location, "digest.zip"); //$NON-NLS-1$
-			File digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
-			try {
-				FileUtils.copyStream(digestURL.openStream(), true, new BufferedOutputStream(new FileOutputStream(digestFile)), true);
-				Feature[] result = new DigestParser().parse(digestFile);
-				if (result == null)
+			URL digestURL = getDigestURL();
+			if (PROTOCOL_FILE.equals(digestURL.getProtocol())) {
+				digestFile = URLUtil.toFile(digestURL);
+				if (!digestFile.exists())
 					return null;
-				for (int i = 0; i < result.length; i++) {
-					String key = result[i].getId() + VERSION_SEPARATOR + result[i].getVersion();
-					featureCache.put(key, result[i]);
-				}
-				return result;
-			} catch (IllegalArgumentException e) {
-				//see bug 221600 - URL.openStream can throw IllegalArgumentException
-				String msg = NLS.bind(Messages.InvalidRepositoryLocation, digestURL.toExternalForm());
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
-			} finally {
-				digestFile.delete();
+				local = true;
+			} else {
+				digestFile = File.createTempFile("digest", ".zip"); //$NON-NLS-1$ //$NON-NLS-2$
+				BufferedOutputStream destination = new BufferedOutputStream(new FileOutputStream(digestFile));
+				IStatus result = getTransport().download(digestURL.toExternalForm(), destination, null);
+				if (!result.isOK())
+					return null;
 			}
+			Feature[] features = new DigestParser().parse(digestFile);
+			if (features == null)
+				return null;
+			for (int i = 0; i < features.length; i++) {
+				String key = features[i].getId() + VERSION_SEPARATOR + features[i].getVersion();
+				featureCache.put(key, features[i]);
+			}
+			return features;
 		} catch (FileNotFoundException fnfe) {
 			// we do not track FNF exceptions as we will fall back to the 
 			// standard feature parsing from the site itself, see bug 225587.
@@ -315,8 +415,23 @@ public class UpdateSite {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_INVALID_LOCATION, msg, e));
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingDigest, location), e));
+		} finally {
+			if (!local && digestFile != null)
+				digestFile.delete();
 		}
 		return null;
+	}
+
+	private URL getDigestURL() throws MalformedURLException {
+		URL digestBase = location;
+		String digestURLString = site.getDigestURLString();
+		if (digestURLString != null) {
+			if (!digestURLString.endsWith("/")) //$NON-NLS-1$
+				digestURLString += "/"; //$NON-NLS-1$
+			digestBase = internalGetURL(location, digestURLString);
+		}
+
+		return getFileURL(digestBase, "digest.zip"); //$NON-NLS-1$
 	}
 
 	/*
@@ -328,25 +443,22 @@ public class UpdateSite {
 		FeatureParser featureParser = new FeatureParser();
 		for (int i = 0; i < siteFeatures.length; i++) {
 			SiteFeature siteFeature = siteFeatures[i];
-			String key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
-			if (featureCache.containsKey(key))
-				continue;
-			URL featureURL = getFeatureURL(siteFeature, siteFeature.getFeatureIdentifier(), siteFeature.getFeatureVersion());
-			Feature feature = null;
-			try {
-				feature = parseFeature(featureParser, featureURL);
-			} catch (IOException e) {
-				// try twice to be a bit more robust if network
-				// connectivity glitches happen while parsing features
-				try {
-					feature = parseFeature(featureParser, featureURL);
-				} catch (IOException e1) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e1));
-				}
+			String key = null;
+			if (siteFeature.getFeatureIdentifier() != null && siteFeature.getFeatureVersion() != null) {
+				key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
+				if (featureCache.containsKey(key))
+					continue;
 			}
+			URL featureURL = getSiteFeatureURL(siteFeature);
+			Feature feature = parseFeature(featureParser, featureURL);
 			if (feature == null) {
 				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
 			} else {
+				if (key == null) {
+					siteFeature.setFeatureIdentifier(feature.getId());
+					siteFeature.setFeatureVersion(feature.getVersion());
+					key = siteFeature.getFeatureIdentifier() + VERSION_SEPARATOR + siteFeature.getFeatureVersion();
+				}
 				featureCache.put(key, feature);
 				loadIncludedFeatures(feature, featureParser);
 			}
@@ -366,31 +478,19 @@ public class UpdateSite {
 			String key = entry.getId() + VERSION_SEPARATOR + entry.getVersion();
 			if (featureCache.containsKey(key))
 				continue;
-			URL featureURL = null;
-			try {
-				featureURL = getFileURL(location, FEATURE_DIR + entry.getId() + VERSION_SEPARATOR + entry.getVersion() + JAR_EXTENSION);
-				Feature includedFeature = null;
-				try {
-					includedFeature = parseFeature(featureParser, featureURL);
-				} catch (IOException e) {
-					// try twice to get each feature in the site since we get
-					// communication errors occur periodically and this just helps the likelihood
-					// of finding the features that are available
-					try {
-						includedFeature = parseFeature(featureParser, featureURL);
-					} catch (IOException e1) {
-						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL), e1));
-					}
-				}
-				if (feature == null) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, featureURL)));
-				} else {
-					featureCache.put(key, includedFeature);
-					loadIncludedFeatures(includedFeature, featureParser);
-				}
-			} catch (MalformedURLException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, entry.getId()), e));
+
+			URL includedFeatureURL = getFeatureURL(entry.getId(), entry.getVersion());
+			Feature includedFeature = parseFeature(featureParser, includedFeatureURL);
+			if (includedFeature == null) {
+				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.ErrorReadingFeature, includedFeatureURL)));
+			} else {
+				featureCache.put(key, includedFeature);
+				loadIncludedFeatures(includedFeature, featureParser);
 			}
 		}
+	}
+
+	private static ECFTransport getTransport() {
+		return ECFTransport.getInstance();
 	}
 }

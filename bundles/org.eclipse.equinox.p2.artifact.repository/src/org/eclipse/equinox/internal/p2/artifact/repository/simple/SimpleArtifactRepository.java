@@ -18,11 +18,11 @@ import java.util.jar.JarOutputStream;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.internal.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.p2.artifact.repository.Messages;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepHandler;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
@@ -54,6 +54,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		private OutputStream destination;
 		private File file;
 		private IStatus status = Status.OK_STATUS;
+		private OutputStream firstLink;
 
 		public ArtifactOutputStream(OutputStream os, IArtifactDescriptor descriptor) {
 			this(os, descriptor, null);
@@ -85,7 +86,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			// TODO the count check is a bit bogus but helps in some error cases (e.g., the optimizer)
 			// where errors occurred in a processing step earlier in the chain.  We likely need a better
 			// or more explicit way of handling this case.
-			if (getStatus().isOK() && ProcessingStepHandler.checkStatus(destination).isOK() && count > 0) {
+			OutputStream testStream = firstLink == null ? this : firstLink;
+			if (ProcessingStepHandler.checkStatus(testStream).isOK() && count > 0) {
 				((ArtifactDescriptor) descriptor).setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(count));
 				addDescriptor(descriptor);
 			} else if (file != null)
@@ -95,6 +97,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 		public IStatus getStatus() {
 			return status;
+		}
+
+		public OutputStream getDestination() {
+			return destination;
 		}
 
 		public void setStatus(IStatus status) {
@@ -114,6 +120,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		public void write(int b) throws IOException {
 			destination.write(b);
 			count++;
+		}
+
+		public void setFirstLink(OutputStream value) {
+			firstLink = value;
 		}
 	}
 
@@ -298,6 +308,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	private OutputStream addPreSteps(ProcessingStepHandler handler, IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		ArrayList steps = new ArrayList();
+		if (IArtifactDescriptor.TYPE_ZIP.equals(descriptor.getProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE)))
+			steps.add(new ZipVerifierStep());
 		// Add steps here if needed
 		if (steps.isEmpty())
 			return destination;
@@ -387,6 +399,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
 		if (isFolderBased(descriptor)) {
 			File artifactFolder = getArtifactFile(descriptor);
+			if (artifactFolder == null)
+				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.artifact_not_found, descriptor.getArtifactKey())));
 			// TODO: optimize and ensure manifest is written first
 			File zipFile = null;
 			try {
@@ -395,24 +409,48 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 				FileInputStream fis = new FileInputStream(zipFile);
 				FileUtils.copyStream(fis, true, destination, false);
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, e.getMessage());
+				return reportStatus(descriptor, destination, new Status(IStatus.ERROR, Activator.ID, e.getMessage()));
 			} finally {
 				if (zipFile != null)
 					zipFile.delete();
 			}
-			return Status.OK_STATUS;
+			return reportStatus(descriptor, destination, Status.OK_STATUS);
 		}
 
 		//download from the best available mirror
 		String baseLocation = getLocation(descriptor);
 		String mirrorLocation = getMirror(baseLocation);
+		IStatus status = downloadArtifact(descriptor, mirrorLocation, destination, monitor);
+		IStatus result = reportStatus(descriptor, destination, status);
+		// if the original download went reasonably but the reportStatus found some issues
+		// (e..g, in the processing steps/validators) then mark the mirror as bad and return
+		// a retry code (assuming we have more mirrors)
+		if ((status.isOK() || status.matches(IStatus.INFO | IStatus.WARNING)) && result.getSeverity() == IStatus.ERROR) {
+			if (mirrors != null) {
+				mirrors.reportResult(mirrorLocation, result);
+				if (mirrors.hasValidMirror())
+					return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {result}, "Retry another mirror", null); //$NON-NLS-1$
+			}
+		}
+		// if the original status was a retry, don't lose that.
+		return status.getCode() == CODE_RETRY ? status : result;
+	}
+
+	private IStatus downloadArtifact(IArtifactDescriptor descriptor, String mirrorLocation, OutputStream destination, IProgressMonitor monitor) {
 		IStatus result = getTransport().download(mirrorLocation, destination, monitor);
 		if (mirrors != null)
 			mirrors.reportResult(mirrorLocation, result);
-		if (result.isOK() || baseLocation.equals(mirrorLocation))
+		if (result.isOK() || result.getSeverity() == IStatus.CANCEL)
 			return result;
-		//maybe we hit a bad mirror - try the base location
-		return getTransport().download(baseLocation, destination, monitor);
+		if (monitor.isCanceled())
+			return Status.CANCEL_STATUS;
+		// If there are more valid mirrors then return an error with a special code that tells the caller
+		// to keep trying.  Note that the message in the status is largely irrelevant but the child
+		// status tells the story of why we failed on this try.
+		// TODO find a better way of doing this.
+		if (mirrors != null && mirrors.hasValidMirror())
+			return new MultiStatus(Activator.ID, CODE_RETRY, new IStatus[] {result}, "Retry another mirror", null); //$NON-NLS-1$
+		return result;
 	}
 
 	/**
@@ -449,8 +487,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		if (!status.isOK() && status.getSeverity() != IStatus.INFO)
 			return status;
 
-		status = downloadArtifact(descriptor, destination, monitor);
-		return reportStatus(descriptor, destination, status);
+		return downloadArtifact(descriptor, destination, monitor);
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
@@ -756,7 +793,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.sar_reportStatus, descriptor.getArtifactKey().toExternalForm()), e);
 		}
 
-		IStatus stepStatus = ((ProcessingStep) destination).getStatus(true);
+		IStatus stepStatus = ProcessingStepHandler.getStatus(destination, true);
 		// if the steps all ran ok and there is no interesting information, return the status from this method
 		if (!stepStatus.isMultiStatus() && stepStatus.isOK())
 			return status;

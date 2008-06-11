@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.update;
 
+import java.net.URL;
+
 /*
  * Represents a feature entry in a platform.xml file.
  */
@@ -19,16 +21,37 @@ public class Feature {
 	private String url;
 	private String version;
 	private Site site;
+	private String pluginIdentifier;
+	private String pluginVersion;
+	private String application;
+	private URL[] roots;
+	private boolean primary = false;
 
 	public Feature(Site site) {
 		super();
 		if (site == null)
-			throw new IllegalArgumentException("Features should not have an empty site."); //$NON-NLS-1$
+			throw new IllegalArgumentException(Messages.empty_feature_site);
 		this.site = site;
+	}
+
+	public String getApplication() {
+		return application;
 	}
 
 	public String getId() {
 		return id;
+	}
+
+	public String getPluginIdentifier() {
+		return pluginIdentifier;
+	}
+
+	public String getPluginVersion() {
+		return pluginVersion;
+	}
+
+	public URL[] getRoots() {
+		return roots;
 	}
 
 	public Site getSite() {
@@ -43,8 +66,32 @@ public class Feature {
 		return version;
 	}
 
+	public boolean isPrimary() {
+		return primary;
+	}
+
+	public void setApplication(String application) {
+		this.application = application;
+	}
+
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public void setPluginIdentifier(String pluginIdentifier) {
+		this.pluginIdentifier = pluginIdentifier;
+	}
+
+	public void setPluginVersion(String pluginVersion) {
+		this.pluginVersion = pluginVersion;
+	}
+
+	public void setPrimary(boolean primary) {
+		this.primary = primary;
+	}
+
+	public void setRoots(URL[] roots) {
+		this.roots = roots;
 	}
 
 	public void setUrl(String url) {
@@ -82,6 +129,6 @@ public class Feature {
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		return super.hashCode();
+		return id.hashCode() + version.hashCode();
 	}
 }

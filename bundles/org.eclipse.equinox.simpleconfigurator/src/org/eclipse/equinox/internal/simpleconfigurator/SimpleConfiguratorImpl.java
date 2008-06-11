@@ -1,12 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator;
 
@@ -20,17 +18,19 @@ import org.eclipse.equinox.internal.simpleconfigurator.utils.*;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
-/**
- * SimpleConfigurator provides ways to install bundles listed in a file accessible
- * by the specified URL and expect states for it in advance without actual application.
+/*
+ * SimpleConfigurator provides ways to install bundles listed in a file
+ * accessible by the specified URL and expect states for it in advance without
+ * actual application.
  * 
  * In every methods of SimpleConfiguration object,
- *  
- * 1. A value will be gotten by @{link BundleContext#getProperty(key) with 
+ * 
+ * 1. A value will be gotten by @{link BundleContext#getProperty(key) with
  * {@link SimpleConfiguratorConstants#PROP_KEY_EXCLUSIVE_INSTALLATION} as a key.
- * 2. If it equals "true", it will do exclusive installation, which means that 
+ * 2. If it equals "true", it will do exclusive installation, which means that
  * the bundles will not be listed in the specified url but installed at the time
- * of the method call except SystemBundle will be uninstalled. Otherwise, no uninstallation will not be done.
+ * of the method call except SystemBundle will be uninstalled. Otherwise, no
+ * uninstallation will not be done.
  */
 public class SimpleConfiguratorImpl implements Configurator {
 
@@ -65,8 +65,9 @@ public class SimpleConfiguratorImpl implements Configurator {
 			URL url = null;
 			String file = specifiedURL;
 			while (!done) {
+				// TODO what is this while loop for?  nested file:file:file: urls?
 				try {
-					url = new URL(file);
+					url = Utils.buildURL(file);
 					file = url.getFile();
 				} catch (java.net.MalformedURLException e) {
 					done = true;
@@ -78,15 +79,18 @@ public class SimpleConfiguratorImpl implements Configurator {
 			//if it is an relative file URL, then resolve it against the configuration area
 			URL[] configURL = EquinoxUtils.getConfigAreaURL(context);
 			if (configURL != null) {
-				File target = new File(configURL[0].getFile(), url.getFile());
-				if (target.exists())
-					return target.toURL();
-				else if (configURL.length > 1) {
-					target = new File(configURL[1].getFile(), url.getFile());
-					if (target.exists())
-						return target.toURL();
-				}
-				return null;
+				File userConfig = new File(configURL[0].getFile(), url.getFile());
+				if (configURL.length == 1)
+					return userConfig.exists() ? userConfig.toURL() : null;
+
+				File sharedConfig = new File(configURL[1].getFile(), url.getFile());
+				if (!userConfig.exists())
+					return sharedConfig.exists() ? sharedConfig.toURL() : null;
+
+				if (!sharedConfig.exists())
+					return userConfig.toURL();
+
+				return (sharedConfig.lastModified() > userConfig.lastModified()) ? sharedConfig.toURL() : userConfig.toURL();
 			}
 		} catch (MalformedURLException e) {
 			return null;
@@ -94,7 +98,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 
 		//Last resort
 		try {
-			return new URL(specifiedURL);
+			return Utils.buildURL(specifiedURL);
 		} catch (MalformedURLException e) {
 			//Ignore
 		}
@@ -130,9 +134,7 @@ public class SimpleConfiguratorImpl implements Configurator {
 
 	public void applyConfiguration() throws IOException {
 		synchronized (configurationLock) {
-			if (configurationURL == null)
-				configurationURL = getConfigurationURL();
-
+			configurationURL = getConfigurationURL();
 			applyConfiguration(configurationURL);
 		}
 	}

@@ -11,9 +11,7 @@
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
 import java.net.URL;
-import org.eclipse.equinox.internal.p2.ui.sdk.externalFiles.MetadataGeneratingURLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.AddRepositoryDialog;
-import org.eclipse.equinox.internal.provisional.p2.ui.dialogs.URLValidator;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.AddColocatedRepositoryOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.swt.widgets.Shell;
@@ -35,12 +33,5 @@ public class AddColocatedRepositoryDialog extends AddRepositoryDialog {
 
 	protected ProvisioningOperation getOperation(URL url) {
 		return new AddColocatedRepositoryOperation(getShell().getText(), url);
-	}
-
-	protected URLValidator createURLValidator() {
-		MetadataGeneratingURLValidator validator = new MetadataGeneratingURLValidator();
-		validator.setKnownRepositoriesFlag(repoFlag);
-		validator.setShell(getShell());
-		return validator;
 	}
 }

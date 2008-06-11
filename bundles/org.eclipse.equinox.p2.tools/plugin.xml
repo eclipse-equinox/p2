@@ -9,5 +9,14 @@
          <run class="org.eclipse.equinox.internal.p2.tools.UpdateCheckerApplication"/> 
       </application> 
    </extension>
-
+	<extension id="metadataCompareApplication" point="org.eclipse.core.runtime.applications"> 
+      <application> 
+         <run class="org.eclipse.equinox.internal.p2.tools.MetadataCompareApplication"/> 
+      </application> 
+   </extension>
+	<extension id="MirrorApplication" point="org.eclipse.core.runtime.applications"> 
+      <application> 
+         <run class="org.eclipse.equinox.internal.p2.tools.mirror.MirrorApplication"/> 
+      </application> 
+   </extension>
 </plugin>

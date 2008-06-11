@@ -16,20 +16,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.publisher.MetadataGeneratorHelper;
-import org.eclipse.equinox.internal.p2.publisher.features.*;
-import org.eclipse.equinox.internal.p2.updatesite.Activator;
-import org.eclipse.equinox.internal.p2.updatesite.Messages;
+import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
 import org.osgi.framework.BundleContext;
 
 public class UpdateSiteArtifactRepository extends AbstractRepository implements IArtifactRepository {
 
+	public static final String TYPE = "org.eclipse.equinox.p2.updatesite.artifactRepository"; //$NON-NLS-1$
+	public static final Integer VERSION = new Integer(1);
 	private static final String PROP_ARTIFACT_REFERENCE = "artifact.reference"; //$NON-NLS-1$
 	private static final String PROP_FORCE_THREADING = "eclipse.p2.force.threading"; //$NON-NLS-1$
 	private static final String PROP_SITE_CHECKSUM = "site.checksum"; //$NON-NLS-1$
@@ -38,7 +38,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	private final IArtifactRepository artifactRepository;
 
 	public UpdateSiteArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("update site: " + location.toExternalForm(), null, null, location, null, null);
+		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 
 		// todo progress monitoring
 		// loading validates before we create repositories
@@ -54,7 +54,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		} catch (MalformedURLException e) {
 			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, Messages.ErrorCreatingRepository, e));
 		}
-		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm());
+		artifactRepository = initializeArtifactRepository(context, localRepositoryURL, "update site implementation - " + location.toExternalForm(), updateSite); //$NON-NLS-1$
 
 		String savedChecksum = (String) artifactRepository.getProperties().get(PROP_SITE_CHECKSUM);
 		if (savedChecksum != null && savedChecksum.equals(updateSite.getChecksum()))
@@ -62,12 +62,12 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 		if (!location.getProtocol().equals(PROTOCOL_FILE))
 			artifactRepository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
-		artifactRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		artifactRepository.removeAll();
-		generateMetadata(updateSite);
+		generateArtifacts(updateSite);
+		artifactRepository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 	}
 
-	private void generateMetadata(UpdateSite updateSite) throws ProvisionException {
+	private void generateArtifacts(UpdateSite updateSite) throws ProvisionException {
 		Feature[] features = updateSite.loadFeatures();
 
 		Set allSiteArtifacts = new HashSet();
@@ -75,8 +75,9 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 			Feature feature = features[i];
 			IArtifactKey featureKey = MetadataGeneratorHelper.createFeatureArtifactKey(feature.getId(), feature.getVersion());
 			ArtifactDescriptor featureArtifactDescriptor = new ArtifactDescriptor(featureKey);
-			URL featureURL = updateSite.getFeatureURL(null, feature.getId(), feature.getVersion());
+			URL featureURL = updateSite.getFeatureURL(feature.getId(), feature.getVersion());
 			featureArtifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, featureURL.toExternalForm());
+			featureArtifactDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			allSiteArtifacts.add(featureArtifactDescriptor);
 
 			FeatureEntry[] featureEntries = feature.getEntries();
@@ -87,6 +88,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 					ArtifactDescriptor artifactDescriptor = new ArtifactDescriptor(key);
 					URL pluginURL = updateSite.getPluginURL(entry);
 					artifactDescriptor.setRepositoryProperty(PROP_ARTIFACT_REFERENCE, pluginURL.toExternalForm());
+					artifactDescriptor.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 					allSiteArtifacts.add(artifactDescriptor);
 				}
 			}
@@ -100,20 +102,25 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 		UpdateSite.validate(url, monitor);
 	}
 
-	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL, String repositoryName) {
+	private IArtifactRepository initializeArtifactRepository(BundleContext context, URL stateDirURL, String repositoryName, UpdateSite updateSite) {
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
 			return factory.load(stateDirURL, null);
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
-		return factory.create(stateDirURL, repositoryName, null);
+		Map props = new HashMap(5);
+		String mirrors = updateSite.getMirrorsURL();
+		if (mirrors != null) {
+			props.put(IRepository.PROP_MIRRORS_URL, mirrors);
+			//set the mirror base URL relative to the real remote repository rather than our local cache
+			props.put(IRepository.PROP_MIRRORS_BASE_URL, getLocation().toExternalForm());
+		}
+		return factory.create(stateDirURL, repositoryName, null, props);
 	}
 
 	public Map getProperties() {
-		Map result = new HashMap(artifactRepository.getProperties());
-		result.remove(IRepository.PROP_SYSTEM);
-		return result;
+		return artifactRepository.getProperties();
 	}
 
 	public String setProperty(String key, String value) {
@@ -149,7 +156,7 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 	}
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
-		return getOutputStream(descriptor, true);
+		return artifactRepository.getOutputStream(descriptor);
 	}
 
 	public void removeAll() {
@@ -166,9 +173,5 @@ public class UpdateSiteArtifactRepository extends AbstractRepository implements 
 
 	public void addDescriptors(IArtifactDescriptor[] descriptors) {
 		artifactRepository.addDescriptors(descriptors);
-	}
-
-	public OutputStream getOutputStream(IArtifactDescriptor descriptor, boolean overwrite) throws ProvisionException {
-		return artifactRepository.getOutputStream(descriptor, overwrite);
 	}
 }
