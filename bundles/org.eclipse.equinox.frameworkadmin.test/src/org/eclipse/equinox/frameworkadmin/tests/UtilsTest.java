@@ -9,23 +9,9 @@ package org.eclipse.equinox.frameworkadmin.tests;
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-///**
-// * 
-// */
-//package org.eclipse.incubator.configurator.util;
-//
-//import java.net.MalformedURLException;
-//import java.net.URL;
-//
-//import junit.framework.*;
-//
-//import org.eclipse.equinox.internal.frameworkadmin.utils.*;
-//
-///**
-// * @author iyamasak
-// *
-// */
-//public class UtilsTest extends TestCase {
+import junit.framework.TestCase;
+
+public class UtilsTest extends TestCase {
 //
 //	/**
 //	 * @param name
@@ -130,4 +116,4 @@ package org.eclipse.equinox.frameworkadmin.tests;
 //		String ret = Utils.removeLastCh(target, ch);
 //		assertEquals(expected, ret);
 //	}
-//}
+}
