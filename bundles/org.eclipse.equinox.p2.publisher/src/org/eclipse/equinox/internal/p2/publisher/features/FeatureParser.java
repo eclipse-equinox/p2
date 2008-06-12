@@ -40,7 +40,7 @@ public class FeatureParser extends DefaultHandler {
 		this(true);
 	}
 
-	protected FeatureParser(boolean createParser) {
+	public FeatureParser(boolean createParser) {
 		super();
 		if (!createParser)
 			return;

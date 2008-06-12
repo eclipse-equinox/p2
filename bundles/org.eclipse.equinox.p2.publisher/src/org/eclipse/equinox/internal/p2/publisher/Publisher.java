@@ -65,7 +65,7 @@ public class Publisher {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a random repo by default.
 		String repositoryName = name == null ? location + " - metadata" : name; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(url, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		IMetadataRepository result = manager.createRepository(url, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		manager.addRepository(result.getLocation());
 		if (result != null)
 			result.setProperty(IRepository.PROP_COMPRESSED, compress ? "true" : "false"); //$NON-NLS-1$//$NON-NLS-2$
@@ -109,7 +109,7 @@ public class Publisher {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = name != null ? name : location + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(url, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		IArtifactRepository result = manager.createRepository(url, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		manager.addRepository(result.getLocation());
 		// TODO there must be something we have to do to set up the mapping rules here...
 		//		if (inplace) {

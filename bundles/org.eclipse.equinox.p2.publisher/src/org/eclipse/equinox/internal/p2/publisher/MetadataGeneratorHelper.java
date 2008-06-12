@@ -22,7 +22,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
-import org.eclipse.equinox.internal.p2.publisher.features.*;
+import org.eclipse.equinox.internal.p2.publisher.features.Feature;
+import org.eclipse.equinox.internal.p2.publisher.features.FeatureEntry;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
@@ -375,38 +376,6 @@ public class MetadataGeneratorHelper {
 
 	private static ProvidedCapability makeTranslationCapability(String hostId, Locale locale) {
 		return MetadataFactory.createProvidedCapability(NAMESPACE_IU_LOCALIZATION, locale.toString(), new Version(1, 0, 0));
-	}
-
-	/**
-	 * Creates an IU corresponding to an update site category
-	 * @param category The category descriptor
-	 * @param featureIUs The IUs of the features that belong to the category
-	 * @param parentCategory The parent category, or <code>null</code>
-	 * @return an IU representing the category
-	 */
-	public static IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
-		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
-		cat.setSingleton(true);
-		cat.setId(category.getName());
-		cat.setVersion(Version.emptyVersion);
-		cat.setProperty(IInstallableUnit.PROP_NAME, category.getLabel());
-		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
-
-		ArrayList reqsConfigurationUnits = new ArrayList(featureIUs.size());
-		for (Iterator iterator = featureIUs.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
-		}
-		//note that update sites don't currently support nested categories, but it may be useful to add in the future
-		if (parentCategory != null) {
-			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
-		}
-		cat.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
-		cat.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, category.getName(), Version.emptyVersion)});
-		cat.setArtifacts(new IArtifactKey[0]);
-		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
-		return MetadataFactory.createInstallableUnit(cat);
 	}
 
 	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {

@@ -17,7 +17,6 @@ import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.actions.EclipseInstallAction;
-import org.eclipse.equinox.internal.p2.publisher.actions.LocalUpdateSiteAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 
 /**
@@ -103,16 +102,12 @@ public class GeneratorTask extends Task {
 			// TODO what to do in this case?
 			return new IPublishingAction[] {};
 		if (operation.equals("-update")) //$NON-NLS-1$
-			return new IPublishingAction[] {new LocalUpdateSiteAction(operationValue)};
+			// TODO fix this up.  watch for circularities
+			//			return new IPublishingAction[] {new LocalUpdateSiteAction(operationValue)};
+			return new IPublishingAction[] {};
 		if (operation.equals("-source")) //$NON-NLS-1$
 			// TODO what to do in this case?
 			return new IPublishingAction[] {new EclipseInstallAction(operationValue, root, rootVersion, rootName, flavor, topLevel, nonRootFiles, start)};
-		if (operation.equals("-update")) //$NON-NLS-1$
-			// TODO what to do in this case?
-			return new IPublishingAction[] {};
-		if (operation.equals("-update")) //$NON-NLS-1$
-			// TODO what to do in this case?
-			return new IPublishingAction[] {};
 		// TODO what to do in this case?
 		return new IPublishingAction[] {};
 	}

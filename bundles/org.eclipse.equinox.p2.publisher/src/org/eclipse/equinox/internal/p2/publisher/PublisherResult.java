@@ -96,11 +96,9 @@ public class PublisherResult implements IPublisherResult {
 
 	private List flatten(Collection values) {
 		ArrayList result = new ArrayList();
-		for (Iterator i = values.iterator(); i.hasNext();) {
-			IInstallableUnit[] ius = (IInstallableUnit[]) i.next();
-			for (int j = 0; j < ius.length; j++)
-				result.add(ius[j]);
-		}
+		for (Iterator i = values.iterator(); i.hasNext();)
+			for (Iterator j = ((HashSet) i.next()).iterator(); j.hasNext();) 
+				result.add(j.next());
 		return result;
 	}
 
