@@ -156,16 +156,21 @@ public class MirrorRequest extends ArtifactRequest {
 			return e.getStatus();
 		}
 
+		IStatus status = null;
 		// Do the actual transfer
 		try {
-			return getSourceRepository().getArtifact(sourceDescriptor, destination, monitor);
+			status = getSourceRepository().getArtifact(sourceDescriptor, destination, monitor);
 		} finally {
 			try {
 				destination.close();
 			} catch (IOException e) {
-				return new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+				if (status != null && status.getSeverity() == IStatus.ERROR && status.getCode() == IArtifactRepository.CODE_RETRY)
+					status = new MultiStatus(Activator.ID, status.getCode(), new IStatus[] {status}, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
+				else
+					status = new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.error_closing_stream, getArtifactKey(), target.getLocation()), e);
 			}
 		}
+		return status;
 	}
 
 	public String toString() {
