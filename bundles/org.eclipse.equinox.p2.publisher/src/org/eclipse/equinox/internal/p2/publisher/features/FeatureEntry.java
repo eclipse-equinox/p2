@@ -14,7 +14,7 @@ package org.eclipse.equinox.internal.p2.publisher.features;
  */
 public class FeatureEntry {
 	private final String id;
-	private final String version;
+	private String version;
 	private String url;
 	private String os;
 	private String ws;
@@ -26,6 +26,7 @@ public class FeatureEntry {
 	private boolean isRequires = false;
 	private boolean unpack = true;
 	private boolean optional = false;
+	private boolean isPatch = false;
 
 	/**
 	 * Temporary field to add provisioning filters to features
@@ -168,6 +169,10 @@ public class FeatureEntry {
 		url = value;
 	}
 
+	public void setVersion(String value) {
+		version = value;
+	}
+
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 
@@ -175,5 +180,13 @@ public class FeatureEntry {
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
 		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return result.toString();
+	}
+
+	public boolean isPatch() {
+		return isPatch;
+	}
+
+	public void setPatch(boolean patch) {
+		this.isPatch = patch;
 	}
 }
