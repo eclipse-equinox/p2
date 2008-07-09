@@ -333,10 +333,12 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 		File[] profileDirectories = store.listFiles();
 		for (int i = 0; i < profileDirectories.length; i++) {
 			File profileFile = findLatestProfileFile(profileDirectories[i]);
-			try {
-				parser.parse(profileFile);
-			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
+			if (profileFile != null) {
+				try {
+					parser.parse(profileFile);
+				} catch (IOException e) {
+					LogHelper.log(new Status(IStatus.ERROR, EngineActivator.ID, NLS.bind(Messages.error_parsing_profile, profileFile), e));
+				}
 			}
 		}
 		return parser.getProfileMap();
@@ -346,7 +348,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 
 		File latest = null;
 		long latestTimestamp = 0;
-		File[] profileFiles = profileDirectory.listFiles();
+		File[] profileFiles = profileDirectory.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(PROFILE_EXT) && !pathname.isDirectory();
+			}
+		});
 		for (int i = 0; i < profileFiles.length; i++) {
 			File profileFile = profileFiles[i];
 			String fileName = profileFile.getName();
