@@ -1224,6 +1224,14 @@ public class Generator {
 		if (asIs && files.length == 1) {
 			try {
 				if (!destination.contains(descriptor)) {
+					if (destination instanceof IFileArtifactRepository) {
+						//if the file is already in the same location the repo will put it, just add the descriptor and exit
+						File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
+						if (files[0].equals(descriptorFile)) {
+							destination.addDescriptor(descriptor);
+							return;
+						}
+					}
 					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, output, true);
 				}
