@@ -135,8 +135,15 @@ public class EclipseGeneratorApplication implements IApplication {
 			provider.setArtifactRepository(repository);
 			if (provider.reuseExistingPack200Files())
 				repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-			if (!provider.append())
+			if (!provider.append()) {
+				File repoLocation = new File(location.getPath());
+				if (repoLocation.isFile())
+					repoLocation = repoLocation.getParentFile();
+				if (repoLocation.equals(provider.getBaseLocation()))
+					throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, location));
+
 				repository.removeAll();
+			}
 		}
 		return;
 	}
@@ -153,6 +160,7 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		provider.setPublishArtifactRepository(true);
 		provider.setPublishArtifacts(false);
+		provider.setAppend(true);
 		provider.setMappingRules(INPLACE_MAPPING_RULES);
 	}
 
