@@ -440,16 +440,15 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 		IMetadataRepository result = getRepository(location);
 		if (result != null)
 			return result;
-		MultiStatus notFoundStatus = new MultiStatus(Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.repoMan_notExists, location.toExternalForm()), null);
 		if (checkNotFound(location))
-			throw new ProvisionException(notFoundStatus);
+			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
 		SubMonitor sub = SubMonitor.convert(monitor, Messages.repoMan_adding, suffixes.length * 100);
 		//add the repository first so that it will be enabled, but don't send add event until after the load
 		boolean added = addRepository(location, true, false);
 		try {
 			for (int i = 0; i < suffixes.length; i++) {
-				result = loadRepository(location, suffixes[i], type, sub.newChild(100), notFoundStatus);
+				result = loadRepository(location, suffixes[i], type, sub.newChild(100));
 				if (result != null) {
 					addRepository(result, false, suffixes[i]);
 					//broadcast the add event now
@@ -468,13 +467,14 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 			removeRepository(location);
 		else
 			rememberNotFound(location);
-		throw new ProvisionException(notFoundStatus);
+		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+		return null;//cannot get here
 	}
 
 	/**
 	 * Try to load a pre-existing repo at the given location
 	 */
-	private IMetadataRepository loadRepository(URL location, String suffix, String type, SubMonitor monitor, MultiStatus failures) {
+	private IMetadataRepository loadRepository(URL location, String suffix, String type, SubMonitor monitor) {
 		IExtension[] providers = findMatchingRepositoryExtensions(suffix, type);
 		// Loop over the candidates and return the first one that successfully loads
 		monitor.beginTask("", providers.length * 10); //$NON-NLS-1$
@@ -485,7 +485,7 @@ public class MetadataRepositoryManager implements IMetadataRepositoryManager, Pr
 					return factory.load(location, monitor.newChild(10));
 			} catch (ProvisionException e) {
 				if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
-					failures.add(e.getStatus());
+					log("Unable to load repository: " + location, e); //$NON-NLS-1$
 				//keep trying with other factories
 			}
 		}
