@@ -18,12 +18,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.installer.ui.SWTInstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallAdvisor;
 import org.eclipse.equinox.internal.provisional.p2.installer.InstallDescription;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleException;
+import org.osgi.framework.*;
 
 /**
  * This is a simple installer application built using P2.  The application must be given
@@ -54,6 +52,21 @@ public class InstallApplication implements IApplication {
 	 */
 	private static CoreException fail(String message, Throwable throwable) {
 		return new CoreException(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, message, throwable));
+	}
+
+	/**
+	 * Copied from ServiceHelper because we need to obtain services
+	 * before p2 has been started.
+	 */
+	public static Object getService(BundleContext context, String name) {
+		if (context == null)
+			return null;
+		ServiceReference reference = context.getServiceReference(name);
+		if (reference == null)
+			return null;
+		Object result = context.getService(reference);
+		context.ungetService(reference);
+		return result;
 	}
 
 	/**
@@ -157,7 +170,7 @@ public class InstallApplication implements IApplication {
 	}
 
 	private void initializeProxySupport() {
-		IProxyService proxies = (IProxyService) ServiceHelper.getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
+		IProxyService proxies = (IProxyService) getService(InstallerActivator.getDefault().getContext(), IProxyService.class.getName());
 		if (proxies == null)
 			return;
 		proxies.setProxiesEnabled(true);
