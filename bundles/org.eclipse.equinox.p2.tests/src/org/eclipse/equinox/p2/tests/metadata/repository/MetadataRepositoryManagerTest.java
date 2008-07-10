@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.*;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -122,6 +123,21 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * Tests loading a repository that does not exist throws an appropriate exception.
+	 */
+	public void testLoadMissingRepository() throws IOException {
+		File tempFile = File.createTempFile("testLoadMissingArtifactRepository", null);
+		URL location = tempFile.toURL();
+		try {
+			manager.loadRepository(location, null);
+			fail("1.0");//should fail
+		} catch (ProvisionException e) {
+			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
+			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
+		}
+	}
+
+	/**
 	 * Tests that we don't create a local cache when contacting a local metadata repository.
 	 */
 	public void testMetadataCachingLocalRepo() throws MalformedURLException, ProvisionException {
@@ -172,7 +188,6 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(0 != lastModified);
 
 		// reload the repository and check that the cache was not updated
-		manager.removeRepository(repoLocation);
 		manager.loadRepository(repoLocation, null);
 		assertEquals(lastModified, cacheFile.lastModified());
 
