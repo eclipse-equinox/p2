@@ -52,12 +52,12 @@ public class ConfiguratorCommandProvider implements CommandProvider {
 
 	public String getHelp() {
 		StringBuffer help = new StringBuffer();
-		help.append(NEW_LINE);
 		help.append("---"); //$NON-NLS-1$
 		help.append("Configurator Commands"); //$NON-NLS-1$
 		help.append("---"); //$NON-NLS-1$
 		help.append(NEW_LINE);
 		help.append("\tconfapply [<config URL>] - Applies a configuration"); //$NON-NLS-1$
+		help.append(NEW_LINE);
 		return help.toString();
 	}
 }
