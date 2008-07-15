@@ -327,7 +327,6 @@ public class EquinoxBundlesState implements BundlesState {
 		this.manipulator.getConfigData().setBundles(null);
 		SimpleBundlesState.checkAvailability(fwAdmin);
 		this.setStateObjectFactory();
-		BundleDescription[] cachedInstalledBundles = null;
 		state = null;
 		boolean flagNewState = false;
 		if (fwPersistentDataLocation != null) {
