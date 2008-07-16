@@ -12,6 +12,13 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
 public class ApplicablePatchQuery extends Query {
+
+	public static final Query ANY = new Query() {
+		public boolean isMatch(Object candidate) {
+			return candidate instanceof IInstallableUnitPatch;
+		}
+	};
+
 	IInstallableUnit iu;
 
 	public ApplicablePatchQuery(IInstallableUnit iu) {
