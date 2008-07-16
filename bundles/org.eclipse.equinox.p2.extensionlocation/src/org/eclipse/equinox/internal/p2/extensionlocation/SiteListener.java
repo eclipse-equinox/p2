@@ -233,11 +233,13 @@ public class SiteListener extends RepositoryListener {
 		File featureDir = new File(siteLocation, FEATURES);
 		File[] children = featureDir.listFiles();
 		for (int i = 0; i < children.length; i++) {
-			File child = children[i];
-			FeatureParser parser = new FeatureParser();
-			Feature entry = parser.parse(child);
-			if (entry != null)
-				result.put(child, entry);
+			File featureLocation = children[i];
+			if (featureLocation.isDirectory() && featureLocation.getParentFile() != null && featureLocation.getParentFile().getName().equals("features") && new File(featureLocation, "feature.xml").exists()) {//$NON-NLS-1$ //$NON-NLS-2$
+				FeatureParser parser = new FeatureParser();
+				Feature entry = parser.parse(featureLocation);
+				if (entry != null)
+					result.put(featureLocation, entry);
+			}
 		}
 		return result;
 	}
@@ -260,10 +262,14 @@ public class SiteListener extends RepositoryListener {
 			Map result = new HashMap();
 			for (int i = 0; plugins != null && i < plugins.length; i++) {
 				File bundleLocation = plugins[i];
-				BundleDescription description = factory.getBundleDescription(bundleLocation);
-				String id = description.getSymbolicName();
-				String version = description.getVersion().toString();
-				result.put(id + '/' + version, bundleLocation);
+				if (bundleLocation.isDirectory() || bundleLocation.getName().endsWith(".jar")) {
+					BundleDescription description = factory.getBundleDescription(bundleLocation);
+					if (description != null) {
+						String id = description.getSymbolicName();
+						String version = description.getVersion().toString();
+						result.put(id + '/' + version, bundleLocation);
+					}
+				}
 			}
 			return result;
 		} finally {
