@@ -4,7 +4,7 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-SymbolicName: org.eclipse.equinox.p2.updatesite;singleton:=true
 Bundle-Localization: plugin
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.100.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.updatesite.Activator
 Eclipse-LazyStart: true
 Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
