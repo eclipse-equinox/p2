@@ -10,14 +10,21 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import java.io.File;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
+import org.eclipse.equinox.p2.tests.TestActivator;
 
 /**
  * @since 1.0
@@ -398,6 +405,47 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			assertEquals(2, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
+		}
+	}
+
+	public void testShortenVersionNumberInFeature() {
+		IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+		assertNotNull(repoMan);
+		File site = getTestData("Update site", "/testData/updatesite/240121/UpdateSite240121/");
+		IArtifactRepository artifactRepo = null;
+		try {
+			artifactRepo = repoMan.loadRepository(site.toURL(), null);
+		} catch (ProvisionException e) {
+			fail("Can't load repository UpdateSite240121");
+		} catch (MalformedURLException e) {
+			fail("Can't load repository UpdateSite240121");
+		}
+		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
+		boolean exceptionFound = false;
+		for (int i = 0; i < keys.length; i++) {
+			if (keys[i].getId().equals("Plugin240121")) {
+				FileOutputStream fos = null;
+				try {
+					File tmp;
+					try {
+						tmp = File.createTempFile("p2.test", "test");
+						tmp.deleteOnExit();
+						fos = new FileOutputStream(tmp);
+					} catch (IOException e1) {
+						fail("Can't create temp file");
+					}
+					IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(keys[i])[0], fos, new NullProgressMonitor());
+					if (!status.isOK())
+						fail("Can't get the expected artifact:" + keys[i]);
+				} finally {
+					if (fos != null)
+						try {
+							fos.close();
+						} catch (IOException e) {
+							//ignore
+						}
+				}
+			}
 		}
 	}
 

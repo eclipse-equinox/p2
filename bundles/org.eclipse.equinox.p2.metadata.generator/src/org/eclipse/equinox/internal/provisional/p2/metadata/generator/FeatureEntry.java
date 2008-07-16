@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
+import org.osgi.framework.Version;
+
 /**
  */
 public class FeatureEntry {
@@ -44,7 +46,7 @@ public class FeatureEntry {
 
 	public FeatureEntry(String id, String version, boolean isPlugin) {
 		this.id = id;
-		this.version = version;
+		this.version = Version.parseVersion(version).toString();
 		this.isPlugin = isPlugin;
 	}
 
@@ -168,7 +170,7 @@ public class FeatureEntry {
 	}
 
 	public void setVersion(String value) {
-		version = value;
+		version = Version.parseVersion(value).toString();
 	}
 
 	public String toString() {
