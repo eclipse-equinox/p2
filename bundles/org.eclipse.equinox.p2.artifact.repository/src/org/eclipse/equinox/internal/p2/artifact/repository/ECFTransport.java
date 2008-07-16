@@ -13,7 +13,10 @@ package org.eclipse.equinox.internal.p2.artifact.repository;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.ProtocolException;
 import org.eclipse.core.runtime.*;
+import org.eclipse.ecf.core.security.ConnectContextFactory;
+import org.eclipse.ecf.core.security.IConnectContext;
 import org.eclipse.ecf.filetransfer.*;
 import org.eclipse.ecf.filetransfer.events.*;
 import org.eclipse.ecf.filetransfer.identity.FileCreateException;
@@ -21,12 +24,26 @@ import org.eclipse.ecf.filetransfer.identity.FileIDFactory;
 import org.eclipse.ecf.filetransfer.service.IRetrieveFileTransferFactory;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IStateful;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI.AuthenticationInfo;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.security.storage.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * A transport implementation that uses ECF file transfer API.
  */
 public class ECFTransport extends Transport {
+	/**
+	 * The number of password retry attempts allowed before failing.
+	 */
+	private static final int LOGIN_RETRIES = 3;
+
+	private static final ProtocolException ERROR_401 = new ProtocolException();
+
+	private static final String SERVER_REDIRECT = "Server redirected too many times"; //$NON-NLS-1$
 
 	/**
 	 * The singleton transport instance.
@@ -53,7 +70,7 @@ public class ECFTransport extends Transport {
 		retrievalFactoryTracker.open();
 	}
 
-	protected IStatus convertToStatus(IFileTransferEvent event, Exception failure, long startTime) {
+	protected IStatus convertToStatus(IFileTransferEvent event, Exception failure, long startTime, String location) {
 		long speed = DownloadStatus.UNKNOWN_RATE;
 		if (event instanceof IIncomingFileTransferEvent) {
 			long bytes = ((IIncomingFileTransferEvent) event).getSource().getBytesReceived();
@@ -70,20 +87,40 @@ public class ECFTransport extends Transport {
 		else if (failure instanceof UserCancelledException)
 			result = new DownloadStatus(IStatus.CANCEL, Activator.ID, failure.getMessage(), failure);
 		else
-			result = new DownloadStatus(IStatus.ERROR, Activator.ID, "Error during transfer", failure);
+			result = new DownloadStatus(IStatus.ERROR, Activator.ID, NLS.bind(Messages.io_failedRead, location), failure);
 		result.setTransferRate(speed);
 		return result;
 	}
 
-	public IStatus download(String toDownload, OutputStream target, IProgressMonitor monitor) {
-		IRetrieveFileTransferFactory factory = (IRetrieveFileTransferFactory) retrievalFactoryTracker.getService();
-		if (factory == null)
-			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, "ECF Transfer manager not available"));
-
-		return transfer(factory.newInstance(), toDownload, target, monitor);
+	public IStatus download(String url, OutputStream destination, IProgressMonitor monitor) {
+		try {
+			IConnectContext context = getConnectionContext(url, false);
+			for (int i = 0; i < LOGIN_RETRIES; i++) {
+				try {
+					return performDownload(url, destination, context, monitor);
+				} catch (ProtocolException e) {
+					if (e == ERROR_401)
+						context = getConnectionContext(url, true);
+				}
+			}
+		} catch (UserCancelledException e) {
+			return Status.CANCEL_STATUS;
+		} catch (ProvisionException e) {
+			return e.getStatus();
+		}
+		//reached maximum number of retries without success
+		return new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_AUTHENTICATION, NLS.bind(Messages.io_failedRead, url), null);
 	}
 
-	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, final IProgressMonitor monitor) {
+	public IStatus performDownload(String toDownload, OutputStream target, IConnectContext context, IProgressMonitor monitor) throws ProtocolException {
+		IRetrieveFileTransferFactory factory = (IRetrieveFileTransferFactory) retrievalFactoryTracker.getService();
+		if (factory == null)
+			return statusOn(target, new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.io_failedRead, toDownload)));
+
+		return transfer(factory.newInstance(), toDownload, target, context, monitor);
+	}
+
+	private IStatus transfer(final IRetrieveFileTransferContainerAdapter retrievalContainer, final String toDownload, final OutputStream target, IConnectContext context, final IProgressMonitor monitor) throws ProtocolException {
 		final IStatus[] result = new IStatus[1];
 		final long startTime = System.currentTimeMillis();
 		IFileTransferListener listener = new IFileTransferListener() {
@@ -95,7 +132,7 @@ public class ECFTransport extends Transport {
 							rse.receive(target);
 						}
 					} catch (IOException e) {
-						IStatus status = convertToStatus(event, e, startTime);
+						IStatus status = convertToStatus(event, e, startTime, toDownload);
 						synchronized (result) {
 							result[0] = status;
 							result.notify();
@@ -111,7 +148,7 @@ public class ECFTransport extends Transport {
 				}
 				if (event instanceof IIncomingFileTransferReceiveDoneEvent) {
 					Exception exception = ((IIncomingFileTransferReceiveDoneEvent) event).getException();
-					IStatus status = convertToStatus(event, exception, startTime);
+					IStatus status = convertToStatus(event, exception, startTime, toDownload);
 					synchronized (result) {
 						result[0] = status;
 						result.notify();
@@ -121,9 +158,16 @@ public class ECFTransport extends Transport {
 		};
 
 		try {
+			retrievalContainer.setConnectContextForAuthentication(context);
 			retrievalContainer.sendRetrieveRequest(FileIDFactory.getDefault().createFileID(retrievalContainer.getRetrieveNamespace(), toDownload), listener, null);
 		} catch (IncomingFileTransferException e) {
-			return statusOn(target, e.getStatus());
+			IStatus status = e.getStatus();
+			Throwable exception = status.getException();
+			if (exception instanceof IOException) {
+				if (exception.getMessage() != null && (exception.getMessage().indexOf("401") != -1 || exception.getMessage().indexOf(SERVER_REDIRECT) != -1)) //$NON-NLS-1$
+					throw ERROR_401;
+			}
+			return statusOn(target, status);
 		} catch (FileCreateException e) {
 			return statusOn(target, e.getStatus());
 		}
@@ -140,6 +184,59 @@ public class ECFTransport extends Transport {
 		}
 
 		return statusOn(target, result[0]);
+	}
+
+	/**
+	 * Returns the connection context for the given URL. This may prompt the
+	 * user for user name and password as required.
+	 * 
+	 * @param xmlLocation - the file location requiring login details
+	 * @param prompt - use <code>true</code> to prompt the user instead of
+	 * looking at the secure preference store for login, use <code>false</code>
+	 * to only try the secure preference store
+	 * @throws UserCancelledException when the user cancels the login prompt 
+	 * @throws ProvisionException if the password cannot be read or saved
+	 * @return The connection context
+	 */
+	public IConnectContext getConnectionContext(String xmlLocation, boolean prompt) throws UserCancelledException, ProvisionException {
+		ISecurePreferences securePreferences = SecurePreferencesFactory.getDefault();
+		IPath hostLocation = new Path(xmlLocation).removeLastSegments(1);
+		int repositoryHash = hostLocation.hashCode();
+		ISecurePreferences metadataNode = securePreferences.node(IRepository.PREFERENCE_NODE + "/" + repositoryHash); //$NON-NLS-1$
+		if (!prompt) {
+			try {
+				String username = metadataNode.get(IRepository.PROP_USERNAME, null);
+				String password = metadataNode.get(IRepository.PROP_PASSWORD, null);
+				//if we don't have stored connection data just return a null connection context
+				if (username == null || password == null)
+					return null;
+				return ConnectContextFactory.createUsernamePasswordConnectContext(username, password);
+			} catch (StorageException e) {
+				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+			}
+		}
+		//need to prompt user for user name and password
+		ServiceTracker adminUITracker = new ServiceTracker(Activator.getContext(), IServiceUI.class.getName(), null);
+		adminUITracker.open();
+		IServiceUI adminUIService = (IServiceUI) adminUITracker.getService();
+		AuthenticationInfo loginDetails = null;
+		if (adminUIService != null)
+			loginDetails = adminUIService.getUsernamePassword(hostLocation.toString());
+		//null result means user canceled password dialog
+		if (loginDetails == null)
+			throw new UserCancelledException();
+		//save user name and password if requested by user
+		if (loginDetails.saveResult()) {
+			try {
+				metadataNode.put(IRepository.PROP_USERNAME, loginDetails.getUserName(), true);
+				metadataNode.put(IRepository.PROP_PASSWORD, loginDetails.getPassword(), true);
+			} catch (StorageException e1) {
+				String msg = NLS.bind(Messages.repoMan_internalError, xmlLocation.toString());
+				throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.INTERNAL_ERROR, msg, null));
+			}
+		}
+		return ConnectContextFactory.createUsernamePasswordConnectContext(loginDetails.getUserName(), loginDetails.getPassword());
 	}
 
 	private static IStatus statusOn(OutputStream target, IStatus status) {

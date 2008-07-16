@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * 
@@ -22,6 +23,11 @@ public class Feature {
 	private String version;
 	private String label;
 	private String image;
+	private String pluginId;
+	private boolean primary = false;
+	private boolean exclusive = false;
+	private String application;
+	private String colocationAffinity;
 
 	private URLEntry description;
 	private URLEntry license;
@@ -43,6 +49,8 @@ public class Feature {
 
 	private String location;
 
+	private Map localizations;
+
 	public Feature(String id, String version) {
 		if (id == null)
 			throw new IllegalArgumentException();
@@ -50,14 +58,14 @@ public class Feature {
 		this.version = version;
 	}
 
-	public void addDiscoverySite(String label, String url) {
-		if (label == null && url == null)
+	public void addDiscoverySite(String siteLabel, String url) {
+		if (siteLabel == null && url == null)
 			return;
 
 		if (this.discoverySites == null)
 			this.discoverySites = new ArrayList();
 
-		URLEntry entry = new URLEntry(url, label);
+		URLEntry entry = new URLEntry(url, siteLabel);
 		this.discoverySites.add(entry);
 	}
 
@@ -67,8 +75,16 @@ public class Feature {
 		entries.add(plugin);
 	}
 
+	public String getApplication() {
+		return application;
+	}
+
 	public String getArch() {
 		return arch;
+	}
+
+	public String getColocationAffinity() {
+		return colocationAffinity;
 	}
 
 	public String getCopyright() {
@@ -143,6 +159,10 @@ public class Feature {
 		return null;
 	}
 
+	public Map getLocalizations() {
+		return this.localizations;
+	}
+
 	public String getLocation() {
 		return this.location;
 	}
@@ -153,6 +173,10 @@ public class Feature {
 
 	public String getOS() {
 		return os;
+	}
+
+	public String getPlugin() {
+		return pluginId;
 	}
 
 	public String getProviderName() {
@@ -177,6 +201,22 @@ public class Feature {
 
 	public String getWS() {
 		return ws;
+	}
+
+	public boolean isExclusive() {
+		return exclusive;
+	}
+
+	public boolean isPrimary() {
+		return primary;
+	}
+
+	public void setApplication(String application) {
+		this.application = application;
+	}
+
+	public void setColocationAffinity(String colocationAffinity) {
+		this.colocationAffinity = colocationAffinity;
 	}
 
 	public void setCopyright(String copyright) {
@@ -208,6 +248,10 @@ public class Feature {
 		this.ws = ws;
 		this.arch = arch;
 		this.nl = nl;
+	}
+
+	public void setExclusive(boolean exclusive) {
+		this.exclusive = exclusive;
 	}
 
 	public void setImage(String image) {
@@ -242,8 +286,20 @@ public class Feature {
 		this.license.setURL(licenseURL);
 	}
 
+	public void setLocalizations(Map localizations) {
+		this.localizations = localizations;
+	}
+
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public void setPlugin(String pluginId) {
+		this.pluginId = pluginId;
+	}
+
+	public void setPrimary(boolean primary) {
+		this.primary = primary;
 	}
 
 	public void setProviderName(String value) {
@@ -263,6 +319,7 @@ public class Feature {
 	}
 
 	public void setURL(String value) {
+		//
 	}
 
 	public void setVersion(String version) {

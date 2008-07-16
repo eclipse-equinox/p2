@@ -33,8 +33,8 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static final String CATEGORY = "category"; //$NON-NLS-1$
 	private static final String CATEGORY_DEF = "category-def"; //$NON-NLS-1$
 
-	//private static final String ASSOCIATE_SITES = "associateSites"; //$NON-NLS-1$
-	//	private static final String ASSOCIATE_SITE = "associateSite"; //$NON-NLS-1$
+	private static final String ASSOCIATE_SITES_URL = "associateSitesURL"; //$NON-NLS-1$
+	private static final String ASSOCIATE_SITE = "associateSite"; //$NON-NLS-1$
 	private static final String DEFAULT_INFO_URL = "index.html"; //$NON-NLS-1$
 	private static final String DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String FEATURE = "feature"; //$NON-NLS-1$
@@ -66,6 +66,9 @@ public class DefaultSiteParser extends DefaultHandler {
 	// Current State Information
 	Stack stateStack = new Stack();
 
+	// List of string keys for translated strings
+	private final List messageKeys = new ArrayList(4);
+
 	private MultiStatus status;
 
 	/*
@@ -75,39 +78,39 @@ public class DefaultSiteParser extends DefaultHandler {
 		Tracing.debug("DefaultSiteParser: " + s); //$NON-NLS-1$
 	}
 
-	//	private static URLEntry[] getAssociateSites(String associateSitesURL) {
-	//
-	//		try {
-	//			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-	//			DocumentBuilder builder = domFactory.newDocumentBuilder();
-	//			Document document = builder.parse(associateSitesURL);
-	//			if (document == null)
-	//				return null;
-	//			NodeList mirrorNodes = document.getElementsByTagName(ASSOCIATE_SITE);
-	//			URLEntry[] mirrors = new URLEntry[mirrorNodes.getLength()];
-	//			for (int i = 0; i < mirrorNodes.getLength(); i++) {
-	//				Element mirrorNode = (Element) mirrorNodes.item(i);
-	//				mirrors[i] = new URLEntry();
-	//				String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
-	//				String label = mirrorNode.getAttribute("label"); //$NON-NLS-1$
-	//				mirrors[i].setURL(infoURL);
-	//				mirrors[i].setAnnotation(label);
-	//
-	//				if (Tracing.DEBUG_GENERATOR_PARSING)
-	//					debug("Processed mirror: url:" + infoURL + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
-	//			}
-	//			return mirrors;
-	//		} catch (Exception e) {
-	//			// log if absolute url
-	//			if (associateSitesURL != null && (associateSitesURL.startsWith("http://") //$NON-NLS-1$
-	//					|| associateSitesURL.startsWith("https://") //$NON-NLS-1$
-	//					|| associateSitesURL.startsWith("file://") //$NON-NLS-1$
-	//					|| associateSitesURL.startsWith("ftp://") //$NON-NLS-1$
-	//			|| associateSitesURL.startsWith("jar://"))) //$NON-NLS-1$
-	//				log(Messages.DefaultSiteParser_mirrors, e);
-	//			return null;
-	//		}
-	//	}
+	private static URLEntry[] getAssociateSites(String associateSitesURL) {
+
+		try {
+			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder builder = domFactory.newDocumentBuilder();
+			Document document = builder.parse(associateSitesURL);
+			if (document == null)
+				return null;
+			NodeList mirrorNodes = document.getElementsByTagName(ASSOCIATE_SITE);
+			URLEntry[] mirrors = new URLEntry[mirrorNodes.getLength()];
+			for (int i = 0; i < mirrorNodes.getLength(); i++) {
+				Element mirrorNode = (Element) mirrorNodes.item(i);
+				mirrors[i] = new URLEntry();
+				String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
+				String label = mirrorNode.getAttribute("label"); //$NON-NLS-1$
+				mirrors[i].setURL(infoURL);
+				mirrors[i].setAnnotation(label);
+
+				if (Tracing.DEBUG_GENERATOR_PARSING)
+					debug("Processed mirror: url:" + infoURL + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			return mirrors;
+		} catch (Exception e) {
+			// log if absolute url
+			if (associateSitesURL != null && (associateSitesURL.startsWith("http://") //$NON-NLS-1$
+					|| associateSitesURL.startsWith("https://") //$NON-NLS-1$
+					|| associateSitesURL.startsWith("file://") //$NON-NLS-1$
+					|| associateSitesURL.startsWith("ftp://") //$NON-NLS-1$
+			|| associateSitesURL.startsWith("jar://"))) //$NON-NLS-1$
+				log(Messages.DefaultSiteParser_mirrors, e);
+			return null;
+		}
+	}
 
 	static URLEntry[] getMirrors(String mirrorsURL) {
 
@@ -548,7 +551,9 @@ public class DefaultSiteParser extends DefaultHandler {
 		if (objectStack.isEmpty())
 			throw new SAXException(Messages.DefaultSiteParser_NoSiteTag);
 		if (objectStack.peek() instanceof SiteModel) {
-			return (SiteModel) objectStack.pop();
+			SiteModel site = (SiteModel) objectStack.pop();
+			site.setMessageKeys(messageKeys);
+			return site;
 		}
 		String stack = ""; //$NON-NLS-1$
 		Iterator iter = objectStack.iterator();
@@ -603,6 +608,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		SiteCategory category = new SiteCategory();
 		String name = attributes.getValue("name"); //$NON-NLS-1$
 		String label = attributes.getValue("label"); //$NON-NLS-1$
+		checkTranslated(label);
 		category.setName(name);
 		category.setLabel(label);
 
@@ -658,6 +664,7 @@ public class DefaultSiteParser extends DefaultHandler {
 		if (label != null) {
 			if ("".equals(label.trim())) //$NON-NLS-1$
 				label = null;
+			checkTranslated(label);
 		}
 		feature.setLabel(label);
 
@@ -753,10 +760,11 @@ public class DefaultSiteParser extends DefaultHandler {
 			site.setSupportsPack200(true);
 		}
 
-		//		if (attributes.getValue("digestURL") != null) { //$NON-NLS-1$
-		//			site.setDigestExist(true);
-		//			site.setDigestURL(attributes.getValue("digestURL")); //$NON-NLS-1$
-		//
+		String digestURL = attributes.getValue("digestURL"); //$NON-NLS-1$
+		if (digestURL != null)
+			site.setDigestURLString(digestURL);
+
+		// TODO: Digest locales
 		//			if ((attributes.getValue("availableLocales") != null) && (!attributes.getValue("availableLocales").trim().equals(""))) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		//				StringTokenizer locals = new StringTokenizer(attributes.getValue("availableLocales"), ","); //$NON-NLS-1$//$NON-NLS-2$
 		//				String[] availableLocals = new String[locals.countTokens()];
@@ -768,13 +776,8 @@ public class DefaultSiteParser extends DefaultHandler {
 		//			}
 		//		}
 		//
-		//		if ((site instanceof ExtendedSite) && (attributes.getValue("associateSitesURL") != null)) { //$NON-NLS-1$
-		//			IURLEntry[] associateSites = getAssociateSites(attributes.getValue("associateSitesURL"), factory); //$NON-NLS-1$
-		//			if (associateSites != null)
-		//				((ExtendedSite) site).setAssociateSites(associateSites);
-		//			else
-		//				site.setMirrorsURLString(mirrorsURL);
-		//		}
+		if (attributes.getValue(ASSOCIATE_SITES_URL) != null)
+			site.setAssociateSites(getAssociateSites(attributes.getValue(ASSOCIATE_SITES_URL)));
 
 		objectStack.push(site);
 
@@ -848,4 +851,10 @@ public class DefaultSiteParser extends DefaultHandler {
 		return Character.isWhitespace(str.charAt(str.length() - 1));
 	}
 
+	// Add translatable strings from the site.xml
+	// to the list of message keys.
+	private void checkTranslated(String value) {
+		if (value != null && value.length() > 1 && value.startsWith("%")) //$NON-NLS-1$
+			messageKeys.add(value.substring(1));
+	}
 }

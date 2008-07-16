@@ -122,9 +122,6 @@ public class SimpleArtifactRepositoryIO {
 		public static final String PROCESSING_STEPS_ELEMENT = "processing"; //$NON-NLS-1$
 		public static final String PROCESSING_STEP_ELEMENT = "step"; //$NON-NLS-1$
 
-		// Constants for attributes of artifact repository elements
-		public static final String VERIFY_SIGNATURE_ATTRIBUTE = "verify"; //$NON-NLS-1$
-
 		public static final String MAPPING_RULE_FILTER_ATTRIBUTE = "filter"; //$NON-NLS-1$
 		public static final String MAPPING_RULE_OUTPUT_ATTRIBUTE = "output"; //$NON-NLS-1$
 
@@ -151,7 +148,6 @@ public class SimpleArtifactRepositoryIO {
 			attribute(VERSION_ATTRIBUTE, repository.getVersion());
 			attributeOptional(PROVIDER_ATTRIBUTE, repository.getProvider());
 			attributeOptional(DESCRIPTION_ATTRIBUTE, repository.getDescription()); // TODO: could be cdata?
-			attribute(VERIFY_SIGNATURE_ATTRIBUTE, repository.getSignatureVerification(), false);
 
 			writeProperties(repository.getProperties());
 			writeMappingRules(repository.getRules());
@@ -278,7 +274,7 @@ public class SimpleArtifactRepositoryIO {
 		private final class RepositoryHandler extends RootHandler {
 
 			private final String[] required = new String[] {NAME_ATTRIBUTE, TYPE_ATTRIBUTE, VERSION_ATTRIBUTE};
-			private final String[] optional = new String[] {DESCRIPTION_ATTRIBUTE, PROVIDER_ATTRIBUTE, VERIFY_SIGNATURE_ATTRIBUTE};
+			private final String[] optional = new String[] {DESCRIPTION_ATTRIBUTE, PROVIDER_ATTRIBUTE};
 
 			private String[] attrValues = new String[required.length + optional.length];
 
@@ -299,7 +295,6 @@ public class SimpleArtifactRepositoryIO {
 			protected void handleRootAttributes(Attributes attributes) {
 				attrValues = parseAttributes(attributes, required, optional);
 				attrValues[2] = checkVersion(REPOSITORY_ELEMENT, VERSION_ATTRIBUTE, attrValues[2]).toString();
-				attrValues[5] = checkBoolean(REPOSITORY_ELEMENT, VERIFY_SIGNATURE_ATTRIBUTE, attrValues[5], false).toString();
 			}
 
 			public void startElement(String name, Attributes attributes) {
@@ -334,10 +329,8 @@ public class SimpleArtifactRepositoryIO {
 							: propertiesHandler.getProperties());
 					Set artifacts = (artifactsHandler == null ? new HashSet(0) //
 							: artifactsHandler.getArtifacts());
-					boolean verifySignature = (attrValues[5] == null ? false //
-							: new Boolean(attrValues[5]).booleanValue());
 					repository = new SimpleArtifactRepository(attrValues[0], attrValues[1], attrValues[2], attrValues[3], //
-							attrValues[4], verifySignature, artifacts, mappingRules, properties);
+							attrValues[4], artifacts, mappingRules, properties);
 				}
 			}
 		}

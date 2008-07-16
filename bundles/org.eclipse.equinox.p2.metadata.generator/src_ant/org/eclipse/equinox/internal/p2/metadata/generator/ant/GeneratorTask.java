@@ -14,7 +14,7 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.equinox.internal.p2.metadata.generator.EclipseGeneratorApplication;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator.GeneratorResult;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.IncrementalGenerator;
 
 /**
  * An Ant task to call the p2 Metadata Generator application.
@@ -26,7 +26,6 @@ public class GeneratorTask extends Task {
 	protected EclipseInstallGeneratorInfoProvider provider = null;
 	protected EclipseGeneratorApplication generator = null;
 
-	static private GeneratorResult result;
 	private String mode;
 
 	/* (non-Javadoc)
@@ -34,22 +33,13 @@ public class GeneratorTask extends Task {
 	 */
 	public void execute() throws BuildException {
 		try {
-			if ("incremental".equals(mode)) { //$NON-NLS-1$
-				if (result == null)
-					result = new GeneratorResult();
-				generator.setIncrementalResult(result);
-				generator.setGeneratorRootIU(false);
-			} else if ("final".equals(mode) && result != null) { //$NON-NLS-1$
-				generator.setIncrementalResult(result);
-				generator.setGeneratorRootIU(true);
-			}
-
-			generator.run(provider);
+			IncrementalGenerator incremental = new IncrementalGenerator();
+			incremental.setMode(mode);
+			incremental.run(generator, provider);
 
 			if (!"incremental".equals(mode)) { //$NON-NLS-1$
 				provider = null;
 				generator = null;
-				result = null;
 			}
 		} catch (Exception e) {
 			throw new BuildException(TaskMessages.exception_errorOccurredCallingGenerator, e);
@@ -66,6 +56,12 @@ public class GeneratorTask extends Task {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
 		generator.setArtifactLocation(location);
+	}
+
+	public void setArtifactRepositoryName(String name) {
+		if (generator == null)
+			generator = new EclipseGeneratorApplication();
+		generator.setArtifactRepositoryName(name);
 	}
 
 	public void setBase(String value) {
@@ -138,6 +134,12 @@ public class GeneratorTask extends Task {
 		if (generator == null)
 			generator = new EclipseGeneratorApplication();
 		generator.setMetadataLocation(location);
+	}
+
+	public void setMetadataRepositoryName(String name) {
+		if (generator == null)
+			generator = new EclipseGeneratorApplication();
+		generator.setMetadataRepositoryName(name);
 	}
 
 	public void setNoDefaultIUs(String value) {

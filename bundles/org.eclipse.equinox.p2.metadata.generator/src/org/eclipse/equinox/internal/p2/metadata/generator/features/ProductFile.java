@@ -80,6 +80,7 @@ public class ProductFile extends DefaultHandler {
 	private static final int STATE_VM_ARGS_MAC = 13;
 	private static final int STATE_VM_ARGS_SOLARIS = 14;
 	private static final int STATE_VM_ARGS_WIN = 15;
+	private static final int STATE_CONFIG_INI = 16;
 
 	private int state = STATE_START;
 
@@ -91,6 +92,8 @@ public class ProductFile extends DefaultHandler {
 	private String icons[] = null;
 	private String configPath = null;
 	private final Map platformSpecificConfigPaths = new HashMap();
+	private String configPlatform = null;
+	private String platformConfigPath = null;
 	private String id = null;
 	private boolean useFeatures = false;
 	private List plugins = null;
@@ -221,7 +224,7 @@ public class ProductFile extends DefaultHandler {
 	}
 
 	public String getVersion() {
-		return (version == null) ? "0.0.0" : version; //$NON-NLS-1$
+		return (version == null || version.length() == 0) ? "0.0.0" : version; //$NON-NLS-1$
 	}
 
 	public String getVMArguments(String os) {
@@ -282,6 +285,7 @@ public class ProductFile extends DefaultHandler {
 			case STATE_PRODUCT :
 				if (CONFIG_INI.equals(localName)) {
 					processConfigIni(attributes);
+					state = STATE_CONFIG_INI;
 				} else if (LAUNCHER.equals(localName)) {
 					processLauncher(attributes);
 					state = STATE_LAUNCHER;
@@ -294,6 +298,10 @@ public class ProductFile extends DefaultHandler {
 				} else if (SPLASH.equals(localName)) {
 					splashLocation = attributes.getValue("location"); //$NON-NLS-1$
 				}
+				break;
+
+			case STATE_CONFIG_INI :
+				processConfigIniPlatform(localName, true);
 				break;
 
 			case STATE_LAUNCHER :
@@ -382,6 +390,13 @@ public class ProductFile extends DefaultHandler {
 			case STATE_VM_ARGS_WIN :
 				state = STATE_LAUNCHER_ARGS;
 				break;
+
+			case STATE_CONFIG_INI :
+				if (CONFIG_INI.equals(localName))
+					state = STATE_PRODUCT;
+				else
+					processConfigIniPlatform(localName, false);
+				break;
 		}
 	}
 
@@ -416,6 +431,10 @@ public class ProductFile extends DefaultHandler {
 				break;
 			case STATE_VM_ARGS_WIN :
 				addLaunchArgumentToMap(VM_ARGS_WIN, String.valueOf(ch, start, length));
+				break;
+			case STATE_CONFIG_INI :
+				if (platformConfigPath != null)
+					platformConfigPath += String.valueOf(ch, start, length);
 				break;
 		}
 	}
@@ -470,8 +489,18 @@ public class ProductFile extends DefaultHandler {
 			// TODO should we allow a platform-specific default to over-ride a custom generic path?
 			if (path != null)
 				platformSpecificConfigPaths.put(os, path);
-		} else {
+		} else if (path != null) {
 			configPath = path;
+		}
+	}
+
+	private void processConfigIniPlatform(String key, boolean begin) {
+		if (begin) {
+			configPlatform = key;
+			platformConfigPath = ""; //$NON-NLS-1$
+		} else if (configPlatform.equals(key) && platformConfigPath.length() > 0) {
+			platformSpecificConfigPaths.put(key, platformConfigPath);
+			platformConfigPath = null;
 		}
 	}
 

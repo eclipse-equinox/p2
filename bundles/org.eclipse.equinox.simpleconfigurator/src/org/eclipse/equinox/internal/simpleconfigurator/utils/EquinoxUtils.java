@@ -1,13 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: IBM Corporation - initial API and implementation
+ ******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.utils;
 
 import java.net.URL;
@@ -19,7 +17,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 public class EquinoxUtils {
 
-	public static URL getConfigAreaURL(BundleContext context) {
+	public static URL[] getConfigAreaURL(BundleContext context) {
 		Filter filter = null;
 		try {
 			filter = context.createFilter(Location.CONFIGURATION_FILTER);
@@ -34,8 +32,14 @@ public class EquinoxUtils {
 				return null;
 
 			URL baseURL = configLocation.getURL();
+			if (configLocation.getParentLocation() != null && configLocation.getURL() != null) {
+				if (baseURL == null)
+					return new URL[] {configLocation.getParentLocation().getURL()};
+				else
+					return new URL[] {baseURL, configLocation.getParentLocation().getURL()};
+			}
 			if (baseURL != null)
-				return baseURL;
+				return new URL[] {baseURL};
 
 			return null;
 		} finally {

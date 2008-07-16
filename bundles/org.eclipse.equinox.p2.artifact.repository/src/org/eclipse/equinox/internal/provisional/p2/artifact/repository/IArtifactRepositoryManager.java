@@ -11,6 +11,7 @@
 package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -57,6 +58,12 @@ public interface IArtifactRepositoryManager {
 	 * @see #getKnownRepositories(int)
 	 */
 	public static final int REPOSITORIES_LOCAL = 1 << 2;
+
+	/**
+	 * Constant used to indicate that disabled repositories are of interest.
+	 * @see #getKnownRepositories(int)
+	 */
+	public static final int REPOSITORIES_DISABLED = 1 << 3;
 
 	/**
 	 * Repository type for a simple repository based on a URL or local file system location.
@@ -110,6 +117,7 @@ public interface IArtifactRepositoryManager {
 	 * @param location the location for the new repository
 	 * @param name the name of the new repository
 	 * @param type the kind of repository to create
+	 * @param properties the properties to set on the repository
 	 * @return the newly created repository
 	 * @throws ProvisionException if the repository could not be created.  Reasons include:
 	 * <ul>
@@ -118,7 +126,7 @@ public interface IArtifactRepositoryManager {
 	 * <li>A repository already exists at that location.</li>
 	 * </ul>
 	 */
-	public IArtifactRepository createRepository(URL location, String name, String type) throws ProvisionException;
+	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException;
 
 	/**
 	 * Returns the artifact repository locations known to the repository manager.
@@ -130,7 +138,7 @@ public interface IArtifactRepositoryManager {
 	 * 
 	 * @param flags an integer bit-mask indicating which repositories should be
 	 * returned.  <code>REPOSITORIES_ALL</code> can be used as the mask when
-	 * all repositories should be returned.
+	 * all enabled repositories should be returned.
 	 * 
 	 * @return the locations of the repositories managed by this repository manager.
 	 * 
@@ -138,6 +146,7 @@ public interface IArtifactRepositoryManager {
 	 * @see #REPOSITORIES_SYSTEM
 	 * @see #REPOSITORIES_NON_SYSTEM
 	 * @see #REPOSITORIES_LOCAL
+	 * @see #REPOSITORIES_DISABLED
 	 */
 	public URL[] getKnownRepositories(int flags);
 
@@ -165,6 +174,25 @@ public interface IArtifactRepositoryManager {
 	 * 
 	 */
 	public String getRepositoryProperty(URL location, String key);
+
+	/**
+	 * Returns the enablement value of a repository.  Disabled repositories are known
+	 * to the repository manager, but are never used in the context of provisioning
+	 * operation. Disabled repositories are useful as a form of bookmark to indicate that a 
+	 * repository location is of interest, but not currently used.
+	 * <p>
+	 * Note that enablement is a property of the repository manager and not a property
+	 * of the affected repository. The enablement of the repository is discarded when 
+	 * a repository is removed from the repository manager.
+	 * 
+	 * @param location The location of the repository whose enablement is requested
+	 * @return <code>true</code> if the repository is enabled, and
+	 * <code>false</code> if it is not enabled, or if the repository location 
+	 * is not known to the repository manager.
+	 * @see #REPOSITORIES_DISABLED
+	 * @see #setEnabled(URL, boolean)
+	 */
+	public boolean isEnabled(URL location);
 
 	/**
 	 * Loads the repository at the given location.  The location is expected to contain 
@@ -217,4 +245,25 @@ public interface IArtifactRepositoryManager {
 	 * <code>false</code> otherwise.
 	 */
 	public boolean removeRepository(URL location);
+
+	/**
+	 * Sets the enablement of a repository. Disabled repositories are known
+	 * to the repository manager, but are never used in the context of provisioning
+	 * operation. Disabled repositories are useful as a form of bookmark to indicate that a 
+	 * repository location is of interest, but not currently used.
+	 * <p>
+	 * Note that enablement is a property of the repository manager and not a property
+	 * of the affected repository. The enablement of the repository is discarded when 
+	 * a repository is removed from the repository manager.
+	 * <p>
+	 * This method has no effect if the given repository location is not known to the
+	 * repository manager.
+	 * 
+	 * @param location The location of the repository to enable or disable
+	 * @param enablement <code>true</code>to enable the repository, and
+	 * <code>false</code> to disable the repository
+	 * @see #REPOSITORIES_DISABLED
+	 * @see #isEnabled(URL)
+	 */
+	public void setEnabled(URL location, boolean enablement);
 }

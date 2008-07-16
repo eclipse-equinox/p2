@@ -10,11 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
+import org.osgi.framework.Version;
+
 /**
  */
 public class FeatureEntry {
 	private final String id;
-	private final String version;
+	private String version;
 	private String url;
 	private String os;
 	private String ws;
@@ -26,6 +28,7 @@ public class FeatureEntry {
 	private boolean isRequires = false;
 	private boolean unpack = true;
 	private boolean optional = false;
+	private boolean isPatch = false;
 
 	/**
 	 * Temporary field to add provisioning filters to features
@@ -43,7 +46,7 @@ public class FeatureEntry {
 
 	public FeatureEntry(String id, String version, boolean isPlugin) {
 		this.id = id;
-		this.version = version;
+		this.version = Version.parseVersion(version).toString();
 		this.isPlugin = isPlugin;
 	}
 
@@ -166,6 +169,10 @@ public class FeatureEntry {
 		url = value;
 	}
 
+	public void setVersion(String value) {
+		version = Version.parseVersion(value).toString();
+	}
+
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 
@@ -173,5 +180,13 @@ public class FeatureEntry {
 		result.append(id != null ? id.toString() : ""); //$NON-NLS-1$
 		result.append(version != null ? " " + version.toString() : ""); //$NON-NLS-1$ //$NON-NLS-2$
 		return result.toString();
+	}
+
+	public boolean isPatch() {
+		return isPatch;
+	}
+
+	public void setPatch(boolean patch) {
+		this.isPatch = patch;
 	}
 }

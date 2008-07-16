@@ -13,6 +13,8 @@ package org.eclipse.equinox.internal.p2.metadata.generator;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -87,13 +89,21 @@ public class EclipseGeneratorApplication implements IApplication {
 			provider.initialize(new File(argument), null, null, new File[] {new File(argument, "plugins")}, new File(argument, "features")); //$NON-NLS-1$ //$NON-NLS-2$
 			initializeForInplace(provider);
 		} else {
-			if (base != null && bundles != null && features != null)
-				provider.initialize(new File(base), null, null, new File[] {new File(bundles)}, new File(features));
+			// base is set but we expect everything else to have been set using 
+			// explicit args.  Note that if we are coming in via an Ant task, we have
+			// to ensure all the values are passed in
+			if (base != null) {
+				File[] bundlesLocation = bundles == null ? null : new File[] {new File(bundles)};
+				File featuresLocation = features == null ? null : new File(features);
+				provider.initialize(new File(base), null, null, bundlesLocation, featuresLocation);
+			}
 		}
 		initializeRepositories(provider);
 	}
 
 	private void initializeArtifactRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
+		if (artifactLocation == null)
+			return;
 		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.context, IArtifactRepositoryManager.class.getName());
 		URL location;
 		try {
@@ -101,31 +111,41 @@ public class EclipseGeneratorApplication implements IApplication {
 		} catch (MalformedURLException e) {
 			throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoLocationURL, artifactLocation));
 		}
+
+		String repositoryName = (artifactRepoName != null && artifactRepoName.length() > 0) ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
+		Map properties = new HashMap(1);
+		properties.put(IRepository.PROP_COMPRESSED, compress);
+		if (provider.reuseExistingPack200Files())
+			properties.put(PUBLISH_PACK_FILES_AS_SIBLINGS, Boolean.TRUE.toString());
+		IArtifactRepository result = null;
 		try {
-			IArtifactRepository repository = manager.loadRepository(location, null);
+			result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			manager.removeRepository(location);
+			provider.setArtifactRepository(result);
+			return;
+		} catch (ProvisionException e) {
+			//fall through a load existing repo
+		}
+
+		IArtifactRepository repository = manager.loadRepository(location, null);
+		if (repository != null) {
+			manager.removeRepository(location);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNotWritable, location));
 			provider.setArtifactRepository(repository);
 			if (provider.reuseExistingPack200Files())
 				repository.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-			if (!provider.append())
-				repository.removeAll();
-			return;
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
+			if (!provider.append()) {
+				File repoLocation = new File(location.getPath());
+				if (repoLocation.isFile())
+					repoLocation = repoLocation.getParentFile();
+				if (repoLocation.equals(provider.getBaseLocation()))
+					throw new IllegalArgumentException(NLS.bind(Messages.exception_artifactRepoNoAppendDestroysInput, location));
 
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a Simple repo by default.
-		String repositoryName = artifactRepoName != null ? artifactRepoName : artifactLocation + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository result = manager.createRepository(location, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		manager.addRepository(result.getLocation());
-		provider.setArtifactRepository(result);
-		result.setProperty(IRepository.PROP_COMPRESSED, compress);
-		if (provider.reuseExistingPack200Files())
-			result.setProperty(PUBLISH_PACK_FILES_AS_SIBLINGS, "true"); //$NON-NLS-1$
-		if (artifactRepoName != null)
-			result.setName(artifactRepoName);
+				repository.removeAll();
+			}
+		}
+		return;
 	}
 
 	public void initializeForInplace(EclipseInstallGeneratorInfoProvider provider) {
@@ -140,43 +160,49 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		provider.setPublishArtifactRepository(true);
 		provider.setPublishArtifacts(false);
+		provider.setAppend(true);
 		provider.setMappingRules(INPLACE_MAPPING_RULES);
 	}
 
 	private void initializeMetadataRepository(EclipseInstallGeneratorInfoProvider provider) throws ProvisionException {
+		if (metadataLocation == null)
+			return;
 		URL location;
 		try {
 			location = new URL(metadataLocation);
 		} catch (MalformedURLException e) {
-			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, artifactLocation));
-		}
-		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
-		try {
-			IMetadataRepository repository = manager.loadRepository(location, null);
-			if (repository != null) {
-				// don't set the compress flag here because we don't want to change the format
-				// of an already existing repository
-				if (!repository.isModifiable())
-					throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
-				provider.setMetadataRepository(repository);
-				if (!provider.append())
-					repository.removeAll();
-				return;
-			}
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
+			throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoLocationURL, metadataLocation));
 		}
 
-		// 	the given repo location is not an existing repo so we have to create something
-		// TODO for now create a random repo by default.
-		String repositoryName = metadataRepoName == null ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
-		IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY);
-		manager.addRepository(result.getLocation());
-		if (result != null) {
-			result.setProperty(IRepository.PROP_COMPRESSED, compress);
-			if (metadataRepoName != null)
-				result.setName(metadataRepoName);
+		// 	First try to create a simple repo, this will fail if one already exists
+		//  We try creating a repo first instead of just loading what is there because we don't want a repo based
+		//  on a site.xml if there is one there.
+
+		String repositoryName = (metadataRepoName == null || metadataRepoName.length() == 0) ? metadataLocation + " - metadata" : metadataRepoName; //$NON-NLS-1$
+		Map properties = new HashMap(1);
+		properties.put(IRepository.PROP_COMPRESSED, compress);
+
+		IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.context, IMetadataRepositoryManager.class.getName());
+		try {
+			IMetadataRepository result = manager.createRepository(location, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+			manager.removeRepository(location);
 			provider.setMetadataRepository(result);
+			return;
+		} catch (ProvisionException e) {
+			//fall through and load the existing repo
+		}
+
+		IMetadataRepository repository = manager.loadRepository(location, null);
+		if (repository != null) {
+			manager.removeRepository(location);
+			// don't set the compress flag here because we don't want to change the format
+			// of an already existing repository
+			if (!repository.isModifiable())
+				throw new IllegalArgumentException(NLS.bind(Messages.exception_metadataRepoNotWritable, location));
+			provider.setMetadataRepository(repository);
+			if (!provider.append())
+				repository.removeAll();
+			return;
 		}
 	}
 
@@ -187,7 +213,7 @@ public class EclipseGeneratorApplication implements IApplication {
 
 	public void setCompress(String value) {
 		if (Boolean.valueOf(value).booleanValue())
-			compress = "true";
+			compress = "true"; //$NON-NLS-1$
 	}
 
 	public void processCommandLineArguments(String[] args, EclipseInstallGeneratorInfoProvider provider) throws Exception {
@@ -323,22 +349,27 @@ public class EclipseGeneratorApplication implements IApplication {
 		registerDefaultArtifactRepoManager();
 		initialize(provider);
 
-		if (provider.getBaseLocation() == null && provider.getProductFile() == null) {
+		if (provider.getBaseLocation() == null && provider.getProductFile() == null && !generateRootIU) {
 			System.out.println(Messages.exception_baseLocationNotSpecified);
 			return new Integer(-1);
 		}
+
+		// if we asked for artifacts to be published in some form, there must be a repo given
+		if ((provider.publishArtifactRepository() || provider.publishArtifacts()) && provider.getArtifactRepository() == null) {
+			System.out.println(Messages.exception_artifactRepoNotSpecified);
+			return new Integer(-1);
+		}
+
+		if (provider.getMetadataRepository() == null) {
+			System.out.println(Messages.exception_metadataRepoNotSpecified);
+			return new Integer(-1);
+		}
+
 		System.out.println(NLS.bind(Messages.message_generatingMetadata, provider.getBaseLocation()));
 
 		long before = System.currentTimeMillis();
+		IStatus result = generate(provider);
 
-		Generator generator = new Generator(provider);
-
-		if (incrementalResult != null)
-			generator.setIncrementalResult(incrementalResult);
-		generator.setGenerateRootIU(generateRootIU);
-		IStatus result = generator.generate();
-
-		incrementalResult = null;
 		long after = System.currentTimeMillis();
 		if (result.isOK()) {
 			System.out.println(NLS.bind(Messages.message_generationCompleted, String.valueOf((after - before) / 1000)));
@@ -346,6 +377,16 @@ public class EclipseGeneratorApplication implements IApplication {
 		}
 		System.out.println(result);
 		return new Integer(1);
+	}
+
+	protected IStatus generate(EclipseInstallGeneratorInfoProvider provider) {
+		Generator generator = new Generator(provider);
+		if (incrementalResult != null)
+			generator.setIncrementalResult(incrementalResult);
+		generator.setGenerateRootIU(generateRootIU);
+		IStatus result = generator.generate();
+		incrementalResult = null;
+		return result;
 	}
 
 	public Object start(IApplicationContext context) throws Exception {
@@ -390,6 +431,14 @@ public class EclipseGeneratorApplication implements IApplication {
 
 	public void setMetadataLocation(String location) {
 		this.metadataLocation = location;
+	}
+
+	public void setMetadataRepositoryName(String name) {
+		this.metadataRepoName = name;
+	}
+
+	public void setArtifactRepositoryName(String name) {
+		this.artifactRepoName = name;
 	}
 
 	public void setIncrementalResult(Generator.GeneratorResult ius) {

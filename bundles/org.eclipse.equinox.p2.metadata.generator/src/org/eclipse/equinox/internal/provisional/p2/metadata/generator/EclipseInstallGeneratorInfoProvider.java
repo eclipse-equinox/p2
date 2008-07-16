@@ -142,7 +142,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			throw new RuntimeException("Framework manipulator not found"); //$NON-NLS-1$
 	}
 
-	private GeneratorBundleInfo createLauncher() {
+	public static GeneratorBundleInfo createLauncher() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("org.eclipse.equinox.launcher"); //$NON-NLS-1$
 		result.setVersion("0.0.0"); //$NON-NLS-1$
@@ -275,7 +275,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public String getFlavor() {
-		return flavor;
+		//use 'tooling' as default flavor since we are not actively using flavors yet
+		return flavor == null ? "tooling" : flavor; //$NON-NLS-1$
 	}
 
 	private FrameworkAdmin getFrameworkAdmin() {
@@ -346,7 +347,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public String getRootVersion() {
-		if (rootVersion == null)
+		if (rootVersion == null || rootVersion.length() == 0)
 			return "0.0.0"; //$NON-NLS-1$
 		return rootVersion;
 	}
@@ -360,11 +361,16 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	}
 
 	public void initialize(File base) {
-		initialize(base, new File(base, "configuration"), new File(base, getDefaultExecutableName(os)), new File[] {new File(base, "plugins")}, new File(base, "features")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		// if the various locations are set in self, use them.  Otherwise compute defaults
+		File[] bundles = bundleLocations == null ? new File[] {new File(base, "plugins")} : bundleLocations; //$NON-NLS-1$
+		File features = featuresLocation == null ? new File(base, "features") : featuresLocation; //$NON-NLS-1$
+		File executable = executableLocation == null ? new File(base, getDefaultExecutableName(os)) : executableLocation;
+		File configuration = configLocation == null ? new File(base, "configuration") : configLocation; //$NON-NLS-1$
+
+		initialize(base, configuration, executable, bundles, features);
 	}
 
-	public void initialize(File base, File config, File executable, File[] bundleLocations, File features) {
-		// TODO
+	public void initialize(File base, File config, File executable, File[] bundles, File features) {
 		if (base == null || !base.exists())
 			throw new RuntimeException(NLS.bind(Messages.exception_sourceDirectoryInvalid, base == null ? "null" : base.getAbsolutePath())); //$NON-NLS-1$
 		this.baseLocation = base;
@@ -372,9 +378,10 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			this.configLocation = config;
 		if (executable == null || executable.exists())
 			this.executableLocation = executable;
-		this.bundleLocations = bundleLocations;
-		this.featuresLocation = features;
-
+		if (bundles != null)
+			bundleLocations = bundles;
+		if (features != null)
+			featuresLocation = features;
 		expandBundleLocations();
 
 		// if the config or exe are not set then we cannot be generating any data related to the config so 

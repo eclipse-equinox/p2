@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.p2.metadata.generator.features;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Comparator;
+import java.util.Map;
 
 /**
  * A category in an update site.
@@ -25,6 +26,7 @@ public class SiteCategory {
 	private String description;
 	private String label;
 	private String name;
+	private Map localizations;
 
 	/**
 	 * Returns a comparator for category models.
@@ -100,6 +102,17 @@ public class SiteCategory {
 	}
 
 	/**
+	 * Gets the localizations for the site as a map from locale
+	 * to the set of translated properties for that locale.
+	 * 
+	 * @return a map from locale to property set
+	 * @since 3.4
+	 */
+	public Map getLocalizations() {
+		return this.localizations;
+	}
+
+	/**
 	 * Retrieve the name of the category.
 	 * 
 	 * @return category name, or <code>null</code>.
@@ -159,6 +172,17 @@ public class SiteCategory {
 	 */
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	/**
+	 * Sets the localizations for the site as a map from locale
+	 * to the set of translated properties for that locale.
+	 * 
+	 * @param localizations as a map from locale to property set
+	 * @since 3.4
+	 */
+	public void setLocalizations(Map localizations) {
+		this.localizations = localizations;
 	}
 
 	/**

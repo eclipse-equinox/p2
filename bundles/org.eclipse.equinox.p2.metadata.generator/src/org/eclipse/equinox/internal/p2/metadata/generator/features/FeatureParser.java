@@ -12,10 +12,15 @@ package org.eclipse.equinox.internal.p2.metadata.generator.features;
 
 import java.io.*;
 import java.net.URL;
-import java.util.Properties;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.xml.parsers.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
+import org.eclipse.equinox.internal.p2.metadata.generator.LocalizationHelper;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature;
 import org.eclipse.equinox.internal.provisional.p2.metadata.generator.FeatureEntry;
 import org.eclipse.osgi.util.NLS;
@@ -32,11 +37,12 @@ public class FeatureParser extends DefaultHandler {
 
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private SAXParser parser;
-	private Feature result;
+	protected Feature result;
 	private URL url;
 	private StringBuffer characters = null;
 
 	private Properties messages = null;
+	private List messageKeys = null;
 
 	public FeatureParser() {
 		this(true);
@@ -83,17 +89,15 @@ public class FeatureParser extends DefaultHandler {
 		return result;
 	}
 
-	private Properties loadProperties(File directory) {
+	private void loadProperties(File directory, Properties properties) {
 		//skip directories that don't contain a feature.properties file
 		File file = new File(directory, "feature.properties"); //$NON-NLS-1$
 		if (!file.exists())
-			return null;
+			return;
 		try {
 			InputStream input = new BufferedInputStream(new FileInputStream(file));
 			try {
-				Properties result = new Properties();
-				result.load(input);
-				return result;
+				properties.load(input);
 			} finally {
 				if (input != null)
 					input.close();
@@ -101,19 +105,16 @@ public class FeatureParser extends DefaultHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return null;
 	}
 
-	private Properties loadProperties(JarFile jar) {
+	private void loadProperties(JarFile jar, Properties properties) {
 		JarEntry entry = jar.getJarEntry("feature.properties"); //$NON-NLS-1$
 		if (entry == null)
-			return null;
+			return;
 		try {
 			InputStream input = new BufferedInputStream(jar.getInputStream(entry));
 			try {
-				Properties result = new Properties();
-				result.load(input);
-				return result;
+				properties.load(input);
 			} finally {
 				if (input != null)
 					input.close();
@@ -121,7 +122,6 @@ public class FeatureParser extends DefaultHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return null;
 	}
 
 	private String localize(String value) {
@@ -129,7 +129,9 @@ public class FeatureParser extends DefaultHandler {
 			return value;
 		if (!value.startsWith("%")) //$NON-NLS-1$
 			return value;
-		return messages.getProperty(value.substring(1), value);
+		String key = value.substring(1);
+		messageKeys.add(key);
+		return value;
 	}
 
 	/**
@@ -142,32 +144,54 @@ public class FeatureParser extends DefaultHandler {
 	public Feature parse(File location) {
 		if (!location.exists())
 			return null;
+
+		Feature feature = null;
+		Properties properties = new Properties();
+
 		if (location.isDirectory()) {
 			//skip directories that don't contain a feature.xml file
 			File file = new File(location, "feature.xml"); //$NON-NLS-1$
 			if (!file.exists())
 				return null;
-			Properties properties = loadProperties(location);
+			loadProperties(location, properties);
 			try {
 				InputStream input = new BufferedInputStream(new FileInputStream(file));
-				return parse(input, properties);
+				feature = parse(input, properties);
+				if (feature != null) {
+					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					feature.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(location, "feature", null, keyStrings)); //$NON-NLS-1$
+				}
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
 		} else if (location.getName().endsWith(".jar")) { //$NON-NLS-1$
+			JarFile jar = null;
 			try {
-				JarFile jar = new JarFile(location);
-				Properties properties = loadProperties(jar);
+				jar = new JarFile(location);
+				loadProperties(jar, properties);
 				JarEntry entry = jar.getJarEntry("feature.xml"); //$NON-NLS-1$
 				if (entry == null)
 					return null;
 				InputStream input = new BufferedInputStream(jar.getInputStream(entry));
-				return parse(input, properties);
+				feature = parse(input, properties);
+				if (feature != null) {
+					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					feature.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(location, "feature", null, keyStrings)); //$NON-NLS-1$
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
+			} catch (SecurityException e) {
+				LogHelper.log(new Status(IStatus.WARNING, Activator.ID, "Exception parsing feature: " + location.getAbsolutePath(), e)); //$NON-NLS-1$
+			} finally {
+				try {
+					if (jar != null)
+						jar.close();
+				} catch (IOException e) {
+					//
+				}
 			}
 		}
-		return null;
+		return feature;
 	}
 
 	/**
@@ -176,6 +200,7 @@ public class FeatureParser extends DefaultHandler {
 	 */
 	public Feature parse(InputStream in, Properties messages) {
 		this.messages = messages;
+		this.messageKeys = new ArrayList(messages.size());
 		result = null;
 		try {
 			parser.parse(new InputSource(in), this);
@@ -204,7 +229,10 @@ public class FeatureParser extends DefaultHandler {
 	}
 
 	private void processDiscoverySite(Attributes attributes) {
-		result.addDiscoverySite(attributes.getValue("url"), attributes.getValue("label")); //$NON-NLS-1$ //$NON-NLS-2$
+		//ignore discovery sites of type 'web'
+		if ("web".equals(attributes.getValue("type"))) //$NON-NLS-1$ //$NON-NLS-2$
+			return;
+		result.addDiscoverySite(attributes.getValue("label"), attributes.getValue("url")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	protected void processFeature(Attributes attributes) {
@@ -222,6 +250,12 @@ public class FeatureParser extends DefaultHandler {
 			String nl = attributes.getValue("nl"); //$NON-NLS-1$
 			String arch = attributes.getValue("arch"); //$NON-NLS-1$
 			result.setEnvironment(os, ws, arch, nl);
+
+			result.setApplication(attributes.getValue("application")); //$NON-NLS-1$
+			result.setPlugin(attributes.getValue("plugin")); //$NON-NLS-1$
+			result.setExclusive(Boolean.valueOf(attributes.getValue("exclusive")).booleanValue()); //$NON-NLS-1$
+			result.setPrimary(Boolean.valueOf(attributes.getValue("primary")).booleanValue()); //$NON-NLS-1$
+			result.setColocationAffinity(attributes.getValue("colocation-affinity")); //$NON-NLS-1$
 
 			//TODO rootURLs
 			if (url != null && "file".equals(url.getProtocol())) { //$NON-NLS-1$
@@ -244,7 +278,12 @@ public class FeatureParser extends DefaultHandler {
 		String id = attributes.getValue("feature"); //$NON-NLS-1$
 		FeatureEntry entry = null;
 		if (id != null) {
-			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if ("true".equalsIgnoreCase(attributes.getValue("patch"))) { //$NON-NLS-1$ //$NON-NLS-2$
+				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), "perfect", attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				entry.setPatch(true);
+			} else {
+				entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), false); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 		} else {
 			id = attributes.getValue("plugin"); //$NON-NLS-1$
 			entry = FeatureEntry.createRequires(id, attributes.getValue("version"), attributes.getValue("match"), attributes.getValue("filter"), true); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.eclipse.core.runtime.*;
@@ -105,8 +106,8 @@ public class SimpleArtifactRepositoryFactory implements IArtifactRepositoryFacto
 		}
 	}
 
-	public IArtifactRepository create(URL location, String name, String type) {
-		return new SimpleArtifactRepository(name, location);
+	public IArtifactRepository create(URL location, String name, String type, Map properties) {
+		return new SimpleArtifactRepository(name, location, properties);
 	}
 
 	private Transport getTransport() {

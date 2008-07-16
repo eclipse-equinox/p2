@@ -627,6 +627,16 @@ public abstract class XMLParser extends DefaultHandler implements XMLConstants {
 		return result;
 	}
 
+	// Check the format of a required integer attribute
+	public int checkInteger(String element, String attribute, String value) {
+		try {
+			return Integer.parseInt(value);
+		} catch (IllegalArgumentException iae) {
+			invalidAttributeValue(element, attribute, value);
+		}
+		return 0;
+	}
+
 	public void checkCancel() {
 		if (monitor != null && monitor.isCanceled())
 			throw new OperationCanceledException();

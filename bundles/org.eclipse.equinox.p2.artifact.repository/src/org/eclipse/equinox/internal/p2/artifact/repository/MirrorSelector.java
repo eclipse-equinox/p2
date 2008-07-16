@@ -15,8 +15,7 @@ import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
+import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.w3c.dom.*;
 
@@ -92,7 +91,7 @@ public class MirrorSelector {
 		try {
 			URL repositoryURL = repository.getLocation();
 			if (repositoryURL != null)
-				this.baseURI = new URI(repositoryURL.toExternalForm());
+				this.baseURI = URLUtil.toURI(repositoryURL);
 		} catch (URISyntaxException e) {
 			log("Error initializing mirrors for: " + repository.getLocation(), e); //$NON-NLS-1$
 		}

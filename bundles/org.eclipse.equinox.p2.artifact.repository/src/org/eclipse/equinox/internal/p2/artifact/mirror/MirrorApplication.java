@@ -68,7 +68,7 @@ public class MirrorApplication implements IApplication {
 		// 	the given repo location is not an existing repo so we have to create something
 		// TODO for now create a Simple repo by default.
 		String repositoryName = destinationLocation + " - artifacts"; //$NON-NLS-1$
-		IArtifactRepository repository = manager.createRepository(destinationLocation, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY);
+		IArtifactRepository repository = manager.createRepository(destinationLocation, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		manager.addRepository(repository.getLocation());
 		return repository;
 	}

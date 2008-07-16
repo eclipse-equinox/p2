@@ -12,8 +12,6 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -22,14 +20,14 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
+import org.eclipse.equinox.internal.p2.metadata.generator.LocalizationHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.SiteCategory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.*;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
@@ -98,6 +96,10 @@ public class MetadataGeneratorHelper {
 	private static final String LAUNCHER_ID_PREFIX = "org.eclipse.launcher"; //$NON-NLS-1$
 
 	private static final String ECLIPSE_INSTALL_HANDLER_PROP = "org.eclipse.update.installHandler"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_APPLICATION_PROP = "org.eclipse.update.feature.application"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PLUGIN_PROP = "org.eclipse.update.feature.plugin"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_EXCLUSIVE_PROP = "org.eclipse.update.feature.exclusive"; //$NON-NLS-1$
+	private static final String UPDATE_FEATURE_PRIMARY_PROP = "org.eclipse.update.feature.primary"; //$NON-NLS-1$
 
 	//TODO - need to come up with a way to infer launcher version
 	private static final Version LAUNCHER_VERSION = new Version(1, 0, 0);
@@ -113,7 +115,9 @@ public class MetadataGeneratorHelper {
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
-	static final String MANIFEST_LOCALIZATIONS = "eclipse.p2.manifest.localizations"; //$NON-NLS-1$
+
+	static final String BUNDLE_ADVICE_FILE = "META-INF/p2.inf"; //$NON-NLS-1$
+	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
 
 	static final Locale DEFAULT_LOCALE = new Locale("df", "LT"); //$NON-NLS-1$//$NON-NLS-2$
 	static final Locale PSEUDO_LOCALE = new Locale("zz", "ZZ"); //$NON-NLS-1$//$NON-NLS-2$
@@ -177,15 +181,23 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
+		return createBundleIU(bd, manifest, isFolderPlugin, key, false);
+	}
+
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, boolean useNestedAdvice) {
 		Map manifestLocalizations = null;
 		if (manifest != null && bd.getLocation() != null) {
 			manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
 		}
 
-		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations);
+		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, useNestedAdvice);
 	}
 
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations) {
+		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, false);
+	}
+
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations, boolean useNestedAdvice) {
 		boolean isBinaryBundle = true;
 		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
 			isBinaryBundle = false;
@@ -289,9 +301,30 @@ public class MetadataGeneratorHelper {
 		if (isFolderPlugin)
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
+
+		if (useNestedAdvice)
+			mergeInstructionsAdvice(touchpointData, getBundleAdvice(bd.getLocation()));
+
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	private static void mergeInstructionsAdvice(Map touchpointData, Map bundleAdvice) {
+		if (touchpointData == null || bundleAdvice == null)
+			return;
+
+		for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
+			String key = (String) iterator.next();
+			if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
+				String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
+				String instructions = touchpointData.containsKey(phase) ? (String) touchpointData.get(phase) : ""; //$NON-NLS-1$
+				if (instructions.length() > 0)
+					instructions += ";"; //$NON-NLS-1$
+				instructions += ((String) bundleAdvice.get(key)).trim();
+				touchpointData.put(phase, instructions);
+			}
+		}
 	}
 
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
@@ -371,7 +404,8 @@ public class MetadataGeneratorHelper {
 	public static IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
 		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
 		cat.setSingleton(true);
-		cat.setId(category.getName());
+		String categoryId = category.getName();
+		cat.setId(categoryId);
 		cat.setVersion(Version.emptyVersion);
 		cat.setProperty(IInstallableUnit.PROP_NAME, category.getLabel());
 		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, category.getDescription());
@@ -387,7 +421,27 @@ public class MetadataGeneratorHelper {
 			reqsConfigurationUnits.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, parentCategory.getId(), VersionRange.emptyRange, parentCategory.getFilter(), false, false));
 		}
 		cat.setRequiredCapabilities((RequiredCapability[]) reqsConfigurationUnits.toArray(new RequiredCapability[reqsConfigurationUnits.size()]));
-		cat.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, category.getName(), Version.emptyVersion)});
+
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(categoryId, Version.emptyVersion));
+
+		Map localizations = category.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					cat.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(categoryId, locale));
+			}
+		}
+
+		cat.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+
 		cat.setArtifacts(new IArtifactKey[0]);
 		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
 		return MetadataFactory.createInstallableUnit(cat);
@@ -531,10 +585,25 @@ public class MetadataGeneratorHelper {
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getDescription() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
+		if (feature.getDescriptionURL() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
+		if (feature.getProviderName() != null)
+			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
 			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+		if (feature.getApplication() != null)
+			iu.setProperty(UPDATE_FEATURE_APPLICATION_PROP, feature.getApplication());
+		if (feature.getPlugin() != null)
+			iu.setProperty(UPDATE_FEATURE_PLUGIN_PROP, feature.getPlugin());
+		if (feature.isExclusive())
+			iu.setProperty(UPDATE_FEATURE_EXCLUSIVE_PROP, Boolean.TRUE.toString());
+		if (feature.isPrimary())
+			iu.setProperty(UPDATE_FEATURE_PRIMARY_PROP, Boolean.TRUE.toString());
 
 		// The required capabilities are not specified at this level because we don't want the feature jar to be attractive to install.
 
@@ -554,7 +623,12 @@ public class MetadataGeneratorHelper {
 			iu.setProperty(ECLIPSE_INSTALL_HANDLER_PROP, installHandlerProperty);
 		}
 
-		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version), FEATURE_CAPABILITY, MetadataFactory.createProvidedCapability(CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version)});
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(id, version));
+		providedCapabilities.add(FEATURE_CAPABILITY);
+		providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_UPDATE_FEATURE, feature.getId(), version));
+
 		iu.setArtifacts(new IArtifactKey[] {createFeatureArtifactKey(feature.getId(), version.toString())});
 
 		if (isExploded) {
@@ -564,6 +638,22 @@ public class MetadataGeneratorHelper {
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
+
+		Map localizations = feature.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(id, locale));
+			}
+		}
+
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
 
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
@@ -581,12 +671,26 @@ public class MetadataGeneratorHelper {
 	}
 
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
+		return createGroupIU(feature, featureIU, extraProperties, true);
+	}
+
+	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties, boolean transformIds) {
+		if (isPatch(feature))
+			return createPatchIU(feature, featureIU, extraProperties);
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
+		String id = feature.getId();
+		if (transformIds)
+			id = getTransformedId(id, /*isPlugin*/false, /*isGroup*/true);
 		iu.setId(id);
 		Version version = new Version(feature.getVersion());
 		iu.setVersion(version);
 		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getDescription() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
+		if (feature.getDescriptionURL() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
+		if (feature.getProviderName() != null)
+			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
 		if (feature.getLicense() != null)
 			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
 		if (feature.getCopyright() != null)
@@ -594,19 +698,44 @@ public class MetadataGeneratorHelper {
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
 
 		FeatureEntry entries[] = feature.getEntries();
-		RequiredCapability[] required = new RequiredCapability[entries.length + 1];
+		RequiredCapability[] required = new RequiredCapability[entries.length + (featureIU == null ? 0 : 1)];
 		for (int i = 0; i < entries.length; i++) {
 			VersionRange range = getVersionRange(entries[i]);
-			required[i] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			String requiredId = entries[i].getId();
+			if (transformIds)
+				requiredId = getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true);
+			required[i] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, requiredId, range, getFilter(entries[i]), entries[i].isOptional(), false);
 		}
-		required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
+		// the feature IU could be null if we are just generating a feature structure rather than 
+		// actual features.
+		if (featureIU != null)
+			required[entries.length] = MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false);
 		iu.setRequiredCapabilities(required);
 		iu.setTouchpointType(TouchpointType.NONE);
 		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
 		// 		 of the feature?
 		// iu.setFilter(filter);
-		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(id, version));
+
+		Map localizations = feature.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(id, locale));
+			}
+		}
+
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
 
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
@@ -617,6 +746,104 @@ public class MetadataGeneratorHelper {
 		}
 
 		return MetadataFactory.createInstallableUnit(iu);
+	}
+
+	public static IInstallableUnit createPatchIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
+		InstallableUnitPatchDescription iu = new MetadataFactory.InstallableUnitPatchDescription();
+		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/true);
+		iu.setId(id);
+		Version version = new Version(feature.getVersion());
+		iu.setVersion(version);
+		iu.setProperty(IInstallableUnit.PROP_NAME, feature.getLabel());
+		if (feature.getDescription() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION, feature.getDescription());
+		if (feature.getDescriptionURL() != null)
+			iu.setProperty(IInstallableUnit.PROP_DESCRIPTION_URL, feature.getDescriptionURL());
+		if (feature.getProviderName() != null)
+			iu.setProperty(IInstallableUnit.PROP_PROVIDER, feature.getProviderName());
+		if (feature.getLicense() != null)
+			iu.setLicense(new License(feature.getLicenseURL(), feature.getLicense()));
+		if (feature.getCopyright() != null)
+			iu.setCopyright(new Copyright(feature.getCopyrightURL(), feature.getCopyright()));
+		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, new VersionRange(new Version(0, 0, 0), true, new Version(feature.getVersion()), false), IUpdateDescriptor.NORMAL, null));
+
+		FeatureEntry entries[] = feature.getEntries();
+		ArrayList applicabilityScope = new ArrayList();
+		ArrayList patchRequirements = new ArrayList();
+		ArrayList requirementChanges = new ArrayList();
+		for (int i = 0; i < entries.length; i++) {
+			VersionRange range = getVersionRange(entries[i]);
+			RequiredCapability req = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), range, getFilter(entries[i]), entries[i].isOptional(), false);
+			if (entries[i].isRequires()) {
+				applicabilityScope.add(req);
+				continue;
+			}
+			if (entries[i].isPlugin()) {
+				RequiredCapability from = MetadataFactory.createRequiredCapability(IU_NAMESPACE, getTransformedId(entries[i].getId(), entries[i].isPlugin(), /*isGroup*/true), VersionRange.emptyRange, getFilter(entries[i]), entries[i].isOptional(), false);
+				requirementChanges.add(new RequirementChange(from, req));
+				continue;
+			}
+			patchRequirements.add(req);
+		}
+		//Always add a requirement on the IU containing the feature jar
+		patchRequirements.add(MetadataFactory.createRequiredCapability(IU_NAMESPACE, featureIU.getId(), new VersionRange(featureIU.getVersion(), true, featureIU.getVersion(), true), INSTALL_FEATURES_FILTER, false, false));
+		iu.setRequiredCapabilities((RequiredCapability[]) patchRequirements.toArray(new RequiredCapability[patchRequirements.size()]));
+		iu.setApplicabilityScope(new RequiredCapability[][] {(RequiredCapability[]) applicabilityScope.toArray(new RequiredCapability[applicabilityScope.size()])});
+		iu.setRequirementChanges((RequirementChange[]) requirementChanges.toArray(new RequirementChange[requirementChanges.size()]));
+
+		//Generate lifecycle
+		RequiredCapability lifeCycle = null;
+		if (applicabilityScope.size() > 0) {
+			RequiredCapability req = (RequiredCapability) applicabilityScope.get(0);
+			lifeCycle = MetadataFactory.createRequiredCapability(req.getNamespace(), req.getName(), req.getRange(), null, false, false, false);
+			iu.setLifeCycle(lifeCycle);
+		}
+
+		iu.setTouchpointType(TouchpointType.NONE);
+		iu.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
+		iu.setProperty(IInstallableUnit.PROP_TYPE_PATCH, Boolean.TRUE.toString());
+		// TODO: shouldn't the filter for the group be constructed from os, ws, arch, nl
+		// 		 of the feature?
+		// iu.setFilter(filter);
+
+		// Create set of provided capabilities
+		ArrayList providedCapabilities = new ArrayList();
+		providedCapabilities.add(createSelfCapability(id, version));
+
+		Map localizations = feature.getLocalizations();
+		if (localizations != null) {
+			for (Iterator iter = localizations.keySet().iterator(); iter.hasNext();) {
+				Locale locale = (Locale) iter.next();
+				Properties translatedStrings = (Properties) localizations.get(locale);
+				Enumeration propertyKeys = translatedStrings.propertyNames();
+				while (propertyKeys.hasMoreElements()) {
+					String nextKey = (String) propertyKeys.nextElement();
+					iu.setProperty(locale.toString() + '.' + nextKey, translatedStrings.getProperty(nextKey));
+				}
+				providedCapabilities.add(makeTranslationCapability(id, locale));
+			}
+		}
+
+		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
+
+		if (extraProperties != null) {
+			Enumeration e = extraProperties.propertyNames();
+			while (e.hasMoreElements()) {
+				String name = (String) e.nextElement();
+				iu.setProperty(name, extraProperties.getProperty(name));
+			}
+		}
+
+		return MetadataFactory.createInstallableUnitPatch(iu);
+	}
+
+	private static boolean isPatch(Feature feature) {
+		FeatureEntry[] entries = feature.getEntries();
+		for (int i = 0; i < entries.length; i++) {
+			if (entries[i].isPatch())
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -713,11 +940,11 @@ public class MetadataGeneratorHelper {
 		if (!info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
 			if (info.getOS().equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 				configurationData += " chmod(targetDir:${installFolder}/Eclipse.app/Contents/MacOS, targetFile:eclipse, permissions:755);"; //$NON-NLS-1$
-				generateLauncherSetter("Eclipse", launcherId, LAUNCHER_VERSION, "macosx", null, null, resultantIUs);
+				generateLauncherSetter("Eclipse", launcherId, LAUNCHER_VERSION, "macosx", null, null, resultantIUs); //$NON-NLS-1$//$NON-NLS-2$
 			} else
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcher.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			generateLauncherSetter("eclipse", launcherId, LAUNCHER_VERSION, "win32", null, null, resultantIUs);
+			generateLauncherSetter("eclipse", launcherId, LAUNCHER_VERSION, "win32", null, null, resultantIUs); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -729,23 +956,27 @@ public class MetadataGeneratorHelper {
 		return createArtifactDescriptor(key, launcher, false, true);
 	}
 
-	public static void generateLauncherSetter(String launcherName, String iuId, Version version, String os, String ws, String arch, Set result) {
+	public static IInstallableUnit generateLauncherSetter(String launcherName, String iuId, Version version, String os, String ws, String arch, Set result) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId(iuId + '.' + launcherName);
 		iud.setVersion(version);
 		iud.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
+		iud.setCapabilities(new ProvidedCapability[] {createSelfCapability(iuId + '.' + launcherName, version)});
 
 		if (os != null || ws != null || arch != null) {
-			String filterOs = os != null ? "(os=" + os + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterWs = ws != null ? "(ws=" + ws + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterArch = arch != null ? "(arch=" + arch + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterOs = os != null ? "(osgi.os=" + os + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterWs = ws != null ? "(osgi.ws=" + ws + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterArch = arch != null ? "(osgi.arch=" + arch + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			iud.setFilter("(& " + filterOs + filterWs + filterArch + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		Map touchpointData = new HashMap();
-		touchpointData.put("configure", "setLauncherName(name:" + launcherName + ")");
-		touchpointData.put("unconfigure", "setLauncherName()");
+		touchpointData.put("configure", "setLauncherName(name:" + launcherName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
 		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		result.add(MetadataFactory.createInstallableUnit(iud));
+
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(iud);
+		result.add(iu);
+		return iu;
 	}
 
 	public static ProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
@@ -862,7 +1093,7 @@ public class MetadataGeneratorHelper {
 
 	public static VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
-		if (versionSpec == null)
+		if (versionSpec == null || versionSpec.length() == 0)
 			// TODO should really be returning VersionRange.emptyRange here...
 			return null;
 		Version version = new Version(versionSpec);
@@ -872,22 +1103,82 @@ public class MetadataGeneratorHelper {
 			return new VersionRange(version, true, version, true);
 		}
 		String match = entry.getMatch();
-		if (match == null)
-			// TODO should really be returning VersionRange.emptyRange here...
-			return null;
+		if (match == null || match.equals("compatible")) { //$NON-NLS-1$
+			Version upper = new Version(version.getMajor() + 1, 0, 0);
+			return new VersionRange(version, true, upper, false);
+		}
 		if (match.equals("perfect")) //$NON-NLS-1$
 			return new VersionRange(version, true, version, true);
 		if (match.equals("equivalent")) { //$NON-NLS-1$
 			Version upper = new Version(version.getMajor(), version.getMinor() + 1, 0);
 			return new VersionRange(version, true, upper, false);
 		}
-		if (match.equals("compatible")) { //$NON-NLS-1$
-			Version upper = new Version(version.getMajor() + 1, 0, 0);
-			return new VersionRange(version, true, upper, false);
-		}
 		if (match.equals("greaterOrEqual")) //$NON-NLS-1$
 			return new VersionRange(version, true, new VersionRange(null).getMaximum(), true);
 		return null;
+	}
+
+	public static Map getBundleAdvice(String bundleLocation) {
+		if (bundleLocation == null)
+			return Collections.EMPTY_MAP;
+
+		File bundle = new File(bundleLocation);
+		if (!bundle.exists())
+			return Collections.EMPTY_MAP;
+
+		ZipFile jar = null;
+		InputStream stream = null;
+		if (bundle.isDirectory()) {
+			File adviceFile = new File(bundle, BUNDLE_ADVICE_FILE);
+			if (adviceFile.exists()) {
+				try {
+					stream = new BufferedInputStream(new FileInputStream(adviceFile));
+				} catch (IOException e) {
+					return Collections.EMPTY_MAP;
+				}
+			}
+		} else if (bundle.isFile()) {
+			try {
+				jar = new ZipFile(bundle);
+				ZipEntry entry = jar.getEntry(BUNDLE_ADVICE_FILE);
+				if (entry != null)
+					stream = new BufferedInputStream(jar.getInputStream(entry));
+			} catch (IOException e) {
+				if (jar != null)
+					try {
+						jar.close();
+					} catch (IOException e1) {
+						//boo
+					}
+				return Collections.EMPTY_MAP;
+			}
+		}
+
+		Properties advice = null;
+		if (stream != null) {
+			try {
+				advice = new Properties();
+				advice.load(stream);
+			} catch (IOException e) {
+				return Collections.EMPTY_MAP;
+			} finally {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					//boo
+				}
+			}
+		}
+
+		if (jar != null) {
+			try {
+				jar.close();
+			} catch (IOException e) {
+				// boo
+			}
+		}
+
+		return advice != null ? advice : Collections.EMPTY_MAP;
 	}
 
 	private static boolean isOptional(ImportPackageSpecification importedPackage) {
@@ -921,9 +1212,11 @@ public class MetadataGeneratorHelper {
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
-			localizations = getJarManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			//localizations = getJarManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
 		} else {
-			localizations = getDirManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
+			// localizations = getDirManifestLocalization(bundleLocation, bundleLocalization, defaultLocale, bundleManifestValues);
 		}
 
 		return localizations;
@@ -952,165 +1245,14 @@ public class MetadataGeneratorHelper {
 
 		if ("jar".equalsIgnoreCase(new Path(bundleLocation.getName()).getFileExtension()) && //$NON-NLS-1$
 				bundleLocation.isFile()) {
-			localizations = getJarManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			localizations = LocalizationHelper.getJarPropertyLocalizations(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			//localizations = getJarManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
 		} else {
-			localizations = getDirManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			localizations = LocalizationHelper.getDirPropertyLocalizations(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
+			// localizations = getDirManifestLocalization(bundleLocation, hostBundleLocalization, defaultLocale, hostBundleManifestValues);
 		}
 
 		return localizations;
-	}
-
-	private static Map getJarManifestLocalization(File bundleLocation, String bundleLocalization, Locale defaultLocale, String[] bundleManifestValues) {
-		ZipFile jarFile = null;
-		Map localizations = new HashMap(4);
-		try {
-			jarFile = new ZipFile(bundleLocation, ZipFile.OPEN_READ);
-			for (Enumeration entries = jarFile.entries(); entries.hasMoreElements();) {
-				ZipEntry nextEntry = (ZipEntry) entries.nextElement();
-				String nextName = nextEntry.getName();
-				String localeString = getLocaleString(nextName, bundleLocalization);
-
-				if (!nextEntry.isDirectory() && localeString != null) {
-					Locale nextLocale = getLocale(localeString);
-					InputStream stream = null;
-					try {
-						stream = jarFile.getInputStream(nextEntry);
-						Properties properties = new Properties();
-						properties.load(stream);
-						Properties localizedStrings = getLocalizedProperties(bundleManifestValues, properties);
-						if (localizedStrings.size() > 0) {
-							localizations.put(nextLocale, localizedStrings);
-							if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
-								localizations.put(nextLocale, localizedStrings);
-							}
-						}
-					} finally {
-						if (stream != null)
-							stream.close();
-					}
-				}
-			}
-		} catch (IOException ioe) {
-			ioe.printStackTrace();
-		} finally {
-			if (jarFile != null) {
-				try {
-					jarFile.close();
-				} catch (IOException ioe) {
-					// do nothing
-				}
-			}
-		}
-
-		return localizations;
-	}
-
-	private static Map getDirManifestLocalization(File bundleLocation, String bundleLocalization, Locale defaultLocale, String[] hostBundleManifestValues) {
-		File localizationPath = new File(bundleLocation, bundleLocalization);
-		File localizationDir = localizationPath.getParentFile();
-		final String localizationFile = localizationPath.getName();
-		MetadataGeneratorHelper foo = new MetadataGeneratorHelper();
-		String[] localizationFiles = localizationDir.list(foo.new LocalizationFileFilter() {
-			public boolean accept(File directory, String filename) {
-				return (getLocaleString(filename, localizationFile) != null ? true : false);
-			}
-		});
-
-		HashMap localizations = null;
-
-		if (localizationFiles != null) {
-			localizations = new HashMap(localizationFiles.length);
-			for (int i = 0; i < localizationFiles.length; i++) {
-				String nextFile = localizationFiles[i];
-				Locale nextLocale = getLocale(getLocaleString(nextFile, localizationFile));
-
-				try {
-					Properties properties = loadProperties(bundleLocation, nextFile);
-					Properties localizedStrings = getLocalizedProperties(hostBundleManifestValues, properties);
-					if (localizedStrings.size() > 0) {
-						localizations.put(nextLocale, localizedStrings);
-						if (DEFAULT_LOCALE.equals(nextLocale) && defaultLocale != null) {
-							localizations.put(nextLocale, localizedStrings);
-						}
-					}
-				} catch (IOException ioe) {
-					ioe.printStackTrace();
-				}
-			}
-		}
-
-		return localizations;
-	}
-
-	private abstract class LocalizationFileFilter implements FilenameFilter {
-
-		public LocalizationFileFilter() {
-			// Nothing to do
-		}
-
-		/* (non-Javadoc)
-		 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-		 */
-		public abstract boolean accept(File directory, String filename);
-	}
-
-	static public String getLocaleString(String filename, String filenamePrefix) {
-		String localeString = null;
-		if (filename.startsWith(filenamePrefix) && filename.endsWith(PROPERTIES_FILE_EXTENSION)) {
-			if (filename.length() > filenamePrefix.length() + PROPERTIES_FILE_EXTENSION.length()) {
-				localeString = filename.substring(filenamePrefix.length() + 1, filename.length() - PROPERTIES_FILE_EXTENSION.length());
-			} else {
-				localeString = ""; //$NON-NLS-1$
-			}
-		}
-		return localeString;
-	}
-
-	private static Properties loadProperties(File bundleLocation, String localizationFile) throws IOException {
-		Properties result = new Properties();
-		InputStream propertyStream = null;
-		try {
-			try {
-				if (bundleLocation.isDirectory())
-					propertyStream = new FileInputStream(new File(bundleLocation, localizationFile));
-				else {
-					URLConnection connection = new URL("jar:" + bundleLocation.toURL().toExternalForm() + "!/" + localizationFile).openConnection(); //$NON-NLS-1$ //$NON-NLS-2$
-					connection.setUseCaches(false);
-					propertyStream = connection.getInputStream();
-				}
-			} catch (FileNotFoundException e) {
-				// if there is no messages file then just return;
-				return result;
-			}
-			result.load(propertyStream);
-		} finally {
-			if (propertyStream != null)
-				propertyStream.close();
-		}
-		return result;
-	}
-
-	static private Locale getLocale(String localeString) {
-		Locale locale = DEFAULT_LOCALE;
-		if (localeString.length() == 5 && localeString.indexOf('_') == 2) {
-			locale = new Locale(localeString.substring(0, 2), localeString.substring(3, 5));
-		} else if (localeString.length() == 2) {
-			locale = new Locale(localeString.substring(0, 2));
-		}
-		return locale;
-	}
-
-	static private Properties getLocalizedProperties(String[] bundleManifestKeys, Properties properties) {
-		Properties localizedProperties = new Properties();
-		for (int i = 0; i < BUNDLE_LOCALIZED_PROPERTIES.length; i++) {
-			String key = bundleManifestKeys[i];
-			if (key != null) {
-				String localizedValue = properties.getProperty(key);
-				if (localizedValue != null)
-					localizedProperties.put(key, localizedValue);
-			}
-		}
-		return localizedProperties;
 	}
 
 }

@@ -38,6 +38,10 @@ public class SiteModel {
 	private String mirrorsURLString;
 	private boolean supportsPack200;
 	private String type;
+	private URLEntry[] associateSites;
+	private String digestURLString;
+	private List messageKeys;
+	private Map localizations;
 
 	/**
 	 * Creates an uninitialized site model object.
@@ -70,8 +74,11 @@ public class SiteModel {
 	public void addCategory(SiteCategory category) {
 		if (categories == null)
 			categories = new HashMap();
-		if (!categories.containsKey(category.getName()))
+		if (!categories.containsKey(category.getName())) {
 			categories.put(category.getName(), category);
+			if (localizations != null && !localizations.isEmpty())
+				category.setLocalizations(localizations);
+		}
 	}
 
 	/**
@@ -120,6 +127,10 @@ public class SiteModel {
 		return (URLEntry[]) archiveReferences.toArray(new URLEntry[0]);
 	}
 
+	public URLEntry[] getAssociatedSites() {
+		return associateSites;
+	}
+
 	/**
 	 * Returns an array of category models for this site.
 	 * 
@@ -161,11 +172,29 @@ public class SiteModel {
 	}
 
 	/**
+	 * Gets the localizations for the site as a map from locale
+	 * to the set of translated properties for that locale.
+	 * 
+	 * @return a map from locale to property set
+	 * @since 3.4
+	 */
+	public Map getLocalizations() {
+		return this.localizations;
+	}
+
+	/**
 	 * Returns the resolved URL for the site.
 	 * 
 	 * @return url, or <code>null</code>
 	 */
 	public URL getLocationURL() {
+		if (locationURL == null && locationURLString != null) {
+			try {
+				locationURL = new URL(locationURLString);
+			} catch (MalformedURLException e) {
+				//ignore and return null
+			}
+		}
 		return locationURL;
 	}
 
@@ -176,6 +205,16 @@ public class SiteModel {
 	 */
 	public String getLocationURLString() {
 		return locationURLString;
+	}
+
+	/**
+	 * Return the keys for translatable strings
+	 *
+	 * @return the list of keys for translatable strings; may be null
+	 * @since 3.4
+	 */
+	public List getMessageKeys() {
+		return messageKeys;
 	}
 
 	/**
@@ -265,6 +304,25 @@ public class SiteModel {
 	}
 
 	/**
+	 * Sets the localizations for the site as a map from locale
+	 * to the set of translated properties for that locale.
+	 * 
+	 * @param localizations as a map from locale to property set
+	 * @since 3.4
+	 */
+	public void setLocalizations(Map localizations) {
+		this.localizations = localizations;
+		if (localizations != null && !localizations.isEmpty() && //
+				categories != null && !categories.isEmpty()) {
+			for (Iterator catIter = categories.entrySet().iterator(); catIter.hasNext();) {
+				Map.Entry entry = (Map.Entry) catIter.next();
+				SiteCategory category = (SiteCategory) entry.getValue();
+				category.setLocalizations(localizations);
+			}
+		}
+	}
+
+	/**
 	 * Sets the unresolved URL for the site.
 	 * 
 	 * @param locationURLString url for the site (as a string)
@@ -272,6 +330,16 @@ public class SiteModel {
 	 */
 	public void setLocationURLString(String locationURLString) {
 		this.locationURLString = locationURLString;
+	}
+
+	/**
+	 * Sets keys for translatable strings
+	 * 
+	 * @param keys for translatable strings
+	 * @since 3.4
+	 */
+	public void setMessageKeys(List keys) {
+		this.messageKeys = keys;
 	}
 
 	/**
@@ -309,5 +377,22 @@ public class SiteModel {
 	 */
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	/**
+	 * Sets the associated sites for this update site.
+	 * 
+	 * @param associateSites the associated sites
+	 */
+	public void setAssociateSites(URLEntry[] associateSites) {
+		this.associateSites = associateSites;
+	}
+
+	public void setDigestURLString(String digestURLString) {
+		this.digestURLString = digestURLString;
+	}
+
+	public String getDigestURLString() {
+		return digestURLString;
 	}
 }

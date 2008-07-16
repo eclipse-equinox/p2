@@ -14,6 +14,7 @@ import java.io.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.ui.sdk.prefs.PreferenceConstants;
 import org.eclipse.equinox.internal.p2.ui.sdk.updates.AutomaticUpdater;
+import org.eclipse.equinox.internal.provisional.p2.core.IServiceUI;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -29,15 +30,14 @@ import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.statushandlers.StatusManager;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 
 /**
  * Activator class for the p2 UI.
  */
 public class ProvSDKUIActivator extends AbstractUIPlugin {
 
-	public static final boolean ANY_PROFILE = true;
+	public static final boolean ANY_PROFILE = false;
 	private static final String DEFAULT_PROFILE_ID = "DefaultProfile"; //$NON-NLS-1$
 	private static final String LICENSE_STORAGE = "licenses.xml"; //$NON-NLS-1$
 	private static ProvSDKUIActivator plugin;
@@ -47,6 +47,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 	private IQueryProvider queryProvider;
 	private SimpleLicenseManager licenseManager;
 	private IPlanValidator planValidator;
+	private ServiceRegistration certificateUIRegistration;
 
 	public static final String PLUGIN_ID = "org.eclipse.equinox.p2.ui.sdk"; //$NON-NLS-1$
 
@@ -89,6 +90,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 		plugin = this;
 		ProvSDKUIActivator.context = bundleContext;
 		readLicenseRegistry();
+		certificateUIRegistration = context.registerService(IServiceUI.class.getName(), new ValidationDialogServiceUI(), null);
 	}
 
 	private void readLicenseRegistry() {
@@ -132,6 +134,7 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 			updater = null;
 		}
 		plugin = null;
+		certificateUIRegistration.unregister();
 		super.stop(bundleContext);
 	}
 
@@ -214,8 +217,6 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 							});
 						return false;
 					}
-					if (plan.getStatus().isOK())
-						return true;
 
 					// Special case those statuses where we would never want to open a wizard
 					if (plan.getStatus().getCode() == IStatusCodes.NOTHING_TO_UPDATE) {
@@ -223,7 +224,12 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 						return false;
 					}
 
-					String openPlan = getPreferenceStore().getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+					// Allow the wizard to open if there is no error
+					if (plan.getStatus().getSeverity() != IStatus.ERROR)
+						return true;
+
+					// There is an error.  Check the preference to see whether to continue.
+					String openPlan = getPreferenceStore().getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
 					if (MessageDialogWithToggle.ALWAYS.equals(openPlan)) {
 						return true;
 					}
@@ -231,7 +237,8 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 						ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);
 						return false;
 					}
-					MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, ProvSDKMessages.ProvSDKUIActivator_OpenWizardAnyway, null, false, getPreferenceStore(), PreferenceConstants.PREF_OPEN_WIZARD_ON_NONOK_PLAN);
+					MessageDialogWithToggle dialog = MessageDialogWithToggle.openYesNoCancelQuestion(shell, ProvSDKMessages.ProvSDKUIActivator_Question, ProvSDKMessages.ProvSDKUIActivator_OpenWizardAnyway, null, false, getPreferenceStore(), PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
+
 					// Any answer but yes will stop the performance of the plan, but NO is interpreted to mean, show me the error.
 					if (dialog.getReturnCode() == IDialogConstants.NO_ID)
 						ProvUI.reportStatus(plan.getStatus(), StatusManager.SHOW | StatusManager.LOG);

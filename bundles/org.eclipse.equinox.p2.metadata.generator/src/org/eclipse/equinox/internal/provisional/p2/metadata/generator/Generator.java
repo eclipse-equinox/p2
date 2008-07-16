@@ -9,6 +9,7 @@
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
@@ -19,8 +20,7 @@ import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -42,29 +42,31 @@ public class Generator {
 	public static class GeneratorResult {
 		public static final String CONFIGURATION_CUS = "CONFIGURATION_CUS"; //$NON-NLS-1$
 
+		final public Map pluginShape = new HashMap();
+
 		/**
 		 * The set of generated IUs that will be children of the root IU
 		 */
-		final Set rootIUs = new HashSet();
+		final public Set rootIUs = new HashSet();
 		/**
 		 * The set of generated IUs that will not be children of the root IU
 		 */
-		final Set nonRootIUs = new HashSet();
+		final public Set nonRootIUs = new HashSet();
 
 		/**
 		 * Map of symbolic name to a set of generated CUs for that IU
 		 */
-		final Map configurationIUs = new HashMap();
+		final public Map configurationIUs = new HashMap();
 
 		/**
 		 * Map launcherConfig to config.ini ConfigData
 		 */
-		final Map configData = new HashMap();
+		final public Map configData = new HashMap();
 
 		/**
 		 * Returns all IUs generated during this execution of the generator.
 		 */
-		Set allGeneratedIUs() {
+		public Set allGeneratedIUs() {
 			HashSet all = new HashSet();
 			all.addAll(rootIUs);
 			all.addAll(nonRootIUs);
@@ -74,7 +76,7 @@ public class Generator {
 		/**
 		 * Returns the IU in this result with the given id.
 		 */
-		IInstallableUnit getInstallableUnit(String id) {
+		public IInstallableUnit getInstallableUnit(String id) {
 			for (Iterator iterator = rootIUs.iterator(); iterator.hasNext();) {
 				IInstallableUnit tmp = (IInstallableUnit) iterator.next();
 				if (tmp.getId().equals(id))
@@ -89,6 +91,9 @@ public class Generator {
 
 		}
 
+		public Map getPluginShapeInfo() {
+			return pluginShape;
+		}
 	}
 
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
@@ -101,7 +106,9 @@ public class Generator {
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 
-	private final IGeneratorInfo info;
+	private static final String PROTOCOL_FILE = "file"; //$NON-NLS-1$
+
+	protected final IGeneratorInfo info;
 
 	private GeneratorResult incrementalResult = null;
 	private ProductFile productFile = null;
@@ -153,6 +160,15 @@ public class Generator {
 		this.incrementalResult = result;
 	}
 
+	private String getProductVersion() {
+		String version = "1.0.0"; //$NON-NLS-1$
+		if (productFile != null && !productFile.getVersion().equals("0.0.0")) //$NON-NLS-1$
+			version = productFile.getVersion();
+		else if (!info.getRootVersion().equals("0.0.0")) //$NON-NLS-1$
+			version = info.getRootVersion();
+		return version;
+	}
+
 	protected IInstallableUnit createProductIU(GeneratorResult result) {
 		generateProductConfigCUs(result);
 
@@ -164,9 +180,7 @@ public class Generator {
 			productContents.rootIUs.add(iterator.next());
 		}
 
-		String version = productFile.getVersion();
-		if (version.equals("0.0.0") && info.getRootVersion() != null) //$NON-NLS-1$
-			version = info.getRootVersion();
+		String version = getProductVersion();
 		VersionRange range = new VersionRange(new Version(version), true, new Version(version), true);
 		ArrayList requires = new ArrayList(1);
 		requires.add(MetadataFactory.createRequiredCapability(info.getFlavor() + productFile.getId(), productFile.getId() + PRODUCT_LAUCHER_SUFFIX, range, null, false, true));
@@ -345,15 +359,19 @@ public class Generator {
 							bundleLocalizationMap.put(makeSimpleKey(bd), cachedValues);
 						}
 					} else {
-						String format = (String) (bundleManifest).get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
+						String format = (String) result.getPluginShapeInfo().get(bd.getSymbolicName() + '_' + bd.getVersion());
+						if (format == null)
+							format = (String) bundleManifest.get(BundleDescriptionFactory.BUNDLE_FILE_KEY);
 						boolean isDir = (format != null && format.equals(BundleDescriptionFactory.DIR) ? true : false);
 
 						IArtifactKey key = MetadataGeneratorHelper.createBundleArtifactKey(bd.getSymbolicName(), bd.getVersion().toString());
 						IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(key, new File(bd.getLocation()), true, false);
-						if (isDir)
-							publishArtifact(ad, new File(bd.getLocation()).listFiles(), destination, false);
+						((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
+						File bundleFile = new File(bd.getLocation());
+						if (bundleFile.isDirectory())
+							publishArtifact(ad, bundleFile.listFiles(), destination, false);
 						else
-							publishArtifact(ad, new File[] {new File(bd.getLocation())}, destination, true);
+							publishArtifact(ad, new File[] {bundleFile}, destination, true);
 						if (info.reuseExistingPack200Files() && !info.publishArtifacts()) {
 							File packFile = new Path(bd.getLocation()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
 							if (packFile.exists()) {
@@ -362,7 +380,7 @@ public class Generator {
 							}
 						}
 
-						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key);
+						IInstallableUnit bundleIU = MetadataGeneratorHelper.createBundleIU(bd, bundleManifest, isDir, key, true);
 
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling
@@ -499,6 +517,13 @@ public class Generator {
 			if (bundle == null)
 				continue;
 
+			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
+				bundle = EclipseInstallGeneratorInfoProvider.createLauncher();
+			} else if (bundle.getSymbolicName().startsWith(ORG_ECLIPSE_EQUINOX_LAUNCHER + '.')) {
+				//launcher fragments will be handled by generateDefaultConfigIU(Set) for --launcher.library.
+				//they don't need to be started so skip them here to avoid having to merge config commands
+				continue;
+			}
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
@@ -738,6 +763,18 @@ public class Generator {
 		cu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
 		Map touchpointData = new HashMap();
 		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+
+		IInstallableUnit launcherNameIU = null;
+
+		File executableLocation = info.getExecutableLocation();
+		if (executableLocation != null) {
+			if (!executableLocation.exists() && Constants.OS_WIN32.equals(os) && !executableLocation.getName().endsWith(".exe")) //$NON-NLS-1$
+				executableLocation = new File(executableLocation.getParentFile(), executableLocation.getName() + ".exe"); //$NON-NLS-1$
+
+			if (executableLocation.exists() && executableLocation.isFile())
+				launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(executableLocation.getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+		}
+
 		if (Constants.OS_MACOSX.equals(os)) {
 			File[] appFolders = root.listFiles(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
@@ -750,19 +787,27 @@ public class Generator {
 					File[] launcherFiles = macOSFolder.listFiles();
 					for (int j = 0; j < launcherFiles.length; j++) {
 						configurationData += " chmod(targetDir:${installFolder}/" + appFolders[i].getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[j].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						if (new Path(launcherFiles[j].getName()).getFileExtension() == null)
-							MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+						if (executableLocation == null && launcherFiles[i].isFile() && new Path(launcherFiles[j].getName()).getFileExtension() == null)
+							launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[j].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 					}
 				}
 			}
-		}
-		if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
+		} else if (!Constants.OS_WIN32.equals(os)) {
 			File[] launcherFiles = root.listFiles();
-			for (int i = 0; i < launcherFiles.length; i++) {
+			for (int i = 0; launcherFiles != null && i < launcherFiles.length; i++) {
 				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + launcherFiles[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
-				if (new Path(launcherFiles[i].getName()).getFileExtension() == null)
-					MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
+				if (executableLocation == null && launcherFiles[i].isFile() && new Path(launcherFiles[i].getName()).getFileExtension() == null)
+					launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[i].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 			}
+		} else if (launcherNameIU == null) {
+			//windows
+			File[] launcherFiles = root.listFiles(new FilenameFilter() {
+				public boolean accept(File parent, String name) {
+					return name.endsWith(".exe"); //$NON-NLS-1$
+				}
+			});
+			if (launcherFiles != null && launcherFiles.length > 0)
+				launcherNameIU = MetadataGeneratorHelper.generateLauncherSetter(launcherFiles[0].getName(), launcherId, launcherVersion, os, ws, arch, result.rootIUs);
 		}
 		touchpointData.put("install", configurationData); //$NON-NLS-1$
 		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
@@ -773,9 +818,13 @@ public class Generator {
 		//The Product Query will need to include the launcher CU fragments as a workaround to bug 218890
 		if (result.configurationIUs.containsKey(launcherIdPrefix)) {
 			((Set) result.configurationIUs.get(launcherIdPrefix)).add(unit);
+			if (launcherNameIU != null)
+				((Set) result.configurationIUs.get(launcherIdPrefix)).add(launcherNameIU);
 		} else {
 			Set set = new HashSet();
 			set.add(unit);
+			if (launcherNameIU != null)
+				set.add(launcherNameIU);
 			result.configurationIUs.put(launcherIdPrefix, set);
 		}
 
@@ -799,7 +848,9 @@ public class Generator {
 
 			InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
 			String configUnitId = info.getFlavor() + productFile.getId() + ".config." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
-			Version cuVersion = new Version(productFile.getVersion());
+
+			String version = getProductVersion();
+			Version cuVersion = new Version(version);
 			cu.setId(configUnitId);
 			cu.setVersion(cuVersion);
 			cu.setSingleton(true);
@@ -842,9 +893,6 @@ public class Generator {
 		String configurationData = dataStrings[0];
 		String unconfigurationData = dataStrings[1];
 
-		if (configurationData.length() == 0)
-			return;
-
 		InstallableUnitDescription cu = new MetadataFactory.InstallableUnitDescription();
 		String configUnitId = info.getFlavor() + productFile.getId() + ".ini." + ws + '.' + os + '.' + arch; //$NON-NLS-1$
 		Version cuVersion = new Version(version);
@@ -867,16 +915,31 @@ public class Generator {
 
 	}
 
+	/**
+	 * Generates metadata for the given features.
+	 */
 	protected void generateFeatureIUs(Feature[] features, GeneratorResult result, IArtifactRepository destination) {
 		Map categoriesToFeatureIUs = new HashMap();
 		Map featuresToCategories = getFeatureToCategoryMappings();
 		//Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
+			//publish feature site references
+			String updateURL = feature.getUpdateSiteURL();
+			//don't enable feature update sites by default since this results in too many
+			//extra sites being loaded and searched (Bug 234177)
+			if (updateURL != null)
+				generateSiteReference(updateURL, feature.getId(), false);
+			URLEntry[] discoverySites = feature.getDiscoverySites();
+			for (int j = 0; j < discoverySites.length; j++)
+				generateSiteReference(discoverySites[j].getURL(), feature.getId(), false);
+
+			//generate feature IU
 			String location = feature.getLocation();
 			boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
-			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, isExploded);
+			IInstallableUnit featureIU = MetadataGeneratorHelper.createFeatureJarIU(feature, true);
 			IArtifactKey[] artifacts = featureIU.getArtifacts();
+			storePluginShape(feature, result);
 			for (int arti = 0; arti < artifacts.length; arti++) {
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
 				if (isExploded)
@@ -905,6 +968,15 @@ public class Generator {
 		generateCategoryIUs(categoriesToFeatureIUs, result);
 	}
 
+	private void storePluginShape(Feature feature, GeneratorResult result) {
+		FeatureEntry[] entries = feature.getEntries();
+		for (int i = 0; i < entries.length; i++) {
+			if (entries[i].isPlugin() || entries[i].isFragment()) {
+				result.getPluginShapeInfo().put(entries[i].getId() + '_' + entries[i].getVersion(), entries[i].isUnpack() ? BundleDescriptionFactory.DIR : BundleDescriptionFactory.JAR);
+			}
+		}
+	}
+
 	protected void generateNativeIUs(File executableLocation, GeneratorResult result, IArtifactRepository destination) {
 		//generate data for JRE
 		File jreLocation = info.getJRELocation();
@@ -913,9 +985,7 @@ public class Generator {
 
 		if (info.getLauncherConfig() != null) {
 			String[] config = parseConfigSpec(info.getLauncherConfig());
-			String version = "1.0.0"; //$NON-NLS-1$
-			if (productFile != null && !productFile.getVersion().equals("0.0.0")) //$NON-NLS-1$
-				version = productFile.getVersion();
+			String version = getProductVersion();
 			generateExecutableIUs(config[1], config[0], config[2], version, executableLocation.getParentFile(), result, destination);
 			generateProductIniCU(config[1], config[0], config[2], version, result);
 			return;
@@ -950,6 +1020,27 @@ public class Generator {
 
 		result.nonRootIUs.add(rootIU);
 		result.nonRootIUs.add(generateDefaultCategory(rootIU));
+	}
+
+	/**
+	 * Generates and publishes a reference to an update site location
+	 * @param location The update site location
+	 * @param featureId the identifier of the feature where the error occurred, or null
+	 * @param isEnabled Whether the site should be enabled by default
+	 */
+	private void generateSiteReference(String location, String featureId, boolean isEnabled) {
+		IMetadataRepository metadataRepo = info.getMetadataRepository();
+		try {
+			URL associateLocation = new URL(location);
+			int flags = isEnabled ? IRepository.ENABLED : IRepository.NONE;
+			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, flags);
+			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, flags);
+		} catch (MalformedURLException e) {
+			String message = "Invalid site reference: " + location; //$NON-NLS-1$
+			if (featureId != null)
+				message = message + " in feature: " + featureId; //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
+		}
 	}
 
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
@@ -1008,7 +1099,7 @@ public class Generator {
 		return null;
 	}
 
-	private Feature[] getFeatures(File folder) {
+	protected Feature[] getFeatures(File folder) {
 		if (folder == null || !folder.exists())
 			return new Feature[0];
 		File[] locations = folder.listFiles();
@@ -1052,9 +1143,31 @@ public class Generator {
 			//remove site.xml file reference
 			int index = mirrors.indexOf("site.xml"); //$NON-NLS-1$
 			if (index != -1)
-				mirrors = mirrors.substring(0, index) + mirrors.substring(index + 9);
+				mirrors = mirrors.substring(0, index) + mirrors.substring(index + "site.xml".length()); //$NON-NLS-1$
 			info.getMetadataRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
 			info.getArtifactRepository().setProperty(IRepository.PROP_MIRRORS_URL, mirrors);
+		}
+
+		//publish associate sites as repository references
+		URLEntry[] associatedSites = site.getAssociatedSites();
+		if (associatedSites != null)
+			for (int i = 0; i < associatedSites.length; i++)
+				generateSiteReference(associatedSites[i].getURL(), null, true);
+
+		if (PROTOCOL_FILE.equals(siteLocation.getProtocol())) {
+			File siteFile = new File(siteLocation.getFile());
+			if (siteFile.exists()) {
+				File siteParent = siteFile.getParentFile();
+
+				List messageKeys = site.getMessageKeys();
+				if (siteParent.isDirectory()) {
+					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					site.setLocalizations(LocalizationHelper.getDirPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
+				} else if (siteFile.getName().endsWith(".jar")) { //$NON-NLS-1$
+					String[] keyStrings = (String[]) messageKeys.toArray(new String[messageKeys.size()]);
+					site.setLocalizations(LocalizationHelper.getJarPropertyLocalizations(siteParent, "site", null, keyStrings)); //$NON-NLS-1$
+				}
+			}
 		}
 
 		SiteFeature[] features = site.getFeatures();
@@ -1111,6 +1224,14 @@ public class Generator {
 		if (asIs && files.length == 1) {
 			try {
 				if (!destination.contains(descriptor)) {
+					if (destination instanceof IFileArtifactRepository) {
+						//if the file is already in the same location the repo will put it, just add the descriptor and exit
+						File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
+						if (files[0].equals(descriptorFile)) {
+							destination.addDescriptor(descriptor);
+							return;
+						}
+					}
 					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, output, true);
 				}
@@ -1125,6 +1246,7 @@ public class Generator {
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				FileUtils.zip(files, tempFile);
 				if (!destination.contains(descriptor)) {
+					destination.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
 				}

@@ -1,79 +1,108 @@
+/*******************************************************************************
+ * Copyright (c) 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials 
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
 import java.io.File;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.DirectoryWatcher;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
-import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleContext;
 
-public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository {
+public class ExtensionLocationArtifactRepository extends AbstractRepository implements IFileArtifactRepository, Constants {
 
-	//private static final String PROFILE_EXTENSION = "profile.extension"; //$NON-NLS-1$
-	private static final String ECLIPSE = "eclipse"; //$NON-NLS-1$
-	private static final String FEATURES = "features"; //$NON-NLS-1$
-	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
-	private static final String FILE = "file"; //$NON-NLS-1$
+	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
+	public static final Integer VERSION = new Integer(1);
 	private final IFileArtifactRepository artifactRepository;
+	private boolean initialized = false;
+	private File base;
 
-	public ExtensionLocationArtifactRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		super("Extension: " + location.toExternalForm(), null, null, location, null, null); //$NON-NLS-1$
-
-		File base = getBaseDirectory(location);
-		File plugins = new File(base, PLUGINS);
-		File features = new File(base, FEATURES);
-
+	/*
+	 * Return the location of a local repository based on
+	 * the given URL.
+	 */
+	public static URL getLocalRepositoryLocation(URL location) {
 		BundleContext context = Activator.getContext();
 		String stateDirName = Integer.toString(location.toExternalForm().hashCode());
 		File bundleData = context.getDataFile(null);
 		File stateDir = new File(bundleData, stateDirName);
-		URL localRepositoryURL;
 		try {
-			localRepositoryURL = stateDir.toURL();
+			return stateDir.toURL();
 		} catch (MalformedURLException e) {
 			// unexpected
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Failed to create local repository", e)); //$NON-NLS-1$
+			return null;
 		}
-
-		artifactRepository = (IFileArtifactRepository) initializeArtifactRepository(localRepositoryURL, "extension location implementation - " + location.toExternalForm()); //$NON-NLS-1$
-
-		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		RepositoryListener listener = new RepositoryListener(context, null, artifactRepository);
-		watcher.addListener(listener);
-		watcher.poll();
 	}
 
-	private IArtifactRepository initializeArtifactRepository(URL stateDirURL, String repositoryName) {
-		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
-		try {
-			return factory.load(stateDirURL, null);
+	/*
+	 * Constructor for the class. Return a new extension location repository based on 
+	 * the given url and nested repository.
+	 */
+	public ExtensionLocationArtifactRepository(URL location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
+		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
+		this.artifactRepository = repository;
+		this.base = getBaseDirectory(location);
+	}
 
-		} catch (ProvisionException e) {
-			//fall through and create a new repository
-		}
-		IArtifactRepository repository = factory.create(stateDirURL, repositoryName, null);
-		//repository.setProperty(PROFILE_EXTENSION, "true");
-		return repository;
+	public synchronized void ensureInitialized() {
+		if (initialized)
+			return;
+		File plugins = new File(base, PLUGINS);
+		File features = new File(base, FEATURES);
+		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
+		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), null, artifactRepository);
+		watcher.addListener(listener);
+		watcher.poll();
+		initialized = true;
 	}
 
 	public static void validate(URL location, IProgressMonitor monitor) throws ProvisionException {
-		getBaseDirectory(location);
+		File base = getBaseDirectory(location);
+		if (new File(base, EXTENSION_LOCATION).exists())
+			return;
+		if (containsUpdateSiteFile(base)) {
+			String message = NLS.bind(Messages.error_update_site, location.toExternalForm());
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, message, null));
+		}
+	}
+
+	private static boolean containsUpdateSiteFile(File base) {
+		String[] fileNames = base.list();
+		if (fileNames == null)
+			return false;
+		for (int i = 0; i < fileNames.length; i++) {
+			if (fileNames[i].endsWith(DOT_XML) && fileNames[i].indexOf(SITE) != -1)
+				return true;
+		}
+		return false;
 	}
 
 	public static File getBaseDirectory(URL url) throws ProvisionException {
 		if (!FILE.equals(url.getProtocol()))
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location must use file protocol", null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, Messages.not_file_protocol, null));
 
-		File base = new File(url.getPath());
+		String path = url.getPath();
+		if (path.endsWith(EXTENSION_LOCATION))
+			path = path.substring(0, path.length() - EXTENSION_LOCATION.length());
+		File base = new File(path);
+
 		if (!base.isDirectory())
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location not a directory", null));
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_directory, url.toExternalForm()), null));
 
 		if (isBaseDirectory(base))
 			return base;
@@ -82,7 +111,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		if (isBaseDirectory(eclipseBase))
 			return eclipseBase;
 
-		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, "location is not an extension", null));
+		throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_NOT_FOUND, NLS.bind(Messages.not_eclipse_extension, url.toExternalForm()), null));
 	}
 
 	private static boolean isBaseDirectory(File base) {
@@ -113,38 +142,55 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public boolean contains(IArtifactDescriptor descriptor) {
+		ensureInitialized();
 		return artifactRepository.contains(descriptor);
 	}
 
 	public boolean contains(IArtifactKey key) {
+		ensureInitialized();
 		return artifactRepository.contains(key);
 	}
 
 	public IStatus getArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
+		ensureInitialized();
 		return artifactRepository.getArtifact(descriptor, destination, monitor);
 	}
 
 	public IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
+		ensureInitialized();
 		return artifactRepository.getArtifactDescriptors(key);
 	}
 
 	public IArtifactKey[] getArtifactKeys() {
+		ensureInitialized();
 		return artifactRepository.getArtifactKeys();
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
+		ensureInitialized();
 		return artifactRepository.getArtifacts(requests, monitor);
 	}
 
 	public OutputStream getOutputStream(IArtifactDescriptor descriptor) throws ProvisionException {
+		ensureInitialized();
 		return artifactRepository.getOutputStream(descriptor);
 	}
 
 	public File getArtifactFile(IArtifactKey key) {
+		ensureInitialized();
 		return artifactRepository.getArtifactFile(key);
 	}
 
 	public File getArtifactFile(IArtifactDescriptor descriptor) {
+		ensureInitialized();
 		return artifactRepository.getArtifactFile(descriptor);
+	}
+
+	public Map getProperties() {
+		return artifactRepository.getProperties();
+	}
+
+	public String setProperty(String key, String value) {
+		return artifactRepository.setProperty(key, value);
 	}
 }

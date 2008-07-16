@@ -14,8 +14,6 @@ import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.core.messages"; //$NON-NLS-1$
-	public static final String ECLIPSE_CANNOT_CHANGE_LOCATION = null;
-
 	static {
 		// initialize resource bundles
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

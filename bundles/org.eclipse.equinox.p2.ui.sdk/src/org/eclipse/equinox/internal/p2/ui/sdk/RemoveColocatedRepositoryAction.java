@@ -11,39 +11,19 @@
 
 package org.eclipse.equinox.internal.p2.ui.sdk;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import org.eclipse.equinox.internal.provisional.p2.ui.ProvisioningOperationRunner;
-import org.eclipse.equinox.internal.provisional.p2.ui.actions.ProvisioningAction;
-import org.eclipse.equinox.internal.provisional.p2.ui.model.MetadataRepositoryElement;
+import org.eclipse.equinox.internal.provisional.p2.ui.operations.ProvisioningOperation;
 import org.eclipse.equinox.internal.provisional.p2.ui.operations.RemoveColocatedRepositoryOperation;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 
-public class RemoveColocatedRepositoryAction extends ProvisioningAction {
+public class RemoveColocatedRepositoryAction extends ColocatedRepositoryAction {
 
 	public RemoveColocatedRepositoryAction(ISelectionProvider selectionProvider, Shell shell) {
-		super("Remove site...", selectionProvider, shell);
-		setToolTipText("Remove one or more sites used to access the available software");
+		super(ProvSDKMessages.RemoveColocatedRepositoryAction_Label, ProvSDKMessages.RemoveColocatedRepositoryAction_Tooltip, selectionProvider, shell);
+
 	}
 
-	public void run() {
-		RemoveColocatedRepositoryOperation op = new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, getSelectedURLs(getStructuredSelection().toArray()));
-		ProvisioningOperationRunner.run(op, getShell());
-	}
-
-	private URL[] getSelectedURLs(Object[] selectionArray) {
-		List urls = new ArrayList();
-		for (int i = 0; i < selectionArray.length; i++) {
-			if (selectionArray[i] instanceof MetadataRepositoryElement)
-				urls.add(((MetadataRepositoryElement) selectionArray[i]).getLocation());
-		}
-		return (URL[]) urls.toArray(new URL[urls.size()]);
-	}
-
-	public void selectionChanged(IStructuredSelection selection) {
-		setEnabled(getSelectedURLs(selection.toArray()).length > 0);
+	protected ProvisioningOperation getOperation() {
+		return new RemoveColocatedRepositoryOperation(ProvSDKMessages.RepositoryManipulationDialog_RemoveOperationLabel, getSelectedURLs(getStructuredSelection().toArray()));
 	}
 }
