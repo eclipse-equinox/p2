@@ -421,7 +421,6 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			fail("Can't load repository UpdateSite240121");
 		}
 		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
-		boolean exceptionFound = false;
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i].getId().equals("Plugin240121")) {
 				FileOutputStream fos = null;
