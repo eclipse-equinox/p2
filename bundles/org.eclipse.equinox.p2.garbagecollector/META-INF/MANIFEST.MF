@@ -4,8 +4,9 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.garbagecollector;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.100.qualifier
 Import-Package: org.eclipse.core.runtime.preferences,
+ org.eclipse.equinox.app;version="1.0.0",
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core,

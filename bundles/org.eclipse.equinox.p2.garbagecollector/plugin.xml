@@ -16,5 +16,11 @@
 	<run 
 		class="org.eclipse.equinox.p2.garbagecollector.test.MarkSetProviderTest"/>
 </extension>-->
+
+	<extension id="application" point="org.eclipse.core.runtime.applications"> 
+      <application> 
+         <run class="org.eclipse.equinox.internal.p2.garbagecollector.Application"/> 
+      </application> 
+   </extension>
 	
 </plugin>
