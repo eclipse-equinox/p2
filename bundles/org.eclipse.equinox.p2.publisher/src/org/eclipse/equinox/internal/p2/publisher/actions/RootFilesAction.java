@@ -21,6 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.Inst
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
+// TODO need to merge this functionality with the FeaturesAction work on root files
 public class RootFilesAction extends AbstractPublishingAction {
 	private String idBase;
 	private String versionSpec = "1.0.0"; //$NON-NLS-1$

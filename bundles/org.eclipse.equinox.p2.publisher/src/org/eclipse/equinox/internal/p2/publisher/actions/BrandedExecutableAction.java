@@ -9,7 +9,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
-import org.eclipse.equinox.internal.p2.publisher.features.ProductFile;
+import org.eclipse.equinox.p2.publisher.product.ProductFile;
+
 import org.eclipse.equinox.p2.publisher.product.BrandingIron;
 
 public class BrandedExecutableAction extends EquinoxExecutableAction {

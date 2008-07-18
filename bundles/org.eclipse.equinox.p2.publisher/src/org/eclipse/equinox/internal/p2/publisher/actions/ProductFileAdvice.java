@@ -9,10 +9,11 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
+import org.eclipse.equinox.p2.publisher.product.ProductFile;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.publisher.AbstractPublishingAction;
-import org.eclipse.equinox.internal.p2.publisher.features.ProductFile;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.ConfigData;
 

@@ -9,11 +9,12 @@
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
+import org.eclipse.equinox.p2.publisher.product.ProductFile;
+
 import java.io.File;
 import java.util.*;
 import org.eclipse.equinox.internal.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.internal.p2.publisher.IPublishingAction;
-import org.eclipse.equinox.internal.p2.publisher.features.ProductFile;
 
 public class ProductAction extends EclipseInstallAction {
 

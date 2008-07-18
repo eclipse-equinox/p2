@@ -64,6 +64,7 @@ public class EquinoxExecutableAction extends AbstractPublishingAction {
 		iu.setVersion(version);
 		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
+		iu.setSingleton(true);
 		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(executableId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);

@@ -57,6 +57,34 @@ public class RootIUAction extends AbstractPublishingAction {
 		//		result.addIU(generateDefaultCategory(rootIU, rootCategory), IPublisherResult.NON_ROOT);
 	}
 
+	/**
+	 * This was copied over from Generator to match up with the call from generateRootIU (above).
+	 * It is entirely unclear why it was needed.  Should review.
+	 * Short term fix to ensure IUs that have no corresponding category are not lost.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 */
+	//	private IInstallableUnit generateDefaultCategory(IInstallableUnit rootIU) {
+	//		rootCategory.add(rootIU);
+	//
+	//		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
+	//		cat.setSingleton(true);
+	//		String categoryId = rootIU.getId() + ".categoryIU"; //$NON-NLS-1$
+	//		cat.setId(categoryId);
+	//		cat.setVersion(Version.emptyVersion);
+	//		cat.setProperty(IInstallableUnit.PROP_NAME, rootIU.getProperty(IInstallableUnit.PROP_NAME));
+	//		cat.setProperty(IInstallableUnit.PROP_DESCRIPTION, rootIU.getProperty(IInstallableUnit.PROP_DESCRIPTION));
+	//
+	//		ArrayList required = new ArrayList(rootCategory.size());
+	//		for (Iterator iterator = rootCategory.iterator(); iterator.hasNext();) {
+	//			IInstallableUnit iu = (IInstallableUnit) iterator.next();
+	//			required.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), VersionRange.emptyRange, iu.getFilter(), false, false));
+	//		}
+	//		cat.setRequiredCapabilities((RequiredCapability[]) required.toArray(new RequiredCapability[required.size()]));
+	//		cat.setCapabilities(new ProvidedCapability[] {MetadataFactory.createProvidedCapability(IInstallableUnit.NAMESPACE_IU_ID, categoryId, Version.emptyVersion)});
+	//		cat.setArtifacts(new IArtifactKey[0]);
+	//		cat.setProperty(IInstallableUnit.PROP_TYPE_CATEGORY, "true"); //$NON-NLS-1$
+	//		return MetadataFactory.createInstallableUnit(cat);
+	//	}
 	private Collection getChildren(IPublisherResult result) {
 		// get any roots that we have accummulated so far and search for
 		// children from the advice.
@@ -123,6 +151,7 @@ public class RootIUAction extends AbstractPublishingAction {
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
 		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
 		root.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(id, new Version(version))});
+		// TODO why is the type OSGI?
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 		return root;
 	}

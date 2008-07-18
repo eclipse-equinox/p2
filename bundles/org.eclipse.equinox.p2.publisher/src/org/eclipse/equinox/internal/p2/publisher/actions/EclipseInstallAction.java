@@ -16,6 +16,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.*;
 
 public class EclipseInstallAction implements IPublishingAction {
+	//	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
+	//	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
+
 	protected String source;
 	protected String id;
 	protected String version = "1.0.0"; //$NON-NLS-1$
@@ -186,7 +189,29 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected IPublishingAction createBundlesAction() {
+		// TODO need to add in the simple configorator and reconciler bundle descriptions.
+		// TODO bundles action needs to take bundleDescriptions directly rather than just files.
 		return new BundlesAction(new File[] {new File(source, "plugins")}); //$NON-NLS-1$
 	}
+
+	//TODO reconsitute these methods
+	//	private GeneratorBundleInfo createSimpleConfiguratorBundleInfo() {
+	//		GeneratorBundleInfo result = new GeneratorBundleInfo();
+	//		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
+	//		result.setVersion("0.0.0"); //$NON-NLS-1$
+	//		result.setStartLevel(1);
+	//		result.setMarkedAsStarted(true);
+	//		return result;
+	//	}
+	//
+	//	private GeneratorBundleInfo createDropinsReconcilerBundleInfo() {
+	//		GeneratorBundleInfo result = new GeneratorBundleInfo();
+	//		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS);
+	//		result.setVersion("0.0.0"); //$NON-NLS-1$
+	//		result.setMarkedAsStarted(true);
+	//		result.setSpecialConfigCommands("mkdir(path:${installFolder}/dropins)"); //$NON-NLS-1$
+	//		result.setSpecialUnconfigCommands("rmdir(path:${installFolder}/dropins)"); //$NON-NLS-1$
+	//		return result;
+	//	}
 
 }

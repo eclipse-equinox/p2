@@ -14,16 +14,30 @@ import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 public abstract class AbstractPublishingAction implements IPublishingAction {
-
 	public static final int AS_IS = 1;
 	public static final int INCLUDE_ROOT = 2;
-
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
+
+	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
+		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
+		//TODO this size calculation is bogus
+		ArtifactDescriptor result = new ArtifactDescriptor(key);
+		if (pathOnDisk != null) {
+			result.setProperty(IArtifactDescriptor.ARTIFACT_SIZE, installSize);
+			// TODO - this is wrong but I'm testing a work-around for bug 205842
+			result.setProperty(IArtifactDescriptor.DOWNLOAD_SIZE, Long.toString(pathOnDisk.length()));
+		}
+		ProcessingStepDescriptor[] steps = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)}; //$NON-NLS-1$
+		result.setProcessingSteps(steps);
+		result.setProperty(IArtifactDescriptor.FORMAT, PACKED_FORMAT);
+		return result;
+	}
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
@@ -133,6 +147,16 @@ public abstract class AbstractPublishingAction implements IPublishingAction {
 		// if there is just one file and the mode is as-is, just copy the file into the repo
 		if (((mode & AS_IS) > 0) && files.length == 1) {
 			try {
+				if (destination instanceof IFileArtifactRepository) {
+					// TODO  need to review this logic to ensure it makes sense.
+					// if the file is already in the same location the repo will put it, just add the descriptor and exit
+					File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
+					if (files[0].equals(descriptorFile)) {
+						destination.addDescriptor(descriptor);
+						return;
+					}
+				}
+
 				OutputStream output = destination.getOutputStream(descriptor, overwrite);
 				if (output == null)
 					return;

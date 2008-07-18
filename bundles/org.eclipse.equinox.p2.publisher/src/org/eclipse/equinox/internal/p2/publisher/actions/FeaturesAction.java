@@ -10,6 +10,8 @@
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -20,8 +22,10 @@ import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.p2.publisher.features.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -40,6 +44,71 @@ public class FeaturesAction extends AbstractPublishingAction {
 
 	public static IArtifactKey createFeatureArtifactKey(String id, String version) {
 		return new ArtifactKey(MetadataGeneratorHelper.ECLIPSE_FEATURE_CLASSIFIER, id, new Version(version));
+	}
+
+	public static Object[] createFeatureRootFileIU(String featureId, String featureVersion, File location, FileSetDescriptor descriptor) {
+		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
+		iu.setSingleton(true);
+		String id = featureId + '_' + descriptor.getKey();
+		iu.setId(id);
+		Version version = new Version(featureVersion);
+		iu.setVersion(version);
+		iu.setCapabilities(new ProvidedCapability[] {MetadataGeneratorHelper.createSelfCapability(id, version)});
+		iu.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_NATIVE);
+		String configSpec = descriptor.getConfigSpec();
+		if (configSpec != null)
+			iu.setFilter(AbstractPublishingAction.createFilterSpec(configSpec));
+		File[] fileResult = attachFiles(iu, descriptor, location);
+		setupLinks(iu, descriptor);
+		setupPermissions(iu, descriptor);
+
+		IInstallableUnit iuResult = MetadataFactory.createInstallableUnit(iu);
+		// need to return both the iu and any files.
+		return new Object[] {iuResult, fileResult};
+	}
+
+	// attach the described files from the given location to the given iu description.  Return
+	// the list of files identified.
+	private static File[] attachFiles(InstallableUnitDescription iu, FileSetDescriptor descriptor, File location) {
+		String fileList = descriptor.getFiles();
+		String[] fileSpecs = getArrayFromString(fileList, ","); //$NON-NLS-1$
+		File[] files = new File[fileSpecs.length];
+		if (fileSpecs.length > 0) {
+			for (int i = 0; i < fileSpecs.length; i++) {
+				String spec = fileSpecs[i];
+				if (spec.startsWith("file:"))
+					spec = spec.substring(5);
+				files[i] = new File(location, spec);
+			}
+		}
+		// add touchpoint actions to unzip and cleanup as needed
+		// TODO need to support fancy root file location specs
+		Map touchpointData = new HashMap(2);
+		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
+		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+
+		// prime the IU with an artifact key that will correspond to the zipped up root files.
+		IArtifactKey key = new ArtifactKey(MetadataGeneratorHelper.BINARY_ARTIFACT_CLASSIFIER, iu.getId(), iu.getVersion());
+		iu.setArtifacts(new IArtifactKey[] {key});
+		return files;
+	}
+
+	private static void setupPermissions(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
+		Map touchpointData = new HashMap();
+		String[][] permsList = descriptor.getPermissions();
+		for (int i = 0; i < permsList.length; i++) {
+			String[] permSpec = permsList[i];
+			String configurationData = " chmod(targetDir:${installFolder}, targetFile:" + permSpec[1] + ", permissions:" + permSpec[0] + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			touchpointData.put("install", configurationData); //$NON-NLS-1$
+			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		}
+	}
+
+	private static void setupLinks(InstallableUnitDescription iu, FileSetDescriptor descriptor) {
+		// TODO setup the link support.
 	}
 
 	public FeaturesAction(File[] locations) {
@@ -89,8 +158,40 @@ public class FeaturesAction extends AbstractPublishingAction {
 			gatherBundleShapeAdvice(feature, info);
 			// create the associated group and register the feature and group in the result.
 			IInstallableUnit groupIU = createGroupIU(feature, featureIU, null);
+			generateSiteReferences(feature, result, info);
 			result.addIU(groupIU, IPublisherResult.ROOT);
 			result.addIU(featureIU, IPublisherResult.ROOT);
+		}
+	}
+
+	private void generateSiteReferences(Feature feature, IPublisherResult result, IPublisherInfo info) {
+		//publish feature site references
+		String updateURL = feature.getUpdateSiteURL();
+		//don't enable feature update sites by default since this results in too many
+		//extra sites being loaded and searched (Bug 234177)
+		if (updateURL != null)
+			generateSiteReference(updateURL, feature.getId(), info.getMetadataRepository());
+		URLEntry[] discoverySites = feature.getDiscoverySites();
+		for (int j = 0; j < discoverySites.length; j++)
+			generateSiteReference(discoverySites[j].getURL(), feature.getId(), info.getMetadataRepository());
+	}
+
+	/**
+	 * Generates and publishes a reference to an update site location
+	 * @param location The update site location
+	 * @param featureId the identifier of the feature where the error occurred, or null
+	 * @param metadataRepo The repo into which the references are added
+	 */
+	private void generateSiteReference(String location, String featureId, IMetadataRepository metadataRepo) {
+		try {
+			URL associateLocation = new URL(location);
+			metadataRepo.addReference(associateLocation, IRepository.TYPE_METADATA, IRepository.NONE);
+			metadataRepo.addReference(associateLocation, IRepository.TYPE_ARTIFACT, IRepository.NONE);
+		} catch (MalformedURLException e) {
+			String message = "Invalid site reference: " + location; //$NON-NLS-1$
+			if (featureId != null)
+				message = message + " in feature: " + featureId; //$NON-NLS-1$
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
 		}
 	}
 
@@ -293,6 +394,9 @@ public class FeaturesAction extends AbstractPublishingAction {
 		}
 
 		if (isExploded) {
+			// TODO its not clear when this would ever be false reasonably.  Features are always supposed to be installed unzipped
+			// Though this could change in the future...
+
 			// Define the immutable metadata for this IU. In this case immutable means
 			// that this is something that will not impact the configuration.
 			Map touchpointData = new HashMap();

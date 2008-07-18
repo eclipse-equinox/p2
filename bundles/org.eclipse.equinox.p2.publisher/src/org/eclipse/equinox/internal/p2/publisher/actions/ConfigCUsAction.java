@@ -183,6 +183,7 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 			if (bundle == null)
 				continue;
 
+			// TODO need to fractor this out into its own action
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);
@@ -196,6 +197,7 @@ public class ConfigCUsAction extends AbstractPublishingAction {
 			IInstallableUnit cu = MetadataGeneratorHelper.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, flavor + cuIdPrefix, filter);
 			if (cu != null) {
 				// Product Query will run against the repo, make sure these CUs are in before then
+				// TODO review the aggressive addition to the metadata repo.  perhaps the query can query the result as well.
 				IMetadataRepository metadataRepository = info.getMetadataRepository();
 				if (metadataRepository != null) {
 					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
