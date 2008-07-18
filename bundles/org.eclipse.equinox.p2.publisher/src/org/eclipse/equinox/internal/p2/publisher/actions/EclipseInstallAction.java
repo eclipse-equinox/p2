@@ -82,7 +82,7 @@ public class EclipseInstallAction implements IPublishingAction {
 	}
 
 	protected IPublishingAction createRootIUAction() {
-		return new RootIUAction(id, version, name, info);
+		return new RootIUAction(id, version, name);
 	}
 
 	protected Collection getTopLevel() {
@@ -102,8 +102,12 @@ public class EclipseInstallAction implements IPublishingAction {
 		for (int i = 0; i < configs.length; i++) {
 			String configSpec = configs[i];
 			File configuration = computeConfigurationLocation(configSpec);
+			if (!configuration.exists())
+				configuration = null;
 			String os = AbstractPublishingAction.parseConfigSpec(configSpec)[1];
 			File executable = ExecutablesDescriptor.findExecutable(os, computeExecutableLocation(configSpec), "eclipse"); //$NON-NLS-1$
+			if (!executable.exists())
+				executable = null;
 			IPublishingAction action = new AccumulateConfigDataAction(info, configSpec, configuration, executable);
 			result.add(action);
 		}

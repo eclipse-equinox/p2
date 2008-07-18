@@ -10,15 +10,20 @@
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.util.Collection;
+import java.util.Iterator;
 import org.eclipse.equinox.internal.p2.publisher.IPublisherResult;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 
-public interface IRootIUAdvice {
+public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUAdvice {
+	private Query query;
 
-	/**
-	 * Returns the list of children of the root for this publishing operation.
-	 * Returned elements are either the String id of the IUs or the IUs themselves.
-	 * @param result 
-	 * @return the collection of children
-	 */
-	public Collection getChildren(IPublisherResult result);
+	public RootIUResultFilterAdvice(Query query) {
+		this.query = query;
+	}
+
+	public Collection getChildren(IPublisherResult result) {
+		Iterator itr = result.getIUs(null, IPublisherResult.ROOT).iterator();
+		return query.perform(itr, new Collector()).toCollection();
+	}
 }

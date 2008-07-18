@@ -117,7 +117,7 @@ public abstract class AbstractPublishingAction implements IPublishingAction {
 			return;
 
 		// publish the given files
-		publishArtifact(descriptor, files, null, info, mode);
+		publishArtifact(descriptor, files, base, info, mode);
 
 		// if we are assimilating pack200 files then add the packed descriptor
 		// into the repo assuming it does not already exist.
@@ -131,13 +131,24 @@ public abstract class AbstractPublishingAction implements IPublishingAction {
 		}
 	}
 
+	/**
+	 * Publishes the artifact by zipping the <code>files</code> using <code>root</code>
+	 * as a base for relative paths. Then copying the zip into the repository.
+	 * @param descriptor used to identify the zip.
+	 * @param files and folders to be included in the zip. files can be null.
+	 * @param root the base used to generate relative paths within the zip. root can be null.
+	 * @param info the publisher info.
+	 * @param mode of operation (include root, as is...). 
+	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, File root, IPublisherInfo info, int mode) {
-		IArtifactRepository destination = info.getArtifactRepository();
-
-		// if the destination already contains the descriptor, there is nothing to do.
-		if (destination.contains(descriptor))
+		// no files to publish so this is done.
+		if (files == null || files.length < 1)
 			return;
-		// if all we are doing is indexing things then add the descriptor and get on with ti
+		// if the destination already contains the descriptor, there is nothing to do.
+		IArtifactRepository destination = info.getArtifactRepository();
+		if (destination == null || destination.contains(descriptor))
+			return;
+		// if all we are doing is indexing things then add the descriptor and get on with it
 		if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
 			destination.addDescriptor(descriptor);
 			return;
@@ -177,9 +188,9 @@ public abstract class AbstractPublishingAction implements IPublishingAction {
 				output = new BufferedOutputStream(output);
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				if (root == null)
-					FileUtils.zip(files, tempFile, (mode & INCLUDE_ROOT) > 0);
+					FileUtils.zip(files, tempFile, FileUtils.INCLUDE_ROOT_PATH, (mode & INCLUDE_ROOT) > 0);
 				else
-					FileUtils.zip(files, tempFile, root);
+					FileUtils.zip(files, tempFile, root, true /*Include Directory Name*/);
 				if (output != null)
 					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
 			} catch (ProvisionException e) {

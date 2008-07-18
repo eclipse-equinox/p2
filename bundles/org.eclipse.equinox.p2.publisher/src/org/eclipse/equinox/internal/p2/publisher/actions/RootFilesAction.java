@@ -86,10 +86,12 @@ public class RootFilesAction extends AbstractPublishingAction {
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
 
-		//Create the artifact descriptor.  we have several files so no path on disk
-		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null);
-		IRootFilesAdvice advice = getAdvice(configSpec, info);
-		publishArtifact(descriptor, filterRootFiles(advice, info), advice.getRoot(), info, INCLUDE_ROOT);
+		if ((info.getArtifactOptions() & (IPublisherInfo.A_INDEX | IPublisherInfo.A_PUBLISH)) > 0) {
+			// Create the artifact descriptor.  we have several files so no path on disk
+			IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, null);
+			IRootFilesAdvice advice = getAdvice(configSpec, info);
+			publishArtifact(descriptor, filterRootFiles(advice, info), advice.getRoot(), info, INCLUDE_ROOT);
+		}
 	}
 
 	private File[] filterRootFiles(IRootFilesAdvice advice, IPublisherInfo info) {
@@ -111,6 +113,13 @@ public class RootFilesAction extends AbstractPublishingAction {
 				result.add(inclusion);
 	}
 
+	/**
+	 * Compiles the <class>IRootFilesAdvice</class> from the <code>info</code> into one <class>IRootFilesAdvice</class> 
+	 * and returns the result.
+	 * @param configSpec
+	 * @param info - the publisher info holding the advice.
+	 * @return a compilation of <class>IRootfilesAdvice</class> from the <code>info</code>.
+	 */
 	private IRootFilesAdvice getAdvice(String configSpec, IPublisherInfo info) {
 		Collection advice = info.getAdvice(configSpec, true, null, null, IRootFilesAdvice.class);
 		ArrayList inclusions = new ArrayList();

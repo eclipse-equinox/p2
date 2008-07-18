@@ -11,7 +11,10 @@ package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.io.File;
 import java.io.IOException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -33,6 +36,11 @@ public class DataLoader {
 	private Manipulator manipulator;
 	private File configurationLocation;
 
+	/**
+	 * 
+	 * @param configurationLocation configuration file (i.e. eclipse.ini).
+	 * @param executableLocation executable file (i.e. eclipse.exe). 
+	 */
 	public DataLoader(File configurationLocation, File executableLocation) {
 		this.configurationLocation = configurationLocation;
 		initializeFrameworkManipulator(configurationLocation.getParentFile(), executableLocation);
@@ -64,10 +72,10 @@ public class DataLoader {
 
 		EquinoxFwConfigFileParser parser = new EquinoxFwConfigFileParser(Activator.getContext());
 		try {
-			parser.readFwConfig(manipulator, configurationLocation);
+			if (configurationLocation != null && configurationLocation.exists())
+				parser.readFwConfig(manipulator, configurationLocation);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error loading config.", e)); //$NON-NLS-1$ //TODO: Fix error string
 		}
 		return manipulator.getConfigData();
 	}

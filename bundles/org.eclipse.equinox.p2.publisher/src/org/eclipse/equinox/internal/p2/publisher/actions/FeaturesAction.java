@@ -112,7 +112,7 @@ public class FeaturesAction extends AbstractPublishingAction {
 	}
 
 	public FeaturesAction(File[] locations) {
-		featureList = getFeatures(expandLocations(locations));
+		featureList = getFeatures(expandLocations(locations)); //TODO: move heavy operations out of constructor 
 	}
 
 	public FeaturesAction(Feature[] featureList) {
@@ -215,9 +215,9 @@ public class FeaturesAction extends AbstractPublishingAction {
 			IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[j], file);
 			// if the artifact is a dir and we are not doing "AS_IS", zip it up.
 			if (file.isDirectory() && !((info.getArtifactOptions() & IPublisherInfo.A_AS_IS) > 0))
-				publishArtifact(ad, file.listFiles(), info, INCLUDE_ROOT);
+				publishArtifact(ad, new File[] {file}, info, 0);
 			else
-				publishArtifact(ad, new File[] {file}, info, AS_IS | INCLUDE_ROOT);
+				publishArtifact(ad, new File[] {file}, info, AS_IS);
 		}
 	}
 

@@ -10,6 +10,7 @@
 package org.eclipse.equinox.internal.p2.publisher.actions;
 
 import java.util.Collection;
+import org.eclipse.equinox.internal.p2.publisher.IPublisherResult;
 
 public class RootIUAdvice extends AbstractAdvice implements IRootIUAdvice {
 
@@ -19,7 +20,7 @@ public class RootIUAdvice extends AbstractAdvice implements IRootIUAdvice {
 		this.children = children;
 	}
 
-	public Collection getChildren() {
+	public Collection getChildren(IPublisherResult result) {
 		return children;
 	}
 

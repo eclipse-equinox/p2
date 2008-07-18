@@ -16,7 +16,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.IQueryable;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -29,11 +28,10 @@ public class RootIUAction extends AbstractPublishingAction {
 	private String version;
 	private String id;
 	private String name;
-	private IQueryable repositories;
 	private Collection versionAdvice;
 	private IPublisherInfo info;
 
-	public RootIUAction(String id, String version, String name, IPublisherInfo info) {
+	public RootIUAction(String id, String version, String name) {
 		this.id = id;
 		this.version = version;
 		this.name = name;
@@ -88,11 +86,13 @@ public class RootIUAction extends AbstractPublishingAction {
 	private Collection getChildren(IPublisherResult result) {
 		// get any roots that we have accummulated so far and search for
 		// children from the advice.
-		Collection children = result.getIUs(null, IPublisherResult.ROOT);
+		HashSet children = new HashSet();
 		Collection rootAdvice = info.getAdvice(null, true, null, null, IRootIUAdvice.class);
+		if (rootAdvice == null)
+			return children;
 		for (Iterator i = rootAdvice.iterator(); i.hasNext();) {
 			IRootIUAdvice advice = (IRootIUAdvice) i.next();
-			Collection list = advice.getChildren();
+			Collection list = advice.getChildren(result);
 			if (list != null)
 				for (Iterator j = list.iterator(); j.hasNext();) {
 					Object object = j.next();
@@ -120,9 +120,9 @@ public class RootIUAction extends AbstractPublishingAction {
 	 */
 	private IInstallableUnit queryFor(String iuId) {
 		InstallableUnitQuery query = new InstallableUnitQuery(iuId, getVersionAdvice(iuId));
-		if (repositories == null)
+		if (info.getMetadataRepository() == null)
 			return null;
-		Collector result = repositories.query(query, new Collector(), new NullProgressMonitor());
+		Collector result = info.getMetadataRepository().query(query, new Collector(), new NullProgressMonitor());
 		if (!result.isEmpty())
 			return (IInstallableUnit) result.iterator().next();
 		return null;
@@ -156,7 +156,7 @@ public class RootIUAction extends AbstractPublishingAction {
 		return root;
 	}
 
-	private Version getVersionAdvice(String id) {
+	private Version getVersionAdvice(String iuID) {
 		if (versionAdvice == null) {
 			versionAdvice = info.getAdvice(null, true, null, null, IVersionAdvice.class);
 			if (versionAdvice == null)
@@ -165,10 +165,10 @@ public class RootIUAction extends AbstractPublishingAction {
 		for (Iterator i = versionAdvice.iterator(); i.hasNext();) {
 			IVersionAdvice advice = (IVersionAdvice) i.next();
 			// TODO have to figure a way to know the namespace here.  for now just look everywhere
-			Version result = advice.getVersion(IVersionAdvice.NS_BUNDLE, id);
+			Version result = advice.getVersion(IVersionAdvice.NS_BUNDLE, iuID);
 			if (result != null)
 				return result;
-			result = advice.getVersion(IVersionAdvice.NS_FEATURE, id);
+			result = advice.getVersion(IVersionAdvice.NS_FEATURE, iuID);
 			if (result != null)
 				return result;
 		}

@@ -12,10 +12,10 @@ package org.eclipse.equinox.internal.p2.publisher.actions;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.*;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
@@ -69,7 +69,6 @@ public class BundlesAction extends AbstractPublishingAction {
 	public static final int BUNDLE_LOCALIZATION_INDEX = BUNDLE_LOCALIZED_PROPERTIES.length;
 
 	private File[] locations;
-	private StateObjectFactory stateObjectFactory;
 
 	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
@@ -520,10 +519,6 @@ public class BundlesAction extends AbstractPublishingAction {
 
 	public BundlesAction(File[] locations) {
 		this.locations = expandLocations(locations);
-		// TODO need to figure a better way of configuring the generator...
-		PlatformAdmin platformAdmin = (PlatformAdmin) ServiceHelper.getService(Activator.getContext(), PlatformAdmin.class.getName());
-		if (platformAdmin != null)
-			stateObjectFactory = platformAdmin.getFactory();
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
@@ -545,7 +540,7 @@ public class BundlesAction extends AbstractPublishingAction {
 			File location = list[i];
 			if (location.isDirectory()) {
 				// if the location is itself a bundle, just add it.  Otherwise r down
-				if (!new File(location, "META-INF/MANIFEST.MF").exists()) //$NON-NLS-1$
+				if (!new File(location, JarFile.MANIFEST_NAME).exists())
 					expandLocations(location.listFiles(), result);
 				else
 					result.add(location);
@@ -707,7 +702,7 @@ public class BundlesAction extends AbstractPublishingAction {
 	}
 
 	protected BundleDescriptionFactory getBundleFactory() {
-		return new BundleDescriptionFactory(stateObjectFactory, null);
+		return new BundleDescriptionFactory(StateObjectFactory.defaultFactory, null);
 	}
 
 }

@@ -23,7 +23,6 @@ import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 public class BundleDescriptionFactory {
@@ -45,17 +44,14 @@ public class BundleDescriptionFactory {
 	StateObjectFactory factory;
 	State state;
 
-	public static BundleDescriptionFactory getBundleDescriptionFactory(BundleContext context) {
-		PlatformAdmin platformAdmin = (PlatformAdmin) ServiceHelper.getService(context, PlatformAdmin.class.getName());
-		if (platformAdmin == null)
-			throw new IllegalStateException("PlatformAdmin not registered."); //$NON-NLS-1$
-		return new BundleDescriptionFactory(platformAdmin.getFactory(), null);
-	}
-
+	/**
+	 * 
+	 * @param factory the factory to creating bundle descriptions. May be null.
+	 * @param state the state on which bundle descriptions are based. May be null.
+	 */
 	public BundleDescriptionFactory(StateObjectFactory factory, State state) {
-		this.factory = factory;
+		this.factory = factory == null ? StateObjectFactory.defaultFactory : factory;
 		this.state = state;
-		//TODO find a state and a factory when not provided
 	}
 
 	private static PluginConverter acquirePluginConverter() {
@@ -87,7 +83,7 @@ public class BundleDescriptionFactory {
 
 	public BundleDescription getBundleDescription(Dictionary enhancedManifest, File bundleLocation) {
 		try {
-			BundleDescription descriptor = factory.createBundleDescription(state, enhancedManifest, bundleLocation != null ? bundleLocation.getAbsolutePath() : null, 1); //TODO Do we need to have a real bundle id
+			BundleDescription descriptor = factory.createBundleDescription(state, enhancedManifest, bundleLocation == null ? null : bundleLocation.getAbsolutePath(), 1); //TODO Do we need to have a real bundle id
 			descriptor.setUserObject(enhancedManifest);
 			return descriptor;
 		} catch (BundleException e) {
