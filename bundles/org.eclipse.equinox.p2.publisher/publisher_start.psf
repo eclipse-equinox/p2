@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.eclipse.team.cvs.core.cvsnature">
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.artifact.repository,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.core,org.eclipse.equinox.p2.core,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.directorywatcher,org.eclipse.equinox.p2.directorywatcher,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.extensionlocation,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.installer,org.eclipse.equinox.p2.installer,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata,org.eclipse.equinox.p2.metadata,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.metadata.generator,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.reconciler,org.eclipse.equinox.p2.reconciler,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.reconciler.dropins,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.selfhosting,org.eclipse.equinox.p2.selfhosting,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.tests,org.eclipse.equinox.p2.tests,publisher_start2"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.tools,org.eclipse.equinox.p2.tools,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.touchpoint.eclipse,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.ui.sdk,org.eclipse.equinox.p2.ui.sdk,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.updatesite,org.eclipse.equinox.p2.updatesite,publisher_start"/>
+<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.simpleconfigurator,org.eclipse.equinox.simpleconfigurator,publisher_start"/>
+</provider>
+</psf>
