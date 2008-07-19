@@ -15,9 +15,9 @@ import java.net.MalformedURLException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.equinox.internal.p2.publisher.*;
-import org.eclipse.equinox.internal.p2.publisher.actions.EclipseInstallAction;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
 
 /**
  * An Ant task to call the p2 Metadata Generator application.
@@ -65,7 +65,7 @@ public class GeneratorTask extends Task {
 			throw new BuildException("Unable to configure repositories", e); //$NON-NLS-1$
 		}
 		createVersionAdvice();
-		IPublishingAction[] actions = createActions();
+		IPublisherAction[] actions = createActions();
 		IStatus result = new Publisher(getInfo()).publish(actions);
 
 		// TODO hack assignments to keep the compiler from whining about the unreferenced privates.
@@ -97,19 +97,19 @@ public class GeneratorTask extends Task {
 		//		}
 	}
 
-	private IPublishingAction[] createActions() {
+	private IPublisherAction[] createActions() {
 		if (operation == null)
 			// TODO what to do in this case?
-			return new IPublishingAction[] {};
+			return new IPublisherAction[] {};
 		if (operation.equals("-update")) //$NON-NLS-1$
 			// TODO fix this up.  watch for circularities
 			//			return new IPublishingAction[] {new LocalUpdateSiteAction(operationValue)};
-			return new IPublishingAction[] {};
+			return new IPublisherAction[] {};
 		if (operation.equals("-source")) //$NON-NLS-1$
 			// TODO what to do in this case?
-			return new IPublishingAction[] {new EclipseInstallAction(operationValue, root, rootVersion, rootName, flavor, topLevel, nonRootFiles, start)};
+			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, rootVersion, rootName, flavor, topLevel, nonRootFiles, start)};
 		// TODO what to do in this case?
-		return new IPublishingAction[] {};
+		return new IPublisherAction[] {};
 	}
 
 	private void createVersionAdvice() {
