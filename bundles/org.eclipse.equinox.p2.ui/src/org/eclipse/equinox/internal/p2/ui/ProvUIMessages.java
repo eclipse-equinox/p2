@@ -35,6 +35,7 @@ public class ProvUIMessages extends NLS {
 	public static String AcceptLicensesWizardPage_ReviewExtraLicensesDescription;
 	public static String AcceptLicensesWizardPage_ReviewLicensesDescription;
 	public static String AcceptLicensesWizardPage_Title;
+	public static String ApplicationInRestartDialog;
 	public static String ApplyProfileChangesDialog_ApplyChanges;
 	public static String CategoryElementCollector_Uncategorized;
 	public static String InstallDialog_InstallSelectionMessage;
