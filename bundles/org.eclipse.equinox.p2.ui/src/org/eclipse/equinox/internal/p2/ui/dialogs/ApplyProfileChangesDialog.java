@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.ui.dialogs;
 
+import org.eclipse.core.runtime.IProduct;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 
 /**
@@ -47,10 +50,9 @@ public class ApplyProfileChangesDialog extends MessageDialog {
 	 */
 	public static int promptForRestart(Shell parent, boolean mustRestart) {
 		String title = ProvUIMessages.PlatformUpdateTitle;
-		String message = ProvUIMessages.OptionalPlatformRestartMessage;
-		if (mustRestart) {
-			message = ProvUIMessages.PlatformRestartMessage;
-		}
+		IProduct product = Platform.getProduct();
+		String productName = product != null && product.getName() != null ? product.getName() : ProvUIMessages.ApplicationInRestartDialog;
+		String message = NLS.bind(mustRestart ? ProvUIMessages.PlatformRestartMessage : ProvUIMessages.OptionalPlatformRestartMessage, productName);
 		ApplyProfileChangesDialog dialog = new ApplyProfileChangesDialog(parent, title, message, mustRestart);
 		if (dialog.open() == Window.CANCEL)
 			return PROFILE_IGNORE;
