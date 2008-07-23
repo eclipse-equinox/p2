@@ -173,12 +173,16 @@ public class GeneratorTask extends Task {
 	}
 
 	public void setRoot(String root) {
+		if (root == null || root.startsWith("${")) //$NON-NLS-1$
+			return;
 		if (provider == null)
 			provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setRootId(root);
 	}
 
 	public void setRootVersion(String rootVersion) {
+		if (rootVersion == null || rootVersion.startsWith("${")) //$NON-NLS-1$
+			return;
 		if (provider == null)
 			provider = new EclipseInstallGeneratorInfoProvider();
 		provider.setRootVersion(rootVersion);
