@@ -103,6 +103,7 @@ public class Generator {
 	private static final String PRODUCT_CONFIG_SUFFIX = ".config"; //$NON-NLS-1$
 	private static final String PRODUCT_INI_SUFFIX = ".ini"; //$NON-NLS-1$
 	private static final String PRODUCT_LAUCHER_SUFFIX = ".launcher"; //$NON-NLS-1$
+	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 
@@ -140,6 +141,10 @@ public class Generator {
 
 	public static String[] parseConfigSpec(String config) {
 		String[] parsed = getArrayFromString(config, "_"); //$NON-NLS-1$
+		for (int i = 0; i < parsed.length; i++) {
+			if (parsed[i].equals("*")) //$NON-NLS-1$
+				parsed[i] = "ANY"; //$NON-NLS-1$
+		}
 		if (parsed.length > 3) {
 			String[] adjusted = new String[] {parsed[0], parsed[1], parsed[2] + '_' + parsed[3]};
 			return adjusted;
@@ -722,6 +727,9 @@ public class Generator {
 	 * ws/os/arch combination.
 	 */
 	private void generateExecutableIUs(String ws, String os, final String arch, String version, File root, GeneratorResult result, IArtifactRepository destination) {
+		if (root == null)
+			return;
+
 		//Create the IU
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
@@ -732,8 +740,11 @@ public class Generator {
 		Version launcherVersion = new Version(version);
 		iu.setVersion(launcherVersion);
 		iu.setSingleton(true);
-		String filter = "(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		iu.setFilter(filter);
+		String filter = null;
+		if (!ws.equals(CONFIG_ANY) && !os.equals(CONFIG_ANY) && !arch.equals(CONFIG_ANY)) {
+			filter = "(& (osgi.ws=" + ws + ") (osgi.os=" + os + ") (osgi.arch=" + arch + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			iu.setFilter(filter);
+		}
 
 		IArtifactKey key = MetadataGeneratorHelper.createLauncherArtifactKey(launcherId, launcherVersion);
 		iu.setArtifacts(new IArtifactKey[] {key});
@@ -752,7 +763,8 @@ public class Generator {
 		String configUnitId = info.getFlavor() + launcherId;
 		cu.setId(configUnitId);
 		cu.setVersion(launcherVersion);
-		cu.setFilter(filter);
+		if (filter != null)
+			cu.setFilter(filter);
 		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherId, new VersionRange(launcherVersion, true, launcherVersion, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
@@ -986,7 +998,12 @@ public class Generator {
 		if (info.getLauncherConfig() != null) {
 			String[] config = parseConfigSpec(info.getLauncherConfig());
 			String version = getProductVersion();
-			generateExecutableIUs(config[1], config[0], config[2], version, executableLocation.getParentFile(), result, destination);
+			File root = null;
+			if (executableLocation != null)
+				root = executableLocation.getParentFile();
+			else if (info instanceof EclipseInstallGeneratorInfoProvider)
+				root = ((EclipseInstallGeneratorInfoProvider) info).getBaseLocation();
+			generateExecutableIUs(config[1], config[0], config[2], version, root, result, destination);
 			generateProductIniCU(config[1], config[0], config[2], version, result);
 			return;
 		}
