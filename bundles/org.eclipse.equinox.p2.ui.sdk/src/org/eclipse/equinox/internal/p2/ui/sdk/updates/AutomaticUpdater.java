@@ -81,6 +81,9 @@ public class AutomaticUpdater implements IUpdateListener {
 					// We are just checking prefs to determine whether to to show the popup or not.
 					String openPlan = prefs.getString(PreferenceConstants.PREF_OPEN_WIZARD_ON_ERROR_PLAN);
 					if (plan != null) {
+						// If the user cancelled the operation, don't continue
+						if (plan.getStatus().getSeverity() == IStatus.CANCEL)
+							return false;
 						boolean noError = plan.getStatus().getSeverity() != IStatus.ERROR;
 						if (noError || !(MessageDialogWithToggle.NEVER.equals(openPlan))) {
 							// Show the affordance if user prefers always opening a currentPlan or being prompted

@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.ProvisioningPlan;
@@ -104,6 +105,9 @@ public abstract class ProfileModificationAction extends ProvisioningAction {
 	 */
 	protected boolean validatePlan(ProvisioningPlan plan) {
 		if (plan != null) {
+			// Don't validate the plan if the user cancelled
+			if (plan.getStatus().getSeverity() == IStatus.CANCEL)
+				return false;
 			if (getPlanValidator() != null)
 				return getPlanValidator().continueWorkingWithPlan(plan, getShell());
 			if (plan.getStatus().isOK())

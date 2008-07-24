@@ -53,12 +53,14 @@ public class PlanStatusHelper {
 	public static IStatus computeStatus(ProvisioningPlan plan, IInstallableUnit[] ius) {
 		if (plan == null)
 			return getStatus(IStatusCodes.UNEXPECTED_NOTHING_TO_DO, null);
-		// If the plan is ok, nothing to do
-		if (plan.getStatus().isOK())
+		// If the plan is ok or cancel, no further analysis is needed
+		if (plan.getStatus().isOK() || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
+
 		// If this is a status we have already checked, don't bother doing so again.
 		if (plan.getStatus().getCode() == IStatusCodes.UNEXPECTED_NOTHING_TO_DO)
 			return plan.getStatus();
+
 		// If the plan has no IU operands and some were expected, then nothing will happen.
 		if (ius != null && ius.length > 0) {
 			boolean iusInPlan = false;

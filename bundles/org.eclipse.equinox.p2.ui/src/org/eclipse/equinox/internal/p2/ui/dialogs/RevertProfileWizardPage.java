@@ -12,6 +12,7 @@ package org.eclipse.equinox.internal.p2.ui.dialogs;
 
 import java.lang.reflect.InvocationTargetException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.ui.ProvUIMessages;
 import org.eclipse.equinox.internal.p2.ui.viewers.IUDetailsLabelProvider;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -231,6 +232,9 @@ public class RevertProfileWizardPage extends WizardPage {
 					ProvisioningOperationRunner.run(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 					return true;
 				}
+				// If user cancelled, do not report an error
+				if (plan[0].getStatus().getSeverity() == IStatus.CANCEL)
+					return false;
 				ProvUI.reportStatus(plan[0].getStatus(), StatusManager.LOG);
 				setMessage(ProvUIMessages.ProfileModificationWizardPage_UnexpectedError, IMessageProvider.ERROR);
 			}
