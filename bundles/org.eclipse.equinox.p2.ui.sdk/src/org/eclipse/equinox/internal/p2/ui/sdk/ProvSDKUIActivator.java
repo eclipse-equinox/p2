@@ -206,6 +206,8 @@ public class ProvSDKUIActivator extends AbstractUIPlugin {
 				public boolean continueWorkingWithPlan(ProvisioningPlan plan, Shell shell) {
 					if (plan == null)
 						return false;
+					if (plan.getStatus().getSeverity() == IStatus.CANCEL)
+						return false;
 					// If the plan requires install handler support, we want to open the old update UI
 					if (UpdateManagerCompatibility.requiresInstallHandlerSupport(plan)) {
 						MessageDialog dialog = new MessageDialog(shell, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureTitle, null, ProvSDKMessages.ProvSDKUIActivator_UnsupportedFeatureMessage, MessageDialog.WARNING, new String[] {ProvSDKMessages.ProvSDKUIActivator_LaunchUpdateManager, IDialogConstants.CANCEL_LABEL}, 0);
