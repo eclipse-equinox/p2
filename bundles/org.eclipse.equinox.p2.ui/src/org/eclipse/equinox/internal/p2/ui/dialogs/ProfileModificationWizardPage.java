@@ -32,13 +32,13 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 public abstract class ProfileModificationWizardPage extends WizardPage {
-	private static final int DEFAULT_HEIGHT = 20;
+	private static final int DEFAULT_HEIGHT = 15;
 	private static final int DEFAULT_WIDTH = 120;
 	private static final int DEFAULT_DESCRIPTION_HEIGHT = 4;
 	private static final int DEFAULT_COLUMN_WIDTH = 60;
@@ -63,14 +63,18 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 
 	public void createControl(Composite parent) {
 		display = parent.getDisplay();
-		Composite composite = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		composite.setLayout(layout);
+		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
+		FillLayout layout = new FillLayout();
+		sashForm.setLayout(layout);
 		GridData data = new GridData(GridData.FILL_BOTH);
-		composite.setLayoutData(data);
-		initializeDialogUnits(composite);
+		sashForm.setLayoutData(data);
+		initializeDialogUnits(sashForm);
+
+		Composite composite = new Composite(sashForm, SWT.NONE);
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.marginWidth = 0;
+		gridLayout.marginHeight = 0;
+		composite.setLayout(gridLayout);
 
 		// The viewer allows selection of IU's for browsing the details,
 		// and checking to include in the provisioning operation.
@@ -123,19 +127,20 @@ public abstract class ProfileModificationWizardPage extends WizardPage {
 		else
 			currentStatus = PlanStatusHelper.computeStatus(currentPlan, ius);
 
+		// Optional area to show the size
 		createSizingInfo(composite);
 
 		// The text area shows a description of the selected IU, or error detail if applicable.
-		Group group = new Group(composite, SWT.NONE);
+		Group group = new Group(sashForm, SWT.NONE);
 		group.setText(ProvUIMessages.ProfileModificationWizardPage_DetailsLabel);
 		group.setLayout(new GridLayout());
-		group.setLayoutData(new GridData(GridData.FILL_BOTH));
 
 		createDetailsArea(group);
 
 		updateStatus();
-		setControl(composite);
-		Dialog.applyDialogFont(composite);
+		setControl(sashForm);
+		sashForm.setWeights(new int[] {80, 20});
+		Dialog.applyDialogFont(sashForm);
 	}
 
 	protected void createSizingInfo(Composite parent) {
