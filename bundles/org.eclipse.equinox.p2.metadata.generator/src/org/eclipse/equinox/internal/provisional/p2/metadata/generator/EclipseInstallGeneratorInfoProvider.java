@@ -12,9 +12,11 @@ package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
@@ -37,6 +39,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	//String filterLauncherVersion = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_VERSION + "=" + props.getProperty("equinox.launcher.version") + ")";
 	private final static String frameworkAdminFillter = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
+	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
@@ -234,7 +237,18 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return manipulator.getConfigData();
+
+		ConfigData data = manipulator.getConfigData();
+		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
+		if (value != null) {
+			try {
+				data.setFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configLocation.toURL()));
+			} catch (MalformedURLException e) {
+				//ignore
+			}
+		}
+
+		return data;
 	}
 
 	public File getConfigurationLocation() {
