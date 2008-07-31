@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.ui.model;
 
-import java.text.DateFormat;
+import com.ibm.icu.text.DateFormat;
 import java.util.Date;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.p2.rollback.FormerState;
