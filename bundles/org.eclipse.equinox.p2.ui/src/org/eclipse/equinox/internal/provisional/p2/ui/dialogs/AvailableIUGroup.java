@@ -369,9 +369,9 @@ public class AvailableIUGroup extends StructuredIUGroup {
 		URL[] urls = getProvisioningContext().getMetadataRepositories();
 		ProvisioningOperation op;
 		if (urls == null)
-			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, refreshRepoFlags);
+			op = new RefreshColocatedRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, refreshRepoFlags);
 		else
-			op = new RefreshMetadataRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, urls);
+			op = new RefreshColocatedRepositoriesOperation(ProvUIMessages.AvailableIUGroup_RefreshOperationLabel, urls);
 		ProvisioningOperationRunner.schedule(op, getShell(), StatusManager.SHOW | StatusManager.LOG);
 		if (viewer != null && !viewer.getControl().isDisposed())
 			viewer.setInput(getNewInput());
