@@ -267,9 +267,21 @@ public class NewDependencyExpander {
 		toAdd.addAll(alreadyInstalled);
 		do {
 			//reset work at each iteration, then use up a third. This results in an infinite series where remaining ticks gets steadily smaller
+			if (p.isCanceled()) {
+				problems.add(Status.CANCEL_STATUS);
+				return;
+			}
 			p.setWorkRemaining(100);
 			extractVisibilityData(toAdd);
+			if (p.isCanceled()) {
+				problems.add(Status.CANCEL_STATUS);
+				return;
+			}
 			extractRequirements(toAdd);
+			if (p.isCanceled()) {
+				problems.add(Status.CANCEL_STATUS);
+				return;
+			}
 			toAdd = collectMatches(toAdd, problems);
 			p.worked(33);
 		} while (toAdd.size() != 0);
@@ -279,6 +291,10 @@ public class NewDependencyExpander {
 		//			return;
 		invokeResolver(problems);
 		//		if (problems.isOK())
+		if (p.isCanceled()) {
+			problems.add(Status.CANCEL_STATUS);
+			return;
+		}
 		extractSolution();
 	}
 

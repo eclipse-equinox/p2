@@ -40,6 +40,7 @@ public class Messages extends NLS {
 	public static String Planner_Trivial_exception;
 	public static String Planner_Unsatisfiable_problem;
 	public static String Planner_Unsatisfied_dependency;
+	public static String Planner_NoSolution;
 
 	public static String Old_Resolver_Several_Versions;
 	public static String Old_Resolver_Incompatible_Versions;

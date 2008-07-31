@@ -241,8 +241,8 @@ public class SimplePlanner implements IPlanner {
 			Projector projector = new Projector(slice, newSelectionContext);
 			projector.encode(allIUs, sub.newChild(ExpandWork / 4));
 			IStatus s = projector.invokeSolver(sub.newChild(ExpandWork / 4));
-
 			if (s.getSeverity() == IStatus.ERROR) {
+				sub.setTaskName(Messages.Planner_NoSolution);
 				//log the error from the new solver so it is not lost
 				LogHelper.log(s);
 				if (!"true".equalsIgnoreCase(context == null ? null : context.getProperty("org.eclipse.equinox.p2.disable.error.reporting"))) {

@@ -753,7 +753,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		}
 
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
-		if (plan.getStatus().getSeverity() == IStatus.ERROR)
+		if (plan.getStatus().getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL)
 			return plan.getStatus();
 		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 	}

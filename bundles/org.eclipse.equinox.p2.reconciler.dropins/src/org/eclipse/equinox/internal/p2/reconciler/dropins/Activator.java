@@ -400,7 +400,7 @@ public class Activator implements BundleActivator {
 		// create the profile synchronizer on all available repositories
 		ProfileSynchronizer synchronizer = new ProfileSynchronizer(profile, repositories);
 		IStatus result = synchronizer.synchronize(monitor);
-		if (!result.isOK())
+		if (!result.isOK() && !(result.getSeverity() == IStatus.CANCEL))
 			LogHelper.log(result);
 	}
 

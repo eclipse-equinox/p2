@@ -91,7 +91,7 @@ public class ProfileSynchronizer {
 			ProvisioningPlan plan = createProvisioningPlan(request, context, sub.newChild(50));
 
 			status = plan.getStatus();
-			if (status.getSeverity() == IStatus.ERROR || plan.getOperands().length == 0)
+			if (status.getSeverity() == IStatus.ERROR || plan.getStatus().getSeverity() == IStatus.CANCEL || plan.getOperands().length == 0)
 				return status;
 
 			//invoke the engine to perform installs/uninstalls
