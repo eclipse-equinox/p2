@@ -68,6 +68,18 @@ public class OperationGenerator {
 	private void generateUpdates(List from, List to, ArrayList operations) {
 		Set processed = new HashSet();
 		Set removedFromTo = new HashSet();
+
+		Map fromById = new HashMap();
+		for (Iterator iterator = from.iterator(); iterator.hasNext();) {
+			IInstallableUnit iuFrom = (IInstallableUnit) iterator.next();
+			List ius = (List) fromById.get(iuFrom.getId());
+			if (ius == null) {
+				ius = new ArrayList();
+				fromById.put(iuFrom.getId(), ius);
+			}
+			ius.add(iuFrom);
+		}
+
 		for (int toIdx = 0; toIdx < to.size(); toIdx++) {
 			IInstallableUnit iuTo = (IInstallableUnit) to.get(toIdx);
 			if (iuTo.getId().equals(next(to, toIdx).getId())) {
@@ -77,26 +89,32 @@ public class OperationGenerator {
 			}
 			if (iuTo.getUpdateDescriptor() == null)
 				continue;
+
+			List fromIdIndexList = (List) fromById.get(iuTo.getUpdateDescriptor().getId());
+			if (fromIdIndexList == null)
+				continue;
+
 			//when the ui we update from is in the new state, skip (for example FROM is A, C, B & TO is C (update of 
 			InstallableUnitQuery updateQuery = new InstallableUnitQuery(iuTo.getUpdateDescriptor().getId(), iuTo.getUpdateDescriptor().getRange());
-			Iterator updates = updateQuery.perform(from.iterator(), new Collector()).iterator();
+			Iterator updates = updateQuery.perform(fromIdIndexList.iterator(), new Collector()).iterator();
 
-			IInstallableUnit iuFrom;
 			if (!updates.hasNext()) { //Nothing to update from.
 				continue;
 			}
-			iuFrom = (IInstallableUnit) updates.next();
+			IInstallableUnit iuFrom = (IInstallableUnit) updates.next();
 			if (updates.hasNext()) { //There are multiple IUs to update from
 				//System.out.println("Can't update  " + iuTo + " because there are multiple IUs to update from (" + toString(iusFrom) + ')');
 				continue;
 			}
 			if (iuTo.equals(iuFrom)) {
 				from.remove(iuFrom);
+				fromIdIndexList.remove(iuFrom);
 				removedFromTo.add(iuTo);
 				continue;
 			}
 			operations.add(createUpdateOperation(iuFrom, iuTo));
 			from.remove(iuFrom);
+			fromIdIndexList.remove(iuFrom);
 			processed.add(iuTo);
 		}
 		to.removeAll(processed);

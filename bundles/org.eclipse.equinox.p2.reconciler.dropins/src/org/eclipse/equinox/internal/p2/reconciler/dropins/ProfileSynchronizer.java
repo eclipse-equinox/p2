@@ -28,7 +28,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
-import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -269,18 +268,14 @@ public class ProfileSynchronizer {
 		toRemove.addAll(collect.toCollection());
 		//End of backward compatibility
 
+		Collection profileIUs = new HashSet(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
 		for (Iterator iter = allIUs.iterator(); iter.hasNext();) {
 			final IInstallableUnit iu = (IInstallableUnit) iter.next();
 			// if the IU is already installed in the profile then skip it
-			Query query = new Query() {
-				public boolean isMatch(Object candidate) {
-					return iu.equals(candidate);
-				}
-			};
-			Collector collector = profile.query(query, new Collector(), null);
-			if (collector.size() == 0) {
+			if (!profileIUs.contains(iu)) {
 				if (Boolean.valueOf(iu.getProperty(IInstallableUnit.PROP_TYPE_GROUP)).booleanValue())
 					request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_ROOT_IU, Boolean.TRUE.toString());
 				// mark all IUs with special property
@@ -292,9 +287,9 @@ public class ProfileSynchronizer {
 		}
 
 		// get all IUs from profile with marked property (existing)
-		Collector profileIUs = profile.query(new IUProfilePropertyQuery(profile, PROP_FROM_DROPINS, Boolean.toString(true)), new Collector(), null);
-		Collection all = allIUs.toCollection();
-		for (Iterator iter = profileIUs.iterator(); iter.hasNext();) {
+		Collector dropinIUs = profile.query(new IUProfilePropertyQuery(profile, PROP_FROM_DROPINS, Boolean.toString(true)), new Collector(), null);
+		Collection all = new HashSet(allIUs.toCollection());
+		for (Iterator iter = dropinIUs.iterator(); iter.hasNext();) {
 			IInstallableUnit iu = (IInstallableUnit) iter.next();
 			// the STRICT policy is set when we install things via the UI, we use it to differentiate between IUs installed
 			// via the dropins and the UI. (dropins are considered optional) If an IU has both properties set it means that
