@@ -611,7 +611,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 	public boolean isResolved(BundleInfo bInfo) {
 		String realLocation = FileUtils.getRealLocation(manipulator, bInfo.getLocation(), true);
-		BundleDescription description = getBundleByLocation(bInfo.getLocation());
+		BundleDescription description = getBundleByLocation(realLocation);
 		if (description == null)
 			return false;
 		return description.isResolved();
