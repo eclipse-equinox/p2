@@ -416,6 +416,7 @@ public class Projector {
 
 	private String optionalityExpression = null;
 	private int countOptionalIUs = 0;
+	private QueryableArray patches;
 
 	private void expandOptionalRequirement(String iuVar, IInstallableUnit iu, RequiredCapability req) {
 		if (iuVar == null)
@@ -546,7 +547,10 @@ public class Projector {
 
 	//Return IUPatches that are applicable for the given iu
 	private Collector getApplicablePatches(IInstallableUnit iu) {
-		return picker.query(new ApplicablePatchQuery(iu), new Collector(), null);
+		if (patches == null)
+			patches = new QueryableArray((IInstallableUnit[]) picker.query(ApplicablePatchQuery.ANY, new Collector(), null).toArray(IInstallableUnit.class));
+
+		return patches.query(new ApplicablePatchQuery(iu), new Collector(), null);
 	}
 
 	private void expandRequirement(String var, IInstallableUnit iu, RequiredCapability req) {

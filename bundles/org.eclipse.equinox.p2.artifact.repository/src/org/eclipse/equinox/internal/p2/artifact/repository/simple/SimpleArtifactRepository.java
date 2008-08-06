@@ -187,6 +187,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	static final private Integer REPOSITORY_VERSION = new Integer(1);
 	private static final String XML_EXTENSION = ".xml"; //$NON-NLS-1$
 	protected Set artifactDescriptors = new HashSet();
+	protected Map artifactMap = new HashMap();
 	private transient BlobStore blobStore;
 	transient private Mapper mapper = new Mapper();
 
@@ -255,6 +256,29 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		super(name, type, version, null, description, provider, properties);
 		this.artifactDescriptors.addAll(artifacts);
 		this.mappingRules = mappingRules;
+		for (Iterator it = artifactDescriptors.iterator(); it.hasNext();)
+			mapDescriptor((IArtifactDescriptor) it.next());
+	}
+
+	private void mapDescriptor(IArtifactDescriptor descriptor) {
+		IArtifactKey key = descriptor.getArtifactKey();
+		Collection descriptors = (Collection) artifactMap.get(key);
+		if (descriptors == null) {
+			descriptors = new ArrayList();
+			artifactMap.put(key, descriptors);
+		}
+		descriptors.add(descriptor);
+	}
+
+	private void unmapDescriptor(IArtifactDescriptor descriptor) {
+		IArtifactKey key = descriptor.getArtifactKey();
+		Collection descriptors = (Collection) artifactMap.get(key);
+		if (descriptors == null)
+			return;
+
+		descriptors.remove(descriptor);
+		if (descriptors.isEmpty())
+			artifactMap.remove(key);
 	}
 
 	public SimpleArtifactRepository(String repositoryName, URL location, Map properties) {
@@ -282,6 +306,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		// TODO: here we may want to ensure that the artifact has not been added concurrently
 		((ArtifactDescriptor) toAdd).setRepository(this);
 		artifactDescriptors.add(toAdd);
+		mapDescriptor(toAdd);
 		save();
 	}
 
@@ -290,6 +315,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		for (int i = 0; i < descriptors.length; i++) {
 			((ArtifactDescriptor) descriptors[i]).setRepository(this);
 			artifactDescriptors.add(descriptors[i]);
+			mapDescriptor(descriptors[i]);
 		}
 		save();
 	}
@@ -347,12 +373,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized boolean contains(IArtifactKey key) {
-		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
-			if (descriptor.getArtifactKey().equals(key))
-				return true;
-		}
-		return false;
+		return artifactMap.containsKey(key);
 	}
 
 	public synchronized String createLocation(ArtifactDescriptor descriptor) {
@@ -393,7 +414,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			if (file.exists())
 				return false;
 		}
-		return artifactDescriptors.remove(descriptor);
+		boolean result = artifactDescriptors.remove(descriptor);
+		if (result)
+			unmapDescriptor(descriptor);
+
+		return result;
 	}
 
 	protected IStatus downloadArtifact(IArtifactDescriptor descriptor, OutputStream destination, IProgressMonitor monitor) {
@@ -491,12 +516,10 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IArtifactDescriptor[] getArtifactDescriptors(IArtifactKey key) {
-		ArrayList result = new ArrayList();
-		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
-			IArtifactDescriptor descriptor = (IArtifactDescriptor) iterator.next();
-			if (descriptor.getArtifactKey().equals(key))
-				result.add(descriptor);
-		}
+		Collection result = (Collection) artifactMap.get(key);
+		if (result == null)
+			return new IArtifactDescriptor[0];
+
 		return (IArtifactDescriptor[]) result.toArray(new IArtifactDescriptor[result.size()]);
 	}
 
@@ -516,10 +539,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 
 	public synchronized IArtifactKey[] getArtifactKeys() {
 		// there may be more descriptors than keys to collect up the unique keys
-		HashSet result = new HashSet(artifactDescriptors.size());
-		for (Iterator it = artifactDescriptors.iterator(); it.hasNext();)
-			result.add(((IArtifactDescriptor) it.next()).getArtifactKey());
-		return (IArtifactKey[]) result.toArray(new IArtifactKey[result.size()]);
+		return (IArtifactKey[]) artifactMap.keySet().toArray(new IArtifactKey[artifactMap.keySet().size()]);
 	}
 
 	public IStatus getArtifacts(IArtifactRequest[] requests, IProgressMonitor monitor) {
@@ -564,7 +584,11 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	}
 
 	public synchronized IArtifactDescriptor getCompleteArtifactDescriptor(IArtifactKey key) {
-		for (Iterator iterator = artifactDescriptors.iterator(); iterator.hasNext();) {
+		Collection descriptors = (Collection) artifactMap.get(key);
+		if (descriptors == null)
+			return null;
+
+		for (Iterator iterator = descriptors.iterator(); iterator.hasNext();) {
 			IArtifactDescriptor desc = (IArtifactDescriptor) iterator.next();
 			// look for a descriptor that matches the key and is "complete"
 			if (desc.getArtifactKey().equals(key) && desc.getProcessingSteps().length == 0)

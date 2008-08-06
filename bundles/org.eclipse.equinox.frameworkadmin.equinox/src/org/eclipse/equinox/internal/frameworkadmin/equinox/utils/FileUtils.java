@@ -20,12 +20,6 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 public class FileUtils {
 
 	public static String getEclipseRealLocation(final Manipulator manipulator, final String location) {
-		try {
-			new URL(location);
-			return location;
-		} catch (MalformedURLException e) {
-			// just ignore.
-		}
 		if (location.indexOf(":") >= 0)
 			return location;
 
