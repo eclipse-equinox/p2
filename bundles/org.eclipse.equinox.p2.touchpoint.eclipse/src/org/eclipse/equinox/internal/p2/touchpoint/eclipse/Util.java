@@ -96,7 +96,7 @@ public class Util {
 	}
 
 	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile, int repoFilter) {
-		Set bundleRepositories = new HashSet();
+		List bundleRepositories = new ArrayList();
 
 		if ((repoFilter & AGGREGATE_CACHE) != 0) {
 			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
@@ -126,7 +126,7 @@ public class Util {
 				String repo = (String) iterator.next();
 				URL repoURL = new URL(repo);
 				IArtifactRepository repository = manager.loadRepository(repoURL, null);
-				if (repository != null && repository instanceof IFileArtifactRepository)
+				if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
 					bundleRepositories.add(repository);
 			} catch (ProvisionException e) {
 				//skip repositories that could not be read
