@@ -38,7 +38,7 @@ public class DataLoader {
 
 	/**
 	 * 
-	 * @param configurationLocation configuration file (i.e. eclipse.ini).
+	 * @param configurationLocation configuration file (i.e. config.ini).
 	 * @param executableLocation executable file (i.e. eclipse.exe). 
 	 */
 	public DataLoader(File configurationLocation, File executableLocation) {

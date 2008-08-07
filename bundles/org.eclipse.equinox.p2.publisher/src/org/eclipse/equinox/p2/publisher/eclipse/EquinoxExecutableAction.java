@@ -131,7 +131,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 
 		//Create the artifact descriptor.  we have several files so no path on disk
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
-		publishArtifact(descriptor, fileList, files.getLocation(), info, INCLUDE_ROOT);
+		publishArtifact(descriptor, fileList, null, info, createRootPrefixComputer(files.getLocation()));
 		if (files.isTemporary())
 			FileUtils.deleteAll(files.getLocation());
 	}

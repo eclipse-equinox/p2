@@ -140,10 +140,10 @@ public class FeaturesAction extends AbstractPublisherAction {
 			File location = list[i];
 			if (location.isDirectory()) {
 				// if the location is itself a feature, just add it.  Otherwise r down
-				if (!new File(location, "feature.xml").exists())
-					expandLocations(location.listFiles(), result);
-				else
+				if (new File(location, "feature.xml").exists())
 					result.add(location);
+				else
+					expandLocations(location.listFiles(), result);
 			} else {
 				result.add(location);
 			}
@@ -216,11 +216,11 @@ public class FeaturesAction extends AbstractPublisherAction {
 		for (int j = 0; j < artifacts.length; j++) {
 			File file = new File(feature.getLocation());
 			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(artifacts[j], file);
-			// if the artifact is a dir and we are not doing "AS_IS", zip it up.
-			if (file.isDirectory() && !((info.getArtifactOptions() & IPublisherInfo.A_AS_IS) > 0))
-				publishArtifact(ad, new File[] {file}, info, 0);
+			// if the artifact is a dir then zip it up.
+			if (file.isDirectory())
+				publishArtifact(ad, new File[] {file}, null, info, createRootPrefixComputer(file));
 			else
-				publishArtifact(ad, new File[] {file}, info, AS_IS);
+				publishArtifact(ad, file, info);
 		}
 	}
 
@@ -293,7 +293,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		if (fileResult != null && fileResult.length > 0) {
 			IArtifactKey artifact = iuResult.getArtifacts()[0];
 			ArtifactDescriptor descriptor = new ArtifactDescriptor(artifact);
-			publishArtifact(descriptor, fileResult, info, 0);
+			publishArtifact(descriptor, fileResult, null, info, FileUtils.createDynamicPathComputer(1));
 		}
 		result.addIU(iuResult, IPublisherResult.NON_ROOT);
 		return iuResult;

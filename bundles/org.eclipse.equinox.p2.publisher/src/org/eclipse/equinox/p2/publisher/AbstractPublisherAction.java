@@ -11,9 +11,11 @@ package org.eclipse.equinox.p2.publisher;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
@@ -22,7 +24,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static final int AS_IS = 1;
-	public static final int INCLUDE_ROOT = 2;
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
 
 	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
@@ -108,42 +109,28 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 		return ws + '.' + os + '.' + arch;
 	}
 
-	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IPublisherInfo info, int mode) {
-		publishArtifact(descriptor, files, null, info, mode);
+	//This is to hide FileUtils from other actions
+	public static IPathComputer createRootPrefixComputer(final File root) {
+		return FileUtils.createRootPathComputer(root);
 	}
 
-	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] files, IPublisherInfo info, int mode) {
-		IArtifactRepository destination = info.getArtifactRepository();
-		if (descriptor == null || destination == null)
-			return;
-
-		// publish the given files
-		publishArtifact(descriptor, files, base, info, mode);
-
-		// if we are assimilating pack200 files then add the packed descriptor
-		// into the repo assuming it does not already exist.
-		boolean reuse = "true".equals(destination.getProperties().get(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS)); //$NON-NLS-1$
-		if (base != null && reuse && (info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
-			File packFile = new Path(base.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
-			if (packFile.exists()) {
-				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
-				publishArtifact(ad200, new File[] {packFile}, null, info, AS_IS | INCLUDE_ROOT);
-			}
-		}
+	//This is to hide FileUtils from other actions
+	public static IPathComputer createParentPrefixComputer(int segmentsToKeep) {
+		return FileUtils.createParentPrefixComputer(segmentsToKeep);
 	}
 
 	/**
 	 * Publishes the artifact by zipping the <code>files</code> using <code>root</code>
 	 * as a base for relative paths. Then copying the zip into the repository.
 	 * @param descriptor used to identify the zip.
-	 * @param files and folders to be included in the zip. files can be null.
+	 * @param inclusions and folders to be included in the zip. files can be null.
 	 * @param root the base used to generate relative paths within the zip. root can be null.
 	 * @param info the publisher info.
 	 * @param mode of operation (include root, as is...). 
 	 */
-	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, File root, IPublisherInfo info, int mode) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions, IPublisherInfo info, IPathComputer prefixComputer) {
 		// no files to publish so this is done.
-		if (files == null || files.length < 1)
+		if (inclusions == null || inclusions.length < 1)
 			return;
 		// if the destination already contains the descriptor, there is nothing to do.
 		IArtifactRepository destination = info.getArtifactRepository();
@@ -157,51 +144,82 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 
 		boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
 		// if there is just one file and the mode is as-is, just copy the file into the repo
-		if (((mode & AS_IS) > 0) && files.length == 1) {
-			try {
-				if (destination instanceof IFileArtifactRepository) {
-					// TODO  need to review this logic to ensure it makes sense.
-					// if the file is already in the same location the repo will put it, just add the descriptor and exit
-					File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
-					if (files[0].equals(descriptorFile)) {
-						destination.addDescriptor(descriptor);
-						return;
-					}
-				}
+		// otherwise, zip up the files and copy the zip into the repo
+		File tempFile = null;
+		try {
+			OutputStream output = destination.getOutputStream(descriptor, overwrite);
+			if (output == null)
+				return;
+			output = new BufferedOutputStream(output);
+			tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			FileUtils.zip(inclusions, exclusions, tempFile, prefixComputer);
+			if (output != null)
+				FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
+		} catch (ProvisionException e) {
+			LogHelper.log(e.getStatus());
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
+			e.printStackTrace();
+		} finally {
+			if (tempFile != null)
+				tempFile.delete();
+		}
+	}
 
-				OutputStream output = destination.getOutputStream(descriptor, overwrite);
-				if (output == null)
-					return;
-				output = new BufferedOutputStream(output);
-				FileUtils.copyStream(new BufferedInputStream(new FileInputStream(files[0])), true, output, true);
-			} catch (ProvisionException e) {
-				LogHelper.log(e.getStatus());
-			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
+	/**
+	 * Publishes the artifact by zipping the <code>files</code> using <code>root</code>
+	 * as a base for relative paths. Then copying the zip into the repository.
+	 * @param descriptor used to identify the zip.
+	 * @param inclusions and folders to be included in the zip. files can be null.
+	 * @param root the base used to generate relative paths within the zip. root can be null.
+	 * @param info the publisher info.
+	 * @param mode of operation (include root, as is...). 
+	 */
+	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo info) {
+		// no files to publish so this is done.
+		if (inclusion == null)
+			return;
+		// if the destination already contains the descriptor, there is nothing to do.
+		IArtifactRepository destination = info.getArtifactRepository();
+		if (destination == null || destination.contains(descriptor))
+			return;
+
+		if (destination instanceof IFileArtifactRepository) {
+			// TODO  need to review this logic to ensure it makes sense.
+			// if the file is already in the same location the repo will put it, just add the descriptor and exit
+			File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
+			if (inclusion.equals(descriptorFile)) {
+				destination.addDescriptor(descriptor);
+				return;
 			}
-		} else {
-			// otherwise, zip up the files and copy the zip into the repo
-			File tempFile = null;
-			try {
-				OutputStream output = destination.getOutputStream(descriptor, overwrite);
-				if (output == null)
+		}
+
+		// if all we are doing is indexing things then add the descriptor and get on with it
+		if ((info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) == 0) {
+			destination.addDescriptor(descriptor);
+			return;
+		}
+		try {
+			if (destination instanceof IFileArtifactRepository) {
+				// TODO  need to review this logic to ensure it makes sense.
+				// if the file is already in the same location the repo will put it, just add the descriptor and exit
+				File descriptorFile = ((IFileArtifactRepository) destination).getArtifactFile(descriptor);
+				if (inclusion.equals(descriptorFile)) {
+					destination.addDescriptor(descriptor);
 					return;
-				output = new BufferedOutputStream(output);
-				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				if (root == null)
-					FileUtils.zip(files, tempFile, FileUtils.INCLUDE_ROOT_PATH, (mode & INCLUDE_ROOT) > 0);
-				else
-					FileUtils.zip(files, tempFile, root, true /*Include Directory Name*/);
-				if (output != null)
-					FileUtils.copyStream(new BufferedInputStream(new FileInputStream(tempFile)), true, output, true);
-			} catch (ProvisionException e) {
-				LogHelper.log(e.getStatus());
-			} catch (IOException e) {
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
-			} finally {
-				if (tempFile != null)
-					tempFile.delete();
+				}
 			}
+
+			boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
+			OutputStream output = destination.getOutputStream(descriptor, overwrite);
+			if (output == null)
+				return;
+			output = new BufferedOutputStream(output);
+			FileUtils.copyStream(new BufferedInputStream(new FileInputStream(inclusion)), true, output, true);
+		} catch (ProvisionException e) {
+			LogHelper.log(e.getStatus());
+		} catch (IOException e) {
+			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error publishing artifacts", e)); //$NON-NLS-1$
 		}
 	}
 

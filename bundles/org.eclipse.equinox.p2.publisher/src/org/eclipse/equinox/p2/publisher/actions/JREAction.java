@@ -160,7 +160,7 @@ public class JREAction extends AbstractPublisherAction {
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
 		IArtifactDescriptor artifact = createJREData(location, results);
 		if (artifact != null)
-			publishArtifact(artifact, new File[] {location}, info, INCLUDE_ROOT);
+			publishArtifact(artifact, new File[] {location}, null, info, createRootPrefixComputer(location));
 		return Status.OK_STATUS;
 	}
 

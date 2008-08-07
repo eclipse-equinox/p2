@@ -8,7 +8,6 @@
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.installer,org.eclipse.equinox.p2.installer,publisher_start"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata,org.eclipse.equinox.p2.metadata,publisher_start"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.metadata.generator,publisher_start"/>
-<project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.reconciler,org.eclipse.equinox.p2.reconciler,publisher_start"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.reconciler.dropins,org.eclipse.equinox.p2.reconciler.dropins,publisher_start"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.selfhosting,org.eclipse.equinox.p2.selfhosting,publisher_start"/>
 <project reference="1.0,:extssh:dev.eclipse.org:/cvsroot/eclipse,org.eclipse.equinox/p2/bundles/org.eclipse.equinox.p2.tests,org.eclipse.equinox.p2.tests,publisher_start2"/>

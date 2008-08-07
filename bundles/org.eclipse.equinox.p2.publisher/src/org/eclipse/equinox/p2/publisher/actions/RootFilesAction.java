@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.*;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
@@ -91,27 +92,15 @@ public class RootFilesAction extends AbstractPublisherAction {
 			// Create the artifact descriptor.  we have several files so no path on disk
 			IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
 			IRootFilesAdvice advice = getAdvice(configSpec, info);
-			publishArtifact(descriptor, filterRootFiles(advice, info), advice.getRoot(), info, INCLUDE_ROOT);
+			publishArtifact(descriptor, advice.getIncludedFiles(), advice.getExcludedFiles(), info, createPrefixComputer(advice.getRoot()));
 		}
 	}
 
-	private File[] filterRootFiles(IRootFilesAdvice advice, IPublisherInfo info) {
-		File[] inclusions = advice.getIncludedFiles();
-		Set exclusions = new HashSet(Arrays.asList(advice.getExcludedFiles()));
-		ArrayList result = new ArrayList();
-		for (int i = 0; i < inclusions.length; i++)
-			filterFile(inclusions[i], exclusions, result);
-		return (File[]) result.toArray(new File[result.size()]);
-	}
-
-	private void filterFile(File inclusion, Collection exclusions, ArrayList result) {
-		if (exclusions == null || !exclusions.contains(inclusion))
-			if (inclusion.isDirectory()) {
-				File[] list = inclusion.listFiles();
-				for (int i = 0; i < list.length; i++)
-					filterFile(list[i], exclusions, result);
-			} else
-				result.add(inclusion);
+	private static IPathComputer createPrefixComputer(File root) {
+		if (root == null)
+			return createParentPrefixComputer(1);
+		else
+			return createRootPrefixComputer(root);
 	}
 
 	/**

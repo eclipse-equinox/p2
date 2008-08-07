@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher;
 
-
 import java.util.Collection;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -33,13 +32,6 @@ public interface IPublisherInfo {
 	 * in the repository when publishing an artifact
 	 */
 	public static final int A_OVERWRITE = 4;
-
-	/**
-	 * A bitwise flag to say whether or not to leave the disk content discovered
-	 * as is when publishing an artifact.  That is, if a directory is discovered, it is
-	 * left as a directory.
-	 */
-	public static final int A_AS_IS = 8;
 
 	/**
 	 * Returns the artifact repository into which any publishable artifacts are published

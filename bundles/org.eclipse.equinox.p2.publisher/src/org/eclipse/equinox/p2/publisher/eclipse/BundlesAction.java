@@ -23,8 +23,7 @@ import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.p2.publisher.Messages;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.ArtifactDescriptor;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
@@ -668,6 +667,26 @@ public class BundlesAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
+	protected void publishArtifact(IArtifactDescriptor descriptor, File base, File[] inclusions, IPublisherInfo info) {
+		IArtifactRepository destination = info.getArtifactRepository();
+		if (descriptor == null || destination == null)
+			return;
+
+		// publish the given files
+		publishArtifact(descriptor, inclusions, null, info, createRootPrefixComputer(base));
+
+		// if we are assimilating pack200 files then add the packed descriptor
+		// into the repo assuming it does not already exist.
+		boolean reuse = "true".equals(destination.getProperties().get(AbstractPublisherApplication.PUBLISH_PACK_FILES_AS_SIBLINGS)); //$NON-NLS-1$
+		if (base != null && reuse && (info.getArtifactOptions() & IPublisherInfo.A_PUBLISH) > 0) {
+			File packFile = new Path(base.getAbsolutePath()).addFileExtension("pack.gz").toFile(); //$NON-NLS-1$
+			if (packFile.exists()) {
+				IArtifactDescriptor ad200 = createPack200ArtifactDescriptor(descriptor.getArtifactKey(), packFile, descriptor.getProperty(IArtifactDescriptor.ARTIFACT_SIZE));
+				publishArtifact(ad200, packFile, info);
+			}
+		}
+	}
+
 	private File[] expandLocations(File[] list) {
 		ArrayList result = new ArrayList();
 		expandLocations(list, result);
@@ -720,13 +739,13 @@ public class BundlesAction extends AbstractPublisherAction {
 						addProperties((ArtifactDescriptor) ad, location, info);
 						// don't consider any advice here as we want to know about the real form on disk
 						boolean isDir = isDir(bd, info);
-						// if the artifact is a dir and we are not doing "AS_IS", zip it up.
+						// if the artifact is a dir then zip it up.
 						// TODO this does not cover all the cases.  What if the current artifact is not in the form it should be in the end?
 						// for example we have a dir on disk but it should be deployed as a JAR?
-						if (isDir && !((info.getArtifactOptions() & IPublisherInfo.A_AS_IS) > 0))
-							publishArtifact(ad, new File(bd.getLocation()), new File(bd.getLocation()).listFiles(), info, INCLUDE_ROOT);
+						if (isDir)
+							publishArtifact(ad, new File(bd.getLocation()), new File(bd.getLocation()).listFiles(), info);
 						else
-							publishArtifact(ad, new File(bd.getLocation()), new File[] {new File(bd.getLocation())}, info, AS_IS | INCLUDE_ROOT);
+							publishArtifact(ad, new File(bd.getLocation()), info);
 						// FIXME 1.0 merge - need to consider phase instruction advice here.  See Generator#mergeInstructionsAdvice 
 						IInstallableUnit bundleIU = createBundleIU(bd, bundleManifest, isDir, key);
 
