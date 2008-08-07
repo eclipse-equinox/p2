@@ -39,7 +39,8 @@ import org.osgi.framework.Version;
 public class FeaturesAction extends AbstractPublisherAction {
 	public static final String INSTALL_FEATURES_FILTER = "(org.eclipse.update.install.features=true)"; //$NON-NLS-1$
 
-	protected Feature[] featureList;
+	private File[] locations;
+	protected Feature[] features;
 
 	public static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
 		return (isPlugin ? original : original + (isGroup ? ".feature.group" : ".feature.jar")); //$NON-NLS-1$//$NON-NLS-2$
@@ -115,15 +116,19 @@ public class FeaturesAction extends AbstractPublisherAction {
 	}
 
 	public FeaturesAction(File[] locations) {
-		featureList = getFeatures(expandLocations(locations)); //TODO: move heavy operations out of constructor 
+		this.locations = locations;
 	}
 
-	public FeaturesAction(Feature[] featureList) {
-		this.featureList = featureList;
+	public FeaturesAction(Feature[] features) {
+		this.features = features;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		generateFeatureIUs(featureList, results, info);
+		if (features == null && locations == null)
+			throw new IllegalStateException("No features or locations provided");
+		if (features == null)
+			features = getFeatures(expandLocations(locations));
+		generateFeatureIUs(features, results, info);
 		return Status.OK_STATUS;
 	}
 

@@ -86,6 +86,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
 
 	private File[] locations;
+	private BundleDescription[] bundles;
 
 	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
@@ -658,12 +659,20 @@ public class BundlesAction extends AbstractPublisherAction {
 	}
 
 	public BundlesAction(File[] locations) {
-		this.locations = expandLocations(locations);
+		this.locations = locations;
+	}
+
+	public BundlesAction(BundleDescription[] bundles) {
+		this.bundles = bundles;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		BundleDescription[] bundles = getBundleDescriptions(locations);
+		if (bundles == null && locations == null)
+			throw new IllegalStateException("No bundles or locations provided");
+		if (bundles == null)
+			bundles = getBundleDescriptions(expandLocations(locations));
 		generateBundleIUs(bundles, results, info);
+		bundles = null;
 		return Status.OK_STATUS;
 	}
 
