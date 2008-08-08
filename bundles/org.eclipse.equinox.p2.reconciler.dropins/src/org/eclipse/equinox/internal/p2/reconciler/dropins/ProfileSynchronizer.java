@@ -268,7 +268,8 @@ public class ProfileSynchronizer {
 		toRemove.addAll(collect.toCollection());
 		//End of backward compatibility
 
-		Collection profileIUs = new HashSet(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		// we use IProfile.available(...) here so that we also gather any shared IUs
+		Collection profileIUs = new HashSet(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
