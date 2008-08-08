@@ -234,7 +234,16 @@ public class EquinoxBundlesState implements BundlesState {
 	StateObjectFactory soFactory = null;
 
 	State state = null;
+
+	/**
+	 * Map of String->BundleDescription, where the key is the bundle location.
+	 */
 	private HashMap locationStateIndex = new HashMap();
+
+	/**
+	 * Map of String->BundleDescription, where the key is the bundle name
+	 * and version as defined by the {@link #getKey(BundleDescription)} method.
+	 */
 	private HashMap nameVersionStateIndex = new HashMap();
 
 	/**
@@ -669,8 +678,6 @@ public class EquinoxBundlesState implements BundlesState {
 		if (soFactory != null)
 			return;
 		PlatformAdmin platformAdmin = (PlatformAdmin) Activator.acquireService(PlatformAdmin.class.getName());
-		// PlatformAdmin platformAdmin = (PlatformAdmin)
-		// heBundleHelper.getDefault().acquireService(PlatformAdmin.class.getName());
 		soFactory = platformAdmin.getFactory();
 	}
 
@@ -736,15 +743,20 @@ public class EquinoxBundlesState implements BundlesState {
 		return (BundleDescription) nameVersionStateIndex.get(bundleSymbolicName + ";" + bundleVersion);
 	}
 
+	/**
+	 * Returns a key for a bundle description containing the bundle name and version,
+	 * for use in the name/version state index map.
+	 */
+	private String getKey(BundleDescription bundle) {
+		return bundle.getSymbolicName() + ';' + bundle.getVersion();
+	}
+
 	private void createStateIndexes() {
 		BundleDescription[] currentInstalledBundles = state.getBundles();
 		for (int i = 0; i < currentInstalledBundles.length; i++) {
 			String location = FileUtils.getRealLocation(manipulator, currentInstalledBundles[i].getLocation(), true);
 			locationStateIndex.put(location, currentInstalledBundles[i]);
-
-			String symbolicName = currentInstalledBundles[i].getSymbolicName();
-			String version = currentInstalledBundles[i].getVersion().toString();
-			nameVersionStateIndex.put(symbolicName + ";" + version, currentInstalledBundles[i]); //$NON-NLS-1$
+			nameVersionStateIndex.put(getKey(currentInstalledBundles[i]), currentInstalledBundles[i]);
 		}
 	}
 
@@ -752,19 +764,13 @@ public class EquinoxBundlesState implements BundlesState {
 		state.addBundle(bundleDescription);
 		String location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation(), true);
 		locationStateIndex.put(location, bundleDescription);
-
-		String symbolicName = bundleDescription.getSymbolicName();
-		String version = bundleDescription.getVersion().toString();
-		nameVersionStateIndex.put(symbolicName + ";" + version, bundleDescription); //$NON-NLS-1$
+		nameVersionStateIndex.put(getKey(bundleDescription), bundleDescription);
 	}
 
 	private void removeBundleFromState(BundleDescription bundleDescription) {
 		String location = FileUtils.getRealLocation(manipulator, bundleDescription.getLocation(), true);
 		locationStateIndex.remove(location);
-
-		String symbolicName = bundleDescription.getSymbolicName();
-		String version = bundleDescription.getVersion().toString();
-		nameVersionStateIndex.remove(symbolicName + ";" + version); //$NON-NLS-1$
+		nameVersionStateIndex.remove(getKey(bundleDescription));
 		state.removeBundle(bundleDescription);
 	}
 }
