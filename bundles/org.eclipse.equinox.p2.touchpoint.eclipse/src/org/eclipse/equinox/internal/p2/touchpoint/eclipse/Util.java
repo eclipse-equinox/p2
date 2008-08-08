@@ -42,8 +42,17 @@ public class Util {
 	private static final String CACHE_EXTENSIONS = "org.eclipse.equinox.p2.cache.extensions"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
 
+	/**
+	 * Bit-mask value representing this profile's bundle pool
+	 */
 	public static final int AGGREGATE_CACHE = 0x01;
+	/**
+	 * Bit-mask value representing the shared profile's bundle pool in a shared install
+	 */
 	public static final int AGGREGATE_SHARED_CACHE = 0x02;
+	/**
+	 * Bit-mask value representing the extension locations, such as the dropins folder.
+	 */
 	public static final int AGGREGATE_CACHE_EXTENSIONS = 0x04;
 
 	public static AgentLocation getAgentLocation() {
