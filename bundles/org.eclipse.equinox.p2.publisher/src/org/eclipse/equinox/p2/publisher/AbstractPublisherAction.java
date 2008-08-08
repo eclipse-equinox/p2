@@ -20,7 +20,9 @@ import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStepDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static final int AS_IS = 1;
@@ -224,4 +226,32 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	}
 
 	public abstract IStatus perform(IPublisherInfo info, IPublisherResult results);
+
+	/**
+	 * Add all of the advised provided and required capabilities for the given installable unit.
+	 * @param iu the IU to decorate
+	 * @param info the publisher info supplying the advice
+	 */
+	protected void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, null, null, ICapabilityAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
+			RequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
+			ProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
+			if (providedAdvice != null) {
+				RequiredCapability[] current = iu.getRequiredCapabilities();
+				RequiredCapability[] result = new RequiredCapability[requiredAdvice.length + current.length];
+				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
+				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
+				iu.setRequiredCapabilities(result);
+			}
+			if (providedAdvice != null) {
+				ProvidedCapability[] current = iu.getProvidedCapabilities();
+				ProvidedCapability[] result = new ProvidedCapability[providedAdvice.length + current.length];
+				System.arraycopy(providedAdvice, 0, result, 0, providedAdvice.length);
+				System.arraycopy(current, 0, result, providedAdvice.length, current.length);
+				iu.setCapabilities(result);
+			}
+		}
+	}
 }

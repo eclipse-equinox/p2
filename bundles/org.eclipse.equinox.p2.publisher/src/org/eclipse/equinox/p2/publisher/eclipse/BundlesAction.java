@@ -28,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.p2.publisher.*;
+import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 import org.eclipse.equinox.spi.p2.publisher.LocalizationHelper;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.eclipse.osgi.service.pluginconversion.PluginConversionException;
@@ -38,8 +39,15 @@ import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 
 /**
- * Publish IUs for all of the bundles in the given set of locations.  The locations can 
- * be actual locations of the bundles or folders of bundles.
+ * Publish IUs for all of the bundles in a given set of locations or described by a set of 
+ * bundle descriptions.  The locations can be actual locations of the bundles or folders 
+ * of bundles.
+ * 
+ * This action consults the following types of advice:
+ * </ul>
+ * <li>{@link IBundleAdvice}</li>
+ * <li>{@link ICapabilityAdvice}</li>
+ * </ul>
  */
 public class BundlesAction extends AbstractPublisherAction {
 
@@ -71,18 +79,15 @@ public class BundlesAction extends AbstractPublisherAction {
 	static final String DEFAULT_BUNDLE_LOCALIZATION = "plugin"; //$NON-NLS-1$	
 	static final String PROPERTIES_FILE_EXTENSION = ".properties"; //$NON-NLS-1$
 
-	static final String BUNDLE_ADVICE_FILE = "META-INF/p2.inf"; //$NON-NLS-1$
 	static final String ADVICE_INSTRUCTIONS_PREFIX = "instructions."; //$NON-NLS-1$
 	private static final String[] BUNDLE_IU_PROPERTY_MAP = {Constants.BUNDLE_NAME, IInstallableUnit.PROP_NAME, Constants.BUNDLE_DESCRIPTION, IInstallableUnit.PROP_DESCRIPTION, Constants.BUNDLE_VENDOR, IInstallableUnit.PROP_PROVIDER, Constants.BUNDLE_CONTACTADDRESS, IInstallableUnit.PROP_CONTACT, Constants.BUNDLE_DOCURL, IInstallableUnit.PROP_DOC_URL};
 	public static final String[] BUNDLE_LOCALIZED_PROPERTIES = {Constants.BUNDLE_NAME, Constants.BUNDLE_DESCRIPTION, Constants.BUNDLE_VENDOR, Constants.BUNDLE_CONTACTADDRESS, Constants.BUNDLE_DOCURL, Constants.BUNDLE_UPDATELOCATION};
 	public static final int BUNDLE_LOCALIZATION_INDEX = BUNDLE_LOCALIZED_PROPERTIES.length;
-
 	public static final String DIR = "dir"; //$NON-NLS-1$
 	public static final String JAR = "jar"; //$NON-NLS-1$
 	private static final String FEATURE_FILENAME_DESCRIPTOR = "feature.xml"; //$NON-NLS-1$
 	private static final String PLUGIN_FILENAME_DESCRIPTOR = "plugin.xml"; //$NON-NLS-1$
 	private static final String FRAGMENT_FILENAME_DESCRIPTOR = "fragment.xml"; //$NON-NLS-1$
-
 	public static String BUNDLE_SHAPE = "Eclipse-BundleShape"; //$NON-NLS-1$
 
 	private File[] locations;
@@ -120,35 +125,22 @@ public class BundlesAction extends AbstractPublisherAction {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
-		return createBundleIU(bd, manifest, isFolderPlugin, key, false);
-	}
-
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, boolean useNestedAdvice) {
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, IPublisherInfo info) {
 		Map manifestLocalizations = null;
-		if (manifest != null && bd.getLocation() != null) {
+		if (manifest != null && bd.getLocation() != null)
 			manifestLocalizations = getManifestLocalizations(manifest, new File(bd.getLocation()));
-		}
-
-		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, useNestedAdvice);
+		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, info);
 	}
 
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations) {
-		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, false);
-	}
-
-	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations, boolean useNestedAdvice) {
-		boolean isBinaryBundle = true;
-		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
-			isBinaryBundle = false;
-		}
+	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations, IPublisherInfo info) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(bd.isSingleton());
 		iu.setId(bd.getSymbolicName());
 		iu.setVersion(bd.getVersion());
 		iu.setFilter(bd.getPlatformFilter());
-
 		iu.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(bd.getSymbolicName(), new VersionRange(new Version(0, 0, 0), true, bd.getVersion(), false), IUpdateDescriptor.NORMAL, null));
+		iu.setArtifacts(new IArtifactKey[] {key});
+		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 
 		boolean isFragment = bd.getHost() != null;
 		//		boolean requiresAFragment = isFragment ? false : requireAFragment(bd, manifest);
@@ -171,9 +163,7 @@ public class BundlesAction extends AbstractPublisherAction {
 			String importPackageName = importSpec.getName();
 			if (importPackageName.indexOf('*') != -1)
 				continue;
-
 			VersionRange versionRange = importSpec.getVersionRange() == VersionRange.emptyRange ? null : importSpec.getVersionRange();
-
 			//TODO this needs to be refined to take into account all the attribute handled by imports
 			reqsDeps.add(MetadataFactory.createRequiredCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, importPackageName, versionRange, null, isOptional(importSpec), false));
 		}
@@ -191,11 +181,10 @@ public class BundlesAction extends AbstractPublisherAction {
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(PublisherHelper.CAPABILITY_NS_JAVA_PACKAGE, exports[i].getName(), exports[i].getVersion() == Version.emptyVersion ? null : exports[i].getVersion()));
 		}
 		// Here we add a bundle capability to identify bundles
-		if (isBinaryBundle)
+		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) //$NON-NLS-1$
 			providedCapabilities.add(BUNDLE_CAPABILITY);
 		else
 			providedCapabilities.add(SOURCE_BUNDLE_CAPABILITY);
-
 		if (isFragment)
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), bd.getVersion()));
 
@@ -211,12 +200,8 @@ public class BundlesAction extends AbstractPublisherAction {
 				providedCapabilities.add(PublisherHelper.makeTranslationCapability(bd.getSymbolicName(), locale));
 			}
 		}
-
 		iu.setCapabilities((ProvidedCapability[]) providedCapabilities.toArray(new ProvidedCapability[providedCapabilities.size()]));
-
-		iu.setArtifacts(new IArtifactKey[] {key});
-
-		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
+		processCapabilityAdvice(iu, bd, info);
 
 		// Set certain properties from the manifest header attributes as IU properties.
 		// The values of these attributes may be localized (strings starting with '%')
@@ -241,29 +226,79 @@ public class BundlesAction extends AbstractPublisherAction {
 		if (isFolderPlugin)
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		touchpointData.put("manifest", toManifestString(manifest)); //$NON-NLS-1$
-
-		if (useNestedAdvice)
-			mergeInstructionsAdvice(touchpointData, getBundleAdvice(bd.getLocation()));
-
+		processInstructionsAdvice(touchpointData, bd.getLocation(), info);
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
+		processPropertiesAdvice(iu, bd.getLocation(), info);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	// TODO need to figure out a mapping of this onto real advice and make this generic
-	private static void mergeInstructionsAdvice(Map touchpointData, Map bundleAdvice) {
-		if (touchpointData == null || bundleAdvice == null)
-			return;
+	/**
+	 * Add all of the advised properties for the bundle at the given location to the given IU.
+	 * @param bundle the bundle IU to decorate
+	 * @param location the location of the bundle
+	 * @param info the publisher info supplying the advice
+	 */
+	private static void processPropertiesAdvice(InstallableUnitDescription bundle, String location, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
+		File bundleFile = new File(location);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IBundleAdvice entry = (IBundleAdvice) i.next();
+			Properties props = entry.getIUProperties(bundleFile);
+			if (props == null)
+				continue;
+			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
+				String key = (String) j.next();
+				bundle.setProperty(key, props.getProperty(key));
+			}
+		}
+	}
 
-		for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
-			if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
-				String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
-				String instructions = touchpointData.containsKey(phase) ? (String) touchpointData.get(phase) : ""; //$NON-NLS-1$
-				if (instructions.length() > 0)
-					instructions += ";"; //$NON-NLS-1$
-				instructions += ((String) bundleAdvice.get(key)).trim();
-				touchpointData.put(phase, instructions);
+	/**
+	 * Add all of the advised provided and required capabilities for the given installable unit.
+	 * @param iu the IU to decorate
+	 * @param info the publisher info supplying the advice
+	 */
+	private static void processCapabilityAdvice(InstallableUnitDescription iu, BundleDescription bundle, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, null, null, ICapabilityAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
+			RequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
+			ProvidedCapability[] providedAdvice = entry.getProvidedCapabilities(iu);
+			if (providedAdvice != null) {
+				RequiredCapability[] current = iu.getRequiredCapabilities();
+				RequiredCapability[] result = new RequiredCapability[requiredAdvice.length + current.length];
+				System.arraycopy(requiredAdvice, 0, result, 0, requiredAdvice.length);
+				System.arraycopy(current, 0, result, requiredAdvice.length, current.length);
+				iu.setRequiredCapabilities(result);
+			}
+			if (providedAdvice != null) {
+				ProvidedCapability[] current = iu.getProvidedCapabilities();
+				ProvidedCapability[] result = new ProvidedCapability[providedAdvice.length + current.length];
+				System.arraycopy(providedAdvice, 0, result, 0, providedAdvice.length);
+				System.arraycopy(current, 0, result, providedAdvice.length, current.length);
+				iu.setCapabilities(result);
+			}
+		}
+	}
+
+	// TODO need to figure out a mapping of this onto real advice and make this generic
+	private static void processInstructionsAdvice(Map touchpointData, String location, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
+		File bundleFile = new File(location);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IBundleAdvice entry = (IBundleAdvice) i.next();
+			Map bundleAdvice = entry.getInstructions(bundleFile);
+			for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
+				String key = (String) iterator.next();
+				if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
+					String phase = key.substring(ADVICE_INSTRUCTIONS_PREFIX.length());
+					String instructions = touchpointData.containsKey(phase) ? (String) touchpointData.get(phase) : ""; //$NON-NLS-1$
+					if (instructions.length() > 0)
+						instructions += ";"; //$NON-NLS-1$
+					instructions += ((String) bundleAdvice.get(key)).trim();
+					touchpointData.put(phase, instructions);
+				}
 			}
 		}
 	}
@@ -390,74 +425,6 @@ public class BundlesAction extends AbstractPublisherAction {
 			unconfigScript += unconfigInfo.getSpecialUnconfigCommands();
 		}
 		return unconfigScript;
-	}
-
-	// TODO not really sure what to do with this method.  Got it from the Generator.  There is
-	// an advice file that needs to be read.  This should likely go in another advice object.
-	/**
-	 * @deprecated
-	 */
-	public static Map getBundleAdvice(String bundleLocation) {
-		if (bundleLocation == null)
-			return Collections.EMPTY_MAP;
-
-		File bundle = new File(bundleLocation);
-		if (!bundle.exists())
-			return Collections.EMPTY_MAP;
-
-		ZipFile jar = null;
-		InputStream stream = null;
-		if (bundle.isDirectory()) {
-			File adviceFile = new File(bundle, BUNDLE_ADVICE_FILE);
-			if (adviceFile.exists()) {
-				try {
-					stream = new BufferedInputStream(new FileInputStream(adviceFile));
-				} catch (IOException e) {
-					return Collections.EMPTY_MAP;
-				}
-			}
-		} else if (bundle.isFile()) {
-			try {
-				jar = new ZipFile(bundle);
-				ZipEntry entry = jar.getEntry(BUNDLE_ADVICE_FILE);
-				if (entry != null)
-					stream = new BufferedInputStream(jar.getInputStream(entry));
-			} catch (IOException e) {
-				if (jar != null)
-					try {
-						jar.close();
-					} catch (IOException e1) {
-						//boo
-					}
-				return Collections.EMPTY_MAP;
-			}
-		}
-
-		Properties advice = null;
-		if (stream != null) {
-			try {
-				advice = new Properties();
-				advice.load(stream);
-			} catch (IOException e) {
-				return Collections.EMPTY_MAP;
-			} finally {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					//boo
-				}
-			}
-		}
-
-		if (jar != null) {
-			try {
-				jar.close();
-			} catch (IOException e) {
-				// boo
-			}
-		}
-
-		return advice != null ? advice : Collections.EMPTY_MAP;
 	}
 
 	private static boolean isOptional(ImportPackageSpecification importedPackage) {
@@ -756,7 +723,7 @@ public class BundlesAction extends AbstractPublisherAction {
 						else
 							publishArtifact(ad, new File(bd.getLocation()), info);
 						// FIXME 1.0 merge - need to consider phase instruction advice here.  See Generator#mergeInstructionsAdvice 
-						IInstallableUnit bundleIU = createBundleIU(bd, bundleManifest, isDir, key);
+						IInstallableUnit bundleIU = createBundleIU(bd, bundleManifest, isDir, key, info);
 
 						if (isFragment(bd)) {
 							// TODO: Can NL fragments be multi-host?  What special handling
@@ -789,7 +756,7 @@ public class BundlesAction extends AbstractPublisherAction {
 		Collection advice = info.getAdvice(null, false, null, null, IBundleAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			IBundleAdvice entry = (IBundleAdvice) i.next();
-			Properties props = entry.getProperties(location);
+			Properties props = entry.getArtifactProperties(location);
 			if (props == null)
 				continue;
 			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
