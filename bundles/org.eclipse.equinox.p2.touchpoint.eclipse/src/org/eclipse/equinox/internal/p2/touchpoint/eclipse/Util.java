@@ -98,18 +98,18 @@ public class Util {
 	public static IFileArtifactRepository getAggregatedBundleRepository(IProfile profile, int repoFilter) {
 		List bundleRepositories = new ArrayList();
 
-		if ((repoFilter & AGGREGATE_CACHE) != 0) {
-			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
-			if (bundlePool != null)
-				bundleRepositories.add(bundlePool);
-		}
-
-		List repos = new ArrayList();
+		// we check for a shared bundle pool first as it should be preferred over the user bundle pool in a shared install
+		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
 		if ((repoFilter & AGGREGATE_SHARED_CACHE) != 0) {
 			String sharedCache = profile.getProperty(IProfile.PROP_SHARED_CACHE);
 			if (sharedCache != null) {
 				try {
-					repos.add(new File(sharedCache).toURL().toExternalForm());
+					URL repoURL = new File(sharedCache).toURL();
+					IArtifactRepository repository = manager.loadRepository(repoURL, null);
+					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
+						bundleRepositories.add(repository);
+				} catch (ProvisionException e) {
+					//skip repository if it could not be read
 				} catch (MalformedURLException e) {
 					// unexpected, URLs should be pre-checked
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
@@ -117,22 +117,27 @@ public class Util {
 			}
 		}
 
-		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0)
-			repos.addAll(getListProfileProperty(profile, CACHE_EXTENSIONS));
+		if ((repoFilter & AGGREGATE_CACHE) != 0) {
+			IFileArtifactRepository bundlePool = Util.getBundlePoolRepository(profile);
+			if (bundlePool != null)
+				bundleRepositories.add(bundlePool);
+		}
 
-		IArtifactRepositoryManager manager = getArtifactRepositoryManager();
-		for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
-			try {
-				String repo = (String) iterator.next();
-				URL repoURL = new URL(repo);
-				IArtifactRepository repository = manager.loadRepository(repoURL, null);
-				if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
-					bundleRepositories.add(repository);
-			} catch (ProvisionException e) {
-				//skip repositories that could not be read
-			} catch (MalformedURLException e) {
-				// unexpected, URLs should be pre-checked
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+		if ((repoFilter & AGGREGATE_CACHE_EXTENSIONS) != 0) {
+			List repos = getListProfileProperty(profile, CACHE_EXTENSIONS);
+			for (Iterator iterator = repos.iterator(); iterator.hasNext();) {
+				try {
+					String repo = (String) iterator.next();
+					URL repoURL = new URL(repo);
+					IArtifactRepository repository = manager.loadRepository(repoURL, null);
+					if (repository != null && repository instanceof IFileArtifactRepository && !bundleRepositories.contains(repository))
+						bundleRepositories.add(repository);
+				} catch (ProvisionException e) {
+					//skip repositories that could not be read
+				} catch (MalformedURLException e) {
+					// unexpected, URLs should be pre-checked
+					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, e.getMessage(), e));
+				}
 			}
 		}
 		return new AggregatedBundleRepository(bundleRepositories);
