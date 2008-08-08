@@ -95,7 +95,7 @@ public class UpdateSite {
 	/*
 	 * Load and return an update site object from the given location.
 	 */
-	public static UpdateSite load(URL location, IProgressMonitor monitor) throws ProvisionException {
+	public static synchronized UpdateSite load(URL location, IProgressMonitor monitor) throws ProvisionException {
 		if (location == null)
 			return null;
 		UpdateSite result = (UpdateSite) siteCache.get(location.toExternalForm());
@@ -371,7 +371,7 @@ public class UpdateSite {
 	/*
 	 * Load and return the features references in this update site.
 	 */
-	public Feature[] loadFeatures() throws ProvisionException {
+	public synchronized Feature[] loadFeatures() throws ProvisionException {
 		Feature[] result = loadFeaturesFromDigest();
 		return result == null ? loadFeaturesFromSite() : result;
 	}
