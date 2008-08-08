@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %bundleName
 Bundle-SymbolicName: org.eclipse.equinox.simpleconfigurator.manipulator;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.100.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: org.eclipse.equinox.internal.simpleconfigurator.manipulator.Activator
 Eclipse-LazyStart: true
@@ -15,8 +15,7 @@ Import-Package: org.eclipse.equinox.internal.frameworkadmin.equinox,
  org.osgi.service.startlevel;version="1.0.0",
  org.osgi.util.tracker
 Bundle-Vendor: %providerName
-Export-Package: org.eclipse.equinox.internal.simpleconfigurator.manipulator;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse",
- org.eclipse.equinox.internal.simpleconfigurator.utils;x-internal:=true
+Export-Package: org.eclipse.equinox.internal.simpleconfigurator.manipulator;x-friends:="org.eclipse.equinox.p2.touchpoint.eclipse"
 Bundle-RequiredExecutionEnvironment: CDC-1.0/Foundation-1.0,
  J2SE-1.4
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"

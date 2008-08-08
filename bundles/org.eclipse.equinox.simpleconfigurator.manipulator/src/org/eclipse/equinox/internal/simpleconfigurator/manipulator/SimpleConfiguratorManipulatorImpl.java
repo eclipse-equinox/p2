@@ -1,12 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
+ * Copyright (c) 2007, 2008 IBM Corporation and others. All rights reserved.
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors: IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.equinox.internal.simpleconfigurator.manipulator;
 
@@ -20,7 +18,6 @@ import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFilePa
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.eclipse.equinox.internal.simpleconfigurator.utils.SimpleConfiguratorConstants;
 import org.osgi.framework.Constants;
 
 public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulator {
@@ -32,12 +29,20 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	private final static boolean DEBUG = false;
 
-	static String CONFIG_LOCATION = SimpleConfiguratorConstants.CONFIG_LIST;
+	static String CONFIG_LOCATION = SimpleConfiguratorManipulatorImpl.CONFIG_LIST;
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 
 	private static final BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
 
 	private Set manipulators = new HashSet();
+
+	public static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl"; //$NON-NLS-1$
+	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation"; //$NON-NLS-1$
+	public static final String CONFIG_LIST = "bundles.info"; //$NON-NLS-1$
+	public static final String CONFIGURATOR_FOLDER = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
+	public static final String PROP_KEY_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
+	public static final String TARGET_CONFIGURATOR_NAME = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
+	public static final String SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME = TARGET_CONFIGURATOR_NAME;
 
 	/**	
 	 * Return the ConfiguratorConfigLocation which is determined 
@@ -73,8 +78,8 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			}
 		}
 		try {
-			baseDir = new File(baseDir, SimpleConfiguratorConstants.CONFIGURATOR_FOLDER);
-			File targetFile = new File(baseDir, SimpleConfiguratorConstants.CONFIG_LIST);
+			baseDir = new File(baseDir, SimpleConfiguratorManipulatorImpl.CONFIGURATOR_FOLDER);
+			File targetFile = new File(baseDir, SimpleConfiguratorManipulatorImpl.CONFIG_LIST);
 			try {
 				Utils.createParentDir(targetFile);
 			} catch (IOException e) {
@@ -137,7 +142,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	private static boolean isTargetConfiguratorBundle(String location) {
 		final String symbolic = Utils.getPathFromClause(Utils.getManifestMainAttributes(location, Constants.BUNDLE_SYMBOLICNAME));
-		return (SimpleConfiguratorConstants.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
+		return (SimpleConfiguratorManipulatorImpl.SERVICE_PROP_VALUE_CONFIGURATOR_SYMBOLICNAME.equals(symbolic));
 	}
 
 	private void algorithm(int initialSl, SortedMap bslToList, BundleInfo configuratorBInfo, List setToInitialConfig, List setToSimpleConfig, LocationInfo info) {
@@ -337,8 +342,8 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 					// (expectedState is an integer).
 					//System.out.println("line=" + line);
-					if (line.startsWith(SimpleConfiguratorConstants.PARAMETER_BASEURL + "=")) {
-						String baseUrlSt = line.substring((SimpleConfiguratorConstants.PARAMETER_BASEURL + "=").length());
+					if (line.startsWith(SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=")) {
+						String baseUrlSt = line.substring((SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=").length());
 						if (!baseUrlSt.endsWith("/"))
 							baseUrlSt += "/";
 						baseUrl = new URL(url, baseUrlSt);
@@ -428,7 +433,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
 		File outputFile = new File(configuratorConfigUrl.getFile());
 		saveConfiguration(setToSimpleConfig, outputFile, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()), backup);
-		configData.setFwIndependentProp(SimpleConfiguratorConstants.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
+		configData.setFwIndependentProp(SimpleConfiguratorManipulatorImpl.PROP_KEY_CONFIGURL, outputFile.toURL().toExternalForm());
 		return orderingInitialConfig(setToInitialConfig);
 	}
 
@@ -629,7 +634,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			}
 
 		Utils.appendProperties(properties, manipulator.getConfigData().getFwIndependentProps());
-		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorConstants.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
+		boolean exclusiveInstallation = Boolean.valueOf(properties.getProperty(SimpleConfiguratorManipulatorImpl.PROP_KEY_EXCLUSIVE_INSTALLATION)).booleanValue();
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
 
 		BundleInfo[] toInstall = this.loadConfiguration(configuratorConfigUrl, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()));
