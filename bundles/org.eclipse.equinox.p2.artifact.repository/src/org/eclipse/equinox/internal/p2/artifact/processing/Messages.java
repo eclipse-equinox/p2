@@ -11,7 +11,7 @@ package org.eclipse.equinox.internal.p2.artifact.processing;
 import org.eclipse.osgi.util.NLS;
 
 public class Messages extends NLS {
-	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.artifact.optimizers.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.artifact.processing.messages"; //$NON-NLS-1$
 
 	public static String Can_not_create_temp_dir;
 	public static String Can_not_delete_temp_dir;
