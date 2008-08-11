@@ -27,6 +27,7 @@ import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static final int AS_IS = 1;
 	public static final String CONFIG_SEGMENT_SEPARATOR = "."; //$NON-NLS-1$
+	private static final String CONFIG_ANY = "ANY"; //$NON-NLS-1$
 
 	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
 		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
@@ -66,6 +67,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 */
 	public static String[] parseConfigSpec(String configSpec) {
 		String[] result = getArrayFromString(configSpec, CONFIG_SEGMENT_SEPARATOR);
+		for (int i = 0; i < result.length; i++)
+			if (result[i].equals("*")) //$NON-NLS-1$
+				result[i] = CONFIG_ANY;
 		return result;
 	}
 
@@ -73,17 +77,20 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * Returns the LDAP filter form that matches the given config spec.  Returns
 	 * an empty String if the spec does not identify an ws, os or arch.
 	 * @param configSpec a config spec to filter
-	 * @return the LDAP filter for the given spec.  
+	 * @return the LDAP filter for the given spec.  <code>null</code> if the given spec does not 
+	 * parse into a filter.
 	 */
 	public static String createFilterSpec(String configSpec) {
 		String[] config = parseConfigSpec(configSpec);
 		if (config[0] != null || config[1] != null || config[2] != null) {
-			String filterWs = config[0] != null ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterOs = config[1] != null ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String filterArch = config[2] != null ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterWs = config[0] != null && config[0] != CONFIG_ANY ? "(osgi.ws=" + config[0] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterOs = config[1] != null && config[1] != CONFIG_ANY ? "(osgi.os=" + config[1] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			String filterArch = config[2] != null && config[2] != CONFIG_ANY ? "(osgi.arch=" + config[2] + ")" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (filterWs.length() == 0 && filterOs.length() == 0 && filterArch.length() == 0)
+				return null;
 			return "(& " + filterWs + filterOs + filterArch + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return ""; //$NON-NLS-1$
+		return null; //$NON-NLS-1$
 	}
 
 	/**

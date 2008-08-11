@@ -76,7 +76,9 @@ public class EclipseInstallAction implements IPublisherAction {
 	}
 
 	protected void createRootAdvice() {
-		info.addAdvice(new RootIUAdvice(getTopLevel()));
+		if (topLevel != null)
+			info.addAdvice(new RootIUAdvice(getTopLevel()));
+		info.addAdvice(new RootIUResultFilterAdvice(null));
 	}
 
 	protected IPublisherAction createDefaultCUsAction() {
@@ -155,7 +157,12 @@ public class EclipseInstallAction implements IPublisherAction {
 	}
 
 	protected File[] computeRootFileExclusions(String configSpec) {
-		return computeExecutables(configSpec).getFiles();
+		ExecutablesDescriptor executables = computeExecutables(configSpec);
+		File[] files = executables.getFiles();
+		File[] result = new File[files.length + 1];
+		System.arraycopy(files, 0, result, 0, files.length);
+		result[files.length] = executables.getIniLocation();
+		return result;
 	}
 
 	protected File[] computeRootFileExclusions() {
@@ -175,6 +182,7 @@ public class EclipseInstallAction implements IPublisherAction {
 
 	protected ExecutablesDescriptor computeExecutables(String configSpec) {
 		String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
+		// TODO here we should not assume that the executable is called "eclipse"
 		return ExecutablesDescriptor.createDescriptor(os, "eclipse", computeExecutableLocation(configSpec)); //$NON-NLS-1$
 	}
 

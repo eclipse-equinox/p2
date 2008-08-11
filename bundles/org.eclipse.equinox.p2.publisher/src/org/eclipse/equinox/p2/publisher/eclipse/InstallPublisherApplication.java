@@ -9,7 +9,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-
 import java.util.ArrayList;
 import org.eclipse.equinox.p2.publisher.*;
 
@@ -73,6 +72,6 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	}
 
 	protected String[] getBaseExclusions() {
-		return new String[] {"plugins", "features", "configuration"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		return new String[] {"plugins", "features", "configuration", "p2", "artifacts.xml"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 	}
 }

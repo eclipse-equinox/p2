@@ -16,6 +16,7 @@ public class ExecutablesDescriptor {
 	private String executableName;
 	private boolean temporary = false;
 	private String os;
+	private File iniFile;
 
 	public static File findExecutable(String os, File root, String baseName) {
 		// TODO this may need to get more intelligent
@@ -79,6 +80,7 @@ public class ExecutablesDescriptor {
 		file = new File(location, "eclipsec.exe"); //$NON-NLS-1$
 		if (file.isFile())
 			result.addFile(file);
+		result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$
 		return result;
 	}
 
@@ -90,6 +92,7 @@ public class ExecutablesDescriptor {
 			if (files[i].isFile() && (extension == null || extension.equals("so"))) //$NON-NLS-1$
 				result.addFile(files[i]);
 		}
+		result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$
 		return result;
 	}
 
@@ -99,7 +102,9 @@ public class ExecutablesDescriptor {
 				return name.substring(name.length() - 4, name.length()).equalsIgnoreCase(".app"); //$NON-NLS-1$
 			}
 		});
-		return new ExecutablesDescriptor(os, executable, location, files);
+		ExecutablesDescriptor result = new ExecutablesDescriptor(os, executable, location, files);
+		result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$
+		return result;
 	}
 
 	public ExecutablesDescriptor(String os, String executable, File location, File[] files) {
@@ -174,6 +179,10 @@ public class ExecutablesDescriptor {
 
 	public File getExecutable() {
 		return findExecutable(os, location, executableName);
+	}
+
+	public File getIniLocation() {
+		return iniFile;
 	}
 
 	public File getLocation() {

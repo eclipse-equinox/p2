@@ -11,9 +11,11 @@ package org.eclipse.equinox.internal.p2.publisher.eclipse;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
+import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
@@ -30,6 +32,7 @@ public class DataLoader {
 	//String filterLauncherVersion = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_VERSION + "=" + props.getProperty("equinox.launcher.version") + ")";
 	private final static String frameworkAdminFillter = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 
+	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL = "org.eclipse.equinox.simpleconfigurator.configUrl"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 
@@ -77,7 +80,17 @@ public class DataLoader {
 		} catch (IOException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error loading config.", e)); //$NON-NLS-1$ //TODO: Fix error string
 		}
-		return manipulator.getConfigData();
+		ConfigData data = manipulator.getConfigData();
+		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
+		if (value != null) {
+			try {
+				data.setFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configurationLocation.toURL()));
+			} catch (MalformedURLException e) {
+				//ignore
+			}
+		}
+
+		return data;
 	}
 
 	public LauncherData getLauncherData() {

@@ -10,7 +10,6 @@
 package org.eclipse.equinox.p2.publisher.actions;
 
 import java.util.Collection;
-import java.util.Iterator;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.AbstractAdvice;
@@ -24,7 +23,9 @@ public class RootIUResultFilterAdvice extends AbstractAdvice implements IRootIUA
 	}
 
 	public Collection getChildren(IPublisherResult result) {
-		Iterator itr = result.getIUs(null, IPublisherResult.ROOT).iterator();
-		return query.perform(itr, new Collector()).toCollection();
+		Collection value = result.getIUs(null, IPublisherResult.ROOT);
+		if (query == null)
+			return value;
+		return query.perform(value.iterator(), new Collector()).toCollection();
 	}
 }
