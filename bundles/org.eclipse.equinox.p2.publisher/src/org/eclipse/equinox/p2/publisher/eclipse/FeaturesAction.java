@@ -465,16 +465,12 @@ public class FeaturesAction extends AbstractPublisherAction {
 	public VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
-			// TODO should really be returning VersionRange.emptyRange here...
-			return null;
+			return VersionRange.emptyRange;
 		Version version = new Version(versionSpec);
-		// if this is an includes then return either a completely open range (if the verison is 0.0.0)
-		// or an exact range
-		if (!entry.isRequires()) {
-			if (version.equals(Version.emptyVersion))
-				return VersionRange.emptyRange;
+		if (version.equals(Version.emptyVersion))
+			return VersionRange.emptyRange;
+		if (!entry.isRequires())
 			return new VersionRange(version, true, version, true);
-		}
 		String match = entry.getMatch();
 		if (match == null)
 			// TODO should really be returning VersionRange.emptyRange here...
