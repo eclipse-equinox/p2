@@ -1093,15 +1093,13 @@ public class MetadataGeneratorHelper {
 
 	public static VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
-		if (versionSpec == null || versionSpec.length() == 0)
-			// TODO should really be returning VersionRange.emptyRange here...
-			return null;
+		if (versionSpec == null)
+			return VersionRange.emptyRange;
 		Version version = new Version(versionSpec);
-		if (!entry.isRequires()) {
-			if ("0.0.0".equals(entry.getVersion())) //$NON-NLS-1$
-				return VersionRange.emptyRange;
+		if (version.equals(Version.emptyVersion))
+			return VersionRange.emptyRange;
+		if (!entry.isRequires())
 			return new VersionRange(version, true, version, true);
-		}
 		String match = entry.getMatch();
 		if (match == null || match.equals("compatible")) { //$NON-NLS-1$
 			Version upper = new Version(version.getMajor() + 1, 0, 0);
