@@ -151,12 +151,13 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			return;
 		}
 
-		boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
+		// TODO need to implement the overwrite story in the repos
+		//		boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
 		// if there is just one file and the mode is as-is, just copy the file into the repo
 		// otherwise, zip up the files and copy the zip into the repo
 		File tempFile = null;
 		try {
-			OutputStream output = destination.getOutputStream(descriptor, overwrite);
+			OutputStream output = destination.getOutputStream(descriptor);
 			if (output == null)
 				return;
 			output = new BufferedOutputStream(output);
@@ -219,8 +220,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				}
 			}
 
-			boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
-			OutputStream output = destination.getOutputStream(descriptor, overwrite);
+			// TODO need to implement the overwrite story in the repos
+			//			boolean overwrite = (info.getArtifactOptions() & IPublisherInfo.A_OVERWRITE) > 0;
+			OutputStream output = destination.getOutputStream(descriptor);
 			if (output == null)
 				return;
 			output = new BufferedOutputStream(output);
