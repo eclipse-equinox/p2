@@ -22,9 +22,15 @@ import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 /**
  * @since 1.0
@@ -405,6 +411,33 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 			assertEquals(2, featureCount);
 		} catch (ProvisionException e) {
 			fail("0.5");
+		}
+	}
+
+	/**
+	 * Tests that a feature requiring a bundle with no range is converted correctly.
+	 */
+	public void testBug243422() {
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		assertNotNull(repoMan);
+		File site = getTestData("Update site", "/testData/updatesite/UpdateSite243422/");
+		IMetadataRepository metadataRepo = null;
+		try {
+			metadataRepo = repoMan.loadRepository(site.toURL(), null);
+		} catch (ProvisionException e) {
+			fail("Can't load repository UpdateSite243422");
+		} catch (MalformedURLException e) {
+			fail("Can't load repository UpdateSite243422");
+		}
+		InstallableUnitQuery query = new InstallableUnitQuery("org.eclipse.jdt.astview.feature.feature.group", new Version("1.0.1"));
+		Collector result = metadataRepo.query(query, new Collector(), null);
+		assertEquals("1.0", 1, result.size());
+		IInstallableUnit featureIU = (IInstallableUnit) result.iterator().next();
+		RequiredCapability[] required = featureIU.getRequiredCapabilities();
+		for (int i = 0; i < required.length; i++) {
+			if (required[i].getName().equals("org.eclipse.ui.ide")) {
+				assertEquals("2.0", VersionRange.emptyRange, required[i].getRange());
+			}
 		}
 	}
 
