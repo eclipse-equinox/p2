@@ -19,7 +19,8 @@ import org.osgi.framework.Version;
 
 /**
  * Create CUs for all Equinox launcher IUs (not fragments) found in the current results
- * such that the corresponding host IU is configured as the launch.library.  
+ * such that the corresponding host IU is configured as the startup code and the fragments
+ * themselves are configured as the launcher.library.  
  */
 public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 
@@ -36,10 +37,6 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 		return Status.OK_STATUS;
 	}
 
-	/**
-	 * Returns the set of all known IUs in the result that are part of the Equinox launcher. 
-	 * @param results the results to scan and supplement
-	 */
 	private void createLauncherCUs(IPublisherResult results) {
 		Collection launchers = getIUs(results.getIUs(null, null), ORG_ECLIPSE_EQUINOX_LAUNCHER);
 		for (Iterator i = launchers.iterator(); i.hasNext();) {
@@ -51,8 +48,13 @@ public class EquinoxLauncherCUAction extends AbstractPublisherAction {
 			GeneratorBundleInfo bundle = new GeneratorBundleInfo();
 			bundle.setSymbolicName(launcherIU.getId());
 			bundle.setVersion(launcherIU.getVersion().toString());
-			bundle.setSpecialConfigCommands("addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
-			bundle.setSpecialUnconfigCommands("removeProgramArg(programArg:-startup);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+			if (launcherIU.getId().equals(ORG_ECLIPSE_EQUINOX_LAUNCHER)) {
+				bundle.setSpecialConfigCommands("addProgramArg(programArg:-startup);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("removeProgramArg(programArg:-startup);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+			} else {
+				bundle.setSpecialConfigCommands("addProgramArg(programArg:--launcher.library);addProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+				bundle.setSpecialUnconfigCommands("removeProgramArg(programArg:--launcher.library);removeProgramArg(programArg:@artifact);"); //$NON-NLS-1$
+			}
 			String filter = launcherIU.getFilter();
 			IInstallableUnit cu = BundlesAction.createBundleConfigurationUnit(bundle.getSymbolicName(), new Version(bundle.getVersion()), false, bundle, flavor, filter);
 			if (cu != null)

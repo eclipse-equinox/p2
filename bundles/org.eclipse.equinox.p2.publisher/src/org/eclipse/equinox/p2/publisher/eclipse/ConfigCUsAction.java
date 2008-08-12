@@ -36,9 +36,31 @@ import org.osgi.framework.*;
 public class ConfigCUsAction extends AbstractPublisherAction {
 
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
+	private static Collection PROPERTIES_TO_SKIP;
+	private static HashSet PROGRAM_ARGS_TO_SKIP;
 	protected String version;
 	protected String id;
 	protected String flavor;
+
+	// TODO consider moving this filtering to the LaunchingAdvice and ConfigAdvice so 
+	// it is not hardcoded in the action.
+	static {
+		PROPERTIES_TO_SKIP = new HashSet();
+		PROPERTIES_TO_SKIP.add("osgi.frameworkClassPath"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("osgi.framework"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("osgi.bundles"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("eof"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("eclipse.p2.profile"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("eclipse.p2.data.area"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("osgi.launcherPath"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("org.eclipse.update.reconcile"); //$NON-NLS-1$
+		PROPERTIES_TO_SKIP.add("org.eclipse.equinox.simpleconfigurator.configUrl"); //$NON-NLS-1$
+
+		PROGRAM_ARGS_TO_SKIP = new HashSet();
+		PROGRAM_ARGS_TO_SKIP.add("--launcher.library"); //$NON-NLS-1$
+		PROGRAM_ARGS_TO_SKIP.add("-startup"); //$NON-NLS-1$
+		PROGRAM_ARGS_TO_SKIP.add("-configuration"); //$NON-NLS-1$
+	}
 
 	public ConfigCUsAction(IPublisherInfo info, String flavor, String id, String version) {
 		this.flavor = flavor;
@@ -137,13 +159,25 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			for (Iterator iterator = advice.getProperties().entrySet().iterator(); iterator.hasNext();) {
 				Entry aProperty = (Entry) iterator.next();
 				String key = ((String) aProperty.getKey());
-				if (key.equals("osgi.frameworkClassPath") || key.equals("osgi.framework") || key.equals("osgi.bundles") || key.equals("eof")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					continue;
-				configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
+				if (shouldPublishProperty(key)) {
+					configurationData += "setProgramProperty(propName:" + key + ", propValue:" + ((String) aProperty.getValue()) + ");"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					unconfigurationData += "setProgramProperty(propName:" + key + ", propValue:);"; //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 		}
 		return new String[] {configurationData, unconfigurationData};
+	}
+
+	private boolean shouldPublishProperty(String key) {
+		return !PROPERTIES_TO_SKIP.contains(key);
+	}
+
+	private boolean shouldPublishJvmArg(String key) {
+		return true;
+	}
+
+	private boolean shouldPublishProgramArg(String key) {
+		return !PROGRAM_ARGS_TO_SKIP.contains(key);
 	}
 
 	protected String[] getLauncherConfigStrings(Collection launchingAdvice) {
@@ -153,18 +187,20 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		for (Iterator j = launchingAdvice.iterator(); j.hasNext();) {
 			ILaunchingAdvice advice = (ILaunchingAdvice) j.next();
 			String[] jvmArgs = advice.getVMArguments();
-			for (int i = 0; i < jvmArgs.length; i++) {
-				configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-				unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			for (int i = 0; i < jvmArgs.length; i++)
+				if (shouldPublishJvmArg(jvmArgs[i])) {
+					configurationData += "addJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+					unconfigurationData += "removeJvmArg(jvmArg:" + jvmArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			String[] programArgs = advice.getProgramArguments();
-			for (int i = 0; i < programArgs.length; i++) {
-				String programArg = programArgs[i];
-				if (programArg.equals("--launcher.library") || programArg.equals("-startup") || programArg.equals("-configuration")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			for (int i = 0; i < programArgs.length; i++)
+				if (shouldPublishProgramArg(programArgs[i])) {
+					configurationData += "addProgramArg(programArg:" + programArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+					unconfigurationData += "removeProgramArg(programArg:" + programArgs[i] + ");"; //$NON-NLS-1$ //$NON-NLS-2$
+				} else
+					// if we are not publishing then skip over the following arg as it is assumed to be a parameter
+					// to this command line arg.
 					i++;
-				configurationData += "addProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-				unconfigurationData += "removeProgramArg(programArg:" + programArg + ");"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
 		}
 		return new String[] {configurationData, unconfigurationData};
 	}

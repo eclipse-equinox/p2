@@ -182,9 +182,9 @@ public class BundlesAction extends AbstractPublisherAction {
 		}
 		// Here we add a bundle capability to identify bundles
 		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) //$NON-NLS-1$
-			providedCapabilities.add(BUNDLE_CAPABILITY);
-		else
 			providedCapabilities.add(SOURCE_BUNDLE_CAPABILITY);
+		else
+			providedCapabilities.add(BUNDLE_CAPABILITY);
 		if (isFragment)
 			providedCapabilities.add(MetadataFactory.createProvidedCapability(CAPABILITY_NS_OSGI_FRAGMENT, bd.getHost().getName(), bd.getVersion()));
 

@@ -67,11 +67,11 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		iu.setSingleton(true);
-		IArtifactKey key = PublisherHelper.createLauncherArtifactKey(executableId, version);
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(executableId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); //$NON-NLS-1$
-		iu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(executableId, version), launcherCapability});
+		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); //$NON-NLS-1$
+		iu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(executableId, version), executableCapability});
 
 		// setup a requirement between the executable and the launcher fragment that has the shared library
 		String[] config = parseConfigSpec(configSpec);
@@ -141,7 +141,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		result.makeTemporaryCopy();
 		File[] list = descriptor.getFiles();
 		for (int i = 0; i < list.length; i++)
-			mungeLauncherFileName(list[i], descriptor);
+			mungeExecutableFileName(list[i], descriptor);
 		result.setExecutableName("eclipse", true); //$NON-NLS-1$
 		return result;
 	}
@@ -152,7 +152,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	 * metadata/artifacts for launchers, or alter the delta pack to contain eclipse-branded
 	 * launchers.
 	 */
-	private void mungeLauncherFileName(File file, ExecutablesDescriptor descriptor) {
+	private void mungeExecutableFileName(File file, ExecutablesDescriptor descriptor) {
 		if (file.getName().equals("launcher")) { //$NON-NLS-1$
 			File newFile = new File(file.getParentFile(), "eclipse"); //$NON-NLS-1$
 			file.renameTo(newFile); //$NON-NLS-1$

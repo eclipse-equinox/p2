@@ -993,7 +993,7 @@ public class PublisherHelper {
 		return createArtifactDescriptor(key, jreLocation);
 	}
 
-	public static ArtifactKey createLauncherArtifactKey(String id, Version version) {
+	public static ArtifactKey createBinaryArtifactKey(String id, Version version) {
 		return new ArtifactKey(BINARY_ARTIFACT_CLASSIFIER, id, version);
 	}
 
@@ -1012,7 +1012,7 @@ public class PublisherHelper {
 		iu.setId(launcherId);
 		iu.setVersion(LAUNCHER_VERSION);
 
-		IArtifactKey key = createLauncherArtifactKey(launcherId, LAUNCHER_VERSION);
+		IArtifactKey key = createBinaryArtifactKey(launcherId, LAUNCHER_VERSION);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setCapabilities(new ProvidedCapability[] {createSelfCapability(launcherId, LAUNCHER_VERSION)});
 		iu.setTouchpointType(TOUCHPOINT_NATIVE);
@@ -1443,7 +1443,7 @@ public class PublisherHelper {
 		iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 
 		// prime the IU with an artifact key that will correspond to the zipped up root files.
-		IArtifactKey key = createLauncherArtifactKey(iu.getId(), iu.getVersion());
+		IArtifactKey key = createBinaryArtifactKey(iu.getId(), iu.getVersion());
 		iu.setArtifacts(new IArtifactKey[] {key});
 		return files;
 	}

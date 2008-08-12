@@ -59,7 +59,7 @@ public class RootFilesAction extends AbstractPublisherAction {
 		iu.setVersion(version);
 		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
-		IArtifactKey key = PublisherHelper.createLauncherArtifactKey(iuId, version);
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(iuId, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		ProvidedCapability launcherCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); //$NON-NLS-1$
