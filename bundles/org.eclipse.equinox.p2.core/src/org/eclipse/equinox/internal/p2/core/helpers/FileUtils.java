@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.osgi.util.NLS;
@@ -159,18 +159,51 @@ public class FileUtils {
 		}
 	}
 
-	public static void zip(File[] sourceFiles, File destinationArchive) throws IOException {
-		zip(sourceFiles, destinationArchive, true);
+	public static void copy(File source, File destination, File root, boolean overwrite) throws IOException {
+		File sourceFile = new File(source, root.getPath());
+		if (!sourceFile.exists())
+			throw new FileNotFoundException("Source: " + sourceFile + " does not exist"); //$NON-NLS-1$//$NON-NLS-2$
+
+		File destinationFile = new File(destination, root.getPath());
+
+		if (destinationFile.exists())
+			if (overwrite)
+				deleteAll(destinationFile);
+			else
+				throw new IOException("Destination: " + destinationFile + " already exists"); //$NON-NLS-1$//$NON-NLS-2$
+		if (sourceFile.isDirectory()) {
+			destinationFile.mkdirs();
+			File[] list = sourceFile.listFiles();
+			for (int i = 0; i < list.length; i++)
+				copy(source, destination, new File(root, list[i].getName()), false);
+		} else {
+			destinationFile.getParentFile().mkdirs();
+			InputStream in = null;
+			OutputStream out = null;
+			try {
+				in = new BufferedInputStream(new FileInputStream(sourceFile));
+				out = new BufferedOutputStream(new FileOutputStream(destinationFile));
+				copyStream(in, false, out, false);
+			} finally {
+				try {
+					if (in != null)
+						in.close();
+				} finally {
+					if (out != null)
+						out.close();
+				}
+			}
+		}
 	}
 
-	public static void zip(File[] sourceFiles, File destinationArchive, boolean includeRoot) throws IOException {
+	public static void zip(File[] inclusions, File[] exclusions, File destinationArchive, IPathComputer pathComputer) throws IOException {
 		ZipOutputStream output = new ZipOutputStream(new FileOutputStream(destinationArchive));
+		HashSet exclusionSet = exclusions == null ? new HashSet() : new HashSet(Arrays.asList(exclusions));
 		try {
-			for (int i = 0; i < sourceFiles.length; i++)
-				if (sourceFiles[i].isDirectory())
-					zipDir(output, sourceFiles[i], includeRoot ? new Path(sourceFiles[i].getName()) : new Path("")); //$NON-NLS-1$
-				else
-					zipFile(output, sourceFiles[i], new Path(""));//$NON-NLS-1$
+			for (int i = 0; i < inclusions.length; i++) {
+				pathComputer.reset();
+				zip(output, inclusions[i], exclusionSet, pathComputer);
+			}
 		} finally {
 			try {
 				// Note! This call will fail miserably if no entries were added to the zip!
@@ -182,35 +215,59 @@ public class FileUtils {
 		}
 	}
 
+	private static void zip(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer) throws IOException {
+		if (exclusions.contains(source))
+			return;
+		if (source.isDirectory()) //if the file path is a URL then isDir and isFile are both false
+			zipDir(output, source, exclusions, pathComputer);
+		else
+			zipFile(output, source, pathComputer);
+	}
+
+	public static interface IPathComputer {
+		public IPath computePath(File source);
+
+		public void reset();
+	}
+
 	/*
 	 * Zip the contents of the given directory into the zip file represented by
 	 * the given zip stream. Prepend the given prefix to the file paths.
 	 */
-	private static void zipDir(ZipOutputStream output, File source, IPath prefix) {
+	private static void zipDir(ZipOutputStream output, File source, Set exclusions, IPathComputer pathComputer) throws IOException {
 		File[] files = source.listFiles();
-		for (int i = 0; i < files.length; i++) {
+		if (files.length == 0) {
 			try {
-				if (files[i].isFile())
-					zipFile(output, files[i], prefix);
-				else
-					zipDir(output, files[i], prefix.append(files[i].getName()));
-			} catch (IOException e) {
-				e.printStackTrace();
+				ZipEntry dirEntry = new ZipEntry(pathComputer.computePath(source).toString() + "/"); //$NON-NLS-1$
+				dirEntry.setTime(source.lastModified());
+				output.putNextEntry(dirEntry);
+			} catch (ZipException ze) {
+				//TODO: something about duplicate entries
+			} finally {
+				try {
+					output.closeEntry();
+				} catch (IOException e) {
+					// ignore
+				}
 			}
 		}
+		for (int i = 0; i < files.length; i++)
+			zip(output, files[i], exclusions, pathComputer);
 	}
 
 	/*
 	 * Add the given file to the zip file represented by the specified stream.
 	 * Prepend the given prefix to the path of the file.
 	 */
-	private static void zipFile(ZipOutputStream output, File sourceFile, IPath prefix) throws IOException {
-		InputStream input = new FileInputStream(sourceFile);
+	private static void zipFile(ZipOutputStream output, File source, IPathComputer pathComputer) throws IOException {
+		InputStream input = new FileInputStream(source);
 		try {
-			ZipEntry zipEntry = new ZipEntry(prefix.append(sourceFile.getName()).toString());
-			zipEntry.setTime(sourceFile.lastModified());
+			ZipEntry zipEntry = new ZipEntry(pathComputer.computePath(source).toString());
+			zipEntry.setTime(source.lastModified());
 			output.putNextEntry(zipEntry);
 			copyStream(input, true, output, false);
+		} catch (ZipException ze) {
+			//TODO: something about duplicate entries, and rethrow other exceptions
 		} finally {
 			try {
 				input.close();
@@ -223,5 +280,51 @@ public class FileUtils {
 				// ignore
 			}
 		}
+	}
+
+	public static IPathComputer createRootPathComputer(final File root) {
+		return new IPathComputer() {
+			public IPath computePath(File source) {
+				IPath result = new Path(source.getAbsolutePath());
+				IPath rootPath = new Path(root.getAbsolutePath());
+				result = result.removeFirstSegments(rootPath.matchingFirstSegments(result));
+				return result.setDevice(null);
+			}
+
+			public void reset() {
+			}
+		};
+	}
+
+	public static IPathComputer createDynamicPathComputer(final int segmentsToKeep) {
+		return new IPathComputer() {
+			IPathComputer computer = null;
+
+			public IPath computePath(File source) {
+				if (computer == null) {
+					IPath sourcePath = new Path(source.getAbsolutePath());
+					sourcePath = sourcePath.removeLastSegments(segmentsToKeep);
+					computer = createRootPathComputer(sourcePath.toFile());
+				}
+				return computer.computePath(source);
+			}
+
+			public void reset() {
+				computer = null;
+			}
+		};
+	}
+
+	public static IPathComputer createParentPrefixComputer(final int segmentsToKeep) {
+		return new IPathComputer() {
+			public IPath computePath(File source) {
+				IPath sourcePath = new Path(source.getAbsolutePath());
+				sourcePath = sourcePath.removeFirstSegments(Math.max(0, sourcePath.segmentCount() - segmentsToKeep));
+				return sourcePath.setDevice(null);
+			}
+
+			public void reset() {
+			}
+		};
 	}
 }

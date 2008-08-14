@@ -33,6 +33,22 @@ public class MetadataFactory {
 			unit().addTouchpointData(data);
 		}
 
+		public String getId() {
+			return unit().getId();
+		}
+
+		public Version getVersion() {
+			return unit().getVersion();
+		}
+
+		public RequiredCapability[] getRequiredCapabilities() {
+			return unit.getRequiredCapabilities();
+		}
+
+		public ProvidedCapability[] getProvidedCapabilities() {
+			return unit.getProvidedCapabilities();
+		}
+
 		public void setApplicabilityFilter(String ldapFilter) {
 			unit().setApplicabilityFilter(ldapFilter);
 		}

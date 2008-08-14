@@ -1261,7 +1261,7 @@ public class Generator {
 			File tempFile = null;
 			try {
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				FileUtils.zip(files, tempFile);
+				FileUtils.zip(files, null, tempFile, FileUtils.createDynamicPathComputer(0));
 				if (!destination.contains(descriptor)) {
 					destination.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));

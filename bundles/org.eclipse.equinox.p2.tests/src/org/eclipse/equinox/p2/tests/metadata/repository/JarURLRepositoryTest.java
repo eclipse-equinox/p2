@@ -69,8 +69,8 @@ public class JarURLRepositoryTest extends TestCase {
 		IMetadataRepository repository = manager.createRepository(testRepo.toURL(), "testRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 		provider.setMetadataRepository(repository);
 		new Generator(provider).generate();
-		FileUtils.zip(new File[] {testRepo}, new File(tempDir, "testRepo.jar"));
 		testRepoJar = new File(tempDir, "testRepo.jar");
+		FileUtils.zip(new File[] {testRepo}, null, testRepoJar, FileUtils.createDynamicPathComputer(1));
 		assertTrue(testRepoJar.exists());
 		testRepoJar.deleteOnExit();
 		deleteDirectory(testRepo);
@@ -84,7 +84,7 @@ public class JarURLRepositoryTest extends TestCase {
 	public void testJarURLRepository() throws ProvisionException {
 		URL jarRepoURL = null;
 		try {
-			jarRepoURL = new URL("jar:" + testRepoJar.toURL().toString() + "!/testRepo/");
+			jarRepoURL = new URL("jar:" + testRepoJar.toURL().toString() + "!/");
 		} catch (MalformedURLException e) {
 			fail(e.getMessage());
 		}

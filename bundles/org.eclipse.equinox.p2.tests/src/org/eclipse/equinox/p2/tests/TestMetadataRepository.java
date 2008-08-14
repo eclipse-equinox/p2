@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.AbstractMetadataRepository;
+import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.RepositoryReference;
 import org.osgi.framework.Version;
 
 /**
@@ -34,6 +35,7 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 	private static final String TYPE = "testmetadatarepo"; //$NON-NLS-1$
 	private static final String VERSION = "1"; //$NON-NLS-1$
 	private final List units = new ArrayList();
+	protected HashSet repositories = new HashSet();
 
 	private static URL createLocation() {
 		try {
@@ -91,5 +93,19 @@ public class TestMetadataRepository extends AbstractMetadataRepository {
 		this.location = state.Location;
 		this.properties = state.Properties;
 		this.units.addAll(Arrays.asList(state.Units));
+		this.repositories.addAll(Arrays.asList(state.Repositories));
+	}
+
+	public synchronized void addReference(URL repositoryLocation, int repositoryType, int options) {
+		assertModifiable();
+		repositories.add(new RepositoryReference(repositoryLocation, repositoryType, options));
+	}
+
+	/**
+	 * Asserts that this repository is modifiable, throwing a runtime exception if
+	 * it is not. This is suitable for use by subclasses when an attempt is made
+	 * to write to a repository.
+	 */
+	protected void assertModifiable() {
 	}
 }

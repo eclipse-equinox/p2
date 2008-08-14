@@ -430,7 +430,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 			File zipFile = null;
 			try {
 				zipFile = File.createTempFile(artifactFolder.getName(), JAR_EXTENSION, null);
-				FileUtils.zip(artifactFolder.listFiles(), zipFile);
+				FileUtils.zip(artifactFolder.listFiles(), null, zipFile, FileUtils.createRootPathComputer(artifactFolder));
 				FileInputStream fis = new FileInputStream(zipFile);
 				FileUtils.copyStream(fis, true, destination, false);
 			} catch (IOException e) {
@@ -720,6 +720,7 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 		} catch (IOException e) {
 			throw failedWrite(e);
 		}
+
 	}
 
 	private ProvisionException failedWrite(Exception e) throws ProvisionException {
@@ -906,5 +907,4 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 	public String toString() {
 		return location.toExternalForm();
 	}
-
 }

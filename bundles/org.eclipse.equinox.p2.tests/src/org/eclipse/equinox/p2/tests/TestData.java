@@ -119,13 +119,13 @@ public class TestData {
 
 	/**
 	 * Assert equality of zip input streams.
-	 * @param input1
-	 * @param input2
+	 * @param expected
+	 * @param actual
 	 * @throws IOException
 	 */
-	public static void assertEquals(ZipInputStream input1, ZipInputStream input2) throws IOException {
-		Map jar1 = getEntries(input1);
-		Map jar2 = getEntries(input2);
+	public static void assertEquals(ZipInputStream expected, ZipInputStream actual) throws IOException {
+		Map jar1 = getEntries(expected);
+		Map jar2 = getEntries(actual);
 		for (Iterator i = jar1.keySet().iterator(); i.hasNext();) {
 			String name = (String) i.next();
 			Object[] file1 = (Object[]) jar1.get(name);
@@ -151,13 +151,40 @@ public class TestData {
 		Assert.assertTrue(jar2.size() == 0);
 	}
 
+	/**
+	 * Asserts that the file bytes in <code>fileList</code> are contained in <code>input2</code>
+	 * by matching the entry name with the root's path + fileList path.
+	 * 
+	 * @param fileMap a map of files to verify in <code>input2</code> keyed by relative paths
+	 * i.e. Map<String filePath, File fileBytes>
+	 * @param input2
+	 * @throws IOException
+	 */
+	public static void assertContains(Map fileMap, ZipInputStream input2, boolean compareContent) throws IOException {
+		Map jar2 = getEntries(input2);
+
+		for (Iterator i = fileMap.keySet().iterator(); i.hasNext();) {
+			String name = (String) i.next();
+			Object[] file1 = (Object[]) fileMap.get(name);
+			Object[] file2 = (Object[]) jar2.remove(name);
+			Assert.assertNotNull(file2);
+
+			File entry1 = (File) file1[0];
+			ZipEntry entry2 = (ZipEntry) file2[0];
+			Assert.assertTrue(entry1.isDirectory() == entry2.isDirectory());
+
+			// check the content of the entries
+			if (compareContent)
+				Assert.assertTrue(Arrays.equals((byte[]) file1[1], (byte[]) file2[1]));
+		}
+	}
+
 	private static Map getEntries(ZipInputStream input) throws IOException {
 		Map result = new HashMap();
 		while (true) {
 			ZipEntry entry = input.getNextEntry();
 			if (entry == null)
 				return result;
-
 			ByteArrayOutputStream content = new ByteArrayOutputStream();
 			FileUtils.copyStream(input, false, content, true);
 			input.closeEntry();
