@@ -12,19 +12,31 @@ import org.eclipse.equinox.internal.p2.metadata.InstallableUnit;
 
 public class InstallableUnitPatch extends InstallableUnit implements IInstallableUnitPatch {
 	private RequirementChange[] changes;
-	private RequiredCapability[][] scope;
 	private RequiredCapability lifeCycle;
+	private RequiredCapability[][] scope;
 
-	public void setRequirementsChange(RequirementChange[] changes) {
-		this.changes = changes;
+	private void addRequiredCapability(RequiredCapability[] toAdd) {
+		RequiredCapability[] current = super.getRequiredCapabilities();
+		RequiredCapability[] result = new RequiredCapability[current.length + toAdd.length];
+		System.arraycopy(current, 0, result, 0, current.length);
+		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
+		setRequiredCapabilities(result);
+	}
+
+	public RequiredCapability[][] getApplicabilityScope() {
+		return scope;
+	}
+
+	public RequiredCapability getLifeCycle() {
+		return lifeCycle;
 	}
 
 	public RequirementChange[] getRequirementsChange() {
 		return changes;
 	}
 
-	public RequiredCapability getLifeCycle() {
-		return lifeCycle;
+	public void setApplicabilityScope(RequiredCapability[][] applyTo) {
+		scope = applyTo;
 	}
 
 	public void setLifeCycle(RequiredCapability lifeCycle) {
@@ -34,19 +46,7 @@ public class InstallableUnitPatch extends InstallableUnit implements IInstallabl
 		addRequiredCapability(new RequiredCapability[] {lifeCycle});
 	}
 
-	public RequiredCapability[][] getApplicabilityScope() {
-		return scope;
-	}
-
-	public void setApplicabilityScope(RequiredCapability[][] applyTo) {
-		scope = applyTo;
-	}
-
-	private void addRequiredCapability(RequiredCapability[] toAdd) {
-		RequiredCapability[] current = super.getRequiredCapabilities();
-		RequiredCapability[] result = new RequiredCapability[current.length + toAdd.length];
-		System.arraycopy(current, 0, result, 0, current.length);
-		System.arraycopy(toAdd, 0, result, current.length, toAdd.length);
-		setRequiredCapabilities(result);
+	public void setRequirementsChange(RequirementChange[] changes) {
+		this.changes = changes;
 	}
 }
