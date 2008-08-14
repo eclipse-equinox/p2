@@ -18,6 +18,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -65,6 +66,33 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 			assertEquals("1.1", IStatus.ERROR, e.getStatus().getSeverity());
 			assertEquals("1.2", ProvisionException.REPOSITORY_NOT_FOUND, e.getStatus().getCode());
 		}
+	}
+
+	/**
+	 * Tests that trailing slashes do not affect repository identity.
+	 */
+	public void testTrailingSlashes() {
+		File site = getTestData("Update site", "/testData/artifactRepo/simple/");
+		URL locationSlash, locationNoSlash;
+		try {
+			locationSlash = site.toURL();
+			String locationString = locationSlash.toExternalForm();
+			locationString = locationString.substring(0, locationString.length() - 1);
+			locationNoSlash = new URL(locationString);
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
+			return;
+		}
+
+		manager.addRepository(locationNoSlash);
+		try {
+			IArtifactRepository repoSlash = manager.loadRepository(locationSlash, null);
+			IArtifactRepository repoNoSlash = manager.loadRepository(locationNoSlash, null);
+			assertTrue("1.0", repoNoSlash == repoSlash);
+		} catch (ProvisionException e) {
+			fail("1.99", e);
+		}
+
 	}
 
 	public void testBasicAddRemove() throws MalformedURLException {
