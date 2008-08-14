@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   IBM Corporation - initial API and implementation
+ *   Genuitec LLC - various bug fixes
  ******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -15,7 +16,8 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
-import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
@@ -167,16 +169,7 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			String key = getKey(location);
-			if (repositories.containsKey(key))
-				return true;
-			//try alternate key with different trailing slash
-			int len = key.length();
-			if (key.charAt(len - 1) == '_')
-				key = key.substring(0, len - 1);
-			else
-				key = key + '_';
-			return repositories.containsKey(key);
+			return repositories.containsKey(getKey(location));
 		}
 	}
 
@@ -209,27 +202,30 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public IArtifactRepository createRepository(URL location, String name, String type, Map properties) throws ProvisionException {
-		boolean loaded = false;
-		try {
-			loadRepository(location, (IProgressMonitor) null, type, true);
-			loaded = true;
-		} catch (ProvisionException e) {
-			//expected - fall through and create a new repository
+		synchronized (repositoryLock) {
+
+			boolean loaded = false;
+			try {
+				loadRepository(location, (IProgressMonitor) null, type, true);
+				loaded = true;
+			} catch (ProvisionException e) {
+				//expected - fall through and create a new repository
+			}
+			if (loaded)
+				fail(location, ProvisionException.REPOSITORY_EXISTS);
+			IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
+			if (extension == null)
+				fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
+			IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
+			if (factory == null)
+				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+			IArtifactRepository result = factory.create(location, name, type, properties);
+			if (result == null)
+				fail(location, ProvisionException.REPOSITORY_FAILED_READ);
+			clearNotFound(result.getLocation());
+			addRepository(result);
+			return result;
 		}
-		if (loaded)
-			fail(location, ProvisionException.REPOSITORY_EXISTS);
-		IExtension extension = RegistryFactory.getRegistry().getExtension(Activator.REPO_PROVIDER_XPT, type);
-		if (extension == null)
-			fail(location, ProvisionException.REPOSITORY_UNKNOWN_TYPE);
-		IArtifactRepositoryFactory factory = (IArtifactRepositoryFactory) createExecutableExtension(extension, EL_FACTORY);
-		if (factory == null)
-			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		IArtifactRepository result = factory.create(location, name, type, properties);
-		if (result == null)
-			fail(location, ProvisionException.REPOSITORY_FAILED_READ);
-		clearNotFound(result.getLocation());
-		addRepository(result);
-		return result;
 	}
 
 	private void fail(URL location, int code) throws ProvisionException {
@@ -308,7 +304,10 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	 * is suitable for use as a preference node name.
 	 */
 	private String getKey(URL location) {
-		return location.toExternalForm().replace('/', '_');
+		String key = location.toExternalForm().replace('/', '_');
+		if (key.endsWith("_")) //$NON-NLS-1$
+			key = key.substring(0, key.length() - 1);
+		return key;
 	}
 
 	public URL[] getKnownRepositories(int flags) {
@@ -337,19 +336,14 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
-				RepositoryInfo info = (RepositoryInfo) it.next();
-				if (URLUtil.sameURL(info.location, location)) {
-					if (info.repository == null)
-						return null;
-					IArtifactRepository repo = (IArtifactRepository) info.repository.get();
-					//update our repository info because the repository may have changed
-					if (repo != null)
-						addRepository(repo);
-					return repo;
-				}
-			}
-			return null;
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null || info.repository == null)
+				return null;
+			IArtifactRepository repo = (IArtifactRepository) info.repository.get();
+			//update our repository info because the repository may have changed
+			if (repo != null)
+				addRepository(repo);
+			return repo;
 		}
 	}
 
@@ -361,20 +355,16 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
-				RepositoryInfo info = (RepositoryInfo) it.next();
-				if (URLUtil.sameURL(info.location, location)) {
-					if (IRepository.PROP_DESCRIPTION.equals(key))
-						return info.description;
-					if (IRepository.PROP_NAME.equals(key))
-						return info.name;
-					if (IRepository.PROP_SYSTEM.equals(key))
-						return Boolean.toString(info.isSystem);
-					// Key not known, return null
-					return null;
-				}
-			}
-			// Repository not found, return null
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info == null)
+				return null;// Repository not found
+			if (IRepository.PROP_DESCRIPTION.equals(key))
+				return info.description;
+			if (IRepository.PROP_NAME.equals(key))
+				return info.name;
+			if (IRepository.PROP_SYSTEM.equals(key))
+				return Boolean.toString(info.isSystem);
+			// Key not known, return null
 			return null;
 		}
 	}
@@ -387,12 +377,9 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
-			for (Iterator it = repositories.values().iterator(); it.hasNext();) {
-				RepositoryInfo info = (RepositoryInfo) it.next();
-				if (URLUtil.sameURL(info.location, location)) {
-					return info.isEnabled;
-				}
-			}
+			RepositoryInfo info = (RepositoryInfo) repositories.get(getKey(location));
+			if (info != null)
+				return info.isEnabled;
 			// Repository not found, return false
 			return false;
 		}
@@ -404,26 +391,26 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 
 	private IArtifactRepository loadRepository(URL location, IProgressMonitor monitor, String type, boolean signalAdd) throws ProvisionException {
 		// TODO do something with the monitor
-		IArtifactRepository result = getRepository(location);
-		if (result != null)
-			return result;
-		if (checkNotFound(location))
-			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		String[] suffixes = sortSuffixes(getAllSuffixes(), location);
-		SubMonitor sub = SubMonitor.convert(monitor, suffixes.length * 100);
-		for (int i = 0; i < suffixes.length; i++) {
-			result = loadRepository(location, suffixes[i], type, sub.newChild(100));
-			if (result != null) {
-				addRepository(result, signalAdd, suffixes[i]);
+		synchronized (repositoryLock) {
+			IArtifactRepository result = getRepository(location);
+			if (result != null)
 				return result;
+			if (checkNotFound(location))
+				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+			String[] suffixes = sortSuffixes(getAllSuffixes(), location);
+			SubMonitor sub = SubMonitor.convert(monitor, suffixes.length * 100);
+			for (int i = 0; i < suffixes.length; i++) {
+				result = loadRepository(location, suffixes[i], type, sub.newChild(100));
+				if (result != null) {
+					addRepository(result, signalAdd, suffixes[i]);
+					return result;
+				}
 			}
+			if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
+				removeRepository(location);
+			else
+				rememberNotFound(location);
 		}
-
-		if (Boolean.valueOf(getRepositoryProperty(location, IRepository.PROP_SYSTEM)).booleanValue())
-			removeRepository(location);
-		else
-			rememberNotFound(location);
-
 		fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
 		return null;
 	}
@@ -495,22 +482,24 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 	}
 
 	public IArtifactRepository refreshRepository(URL location, IProgressMonitor monitor) throws ProvisionException {
-		clearNotFound(location);
-		boolean wasEnabled = isEnabled(location);
-		//remove the repository so  event is broadcast and repositories can clear their caches
-		if (!removeRepository(location))
-			fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
-		try {
-			IArtifactRepository result = loadRepository(location, monitor, null, true);
-			if (!wasEnabled)
-				setEnabled(location, false);
-			return result;
-		} catch (ProvisionException e) {
-			//if we failed to load, make sure the repository is not lost
-			addRepository(location);
-			if (!wasEnabled)
-				setEnabled(location, false);
-			throw e;
+		synchronized (repositoryLock) {
+			clearNotFound(location);
+			boolean wasEnabled = isEnabled(location);
+			//remove the repository so  event is broadcast and repositories can clear their caches
+			if (!removeRepository(location))
+				fail(location, ProvisionException.REPOSITORY_NOT_FOUND);
+			try {
+				IArtifactRepository result = loadRepository(location, monitor, null, true);
+				if (!wasEnabled)
+					setEnabled(location, false);
+				return result;
+			} catch (ProvisionException e) {
+				//if we failed to load, make sure the repository is not lost
+				addRepository(location);
+				if (!wasEnabled)
+					setEnabled(location, false);
+				throw e;
+			}
 		}
 	}
 

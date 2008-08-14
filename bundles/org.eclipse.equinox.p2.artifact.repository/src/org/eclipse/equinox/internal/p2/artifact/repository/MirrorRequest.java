@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *		compeople AG (Stefan Liebig) - various ongoing maintenance
+ *   	Genuitec LLC - various bug fixes
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
@@ -101,14 +102,21 @@ public class MirrorRequest extends ArtifactRequest {
 			setResult(Status.CANCEL_STATUS);
 			return;
 		}
-		if (status.isOK() || descriptor == canonical || canonical == null) {
+		if (status.isOK()) {
 			setResult(status);
 			return;
 		}
 
-		// retry with canonical, first remove possibly erroneously added descriptor
+		// failed, first remove possibly erroneously added descriptor
 		if (target.contains(destinationDescriptor))
 			target.removeDescriptor(destinationDescriptor);
+
+		if (descriptor == canonical || canonical == null) {
+			setResult(status);
+			return;
+		}
+
+		// try with canonical
 		setResult(transfer(getDestinationDescriptor(canonical), canonical, monitor));
 	}
 
