@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.metadata;
 
+import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
+
 import java.io.*;
 import java.util.*;
 import javax.xml.parsers.ParserConfigurationException;
