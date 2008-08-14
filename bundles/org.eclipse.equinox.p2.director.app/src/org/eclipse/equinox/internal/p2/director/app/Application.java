@@ -447,12 +447,11 @@ public class Application implements IApplication {
 		ProfileChangeRequest request = new ProfileChangeRequest(profile);
 		if (!Boolean.valueOf(profile.getProperty(IProfile.PROP_ROAMING)).booleanValue())
 			return Status.OK_STATUS;
-		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER)))) {
+		File destinationFile = destination.toFile();
+		if (!destinationFile.equals(new File(profile.getProperty(IProfile.PROP_INSTALL_FOLDER))))
 			request.setProfileProperty(IProfile.PROP_INSTALL_FOLDER, destination.toOSString());
-		}
-		if (!destination.equals(new File(profile.getProperty(IProfile.PROP_CACHE)))) {
+		if (!destinationFile.equals(new File(profile.getProperty(IProfile.PROP_CACHE))))
 			request.setProfileProperty(IProfile.PROP_CACHE, destination.toOSString());
-		}
 		if (request.getProfileProperties().size() == 0)
 			return Status.OK_STATUS;
 
