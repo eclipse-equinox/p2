@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata;
 
-import org.eclipse.equinox.internal.p2.metadata.InstallableUnitPatch;
-
 import java.util.*;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.equinox.internal.p2.metadata.*;
@@ -44,11 +42,35 @@ public class MetadataFactory {
 		}
 
 		public RequiredCapability[] getRequiredCapabilities() {
-			return unit.getRequiredCapabilities();
+			return unit().getRequiredCapabilities();
+		}
+
+		public void addRequiredCapabilities(Collection addtional) {
+			if (addtional == null || addtional.size() == 0)
+				return;
+			RequiredCapability[] current = unit().getRequiredCapabilities();
+			RequiredCapability[] result = new RequiredCapability[addtional.size() + current.length];
+			System.arraycopy(current, 0, result, 0, current.length);
+			int j = current.length;
+			for (Iterator i = addtional.iterator(); i.hasNext();)
+				result[j++] = (RequiredCapability) i.next();
+			unit().setRequiredCapabilities(result);
 		}
 
 		public ProvidedCapability[] getProvidedCapabilities() {
-			return unit.getProvidedCapabilities();
+			return unit().getProvidedCapabilities();
+		}
+
+		public void addProvidedCapabilities(Collection addtional) {
+			if (addtional == null || addtional.size() == 0)
+				return;
+			ProvidedCapability[] current = unit().getProvidedCapabilities();
+			ProvidedCapability[] result = new ProvidedCapability[addtional.size() + current.length];
+			System.arraycopy(current, 0, result, 0, current.length);
+			int j = current.length;
+			for (Iterator i = addtional.iterator(); i.hasNext();)
+				result[j++] = (ProvidedCapability) i.next();
+			unit().setCapabilities(result);
 		}
 
 		public void setApplicabilityFilter(String ldapFilter) {
@@ -104,8 +126,10 @@ public class MetadataFactory {
 		}
 
 		InstallableUnit unit() {
-			if (unit == null)
+			if (unit == null) {
 				unit = new InstallableUnit();
+				unit.setArtifacts(new IArtifactKey[0]);
+			}
 			return unit;
 		}
 
