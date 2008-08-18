@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.metadata.generator;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxFwConfigFileParser;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxManipulatorImpl;
+import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.generator.Activator;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
@@ -43,6 +43,8 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_MANIPULATOR = "org.eclipse.equinox.simpleconfigurator.manipulator"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_FRAMEWORKADMIN_EQUINOX = "org.eclipse.equinox.frameworkadmin.equinox"; //$NON-NLS-1$
 	private static final String ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS = "org.eclipse.equinox.p2.reconciler.dropins"; //$NON-NLS-1$
+
+	private static final String PARAMETER_BASEURL = "org.eclipse.equinox.simpleconfigurator.baseUrl"; //$NON-NLS-1$
 
 	/*
 	 * 	TODO: Temporary for determining whether eclipse installs
@@ -242,6 +244,16 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		String value = data.getFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL);
 		if (value != null) {
 			try {
+				//config.ini uses simpleconfigurator, read the bundles.info and replace the bundle infos
+				BundleInfo[] bundleInfos = readConfiguration(new URL(value));
+				data.setBundles(bundleInfos);
+			} catch (MalformedURLException e1) {
+				// ignore
+			} catch (IOException e1) {
+				// ignore
+			}
+
+			try {
 				data.setFwIndependentProp(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR_CONFIGURL, EquinoxManipulatorImpl.makeRelative(value, configLocation.toURL()));
 			} catch (MalformedURLException e) {
 				//ignore
@@ -249,6 +261,81 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		}
 
 		return data;
+	}
+
+	public static BundleInfo[] readConfiguration(URL url) throws IOException {
+		List bundles = new ArrayList();
+		try {
+			// System.out.println("readConfiguration(URL url):url()=" + url);
+			// URL configFileUrl = getConfigFileUrl();
+			// URL configFileUrl = Utils.getUrl("file",null,
+			// inputFile.getAbsolutePath());
+			BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
+			// BufferedReader r = new BufferedReader(new FileReader(inputFile));
+
+			String line;
+			try {
+				URL baseUrl = new URL(url, "./"); //$NON-NLS-1$
+				while ((line = r.readLine()) != null) {
+					if (line.startsWith("#")) //$NON-NLS-1$
+						continue;
+					line = line.trim();// symbolicName,version,location,startlevel,expectedState
+					if (line.length() == 0)
+						continue;
+
+					// (expectedState is an integer).
+					if (line.startsWith(PARAMETER_BASEURL + "=")) { //$NON-NLS-1$
+						String baseUrlSt = line.substring((PARAMETER_BASEURL + "=").length()); //$NON-NLS-1$
+						if (!baseUrlSt.endsWith("/")) //$NON-NLS-1$
+							baseUrlSt += "/"; //$NON-NLS-1$
+						baseUrl = new URL(url, baseUrlSt);
+						continue;
+					}
+					StringTokenizer tok = new StringTokenizer(line, ",", true); //$NON-NLS-1$
+					String symbolicName = tok.nextToken();
+					if (symbolicName.equals(",")) //$NON-NLS-1$
+						symbolicName = null;
+					else
+						tok.nextToken(); // ,
+
+					String version = tok.nextToken();
+					if (version.equals(",")) //$NON-NLS-1$
+						version = null;
+					else
+						tok.nextToken(); // ,
+
+					String urlSt = tok.nextToken();
+					if (urlSt.equals(",")) { //$NON-NLS-1$
+						if (symbolicName != null && version != null)
+							urlSt = symbolicName + "_" + version + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
+						else
+							urlSt = null;
+					} else
+						tok.nextToken(); // ,
+					try {
+						new URL(urlSt);
+					} catch (MalformedURLException e) {
+						urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
+					}
+
+					int sl = Integer.parseInt(tok.nextToken().trim());
+					tok.nextToken(); // ,
+					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
+
+					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
+					bundles.add(bInfo);
+				}
+			} finally {
+				try {
+					r.close();
+				} catch (IOException ex) {
+					// ignore
+				}
+			}
+		} catch (MalformedURLException e) {
+			// TODO log something
+		}
+		return (BundleInfo[]) bundles.toArray(new BundleInfo[bundles.size()]);
 	}
 
 	public File getConfigurationLocation() {
