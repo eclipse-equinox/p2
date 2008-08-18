@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.eclipse.EclipseInstallAction;
+import org.osgi.framework.Version;
 
 /**
  * An Ant task to call the p2 Metadata Generator application.
@@ -107,7 +108,7 @@ public class GeneratorTask extends Task {
 			return new IPublisherAction[] {};
 		if (operation.equals("-source")) //$NON-NLS-1$
 			// TODO what to do in this case?
-			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, rootVersion, rootName, flavor, topLevel, nonRootFiles, start)};
+			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, new Version(rootVersion), rootName, flavor, topLevel, nonRootFiles, start)};
 		// TODO what to do in this case?
 		return new IPublisherAction[] {};
 	}

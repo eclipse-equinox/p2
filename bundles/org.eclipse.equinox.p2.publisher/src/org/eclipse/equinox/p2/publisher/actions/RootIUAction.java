@@ -26,13 +26,13 @@ import org.osgi.framework.Version;
  */
 public class RootIUAction extends AbstractPublisherAction {
 
-	private String version;
+	private Version version;
 	private String id;
 	private String name;
 	private Collection versionAdvice;
 	private IPublisherInfo info;
 
-	public RootIUAction(String id, String version, String name) {
+	public RootIUAction(String id, Version version, String name) {
 		this.id = id;
 		this.version = version;
 		this.name = name;
@@ -47,6 +47,7 @@ public class RootIUAction extends AbstractPublisherAction {
 	protected void generateRootIU(IPublisherResult result) {
 		Collection children = getChildren(result);
 		InstallableUnitDescription descriptor = createTopLevelIUDescription(children, id, version, name, null, false);
+		processCapabilityAdvice(descriptor, info);
 		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
 		if (rootIU == null)
 			return;
@@ -129,20 +130,14 @@ public class RootIUAction extends AbstractPublisherAction {
 		return null;
 	}
 
-	protected static InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, String version, String name, Collection requires, boolean configureLauncherData) {
+	public static InstallableUnitDescription createTopLevelIUDescription(Collection children, String id, Version version, String name, Collection requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
 		root.setId(id);
-		root.setVersion(new Version(version));
+		root.setVersion(version);
 		root.setProperty(IInstallableUnit.PROP_NAME, name);
 
-		ArrayList requiredCapabilities = new ArrayList(children.size());
-		for (Iterator iterator = children.iterator(); iterator.hasNext();) {
-			IInstallableUnit iu = (IInstallableUnit) iterator.next();
-			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
-			//			boolean isOptional = checkOptionalRootDependency(iu);
-			requiredCapabilities.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
-		}
+		Collection requiredCapabilities = createIURequirements(children);
 		if (requires != null)
 			requiredCapabilities.addAll(requires);
 		root.setRequiredCapabilities((RequiredCapability[]) requiredCapabilities.toArray(new RequiredCapability[requiredCapabilities.size()]));
@@ -151,7 +146,7 @@ public class RootIUAction extends AbstractPublisherAction {
 		root.setProperty("lineUp", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 		root.setUpdateDescriptor(MetadataFactory.createUpdateDescriptor(id, VersionRange.emptyRange, IUpdateDescriptor.NORMAL, null));
 		root.setProperty(IInstallableUnit.PROP_TYPE_GROUP, Boolean.TRUE.toString());
-		root.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(id, new Version(version))});
+		root.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
 		// TODO why is the type OSGI?
 		root.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		return root;

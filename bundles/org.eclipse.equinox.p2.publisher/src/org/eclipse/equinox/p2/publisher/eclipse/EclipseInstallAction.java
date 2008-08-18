@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.p2.publisher.actions.*;
+import org.osgi.framework.Version;
 
 public class EclipseInstallAction implements IPublisherAction {
 	//	private static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
@@ -23,7 +24,7 @@ public class EclipseInstallAction implements IPublisherAction {
 
 	protected String source;
 	protected String id;
-	protected String version = "1.0.0"; //$NON-NLS-1$
+	protected Version version;
 	protected String name;
 	protected String flavor;
 	protected String[] topLevel;
@@ -34,7 +35,7 @@ public class EclipseInstallAction implements IPublisherAction {
 	protected EclipseInstallAction() {
 	}
 
-	public EclipseInstallAction(String source, String id, String version, String name, String flavor, String[] topLevel, String[] nonRootFiles, boolean start) {
+	public EclipseInstallAction(String source, String id, Version version, String name, String flavor, String[] topLevel, String[] nonRootFiles, boolean start) {
 		this.source = source;
 		this.id = id;
 		this.version = version;
@@ -55,19 +56,18 @@ public class EclipseInstallAction implements IPublisherAction {
 
 	protected IPublisherAction[] createActions() {
 		createAdvice();
-		ArrayList result = new ArrayList();
+		ArrayList actions = new ArrayList();
 		// create an action that just publishes the raw bundles and features
 		IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
-		result.add(action);
-		result.addAll(createExecutablesActions(info.getConfigurations()));
-		result.add(createRootFilesAction());
-		result.add(createEquinoxLauncherFragmentsAction());
-		result.addAll(createAccumulateConfigDataActions(info.getConfigurations()));
-		result.add(createJREAction());
-		result.add(createConfigCUsAction());
-		result.add(createDefaultCUsAction());
-		result.add(createRootIUAction());
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		actions.add(action);
+		actions.add(createApplicationExecutableAction(info.getConfigurations()));
+		actions.add(createRootFilesAction());
+		actions.addAll(createAccumulateConfigDataActions(info.getConfigurations()));
+		actions.add(createJREAction());
+		actions.add(createConfigCUsAction());
+		actions.add(createDefaultCUsAction());
+		actions.add(createRootIUAction());
+		return (IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]);
 	}
 
 	private void createAdvice() {
@@ -97,8 +97,8 @@ public class EclipseInstallAction implements IPublisherAction {
 		return new JREAction(info, null);
 	}
 
-	protected IPublisherAction createEquinoxLauncherFragmentsAction() {
-		return new EquinoxLauncherCUAction(flavor);
+	protected IPublisherAction createApplicationExecutableAction(String[] configSpecs) {
+		return new ApplicationLauncherAction(id, version, flavor, name, getExecutablesLocation(), configSpecs);
 	}
 
 	protected Collection createAccumulateConfigDataActions(String[] configs) {
@@ -195,6 +195,10 @@ public class EclipseInstallAction implements IPublisherAction {
 	}
 
 	protected File computeExecutableLocation(String configSpec) {
+		return new File(source);
+	}
+
+	protected File getExecutablesLocation() {
 		return new File(source);
 	}
 

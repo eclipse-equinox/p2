@@ -11,11 +11,12 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.util.ArrayList;
 import org.eclipse.equinox.p2.publisher.*;
+import org.osgi.framework.Version;
 
 public class InstallPublisherApplication extends AbstractPublisherApplication {
 
 	protected String id;
-	protected String version = "1.0.0"; //$NON-NLS-1$
+	protected Version version = new Version("1.0.0"); //$NON-NLS-1$
 	protected String name;
 	protected String flavor;
 	protected String[] topLevel;
@@ -39,7 +40,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 			id = parameter;
 
 		if (arg.equalsIgnoreCase("-version")) //$NON-NLS-1$
-			version = parameter;
+			version = new Version(parameter);
 
 		if (arg.equalsIgnoreCase("-name")) //$NON-NLS-1$
 			name = parameter;

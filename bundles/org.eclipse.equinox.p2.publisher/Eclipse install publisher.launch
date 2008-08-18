@@ -19,5 +19,5 @@
 <booleanAttribute key="tracing" value="false"/>
 <booleanAttribute key="useDefaultConfigArea" value="true"/>
 <booleanAttribute key="useNamedJRE" value="true"/>
-<stringAttribute key="workspace_bundles" value="org.eclipse.equinox.p2.core@default:default,org.eclipse.equinox.p2.publisher@default:default,org.eclipse.equinox.simpleconfigurator.manipulator@3:true,org.eclipse.equinox.p2.metadata@default:default,org.eclipse.equinox.p2.artifact.repository@default:default,org.eclipse.equinox.simpleconfigurator@3:true"/>
+<stringAttribute key="workspace_bundles" value="org.eclipse.equinox.p2.metadata@default:default,org.eclipse.equinox.p2.publisher@default:default,org.eclipse.equinox.simpleconfigurator@3:true,org.eclipse.equinox.simpleconfigurator.manipulator@3:true,org.eclipse.equinox.p2.artifact.repository@default:default,org.eclipse.equinox.p2.core@default:default"/>
 </launchConfiguration>

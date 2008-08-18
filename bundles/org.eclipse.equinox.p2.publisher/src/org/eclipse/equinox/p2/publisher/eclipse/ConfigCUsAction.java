@@ -18,13 +18,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
-import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
@@ -38,7 +41,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	private static Collection PROPERTIES_TO_SKIP;
 	private static HashSet PROGRAM_ARGS_TO_SKIP;
-	protected String version;
+	protected Version version;
 	protected String id;
 	protected String flavor;
 
@@ -62,14 +65,36 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		PROGRAM_ARGS_TO_SKIP.add("-configuration"); //$NON-NLS-1$
 	}
 
-	public ConfigCUsAction(IPublisherInfo info, String flavor, String id, String version) {
+	public static String getCUId(String id, String type, String flavor, String configSpec) {
+		return flavor + id + "." + type + "." + AbstractPublisherAction.createIdString(configSpec); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	public static String getAbstractCUCapabilityNamespace(String id, String type, String flavor, String configSpec) {
+		return flavor + id;
+	}
+
+	public static String getAbstractCUCapabilityId(String id, String type, String flavor, String configSpec) {
+		return id + "." + type;
+	}
+
+	/**
+	 * Returns the id of the top level IU published by this action for the given id and flavor.
+	 * @param id the id of the application being published
+	 * @param flavor the flavor being published
+	 * @return the if for ius published by this action
+	 */
+	public static String computeIUId(String id, String flavor) {
+		return flavor + id + ".configuration"; //$NON-NLS-1$
+	}
+
+	public ConfigCUsAction(IPublisherInfo info, String flavor, String id, Version version) {
 		this.flavor = flavor;
 		this.id = id;
 		this.version = version;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		// generation from remembered config.ini's
+		IPublisherResult innerResult = new PublisherResult();
 		// we have N platforms, generate a CU for each
 		// TODO try and find common properties across platforms
 		String[] configSpecs = info.getConfigurations();
@@ -77,12 +102,24 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			String configSpec = configSpecs[i];
 			Collection configAdvice = info.getAdvice(configSpec, false, null, null, IConfigAdvice.class);
 			BundleInfo[] bundles = fillInBundles(configAdvice, results);
-			generateBundleConfigIUs(info, bundles, configSpec, results);
-
+			publishBundleCUs(info, bundles, configSpec, innerResult);
+			publishConfigIUs(configAdvice, innerResult, configSpec);
 			Collection launchingAdvice = info.getAdvice(configSpec, false, null, null, ILaunchingAdvice.class);
-			publishIniIUs(configAdvice, launchingAdvice, results, configSpec);
+			publishIniIUs(launchingAdvice, innerResult, configSpec);
 		}
+		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
+		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
+		publishTopLevelConfigurationIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
 		return Status.OK_STATUS;
+	}
+
+	private void publishTopLevelConfigurationIU(Collection children, IPublisherResult result) {
+		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(id, flavor), version);
+		descriptor.setSingleton(true);
+		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
+		if (rootIU == null)
+			return;
+		result.addIU(rootIU, IPublisherResult.ROOT);
 	}
 
 	// there seem to be cases where the bundle infos are not filled in with symbolic name and version.
@@ -121,25 +158,20 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		return (BundleInfo[]) result.toArray(new BundleInfo[result.size()]);
 	}
 
-	private void publishIniIUs(Collection configAdvice, Collection launchingAdvice, IPublisherResult results, String configSpec) {
-		if (configAdvice.isEmpty() && launchingAdvice.isEmpty())
+	/**
+	 * Publish the IUs that capture the eclipse.ini information such as vmargs and program args, etc
+	 */
+	private void publishIniIUs(Collection launchingAdvice, IPublisherResult results, String configSpec) {
+		if (launchingAdvice.isEmpty())
 			return;
 
 		String configureData = ""; //$NON-NLS-1$
 		String unconfigureData = ""; //$NON-NLS-1$
-
-		if (!configAdvice.isEmpty()) {
-			String[] dataStrings = getConfigurationStrings(configAdvice);
-			configureData += dataStrings[0];
-			unconfigureData += dataStrings[1];
-		}
-
 		if (!launchingAdvice.isEmpty()) {
 			String[] dataStrings = getLauncherConfigStrings(launchingAdvice);
 			configureData += dataStrings[0];
 			unconfigureData += dataStrings[1];
 		}
-
 		// if there is nothing to configure or unconfigure, then don't even bother generating this IU
 		if (configureData.length() == 0 && unconfigureData.length() == 0)
 			return;
@@ -147,8 +179,56 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		Map touchpointData = new HashMap();
 		touchpointData.put("configure", configureData); //$NON-NLS-1$
 		touchpointData.put("unconfigure", unconfigureData); //$NON-NLS-1$
-		IInstallableUnit cu = PublisherHelper.createIUFragment(id, version, flavor, configSpec, touchpointData);
+		IInstallableUnit cu = createCU(id, version, "ini", flavor, configSpec, touchpointData); //$NON-NLS-1$
 		results.addIU(cu, IPublisherResult.ROOT);
+	}
+
+	/**
+	 * Publish the IUs that capture the config.ini information such as properties etc
+	 */
+	private void publishConfigIUs(Collection configAdvice, IPublisherResult results, String configSpec) {
+		if (configAdvice.isEmpty())
+			return;
+
+		String configureData = ""; //$NON-NLS-1$
+		String unconfigureData = ""; //$NON-NLS-1$
+		if (!configAdvice.isEmpty()) {
+			String[] dataStrings = getConfigurationStrings(configAdvice);
+			configureData += dataStrings[0];
+			unconfigureData += dataStrings[1];
+		}
+		// if there is nothing to configure or unconfigure, then don't even bother generating this IU
+		if (configureData.length() == 0 && unconfigureData.length() == 0)
+			return;
+
+		Map touchpointData = new HashMap();
+		touchpointData.put("configure", configureData); //$NON-NLS-1$
+		touchpointData.put("unconfigure", unconfigureData); //$NON-NLS-1$
+		IInstallableUnit cu = createCU(id, version, "config", flavor, configSpec, touchpointData); //$NON-NLS-1$
+		results.addIU(cu, IPublisherResult.ROOT);
+	}
+
+	/**
+	 * Create a CU whose id is flavor+id.type.configspec with the given version. 
+	 * The resultant IU has the self capability and an abstract capabilty in the flavor+id namespace
+	 * with the name id.type and the given version.  This allows others to create an abstract
+	 * dependency on having one of these things around but not having to list out the configs.
+	 */
+	private IInstallableUnit createCU(String id, Version version, String type, String flavor, String configSpec, Map touchpointData) {
+		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		String resultId = getCUId(id, type, flavor, configSpec);
+		cu.setId(resultId);
+		cu.setVersion(version);
+
+		cu.setFilter(AbstractPublisherAction.createFilterSpec(configSpec));
+		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, version, true), null, false, false)});
+		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
+		ProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
+		ProvidedCapability abstractCapability = MetadataFactory.createProvidedCapability(getAbstractCUCapabilityNamespace(id, type, flavor, configSpec), getAbstractCUCapabilityId(id, type, flavor, configSpec), version);
+		cu.setCapabilities(new ProvidedCapability[] {selfCapability, abstractCapability});
+
+		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		return MetadataFactory.createInstallableUnit(cu);
 	}
 
 	protected String[] getConfigurationStrings(Collection configAdvice) {
@@ -205,7 +285,11 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 		return new String[] {configurationData, unconfigurationData};
 	}
 
-	protected void generateBundleConfigIUs(IPublisherInfo info, BundleInfo[] bundles, String configSpec, IPublisherResult result) {
+	/**
+	 * Publish the CUs related to the given set of bundles.  This generally covers the start-level and 
+	 * and whether or not the bundle is to be started.
+	 */
+	protected void publishBundleCUs(IPublisherInfo info, BundleInfo[] bundles, String configSpec, IPublisherResult result) {
 		if (bundles == null)
 			return;
 
@@ -221,7 +305,7 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			if (bundle == null)
 				continue;
 
-			// TODO need to fractor this out into its own action
+			// TODO need to factor this out into its own action
 			if (bundle.getSymbolicName().equals(ORG_ECLIPSE_UPDATE_CONFIGURATOR)) {
 				bundle.setStartLevel(BundleInfo.NO_LEVEL);
 				bundle.setMarkedAsStarted(false);

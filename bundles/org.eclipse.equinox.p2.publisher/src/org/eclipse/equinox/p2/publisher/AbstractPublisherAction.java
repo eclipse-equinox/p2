@@ -23,6 +23,9 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.p2.publisher.actions.ICapabilityAdvice;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.service.resolver.VersionRange;
+import org.osgi.framework.Version;
 
 public abstract class AbstractPublisherAction implements IPublisherAction {
 	public static final int AS_IS = 1;
@@ -58,6 +61,10 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 				result.add(token);
 		}
 		return (String[]) result.toArray(new String[result.size()]);
+	}
+
+	public static ProvidedCapability createSelfCapability(String installableUnitId, Version installableUnitVersion) {
+		return MetadataFactory.createProvidedCapability(PublisherHelper.IU_NAMESPACE, installableUnitId, installableUnitVersion);
 	}
 
 	/**
@@ -121,6 +128,16 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	//This is to hide FileUtils from other actions
 	public static IPathComputer createRootPrefixComputer(final File root) {
 		return FileUtils.createRootPathComputer(root);
+	}
+
+	public static Collection createIURequirements(Collection children) {
+		ArrayList result = new ArrayList(children.size());
+		for (Iterator i = children.iterator(); i.hasNext();) {
+			IInstallableUnit iu = (IInstallableUnit) i.next();
+			VersionRange range = new VersionRange(iu.getVersion(), true, iu.getVersion(), true);
+			result.add(MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, iu.getId(), range, iu.getFilter(), false, false));
+		}
+		return result;
 	}
 
 	//This is to hide FileUtils from other actions
@@ -242,7 +259,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * @param info the publisher info supplying the advice
 	 */
 	protected void processCapabilityAdvice(InstallableUnitDescription iu, IPublisherInfo info) {
-		Collection advice = info.getAdvice(null, false, null, null, ICapabilityAdvice.class);
+		Collection advice = info.getAdvice(null, false, iu.getId(), iu.getVersion(), ICapabilityAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			ICapabilityAdvice entry = (ICapabilityAdvice) i.next();
 			RequiredCapability[] requiredAdvice = entry.getRequiredCapabilities(iu);
@@ -263,4 +280,23 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 			}
 		}
 	}
+
+	public InstallableUnitDescription createParentIU(Collection children, String id, Version version) {
+		InstallableUnitDescription root = createIUShell(id, version);
+		root.addRequiredCapabilities(createIURequirements(children));
+		addSelfCapability(root);
+		return root;
+	}
+
+	public void addSelfCapability(InstallableUnitDescription root) {
+		root.setCapabilities(new ProvidedCapability[] {createSelfCapability(root.getId(), root.getVersion())});
+	}
+
+	public InstallableUnitDescription createIUShell(String id, Version version) {
+		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
+		root.setId(id);
+		root.setVersion(version);
+		return root;
+	}
+
 }

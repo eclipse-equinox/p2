@@ -13,14 +13,8 @@ import java.util.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class PublisherResult implements IPublisherResult {
-	// type markers
-	public static final String ROOT = "root"; //$NON-NLS-1$
-	public static final String NON_ROOT = "non_root"; //$NON-NLS-1$
 
-	// The set of top level IUs
 	final Map rootIUs = new HashMap();
-
-	// The set of internal and leaf IUs
 	final Map nonRootIUs = new HashMap();
 
 	public void addIU(IInstallableUnit iu, String type) {
@@ -42,23 +36,6 @@ public class PublisherResult implements IPublisherResult {
 			map.put(id, ius);
 		}
 		ius.add(iu);
-	}
-
-	/**
-	 * Returns all IUs generated during this execution of the generator.
-	 */
-	public Map getGeneratedIUs(String type) {
-		if (type == null) {
-			HashMap all = new HashMap();
-			all.putAll(rootIUs);
-			all.putAll(nonRootIUs);
-			return all;
-		}
-		if (type == ROOT)
-			return rootIUs;
-		if (type == NON_ROOT)
-			return nonRootIUs;
-		throw new IllegalArgumentException("Invalid IU type: " + type); //$NON-NLS-1$
 	}
 
 	// TODO this method really should not be needed as it just returns the first
@@ -97,7 +74,7 @@ public class PublisherResult implements IPublisherResult {
 	private List flatten(Collection values) {
 		ArrayList result = new ArrayList();
 		for (Iterator i = values.iterator(); i.hasNext();)
-			for (Iterator j = ((HashSet) i.next()).iterator(); j.hasNext();) 
+			for (Iterator j = ((HashSet) i.next()).iterator(); j.hasNext();)
 				result.add(j.next());
 		return result;
 	}

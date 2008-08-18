@@ -12,7 +12,8 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
@@ -26,52 +27,79 @@ import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
 public class EquinoxExecutableAction extends AbstractPublisherAction {
+	private static String TYPE = "executable";
 
 	protected String configSpec;
 	protected String idBase;
-	protected String versionSpec = "1.0.0"; //$NON-NLS-1$
+	protected Version version;
 	protected ExecutablesDescriptor executables;
 	protected String flavor;
 
 	protected EquinoxExecutableAction() {
 	}
 
-	public EquinoxExecutableAction(ExecutablesDescriptor executables, String configSpec, String idBase, String version, String flavor) {
+	public EquinoxExecutableAction(ExecutablesDescriptor executables, String configSpec, String idBase, Version version, String flavor) {
 		this.executables = executables;
 		this.configSpec = configSpec;
 		this.idBase = idBase == null ? "org.eclipse" : idBase; //$NON-NLS-1$
-		// if the given version is not the default "replace me" version then save it
-		if (version != null && !version.equals("0.0.0")) //$NON-NLS-1$
-			this.versionSpec = version;
+		this.version = version;
 		this.flavor = flavor;
 	}
 
-	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
-		generateExecutableIUs(info, results);
+	public IStatus perform(IPublisherInfo info, IPublisherResult result) {
+		// TODO temporary measure for handling the Eclipse launcher feature files.
+		ExecutablesDescriptor brandedExecutables = brandExecutables(executables);
+		publishExecutableIU(info, result);
+		publishExecutableCU(info, brandedExecutables, result);
+		publishExecutableSetter(brandedExecutables, result);
 		return Status.OK_STATUS;
 	}
 
 	/**
-	 * Generates IUs and CUs for the files that make up the launcher for a given
+	 * Publishes the IUs that cause the executable to be actually set as the launcher for 
+	 * the profile
+	 */
+	private void publishExecutableSetter(ExecutablesDescriptor brandedExecutables, IPublisherResult result) {
+		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
+		String executableName = brandedExecutables.getExecutableName();
+		String id = getExecutableId() + '.' + executableName;
+		iud.setId(id);
+		iud.setVersion(version);
+		iud.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
+		iud.setCapabilities(new ProvidedCapability[] {createSelfCapability(id, version)});
+
+		String filter = createFilterSpec(configSpec);
+		if (filter.length() > 0)
+			iud.setFilter(filter);
+		Map touchpointData = new HashMap();
+		touchpointData.put("configure", "setLauncherName(name:" + executableName + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		touchpointData.put("unconfigure", "setLauncherName()"); //$NON-NLS-1$ //$NON-NLS-2$
+		iud.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		result.addIU(MetadataFactory.createInstallableUnit(iud), IPublisherResult.ROOT);
+	}
+
+	/**
+	 * Publishes IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
 	 */
-	protected void generateExecutableIUs(IPublisherInfo info, IPublisherResult result) {
+	protected void publishExecutableIU(IPublisherInfo info, IPublisherResult result) {
 		// Create the IU for the executable
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(true);
-		String idPrefix = idBase + ".executable"; //$NON-NLS-1$
-		String executableId = idPrefix + '.' + createIdString(configSpec);
-		iu.setId(executableId);
-		Version version = new Version(versionSpec);
+		String id = getExecutableId();
+		iu.setId(id);
 		iu.setVersion(version);
 		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		iu.setSingleton(true);
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(executableId, version);
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(id, version);
 		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(flavor + idBase, idPrefix, version); //$NON-NLS-1$
-		iu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(executableId, version), executableCapability});
+		String namespace = ConfigCUsAction.getAbstractCUCapabilityNamespace(idBase, TYPE, flavor, configSpec);
+		String capabilityId = ConfigCUsAction.getAbstractCUCapabilityId(idBase, TYPE, flavor, configSpec);
+		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version); //$NON-NLS-1$
+		ProvidedCapability selfCapability = createSelfCapability(id, version);
+		iu.setCapabilities(new ProvidedCapability[] {selfCapability, executableCapability});
 
 		// setup a requirement between the executable and the launcher fragment that has the shared library
 		String[] config = parseConfigSpec(configSpec);
@@ -83,57 +111,56 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 			launcherFragment += '.' + arch;
 		iu.setRequiredCapabilities(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, launcherFragment, VersionRange.emptyRange, filter, false, false)});
 		result.addIU(MetadataFactory.createInstallableUnit(iu), IPublisherResult.ROOT);
+	}
 
-		// Create the CU that installs/configures the executable
+	private String getExecutableId() {
+		return ConfigCUsAction.getCUId(idBase, TYPE, "", configSpec);
+	}
+
+	// Create the CU that installs (e.g., unzips) the executable
+	private void publishExecutableCU(IPublisherInfo info, ExecutablesDescriptor execDescriptor, IPublisherResult result) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String configUnitId = flavor + executableId;
-		cu.setId(configUnitId);
+		String id = ConfigCUsAction.getCUId(idBase, TYPE, flavor, configSpec);
+		cu.setId(id);
 		cu.setVersion(version);
-		cu.setFilter(filter);
+		cu.setFilter(createFilterSpec(configSpec));
+		String executableId = getExecutableId();
 		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, executableId, new VersionRange(version, true, version, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		//TODO bug 218890, would like the fragment to provide the launcher capability as well, but can't right now.
-		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(configUnitId, version)});
-
-		// TODO temporary measure for handling the Eclipse launcher feature files.
-		ExecutablesDescriptor files = brandExecutables(executables);
-
+		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
 		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
-		Map touchpointData = new HashMap();
-		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		File[] fileList = files.getFiles();
-		for (int i = 0; i < fileList.length; i++) {
-			File file = fileList[i];
-			if (Constants.OS_MACOSX.equals(os)) {
-				File macOSFolder = new File(file, "Contents/MacOS"); //$NON-NLS-1$
-				if (macOSFolder.exists()) {
-					File[] launcherFiles = macOSFolder.listFiles();
-					for (int j = 0; j < launcherFiles.length; j++) {
-						configurationData += " chmod(targetDir:${installFolder}/" + file.getName() + "/Contents/MacOS/, targetFile:" + launcherFiles[j].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						if (new Path(launcherFiles[j].getName()).getFileExtension() == null)
-							PublisherHelper.generateLauncherSetter(launcherFiles[j].getName(), executableId, version, configSpec, result);
-					}
-				}
-			}
-			if (!Constants.OS_WIN32.equals(os) && !Constants.OS_MACOSX.equals(os)) {
-				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + file.getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
-				// if the file has no extension then it is the executable.  Not the best rule but ok for now
-				if (new Path(file.getName()).getFileExtension() == null)
-					PublisherHelper.generateLauncherSetter(file.getName(), executableId, version, configSpec, result);
-			}
-		}
-		touchpointData.put("install", configurationData); //$NON-NLS-1$
-		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
-		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
+		String[] config = parseConfigSpec(configSpec);
+		String os = config[1];
+		Map touchpointData = computeInstallActions(execDescriptor, os);
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
 
 		//Create the artifact descriptor.  we have several files so no path on disk
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(executableId, version);
 		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
-		publishArtifact(descriptor, fileList, null, info, createRootPrefixComputer(files.getLocation()));
-		if (files.isTemporary())
-			FileUtils.deleteAll(files.getLocation());
+		publishArtifact(descriptor, execDescriptor.getFiles(), null, info, createRootPrefixComputer(execDescriptor.getLocation()));
+		if (execDescriptor.isTemporary())
+			FileUtils.deleteAll(execDescriptor.getLocation());
+	}
+
+	private Map computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
+		Map touchpointData = new HashMap();
+		String configurationData = "unzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		if (Constants.OS_MACOSX.equals(os)) {
+			String execName = execDescriptor.getExecutableName();
+			configurationData += " chmod(targetDir:${installFolder}/" + execName + ".app/Contents/MacOS/, targetFile:" + execName + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		} else if (!Constants.OS_WIN32.equals(os)) {
+			// We are on linux/unix.  by default set all of the files to be executable.
+			File[] fileList = execDescriptor.getFiles();
+			for (int i = 0; i < fileList.length; i++)
+				configurationData += " chmod(targetDir:${installFolder}, targetFile:" + fileList[i].getName() + ", permissions:755);"; //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		touchpointData.put("install", configurationData); //$NON-NLS-1$
+		String unConfigurationData = "cleanupzip(source:@artifact, target:${installFolder});"; //$NON-NLS-1$
+		touchpointData.put("uninstall", unConfigurationData); //$NON-NLS-1$
+		return touchpointData;
 	}
 
 	protected ExecutablesDescriptor brandExecutables(ExecutablesDescriptor descriptor) {
@@ -163,5 +190,4 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 			descriptor.replace(file, newFile);
 		}
 	}
-
 }

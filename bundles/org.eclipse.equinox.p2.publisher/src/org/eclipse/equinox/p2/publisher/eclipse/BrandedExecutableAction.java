@@ -10,7 +10,7 @@
 package org.eclipse.equinox.p2.publisher.eclipse;
 
 import org.eclipse.equinox.internal.p2.publisher.eclipse.*;
-
+import org.osgi.framework.Version;
 
 public class BrandedExecutableAction extends EquinoxExecutableAction {
 
@@ -23,7 +23,7 @@ public class BrandedExecutableAction extends EquinoxExecutableAction {
 		this.configSpec = configSpec;
 		product = loadProduct(productLocation);
 		idBase = product.getProductName();
-		versionSpec = product.getVersion();
+		version = new Version(product.getVersion());
 	}
 
 	private ProductFile loadProduct(String productLocation) {

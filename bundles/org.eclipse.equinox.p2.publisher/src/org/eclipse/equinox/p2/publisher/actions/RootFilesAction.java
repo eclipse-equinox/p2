@@ -26,22 +26,45 @@ import org.osgi.framework.Version;
 // TODO need to merge this functionality with the FeaturesAction work on root files
 public class RootFilesAction extends AbstractPublisherAction {
 	private String idBase;
-	private String versionSpec = "1.0.0"; //$NON-NLS-1$
+	private Version version;
 	private String flavor;
 
-	public RootFilesAction(IPublisherInfo info, String idBase, String version, String flavor) {
+	/**
+	 * Returns the id of the top level IU published by this action for the given id and flavor.
+	 * @param id the id of the application being published
+	 * @param flavor the flavor being published
+	 * @return the if for ius published by this action
+	 */
+	public static String computeIUId(String id, String flavor) {
+		return flavor + id + ".rootfiles"; //$NON-NLS-1$
+	}
+
+	public RootFilesAction(IPublisherInfo info, String idBase, Version version, String flavor) {
 		this.idBase = idBase == null ? "org.eclipse" : idBase; //$NON-NLS-1$
-		// if the given version is not the default "replace me" version then save it
-		if (version != null && !version.equals("0.0.0")) //$NON-NLS-1$
-			this.versionSpec = version;
+		this.version = version;
 		this.flavor = flavor;
 	}
 
 	public IStatus perform(IPublisherInfo info, IPublisherResult results) {
+		IPublisherResult innerResult = new PublisherResult();
+		// we have N platforms, generate a CU for each
+		// TODO try and find common properties across platforms
 		String[] configSpecs = info.getConfigurations();
 		for (int i = 0; i < configSpecs.length; i++)
-			generateRootFileIUs(configSpecs[i], info, results);
+			generateRootFileIUs(configSpecs[i], info, innerResult);
+		// merge the IUs  into the final result as non-roots and create a parent IU that captures them all
+		results.merge(innerResult, IPublisherResult.MERGE_ALL_NON_ROOT);
+		publishTopLevelRootFilesIU(innerResult.getIUs(null, IPublisherResult.ROOT), results);
 		return Status.OK_STATUS;
+	}
+
+	private void publishTopLevelRootFilesIU(Collection children, IPublisherResult result) {
+		InstallableUnitDescription descriptor = createParentIU(children, computeIUId(idBase, flavor), version);
+		descriptor.setSingleton(true);
+		IInstallableUnit rootIU = MetadataFactory.createInstallableUnit(descriptor);
+		if (rootIU == null)
+			return;
+		result.addIU(rootIU, IPublisherResult.ROOT);
 	}
 
 	/**
@@ -55,7 +78,6 @@ public class RootFilesAction extends AbstractPublisherAction {
 		String idPrefix = idBase + ".rootfiles"; //$NON-NLS-1$
 		String iuId = idPrefix + '.' + createIdString(configSpec);
 		iu.setId(iuId);
-		Version version = new Version(versionSpec);
 		iu.setVersion(version);
 		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);

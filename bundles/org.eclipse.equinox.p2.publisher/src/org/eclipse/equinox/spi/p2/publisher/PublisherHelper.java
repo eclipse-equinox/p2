@@ -168,22 +168,6 @@ public class PublisherHelper {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
 	}
 
-	public static IInstallableUnit createIUFragment(String id, String version, String flavor, String configSpec, Map touchpointData) {
-		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
-		String resultId = flavor + AbstractPublisherAction.createIdString(configSpec) + id;
-		cu.setId(resultId);
-		Version resultVersion = new Version(version);
-		cu.setVersion(resultVersion);
-
-		cu.setFilter(AbstractPublisherAction.createFilterSpec(configSpec));
-		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(resultVersion, true, resultVersion, true), null, false, false)});
-		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
-		cu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(resultId, resultVersion)});
-
-		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
-		return MetadataFactory.createInstallableUnit(cu);
-	}
-
 	/**
 	 * @deprecated moved to BundlesAction
 	 */
@@ -1000,6 +984,7 @@ public class PublisherHelper {
 	/**
 	 * Creates IUs and artifacts for the Launcher executable. The resulting IUs are added
 	 * to the given set, and the resulting artifact descriptor is returned.
+	 * @deprecated use the EquinoxExecutablesAction instead
 	 */
 	public static IArtifactDescriptor createLauncherIU(File launcher, String configurationFlavor, IPublisherResult resultantIUs) {
 		if (launcher == null || !launcher.exists())
@@ -1051,6 +1036,9 @@ public class PublisherHelper {
 		return createArtifactDescriptor(key, launcher);
 	}
 
+	/**
+	 * @deprecated moved to EquinoxExecutablesAction
+	 */
 	public static void generateLauncherSetter(String launcherName, String iuId, Version version, String configSpec, IPublisherResult result) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		String id = iuId + '.' + launcherName;

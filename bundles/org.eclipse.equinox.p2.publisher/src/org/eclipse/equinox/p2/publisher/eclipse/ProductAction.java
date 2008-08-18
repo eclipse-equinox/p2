@@ -11,12 +11,12 @@ package org.eclipse.equinox.p2.publisher.eclipse;
 
 import java.io.File;
 import java.util.*;
-import org.eclipse.equinox.internal.p2.publisher.eclipse.ExecutablesDescriptor;
 import org.eclipse.equinox.internal.p2.publisher.eclipse.ProductFile;
-import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.IPublisherAction;
+import org.eclipse.equinox.p2.publisher.IPublisherResult;
 import org.eclipse.equinox.p2.publisher.actions.MergeResultsAction;
 import org.eclipse.equinox.p2.publisher.actions.RootIUAdvice;
+import org.osgi.framework.Version;
 
 public class ProductAction extends EclipseInstallAction {
 
@@ -36,22 +36,19 @@ public class ProductAction extends EclipseInstallAction {
 		createAdvice();
 
 		// create all the actions needed to publish a product
-		ArrayList result = new ArrayList();
+		ArrayList actions = new ArrayList();
 		// if we have a source location then create actions that publishes the bundles 
 		// and features as well as the root files, launchers, etc.
-		if (source != null) {
-			IPublisherAction action = new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT);
-			result.add(action);
-			result.add(createEquinoxLauncherFragmentsAction());
-		}
+		if (source != null)
+			actions.add(new MergeResultsAction(new IPublisherAction[] {createFeaturesAction(), createBundlesAction()}, IPublisherResult.MERGE_ALL_NON_ROOT));
 		// products include the executable so add actions to publish them
-		result.addAll(createExecutablesActions(info.getConfigurations()));
+		actions.add(createApplicationExecutableAction(info.getConfigurations()));
 		// add the actions that just configure things.
-		result.add(createJREAction());
-		result.add(createConfigCUsAction());
-		result.add(createDefaultCUsAction());
-		result.add(createRootIUAction());
-		return (IPublisherAction[]) result.toArray(new IPublisherAction[result.size()]);
+		actions.add(createJREAction());
+		actions.add(createConfigCUsAction());
+		actions.add(createDefaultCUsAction());
+		actions.add(createRootIUAction());
+		return (IPublisherAction[]) actions.toArray(new IPublisherAction[actions.size()]);
 	}
 
 	private ProductFile loadProduct() {
@@ -83,45 +80,12 @@ public class ProductAction extends EclipseInstallAction {
 
 	private void createProductAdvice(ProductFile product) {
 		id = product.getId();
-		version = product.getVersion();
+		version = new Version(product.getVersion());
 		name = product.getId();
 
 		String[] configSpecs = info.getConfigurations();
 		for (int i = 0; i < configSpecs.length; i++)
 			info.addAdvice(new ProductFileAdvice(product, configSpecs[i]));
-	}
-
-	protected Collection createExecutablesActions(String[] configSpecs) {
-		Collection result = new ArrayList(configSpecs.length);
-		for (int i = 0; i < configSpecs.length; i++) {
-			ExecutablesDescriptor executables = computeExecutables(configSpecs[i]);
-			IPublisherAction action = new BrandedExecutableAction(executables, productLocation, flavor, configSpecs[i]);
-			result.add(action);
-		}
-		return result;
-	}
-
-	protected ExecutablesDescriptor computeExecutables(String configSpec) {
-		// if we know about the executables feature then use it as the source
-		File location = getExecutablesFeatureLocation();
-		if (location != null) {
-			ExecutablesDescriptor result = ExecutablesDescriptor.createExecutablesFromFeature(location, configSpec);
-			if (result != null)
-				return result;
-		}
-		// otherwise, assume that we are running against an Eclipse install and do the default thing
-		return super.computeExecutables(configSpec);
-	}
-
-	private File getExecutablesFeatureLocation() {
-		if (executablesFeatureLocation != null)
-			return executablesFeatureLocation;
-		if (source == null)
-			return null;
-		// The executables were not explicitly located but the source was so poke around and see if 
-		// we can find something
-		// TODO implement this
-		return null;
 	}
 
 	private Collection listElements(List elements, String suffix) {
@@ -131,4 +95,7 @@ public class ProductAction extends EclipseInstallAction {
 		return result;
 	}
 
+	protected File getExecutablesLocation() {
+		return executablesFeatureLocation == null ? super.getExecutablesLocation() : executablesFeatureLocation;
+	}
 }
