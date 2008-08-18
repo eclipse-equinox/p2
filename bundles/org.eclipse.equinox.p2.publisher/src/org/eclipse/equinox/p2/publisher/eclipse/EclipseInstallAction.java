@@ -26,6 +26,7 @@ public class EclipseInstallAction implements IPublisherAction {
 	protected String id;
 	protected Version version;
 	protected String name;
+	protected String executableName;
 	protected String flavor;
 	protected String[] topLevel;
 	protected IPublisherInfo info;
@@ -35,11 +36,12 @@ public class EclipseInstallAction implements IPublisherAction {
 	protected EclipseInstallAction() {
 	}
 
-	public EclipseInstallAction(String source, String id, Version version, String name, String flavor, String[] topLevel, String[] nonRootFiles, boolean start) {
+	public EclipseInstallAction(String source, String id, Version version, String name, String executableName, String flavor, String[] topLevel, String[] nonRootFiles, boolean start) {
 		this.source = source;
 		this.id = id;
 		this.version = version;
 		this.name = name == null ? id : name;
+		this.executableName = executableName == null ? "eclipse" : executableName; //$NON-NLS-1$
 		this.flavor = flavor;
 		this.topLevel = topLevel;
 		this.nonRootFiles = nonRootFiles;
@@ -98,7 +100,7 @@ public class EclipseInstallAction implements IPublisherAction {
 	}
 
 	protected IPublisherAction createApplicationExecutableAction(String[] configSpecs) {
-		return new ApplicationLauncherAction(id, version, flavor, name, getExecutablesLocation(), configSpecs);
+		return new ApplicationLauncherAction(id, version, flavor, executableName, getExecutablesLocation(), configSpecs);
 	}
 
 	protected Collection createAccumulateConfigDataActions(String[] configs) {

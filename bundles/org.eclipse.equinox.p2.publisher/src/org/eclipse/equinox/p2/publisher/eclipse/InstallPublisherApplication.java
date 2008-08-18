@@ -18,6 +18,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 	protected String id;
 	protected Version version = new Version("1.0.0"); //$NON-NLS-1$
 	protected String name;
+	protected String executableName;
 	protected String flavor;
 	protected String[] topLevel;
 	protected boolean start;
@@ -45,6 +46,9 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 		if (arg.equalsIgnoreCase("-name")) //$NON-NLS-1$
 			name = parameter;
 
+		if (arg.equalsIgnoreCase("-executable")) //$NON-NLS-1$
+			executableName = parameter;
+
 		if (arg.equalsIgnoreCase("-flavor")) //$NON-NLS-1$
 			flavor = parameter;
 
@@ -69,7 +73,7 @@ public class InstallPublisherApplication extends AbstractPublisherApplication {
 			System.arraycopy(rootExclusions, 0, result, exclusions.length, rootExclusions.length);
 			exclusions = result;
 		}
-		return new EclipseInstallAction(source, id, version, name, flavor, topLevel, exclusions, start);
+		return new EclipseInstallAction(source, id, version, name, executableName, flavor, topLevel, exclusions, start);
 	}
 
 	protected String[] getBaseExclusions() {

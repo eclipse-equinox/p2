@@ -20,14 +20,12 @@ import org.eclipse.equinox.internal.p2.publisher.eclipse.GeneratorBundleInfo;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
-import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitFragmentDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.*;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
@@ -215,19 +213,19 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 	 * dependency on having one of these things around but not having to list out the configs.
 	 */
 	private IInstallableUnit createCU(String id, Version version, String type, String flavor, String configSpec, Map touchpointData) {
-		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
+		InstallableUnitDescription cu = new InstallableUnitDescription();
 		String resultId = getCUId(id, type, flavor, configSpec);
 		cu.setId(resultId);
 		cu.setVersion(version);
-
 		cu.setFilter(AbstractPublisherAction.createFilterSpec(configSpec));
-		cu.setHost(new RequiredCapability[] {MetadataFactory.createRequiredCapability(IInstallableUnit.NAMESPACE_IU_ID, id, new VersionRange(version, true, version, true), null, false, false)});
 		cu.setProperty(IInstallableUnit.PROP_TYPE_FRAGMENT, Boolean.TRUE.toString());
 		ProvidedCapability selfCapability = PublisherHelper.createSelfCapability(resultId, version);
-		ProvidedCapability abstractCapability = MetadataFactory.createProvidedCapability(getAbstractCUCapabilityNamespace(id, type, flavor, configSpec), getAbstractCUCapabilityId(id, type, flavor, configSpec), version);
+		String namespace = getAbstractCUCapabilityNamespace(id, type, flavor, configSpec);
+		String abstractId = getAbstractCUCapabilityId(id, type, flavor, configSpec);
+		ProvidedCapability abstractCapability = MetadataFactory.createProvidedCapability(namespace, abstractId, version);
 		cu.setCapabilities(new ProvidedCapability[] {selfCapability, abstractCapability});
-
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
+		cu.setTouchpointType(PublisherHelper.TOUCHPOINT_OSGI);
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 

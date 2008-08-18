@@ -75,12 +75,13 @@ public class ExecutablesDescriptor {
 	private static ExecutablesDescriptor createWindowsDescriptor(String os, String executable, File location) {
 		ExecutablesDescriptor result = new ExecutablesDescriptor(os, executable, location, null);
 		File file = new File(location, executable + ".exe"); //$NON-NLS-1$
-		if (file.isFile())
+		if (file.isFile()) {
 			result.addFile(file);
+			result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$
+		}
 		file = new File(location, "eclipsec.exe"); //$NON-NLS-1$
 		if (file.isFile())
 			result.addFile(file);
-		result.iniFile = new File(location, executable + ".ini"); //$NON-NLS-1$
 		return result;
 	}
 

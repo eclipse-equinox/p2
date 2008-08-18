@@ -65,6 +65,7 @@ public class ProductAction extends EclipseInstallAction {
 
 	private void createAdvice() {
 		ProductFile product = loadProduct();
+		executableName = product.getLauncherName();
 		createProductAdvice(product);
 		createRootAdvice(product);
 	}

@@ -50,8 +50,8 @@ public class GeneratorTask extends Task {
 	private String root;
 	private String rootVersion;
 	private String versionAdvice;
-
 	private String rootName;
+	private String executableName;
 	private String[] topLevel;
 	private boolean start;
 	private String[] nonRootFiles;
@@ -108,7 +108,7 @@ public class GeneratorTask extends Task {
 			return new IPublisherAction[] {};
 		if (operation.equals("-source")) //$NON-NLS-1$
 			// TODO what to do in this case?
-			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, new Version(rootVersion), rootName, flavor, topLevel, nonRootFiles, start)};
+			return new IPublisherAction[] {new EclipseInstallAction(operationValue, root, new Version(rootVersion), rootName, executableName, flavor, topLevel, nonRootFiles, start)};
 		// TODO what to do in this case?
 		return new IPublisherAction[] {};
 	}
@@ -195,6 +195,7 @@ public class GeneratorTask extends Task {
 	 * @deprecated
 	 */
 	public void setExe(String value) {
+		executableName = value;
 	}
 
 	public void setFeatures(String value) {

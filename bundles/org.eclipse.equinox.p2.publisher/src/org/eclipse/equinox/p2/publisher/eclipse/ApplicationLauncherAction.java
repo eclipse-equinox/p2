@@ -31,7 +31,7 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 	private String flavor;
 	private String[] configSpecs;
 	private File location;
-	private String appName;
+	private String executableName;
 	private Version version;
 	private String id;
 
@@ -45,12 +45,12 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 		return flavor + id + ".application"; //$NON-NLS-1$
 	}
 
-	public ApplicationLauncherAction(String id, Version version, String flavor, String appName, File location, String[] configSpecs) {
+	public ApplicationLauncherAction(String id, Version version, String flavor, String executableName, File location, String[] configSpecs) {
 		this.flavor = flavor;
 		this.configSpecs = configSpecs;
 		this.id = id;
 		this.version = version;
-		this.appName = appName;
+		this.executableName = executableName;
 		this.location = location;
 	}
 
@@ -136,6 +136,6 @@ public class ApplicationLauncherAction extends AbstractPublisherAction {
 			return result;
 		// otherwise, assume that we are running against an Eclipse install and do the default thing
 		String os = AbstractPublisherAction.parseConfigSpec(configSpec)[1];
-		return ExecutablesDescriptor.createDescriptor(os, appName, location); //$NON-NLS-1$
+		return ExecutablesDescriptor.createDescriptor(os, executableName, location); //$NON-NLS-1$
 	}
 }

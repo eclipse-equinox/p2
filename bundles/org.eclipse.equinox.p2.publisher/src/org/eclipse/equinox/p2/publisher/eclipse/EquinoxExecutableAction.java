@@ -49,7 +49,7 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	public IStatus perform(IPublisherInfo info, IPublisherResult result) {
 		// TODO temporary measure for handling the Eclipse launcher feature files.
 		ExecutablesDescriptor brandedExecutables = brandExecutables(executables);
-		publishExecutableIU(info, result);
+		publishExecutableIU(info, brandedExecutables, result);
 		publishExecutableCU(info, brandedExecutables, result);
 		publishExecutableSetter(brandedExecutables, result);
 		return Status.OK_STATUS;
@@ -82,24 +82,29 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 	 * Publishes IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
 	 */
-	protected void publishExecutableIU(IPublisherInfo info, IPublisherResult result) {
+	protected void publishExecutableIU(IPublisherInfo info, ExecutablesDescriptor execDescriptor, IPublisherResult result) {
 		// Create the IU for the executable
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
-		iu.setSingleton(true);
 		String id = getExecutableId();
 		iu.setId(id);
 		iu.setVersion(version);
 		String filter = createFilterSpec(configSpec);
 		iu.setFilter(filter);
 		iu.setSingleton(true);
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(id, version);
-		iu.setArtifacts(new IArtifactKey[] {key});
 		iu.setTouchpointType(PublisherHelper.TOUCHPOINT_NATIVE);
 		String namespace = ConfigCUsAction.getAbstractCUCapabilityNamespace(idBase, TYPE, flavor, configSpec);
 		String capabilityId = ConfigCUsAction.getAbstractCUCapabilityId(idBase, TYPE, flavor, configSpec);
 		ProvidedCapability executableCapability = MetadataFactory.createProvidedCapability(namespace, capabilityId, version); //$NON-NLS-1$
 		ProvidedCapability selfCapability = createSelfCapability(id, version);
 		iu.setCapabilities(new ProvidedCapability[] {selfCapability, executableCapability});
+
+		//Create the artifact descriptor.  we have several files so no path on disk
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(id, version);
+		iu.setArtifacts(new IArtifactKey[] {key});
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
+		publishArtifact(descriptor, execDescriptor.getFiles(), null, info, createRootPrefixComputer(execDescriptor.getLocation()));
+		if (execDescriptor.isTemporary())
+			FileUtils.deleteAll(execDescriptor.getLocation());
 
 		// setup a requirement between the executable and the launcher fragment that has the shared library
 		String[] config = parseConfigSpec(configSpec);
@@ -136,13 +141,6 @@ public class EquinoxExecutableAction extends AbstractPublisherAction {
 		cu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		IInstallableUnit unit = MetadataFactory.createInstallableUnit(cu);
 		result.addIU(unit, IPublisherResult.ROOT);
-
-		//Create the artifact descriptor.  we have several files so no path on disk
-		IArtifactKey key = PublisherHelper.createBinaryArtifactKey(executableId, version);
-		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
-		publishArtifact(descriptor, execDescriptor.getFiles(), null, info, createRootPrefixComputer(execDescriptor.getLocation()));
-		if (execDescriptor.isTemporary())
-			FileUtils.deleteAll(execDescriptor.getLocation());
 	}
 
 	private Map computeInstallActions(ExecutablesDescriptor execDescriptor, String os) {
