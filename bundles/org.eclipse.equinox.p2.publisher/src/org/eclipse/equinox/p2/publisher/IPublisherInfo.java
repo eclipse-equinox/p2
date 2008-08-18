@@ -61,7 +61,7 @@ public interface IPublisherInfo {
 	 * @param configSpec the configuration to query.  Note that the given configuration
 	 * must specify values for WS, OS and ARCH.
 	 * @param type the type of advice to look for
-	 * @param mergeDefault whether or not to merge in the advice common to all configurations
+	 * @param includeDefault whether or not to merge in the advice common to all configurations
 	 * @return the set of advice of the given type for the given configuration
 	 */
 	public Collection getAdvice(String configSpec, boolean includeDefault, String id, Version version, Class type);

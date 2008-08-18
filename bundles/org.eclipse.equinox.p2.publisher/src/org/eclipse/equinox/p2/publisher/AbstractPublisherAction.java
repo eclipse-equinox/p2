@@ -150,9 +150,9 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * as a base for relative paths. Then copying the zip into the repository.
 	 * @param descriptor used to identify the zip.
 	 * @param inclusions and folders to be included in the zip. files can be null.
-	 * @param root the base used to generate relative paths within the zip. root can be null.
+	 * @param exclusions and folders to be excluded in the zip. files can be null.
 	 * @param info the publisher info.
-	 * @param mode of operation (include root, as is...). 
+	 * @param prefixComputer
 	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] inclusions, File[] exclusions, IPublisherInfo info, IPathComputer prefixComputer) {
 		// no files to publish so this is done.
@@ -197,10 +197,8 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * Publishes the artifact by zipping the <code>files</code> using <code>root</code>
 	 * as a base for relative paths. Then copying the zip into the repository.
 	 * @param descriptor used to identify the zip.
-	 * @param inclusions and folders to be included in the zip. files can be null.
-	 * @param root the base used to generate relative paths within the zip. root can be null.
+	 * @param inclusion and folders to be included in the zip. files can be null.
 	 * @param info the publisher info.
-	 * @param mode of operation (include root, as is...). 
 	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo info) {
 		// no files to publish so this is done.
