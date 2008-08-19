@@ -153,7 +153,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					if (one.equals(two))
 						return repo;
 				} catch (ProvisionException e) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
+					// Skip the repo if it's not found. Log all other errors.
+					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
 				} catch (MalformedURLException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while comparing repository locations.", e)); //$NON-NLS-1$
 				}
@@ -234,7 +236,9 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 				} catch (MalformedURLException e) {
 					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				} catch (ProvisionException e) {
-					LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
+					// Skip the repo if it's not found. Log all other errors.
+					if (e.getStatus().getCode() != ProvisionException.REPOSITORY_NOT_FOUND)
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, NLS.bind(Messages.errorLoadingRepository, siteURL), e));
 				}
 			} else {
 				newRepos.add(match);
