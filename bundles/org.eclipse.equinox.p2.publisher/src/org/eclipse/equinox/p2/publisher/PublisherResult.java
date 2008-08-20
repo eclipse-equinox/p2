@@ -14,6 +14,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 
 public class PublisherResult implements IPublisherResult {
 
+	private static final Collection EMPTY_COLLECTION = new ArrayList(0);
 	final Map rootIUs = new HashMap();
 	final Map nonRootIUs = new HashMap();
 
@@ -60,8 +61,8 @@ public class PublisherResult implements IPublisherResult {
 	public Collection getIUs(String id, String type) {
 		if (type == null) {
 			ArrayList result = new ArrayList();
-			result.addAll(id == null ? flatten(rootIUs.values()) : (Collection) rootIUs.get(id));
-			result.addAll(id == null ? flatten(nonRootIUs.values()) : (Collection) nonRootIUs.get(id));
+			result.addAll(id == null ? flatten(rootIUs.values()) : getIUs(rootIUs, id));
+			result.addAll(id == null ? flatten(nonRootIUs.values()) : getIUs(nonRootIUs, id));
 			return result;
 		}
 		if (type == ROOT)
@@ -69,6 +70,11 @@ public class PublisherResult implements IPublisherResult {
 		if (type == NON_ROOT)
 			return id == null ? flatten(nonRootIUs.values()) : (Collection) nonRootIUs.get(id);
 		return null;
+	}
+
+	private Collection getIUs(Map ius, String id) {
+		Collection result = (Collection) ius.get(id);
+		return result == null ? EMPTY_COLLECTION : result;
 	}
 
 	private List flatten(Collection values) {

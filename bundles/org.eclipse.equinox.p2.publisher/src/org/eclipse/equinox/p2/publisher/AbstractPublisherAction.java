@@ -197,7 +197,7 @@ public abstract class AbstractPublisherAction implements IPublisherAction {
 	 * Publishes the artifact by zipping the <code>files</code> using <code>root</code>
 	 * as a base for relative paths. Then copying the zip into the repository.
 	 * @param descriptor used to identify the zip.
-	 * @param inclusion and folders to be included in the zip. files can be null.
+	 * @param inclusion the file to be published. files can be <code>null</code> but no action is taken.
 	 * @param info the publisher info.
 	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File inclusion, IPublisherInfo info) {

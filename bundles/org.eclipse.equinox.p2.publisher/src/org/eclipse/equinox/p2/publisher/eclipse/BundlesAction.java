@@ -289,6 +289,8 @@ public class BundlesAction extends AbstractPublisherAction {
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			IBundleAdvice entry = (IBundleAdvice) i.next();
 			Map bundleAdvice = entry.getInstructions(bundleFile);
+			if (bundleAdvice == null)
+				continue;
 			for (Iterator iterator = bundleAdvice.keySet().iterator(); iterator.hasNext();) {
 				String key = (String) iterator.next();
 				if (key.startsWith(ADVICE_INSTRUCTIONS_PREFIX)) {
