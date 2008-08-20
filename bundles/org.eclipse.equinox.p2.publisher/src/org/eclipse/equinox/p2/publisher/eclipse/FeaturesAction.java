@@ -159,16 +159,18 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// Build Feature IUs, and add them to any corresponding categories
 		for (int i = 0; i < features.length; i++) {
 			Feature feature = features[i];
-			// The IU hierarchy must be built from the bottom up so do the root files first.
 			ArrayList childIUs = generateRootFileIUs(feature, result, info);
-			IInstallableUnit featureIU = createFeatureJarIU(feature, childIUs, info);
+
+			Properties props = getFeatureAdvice(feature, info);
+			IInstallableUnit featureIU = createFeatureJarIU(feature, childIUs, props);
 			publishFeatureArtifacts(feature, featureIU, info);
-			gatherBundleShapeAdvice(feature, info);
-			// create the associated group and register the feature and group in the result.
-			IInstallableUnit groupIU = createGroupIU(feature, featureIU, null);
-			generateSiteReferences(feature, result, info);
-			result.addIU(groupIU, IPublisherResult.ROOT);
 			result.addIU(featureIU, IPublisherResult.ROOT);
+			generateSiteReferences(feature, result, info);
+
+			gatherBundleShapeAdvice(feature, info);
+
+			IInstallableUnit groupIU = createGroupIU(feature, featureIU, props);
+			result.addIU(groupIU, IPublisherResult.ROOT);
 		}
 	}
 
@@ -201,15 +203,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 				message = message + " in feature: " + featureId; //$NON-NLS-1$
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, message));
 		}
-	}
-
-	protected IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, IPublisherInfo info) {
-		// create the basic feature IU with all the children
-		String location = feature.getLocation();
-		boolean isExploded = (location.endsWith(".jar") ? false : true); //$NON-NLS-1$
-		Properties props = getFeatureAdvice(feature, info);
-		IInstallableUnit featureIU = createFeatureJarIU(feature, childIUs, isExploded, props);
-		return featureIU;
 	}
 
 	protected void publishFeatureArtifacts(Feature feature, IInstallableUnit featureIU, IPublisherInfo info) {
@@ -358,7 +351,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
-	public IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, boolean isExploded, Properties extraProperties) {
+	public IInstallableUnit createFeatureJarIU(Feature feature, ArrayList childIUs, Properties extraProperties) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
 		iu.setId(id);
@@ -401,17 +394,20 @@ public class FeaturesAction extends AbstractPublisherAction {
 			iu.setRequiredCapabilities(required);
 		}
 
-		if (isExploded) {
-			// TODO its not clear when this would ever be false reasonably.  Features are always supposed to be installed unzipped
-			// Though this could change in the future...
-
-			// Define the immutable metadata for this IU. In this case immutable means
-			// that this is something that will not impact the configuration.
+		// if the feature has a location and it is not a JAR then setup the touchpoint data
+		// TODO its not clear when this would ever be false reasonably.  Features are always 
+		// supposed to be installed unzipped.  It is also not clear what it means to set this prop.
+		// Anyway, in the future it seems reasonable that features be installed as JARs...
+		if (feature.getLocation() != null && !feature.getLocation().endsWith(".jar")) {
 			Map touchpointData = new HashMap();
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));
 		}
+		addExtraProperties(iu, extraProperties);
+		return MetadataFactory.createInstallableUnit(iu);
+	}
 
+	private void addExtraProperties(InstallableUnitDescription iu, Properties extraProperties) {
 		if (extraProperties != null) {
 			Enumeration e = extraProperties.propertyNames();
 			while (e.hasMoreElements()) {
@@ -419,8 +415,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 				iu.setProperty(name, extraProperties.getProperty(name));
 			}
 		}
-
-		return MetadataFactory.createInstallableUnit(iu);
 	}
 
 	public IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
@@ -452,13 +446,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// iu.setFilter(filter);
 		iu.setCapabilities(new ProvidedCapability[] {PublisherHelper.createSelfCapability(id, version)});
 
-		if (extraProperties != null) {
-			Enumeration e = extraProperties.propertyNames();
-			while (e.hasMoreElements()) {
-				String name = (String) e.nextElement();
-				iu.setProperty(name, extraProperties.getProperty(name));
-			}
-		}
+		addExtraProperties(iu, extraProperties);
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
