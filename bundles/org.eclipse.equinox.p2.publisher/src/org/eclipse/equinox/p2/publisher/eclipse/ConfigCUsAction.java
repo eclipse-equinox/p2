@@ -21,7 +21,6 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.BundleInfo;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
-import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.publisher.*;
@@ -318,10 +317,10 @@ public class ConfigCUsAction extends AbstractPublisherAction {
 			if (cu != null) {
 				// Product Query will run against the repo, make sure these CUs are in before then
 				// TODO review the aggressive addition to the metadata repo.  perhaps the query can query the result as well.
-				IMetadataRepository metadataRepository = info.getMetadataRepository();
-				if (metadataRepository != null) {
-					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
-				}
+				//				IMetadataRepository metadataRepository = info.getMetadataRepository();
+				//				if (metadataRepository != null) {
+				//					metadataRepository.addInstallableUnits(new IInstallableUnit[] {cu});
+				//				}
 				result.addIU(cu, IPublisherResult.ROOT);
 			}
 		}
