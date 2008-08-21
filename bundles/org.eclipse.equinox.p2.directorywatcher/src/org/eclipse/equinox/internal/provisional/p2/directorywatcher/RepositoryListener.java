@@ -50,10 +50,7 @@ public class RepositoryListener extends DirectoryChangeListener {
 	/**
 	 * Create a repository listener that watches the specified folder and generates repositories
 	 * for its content.
-	 * @param context the bundle context
 	 * @param repositoryName the repository name to use for the repository
-	 * @param repositoryFolder the target folder for the repository, or <code>null</code> if a folder based on the
-	 * bundle's data location should be used.
 	 * @param hidden <code>true</code> if the repository should be hidden, <code>false</code> if not.
 	 */
 	public RepositoryListener(String repositoryName, boolean hidden) {
