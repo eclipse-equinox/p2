@@ -11,6 +11,7 @@ package org.eclipse.equinox.internal.p2.director;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.Tracing;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.CapabilityQuery;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -61,7 +62,7 @@ public class Slicer {
 		} catch (IllegalStateException e) {
 			result.add(new Status(IStatus.ERROR, DirectorActivator.PI_DIRECTOR, e.getMessage(), e));
 		}
-		if (!result.isOK())
+		if (Tracing.DEBUG && result.getSeverity() != IStatus.OK)
 			LogHelper.log(result);
 		if (result.getSeverity() == IStatus.ERROR)
 			return null;
