@@ -293,6 +293,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return data;
 	}
 
+	/**
+	 * @deprecated moved to DataLoader
+	 */
 	public static BundleInfo[] readConfiguration(URL url) throws IOException {
 		List bundles = new ArrayList();
 		try {
