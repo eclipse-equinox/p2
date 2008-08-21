@@ -214,7 +214,8 @@ public class FileUtils {
 	 * @throws IOException if there is an IO issue during this operation.
 	 */
 	public static void zip(File[] inclusions, File[] exclusions, File destinationArchive, IPathComputer pathComputer) throws IOException {
-		ZipOutputStream output = new ZipOutputStream(new FileOutputStream(destinationArchive));
+		FileOutputStream fileOutput = new FileOutputStream(destinationArchive);
+		ZipOutputStream output = new ZipOutputStream(fileOutput);
 		HashSet exclusionSet = exclusions == null ? new HashSet() : new HashSet(Arrays.asList(exclusions));
 		try {
 			for (int i = 0; i < inclusions.length; i++) {
@@ -223,11 +224,15 @@ public class FileUtils {
 			}
 		} finally {
 			try {
-				// Note! This call will fail miserably if no entries were added to the zip!
-				// The file is left open after an exception is thrown.
 				output.close();
 			} catch (IOException e) {
-				// ignore
+				// closing a zip file with no entries apparently fails on some JREs.
+				// if we failed closing the zip, try closing the raw file.  
+				try {
+					fileOutput.close();
+				} catch (IOException e2) {
+					// give up.
+				}
 			}
 		}
 	}
