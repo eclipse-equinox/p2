@@ -7,11 +7,18 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
+import org.osgi.framework.*;
+import org.osgi.service.packageadmin.PackageAdmin;
 
 /**
  * Bundle activator for directory watcher bundle.
@@ -25,18 +32,33 @@ public class Activator implements BundleActivator {
 		return context;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-	 */
 	public void start(BundleContext aContext) throws Exception {
 		context = aContext;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-	 */
 	public void stop(BundleContext aContext) throws Exception {
 		context = null;
 	}
 
+	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
+		return (IArtifactRepositoryManager) ServiceHelper.getService(context, IArtifactRepositoryManager.class.getName());
+	}
+
+	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return (IMetadataRepositoryManager) ServiceHelper.getService(context, IMetadataRepositoryManager.class.getName());
+	}
+
+	public static URL getDefaultRepositoryLocation(Object object, String repositoryName) {
+		PackageAdmin packageAdmin = (PackageAdmin) ServiceHelper.getService(context, PackageAdmin.class.getName());
+		Bundle bundle = packageAdmin.getBundle(object.getClass());
+		BundleContext context = bundle.getBundleContext();
+		File base = context.getDataFile(""); //$NON-NLS-1$
+		File result = new File(base, "listener_" + repositoryName.hashCode()); //$NON-NLS-1$
+		result.mkdirs();
+		try {
+			return result.toURL();
+		} catch (MalformedURLException e) {
+			return null;
+		}
+	}
 }
