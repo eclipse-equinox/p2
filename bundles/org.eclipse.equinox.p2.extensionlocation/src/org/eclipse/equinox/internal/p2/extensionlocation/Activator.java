@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
@@ -21,9 +22,10 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
 
-public class Activator implements BundleActivator {
+public class Activator implements BundleActivator, Constants {
 
 	public static final String ID = "org.eclipse.equinox.p2.extensionlocation"; //$NON-NLS-1$null;
+	public static final String SYNCHRONIZED = "synchronized"; //$NON-NLS-1$
 	private static volatile BundleContext bundleContext;
 
 	/*
@@ -87,13 +89,5 @@ public class Activator implements BundleActivator {
 			return null;
 
 		return Util.getAggregatedBundleRepository(profile, Util.AGGREGATE_CACHE | Util.AGGREGATE_SHARED_CACHE);
-	}
-
-	/**
-	 * Returns a reasonable human-readable repository name for the given location.
-	 */
-	public static String getRepositoryName(URL location) {
-		File file = URLUtil.toFile(location);
-		return file == null ? location.toExternalForm() : file.getAbsolutePath();
 	}
 }

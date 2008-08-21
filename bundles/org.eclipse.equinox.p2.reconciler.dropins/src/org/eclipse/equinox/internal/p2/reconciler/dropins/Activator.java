@@ -462,7 +462,7 @@ public class Activator implements BundleActivator {
 		if (directories.isEmpty())
 			return;
 
-		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), DROPINS);
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(DROPINS);
 		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
@@ -634,4 +634,15 @@ public class Activator implements BundleActivator {
 		}
 		return null;
 	}
+
+	// TODO Fix this up to get the services in a better way
+	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
+		return (IArtifactRepositoryManager) ServiceHelper.getService(bundleContext, IArtifactRepositoryManager.class.getName());
+	}
+
+	// TODO Fix this up to get the services in a better way
+	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return (IMetadataRepositoryManager) ServiceHelper.getService(bundleContext, IMetadataRepositoryManager.class.getName());
+	}
+
 }

@@ -260,9 +260,15 @@ public class Util {
 		if (name == null)
 			name = "eclipse"; //$NON-NLS-1$
 
+		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
+			IPath path = new Path(name);
+			if ("exe".equals(path.getFileExtension())) //$NON-NLS-1$
+				return name;
+			return name + ".exe";
+		}
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 			IPath path = new Path(name);
-			if (path.segment(0).endsWith(".app")) //$NON-NLS-1$
+			if ("app".equals(path.getFileExtension())) //$NON-NLS-1$
 				return name;
 			StringBuffer buffer = new StringBuffer();
 			buffer.append(name.substring(0, 1).toUpperCase());

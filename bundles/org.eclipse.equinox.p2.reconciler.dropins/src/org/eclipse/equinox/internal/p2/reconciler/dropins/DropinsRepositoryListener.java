@@ -26,11 +26,8 @@ import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.RepositoryListener;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
 public class DropinsRepositoryListener extends RepositoryListener {
-
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String JAR = ".jar"; //$NON-NLS-1$
@@ -40,13 +37,11 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	private static final String DROPIN_ARTIFACT_REPOSITORIES = "dropin.artifactRepositories"; //$NON-NLS-1$
 	private static final String DROPIN_METADATA_REPOSITORIES = "dropin.metadataRepositories"; //$NON-NLS-1$
 	private static final String PIPE = "|"; //$NON-NLS-1$
-	private BundleContext context;
 	private List metadataRepositories = new ArrayList();
 	private List artifactRepositories = new ArrayList();
 
-	public DropinsRepositoryListener(BundleContext context, String repositoryName) {
-		super(context, repositoryName, null, true);
-		this.context = context;
+	public DropinsRepositoryListener(String repositoryName) {
+		super(repositoryName, true);
 	}
 
 	public boolean isInterested(File file) {
@@ -217,19 +212,13 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	private void removeMetadataRepository(String urlString) {
-		ServiceReference reference = context.getServiceReference(IMetadataRepositoryManager.class.getName());
-		IMetadataRepositoryManager manager = null;
-		if (reference != null)
-			manager = (IMetadataRepositoryManager) context.getService(reference);
+		IMetadataRepositoryManager manager = Activator.getMetadataRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.metadata_repo_manager_not_registered);
-
 		try {
 			manager.removeRepository(new URL(urlString));
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating URL from: " + urlString, e)); //$NON-NLS-1$
-		} finally {
-			context.ungetService(reference);
 		}
 	}
 
@@ -250,19 +239,13 @@ public class DropinsRepositoryListener extends RepositoryListener {
 	}
 
 	public void removeArtifactRepository(String urlString) {
-		ServiceReference reference = context.getServiceReference(IArtifactRepositoryManager.class.getName());
-		IArtifactRepositoryManager manager = null;
-		if (reference != null)
-			manager = (IArtifactRepositoryManager) context.getService(reference);
+		IArtifactRepositoryManager manager = Activator.getArtifactRepositoryManager();
 		if (manager == null)
 			throw new IllegalStateException(Messages.artifact_repo_manager_not_registered);
-
 		try {
 			manager.removeRepository(new URL(urlString));
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while creating URL from: " + urlString, e)); //$NON-NLS-1$
-		} finally {
-			context.ungetService(reference);
 		}
 	}
 

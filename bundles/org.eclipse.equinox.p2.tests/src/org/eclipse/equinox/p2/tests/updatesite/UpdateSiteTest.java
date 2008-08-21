@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.updatesite;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import junit.framework.Test;
@@ -456,27 +457,9 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 		IArtifactKey[] keys = artifactRepo.getArtifactKeys();
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i].getId().equals("Plugin240121")) {
-				FileOutputStream fos = null;
-				try {
-					File tmp;
-					try {
-						tmp = File.createTempFile("p2.test", "test");
-						tmp.deleteOnExit();
-						fos = new FileOutputStream(tmp);
-					} catch (IOException e1) {
-						fail("Can't create temp file");
-					}
-					IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(keys[i])[0], fos, new NullProgressMonitor());
-					if (!status.isOK())
-						fail("Can't get the expected artifact:" + keys[i]);
-				} finally {
-					if (fos != null)
-						try {
-							fos.close();
-						} catch (IOException e) {
-							//ignore
-						}
-				}
+				IStatus status = artifactRepo.getArtifact(artifactRepo.getArtifactDescriptors(keys[i])[0], new ByteArrayOutputStream(500), new NullProgressMonitor());
+				if (!status.isOK())
+					fail("Can't get the expected artifact:" + keys[i]);
 			}
 		}
 	}

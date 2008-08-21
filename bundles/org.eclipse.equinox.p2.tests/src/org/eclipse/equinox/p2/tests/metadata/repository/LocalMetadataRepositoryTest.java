@@ -19,12 +19,14 @@ import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.eventbus.*;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.RepositoryEvent;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.osgi.framework.Version;
 
 /**
  * Test API of the local metadata repository implementation.
@@ -57,14 +59,13 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setMetadataRepository(repo);
-		provider.initialize(repoLocation);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		// Generate the repository
-		new Generator(provider).generate();
+
+		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
+		descriptor.setId("testIuId");
+		descriptor.setVersion(new Version("3.2.1"));
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
+		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		boolean xmlFilePresent = false;
@@ -126,14 +127,13 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		IMetadataRepository repo = manager.createRepository(repoLocation.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setMetadataRepository(repo);
-		provider.initialize(repoLocation);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		// Generate the repository
-		new Generator(provider).generate();
+
+		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
+		descriptor.setId("testIuId");
+		descriptor.setVersion(new Version("3.2.1"));
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
+		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+
 		File[] files = repoLocation.listFiles();
 		boolean jarFilePresent = false;
 		// none of the files in the repository should be the content.xml.jar

@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
@@ -16,7 +17,6 @@ import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -29,9 +29,10 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
-	private final IMetadataRepository metadataRepository;
-	private boolean initialized = false;
+
+	final IMetadataRepository metadataRepository;
 	private File base;
+	private Object state = SiteListener.UNINITIALIZED;
 
 	/*
 	 * Return the URL for this repo's nested local repository.
@@ -54,23 +55,20 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * given location and specified nested repo.
 	 */
 	public ExtensionLocationMetadataRepository(URL location, IMetadataRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
+		super(SiteListener.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.metadataRepository = repository;
 		this.base = getBaseDirectory(location);
 	}
 
 	public synchronized void ensureInitialized() {
-		if (initialized)
+		if (state == SiteListener.INITIALIZED || state == SiteListener.INITIALIZING)
 			return;
-		File plugins = new File(base, PLUGINS);
-		File features = new File(base, FEATURES);
-		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), metadataRepository, null);
-		if (getProperties().get(SiteListener.SITE_POLICY) != null)
-			listener = new SiteListener(getProperties(), location.toExternalForm(), new BundlePoolFilteredListener(listener));
-		watcher.addListener(listener);
-		watcher.poll();
-		initialized = true;
+		// if the repo has not been synchronized for us already, synchronize it.
+		SiteListener.synchronizeRepositories(this, null, base);
+	}
+
+	void state(Object value) {
+		state = value;
 	}
 
 	/* (non-Javadoc)

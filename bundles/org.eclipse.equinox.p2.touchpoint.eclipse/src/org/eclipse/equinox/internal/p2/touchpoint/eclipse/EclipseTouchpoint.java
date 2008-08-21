@@ -20,6 +20,9 @@ import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
+import org.eclipse.equinox.p2.publisher.eclipse.BundlesAction;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.eclipse.osgi.service.resolver.BundleDescription;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Version;
 
@@ -103,7 +106,7 @@ public class EclipseTouchpoint extends Touchpoint {
 
 		Class c = null;
 		try {
-			c = Class.forName("org.eclipse.equinox.internal.provisional.p2.metadata.generator.MetadataGeneratorHelper"); //$NON-NLS-1$
+			c = Class.forName("org.eclipse.equinox.spi.p2.publisher.PublisherHelper"); //$NON-NLS-1$
 			if (c != null)
 				c = Class.forName("org.eclipse.osgi.service.resolver.PlatformAdmin"); //$NON-NLS-1$
 		} catch (ClassNotFoundException e) {
@@ -124,11 +127,16 @@ public class EclipseTouchpoint extends Touchpoint {
 				LogHelper.log(Util.createError(NLS.bind(Messages.artifact_file_not_found, artifactKey.toString())));
 				return null;
 			}
-			return MetadataGeneratorUtils.createBundleIU(artifactKey, bundleFile);
+			return createBundleIU(artifactKey, bundleFile);
 		}
 
 		// should not occur
 		throw new IllegalStateException(Messages.unexpected_prepareiu_error);
+	}
+
+	private IInstallableUnit createBundleIU(IArtifactKey artifactKey, File bundleFile) {
+		BundleDescription bundleDescription = BundlesAction.createBundleDescription(bundleFile);
+		return PublisherHelper.createBundleIU(bundleDescription, (Map) bundleDescription.getUserObject(), bundleFile.isDirectory(), artifactKey);
 	}
 
 	public static IStatus loadManipulator(Manipulator manipulator) {

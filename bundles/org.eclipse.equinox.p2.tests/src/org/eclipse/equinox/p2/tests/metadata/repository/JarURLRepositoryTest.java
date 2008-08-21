@@ -13,18 +13,22 @@ package org.eclipse.equinox.p2.tests.metadata.repository;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.TestCase;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory;
+import org.eclipse.equinox.internal.provisional.p2.metadata.MetadataFactory.InstallableUnitDescription;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Version;
 
 public class JarURLRepositoryTest extends TestCase {
 
@@ -40,44 +44,32 @@ public class JarURLRepositoryTest extends TestCase {
 		this("");
 	}
 
-	private static boolean deleteDirectory(File directory) {
-		if (directory.exists() && directory.isDirectory()) {
-			File[] files = directory.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory()) {
-					deleteDirectory(files[i]);
-				} else {
-					files[i].delete();
-				}
-			}
-		}
-		return directory.delete();
-	}
-
 	protected void setUp() throws Exception {
 		managerRef = TestActivator.getContext().getServiceReference(IMetadataRepositoryManager.class.getName());
 		manager = (IMetadataRepositoryManager) TestActivator.getContext().getService(managerRef);
 
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		URL base = TestActivator.getContext().getBundle().getEntry("/testData/generator/eclipse3.3");
-		provider.initialize(new File(FileLocator.toFileURL(base).getPath()));
 		String tempDir = System.getProperty("java.io.tmpdir");
 		File testRepo = new File(tempDir, "testRepo");
-		deleteDirectory(testRepo);
+		FileUtils.deleteAll(testRepo);
 		testRepo.mkdir();
-		provider.setFlavor("jartest");
-		IMetadataRepository repository = manager.createRepository(testRepo.toURL(), "testRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
-		provider.setMetadataRepository(repository);
-		new Generator(provider).generate();
-		testRepoJar = new File(tempDir, "testRepo.jar");
-		FileUtils.zip(new File[] {testRepo}, null, testRepoJar, FileUtils.createDynamicPathComputer(1));
+		Map properties = new HashMap();
+		properties.put(IRepository.PROP_COMPRESSED, "true");
+		IMetadataRepository repo = manager.createRepository(testRepo.toURL(), "TestRepo", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+
+		InstallableUnitDescription descriptor = new MetadataFactory.InstallableUnitDescription();
+		descriptor.setId("testIuId");
+		descriptor.setVersion(new Version("3.2.1"));
+		IInstallableUnit iu = MetadataFactory.createInstallableUnit(descriptor);
+		repo.addInstallableUnits(new IInstallableUnit[] {iu});
+
+		testRepoJar = new File(testRepo, "content.jar");
 		assertTrue(testRepoJar.exists());
 		testRepoJar.deleteOnExit();
-		deleteDirectory(testRepo);
 	}
 
 	protected void tearDown() throws Exception {
 		manager = null;
+		FileUtils.deleteAll(testRepoJar.getParentFile());
 		TestActivator.getContext().ungetService(managerRef);
 	}
 

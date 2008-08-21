@@ -42,6 +42,7 @@ public abstract class DirectoryChangeListener {
 		return false;
 	}
 
+	//TODO this method name needs to be more descriptive.  getLastModified?
 	public Long getSeenFile(File file) {
 		return null;
 	}

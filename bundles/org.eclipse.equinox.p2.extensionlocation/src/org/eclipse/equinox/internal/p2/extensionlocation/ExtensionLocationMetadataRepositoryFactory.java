@@ -67,7 +67,7 @@ public class ExtensionLocationMetadataRepositoryFactory implements IMetadataRepo
 			IMetadataRepository repository = new SimpleMetadataRepositoryFactory().load(repoLocation, null);
 			return new ExtensionLocationMetadataRepository(location, repository, monitor);
 		} catch (ProvisionException e) {
-			return create(location, Activator.getRepositoryName(location), ExtensionLocationMetadataRepository.TYPE, null);
+			return create(location, SiteListener.getRepositoryName(location), ExtensionLocationMetadataRepository.TYPE, null);
 		}
 	}
 

@@ -18,13 +18,13 @@ import java.util.Map;
 import junit.framework.TestCase;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.EclipseInstallGeneratorInfoProvider;
-import org.eclipse.equinox.internal.provisional.p2.metadata.generator.Generator;
+import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
+import org.osgi.framework.Version;
 
 public class SimpleArtifactRepositoryTest extends TestCase {
 	//artifact repository to remove on tear down
@@ -87,13 +87,11 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "true");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURL, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setArtifactRepository(repo);
-		provider.initialize(repositoryFile);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		new Generator(provider).generate();
+
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
+		repo.addDescriptor(descriptor);
+
 		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
@@ -105,6 +103,8 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 				artifactFilePresent = false;
 			}
 		}
+		delete(repositoryFile);
+
 		if (!jarFilePresent)
 			fail("Repository should create JAR for artifact.xml");
 		if (artifactFilePresent)
@@ -120,13 +120,11 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 		Map properties = new HashMap();
 		properties.put(IRepository.PROP_COMPRESSED, "false");
 		IArtifactRepository repo = artifactRepositoryManager.createRepository(repositoryURL, "artifact name", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
-		EclipseInstallGeneratorInfoProvider provider = new EclipseInstallGeneratorInfoProvider();
-		provider.setArtifactRepository(repo);
-		provider.initialize(repositoryFile);
-		provider.setRootVersion("3.3");
-		provider.setRootId("sdk");
-		provider.setFlavor("tooling");
-		new Generator(provider).generate();
+
+		IArtifactKey key = PublisherHelper.createBinaryArtifactKey("testKeyId", new Version("1.2.3"));
+		IArtifactDescriptor descriptor = PublisherHelper.createArtifactDescriptor(key, null);
+		repo.addDescriptor(descriptor);
+
 		File files[] = repositoryFile.listFiles();
 		boolean jarFilePresent = false;
 		boolean artifactFilePresent = false;
@@ -138,6 +136,8 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 				artifactFilePresent = true;
 			}
 		}
+		delete(repositoryFile);
+
 		if (jarFilePresent)
 			fail("Repository should not create JAR for artifact.xml");
 		if (!artifactFilePresent)

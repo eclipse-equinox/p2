@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
@@ -18,7 +19,6 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
 import org.eclipse.osgi.util.NLS;
@@ -28,9 +28,10 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
-	private final IFileArtifactRepository artifactRepository;
-	private boolean initialized = false;
+
+	final IFileArtifactRepository artifactRepository;
 	private File base;
+	private Object state = SiteListener.UNINITIALIZED;
 
 	/*
 	 * Return the location of a local repository based on
@@ -54,21 +55,20 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	 * the given url and nested repository.
 	 */
 	public ExtensionLocationArtifactRepository(URL location, IFileArtifactRepository repository, IProgressMonitor monitor) throws ProvisionException {
-		super(Activator.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
+		super(SiteListener.getRepositoryName(location), TYPE, VERSION.toString(), location, null, null, null);
 		this.artifactRepository = repository;
 		this.base = getBaseDirectory(location);
 	}
 
 	public synchronized void ensureInitialized() {
-		if (initialized)
+		if (state == SiteListener.INITIALIZED || state == SiteListener.INITIALIZING)
 			return;
-		File plugins = new File(base, PLUGINS);
-		File features = new File(base, FEATURES);
-		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), null, artifactRepository);
-		watcher.addListener(listener);
-		watcher.poll();
-		initialized = true;
+		// if the repo has not been synchronized for us already, synchronize it.
+		SiteListener.synchronizeRepositories(null, this, base);
+	}
+
+	void state(Object value) {
+		state = value;
 	}
 
 	public static void validate(URL location, IProgressMonitor monitor) throws ProvisionException {

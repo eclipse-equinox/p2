@@ -1,0 +1,52 @@
+package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
+
+import java.io.File;
+import java.net.URL;
+import java.util.Map;
+import java.util.Properties;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.osgi.framework.Version;
+
+/**
+ * Entry advice captures the name, location, modified time, shape etc of something
+ * discovered by the repository listener.  It is a simplified structure intended to represent
+ * only one entry at a time and that entry is the the only entry being published.  
+ */
+public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
+	private Properties metadataProps = new Properties();
+	private Properties artifactProps = new Properties();
+
+	public Properties getProperties(Feature feature, File location) {
+		return metadataProps;
+	}
+
+	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
+		return true;
+	}
+
+	public Properties getIUProperties(File location) {
+		return metadataProps;
+	}
+
+	public Properties getArtifactProperties(File location) {
+		return artifactProps;
+	}
+
+	void setProperties(File location, long timestamp, URL reference) {
+		if (reference == null)
+			artifactProps.remove(RepositoryListener.ARTIFACT_REFERENCE);
+		else
+			artifactProps.setProperty(RepositoryListener.ARTIFACT_REFERENCE, reference.toExternalForm());
+		if (location.isDirectory())
+			artifactProps.setProperty(RepositoryListener.ARTIFACT_FOLDER, Boolean.TRUE.toString());
+		else
+			artifactProps.remove(RepositoryListener.ARTIFACT_FOLDER);
+		artifactProps.setProperty(RepositoryListener.FILE_NAME, location.getAbsolutePath());
+		metadataProps.setProperty(RepositoryListener.FILE_NAME, location.getAbsolutePath());
+		metadataProps.setProperty(RepositoryListener.FILE_LAST_MODIFIED, Long.toString(timestamp));
+	}
+
+	public Map getInstructions(File location) {
+		return null;
+	}
+}

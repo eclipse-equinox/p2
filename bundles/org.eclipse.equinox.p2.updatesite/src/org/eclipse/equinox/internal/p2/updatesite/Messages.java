@@ -32,6 +32,23 @@ public class Messages extends NLS {
 
 	public static String repoMan_internalError;
 
+	public static String DefaultFeatureParser_IdOrVersionInvalid;
+	public static String DefaultSiteParser_NoSiteTag;
+	public static String DefaultSiteParser_WrongParsingStack;
+	public static String DefaultSiteParser_UnknownElement;
+	public static String DefaultSiteParser_UnknownStartState;
+	public static String DefaultSiteParser_Missing;
+	public static String DefaultSiteParser_ParsingStackBackToInitialState;
+	public static String DefaultSiteParser_ElementAlreadySet;
+	public static String DefaultSiteParser_CategoryAlreadySet;
+	public static String DefaultSiteParser_UnknownEndState;
+	public static String DefaultSiteParser_ErrorParsing;
+	public static String DefaultSiteParser_ErrorlineColumnMessage;
+	public static String DefaultSiteParser_ErrorParsingSite;
+	public static String DefaultSiteParser_UnknownState;
+	public static String DefaultSiteParser_InvalidXMLStream;
+	public static String DefaultSiteParser_mirrors;
+
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
