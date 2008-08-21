@@ -16,7 +16,7 @@ Import-Package: org.eclipse.core.runtime.adaptor,
  org.osgi.framework;version="1.3.0",
  org.osgi.util.tracker;version="1.3.3",
  org.xml.sax
-Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equinox.p2.metadata.generator",
+Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.p2.core.helpers;
   x-friends:="org.eclipse.equinox.p2.director,
    org.eclipse.equinox.p2.artifact.processors,
@@ -42,7 +42,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.console,
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.reconciler.dropins,
-   org.eclipse.equinox.p2.extensionlocation",
+   org.eclipse.equinox.p2.extensionlocation,
+   org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.p2.persistence;x-friends:="org.eclipse.equinox.p2.artifact.repository,org.eclipse.equinox.p2.engine,org.eclipse.equinox.p2.metadata.repository",
  org.eclipse.equinox.internal.provisional.p2.core;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
@@ -64,7 +65,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.installer,
    org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.updatechecker,
-   org.eclipse.pde.p2.ui",
+   org.eclipse.pde.p2.ui,
+   org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.p2.core.eventbus;
   x-friends:="org.eclipse.equinox.p2.metadata,
    org.eclipse.equinox.p2.metadata.generator,
@@ -78,7 +80,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.touchpoint.eclipse,
-   org.eclipse.equinox.p2.touchpoint.natives",
+   org.eclipse.equinox.p2.touchpoint.natives,
+   org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.p2.core.location;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.touchpoint.natives,
@@ -111,7 +114,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.updatechecker,
    org.eclipse.equinox.p2.updatesite,
    org.eclipse.equinox.p2.console,
-   org.eclipse.equinox.p2.directorywatcher",
+   org.eclipse.equinox.p2.directorywatcher,
+   org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.p2.query;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,
@@ -137,7 +141,8 @@ Export-Package: org.eclipse.equinox.internal.p2.core;x-friends:="org.eclipse.equ
    org.eclipse.equinox.p2.ui.sdk,
    org.eclipse.equinox.p2.updatechecker,
    org.eclipse.equinox.p2.updatesite,
-   org.eclipse.equinox.p2.console",
+   org.eclipse.equinox.p2.console,
+   org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.spi.p2.core.repository;
   x-friends:="org.eclipse.equinox.p2.artifact.repository,
    org.eclipse.equinox.p2.metadata.repository,

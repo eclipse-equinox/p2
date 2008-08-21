@@ -5,7 +5,12 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.0.100.qualifier
-Export-Package: org.eclipse.equinox.internal.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.engine,org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.reconciler.dropins, org.eclipse.equinox.p2.ui",
+Export-Package: org.eclipse.equinox.internal.p2.metadata.repository;
+  x-friends:="org.eclipse.equinox.p2.engine,
+   org.eclipse.equinox.p2.metadata.generator,
+   org.eclipse.equinox.p2.reconciler.dropins,
+   org.eclipse.equinox.p2.ui,
+   org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.p2.metadata.repository.io;x-friends:="org.eclipse.equinox.p2.engine",
  org.eclipse.equinox.internal.provisional.p2.metadata.repository;
   x-friends:="org.eclipse.equinox.p2.ui,
@@ -21,7 +26,8 @@ Export-Package: org.eclipse.equinox.internal.p2.metadata.repository;x-friends:="
    org.eclipse.equinox.p2.extensionlocation,
    org.eclipse.equinox.p2.installer,
    org.eclipse.equinox.p2.reconciler.dropins,
-   org.eclipse.pde.p2.ui",
+   org.eclipse.pde.p2.ui,
+   org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository;x-friends:="org.eclipse.equinox.p2.extensionlocation,org.eclipse.equinox.p2.updatesite"
 Import-Package: org.eclipse.core.runtime.preferences,
  org.eclipse.equinox.app;resolution:=optional,

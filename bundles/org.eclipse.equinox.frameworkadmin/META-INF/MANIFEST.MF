@@ -8,9 +8,13 @@ Bundle-Localization: plugin
 Import-Package: org.eclipse.osgi.service.pluginconversion;version="1.0.0",
  org.osgi.framework;version="1.3.0",
  org.osgi.service.startlevel;version="1.0.0"
-Export-Package: org.eclipse.equinox.internal.frameworkadmin.utils;x-friends:="org.eclipse.equinox.frameworkadmin.equinox,org.eclipse.equinox.p2.metadata.generator",
+Export-Package: org.eclipse.equinox.internal.frameworkadmin.utils;x-friends:="org.eclipse.equinox.frameworkadmin.equinox,org.eclipse.equinox.p2.metadata.generator,org.eclipse.equinox.p2.publisher",
  org.eclipse.equinox.internal.provisional.configuratormanipulator;x-internal:=true,
- org.eclipse.equinox.internal.provisional.frameworkadmin;x-friends:="org.eclipse.pde.p2.ui,org.eclipse.equinox.p2.touchpoint.eclipse,org.eclipse.equinox.p2.metadata.generator"
+ org.eclipse.equinox.internal.provisional.frameworkadmin;
+  x-friends:="org.eclipse.pde.p2.ui,
+   org.eclipse.equinox.p2.touchpoint.eclipse,
+   org.eclipse.equinox.p2.metadata.generator,
+   org.eclipse.equinox.p2.publisher"
 Bundle-RequiredExecutionEnvironment: J2SE-1.4,
  CDC-1.1/Foundation-1.1
 Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0"
