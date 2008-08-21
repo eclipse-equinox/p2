@@ -27,6 +27,9 @@ import org.eclipse.osgi.util.ManifestElement;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.BundleException;
 
+/**
+ * @deprecated All of the function here has moved to BundlesAction static methods
+ */
 public class BundleDescriptionFactory {
 	static final String DIR = "dir"; //$NON-NLS-1$
 	static final String JAR = "jar"; //$NON-NLS-1$

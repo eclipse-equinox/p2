@@ -174,6 +174,9 @@ public class Generator {
 		return version;
 	}
 
+	/** 
+	 * @deprecated moved to ProductAction
+	 */
 	protected IInstallableUnit createProductIU(GeneratorResult result) {
 		generateProductConfigCUs(result);
 
@@ -202,12 +205,18 @@ public class Generator {
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
+	/**
+	 * @deprecated moved to RootIUAction
+	 */
 	protected IInstallableUnit createTopLevelIU(GeneratorResult result, String configurationIdentification, String configurationVersion) {
 		// TODO, bit of a hack but for now set the name of the IU to the ID.
 		InstallableUnitDescription root = createTopLevelIUDescription(result, configurationIdentification, configurationVersion, configurationIdentification, null, true);
 		return MetadataFactory.createInstallableUnit(root);
 	}
 
+	/**
+	 * @deprecated moved to RootIUAction
+	 */
 	protected InstallableUnitDescription createTopLevelIUDescription(GeneratorResult result, String configurationIdentification, String configurationVersion, String configurationName, List requires, boolean configureLauncherData) {
 		InstallableUnitDescription root = new MetadataFactory.InstallableUnitDescription();
 		root.setSingleton(true);
@@ -234,6 +243,7 @@ public class Generator {
 		root.setTouchpointType(MetadataGeneratorHelper.TOUCHPOINT_OSGI);
 		Map touchpointData = new HashMap();
 
+		// Publisher refactor - the configdata stuff moved to a distinct IU added by the ConfigCUsAction
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
 
@@ -259,6 +269,9 @@ public class Generator {
 		return root;
 	}
 
+	/**
+	 * @deprecated moved to ConfigCUsAction
+	 */
 	private String[] getConfigurationStrings(ConfigData configData) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
@@ -282,6 +295,9 @@ public class Generator {
 		return new String[] {configurationData, unconfigurationData};
 	}
 
+	/**
+	 * @deprecated moved to ConfigCUsAction
+	 */
 	private String[] getLauncherConfigStrings(final String[] jvmArgs, final String[] programArgs) {
 		String configurationData = ""; //$NON-NLS-1$
 		String unconfigurationData = ""; //$NON-NLS-1$
@@ -341,6 +357,9 @@ public class Generator {
 		return Status.OK_STATUS;
 	}
 
+	/**
+	 * @deprecated moved to BundlesAction
+	 */
 	protected void generateBundleIUs(BundleDescription[] bundles, GeneratorResult result, IArtifactRepository destination) {
 		// Computing the path for localized property files in a NL fragment bundle
 		// requires the BUNDLE_LOCALIZATION property from the manifest of the host bundle,
@@ -429,6 +448,7 @@ public class Generator {
 	 * Generates IUs corresponding to update site categories.
 	 * @param categoriesToFeatures Map of SiteCategory ->Set (Feature IUs in that category).
 	 * @param result The generator result being built
+	 * @deprecated moved to SiteXMLAction
 	 */
 	protected void generateCategoryIUs(Map categoriesToFeatures, GeneratorResult result) {
 		for (Iterator it = categoriesToFeatures.keySet().iterator(); it.hasNext();) {
@@ -437,6 +457,9 @@ public class Generator {
 		}
 	}
 
+	/**
+	 * @deprecated moved to ConfigCUsAction
+	 */
 	private void storeConfigData(GeneratorResult result) {
 		if (result.configData.containsKey(info.getLauncherConfig()))
 			return; //been here, done this
@@ -455,6 +478,9 @@ public class Generator {
 		}
 	}
 
+	/**
+	 * @deprecated moved to ConfigCUsAction
+	 */
 	protected GeneratorBundleInfo createGeneratorBundleInfo(BundleInfo bundleInfo, GeneratorResult result) {
 		if (bundleInfo.getLocation() != null)
 			return new GeneratorBundleInfo(bundleInfo);
@@ -502,6 +528,9 @@ public class Generator {
 		return null;
 	}
 
+	/** 
+	 * @deprecated moved to ConfigCUsAction
+	 */
 	protected void generateBundleConfigIUs(BundleInfo[] infos, GeneratorResult result, String launcherConfig) {
 		if (infos == null)
 			return;
@@ -561,6 +590,9 @@ public class Generator {
 
 	}
 
+	/**
+	 * @deprecated moved to ConfigCUsAction (and perhaps a couple other places...)
+	 */
 	protected void generateConfigIUs(GeneratorResult result) {
 		ConfigData data = info.getConfigData();
 		if ((data == null || data.getBundles().length == 0) && info.getLauncherConfig() != null) {
@@ -637,6 +669,7 @@ public class Generator {
 	/**
 	 * Short term fix to ensure IUs that have no corresponding category are not lost.
 	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=211521.
+	 * @deprecated moved to RootIUAction
 	 */
 	private IInstallableUnit generateDefaultCategory(IInstallableUnit rootIU) {
 		rootCategory.add(rootIU);
@@ -661,6 +694,9 @@ public class Generator {
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 
+	/** 
+	 * @deprecated moved to DefaultCUsAction
+	 */
 	private void generateDefaultConfigIU(Set ius) {
 		//		TODO this is a bit of a hack.  We need to have the default IU fragment generated with code that configures
 		//		and unconfigures.  The Generator should be decoupled from any particular provider but it is not clear
@@ -677,6 +713,7 @@ public class Generator {
 	 * This method generates IUs for the launchers found in the org.eclipse.executable feature, if present.
 	 * @return <code>true</code> if the executable feature was processed successfully,
 	 * and <code>false</code> otherwise.
+	 * @deprecated moved to ExecutablesDescriptor and EquinoxExecutableAction
 	 */
 	private boolean generateExecutableFeatureIUs(GeneratorResult result, IArtifactRepository destination) {
 		File parentDir = info.getFeaturesLocation();
@@ -725,6 +762,7 @@ public class Generator {
 	/**
 	 * Generates IUs and CUs for the files that make up the launcher for a given
 	 * ws/os/arch combination.
+	 * @deprecated moved to EquinoxExecutableAction
 	 */
 	private void generateExecutableIUs(String ws, String os, final String arch, String version, File root, GeneratorResult result, IArtifactRepository destination) {
 		if (root == null)
@@ -845,8 +883,9 @@ public class Generator {
 		publishArtifact(descriptor, root.listFiles(), destination, false);
 	}
 
-	/*
+	/**
 	 * For each platform, generate a CU containing the information for the config.ini
+	 * @deprecated moved to ProductAction and ConfigCUsAction
 	 */
 	private void generateProductConfigCUs(GeneratorResult result) {
 		for (Iterator iterator = result.configData.keySet().iterator(); iterator.hasNext();) {
@@ -883,8 +922,9 @@ public class Generator {
 		}
 	}
 
-	/* 
+	/**
 	 * For the given platform (ws, os, arch) generate the CU that will populate the product.ini file 
+	 * @deprecated moved to ProductAction and ConfigCUsAction
 	 */
 	private void generateProductIniCU(String ws, String os, String arch, String version, GeneratorResult result) {
 		if (productFile == null)
@@ -929,6 +969,7 @@ public class Generator {
 
 	/**
 	 * Generates metadata for the given features.
+	 * @deprecated moved to FeaturesAction
 	 */
 	protected void generateFeatureIUs(Feature[] features, GeneratorResult result, IArtifactRepository destination) {
 		Map categoriesToFeatureIUs = new HashMap();
@@ -962,6 +1003,8 @@ public class Generator {
 			IInstallableUnit generated = MetadataGeneratorHelper.createGroupIU(feature, featureIU);
 			result.rootIUs.add(generated);
 			result.rootIUs.add(featureIU);
+
+			// @deprecated  moved to SiteXMLAction
 			Set categories = getCategories(feature, featuresToCategories);
 			if (categories != null) {
 				for (Iterator it = categories.iterator(); it.hasNext();) {
@@ -980,6 +1023,9 @@ public class Generator {
 		generateCategoryIUs(categoriesToFeatureIUs, result);
 	}
 
+	/**
+	 * @deprecated moved to FeaturesAction
+	 */
 	private void storePluginShape(Feature feature, GeneratorResult result) {
 		FeatureEntry[] entries = feature.getEntries();
 		for (int i = 0; i < entries.length; i++) {
@@ -989,6 +1035,9 @@ public class Generator {
 		}
 	}
 
+	/**
+	 * @deprecated moved to various other places.  mainly the aggregator actions (e.g., EclipseInstallAction)
+	 */
 	protected void generateNativeIUs(File executableLocation, GeneratorResult result, IArtifactRepository destination) {
 		//generate data for JRE
 		File jreLocation = info.getJRELocation();
@@ -1024,6 +1073,9 @@ public class Generator {
 		publishArtifact(artifact, launcherFiles, destination, false);
 	}
 
+	/**
+	 * @deprecated moved to various other places.  mainly the aggregator actions (e.g., EclipseInstallAction)
+	 */
 	protected void generateRootIU(GeneratorResult result, String rootIUId, String rootIUVersion) {
 		IInstallableUnit rootIU = null;
 
@@ -1044,6 +1096,7 @@ public class Generator {
 	 * @param location The update site location
 	 * @param featureId the identifier of the feature where the error occurred, or null
 	 * @param isEnabled Whether the site should be enabled by default
+	 * @deprecated moved to FeaturesAction
 	 */
 	private void generateSiteReference(String location, String featureId, boolean isEnabled) {
 		IMetadataRepository metadataRepo = info.getMetadataRepository();
@@ -1060,6 +1113,9 @@ public class Generator {
 		}
 	}
 
+	/**
+	 * @deprecated moved to BundlesAction
+	 */
 	protected BundleDescription[] getBundleDescriptions(File[] bundleLocations) {
 		if (bundleLocations == null)
 			return new BundleDescription[0];
@@ -1095,6 +1151,9 @@ public class Generator {
 		return result;
 	}
 
+	/**
+	 * @deprecated moved to BundlesAction
+	 */
 	protected BundleDescriptionFactory getBundleFactory() {
 		return new BundleDescriptionFactory(stateObjectFactory, null);
 	}
@@ -1105,6 +1164,7 @@ public class Generator {
 	 * @param feature The feature to return categories for
 	 * @param featuresToCategories A map of SiteFeature->Set<SiteCategory>
 	 * @return A Set<SiteCategory> of the categories corresponding to the feature, or <code>null</code>
+	 * @deprecated moved to SiteXMLAction
 	 */
 	private Set getCategories(Feature feature, Map featuresToCategories) {
 		//find the SiteFeature corresponding to the given feature
@@ -1116,6 +1176,9 @@ public class Generator {
 		return null;
 	}
 
+	/**
+	 * @deprecated moved to FeaturesAction
+	 */
 	protected Feature[] getFeatures(File folder) {
 		if (folder == null || !folder.exists())
 			return new Feature[0];
@@ -1215,6 +1278,7 @@ public class Generator {
 	 * to eclipse.exe (or "launcher" to "eclipse"). Eventually we will either hand-craft
 	 * metadata/artifacts for launchers, or alter the delta pack to contain eclipse-branded
 	 * launchers.
+	 * @deprecated moved to EquinoxExecutableAction
 	 */
 	private void mungeLauncherFileNames(File root) {
 		if (root.isDirectory()) {
@@ -1231,6 +1295,9 @@ public class Generator {
 	}
 
 	// Put the artifact on the server
+	/**
+	 * @deprecated moved to AbstractPublishingAction
+	 */
 	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs) {
 		if (descriptor == null || destination == null)
 			return;

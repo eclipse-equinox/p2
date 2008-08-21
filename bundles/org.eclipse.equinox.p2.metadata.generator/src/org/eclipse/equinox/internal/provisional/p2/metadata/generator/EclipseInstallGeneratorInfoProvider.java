@@ -30,6 +30,11 @@ import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
+/**
+ * @deprecated The function in this class has been refactored into more focused locations
+ * such as IPublisherAction and IPublishingAdvice classes.  See the individual method deprecations
+ * for more information on where the code has moved.
+ */
 public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	private final static String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
@@ -115,6 +120,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return append;
 	}
 
+	/** 
+	 * @deprecated moved to DefaultCUsAction
+	 */
 	protected GeneratorBundleInfo createDefaultConfigurationBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("defaultConfigure"); //$NON-NLS-1$
@@ -125,6 +133,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
+	/** 
+	 * @deprecated moved to DefaultCUsAction
+	 */
 	protected GeneratorBundleInfo createDefaultUnconfigurationBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("defaultUnconfigure"); //$NON-NLS-1$
@@ -137,6 +148,7 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 	/**
 	 * Obtains the framework manipulator instance. Throws an exception
 	 * if it could not be created.
+	 * @deprecated see DataLoader
 	 */
 	private void createFrameworkManipulator() {
 		FrameworkAdmin admin = getFrameworkAdmin();
@@ -147,6 +159,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 			throw new RuntimeException("Framework manipulator not found"); //$NON-NLS-1$
 	}
 
+	/** 
+	 * @deprecated moved to EquinoxLauncherData
+	 */
 	public static GeneratorBundleInfo createLauncher() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName("org.eclipse.equinox.launcher"); //$NON-NLS-1$
@@ -157,6 +172,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
+	/** 
+	 * @deprecated moved to EquinoxLauncherCUAction
+	 */
 	private Collection createLauncherBundleInfo(Set ius) {
 		Collection result = new HashSet();
 		Collection launchers = getIUs(ius, "org.eclipse.equinox.launcher."); //$NON-NLS-1$
@@ -174,6 +192,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
+	/**
+	 * @deprecated moved to EclipseInstallAction (perhaps it will be somewhere more general...)
+	 */
 	private GeneratorBundleInfo createSimpleConfiguratorBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR);
@@ -183,6 +204,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
+	/**
+	 * @deprecated moved to EclipseInstallAction (perhaps it will be somewhere more general...)
+	 */
 	private GeneratorBundleInfo createDropinsReconcilerBundleInfo() {
 		GeneratorBundleInfo result = new GeneratorBundleInfo();
 		result.setSymbolicName(ORG_ECLIPSE_EQUINOX_P2_RECONCILER_DROPINS);
@@ -193,6 +217,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return result;
 	}
 
+	/**
+	 * @deprecated moved to BundlesAction
+	 */
 	private void expandBundleLocations() {
 		if (bundleLocations == null) {
 			bundleLocations = new File[] {};
@@ -228,6 +255,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return manipulator == null ? null : manipulator.getConfigData();
 	}
 
+	/**
+	 * @deprecated moved to DataLoader
+	 */
 	public ConfigData loadConfigData(File location) {
 		if (manipulator == null)
 			return null;
@@ -342,6 +372,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return configLocation;
 	}
 
+	/**
+	 * @deprecated logic moved to EclipseInstallAction (and related actions)
+	 */
 	public ArrayList getDefaultIUs(Set ius) {
 		if (defaultIUs != null)
 			return defaultIUs;
@@ -359,6 +392,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 
 	// TODO: This is kind of ugly. It's purpose is to allow us to craft CUs that we know about and need for our build
 	// We should try to replace this with something more generic prior to release
+	/**
+	 * @deprecated this has been replaced with RootIUAdvice and related things
+	 */
 	public Collection getOtherIUs() {
 		if (otherIUs != null)
 			return otherIUs;
@@ -380,6 +416,9 @@ public class EclipseInstallGeneratorInfoProvider implements IGeneratorInfo {
 		return flavor == null ? "tooling" : flavor; //$NON-NLS-1$
 	}
 
+	/**
+	 * @deprecated moved to DataLoader
+	 */
 	private FrameworkAdmin getFrameworkAdmin() {
 		if (frameworkAdminTracker == null) {
 			try {
