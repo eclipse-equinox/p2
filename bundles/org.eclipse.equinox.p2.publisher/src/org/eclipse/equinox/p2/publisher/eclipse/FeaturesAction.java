@@ -214,6 +214,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		for (int j = 0; j < artifacts.length; j++) {
 			File file = new File(feature.getLocation());
 			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(artifacts[j], file);
+			((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			// if the artifact is a dir then zip it up.
 			if (file.isDirectory())
 				publishArtifact(ad, new File[] {file}, null, info, createRootPrefixComputer(file));
