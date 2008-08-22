@@ -11,8 +11,7 @@ package org.eclipse.equinox.p2.publisher.actions;
 
 import java.io.*;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.metadata.ArtifactKey;
 import org.eclipse.equinox.internal.p2.publisher.Activator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactDescriptor;
@@ -135,7 +134,7 @@ public class JREAction extends AbstractPublisherAction {
 			iu.setCapabilities(generateJRECapability(installableUnitId, installableUnitVersion, null));
 			return;
 		}
-		String profileName = profiles[0].getAbsolutePath().substring(profiles[0].getAbsolutePath().lastIndexOf('/'));
+		String profileName = new Path(profiles[0].getAbsolutePath()).lastSegment();
 		Version version = DEFAULT_JRE_VERSION;
 		//TODO Find a better way to determine JRE version
 		if (profileName.indexOf("1.6") > 0) { //$NON-NLS-1$
