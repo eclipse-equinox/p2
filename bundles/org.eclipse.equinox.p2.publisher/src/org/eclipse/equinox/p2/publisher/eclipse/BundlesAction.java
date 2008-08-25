@@ -55,7 +55,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	protected static final String ORG_ECLIPSE_EQUINOX_SIMPLECONFIGURATOR = "org.eclipse.equinox.simpleconfigurator"; //$NON-NLS-1$
 	protected static final String ORG_ECLIPSE_UPDATE_CONFIGURATOR = "org.eclipse.update.configurator"; //$NON-NLS-1$
 	/**
-	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing and OSGi bundle resource
 	 * @see RequiredCapability#getName()
 	 * @see ProvidedCapability#getName()
@@ -63,7 +63,7 @@ public class BundlesAction extends AbstractPublisherAction {
 	public static final String TYPE_ECLIPSE_BUNDLE = "bundle"; //$NON-NLS-1$
 
 	/**
-	 * A capability name in the {@link #NAMESPACE_ECLIPSE_TYPE} namespace 
+	 * A capability name in the {@link PublisherHelper#NAMESPACE_ECLIPSE_TYPE} namespace 
 	 * representing a source bundle
 	 * @see RequiredCapability#getName()
 	 */
