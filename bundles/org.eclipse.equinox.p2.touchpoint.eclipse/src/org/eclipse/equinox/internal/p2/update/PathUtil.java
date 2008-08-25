@@ -11,8 +11,7 @@
 package org.eclipse.equinox.internal.p2.update;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.net.*;
+import java.net.URL;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
@@ -20,82 +19,8 @@ import org.eclipse.core.runtime.Path;
  * 
  * @since 1.0
  */
-public class Utils {
+public class PathUtil {
 	public static boolean isWindows = System.getProperty("os.name").startsWith("Win"); //$NON-NLS-1$ //$NON-NLS-2$	
-	private static boolean init = false;
-	private static boolean useEnc = true;
-
-	/*
-	 * Copied from UpdateURLDecoder v1.4 in org.eclipse.update.configurator.
-	 */
-	public static String decode(String s, String enc) throws UnsupportedEncodingException {
-		if (!init) {
-			init = true;
-			try {
-				return URLDecoder.decode(s, enc);
-			} catch (NoSuchMethodError e) {
-				useEnc = false;
-			}
-		}
-		return useEnc ? URLDecoder.decode(s, enc) : URLDecoder.decode(s);
-	}
-
-	/*
-	 * Copied from Utils v1.32 in org.eclipse.update.configurator.
-	 * 
-	 * Ensures file: URLs on Windows have the right form (i.e. '/' as segment separator, drive letter in lower case, etc)
-	 */
-	public static String canonicalizeURL(String url) {
-		if (!(isWindows && url.startsWith("file:"))) //$NON-NLS-1$
-			return url;
-		try {
-			String path = new URL(url).getPath();
-			// normalize to not have leading / so we can check the form
-			File file = new File(path);
-			path = file.toString().replace('\\', '/');
-			// handle URLs that don't have a path
-			if (path.length() == 0)
-				return url;
-			if (Character.isUpperCase(path.charAt(0))) {
-				char[] chars = path.toCharArray();
-				chars[0] = Character.toLowerCase(chars[0]);
-				path = new String(chars);
-				return new File(path).toURL().toExternalForm();
-			}
-		} catch (MalformedURLException e) {
-			// default to original url
-		}
-		return url;
-	}
-
-	/*
-	 * Return a boolean value indicating whether or not the given
-	 * objects are considered equal.
-	 */
-	public static boolean equals(Object one, Object two) {
-		return one == null ? two == null : one.equals(two);
-	}
-
-	/*
-	 * Return a boolean value indicating whether or not the given
-	 * lists are considered equal.
-	 */
-	public static boolean equals(Object[] one, Object[] two) {
-		if (one == null && two == null)
-			return true;
-		if (one == null || two == null)
-			return false;
-		if (one.length != two.length)
-			return false;
-		for (int i = 0; i < one.length; i++) {
-			boolean found = false;
-			for (int j = 0; !found && j < two.length; j++)
-				found = one[i].equals(two[j]);
-			if (!found)
-				return false;
-		}
-		return true;
-	}
 
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 

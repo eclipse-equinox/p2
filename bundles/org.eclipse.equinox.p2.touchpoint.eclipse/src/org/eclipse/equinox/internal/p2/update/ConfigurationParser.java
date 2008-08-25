@@ -151,7 +151,7 @@ public class ConfigurationParser implements ConfigurationConstants {
 			return urlString;
 		if (PLATFORM_BASE.equals(urlString))
 			return osgiInstallArea.toExternalForm();
-		return Utils.makeAbsolute(urlString, osgiInstallArea);
+		return PathUtil.makeAbsolute(urlString, osgiInstallArea);
 	}
 
 	/*

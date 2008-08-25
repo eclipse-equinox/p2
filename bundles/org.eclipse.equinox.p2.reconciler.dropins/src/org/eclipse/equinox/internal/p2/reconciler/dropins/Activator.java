@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.update.Configuration;
-import org.eclipse.equinox.internal.p2.update.Utils;
+import org.eclipse.equinox.internal.p2.update.PathUtil;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -187,7 +187,7 @@ public class Activator implements BundleActivator {
 				OutputStream os = null;
 				try {
 					os = new BufferedOutputStream(new FileOutputStream(configIni));
-					String externalForm = Utils.makeRelative(parentConfiguration.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
+					String externalForm = PathUtil.makeRelative(parentConfiguration.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
 					props.put("osgi.sharedConfiguration.area", externalForm); //$NON-NLS-1$
 					props.store(os, "Linked configuration"); //$NON-NLS-1$
 				} finally {
@@ -429,7 +429,7 @@ public class Activator implements BundleActivator {
 			config.setDate(Long.toString(new Date().getTime()));
 			config.setVersion("3.0"); //$NON-NLS-1$
 			try {
-				String sharedUR = Utils.makeRelative(shareConfigFile.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
+				String sharedUR = PathUtil.makeRelative(shareConfigFile.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
 				config.setSharedUR(sharedUR);
 				// ensure that org.eclipse.update directory that holds platform.xml is pre-created.
 				configFile.getParentFile().mkdirs();

@@ -133,14 +133,43 @@ public class Site {
 			return false;
 		if (!getUrl().equals(other.getUrl()))
 			return false;
-		if (!Utils.equals(getLinkFile(), other.getLinkFile()))
+		if (!Site.equals(getLinkFile(), other.getLinkFile()))
 			return false;
-		if (!Utils.equals(getPolicy(), other.getPolicy()))
+		if (!Site.equals(getPolicy(), other.getPolicy()))
 			return false;
-		if (!Utils.equals(getList(), other.getList()))
+		if (!Site.equals(getList(), other.getList()))
 			return false;
-		if (!Utils.equals(getFeatures(), other.getFeatures()))
+		if (!Site.equals(getFeatures(), other.getFeatures()))
 			return false;
+		return true;
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not the given
+	 * objects are considered equal.
+	 */
+	public static boolean equals(Object one, Object two) {
+		return one == null ? two == null : one.equals(two);
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not the given
+	 * lists are considered equal.
+	 */
+	public static boolean equals(Object[] one, Object[] two) {
+		if (one == null && two == null)
+			return true;
+		if (one == null || two == null)
+			return false;
+		if (one.length != two.length)
+			return false;
+		for (int i = 0; i < one.length; i++) {
+			boolean found = false;
+			for (int j = 0; !found && j < two.length; j++)
+				found = one[i].equals(two[j]);
+			if (!found)
+				return false;
+		}
 		return true;
 	}
 }

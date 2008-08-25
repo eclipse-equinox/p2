@@ -118,7 +118,7 @@ public class ConfigurationWriter implements ConfigurationConstants {
 		} catch (MalformedURLException e) {
 			LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Error occurred while writing configuration.", e)); //$NON-NLS-1$
 		}
-		return Utils.makeRelative(value, osgiInstallArea);
+		return PathUtil.makeRelative(value, osgiInstallArea);
 	}
 
 	/*
