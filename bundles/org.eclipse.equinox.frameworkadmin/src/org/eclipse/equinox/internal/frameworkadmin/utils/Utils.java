@@ -25,11 +25,11 @@ import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.osgi.framework.Constants;
 
 public class Utils {
-	private static final String PATH_SEP = "/"; //$NON-NLS-1$
 	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
-	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
+	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 	private static final String FRAGMENT_MANIFEST = "fragment.xml"; //$NON-NLS-1$
+	private static final String PATH_SEP = "/"; //$NON-NLS-1$
 	private static final String PLUGIN_MANIFEST = "plugin.xml"; //$NON-NLS-1$
 
 	/**
@@ -145,80 +145,38 @@ public class Utils {
 		}
 	}
 
+	/*
+	 * Copied from BundleDescriptionFactory in the metadata generator.
+	 */
+	private static Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
+		PluginConverter converter;
+		try {
+			converter = org.eclipse.equinox.internal.frameworkadmin.utils.Activator.acquirePluginConverter();
+			if (converter == null) {
+				new RuntimeException("Unable to aquire PluginConverter service during generation for: " + bundleLocation).printStackTrace(); //$NON-NLS-1$
+				return null;
+			}
+			return converter.convertManifest(bundleLocation, false, null, true, null);
+		} catch (PluginConversionException convertException) {
+			// only log the exception if we had a plugin.xml or fragment.xml and we failed conversion
+			if (bundleLocation.getName().equals(FEATURE_MANIFEST))
+				return null;
+			if (!new File(bundleLocation, PLUGIN_MANIFEST).exists() && !new File(bundleLocation, FRAGMENT_MANIFEST).exists())
+				return null;
+			if (logConversionException) {
+				IStatus status = new Status(IStatus.WARNING, "org.eclipse.equinox.frameworkadmin", 0, "Error converting bundle manifest.", convertException);
+				System.out.println(status);
+				//TODO Need to find a way to get a logging service to log
+			}
+			return null;
+		}
+	}
+
 	public static void createParentDir(File file) throws IOException {
 		File parent = file.getParentFile();
 		if (parent == null)
 			return;
 		parent.mkdirs();
-	}
-
-	/**
-	 * Deletes the given file recursively, adding failure info to
-	 * the provided status object.  The filePath is passed as a parameter
-	 * to optimize java.io.File object creation.
-	 */
-	// Implementation taken from the Eclipse File sytem bundle class LocalFile.
-	//  TODO consider putting back the progress and cancelation support.
-	private static boolean internalDelete(File target, String pathToDelete) {
-		//first try to delete - this should succeed for files and symbolic links to directories
-		if (target.delete() || !target.exists())
-			return true;
-		if (target.isDirectory()) {
-			String[] list = target.list();
-			if (list == null)
-				list = EMPTY_STRING_ARRAY;
-			int parentLength = pathToDelete.length();
-			boolean failedRecursive = false;
-			for (int i = 0, imax = list.length; i < imax; i++) {
-				//optimized creation of child path object
-				StringBuffer childBuffer = new StringBuffer(parentLength + list[i].length() + 1);
-				childBuffer.append(pathToDelete);
-				childBuffer.append(File.separatorChar);
-				childBuffer.append(list[i]);
-				String childName = childBuffer.toString();
-				// try best effort on all children so put logical OR at end
-				failedRecursive = !internalDelete(new java.io.File(childName), childName) || failedRecursive;
-			}
-			try {
-				// don't try to delete the root if one of the children failed
-				if (!failedRecursive && target.delete())
-					return true;
-			} catch (Exception e) {
-				// we caught a runtime exception so log it
-				return false;
-			}
-		}
-		//		message = NLS.bind(Messages.couldnotDelete, target.getAbsolutePath());
-		return false;
-	}
-
-	public static void deleteDir(File target) throws IOException {
-		internalDelete(target, target.getAbsolutePath());
-		throw new IOException("Fail to delete Dir(" + target.getAbsolutePath() + ")");
-	}
-
-	/**
-	 * First, it replaces File.seperator of relativePath to "/".
-	 * If relativePath is in URL format, return its URL.
-	 * Otherwise, create absolute URL based on the baseUrl.
-	 * 
-	 * @param relativePath
-	 * @param baseUrl
-	 * @return URL 
-	 * @throws MalformedURLException
-	 */
-	public static URL formatUrl(String relativePath, URL baseUrl) throws MalformedURLException {//throws ManipulatorException {
-		relativePath = Utils.replaceAll(relativePath, File.separator, "/");
-		URL url = null;
-		try {
-			url = new URL(relativePath);
-			if (url.getProtocol().equals("file"))
-				if (!(new File(url.getFile())).isAbsolute())
-					url = getUrlInFull(relativePath, baseUrl);
-			return url;
-		} catch (MalformedURLException e) {
-			return getUrlInFull(relativePath, baseUrl);
-		}
 	}
 
 	public static BundleInfo[] getBundleInfosFromList(List list) {
@@ -311,33 +269,6 @@ public class Utils {
 		return null;
 	}
 
-	/*
-	 * Copied from BundleDescriptionFactory in the metadata generator.
-	 */
-	private static Dictionary convertPluginManifest(File bundleLocation, boolean logConversionException) {
-		PluginConverter converter;
-		try {
-			converter = org.eclipse.equinox.internal.frameworkadmin.utils.Activator.acquirePluginConverter();
-			if (converter == null) {
-				new RuntimeException("Unable to aquire PluginConverter service during generation for: " + bundleLocation).printStackTrace(); //$NON-NLS-1$
-				return null;
-			}
-			return converter.convertManifest(bundleLocation, false, null, true, null);
-		} catch (PluginConversionException convertException) {
-			// only log the exception if we had a plugin.xml or fragment.xml and we failed conversion
-			if (bundleLocation.getName().equals(FEATURE_MANIFEST))
-				return null;
-			if (!new File(bundleLocation, PLUGIN_MANIFEST).exists() && !new File(bundleLocation, FRAGMENT_MANIFEST).exists())
-				return null;
-			if (logConversionException) {
-				IStatus status = new Status(IStatus.WARNING, "org.eclipse.equinox.frameworkadmin", 0, "Error converting bundle manifest.", convertException);
-				System.out.println(status);
-				//TODO Need to find a way to get a logging service to log
-			}
-			return null;
-		}
-	}
-
 	public static String getPathFromClause(String clause) {
 		if (clause == null)
 			return null;
@@ -371,79 +302,6 @@ public class Utils {
 				sb.append(targetTokens[i]);
 		return sb.toString();
 	}
-
-	public static String getRelativePath(URL target, URL from) throws IllegalArgumentException {
-
-		if (!target.getProtocol().equals(from.getProtocol()))
-			throw new IllegalArgumentException("Protocols of target(=" + target + ") and from(=" + from + ") does NOT equal");
-
-		if (target.getHost() != null && target.getHost().length() != 0) {
-			//System.out.println("target.getHost()=" + target.getHost());
-			if (from.getHost() != null && from.getHost().length() != 0) {
-				if (!target.getHost().equals(from.getHost()))
-					throw new IllegalArgumentException("Hosts of target(=" + target + ") and from(=" + from + ") does NOT equal");
-				if (target.getPort() != (from.getPort()))
-					throw new IllegalArgumentException("Ports of target(=" + target + ") and from(=" + from + ") does NOT equal");
-			} else
-				throw new IllegalArgumentException("While Host of target(=" + target + ") is set, Host of from is null.target.getHost()=" + target.getHost());
-		} else if (from.getHost() != null && from.getHost().length() != 0)
-			throw new IllegalArgumentException("While Host of from(=" + from + ") is set, Host of target is null");
-
-		String targetPath = target.getFile();
-		String fromPath = from.getFile();
-
-		String[] targetTokens = Utils.getTokens(targetPath, PATH_SEP);
-		String[] fromTokens = Utils.getTokens(fromPath, PATH_SEP);
-		int index = -1;
-		for (int i = 0; i < fromTokens.length; i++)
-			if (fromTokens[i].equals(targetTokens[i]))
-				index = i;
-			else
-				break;
-
-		StringBuffer sb = new StringBuffer();
-		for (int i = index + 1; i < fromTokens.length; i++)
-			sb.append(".." + PATH_SEP);
-
-		for (int i = index + 1; i < targetTokens.length; i++)
-			if (i != targetTokens.length - 1)
-				sb.append(targetTokens[i] + PATH_SEP);
-			else
-				sb.append(targetTokens[i]);
-		return sb.toString();
-	}
-
-	//	public static URL getAbsoluteUrl(String relativePath, URL baseUrl) throws FwLauncherException {
-	//		relativePath = Utils.replaceAll(relativePath, File.separator, "/");
-	//		try {
-	//			return new URL(baseUrl, relativePath);
-	//		} catch (MalformedURLException e) {
-	//			throw new FwLauncherException("Absolute URL cannot be created. \nrelativePath=" + relativePath + ",baseUrl=" + baseUrl, e, FwLauncherException.URL_FORMAT_ERROR);
-	//		}
-	//	}
-
-	//	public static void setProperties(Properties to, Properties from, String key) {
-	//		if (from != null) {
-	//			String value = from.getProperty(key);
-	//			if (value != null) {
-	//				if (to != null)
-	//					to = new Properties();
-	//				to.setProperty(key, value);
-	//			}
-	//		}
-	//	}
-
-	//	public static int getIntProperties(Properties props, String key) {//throws ManipulatorException {
-	//		if (props == null)
-	//			throw new IllegalArgumentException("props == null");
-	//		String value = null;
-	//		try {
-	//			value = props.getProperty(key);
-	//			return Integer.parseInt(value);
-	//		} catch (NumberFormatException nfe) {
-	//			throw new ManipulatorException("key=" + key + ",value=" + value, nfe, ManipulatorException.OTHERS);
-	//		}
-	//	}
 
 	/**
 	 * This method will be called for create a backup file.
@@ -498,6 +356,46 @@ public class Utils {
 		return new URL(fromSt + "/" + path);
 	}
 
+	/**
+	 * Deletes the given file recursively, adding failure info to
+	 * the provided status object.  The filePath is passed as a parameter
+	 * to optimize java.io.File object creation.
+	 */
+	// Implementation taken from the Eclipse File sytem bundle class LocalFile.
+	//  TODO consider putting back the progress and cancelation support.
+	private static boolean internalDelete(File target, String pathToDelete) {
+		//first try to delete - this should succeed for files and symbolic links to directories
+		if (target.delete() || !target.exists())
+			return true;
+		if (target.isDirectory()) {
+			String[] list = target.list();
+			if (list == null)
+				list = EMPTY_STRING_ARRAY;
+			int parentLength = pathToDelete.length();
+			boolean failedRecursive = false;
+			for (int i = 0, imax = list.length; i < imax; i++) {
+				//optimized creation of child path object
+				StringBuffer childBuffer = new StringBuffer(parentLength + list[i].length() + 1);
+				childBuffer.append(pathToDelete);
+				childBuffer.append(File.separatorChar);
+				childBuffer.append(list[i]);
+				String childName = childBuffer.toString();
+				// try best effort on all children so put logical OR at end
+				failedRecursive = !internalDelete(new java.io.File(childName), childName) || failedRecursive;
+			}
+			try {
+				// don't try to delete the root if one of the children failed
+				if (!failedRecursive && target.delete())
+					return true;
+			} catch (Exception e) {
+				// we caught a runtime exception so log it
+				return false;
+			}
+		}
+		//		message = NLS.bind(Messages.couldnotDelete, target.getAbsolutePath());
+		return false;
+	}
+
 	private static Properties manifestToProperties(Attributes d) {
 		Iterator iter = d.keySet().iterator();
 		Properties result = new Properties();
@@ -543,35 +441,6 @@ public class Utils {
 			st = st.substring(0, index) + newSt + st.substring(index + oldSt.length());
 		}
 		return st;
-	}
-
-	public static String shrinkPath(String target) {
-		String targetPath = Utils.replaceAll(target, File.separator, PATH_SEP);
-		String[] targetTokens = Utils.getTokens(targetPath, PATH_SEP);
-		//String[] fromTokens = Utils.getTokens(fromPath, PATH_SEP);
-		for (int i = 0; i < targetTokens.length; i++)
-			if (targetTokens[i].equals("")) {
-				targetTokens[i] = null;
-			} else if (targetTokens[i].equals(".")) {
-				targetTokens[i] = null;
-			} else if (targetTokens[i].equals("..")) {
-				int id = i - 1;
-				while (targetTokens[id] == null) {
-					id--;
-				}
-				targetTokens[id] = null;
-			}
-
-		StringBuffer sb = new StringBuffer();
-		if (targetPath.startsWith(PATH_SEP))
-			sb.append(PATH_SEP);
-		for (int i = 0; i < targetTokens.length; i++)
-			if (targetTokens[i] != null)
-				sb.append(targetTokens[i] + PATH_SEP);
-		String ret = sb.toString();
-		if (!targetPath.endsWith(PATH_SEP))
-			ret = ret.substring(0, ret.lastIndexOf(PATH_SEP));
-		return ret;
 	}
 
 	/**
@@ -625,15 +494,6 @@ public class Utils {
 			sb.append("\tkey=" + key + "\tvalue=" + props.getProperty(key) + "\n");
 		}
 		return sb.toString();
-	}
-
-	public static void validateUrl(URL url) {//throws ManipulatorException {
-		try {//test
-			URLConnection connection = url.openConnection();
-			connection.connect();
-		} catch (IOException e) {
-			throw new IllegalArgumentException("URL(" + url + ") cannot be connected.");
-		}
 	}
 
 }
