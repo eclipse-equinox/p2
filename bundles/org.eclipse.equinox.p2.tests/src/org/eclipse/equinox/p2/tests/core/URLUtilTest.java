@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *		compeople AG (Stefan Liebig) - Test fix for bug 121201 - Poor performance behind proxy/firewall
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests.core;
 
