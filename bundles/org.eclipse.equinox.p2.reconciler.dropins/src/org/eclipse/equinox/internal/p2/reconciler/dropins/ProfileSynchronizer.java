@@ -216,7 +216,10 @@ public class ProfileSynchronizer {
 	private IStatus synchronizeCacheExtensions() {
 		List currentExtensions = new ArrayList();
 		StringBuffer buffer = new StringBuffer();
-		for (Iterator it = repositoryMap.keySet().iterator(); it.hasNext();) {
+
+		List repositories = new ArrayList(repositoryMap.keySet());
+		Collections.sort(repositories);
+		for (Iterator it = repositories.iterator(); it.hasNext();) {
 			String repositoryId = (String) it.next();
 			try {
 				IArtifactRepository repository = Activator.loadArtifactRepository(new URL(repositoryId), null);
@@ -268,8 +271,11 @@ public class ProfileSynchronizer {
 		toRemove.addAll(collect.toCollection());
 		//End of backward compatibility
 
+		boolean foundIUsToAdd = false;
+		Collection profileIUs = new HashSet(profile.query(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+
 		// we use IProfile.available(...) here so that we also gather any shared IUs
-		Collection profileIUs = new HashSet(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
+		Collection availableProfileIUs = new HashSet(profile.available(InstallableUnitQuery.ANY, new Collector(), null).toCollection());
 
 		// get all IUs from all our repos (toAdd)
 		Collector allIUs = getAllIUsFromRepos();
@@ -284,6 +290,10 @@ public class ProfileSynchronizer {
 				request.setInstallableUnitInclusionRules(iu, PlannerHelper.createOptionalInclusionRule(iu));
 				request.setInstallableUnitProfileProperty(iu, IInstallableUnit.PROP_PROFILE_LOCKED_IU, Integer.toString(IInstallableUnit.LOCK_UNINSTALL));
 				toAdd.add(iu);
+
+				if (!foundIUsToAdd && !availableProfileIUs.contains(iu)) {
+					foundIUsToAdd = true;
+				}
 			}
 		}
 
@@ -309,7 +319,7 @@ public class ProfileSynchronizer {
 				toRemove.add(iu);
 		}
 
-		if (toAdd.isEmpty() && toRemove.isEmpty() && !resolve)
+		if (!foundIUsToAdd && toRemove.isEmpty() && !resolve)
 			return null;
 
 		context.setExtraIUs(toAdd);
