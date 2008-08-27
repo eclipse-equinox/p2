@@ -73,9 +73,11 @@ public class SiteListener extends DirectoryChangeListener {
 	public static synchronized void synchronizeRepositories(ExtensionLocationMetadataRepository metadataRepository, ExtensionLocationArtifactRepository artifactRepository, File base) {
 		try {
 			if (metadataRepository == null) {
+				artifactRepository.reload();
 				ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
 				metadataRepository = (ExtensionLocationMetadataRepository) factory.load(artifactRepository.getLocation(), null);
 			} else if (artifactRepository == null) {
+				metadataRepository.reload();
 				ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
 				artifactRepository = (ExtensionLocationArtifactRepository) factory.load(metadataRepository.getLocation(), null);
 			}

@@ -29,7 +29,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
 
-	final IFileArtifactRepository artifactRepository;
+	IFileArtifactRepository artifactRepository;
 	private File base;
 	private Object state = SiteListener.UNINITIALIZED;
 
@@ -64,7 +64,19 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		if (state == SiteListener.INITIALIZED || state == SiteListener.INITIALIZING)
 			return;
 		// if the repo has not been synchronized for us already, synchronize it.
+		// Note: this will reload "artifactRepository"
 		SiteListener.synchronizeRepositories(null, this, base);
+	}
+
+	void reload() {
+		try {
+			ExtensionLocationArtifactRepository repo = (ExtensionLocationArtifactRepository) new ExtensionLocationArtifactRepositoryFactory().load(getLocation(), null);
+			artifactRepository = repo.artifactRepository;
+		} catch (ProvisionException e) {
+			//unexpected
+			e.printStackTrace();
+			throw new IllegalStateException(e.getMessage());
+		}
 	}
 
 	void state(Object value) {
@@ -187,10 +199,12 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public Map getProperties() {
+		ensureInitialized();
 		return artifactRepository.getProperties();
 	}
 
 	public String setProperty(String key, String value) {
+		ensureInitialized();
 		return artifactRepository.setProperty(key, value);
 	}
 }

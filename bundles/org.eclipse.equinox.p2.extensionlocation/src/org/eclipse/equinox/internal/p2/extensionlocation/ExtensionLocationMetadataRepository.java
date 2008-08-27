@@ -30,7 +30,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
 
-	final IMetadataRepository metadataRepository;
+	IMetadataRepository metadataRepository;
 	private File base;
 	private Object state = SiteListener.UNINITIALIZED;
 
@@ -64,7 +64,19 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		if (state == SiteListener.INITIALIZED || state == SiteListener.INITIALIZING)
 			return;
 		// if the repo has not been synchronized for us already, synchronize it.
+		// Note: this will reload "metadataRepository"
 		SiteListener.synchronizeRepositories(this, null, base);
+	}
+
+	void reload() {
+		try {
+			ExtensionLocationMetadataRepository repo = (ExtensionLocationMetadataRepository) new ExtensionLocationMetadataRepositoryFactory().load(getLocation(), null);
+			metadataRepository = repo.metadataRepository;
+		} catch (ProvisionException e) {
+			//unexpected
+			e.printStackTrace();
+			throw new IllegalStateException(e.getMessage());
+		}
 	}
 
 	void state(Object value) {
@@ -154,6 +166,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository#getProperties()
 	 */
 	public Map getProperties() {
+		ensureInitialized();
 		return metadataRepository.getProperties();
 	}
 
@@ -162,6 +175,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	public String setProperty(String key, String value) {
+		ensureInitialized();
 		return metadataRepository.setProperty(key, value);
 	}
 }
