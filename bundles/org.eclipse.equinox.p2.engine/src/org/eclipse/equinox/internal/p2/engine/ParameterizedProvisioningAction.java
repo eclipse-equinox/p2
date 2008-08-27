@@ -61,6 +61,18 @@ public class ParameterizedProvisioningAction extends ProvisioningAction {
 		String preVariable = parameterValue.substring(0, variableBeginIndex);
 		String variableName = parameterValue.substring(variableBeginIndex + 2, variableEndIndex);
 		Object value = parameters.get(variableName);
+
+		// try to replace this parameter with a character
+		if (value == null && variableName.charAt(0) == '#') {
+			try {
+				int code = Integer.parseInt(variableName.substring(1));
+				if (code >= 0 && code < 65536)
+					value = Character.toString((char) code);
+			} catch (Throwable t) {
+				// ignore and leave value as null
+			}
+		}
+
 		String variableValue = value == null ? "" : value.toString(); //$NON-NLS-1$
 		String postVariable = processVariables(parameterValue.substring(variableEndIndex + 1), parameters);
 		return preVariable + variableValue + postVariable;
