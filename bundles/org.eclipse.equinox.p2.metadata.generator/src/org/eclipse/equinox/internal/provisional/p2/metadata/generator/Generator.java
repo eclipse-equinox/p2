@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.core.helpers.FileUtils.IPathComputer;
 import org.eclipse.equinox.internal.p2.metadata.generator.*;
 import org.eclipse.equinox.internal.p2.metadata.generator.Messages;
 import org.eclipse.equinox.internal.p2.metadata.generator.features.*;
@@ -393,7 +394,7 @@ public class Generator {
 						((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 						File bundleFile = new File(bd.getLocation());
 						if (bundleFile.isDirectory())
-							publishArtifact(ad, bundleFile.listFiles(), destination, false);
+							publishArtifact(ad, bundleFile.listFiles(), destination, false, bundleFile);
 						else
 							publishArtifact(ad, new File[] {bundleFile}, destination, true);
 						if (info.reuseExistingPack200Files() && !info.publishArtifacts()) {
@@ -996,7 +997,7 @@ public class Generator {
 			for (int arti = 0; arti < artifacts.length; arti++) {
 				IArtifactDescriptor ad = MetadataGeneratorHelper.createArtifactDescriptor(artifacts[arti], new File(location), true, false);
 				if (isExploded)
-					publishArtifact(ad, new File(location).listFiles(), destination, false);
+					publishArtifact(ad, new File(location).listFiles(), destination, false, new File(location));
 				else
 					publishArtifact(ad, new File[] {new File(location)}, destination, true);
 			}
@@ -1294,11 +1295,15 @@ public class Generator {
 		}
 	}
 
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs) {
+		publishArtifact(descriptor, files, destination, asIs, null);
+	}
+
 	// Put the artifact on the server
 	/**
 	 * @deprecated moved to AbstractPublishingAction
 	 */
-	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs) {
+	protected void publishArtifact(IArtifactDescriptor descriptor, File[] files, IArtifactRepository destination, boolean asIs, File root) {
 		if (descriptor == null || destination == null)
 			return;
 		if (!info.publishArtifacts()) {
@@ -1328,7 +1333,12 @@ public class Generator {
 			File tempFile = null;
 			try {
 				tempFile = File.createTempFile("p2.generator", ""); //$NON-NLS-1$ //$NON-NLS-2$
-				FileUtils.zip(files, null, tempFile, FileUtils.createDynamicPathComputer(0));
+				IPathComputer computer = null;
+				if (root != null)
+					computer = FileUtils.createRootPathComputer(root);
+				else
+					computer = FileUtils.createDynamicPathComputer(0);
+				FileUtils.zip(files, null, tempFile, computer);
 				if (!destination.contains(descriptor)) {
 					destination.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 					OutputStream output = new BufferedOutputStream(destination.getOutputStream(descriptor));
