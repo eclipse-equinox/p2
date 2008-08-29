@@ -6,6 +6,7 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
@@ -214,6 +215,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		for (int j = 0; j < artifacts.length; j++) {
 			File file = new File(feature.getLocation());
 			IArtifactDescriptor ad = PublisherHelper.createArtifactDescriptor(artifacts[j], file);
+			addProperties((ArtifactDescriptor) ad, feature, info);
 			((ArtifactDescriptor) ad).setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
 			// if the artifact is a dir then zip it up.
 			if (file.isDirectory())
@@ -223,12 +225,33 @@ public class FeaturesAction extends AbstractPublisherAction {
 		}
 	}
 
+	/**
+	 * Add all of the advice for the feature at the given location to the given descriptor.
+	 * @param descriptor the descriptor to decorate
+	 * @param feature the feature we are getting advice for
+	 * @param location the location of the feature
+	 * @param info the publisher info supplying the advice
+	 */
+	private void addProperties(ArtifactDescriptor descriptor, Feature feature, IPublisherInfo info) {
+		Collection advice = info.getAdvice(null, false, null, null, IFeatureAdvice.class);
+		for (Iterator i = advice.iterator(); i.hasNext();) {
+			IFeatureAdvice entry = (IFeatureAdvice) i.next();
+			Properties props = entry.getArtifactProperties(feature);
+			if (props == null)
+				continue;
+			for (Iterator j = props.keySet().iterator(); j.hasNext();) {
+				String key = (String) j.next();
+				descriptor.setRepositoryProperty(key, props.getProperty(key));
+			}
+		}
+	}
+
 	private Properties getFeatureAdvice(Feature feature, IPublisherInfo info) {
 		Properties result = new Properties();
 		Collection advice = info.getAdvice(null, false, null, null, IFeatureAdvice.class);
 		for (Iterator i = advice.iterator(); i.hasNext();) {
 			IFeatureAdvice entry = (IFeatureAdvice) i.next();
-			Properties props = entry.getProperties(feature, null);
+			Properties props = entry.getIUProperties(feature);
 			if (props != null)
 				result.putAll(props);
 		}

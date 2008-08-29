@@ -6,10 +6,10 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
 package org.eclipse.equinox.p2.publisher.eclipse;
 
-import java.io.File;
 import java.util.Properties;
 import org.eclipse.equinox.p2.publisher.IPublisherAdvice;
 
@@ -18,8 +18,15 @@ public interface IFeatureAdvice extends IPublisherAdvice {
 	/**
 	 * Returns the set of extra properties to be associated with the IU for the feature
 	 * at the given location
+	 * @return extra properties for the given feature
+	 */
+	public Properties getIUProperties(Feature feature);
+
+	/**
+	 * Returns the set of extra properties to be associated with the artifact descriptor
+	 * being published for the feature at the given location
 	 * @param location the location of the feature to advise
 	 * @return extra properties for the given feature
 	 */
-	public Properties getProperties(Feature feature, File location);
+	public Properties getArtifactProperties(Feature feature);
 }

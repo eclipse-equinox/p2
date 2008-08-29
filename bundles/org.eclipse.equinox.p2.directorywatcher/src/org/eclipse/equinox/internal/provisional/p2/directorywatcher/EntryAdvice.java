@@ -6,8 +6,9 @@
  * 
  * Contributors: 
  *   Code 9 - initial API and implementation
+ *   IBM - ongoing development
  ******************************************************************************/
- package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
+package org.eclipse.equinox.internal.provisional.p2.directorywatcher;
 
 import java.io.File;
 import java.net.URL;
@@ -25,8 +26,12 @@ public class EntryAdvice implements IFeatureAdvice, IBundleAdvice {
 	private Properties metadataProps = new Properties();
 	private Properties artifactProps = new Properties();
 
-	public Properties getProperties(Feature feature, File location) {
+	public Properties getIUProperties(Feature feature) {
 		return metadataProps;
+	}
+
+	public Properties getArtifactProperties(Feature feature) {
+		return artifactProps;
 	}
 
 	public boolean isApplicable(String configSpec, boolean includeDefault, String id, Version version) {
