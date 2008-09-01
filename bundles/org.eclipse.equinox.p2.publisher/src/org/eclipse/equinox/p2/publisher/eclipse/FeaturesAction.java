@@ -229,7 +229,6 @@ public class FeaturesAction extends AbstractPublisherAction {
 	 * Add all of the advice for the feature at the given location to the given descriptor.
 	 * @param descriptor the descriptor to decorate
 	 * @param feature the feature we are getting advice for
-	 * @param location the location of the feature
 	 * @param info the publisher info supplying the advice
 	 */
 	private void addProperties(ArtifactDescriptor descriptor, Feature feature, IPublisherInfo info) {

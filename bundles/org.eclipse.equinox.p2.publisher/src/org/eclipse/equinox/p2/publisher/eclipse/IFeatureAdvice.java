@@ -25,7 +25,6 @@ public interface IFeatureAdvice extends IPublisherAdvice {
 	/**
 	 * Returns the set of extra properties to be associated with the artifact descriptor
 	 * being published for the feature at the given location
-	 * @param location the location of the feature to advise
 	 * @return extra properties for the given feature
 	 */
 	public Properties getArtifactProperties(Feature feature);
