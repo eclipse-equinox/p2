@@ -9,6 +9,7 @@ public class Messages extends NLS {
 	public static String error_processing;
 	public static String failed_create_artifact_repo;
 	public static String failed_create_metadata_repo;
+	public static String filename_missing;
 	public static String metadata_repo_manager_not_registered;
 	public static String multiple_bundle_ius;
 	public static String null_folder;
