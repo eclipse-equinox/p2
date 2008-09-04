@@ -72,6 +72,7 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 		try {
 			ExtensionLocationArtifactRepository repo = (ExtensionLocationArtifactRepository) new ExtensionLocationArtifactRepositoryFactory().load(getLocation(), null);
 			artifactRepository = repo.artifactRepository;
+			base = repo.base;
 		} catch (ProvisionException e) {
 			//unexpected
 			e.printStackTrace();

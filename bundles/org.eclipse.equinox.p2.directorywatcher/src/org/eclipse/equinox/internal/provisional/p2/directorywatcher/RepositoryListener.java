@@ -42,8 +42,9 @@ public class RepositoryListener extends DirectoryChangeListener {
 	private final CachingArtifactRepository artifactRepository;
 	// at any point in time currentFiles is the list of files/dirs that the watcher has seen and 
 	// believes to be on disk.
-	private Map currentFiles;
-	private Collection filesToRemove;
+	private final Map currentFiles = new HashMap();
+	private final Collection polledSeenFiles = new HashSet();
+
 	private EntryAdvice advice = new EntryAdvice();
 	private PublisherInfo info;
 	private IPublisherResult iusToAdd;
@@ -135,8 +136,8 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	public boolean removed(File file) {
-		filesToRemove.add(file);
-		return true;
+		// the IUs and artifacts associated with this file will get removed in stopPoll
+		return currentFiles.containsKey(file);
 	}
 
 	private boolean process(File file, boolean isAddition) {
@@ -184,26 +185,27 @@ public class RepositoryListener extends DirectoryChangeListener {
 	}
 
 	public Long getSeenFile(File file) {
-		return (Long) currentFiles.get(file);
+		Long lastSeen = (Long) currentFiles.get(file);
+		if (lastSeen != null)
+			polledSeenFiles.add(file);
+		return lastSeen;
 	}
 
 	public void startPoll() {
-		filesToRemove = new HashSet();
 		iusToAdd = new PublisherResult();
 		iusToChange = new PublisherResult();
-		// TODO investigate why we do this here?  Suspect it is to clean up the currentFiles collection
-		// for removed entries.  This may be a performance opportunity
-		currentFiles = new HashMap();
 		synchronizeCurrentFiles();
 	}
 
 	public void stopPoll() {
+		final Set filesToRemove = new HashSet(currentFiles.keySet());
+		filesToRemove.removeAll(polledSeenFiles);
+		polledSeenFiles.clear();
+
 		synchronizeMetadataRepository(filesToRemove);
 		synchronizeArtifactRepository(filesToRemove);
-		filesToRemove.clear();
 		iusToAdd = null;
 		iusToChange = null;
-		currentFiles = null;
 	}
 
 	/**

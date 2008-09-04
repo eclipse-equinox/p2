@@ -72,6 +72,7 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 		try {
 			ExtensionLocationMetadataRepository repo = (ExtensionLocationMetadataRepository) new ExtensionLocationMetadataRepositoryFactory().load(getLocation(), null);
 			metadataRepository = repo.metadataRepository;
+			base = repo.base;
 		} catch (ProvisionException e) {
 			//unexpected
 			e.printStackTrace();
