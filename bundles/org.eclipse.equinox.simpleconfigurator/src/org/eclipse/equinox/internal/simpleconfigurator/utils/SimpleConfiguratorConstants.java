@@ -15,7 +15,7 @@ public class SimpleConfiguratorConstants {
 	 * listed in the simpleconfigurator config file after install bundles listed.
 	 * Otherwise, it never uninstall any bundles. 
 	 * 
-	 * Default: false
+	 * Default: true
 	 */
 	public static final String PROP_KEY_EXCLUSIVE_INSTALLATION = "org.eclipse.equinox.simpleconfigurator.exclusiveInstallation"; //$NON-NLS-1$
 
