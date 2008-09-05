@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.extensionlocation.Constants;
 import org.eclipse.equinox.internal.provisional.configurator.Configurator;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IFileArtifactRepository;
@@ -218,7 +219,16 @@ public class ProfileSynchronizer {
 		StringBuffer buffer = new StringBuffer();
 
 		List repositories = new ArrayList(repositoryMap.keySet());
-		Collections.sort(repositories);
+		final String OSGiInstallArea = Activator.getOSGiInstallArea().toExternalForm() + Constants.EXTENSION_LOCATION;
+		Collections.sort(repositories, new Comparator() {
+			public int compare(Object left, Object right) {
+				if (OSGiInstallArea.equals(left))
+					return -1;
+				if (OSGiInstallArea.equals(right))
+					return 1;
+				return ((String) left).compareTo((String) right);
+			}
+		});
 		for (Iterator it = repositories.iterator(); it.hasNext();) {
 			String repositoryId = (String) it.next();
 			try {
