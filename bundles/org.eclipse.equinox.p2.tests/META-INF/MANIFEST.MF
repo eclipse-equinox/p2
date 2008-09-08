@@ -5,7 +5,8 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.1.0.qualifier
-Import-Package: org.eclipse.equinox.internal.p2.artifact.repository,
+Import-Package: javax.xml.parsers,
+ org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.director,

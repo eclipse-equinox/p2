@@ -7,7 +7,8 @@ Bundle-Localization: plugin
 Bundle-Version: 1.0.100.qualifier
 Bundle-Activator: org.eclipse.equinox.internal.p2.updatesite.Activator
 Eclipse-LazyStart: true
-Import-Package: org.eclipse.equinox.internal.p2.core.helpers,
+Import-Package: javax.xml.parsers,
+ org.eclipse.equinox.internal.p2.core.helpers,
  org.eclipse.equinox.internal.p2.publisher.eclipse,
  org.eclipse.equinox.internal.provisional.p2.artifact.repository,
  org.eclipse.equinox.internal.provisional.p2.core,
