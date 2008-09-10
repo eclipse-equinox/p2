@@ -25,7 +25,6 @@ import org.eclipse.osgi.service.pluginconversion.PluginConverter;
 import org.osgi.framework.Constants;
 
 public class Utils {
-	private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 	private static final String FRAGMENT_MANIFEST = "fragment.xml"; //$NON-NLS-1$
@@ -354,46 +353,6 @@ public class Utils {
 			return new URL(fromSt.substring(0, fromSt.lastIndexOf(fileSt) - 1) + path);
 		}
 		return new URL(fromSt + "/" + path);
-	}
-
-	/**
-	 * Deletes the given file recursively, adding failure info to
-	 * the provided status object.  The filePath is passed as a parameter
-	 * to optimize java.io.File object creation.
-	 */
-	// Implementation taken from the Eclipse File sytem bundle class LocalFile.
-	//  TODO consider putting back the progress and cancelation support.
-	private static boolean internalDelete(File target, String pathToDelete) {
-		//first try to delete - this should succeed for files and symbolic links to directories
-		if (target.delete() || !target.exists())
-			return true;
-		if (target.isDirectory()) {
-			String[] list = target.list();
-			if (list == null)
-				list = EMPTY_STRING_ARRAY;
-			int parentLength = pathToDelete.length();
-			boolean failedRecursive = false;
-			for (int i = 0, imax = list.length; i < imax; i++) {
-				//optimized creation of child path object
-				StringBuffer childBuffer = new StringBuffer(parentLength + list[i].length() + 1);
-				childBuffer.append(pathToDelete);
-				childBuffer.append(File.separatorChar);
-				childBuffer.append(list[i]);
-				String childName = childBuffer.toString();
-				// try best effort on all children so put logical OR at end
-				failedRecursive = !internalDelete(new java.io.File(childName), childName) || failedRecursive;
-			}
-			try {
-				// don't try to delete the root if one of the children failed
-				if (!failedRecursive && target.delete())
-					return true;
-			} catch (Exception e) {
-				// we caught a runtime exception so log it
-				return false;
-			}
-		}
-		//		message = NLS.bind(Messages.couldnotDelete, target.getAbsolutePath());
-		return false;
 	}
 
 	private static Properties manifestToProperties(Attributes d) {
