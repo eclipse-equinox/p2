@@ -69,6 +69,25 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
+	 * Tests loading an artifact repository that is missing the top level repository element.
+	 * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=246452.
+	 */
+	public void testLoadMissingRepositoryElement() {
+		File site = getTestData("Update site", "/testData/artifactRepo/broken/");
+		try {
+			URL location = site.toURL();
+			manager.loadRepository(location, null);
+			//should have failed
+			fail("1.0");
+		} catch (ProvisionException e) {
+			//expected
+		} catch (MalformedURLException e) {
+			fail("2.99", e);
+		}
+
+	}
+
+	/**
 	 * Tests that trailing slashes do not affect repository identity.
 	 */
 	public void testTrailingSlashes() {

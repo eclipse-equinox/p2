@@ -1,0 +1,108 @@
+<object-array>
+  <set>
+    <org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.prov.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+        <id>org.apache.jasper</id>
+        <classifier>plugin</classifier>
+        <version>5.5.17.200706211608</version>
+
+      </key>
+      <downloadSize>
+        <size>1701914</size>
+      </downloadSize>
+    </org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+    <org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.prov.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+
+        <id>org.apache.commons.el</id>
+        <classifier>plugin</classifier>
+        <version>1.0.0.200706211608</version>
+      </key>
+      <downloadSize>
+        <size>119656</size>
+      </downloadSize>
+
+    </org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+    <org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.prov.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+        <id>javax.servlet.jsp</id>
+        <classifier>plugin</classifier>
+        <version>2.0.0.200706211608</version>
+
+      </key>
+      <downloadSize>
+        <size>55820</size>
+      </downloadSize>
+    </org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+    <org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.prov.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+
+        <id>org.apache.commons.logging</id>
+        <classifier>plugin</classifier>
+        <version>1.0.4.200706211608</version>
+      </key>
+      <downloadSize>
+        <size>39087</size>
+      </downloadSize>
+
+    </org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+    <org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.prov.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+        <id>org.eclipse.equinox.jsp.jasper</id>
+        <classifier>plugin</classifier>
+        <version>1.0.0.200706211605</version>
+
+      </key>
+      <downloadSize>
+        <size>17894</size>
+      </downloadSize>
+    </org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+    <org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.prov.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+
+        <id>org.eclipse.equinox.simpleconfigurator</id>
+        <classifier>plugin</classifier>
+        <version>1.2.3</version>
+      </key>
+      <downloadSize>
+        <size>30534</size>
+      </downloadSize>
+
+    </org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+    <org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+      <key class="org.eclipse.equinox.internal.prov.metadata.ArtifactKey">
+        <namespace>eclipse</namespace>
+        <id>sample.jsp</id>
+        <classifier>plugin</classifier>
+        <version>1.0.0</version>
+
+      </key>
+      <downloadSize>
+        <size>2774</size>
+      </downloadSize>
+    </org.eclipse.equinox.prov.artifact.repository.ArtifactDescriptor>
+  </set>
+  <string-array-array>
+    <string-array>
+
+      <string>(&amp; (namespace=eclipse) (classifier=feature))</string>
+      <string>${repoUrl}/feature/${id}_${version}</string>
+    </string-array>
+    <string-array>
+      <string>(&amp; (namespace=eclipse) (classifier=plugin))</string>
+
+      <string>${repoUrl}/plugin/${id}_${version}</string>
+    </string-array>
+    <string-array>
+      <string>(&amp; (namespace=eclipse) (classifier=native))</string>
+      <string>${repoUrl}/native/${id}_${version}</string>
+    </string-array>
+
+  </string-array-array>
+</object-array>
