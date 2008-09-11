@@ -589,6 +589,8 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	private static String makeRelative(IPath toRel, IPath base) {
+		if (toRel.getDevice() != null && !toRel.getDevice().equalsIgnoreCase(base.getDevice()))
+			return toRel.toOSString();
 		int i = base.matchingFirstSegments(toRel);
 		if (i == 0) {
 			return toRel.toOSString();
