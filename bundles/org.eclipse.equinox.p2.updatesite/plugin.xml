@@ -21,4 +21,14 @@
                suffix="site.xml">
          </filter>
       </extension>
+   <extension id="UpdateSitePublisher" point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="1"
+            thread="any"
+            visible="true">
+         <run
+               class="org.eclipse.equinox.internal.p2.updatesite.UpdatesitePublisherApplication">
+         </run>
+      </application>
+   </extension>
 </plugin>
