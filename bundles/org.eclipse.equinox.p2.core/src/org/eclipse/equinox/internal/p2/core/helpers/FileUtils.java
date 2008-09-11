@@ -164,12 +164,6 @@ public class FileUtils {
 	}
 
 	public static void zip(File[] sourceFiles, File destinationArchive, boolean includeRoot) throws IOException {
-		// If we open a zip output stream but don't add any files to the archive, then when
-		// we try and close the stream we get an error and the file is left open. So we will avoid this 
-		// and return early if there is nothing to do. Note this doesn't handle the case where we
-		// have only nested directories.
-		if (sourceFiles == null || sourceFiles.length == 0)
-			return;
 		ZipOutputStream output = new ZipOutputStream(new FileOutputStream(destinationArchive));
 		try {
 			for (int i = 0; i < sourceFiles.length; i++)
@@ -180,8 +174,7 @@ public class FileUtils {
 		} finally {
 			try {
 				// Note! This call will fail miserably if no entries were added to the zip!
-				// The file is left open after an exception is thrown. Hopefully we have handled
-				// this case above and returned early.
+				// The file is left open after an exception is thrown.
 				output.close();
 			} catch (IOException e) {
 				// ignore

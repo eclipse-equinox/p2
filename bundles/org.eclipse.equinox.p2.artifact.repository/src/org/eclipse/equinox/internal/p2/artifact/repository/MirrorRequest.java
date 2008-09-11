@@ -101,21 +101,14 @@ public class MirrorRequest extends ArtifactRequest {
 			setResult(Status.CANCEL_STATUS);
 			return;
 		}
-		if (status.isOK()) {
+		if (status.isOK() || descriptor == canonical || canonical == null) {
 			setResult(status);
 			return;
 		}
 
-		// failed, first remove possibly erroneously added descriptor
+		// retry with canonical, first remove possibly erroneously added descriptor
 		if (target.contains(destinationDescriptor))
 			target.removeDescriptor(destinationDescriptor);
-
-		if (descriptor == canonical || canonical == null) {
-			setResult(status);
-			return;
-		}
-
-		// try with canonical
 		setResult(transfer(getDestinationDescriptor(canonical), canonical, monitor));
 	}
 

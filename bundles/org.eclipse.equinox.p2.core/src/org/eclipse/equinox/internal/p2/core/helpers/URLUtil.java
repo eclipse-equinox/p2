@@ -7,7 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *		compeople AG (Stefan Liebig) - Fix for bug 121201 - Poor performance behind proxy/firewall
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.core.helpers;
 
@@ -28,12 +27,8 @@ public class URLUtil {
 			return true;
 		if (url1 == null || url2 == null)
 			return false;
-		try {
-			if (toURI(url1).equals(toURI(url2)))
-				return true;
-		} catch (URISyntaxException e) {
-			//fall through below
-		}
+		if (url1.equals(url2))
+			return true;
 
 		// check if we have two local file references that are case variants
 		File file1 = toFile(url1);

@@ -46,34 +46,10 @@ public class NewDependencyExpander {
 		}
 
 		/**
-		 * Prints out a human-readable representation of a Match object for use
-		 * in error messages.
+		 * For debugging purposes only
 		 */
 		public String toString() {
-			if (req == null)
-				return "[]"; //$NON-NLS-1$
-			StringBuffer result = new StringBuffer();
-			if (IInstallableUnit.NAMESPACE_IU_ID.equals(req.getNamespace())) {
-				//print nothing for an IU id dependency because this is the default (most common) case
-				result.append(""); //$NON-NLS-1$
-			} else if ("osgi.bundle".equals(req.getNamespace())) { //$NON-NLS-1$
-				result.append("bundle"); //$NON-NLS-1$
-			} else if ("java.package".equals(req.getNamespace())) { //$NON-NLS-1$
-				result.append("package"); //$NON-NLS-1$
-			} else {
-				result.append(req.getNamespace());
-			}
-			if (result.length() > 0)
-				result.append(' ');
-			result.append(req.getName());
-			result.append(' ');
-			VersionRange range = req.getRange();
-			//for an exact version match, print a simpler expression
-			if (range.getMinimum().equals(range.getMaximum()))
-				result.append('[').append(range.getMinimum()).append(']');
-			else
-				result.append(range);
-			return result.toString();
+			return "Match[" + req + ']'; //$NON-NLS-1$
 		}
 	}
 
