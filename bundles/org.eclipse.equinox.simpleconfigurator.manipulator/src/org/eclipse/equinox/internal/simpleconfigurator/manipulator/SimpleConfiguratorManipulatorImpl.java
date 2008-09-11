@@ -496,6 +496,11 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	}
 
 	private static String makeRelative(IPath toRel, IPath base) {
+		String relDevice = toRel.getDevice();
+		String baseDevice = base.getDevice();
+		//if the devices are different, we cannot make one relative to the other
+		if (relDevice != baseDevice && (relDevice == null || !relDevice.equalsIgnoreCase(baseDevice)))
+			return toRel.toOSString();
 		int i = base.matchingFirstSegments(toRel);
 		if (i == 0) {
 			return toRel.toOSString();

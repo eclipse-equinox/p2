@@ -589,16 +589,21 @@ public class EquinoxManipulatorImpl implements Manipulator {
 	 * Method similar to one from SimpleConfigurationManipulatorImpl.
 	 */
 	private static String makeRelative(IPath toRel, IPath base) {
+		String relDevice = toRel.getDevice();
+		String baseDevice = base.getDevice();
+		//if the devices are different, we cannot make one relative to the other
+		if (relDevice != baseDevice && (relDevice == null || !relDevice.equalsIgnoreCase(baseDevice)))
+			return toRel.toOSString();
 		int i = base.matchingFirstSegments(toRel);
 		if (i == 0) {
 			return toRel.toOSString();
 		}
-		String result = "";
+		String result = ""; //$NON-NLS-1$
 		for (int j = 0; j < (base.segmentCount() - i); j++) {
-			result += ".." + Path.SEPARATOR;
+			result += ".." + IPath.SEPARATOR; //$NON-NLS-1$
 		}
 		if (i == toRel.segmentCount())
-			return ".";
+			return "."; //$NON-NLS-1$
 		result += toRel.setDevice(null).removeFirstSegments(i).toOSString();
 		return result;
 	}
