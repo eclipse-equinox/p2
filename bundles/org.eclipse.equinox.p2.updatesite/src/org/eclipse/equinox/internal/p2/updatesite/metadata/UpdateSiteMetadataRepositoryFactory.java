@@ -89,7 +89,7 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 		info.setMetadataRepository(repository);
 		IPublisherAction[] actions = new IPublisherAction[] {new RemoteUpdateSiteAction(updateSite)};
 		Publisher publisher = new Publisher(info);
-		IStatus result = publisher.publish(actions);
+		publisher.publish(actions);
 	}
 
 }
