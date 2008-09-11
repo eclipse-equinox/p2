@@ -748,6 +748,9 @@ public class PublisherHelper {
 		return createGroupIU(feature, featureIU, extraProperties, true);
 	}
 
+	/**
+	 * @deprecated moved to FeaturesAction
+	 */
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties, boolean transformIds) {
 		if (isPatch(feature))
 			return createPatchIU(feature, featureIU, extraProperties);
@@ -911,6 +914,9 @@ public class PublisherHelper {
 		return MetadataFactory.createInstallableUnitPatch(iu);
 	}
 
+	/**
+	 * @deprecated moved to FeaturesAction
+	 */
 	private static boolean isPatch(Feature feature) {
 		FeatureEntry[] entries = feature.getEntries();
 		for (int i = 0; i < entries.length; i++) {
