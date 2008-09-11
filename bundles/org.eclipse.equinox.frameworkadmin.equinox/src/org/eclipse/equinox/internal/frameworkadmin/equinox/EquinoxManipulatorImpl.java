@@ -26,6 +26,9 @@ import org.osgi.service.log.LogService;
 import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 
+/**
+ * 
+ */
 public class EquinoxManipulatorImpl implements Manipulator {
 	private static final long DEFAULT_LASTMODIFIED = 0L;
 	private static final boolean LOG_ILLEGALSTATEEXCEPTION = false;

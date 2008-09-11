@@ -20,6 +20,9 @@ import org.eclipse.equinox.internal.provisional.configuratormanipulator.Configur
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.osgi.framework.Constants;
 
+/**
+ * 
+ */
 public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulator {
 	class LocationInfo {
 		String[] prerequisiteLocations = null;
