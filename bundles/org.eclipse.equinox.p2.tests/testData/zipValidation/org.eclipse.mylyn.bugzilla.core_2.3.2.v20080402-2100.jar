@@ -1,0 +1,7 @@
+<HTML><HEAD><TITLE>Authentication Proxy Login Page</TITLE><script language="JavaScript"><!-- Begin
+var pxypromptwindow1;var pxysubmitted = false;function doreload() {if(pxypromptwindow1.closed) {window.location.reload(true);} else {reloadtimeout=setTimeout("doreload()", 500);}}function submitreload() {if(pxysubmitted == false) {pxypromptwindow1=window.open('', 'pxywindow1','resizable=no,width=300,height=300,scrollbars=yes');reloadtimeout=setTimeout("doreload()", 1000);pxysubmitted = true;return true;} else {alert("This page can not be submitted twice.");return false;}}// -->
+</script>
+</HEAD>
+<BODY onLoad="document.AuthenForm.uname.focus()" BGCOLOR="#FFFFFF" LINK="#ffcc00" ALINK="#ffffff" VLINK="#ffcc00" ><H1>SWG RTP B500 BSO: Enter your IBM intranet credentials  <BR><BR>  HTTPS Authentication<BR><BR><p><FORM name="AuthenForm" method=post action="https://9.42.96.226:443" target="pxywindow1"><input type=hidden name=au_pxytimetag value="281014010">Username: <input type=text name=uname><BR><BR>Password: <input type=password name=pwd><BR><BR><input type=submit name=ok value=OK onClick="return submitreload()"></H1></FORM></script></BODY></HTML>
+
+

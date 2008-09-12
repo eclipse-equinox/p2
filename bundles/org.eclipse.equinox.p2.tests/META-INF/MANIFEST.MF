@@ -6,6 +6,7 @@ Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.1.0.qualifier
 Import-Package: javax.xml.parsers,
+ org.eclipse.equinox.internal.p2.artifact.processors.pack200,
  org.eclipse.equinox.internal.p2.artifact.repository,
  org.eclipse.equinox.internal.p2.artifact.repository.simple,
  org.eclipse.equinox.internal.p2.core.helpers,
@@ -61,6 +62,7 @@ Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
 Export-Package: org.eclipse.equinox.p2.tests,
  org.eclipse.equinox.p2.tests.artifact.repository,
+ org.eclipse.equinox.p2.tests.artifact.repository.processing,
  org.eclipse.equinox.p2.tests.director,
  org.eclipse.equinox.p2.tests.directorywatcher,
  org.eclipse.equinox.p2.tests.download,
