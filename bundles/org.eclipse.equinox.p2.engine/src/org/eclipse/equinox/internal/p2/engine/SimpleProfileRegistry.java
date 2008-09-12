@@ -330,7 +330,11 @@ public class SimpleProfileRegistry implements IProfileRegistry {
 			throw new IllegalStateException(Messages.reg_dir_not_available);
 
 		Parser parser = new Parser(EngineActivator.getContext(), EngineActivator.ID);
-		File[] profileDirectories = store.listFiles();
+		File[] profileDirectories = store.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(PROFILE_EXT) && pathname.isDirectory();
+			}
+		});
 		for (int i = 0; i < profileDirectories.length; i++) {
 			File profileFile = findLatestProfileFile(profileDirectories[i]);
 			if (profileFile != null) {

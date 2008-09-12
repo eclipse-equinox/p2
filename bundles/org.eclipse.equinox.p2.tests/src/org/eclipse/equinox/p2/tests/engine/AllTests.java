@@ -26,6 +26,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProfileTest.class);
 		suite.addTestSuite(ProfileRegistryTest.class);
 		suite.addTestSuite(TouchpointTest.class);
+		suite.addTestSuite(BogusRegistryContent.class);
 		return suite;
 	}
 
