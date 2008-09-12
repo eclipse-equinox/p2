@@ -8,7 +8,6 @@ Require-Bundle: org.eclipse.equinox.common;bundle-version="3.4.0",
  org.junit;bundle-version="3.8.2"
 Export-Package: org.eclipse.equinox.p2.tests.artifact.optimizers,
  org.eclipse.equinox.p2.tests.artifact.processors,
- org.eclipse.equinox.p2.tests.artifact.repository.processing,
  org.eclipse.equinox.p2.tests.sar
 Import-Package: ie.wombat.jbdiff,
  org.eclipse.equinox.internal.p2.artifact.optimizers,

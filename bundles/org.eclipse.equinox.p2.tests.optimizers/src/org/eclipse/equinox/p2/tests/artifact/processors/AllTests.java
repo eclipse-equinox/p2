@@ -22,8 +22,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(JBPatchStepTest.class);
 		suite.addTestSuite(JBPatchZipStepTest.class);
 		suite.addTestSuite(JarDeltaProcessorTest.class);
-		suite.addTestSuite(Pack200ProcessorTest.class);
-		suite.addTestSuite(ZipVerifierProcessorTest.class);
 		return suite;
 	}
 
