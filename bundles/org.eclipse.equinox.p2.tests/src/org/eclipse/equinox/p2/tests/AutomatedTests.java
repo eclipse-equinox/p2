@@ -36,7 +36,8 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.updatesite.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.extensionlocation.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.touchpoint.eclipse.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.reconciler.dropins.AllTests.suite());
+		// disable the reconciler tests until after 3.5 M2 and we get the setup issues sorted out
+		// suite.addTest(org.eclipse.equinox.p2.tests.reconciler.dropins.AllTests.suite());
 		return suite;
 	}
 
