@@ -11,13 +11,6 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.updatesite.artifact;
 
-import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
-
-import org.eclipse.equinox.p2.publisher.eclipse.Feature;
-import org.eclipse.equinox.p2.publisher.eclipse.FeatureEntry;
-
-import org.eclipse.equinox.p2.publisher.eclipse.FeaturesAction;
-
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,9 +18,12 @@ import org.eclipse.equinox.internal.p2.updatesite.UpdateSite;
 import org.eclipse.equinox.internal.p2.updatesite.metadata.UpdateSiteMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.IArtifactRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.p2.publisher.eclipse.*;
+import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 
 public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryFactory {
 
@@ -56,12 +52,17 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 		URL localRepositoryURL = UpdateSiteMetadataRepositoryFactory.getLocalRepositoryLocation(location);
 		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
 		try {
-			return factory.load(localRepositoryURL, null);
+			IArtifactRepository repository = factory.load(localRepositoryURL, null);
+			if (!repository.getProperties().get(IRepository.PROP_SYSTEM).equals(Boolean.TRUE.toString()))
+				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			return repository;
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location.toExternalForm(); //$NON-NLS-1$
-		return factory.create(localRepositoryURL, repositoryName, null, null);
+		Properties props = new Properties();
+		props.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+		return factory.create(localRepositoryURL, repositoryName, null, props);
 	}
 
 	public void initializeRepository(IArtifactRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -74,10 +75,10 @@ public class UpdateSiteArtifactRepositoryFactory implements IArtifactRepositoryF
 			repository.setProperty(PROP_FORCE_THREADING, "true"); //$NON-NLS-1$
 		repository.setProperty(PROP_SITE_CHECKSUM, updateSite.getChecksum());
 		repository.removeAll();
-		generateMetadata(updateSite, repository);
+		generateArtifactDescriptors(updateSite, repository);
 	}
 
-	private void generateMetadata(UpdateSite updateSite, IArtifactRepository repository) throws ProvisionException {
+	private void generateArtifactDescriptors(UpdateSite updateSite, IArtifactRepository repository) throws ProvisionException {
 		Feature[] features = updateSite.loadFeatures();
 		Set allSiteArtifacts = new HashSet();
 		for (int i = 0; i < features.length; i++) {

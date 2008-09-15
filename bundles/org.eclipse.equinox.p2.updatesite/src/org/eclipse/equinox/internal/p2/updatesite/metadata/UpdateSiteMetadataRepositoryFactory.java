@@ -16,9 +16,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Properties;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.updatesite.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.IMetadataRepositoryFactory;
 import org.eclipse.equinox.internal.provisional.spi.p2.metadata.repository.SimpleMetadataRepositoryFactory;
@@ -66,12 +68,17 @@ public class UpdateSiteMetadataRepositoryFactory implements IMetadataRepositoryF
 		URL localRepositoryURL = getLocalRepositoryLocation(location);
 		SimpleMetadataRepositoryFactory factory = new SimpleMetadataRepositoryFactory();
 		try {
-			return factory.load(localRepositoryURL, null);
+			IMetadataRepository repository = factory.load(localRepositoryURL, null);
+			if (!repository.getProperties().get(IRepository.PROP_SYSTEM).equals(Boolean.TRUE.toString()))
+				repository.setProperty(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+			return repository;
 		} catch (ProvisionException e) {
 			//fall through and create a new repository
 		}
 		String repositoryName = "update site: " + location.toExternalForm(); //$NON-NLS-1$
-		return factory.create(localRepositoryURL, repositoryName, null, null);
+		Properties props = new Properties();
+		props.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
+		return factory.create(localRepositoryURL, repositoryName, null, props);
 	}
 
 	public void initializeRepository(IMetadataRepository repository, URL location, IProgressMonitor monitor) throws ProvisionException {
