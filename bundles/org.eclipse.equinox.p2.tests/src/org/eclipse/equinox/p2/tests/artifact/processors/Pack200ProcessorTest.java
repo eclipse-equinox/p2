@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.ProcessingStep;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.Bundle;
@@ -31,6 +32,9 @@ public class Pack200ProcessorTest extends TestCase {
 	}
 
 	public void testUnpack() throws IOException {
+		//this test is only applicable if pack200 is available
+		if (!PackStep.canPack())
+			return;
 		// Setup the processor
 		ProcessingStep step = new Pack200ProcessorStep();
 		ByteArrayOutputStream destination = new ByteArrayOutputStream();

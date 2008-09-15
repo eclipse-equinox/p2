@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2007 compeople AG and others.
+* Copyright (c) 2007, 2008 compeople AG and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License v1.0
 * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.artifact.processors.pack200.Pack200ProcessorStep;
 import org.eclipse.equinox.internal.p2.core.helpers.FileUtils;
+import org.eclipse.equinox.internal.p2.jarprocessor.PackStep;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.processing.*;
 import org.eclipse.equinox.p2.tests.TestActivator;
 
@@ -121,6 +122,9 @@ public class ProcessingStepHandlerTest extends TestCase {
 	}
 
 	public void testExecuteOnePack200UnpackerPS() throws IOException {
+		//this test is only applicable if pack200 is available
+		if (!PackStep.canPack())
+			return;
 		ProcessingStepDescriptor[] descriptors = new ProcessingStepDescriptor[] {new ProcessingStepDescriptor("org.eclipse.equinox.p2.processing.Pack200Unpacker", null, true)};
 		ProcessingStep[] steps = handler.create(descriptors, null);
 		ByteArrayOutputStream result = new ByteArrayOutputStream(100000);
