@@ -18,7 +18,6 @@ import java.util.Hashtable;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.osgi.framework.log.FrameworkLog;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -29,7 +28,6 @@ public class Activator implements BundleActivator {
 	public static BundleContext context;
 	private static final String DEFAULT_AGENT_LOCATION = "../p2"; //$NON-NLS-1$
 
-	public static Location downloadLocation = null;
 	private static Activator instance;
 	// Data mode constants for user, configuration and data locations.
 	private static final String NO_DEFAULT = "@noDefault"; //$NON-NLS-1$
