@@ -71,7 +71,8 @@ public interface IProfileRegistry {
 	IProfile addProfile(String id, Map properties, String parentId) throws ProvisionException;
 
 	/**
-	 * Remove the given profile from this profile registry.
+	 * Remove the given profile from this profile registry.  This method has no effect
+	 * if this registry does not contain a profile with the given id.
 	 * 
 	 * @param id the profile to remove
 	 */
