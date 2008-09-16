@@ -9,12 +9,14 @@
 package org.eclipse.equinox.p2.tests.full;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.frameworkadmin.tests.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
@@ -29,8 +31,8 @@ import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
 import org.eclipse.osgi.service.resolver.VersionRange;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.Version;
+import org.osgi.framework.*;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class End2EndTest extends AbstractProvisioningTest {
 
@@ -38,6 +40,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private IArtifactRepositoryManager artifactRepoManager;
 	private IDirector director;
+
+	private ServiceTracker fwAdminTracker;
 
 	protected void setUp() throws Exception {
 		ServiceReference sr = TestActivator.context.getServiceReference(IDirector.class.getName());
@@ -80,9 +84,9 @@ public class End2EndTest extends AbstractProvisioningTest {
 		try {
 			metadataRepoManager.loadRepository(new URL("http://download.eclipse.org/eclipse/updates/3.4"), new NullProgressMonitor());
 		} catch (ProvisionException e) {
-			return;
+			fail("Exception loading the repository.", e);
 		} catch (MalformedURLException e) {
-			return;
+			//Ignore
 		}
 
 		final String sdkID = "org.eclipse.sdk.ide";
@@ -95,6 +99,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 		if (!s.isOK())
 			fail("Installation of the " + sdkID + " " + sdkVersion + " failed.");
 
+		validateInstallContentFor34(new File(installFolder, "End2EndProfile"));
+
 		//Uninstall the SDK
 		request = new ProfileChangeRequest(profile2);
 		request.removeInstallableUnits(new IInstallableUnit[] {getIU(sdkID, sdkVersion)});
@@ -106,21 +112,102 @@ public class End2EndTest extends AbstractProvisioningTest {
 		assertTrue(profile2.query(new InstallableUnitQuery(sdkID, VersionRange.emptyRange), new Collector(), null).isEmpty());
 	}
 
-	public IInstallableUnit[] getIUs(String id) {
-		return (IInstallableUnit[]) metadataRepoManager.query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).toArray(IInstallableUnit.class);
-	}
-
-	public IInstallableUnit getIU(String id) {
-		Iterator it = metadataRepoManager.query(new InstallableUnitQuery(id, VersionRange.emptyRange), new Collector(), null).iterator();
-		if (it.hasNext())
-			return (IInstallableUnit) it.next();
-		return null;
-	}
-
 	public IInstallableUnit getIU(String id, Version v) {
 		Iterator it = metadataRepoManager.query(new InstallableUnitQuery(id, v), new Collector(), null).iterator();
 		if (it.hasNext())
 			return (IInstallableUnit) it.next();
 		return null;
+	}
+
+	private void validateInstallContentFor34(File installFolder) {
+		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
+		Manipulator manipulator = fwkAdmin.getManipulator();
+		LauncherData launcherData = manipulator.getLauncherData();
+		launcherData.setFwConfigLocation(new File(installFolder, "configuration"));
+		launcherData.setLauncher(new File(installFolder, getLauncherName("eclipse", Platform.getOS())));
+		try {
+			manipulator.load();
+		} catch (IllegalStateException e) {
+			fail("Error loading the configuration", e);
+		} catch (FrameworkAdminRuntimeException e) {
+			fail("Error loading the configuration", e);
+		} catch (IOException e) {
+			fail("Error loading the configuration", e);
+		}
+
+		assertContains("Can't find VM arg", manipulator.getLauncherData().getJvmArgs(), "-Xms40m");
+		assertContains("Can't find VM arg", manipulator.getLauncherData().getJvmArgs(), "-Xmx256m");
+
+		String[] programArgs = manipulator.getLauncherData().getProgramArgs();
+		assertContains("Can't find program arg", programArgs, "-startup");
+		assertContains("Can't find program arg", programArgs, "--launcher.library");
+		assertContains("Can't find program arg", programArgs, "-showsplash");
+		assertContains("Can't find program arg", programArgs, "org.eclipse.platform");
+
+		assertTrue(manipulator.getConfigData().getBundles().length > 130);
+	}
+
+	private void assertContains(String message, String[] source, String searched) {
+		for (int i = 0; i < source.length; i++) {
+			if (source[i].equals(searched))
+				return;
+		}
+		fail(message + " " + searched);
+	}
+
+	private FrameworkAdmin getEquinoxFrameworkAdmin() {
+		final String FILTER_OBJECTCLASS = "(" + Constants.OBJECTCLASS + "=" + FrameworkAdmin.class.getName() + ")";
+		final String filterFwName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_FW_NAME + "=Equinox)";
+		final String filterLauncherName = "(" + FrameworkAdmin.SERVICE_PROP_KEY_LAUNCHER_NAME + "=Eclipse.exe)";
+		final String filterFwAdmin = "(&" + FILTER_OBJECTCLASS + filterFwName + filterLauncherName + ")";
+
+		String FWK_ADMIN_EQ = "org.eclipse.equinox.frameworkadmin.equinox";
+		Bundle b = Platform.getBundle(FWK_ADMIN_EQ);
+		if (b == null)
+			fail("Bundle: " + FWK_ADMIN_EQ + " is required for this test");
+		try {
+			b.start();
+		} catch (BundleException e) {
+			fail("Can't start framework admin");
+		}
+		if (fwAdminTracker == null) {
+			Filter filter;
+			try {
+				filter = Activator.getContext().createFilter(filterFwAdmin);
+				fwAdminTracker = new ServiceTracker(Activator.getContext(), filter, null);
+				fwAdminTracker.open();
+			} catch (InvalidSyntaxException e) {
+				// never happens
+				e.printStackTrace();
+			}
+		}
+		return (FrameworkAdmin) fwAdminTracker.getService();
+	}
+
+	private static String getLauncherName(String name, String os) {
+		if (os == null) {
+			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+			if (info != null)
+				os = info.getOS();
+		}
+
+		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
+			IPath path = new Path(name);
+			if ("exe".equals(path.getFileExtension())) //$NON-NLS-1$
+				return name;
+			return name + ".exe"; //$NON-NLS-1$
+		}
+		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
+			IPath path = new Path(name);
+			if ("app".equals(path.getFileExtension())) //$NON-NLS-1$
+				return name;
+			StringBuffer buffer = new StringBuffer();
+			buffer.append(name.substring(0, 1).toUpperCase());
+			buffer.append(name.substring(1));
+			buffer.append(".app/Contents/MacOS/"); //$NON-NLS-1$
+			buffer.append(name.toLowerCase());
+			return buffer.toString();
+		}
+		return name;
 	}
 }
