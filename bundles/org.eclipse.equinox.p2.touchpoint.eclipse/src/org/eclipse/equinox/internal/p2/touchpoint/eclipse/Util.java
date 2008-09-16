@@ -243,29 +243,27 @@ public class Util {
 	}
 
 	public static File getLauncherPath(IProfile profile) {
-		return new File(getInstallFolder(profile), getLauncherName(profile));
+		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
+		if (name == null)
+			name = "eclipse"; //$NON-NLS-1$
+		return new File(getInstallFolder(profile), getLauncherName(name, getOSFromProfile(profile)));
 	}
 
 	/**
 	 * Returns the name of the Eclipse application launcher.
 	 */
-	private static String getLauncherName(IProfile profile) {
-		String name = profile.getProperty(EclipseTouchpoint.PROFILE_PROP_LAUNCHER_NAME);
-
-		String os = getOSFromProfile(profile);
+	private static String getLauncherName(String name, String os) {
 		if (os == null) {
 			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
 				os = info.getOS();
 		}
-		if (name == null)
-			name = "eclipse"; //$NON-NLS-1$
 
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_WIN32)) {
 			IPath path = new Path(name);
 			if ("exe".equals(path.getFileExtension())) //$NON-NLS-1$
 				return name;
-			return name + ".exe";
+			return name + ".exe"; //$NON-NLS-1$
 		}
 		if (os.equals(org.eclipse.osgi.service.environment.Constants.OS_MACOSX)) {
 			IPath path = new Path(name);
