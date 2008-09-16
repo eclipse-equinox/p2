@@ -34,6 +34,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(SimpleConfiguratorTest.class);
 		suite.addTestSuite(TestEclipseDataArea.class);
 		suite.addTestSuite(TestRunningInstance.class);
+		suite.addTestSuite(ManipulatorTests.class);
 		return suite;
 	}
 

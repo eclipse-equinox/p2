@@ -10,6 +10,12 @@
  *******************************************************************************/
 package org.eclipse.equinox.frameworkadmin.tests;
 
+import org.osgi.framework.BundleException;
+
+import java.io.File;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+
 import java.io.*;
 import java.net.URL;
 import junit.framework.TestCase;
@@ -246,5 +252,17 @@ public abstract class AbstractFwkAdminTest extends TestCase {
 		}
 		// avoid compile error... should never reach this code
 		return null;
+	}
+	
+	protected Manipulator getFrameworkManipulator(File configuration, File launcher) throws BundleException {
+		startSimpleConfiguratormManipulator();
+		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
+		Manipulator manipulator = fwkAdmin.getManipulator();
+
+		LauncherData launcherData = manipulator.getLauncherData();
+		launcherData.setFwConfigLocation(configuration);
+		launcherData.setLauncher(launcher);
+		
+		return manipulator;
 	}
 }
