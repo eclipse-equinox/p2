@@ -164,7 +164,7 @@ public class IUDetailsLabelProvider extends ColumnLabelProvider implements ITabl
 					shell.getDisplay().asyncExec(new Runnable() {
 
 						public void run() {
-							if (shell != null || !shell.isDisposed())
+							if (shell != null && !shell.isDisposed())
 								fireLabelProviderChanged(new LabelProviderChangedEvent(IUDetailsLabelProvider.this, element));
 						}
 					});
