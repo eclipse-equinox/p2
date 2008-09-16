@@ -765,4 +765,31 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		ProvisioningPlan plan = planner.getProvisioningPlan(req, null, null);
 		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 	}
+
+	protected void assertEquals(String message, Object[] expected, Object[] actual, boolean orderImportant) {
+		// if the order in the array must match exactly, then call the other method
+		if (orderImportant) {
+			assertEquals(message, expected, actual);
+			return;
+		}
+		// otherwise use this method and check that the arrays are equal in any order
+		if (expected == null && actual == null)
+			return;
+		if (expected == actual)
+			return;
+		if (expected == null || actual == null)
+			assertTrue(message + ".1", false);
+		if (expected.length != actual.length)
+			assertTrue(message + ".2", false);
+		boolean[] found = new boolean[expected.length];
+		for (int i = 0; i < expected.length; i++) {
+			for (int j = 0; j < expected.length; j++) {
+				if (!found[j] && expected[i].equals(actual[j]))
+					found[j] = true;
+			}
+		}
+		for (int i = 0; i < found.length; i++)
+			if (!found[i])
+				assertTrue(message + ".3." + i, false);
+	}
 }
