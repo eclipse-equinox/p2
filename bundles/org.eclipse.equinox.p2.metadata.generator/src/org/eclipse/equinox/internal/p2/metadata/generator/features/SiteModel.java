@@ -34,7 +34,6 @@ public class SiteModel {
 	private List features;
 	private URL locationURL;
 	private String locationURLString;
-	private List /* of URLEntry */mirrors;
 	private String mirrorsURLString;
 	private boolean supportsPack200;
 	private String type;
@@ -90,26 +89,6 @@ public class SiteModel {
 		if (this.features == null)
 			this.features = new ArrayList();
 		this.features.add(featureReference);
-	}
-
-	/**
-	 * Adds a mirror site.
-	 * 
-	 * @param mirror mirror model 
-	 * @since 3.1
-	 */
-	public void addMirror(URLEntry mirror) {
-		if (this.mirrors == null)
-			this.mirrors = new ArrayList();
-		if (!this.mirrors.contains(mirror))
-			this.mirrors.add(mirror);
-	}
-
-	private void doSetMirrorSiteEntryModels(URLEntry[] newMirrors) {
-		if (newMirrors == null || newMirrors.length == 0)
-			this.mirrors = null;
-		else
-			this.mirrors = new ArrayList(Arrays.asList(newMirrors));
 	}
 
 	/**
@@ -218,24 +197,6 @@ public class SiteModel {
 	}
 
 	/**
-	 * Return an array of update site mirrors
-	 * 
-	 * @return an array of mirror entries, or an empty array.
-	 * @since 3.1
-	 */
-	public URLEntry[] getMirrors() {
-		//delayedResolve(); no delay;
-		if (mirrors == null || mirrors.size() == 0)
-			// see if we can get mirrors from the provided url
-			if (mirrorsURLString != null)
-				doSetMirrorSiteEntryModels(DefaultSiteParser.getMirrors(mirrorsURLString));
-
-		if (mirrors == null || mirrors.size() == 0)
-			return new URLEntry[0];
-		return (URLEntry[]) mirrors.toArray(new URLEntry[0]);
-	}
-
-	/**
 	 * Returns the URL from which the list of mirrors of this site can be retrieved.
 	 * 
 	 * @since org.eclipse.equinox.p2.metadata.generator 1.0
@@ -256,41 +217,6 @@ public class SiteModel {
 
 	public boolean isPack200Supported() {
 		return supportsPack200;
-	}
-
-	/**
-	 * Resolve the model object.
-	 * Any URL strings in the model are resolved relative to the 
-	 * base URL argument. Any translatable strings in the model that are
-	 * specified as translation keys are localized using the supplied 
-	 * resource bundle.
-	 * 
-	 * @param base URL
-	 * @param bundleURL resource bundle URL
-	 * @exception MalformedURLException
-	 * @since 2.0
-	 */
-	public void resolve(URL base, URL bundleURL) throws MalformedURLException {
-
-		// Archives and feature are relative to location URL
-		// if the Site element has a URL tag: see spec	
-		//		locationURL = resolveURL(base, bundleURL, getLocationURLString());
-		//		if (locationURL == null)
-		//			locationURL = base;
-		//		resolveListReference(getFeatureReferenceModels(), locationURL, bundleURL);
-		//		resolveListReference(getArchiveReferenceModels(), locationURL, bundleURL);
-		//
-		//		resolveReference(getDescriptionModel(), base, bundleURL);
-		//		resolveListReference(getCategoryModels(), base, bundleURL);
-		//
-		//		URL url = resolveURL(base, bundleURL, mirrorsURLString);
-		//		if (url != null)
-		//			mirrorsURLString = url.toString();
-		//
-		//		if ((this instanceof ExtendedSite) && ((ExtendedSite) this).isDigestExist()) {
-		//			ExtendedSite extendedSite = (ExtendedSite) this;
-		//			extendedSite.setLiteFeatures(UpdateManagerUtils.getLightFeatures(extendedSite));
-		//		}
 	}
 
 	/**
@@ -340,16 +266,6 @@ public class SiteModel {
 	 */
 	public void setMessageKeys(List keys) {
 		this.messageKeys = keys;
-	}
-
-	/**
-	 * Sets additional mirror sites
-	 * 
-	 * @param mirrors additional update site mirrors
-	 * @since 3.1
-	 */
-	public void setMirrors(URLEntry[] mirrors) {
-		doSetMirrorSiteEntryModels(mirrors);
 	}
 
 	/**

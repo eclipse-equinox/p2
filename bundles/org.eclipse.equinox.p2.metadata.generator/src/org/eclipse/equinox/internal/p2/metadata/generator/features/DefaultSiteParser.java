@@ -39,7 +39,6 @@ public class DefaultSiteParser extends DefaultHandler {
 	private static final String DESCRIPTION = "description"; //$NON-NLS-1$
 	private static final String FEATURE = "feature"; //$NON-NLS-1$
 	private static final String FEATURES = "features/"; //$NON-NLS-1$
-	private static final String MIRROR = "mirror"; //$NON-NLS-1$
 	private final static SAXParserFactory parserFactory = SAXParserFactory.newInstance();
 	private static final String PLUGIN_ID = Activator.ID;
 	private static final String SITE = "site"; //$NON-NLS-1$
@@ -112,56 +111,8 @@ public class DefaultSiteParser extends DefaultHandler {
 		}
 	}
 
-	static URLEntry[] getMirrors(String mirrorsURL) {
-
-		try {
-			String countryCode = Locale.getDefault().getCountry().toLowerCase();
-			int timeZone = (new GregorianCalendar()).get(Calendar.ZONE_OFFSET) / (60 * 60 * 1000);
-
-			if (mirrorsURL.indexOf("?") != -1) { //$NON-NLS-1$
-				mirrorsURL = mirrorsURL + "&"; //$NON-NLS-1$
-			} else {
-				mirrorsURL = mirrorsURL + "?"; //$NON-NLS-1$
-			}
-			mirrorsURL = mirrorsURL + "countryCode=" + countryCode + "&timeZone=" + timeZone + "&responseType=xml"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-
-			DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder builder = domFactory.newDocumentBuilder();
-			Document document = builder.parse(mirrorsURL);
-			if (document == null)
-				return null;
-			NodeList mirrorNodes = document.getElementsByTagName(MIRROR);
-			URLEntry[] mirrors = new URLEntry[mirrorNodes.getLength()];
-			for (int i = 0; i < mirrorNodes.getLength(); i++) {
-				Element mirrorNode = (Element) mirrorNodes.item(i);
-				mirrors[i] = new URLEntry();
-				String infoURL = mirrorNode.getAttribute("url"); //$NON-NLS-1$
-				String label = mirrorNode.getAttribute("label"); //$NON-NLS-1$
-				mirrors[i].setURL(infoURL);
-				mirrors[i].setAnnotation(label);
-
-				if (Tracing.DEBUG_GENERATOR_PARSING)
-					debug("Processed mirror: url:" + infoURL + " label:" + label); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			return mirrors;
-		} catch (Exception e) {
-			// log if absolute url
-			if (mirrorsURL != null && (mirrorsURL.startsWith("http://") //$NON-NLS-1$
-					|| mirrorsURL.startsWith("https://") //$NON-NLS-1$
-					|| mirrorsURL.startsWith("file://") //$NON-NLS-1$
-					|| mirrorsURL.startsWith("ftp://") //$NON-NLS-1$
-			|| mirrorsURL.startsWith("jar://"))) //$NON-NLS-1$
-				LogHelper.log(new Status(IStatus.ERROR, Activator.ID, Messages.DefaultSiteParser_mirrors, e));
-			return null;
-		}
-	}
-
 	static void log(Exception e) {
 		LogHelper.log(new Status(IStatus.ERROR, Activator.ID, "Internal Error", e)); //$NON-NLS-1$
-	}
-
-	static void log(IStatus error) {
-		LogHelper.log(error);
 	}
 
 	static void log(String message) {
