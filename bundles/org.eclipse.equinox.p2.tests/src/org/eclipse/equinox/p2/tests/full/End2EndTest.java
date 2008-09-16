@@ -94,16 +94,21 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		//First we install the sdk
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
-		request.addInstallableUnits(new IInstallableUnit[] {getIU(sdkID, sdkVersion)});
+		IInstallableUnit sdkIU = getIU(sdkID, sdkVersion);
+		if (sdkIU == null)
+			assertNotNull(sdkIU);
+
+		request.addInstallableUnits(new IInstallableUnit[] {sdkIU});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("Installation of the " + sdkID + " " + sdkVersion + " failed.");
 
+		assertProfileContains("SDK 3.4 profile", profile2, new IInstallableUnit[] {sdkIU});
 		validateInstallContentFor34(new File(installFolder, "End2EndProfile"));
 
 		//Uninstall the SDK
 		request = new ProfileChangeRequest(profile2);
-		request.removeInstallableUnits(new IInstallableUnit[] {getIU(sdkID, sdkVersion)});
+		request.removeInstallableUnits(new IInstallableUnit[] {sdkIU});
 		s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK())
 			fail("The uninstallation of the " + sdkID + " " + sdkVersion + " failed.");
