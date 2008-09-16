@@ -21,12 +21,21 @@ public class VersionedName {
 	 * id/version.
 	 * @param spec the spec for the versioned id to create
 	 * @return the parsed versioned id
+	 * @throws IllegalArgumentException If <code>spec</code> is improperly
+	 *         formatted.
 	 */
 	public static VersionedName parse(String spec) {
 		String[] segments = InstallDescriptionParser.getArrayFromString(spec, "/"); //$NON-NLS-1$
 		return new VersionedName(segments[0], segments.length == 1 ? null : segments[1]);
 	}
 
+	/**
+	 * Creates a new versioned name with the given id and version.
+	 * @param id The identifier
+	 * @param version The version
+	 * @throws IllegalArgumentException If <code>version</code> is improperly
+	 *         formatted.
+	 */
 	public VersionedName(String id, String version) {
 		this.id = id;
 		this.version = new Version(version == null ? "0.0.0" : version);

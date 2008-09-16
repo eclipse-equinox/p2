@@ -103,16 +103,26 @@ public class InstallDescriptionParser {
 		String id = properties.getProperty(PROP_ROOT_ID);
 		if (id != null) {
 			String version = properties.getProperty(PROP_ROOT_VERSION);
-			description.setRoots(new VersionedName[] {new VersionedName(id, version)});
+			try {
+				description.setRoots(new VersionedName[] {new VersionedName(id, version)});
+			} catch (IllegalArgumentException e) {
+				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + version, e)); //$NON-NLS-1$
+			}
 		}
 
 		String rootSpec = properties.getProperty(PROP_ROOTS);
 		if (rootSpec != null) {
-			String[] rootList = getArrayFromString(rootSpec, ",");
-			VersionedName[] roots = new VersionedName[rootList.length];
-			for (int i = 0; i < rootList.length; i++)
-				roots[i] = VersionedName.parse(rootList[i]);
-			description.setRoots(roots);
+			String[] rootList = getArrayFromString(rootSpec, ","); //$NON-NLS-1$
+			ArrayList roots = new ArrayList(rootList.length);
+			for (int i = 0; i < rootList.length; i++) {
+				try {
+					roots.add(VersionedName.parse(rootList[i]));
+				} catch (IllegalArgumentException e) {
+					LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid version in install description: " + rootList[i], e)); //$NON-NLS-1$
+				}
+			}
+			if (!roots.isEmpty())
+				description.setRoots((VersionedName[]) roots.toArray(new VersionedName[roots.size()]));
 		}
 		return description;
 	}
@@ -140,9 +150,12 @@ public class InstallDescriptionParser {
 		description.setProfileProperties(profileProperties);
 	}
 
+	/**
+	 * Returns an array of URLs from the given comma-separated list
+	 * of URLs. Returns null if the given spec does not contain any URLs.
+	 * @return An array of URLs in the given spec, or <code>null</code>
+	 */
 	private static URL[] getURLs(String spec) {
-		if (spec == null)
-			return null;
 		String[] urlSpecs = getArrayFromString(spec, ","); //$NON-NLS-1$
 		ArrayList result = new ArrayList(urlSpecs.length);
 		for (int i = 0; i < urlSpecs.length; i++) {
@@ -152,6 +165,8 @@ public class InstallDescriptionParser {
 				LogHelper.log(new Status(IStatus.ERROR, InstallerActivator.PI_INSTALLER, "Invalid URL in install description: " + urlSpecs[i], e)); //$NON-NLS-1$
 			}
 		}
+		if (result.isEmpty())
+			return null;
 		return (URL[]) result.toArray(new URL[result.size()]);
 	}
 
