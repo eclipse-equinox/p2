@@ -14,7 +14,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.equinox.frameworkadmin.tests.Activator;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -178,8 +177,8 @@ public class End2EndTest extends AbstractProvisioningTest {
 		if (fwAdminTracker == null) {
 			Filter filter;
 			try {
-				filter = Activator.getContext().createFilter(filterFwAdmin);
-				fwAdminTracker = new ServiceTracker(Activator.getContext(), filter, null);
+				filter = TestActivator.getContext().createFilter(filterFwAdmin);
+				fwAdminTracker = new ServiceTracker(TestActivator.getContext(), filter, null);
 				fwAdminTracker.open();
 			} catch (InvalidSyntaxException e) {
 				// never happens
@@ -191,7 +190,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private static String getLauncherName(String name, String os) {
 		if (os == null) {
-			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(Activator.getContext(), EnvironmentInfo.class.getName());
+			EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
 			if (info != null)
 				os = info.getOS();
 		}
