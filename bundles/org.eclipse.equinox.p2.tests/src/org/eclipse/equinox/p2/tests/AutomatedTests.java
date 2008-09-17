@@ -26,7 +26,6 @@ public class AutomatedTests extends TestCase {
 		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.processing.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.core.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.director.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.download.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.engine.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.generator.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.AllTests.suite());

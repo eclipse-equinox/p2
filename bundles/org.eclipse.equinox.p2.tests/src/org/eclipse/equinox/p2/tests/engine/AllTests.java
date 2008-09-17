@@ -19,6 +19,7 @@ public class AllTests extends TestCase {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
+		suite.addTestSuite(DownloadManagerTest.class);
 		suite.addTestSuite(EngineTest.class);
 		suite.addTestSuite(PhaseSetTest.class);
 		suite.addTestSuite(PhaseTest.class);
@@ -26,7 +27,6 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(ProfileTest.class);
 		suite.addTestSuite(ProfileRegistryTest.class);
 		suite.addTestSuite(TouchpointTest.class);
-		suite.addTestSuite(BogusRegistryContent.class);
 		return suite;
 	}
 

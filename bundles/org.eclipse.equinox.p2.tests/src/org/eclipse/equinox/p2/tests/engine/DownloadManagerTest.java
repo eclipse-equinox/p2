@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.p2.tests.download;
+package org.eclipse.equinox.p2.tests.engine;
 
 import junit.framework.*;
 import org.eclipse.core.runtime.IStatus;
