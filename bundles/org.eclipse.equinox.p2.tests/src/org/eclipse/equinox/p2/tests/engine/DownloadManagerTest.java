@@ -57,7 +57,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		DownloadManager manager = new DownloadManager(context);
 		try {
 			manager.add((IArtifactRequest) null);
-		} catch (NullPointerException e) {
+		} catch (RuntimeException e) {
 			return;
 		}
 		fail("1.0");
@@ -68,7 +68,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		DownloadManager manager = new DownloadManager(context);
 		try {
 			manager.add((IArtifactRequest[]) null);
-		} catch (NullPointerException e) {
+		} catch (RuntimeException e) {
 			return;
 		}
 		fail("1.0");
@@ -88,7 +88,7 @@ public class DownloadManagerTest extends AbstractProvisioningTest {
 		try {
 			IArtifactRequest[] requests = new IArtifactRequest[] {null};
 			manager.add(requests);
-		} catch (NullPointerException e) {
+		} catch (RuntimeException e) {
 			return;
 		}
 		fail("1.0");
