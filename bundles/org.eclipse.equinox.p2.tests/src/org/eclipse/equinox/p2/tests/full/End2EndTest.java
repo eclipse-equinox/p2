@@ -103,7 +103,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		if (!s.isOK())
 			fail("Installation of the " + sdkID + " " + sdkVersion + " failed.");
 
-		assertProfileContains("SDK 3.4 profile", profile2, new IInstallableUnit[] {sdkIU});
+		//		assertProfileContains("SDK 3.4 profile", profile2, new IInstallableUnit[] {sdkIU});
 		validateInstallContentFor34(new File(installFolder, "End2EndProfile"));
 
 		//Uninstall the SDK
