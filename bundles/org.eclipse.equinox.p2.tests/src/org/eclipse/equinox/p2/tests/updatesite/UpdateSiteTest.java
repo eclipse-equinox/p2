@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IStatus;
@@ -462,6 +463,36 @@ public class UpdateSiteTest extends AbstractProvisioningTest {
 					fail("Can't get the expected artifact:" + keys[i]);
 			}
 		}
+	}
+
+	/**
+	 * Tests that the feature jar IU has the appropriate touchpoint instruction for
+	 * unzipping the feature on install.
+	 */
+	public void testFeatureJarUnzipInstruction() {
+		IMetadataRepositoryManager repoMan = (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+		File site = getTestData("0.1", "/testData/updatesite/site");
+		URL location = null;
+		try {
+			location = site.toURL();
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
+		}
+		IMetadataRepository repository;
+		try {
+			repository = repoMan.loadRepository(location, getMonitor());
+		} catch (ProvisionException e) {
+			fail("1.99", e);
+			return;
+		}
+		Collector result = repository.query(new InstallableUnitQuery("test.feature.feature.jar"), new Collector(), getMonitor());
+		assertTrue("1.0", !result.isEmpty());
+		IInstallableUnit unit = (IInstallableUnit) result.iterator().next();
+		TouchpointData[] data = unit.getTouchpointData();
+		assertEquals("1.1", 1, data.length);
+		Map instructions = data[0].getInstructions();
+		assertEquals("1.2", 1, instructions.size());
+		assertEquals("1.3", "true", instructions.get("zipped"));
 	}
 
 	public void testMirrors() {
