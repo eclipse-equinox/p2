@@ -54,6 +54,9 @@ public class DownloadManager {
 	 * is downloaded, put it in the specified location.
 	 */
 	public void add(IArtifactRequest toAdd) {
+		if (toAdd == null)
+			throw new NullPointerException("ArtifactRequest cannot be null");
+
 		requestsToProcess.add(toAdd);
 	}
 
@@ -129,7 +132,7 @@ public class DownloadManager {
 	//	}
 
 	private IStatus overallStatus(IProgressMonitor monitor) {
-		if (monitor.isCanceled())
+		if (monitor != null && monitor.isCanceled())
 			return Status.CANCEL_STATUS;
 
 		if (requestsToProcess.size() == 0)
