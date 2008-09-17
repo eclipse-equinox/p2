@@ -40,15 +40,22 @@ public class InstructionParser {
 	private ProvisioningAction parseAction(String statement) {
 		int openBracket = statement.indexOf('(');
 		int closeBracket = statement.lastIndexOf(')');
+		if (openBracket == -1 || closeBracket == -1 || openBracket > closeBracket)
+			throw new IllegalArgumentException(statement);
 		String actionName = statement.substring(0, openBracket).trim();
 		ProvisioningAction action = lookupAction(actionName);
 
 		String nameValuePairs = statement.substring(openBracket + 1, closeBracket);
+		if (nameValuePairs.length() == 0)
+			return new ParameterizedProvisioningAction(action, Collections.EMPTY_MAP);
+
 		StringTokenizer tokenizer = new StringTokenizer(nameValuePairs, ","); //$NON-NLS-1$
 		Map parameters = new HashMap();
 		while (tokenizer.hasMoreTokens()) {
 			String nameValuePair = tokenizer.nextToken();
 			int colonIndex = nameValuePair.indexOf(":"); //$NON-NLS-1$
+			if (colonIndex == -1)
+				throw new IllegalArgumentException(statement);
 			String name = nameValuePair.substring(0, colonIndex).trim();
 			String value = nameValuePair.substring(colonIndex + 1).trim();
 			parameters.put(name, value);
