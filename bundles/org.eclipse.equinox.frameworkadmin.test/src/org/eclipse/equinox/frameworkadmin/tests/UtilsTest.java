@@ -9,111 +9,59 @@ package org.eclipse.equinox.frameworkadmin.tests;
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-import junit.framework.TestCase;
 
-public class UtilsTest extends TestCase {
-//
-//	/**
-//	 * @param name
-//	 */
-//	public UtilsTest(String name) {
-//		super(name);
-//	}
-//
-//	/* (non-Javadoc)
-//	 * @see junit.framework.TestCase#setUp()
-//	 */
-//	protected void setUp() throws Exception {
-//		super.setUp();
-//	}
-//
-//	/* (non-Javadoc)
-//	 * @see junit.framework.TestCase#tearDown()
-//	 */
-//	protected void tearDown() throws Exception {
-//		super.tearDown();
-//	}
-//
-//	//	/**
-//	//	 * Test method for {@link org.eclipse.configMan.internal.util.Utils#getUrl(java.lang.String, java.lang.String, java.lang.String)}.
-//	//	 */
-//	//	public void testGetUrl() {
-//	//		fail("Not yet implemented");
-//	//	}
-//
-//	/**
-//	 * Test method for {@link Utils#getRelativePath(java.net.URL, java.net.URL)}.
-//	 */
-//	public void testGetRelativePath() {
-//		//URL target;
-//		//URL from;
-//		try {
-//			URL target = new URL("http", "www.ntt.co.jp", "dir1/dir2/target.html");
-//			URL from = new URL("http", "www.ntt.co.jp", "dir1/dir3/dir4/from.html");
-//			String expected = "../../../dir2/target.html";
-//			String ret = Utils.getRelativePath(target, from);
-//			assertEquals(expected, ret);
-//
-//			expected = "../../dir3/dir4/from.html";
-//			ret = Utils.getRelativePath(from, target);
-//			assertEquals(expected, ret);
-//
-//			try {
-//				target = new URL("http", "www.ntt.co.jp", "dir1/dir2/target.html");
-//				from = new URL("http", "www.ibm.com", "dir1/dir3/dir4/from.html");
-//				ret = Utils.getRelativePath(target, from);
-//				fail("IllegalArgumentException must be thrown");
-//			} catch (IllegalArgumentException e) {
-//
-//			}
-//			try {
-//				target = new URL("file", null, "dir2/target.html");
-//				from = new URL("http", "www.ntt.co.jp", "dir1/dir3/dir4/from.html");
-//				ret = Utils.getRelativePath(target, from);
-//				fail("IllegalArgumentException must be thrown");
-//			} catch (IllegalArgumentException e) {
-//
-//			}
-//		} catch (MalformedURLException e) {
-//			e.printStackTrace();
-//
-//		}
-//
-//	}
-//
-//	/**
-//	 * Test method for {@link Utils#replaceAll(java.lang.String, java.lang.String, java.lang.String)}.
-//	 */
-//	public void testReplaceAll() {
-//		String st = "tere/eerere//ty/d";
-//		String expected = "tere\\eerere\\\\ty\\d";
-//		String oldSt = "/";
-//		String newSt = "\\";
-//		String ret = Utils.replaceAll(st, oldSt, newSt);
-//		assertEquals(expected, ret);
-//	}
-//
-//	/**
-//	 * Test method for {@link Utils#getTokens(java.lang.String, java.lang.String)}.
-//	 */
-//	public void testGetTokens() {
-//		String st = "/AAAA/BB//CC/D/";
-//		String[] expected = {"AAAA", "BB", "CC", "D"};
-//		String delim = "/";
-//		String[] ret = Utils.getTokens(st, delim);
-//		assertEquals("lengths must equal.", ret.length, expected.length);
-//		for (int i = 0; i < ret.length; i++)
-//			assertEquals("each elements must equal.", expected[i], ret[i]);
-//	}
-//
-//	/**
-//	 * Test method for {@link Utils#removeLastCh(String target, char ch)}.
-//	 */
-//	public void testRemoveLastCh() {
-//		String target = "ddddaaaaaaaa";
-//		String expected = "dddd";
-//		char ch = 'a';
-//		String ret = Utils.removeLastCh(target, ch);
-//		assertEquals(expected, ret);
-//	}
+import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.EclipseVersion;
+
+import java.net.URL;
+
+import java.io.File;
+
+import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
+import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+
+public class UtilsTest extends AbstractFwkAdminTest {
+
+	/**
+	 * @param name
+	 */
+	public UtilsTest(String name) {
+		super(name);
+	}
+	
+	public void test_getEclipseRealLocation() throws Exception {
+		File installFolder = Activator.getContext().getDataFile("212361");
+		
+		File plugins = new File( installFolder, "plugins");
+		File foo1 = new File(plugins, "org.foo_1.2.3.abc");
+		File foo2 = new File(plugins, "org.foo_1.2.4.xyz");
+		File foo_64 = new File(plugins, "org.foo.x86_64_1.2.3");
+		foo1.mkdirs();
+		foo2.mkdirs();
+		foo_64.mkdirs();
+		
+		Manipulator manipulator = getFrameworkManipulator(new File(installFolder, "configuration"), new File(installFolder, "eclipse"));
+		
+		assertEquals(new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo")), foo2.toURL());
+		assertEquals( new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo_1.2.3.abc")), foo1.toURL());
+		assertEquals( new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo.x86_64")), foo_64.toURL());
+		
+		File other = new File(installFolder, "other/org.foo_1.2.4");
+		other.mkdirs();
+		manipulator.getConfigData().setFwDependentProp("osgi.syspath", other.getParentFile().getAbsolutePath());
+		assertEquals(new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo")), other.toURL());
+	}
+	
+	public void testEclipseVersion() throws Exception {
+		EclipseVersion version1 = new EclipseVersion("1.2.0.abc");
+		EclipseVersion version2 = new EclipseVersion("1.2.0.abc");
+		EclipseVersion version3 = new EclipseVersion("1.2.0.def");
+		EclipseVersion version4 = new EclipseVersion("1.3");
+
+		assertEquals(version1, version2);
+		assertEquals(version1.hashCode(), version2.hashCode());
+		assertTrue(version1.compareTo(version3) < 0);
+		assertTrue(version3.compareTo(version2) > 0);
+		assertTrue(version1.compareTo(version2) == 0);
+		assertTrue(version4.compareTo(version2) > 0);
+	}
 }
