@@ -54,13 +54,12 @@ public class DownloadManager {
 	 * is downloaded, put it in the specified location.
 	 */
 	public void add(IArtifactRequest toAdd) {
-		if (toAdd == null)
-			throw new NullPointerException("ArtifactRequest cannot be null");
-
+		Assert.isNotNull(toAdd);
 		requestsToProcess.add(toAdd);
 	}
 
 	public void add(IArtifactRequest[] toAdd) {
+		Assert.isNotNull(toAdd);
 		for (int i = 0; i < toAdd.length; i++) {
 			add(toAdd[i]);
 		}
