@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.director.app.LatestIUVersionCollector;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -24,12 +25,12 @@ import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.environment.EnvironmentInfo;
-import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
@@ -67,11 +68,12 @@ public class End2EndTest extends AbstractProvisioningTest {
 		}
 
 		Map properties = new HashMap();
-		properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder + '/' + profileId);
+		properties.put(IProfile.PROP_INSTALL_FOLDER, installFolder);
 		EnvironmentInfo info = (EnvironmentInfo) ServiceHelper.getService(TestActivator.getContext(), EnvironmentInfo.class.getName());
 		if (info != null)
 			properties.put(IProfile.PROP_ENVIRONMENTS, "osgi.os=" + info.getOS() + ",osgi.ws=" + info.getWS() + ",osgi.arch=" + info.getOSArch());
-
+		properties.put("org.eclipse.update.install.features", "true");
+		properties.put(IProfile.PROP_CACHE, installFolder);
 		return createProfile(profileId, null, properties);
 	}
 
@@ -88,32 +90,81 @@ public class End2EndTest extends AbstractProvisioningTest {
 			//Ignore
 		}
 
-		final String sdkID = "org.eclipse.sdk.ide";
-		final Version sdkVersion = new Version("3.4.0.I20080617-2000");
+		installPlatform(profile2, installFolder);
 
-		//First we install the sdk
+		installPlatformSource(profile2, installFolder);
+
+		attemptToUninstallPlatform(profile2, installFolder);
+
+		rollbackPlatformSource(profile2, installFolder);
+
+		uninstallPlatform(profile2, installFolder);
+
+	}
+
+	private void attemptToUninstallPlatform(IProfile profile2, File installFolder) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void uninstallPlatform(IProfile profile2, File installFolder) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void rollbackPlatformSource(IProfile profile2, File installFolder) {
+		IMetadataRepository rollbackRepo = null;
+		try {
+			rollbackRepo = metadataRepoManager.loadRepository(director.getRollbackRepositoryLocation(), new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			fail("Can't find rollback repository");
+		}
+		Collector collector = rollbackRepo.query(new InstallableUnitQuery(profile2.getProfileId()), new LatestIUVersionCollector(), new NullProgressMonitor());
+		assertEquals(1, collector.size());
+
+		IStatus s = director.revert((IInstallableUnit) collector.iterator().next(), profile2, null, new NullProgressMonitor());
+		assertTrue(s.isOK());
+
+		validateInstallContentFor34(installFolder);
+		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source/source.info").exists());
+	}
+
+	private void installPlatformSource(IProfile profile2, File installFolder) {
+		final String id = "org.eclipse.platform.source.feature.group";
+		final Version version = new Version("3.4.0.v20080610-9I96EhtEm-T_5LxIsybz-3MdGZmOA3uwv7Ka_M");
+
+		IInstallableUnit toInstall = getIU(id, version);
+		if (toInstall == null)
+			assertNotNull(toInstall);
+
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
-		IInstallableUnit sdkIU = getIU(sdkID, sdkVersion);
-		if (sdkIU == null)
-			assertNotNull(sdkIU);
-
-		request.addInstallableUnits(new IInstallableUnit[] {sdkIU});
+		request.addInstallableUnits(new IInstallableUnit[] {toInstall});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK())
-			fail("Installation of the " + sdkID + " " + sdkVersion + " failed.");
+			fail("Installation of the " + id + " " + version + " failed.");
 
-		//		assertProfileContains("SDK 3.4 profile", profile2, new IInstallableUnit[] {sdkIU});
-		validateInstallContentFor34(new File(installFolder, "End2EndProfile"));
+		assertProfileContainsAll("Platform source feature", profile2, new IInstallableUnit[] {toInstall});
+		assertTrue(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
+	}
 
-		//Uninstall the SDK
-		request = new ProfileChangeRequest(profile2);
-		request.removeInstallableUnits(new IInstallableUnit[] {sdkIU});
-		s = director.provision(request, null, new NullProgressMonitor());
+	private void installPlatform(IProfile profile2, File installFolder) {
+		final String id = "org.eclipse.platform.ide";
+		final Version version = new Version("3.4.0.I20080617-2000");
+
+		//First we install the platform
+		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
+		IInstallableUnit platformIU = getIU(id, version);
+		if (platformIU == null)
+			assertNotNull(platformIU);
+
+		request.addInstallableUnits(new IInstallableUnit[] {platformIU});
+		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK())
-			fail("The uninstallation of the " + sdkID + " " + sdkVersion + " failed.");
+			fail("Installation of the " + id + " " + version + " failed.");
 
-		assertEquals(false, getInstallableUnits(profile2).hasNext()); //the profile should be empty since we uninstalled everything
-		assertTrue(profile2.query(new InstallableUnitQuery(sdkID, VersionRange.emptyRange), new Collector(), null).isEmpty());
+		assertProfileContainsAll("Platform 3.4 profile", profile2, new IInstallableUnit[] {platformIU});
+		validateInstallContentFor34(installFolder);
+		assertFalse(new File(installFolder, "configuration/org.eclipse.equinox.source").exists());
 	}
 
 	public IInstallableUnit getIU(String id, Version v) {
@@ -144,11 +195,14 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		String[] programArgs = manipulator.getLauncherData().getProgramArgs();
 		assertContains("Can't find program arg", programArgs, "-startup");
-		assertContains("Can't find program arg", programArgs, "--launcher.library");
 		assertContains("Can't find program arg", programArgs, "-showsplash");
 		assertContains("Can't find program arg", programArgs, "org.eclipse.platform");
 
-		assertTrue(manipulator.getConfigData().getBundles().length > 130);
+		assertTrue(manipulator.getConfigData().getBundles().length > 50);
+
+		assertTrue(new File(installFolder, "plugins").exists());
+		assertTrue(new File(installFolder, "features").exists());
+
 	}
 
 	private void assertContains(String message, String[] source, String searched) {
