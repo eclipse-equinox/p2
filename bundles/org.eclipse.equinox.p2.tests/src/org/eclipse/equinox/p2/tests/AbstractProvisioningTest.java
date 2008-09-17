@@ -11,6 +11,7 @@ package org.eclipse.equinox.p2.tests;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
@@ -739,7 +740,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		URL[] repos = repoMan.getKnownRepositories(MetadataRepositoryManager.REPOSITORIES_ALL);
+		URL[] repos = repoMan.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < repos.length; i++) {
 			repoMan.removeRepository(repos[i]);
 		}
@@ -791,5 +792,129 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < found.length; i++)
 			if (!found[i])
 				assertTrue(message + ".3." + i, false);
+	}
+
+	protected static void assertEquals(IInstallableUnit iu1, IInstallableUnit iu2) throws Exception {
+		if (iu1 == null || iu2 == null) {
+			if (!(iu1 == iu2))
+				fail();
+			return;
+		}
+
+		if (!iu1.equals(iu2))
+			fail(iu1 + " is not equal to " + iu2);
+
+		if (iu1.isFragment()) {
+			if (!iu2.isFragment())
+				fail(iu1 + " is not a fragment.");
+			try {
+				assertEquals(((IInstallableUnitFragment) iu1).getHost(), ((IInstallableUnitFragment) iu2).getHost());
+			} catch (AssertionFailedError failure) {
+				fail("Unequal hosts: " + failure.getMessage());
+			}
+		} else if (iu2.isFragment()) {
+			fail(iu2 + " is a fragment.");
+		}
+
+		if (iu1.isSingleton()) {
+			if (!iu2.isSingleton())
+				fail(iu2 + " is not a singleton.");
+		} else {
+			fail(iu2 + " is a singleton.");
+		}
+
+		assertEquals(iu1.getProvidedCapabilities(), iu2.getProvidedCapabilities());
+		assertEquals(iu1.getRequiredCapabilities(), iu2.getRequiredCapabilities());
+		assertEquals(iu1.getArtifacts(), iu2.getArtifacts());
+		assertEquals(iu1.getTouchpointType(), iu2.getTouchpointType());
+		assertEquals(iu1.getTouchpointData(), iu2.getTouchpointData());
+		assertEquals(iu1.getProperties(), iu2.getProperties());
+		assertEquals(iu1.getLicense(), iu2.getLicense());
+		assertEquals(iu1.getCopyright(), iu2.getCopyright());
+		assertEquals(iu1.getUpdateDescriptor(), iu2.getUpdateDescriptor());
+		assertEquals(iu1.getFilter(), iu2.getFilter());
+
+		if (iu1.isResolved() && iu2.isResolved())
+			assertEquals(iu1.getFragments(), iu2.getFragments());
+	}
+
+	protected static void assertEquals(ProvidedCapability[] provided1, ProvidedCapability[] provided2) throws Exception {
+		assertArraysEqual(provided1, provided2);
+	}
+
+	protected static void assertEquals(RequiredCapability[] required1, RequiredCapability[] required2) throws Exception {
+		assertArraysEqual(required1, required2);
+	}
+
+	protected static void assertEquals(IArtifactKey[] keys1, IArtifactKey[] keys2) throws Exception {
+		assertArraysEqual(keys1, keys2);
+	}
+
+	/**
+	 * This does not account for whitespace in the data.
+	 */
+	protected static void assertEquals(TouchpointData[] data1, TouchpointData[] data2) throws Exception {
+		assertArraysEqual(data1, data2);
+	}
+
+	protected static void assertEquals(IInstallableUnitFragment[] fragments1, IInstallableUnitFragment[] fragments2) throws Exception {
+		Map map = new HashMap(fragments2.length);
+		for (int i = 0; i < fragments2.length; i++) {
+			map.put(fragments2[i], fragments2[i]);
+		}
+
+		for (int i = 0; i < fragments1.length; i++) {
+			if (!map.containsKey(fragments1))
+				fail("Expected fragment '" + fragments1[i] + "' not present.");
+			else {
+				assertEquals(fragments1[i], (IInstallableUnit) map.remove(fragments1[i]));
+			}
+		}
+
+		if (map.size() > 0)
+			fail("Unexpected fragment '" + map.entrySet().iterator().next() + "'");
+	}
+
+	protected static void assertEquals(IUpdateDescriptor desc1, IUpdateDescriptor desc2) throws Exception {
+		try {
+			assertEquals(desc1.getId(), desc2.getId());
+			assertEquals(desc1.getSeverity(), desc2.getSeverity());
+			assertEquals(desc1.getRange(), desc2.getRange());
+
+			String d1 = desc1.getDescription();
+			String d2 = desc2.getDescription();
+			if (d1 == null)
+				d1 = "";
+			if (d2 == null)
+				d2 = "";
+			assertEquals(d1, d2);
+		} catch (AssertionFailedError e) {
+			fail("Unequal Update Descriptors: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Compare arrays, Elements of the arrays must implement equals and hashCode
+	 * @param objs1
+	 * @param objs2
+	 */
+	protected static void assertArraysEqual(Object[] objs1, Object[] objs2) throws Exception {
+		if (objs1 == null || objs2 == null && objs1 != objs2)
+			fail();
+		if (objs1.length != objs2.length)
+			fail();
+
+		Set set = new HashSet(objs2.length);
+		set.addAll(Arrays.asList(objs2));
+
+		for (int i = 0; i < objs1.length; i++) {
+			if (!set.contains(objs1))
+				fail("Expected element '" + objs1[i] + "' not present.");
+			else
+				set.remove(objs1);
+		}
+
+		if (set.size() > 0)
+			fail("Unexpected element '" + set.iterator().next() + "'");
 	}
 }
