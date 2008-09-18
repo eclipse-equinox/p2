@@ -11,20 +11,22 @@
 package org.eclipse.equinox.p2.tests.reconciler.dropins;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
+import org.eclipse.equinox.internal.p2.update.*;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.osgi.service.datalocation.Location;
 
-/**
- * Abstract class for a reconciler test.
- */
 public class AbstractReconcilerTest extends AbstractProvisioningTest {
 
 	private static File output;
-	private static Set toRemove = new HashSet();
+	protected static Set toRemove = new HashSet();
 
 	/*
 	 * Constructor for the class.
@@ -75,16 +77,20 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 			// it will be a sibling of the eclipse/ folder that we are running
 			File installLocation = getInstallLocation();
 			if (installLocation != null) {
+				// parent will be "eclipse" and the parent's parent will be "eclipse-testing"
 				File parent = installLocation.getParentFile();
 				if (parent != null) {
-					File[] children = parent.listFiles(new FileFilter() {
-						public boolean accept(File pathname) {
-							String name = pathname.getName();
-							return name.startsWith("eclipse-platform-");
-						}
-					});
-					if (children != null && children.length == 1)
-						file = children[0];
+					parent = parent.getParentFile();
+					if (parent != null) {
+						File[] children = parent.listFiles(new FileFilter() {
+							public boolean accept(File pathname) {
+								String name = pathname.getName();
+								return name.startsWith("eclipse-platform-");
+							}
+						});
+						if (children != null && children.length == 1)
+							file = children[0];
+					}
 				}
 			}
 		} else {
@@ -97,30 +103,61 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	}
 
 	/*
-	 * Add the given bundle to the drop-ins folder (do a copy).
+	 * Add the given bundle to the given folder (do a copy).
+	 * The folder can be one of dropins, plugins or features.
 	 * If the file handle points to a directory, then do a deep copy.
 	 */
-	protected void addToDropins(String message, File file) {
-		File dropins = new File(output, "eclipse/dropins");
-		copy(message, file, new File(dropins, file.getName()));
+	public void add(String message, String target, File file) {
+		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features")))
+			fail("Destination folder for resource copying should be either dropins, plugins or features.");
+		File destinationParent = new File(output, "eclipse/" + target);
+		destinationParent.mkdirs();
+		copy(message, file, new File(destinationParent, file.getName()));
+	}
+
+	public void add(String message, String target, File[] files) {
+		assertNotNull(files);
+		for (int i = 0; i < files.length; i++)
+			add(message, target, files[i]);
 	}
 
 	/*
-	 * Remove the given filename from the drop-ins folder.
+	 * Remove the given filename from the given folder.
 	 */
-	protected boolean removeFromDropins(String message, String filename) {
-		File dropins = new File(output, "eclipse/dropins");
-		File target = new File(dropins, filename);
-		if (!target.exists())
+	public boolean remove(String message, String target, String filename) {
+		if (!(target.startsWith("dropins") || target.startsWith("plugins") || target.startsWith("features")))
+			fail("Target folder for resource deletion should be either dropins, plugins or features.");
+		File folder = new File(output, "eclipse/" + target);
+		File targetFile = new File(folder, filename);
+		if (!targetFile.exists())
 			return false;
-		return delete(target);
+		return delete(targetFile);
+	}
+
+	/*
+	 * Remove the files with the given names from the target folder.
+	 */
+	public void remove(String message, String target, String[] names) {
+		assertNotNull(names);
+		for (int i = 0; i < names.length; i++)
+			remove(message, target, names[i]);
 	}
 
 	/*
 	 * Return a boolean value indicating whether or not a bundle with the given id
-	 * is installed in the system.
+	 * is listed in the bundles.info file. Ignore the version number and return true
+	 * if there are any matches in the file.
 	 */
-	protected boolean isInstalled(String bundleId) throws IOException {
+	public boolean isInBundlesInfo(String bundleId) throws IOException {
+		return isInBundlesInfo(bundleId, null);
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not a bundle with the given id
+	 * is listed in the bundles.info file. If the version is non-null, check to ensure the
+	 * version is the expected one.
+	 */
+	public boolean isInBundlesInfo(String bundleId, String version) throws IOException {
 		File bundlesInfo = new File(output, "eclipse/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info");
 		if (!bundlesInfo.exists())
 			return false;
@@ -130,8 +167,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		try {
 			while ((line = reader.readLine()) != null) {
 				StringTokenizer tokenizer = new StringTokenizer(line, ",");
-				if (bundleId.equals(tokenizer.nextToken()))
-					return true;
+				if (bundleId.equals(tokenizer.nextToken())) {
+					if (version == null)
+						return true;
+					if (version.equals(tokenizer.nextToken()))
+						return true;
+				}
 			}
 		} catch (IOException e) {
 			exception = e;
@@ -149,7 +190,7 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	/*
 	 * Run the reconciler to discover changes in the drop-ins folder and update the system state.
 	 */
-	protected void reconcile(String message) {
+	public void reconcile(String message) {
 		String command = output.getAbsolutePath() + "/eclipse/eclipse -nosplash -application org.eclipse.equinox.p2.reconciler.application";
 		try {
 			Process process = Runtime.getRuntime().exec(command);
@@ -159,6 +200,44 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		} catch (InterruptedException e) {
 			fail(message, e);
 		}
+	}
+
+	/*
+	 * If a bundle with the given id and version exists in the bundles.info file then
+	 * throw an AssertionFailedException.
+	 */
+	public void assertDoesNotExistInBundlesInfo(String message, String bundleId, String version) {
+		try {
+			assertTrue(message, !isInBundlesInfo(bundleId, version));
+		} catch (IOException e) {
+			fail(message, e);
+		}
+	}
+
+	/*
+	 * If a bundle with the given id in the bundles.info file then throw an AssertionFailedException.
+	 */
+	public void assertDoesNotExistInBundlesInfo(String message, String bundleId) {
+		assertDoesNotExistInBundlesInfo(message, bundleId, null);
+	}
+
+	/*
+	 * If a bundle with the given id and version does not exist in the bundles.info file then
+	 * throw an AssertionFailedException.
+	 */
+	public void assertExistsInBundlesInfo(String message, String bundleId, String version) {
+		try {
+			assertTrue(message, isInBundlesInfo(bundleId, version));
+		} catch (IOException e) {
+			fail(message, e);
+		}
+	}
+
+	/*
+	 * If a bundle with the given id does not exist in the bundles.info file then throw an AssertionFailedException.
+	 */
+	public void assertExistsInBundlesInfo(String message, String bundleId) {
+		assertExistsInBundlesInfo(message, bundleId, null);
 	}
 
 	/*
@@ -176,4 +255,104 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		toRemove.clear();
 	}
 
+	/*
+	 * Read and return the configuration object. Will not return null.
+	 */
+	public Configuration getConfiguration() {
+		File configLocation = new File(output, "eclipse/configuration/org.eclipse.update/platform.xml");
+		File installLocation = new File(output, "eclipse");
+		if (installLocation == null)
+			fail("Unable to determine install location.");
+		try {
+			return Configuration.load(configLocation, installLocation.toURL());
+		} catch (ProvisionException e) {
+			fail("Error while reading configuration from " + configLocation);
+		} catch (MalformedURLException e) {
+			fail("Unable to convert install location to URL " + installLocation);
+		}
+		assertTrue("Unable to read configuration from " + configLocation, false);
+		// avoid compiler error
+		return null;
+	}
+
+	/*
+	 * Save the given configuration to disk.
+	 */
+	public void save(String message, Configuration configuration) {
+		File configLocation = new File(output, "eclipse/configuration/org.eclipse.update/platform.xml");
+		File installLocation = new File(output, "eclipse");
+		try {
+			configuration.save(configLocation, installLocation.toURL());
+		} catch (ProvisionException e) {
+			fail(message, e);
+		} catch (MalformedURLException e) {
+			fail(message, e);
+		}
+	}
+
+	/*
+	 * Iterate over the sites in the given configuration and remove the one which
+	 * has a url matching the given location.
+	 */
+	public boolean removeSite(Configuration configuration, String location) {
+		IPath path = new Path(location);
+		List sites = configuration.getSites();
+		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+			Site tempSite = (Site) iter.next();
+			String siteURL = tempSite.getUrl();
+			if (path.equals(new Path(siteURL)))
+				return configuration.removeSite(tempSite);
+		}
+		return false;
+	}
+
+	/*
+	 * Create and return a new feature object with the given parameters.
+	 */
+	public Feature createFeature(Site site, String id, String version, String url) {
+		Feature result = new Feature(site);
+		result.setId(id);
+		result.setVersion(version);
+		result.setUrl(url);
+		return result;
+	}
+
+	/*
+	 * Create and return a new site object with the given parameters.
+	 */
+	public Site createSite(String policy, boolean enabled, boolean updateable, String url, String[] plugins) {
+		Site result = new Site();
+		result.setPolicy(policy);
+		result.setEnabled(enabled);
+		result.setUpdateable(updateable);
+		result.setUrl(url);
+		if (plugins != null)
+			for (int i = 0; i < plugins.length; i++)
+				result.addPlugin(plugins[i]);
+		return result;
+	}
+
+	/*
+	 * Assert that a feature with the given id exists in the configuration. If 
+	 * a version is specified then match the version, otherwise any version will
+	 * do.
+	 */
+	public void assertFeatureExists(String message, Configuration configuration, String id, String version) {
+		List sites = configuration.getSites();
+		assertNotNull(message, sites);
+		boolean found = false;
+		for (Iterator iter = sites.iterator(); iter.hasNext();) {
+			Site site = (Site) iter.next();
+			Feature[] features = site.getFeatures();
+			for (int i = 0; features != null && i < features.length; i++) {
+				if (id.equals(features[i].getId())) {
+					if (version == null)
+						found = true;
+					else if (version.equals(features[i].getVersion()))
+						found = true;
+				}
+			}
+		}
+		assertTrue(message, found);
+	}
 }
