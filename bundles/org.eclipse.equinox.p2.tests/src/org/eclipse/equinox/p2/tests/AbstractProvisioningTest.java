@@ -794,11 +794,11 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				assertTrue(message + ".3." + i, false);
 	}
 
-	protected static void assertEquals(IInstallableUnit iu1, IInstallableUnit iu2) throws Exception {
-		if (iu1 == null || iu2 == null) {
-			if (!(iu1 == iu2))
-				fail();
+	protected static void assertEquals(IInstallableUnit iu1, IInstallableUnit iu2) throws AssertionFailedError {
+		if (iu1 == iu2)
 			return;
+		if (iu1 == null || iu2 == null) {
+			fail();
 		}
 
 		if (!iu1.equals(iu2))
@@ -819,7 +819,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (iu1.isSingleton()) {
 			if (!iu2.isSingleton())
 				fail(iu2 + " is not a singleton.");
-		} else {
+		} else if (iu2.isSingleton()) {
 			fail(iu2 + " is a singleton.");
 		}
 
@@ -838,26 +838,26 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			assertEquals(iu1.getFragments(), iu2.getFragments());
 	}
 
-	protected static void assertEquals(ProvidedCapability[] provided1, ProvidedCapability[] provided2) throws Exception {
+	protected static void assertEquals(ProvidedCapability[] provided1, ProvidedCapability[] provided2) throws AssertionFailedError {
 		assertArraysEqual(provided1, provided2);
 	}
 
-	protected static void assertEquals(RequiredCapability[] required1, RequiredCapability[] required2) throws Exception {
+	protected static void assertEquals(RequiredCapability[] required1, RequiredCapability[] required2) throws AssertionFailedError {
 		assertArraysEqual(required1, required2);
 	}
 
-	protected static void assertEquals(IArtifactKey[] keys1, IArtifactKey[] keys2) throws Exception {
+	protected static void assertEquals(IArtifactKey[] keys1, IArtifactKey[] keys2) throws AssertionFailedError {
 		assertArraysEqual(keys1, keys2);
 	}
 
 	/**
 	 * This does not account for whitespace in the data.
 	 */
-	protected static void assertEquals(TouchpointData[] data1, TouchpointData[] data2) throws Exception {
+	protected static void assertEquals(TouchpointData[] data1, TouchpointData[] data2) throws AssertionFailedError {
 		assertArraysEqual(data1, data2);
 	}
 
-	protected static void assertEquals(IInstallableUnitFragment[] fragments1, IInstallableUnitFragment[] fragments2) throws Exception {
+	protected static void assertEquals(IInstallableUnitFragment[] fragments1, IInstallableUnitFragment[] fragments2) throws AssertionFailedError {
 		Map map = new HashMap(fragments2.length);
 		for (int i = 0; i < fragments2.length; i++) {
 			map.put(fragments2[i], fragments2[i]);
@@ -875,7 +875,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			fail("Unexpected fragment '" + map.entrySet().iterator().next() + "'");
 	}
 
-	protected static void assertEquals(IUpdateDescriptor desc1, IUpdateDescriptor desc2) throws Exception {
+	protected static void assertEquals(IUpdateDescriptor desc1, IUpdateDescriptor desc2) throws AssertionFailedError {
+		if (desc1 == desc2)
+			return;
+		if (desc1 == null || desc2 == null)
+			fail();
+
 		try {
 			assertEquals(desc1.getId(), desc2.getId());
 			assertEquals(desc1.getSeverity(), desc2.getSeverity());
@@ -898,8 +903,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * @param objs1
 	 * @param objs2
 	 */
-	protected static void assertArraysEqual(Object[] objs1, Object[] objs2) throws Exception {
-		if (objs1 == null || objs2 == null && objs1 != objs2)
+	protected static void assertArraysEqual(Object[] objs1, Object[] objs2) throws AssertionFailedError {
+		if (objs1 == objs2)
+			return;
+		if (objs1 == null || objs2 == null)
 			fail();
 		if (objs1.length != objs2.length)
 			fail();
@@ -908,10 +915,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		set.addAll(Arrays.asList(objs2));
 
 		for (int i = 0; i < objs1.length; i++) {
-			if (!set.contains(objs1))
+			if (!set.contains(objs1[i]))
 				fail("Expected element '" + objs1[i] + "' not present.");
 			else
-				set.remove(objs1);
+				set.remove(objs1[i]);
 		}
 
 		if (set.size() > 0)
