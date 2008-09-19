@@ -11,7 +11,6 @@
 package org.eclipse.equinox.internal.p2.core.helpers;
 
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 import java.util.zip.*;
 import org.eclipse.core.runtime.*;
@@ -45,23 +44,6 @@ public class FileUtils {
 		} catch (IOException e) {
 			// add the file name to the message
 			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipFile, e.getMessage()));
-		} finally {
-			in.close();
-		}
-	}
-
-	/**
-	 * Unzip from a URL to an output directory, with progress indication.
-	 * monitor may be null.
-	 */
-	public static File[] unzipURL(URL zipURL, File outputDir, String taskName, IProgressMonitor monitor) throws IOException {
-		int size = zipURL.openConnection().getContentLength();
-		InputStream in = zipURL.openStream();
-		try {
-			return unzipStream(in, size, outputDir, taskName, monitor);
-		} catch (IOException e) {
-			// add the URL to the message
-			throw new IOException(NLS.bind(Messages.Util_Error_Unzipping, zipURL, e.getMessage()));
 		} finally {
 			in.close();
 		}
