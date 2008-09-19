@@ -53,10 +53,10 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 */
 	private List metadataRepos = new ArrayList();
 	/**
-	 * Tracks the profiles created by this test instance. The profiles
+	 * Tracks the profile ids created by this test instance. The profiles
 	 * will be removed automatically at the end of the test.
 	 */
-	private List profilesToRemove = new ArrayList();
+	protected List profilesToRemove = new ArrayList();
 
 	public static void assertEmptyProfile(IProfile profile) {
 		assertNotNull("The profile should not be null", profile);
@@ -594,6 +594,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		//remove any existing profile with the same name
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		profileRegistry.removeProfile(name);
+		profilesToRemove.add(name);
 		//create and return a new profile
 		try {
 			return profileRegistry.addProfile(name, properties, parentId);
@@ -669,8 +670,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		//remove all profiles created by this test
 		IProfileRegistry profileRegistry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
 		for (Iterator it = profilesToRemove.iterator(); it.hasNext();) {
-			IProfile toRemove = (IProfile) it.next();
-			profileRegistry.removeProfile(toRemove.getProfileId());
+			String toRemove = (String) it.next();
+			profileRegistry.removeProfile(toRemove);
 		}
 		profilesToRemove.clear();
 		//See bug 209069 - currently no way to persist install registry changes or clear the metadata cache
