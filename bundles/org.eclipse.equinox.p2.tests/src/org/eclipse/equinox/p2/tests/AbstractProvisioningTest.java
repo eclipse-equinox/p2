@@ -15,7 +15,10 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
@@ -25,6 +28,7 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUni
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.osgi.framework.Version;
 
@@ -57,6 +61,8 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	 * will be removed automatically at the end of the test.
 	 */
 	protected List profilesToRemove = new ArrayList();
+
+	private File testFolder = null;
 
 	public static void assertEmptyProfile(IProfile profile) {
 		assertNotNull("The profile should not be null", profile);
@@ -632,16 +638,61 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		metadataRepos.add(repo);
 	}
 
+	protected IArtifactRepository createArtifactRepository(URL location, Map properties) throws ProvisionException {
+		IArtifactRepositoryManager artifactRepositoryManager = getArtifactRepositoryManager();
+		IArtifactRepository repo = artifactRepositoryManager.createRepository(location, "artifact", IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		artifactRepositoryManager.removeRepository(repo.getLocation());
+		return repo;
+	}
+
+	private static IArtifactRepositoryManager getArtifactRepositoryManager() {
+		return (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+	}
+
+	protected IMetadataRepository createMetadataRepository(URL location, Map properties) throws ProvisionException {
+		IMetadataRepositoryManager metadataRepositoryManager = getMetadataRepositoryManager();
+		IMetadataRepository repo = metadataRepositoryManager.createRepository(location, "metadata", IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, properties);
+		metadataRepos.add(repo);
+		return repo;
+	}
+
+	private static IMetadataRepositoryManager getMetadataRepositoryManager() {
+		return (IMetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
+	}
+
 	public static String getUniqueString() {
 		return System.currentTimeMillis() + "-" + Math.random();
 	}
 
-	public static File getTempFolder() {
-		String tempDir = System.getProperty("java.io.tmpdir");
-		File folder = new File(tempDir, getUniqueString());
-		delete(folder);
-		folder.mkdirs();
-		return folder;
+	public File getTempFolder() {
+		return getTestFolder(getUniqueString());
+	}
+
+	protected File getTestFolder(String name) {
+		Location instanceLocation = (Location) ServiceHelper.getService(TestActivator.getContext(), Location.class.getName(), Location.INSTANCE_FILTER);
+		URL url = instanceLocation != null ? instanceLocation.getURL() : null;
+		if (instanceLocation == null || !instanceLocation.isSet() || url == null) {
+			String tempDir = System.getProperty("java.io.tmpdir");
+			testFolder = new File(tempDir, name);
+		} else {
+			File instance = URLUtil.toFile(url);
+			testFolder = new File(instance, name);
+		}
+
+		if (testFolder.exists())
+			delete(testFolder);
+		testFolder.mkdirs();
+		return testFolder;
+	}
+
+	protected void runTest() throws Throwable {
+		super.runTest();
+
+		//clean up after success
+		if (testFolder != null && testFolder.exists()) {
+			delete(testFolder);
+			testFolder = null;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -900,6 +951,39 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	}
 
 	/**
+	 * Assumes each array does not contain more than one IU with a given name and version.
+	 */
+	public static void assertEquals(IInstallableUnit[] ius1, IInstallableUnit[] ius2) {
+		TreeSet set = new TreeSet(new Comparator() {
+			public int compare(Object o1, Object o2) {
+				return o1.toString().compareTo(o2.toString());
+			}
+		});
+		set.addAll(Arrays.asList(ius2));
+
+		for (int i = 0; i < ius1.length; i++) {
+			// + "\0" is a successor for strings
+			SortedSet subset = set.subSet(ius1[i], ius1[i].toString() + "\0");
+			if (subset.size() == 1) {
+				IInstallableUnit candidate = (IInstallableUnit) subset.first();
+				try {
+					assertEquals(ius1[i], candidate);
+				} catch (AssertionFailedError e) {
+					fail("IUs '" + ius1[i] + "' are unequal : " + e.getMessage());
+				}
+				subset.remove(candidate);
+			} else if (subset.size() > 1) {
+				//should not happen
+				fail("ERROR: Unexpected failure.");
+			} else {
+				fail("Expected IU " + ius1[i] + " not found.");
+			}
+		}
+		if (set.size() > 0)
+			fail("Unexpected IU " + set.first() + ".");
+	}
+
+	/**
 	 * Compare arrays, Elements of the arrays must implement equals and hashCode
 	 * @param objs1
 	 * @param objs2
@@ -908,9 +992,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		if (objs1 == objs2)
 			return;
 		if (objs1 == null || objs2 == null)
-			fail();
-		if (objs1.length != objs2.length)
-			fail();
+			fail("Null array.");
 
 		Set set = new HashSet(objs2.length);
 		set.addAll(Arrays.asList(objs2));
