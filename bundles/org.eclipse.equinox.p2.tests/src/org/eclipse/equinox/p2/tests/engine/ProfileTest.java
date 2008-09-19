@@ -14,9 +14,15 @@ import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.xml.parsers.ParserConfigurationException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.*;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
+import org.eclipse.equinox.internal.provisional.p2.query.Query;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.BundleContext;
@@ -27,6 +33,8 @@ import org.xml.sax.*;
  * Simple test of the engine API.
  */
 public class ProfileTest extends AbstractProvisioningTest {
+
+	private static final String PROFILE_NAME = "ProfileTest";
 
 	public ProfileTest(String name) {
 		super(name);
@@ -54,10 +62,113 @@ public class ProfileTest extends AbstractProvisioningTest {
 		fail();
 	}
 
+	public void testAddRemoveProperty() throws ProvisionException {
+		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Properties properties = new Properties();
+		properties.put("test", "test");
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
+		assertTrue(profile.getProperties().containsKey("test"));
+		assertEquals("test", profile.getProperty("test"));
+		profile.removeProperty("test");
+		assertNull(profile.getProperty("test"));
+		profile.addProperties(properties);
+		assertEquals("test", profile.getProperty("test"));
+		profile.setProperty("test", "newvalue");
+		assertEquals("newvalue", profile.getProperty("test"));
+		registry.removeProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testAddRemoveIU() throws ProvisionException {
+		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		profile.addInstallableUnit(createIU("test"));
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		profile.removeInstallableUnit(createIU("test"));
+		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		registry.removeProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testAddIUTwice() throws ProvisionException {
+		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		profile.addInstallableUnit(createIU("test"));
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		profile.addInstallableUnit(createIU("test"));
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		registry.removeProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testAddRemoveIUProperty() throws ProvisionException {
+		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertTrue(profile.query(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		profile.addInstallableUnit(createIU("test"));
+		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
+		assertNull(profile.removeInstallableUnitProperty(createIU("test"), "test"));
+		Properties iuProperties = new Properties();
+		iuProperties.put("test", "test");
+		profile.addInstallableUnitProperties(createIU("test"), iuProperties);
+		assertEquals("test", profile.getInstallableUnitProperty(createIU("test"), "test"));
+		profile.removeInstallableUnitProperty(createIU("test"), "test");
+		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		registry.removeProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testAvailable() throws ProvisionException {
+		IProfileRegistry registry = (IProfileRegistry) ServiceHelper.getService(TestActivator.getContext(), IProfileRegistry.class.getName());
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertTrue(profile.available(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		profile.addInstallableUnit(createIU("test"));
+		assertEquals(1, profile.available(InstallableUnitQuery.ANY, new Collector(), null).size());
+		profile.setSurrogateProfileHandler(new ISurrogateProfileHandler() {
+			public Profile createProfile(String id) {
+				return null;
+			}
+
+			public boolean isSurrogate(IProfile profile) {
+				return false;
+			}
+
+			public Collector queryProfile(IProfile profile, Query query, Collector collector, IProgressMonitor monitor) {
+				return collector;
+			}
+
+			public boolean updateProfile(Profile selfProfile) {
+				return false;
+			}
+		});
+		assertTrue(profile.available(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		assertTrue(profile.snapshot().available(InstallableUnitQuery.ANY, new Collector(), null).isEmpty());
+		registry.removeProfile(PROFILE_NAME);
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
 	public void testNestedProfileStructure() {
-		IProfile parent = createProfile("parent");
+		Properties properties = new Properties();
+		properties.put("test", "test");
+		IProfile parent = createProfile("parent", null, properties);
 		IProfile child = createProfile("child", "parent");
 		parent = getProfile("parent");
+		assertTrue(parent.hasSubProfiles());
+		assertFalse(child.hasSubProfiles());
+		assertNotNull(parent.getLocalProperty("test"));
+		assertNotNull(child.getProperty("test"));
+		assertNotNull(child.getProperties().get("test"));
+		assertNull(child.getLocalProperty("test"));
+		assertNull(child.getLocalProperties().get("test"));
+
 		assertTrue("Parentless profile should be a root.", parent.isRootProfile());
 		assertFalse("Child profile should not be a root.", child.isRootProfile());
 		assertTrue("Parent should be parent of child", child.getParentProfile().getProfileId().equals(parent.getProfileId()));

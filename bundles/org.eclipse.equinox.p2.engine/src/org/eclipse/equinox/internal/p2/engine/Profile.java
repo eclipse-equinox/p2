@@ -110,7 +110,7 @@ public class Profile implements IQueryable, IProfile {
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#hasSubProfiles()
 	 */
 	public boolean hasSubProfiles() {
-		return subProfileIds == null || subProfileIds.isEmpty();
+		return subProfileIds != null && !subProfileIds.isEmpty();
 	}
 
 	/* (non-Javadoc)
@@ -127,7 +127,7 @@ public class Profile implements IQueryable, IProfile {
 	 * @see org.eclipse.equinox.internal.provisional.p2.engine.IProfile#getProperty(java.lang.String)
 	 */
 	public String getProperty(String key) {
-		String value = storage.getProperty(key);
+		String value = getLocalProperty(key);
 		if (value == null && parentProfile != null) {
 			value = parentProfile.getProperty(key);
 		}
