@@ -447,10 +447,10 @@ public class Projector {
 			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
 			dependencies.add(expression + " >= 0;"); //$NON-NLS-1$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
+		} else {
+			if (DEBUG)
+				System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 		}
-
-		if (DEBUG)
-			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void genericOptionalRequirementExpansion(String iuVar, IInstallableUnit iu, RequiredCapability req, String value) {
@@ -480,10 +480,10 @@ public class Projector {
 			dependencies.add(impliesNo(getNoOperationVariable(iu), abstractVar));
 			dependencies.add(expression + " " + value + ";"); //$NON-NLS-1$ //$NON-NLS-2$
 			optionalityExpression += " 1 " + abstractVar; //$NON-NLS-1$
+		} else {
+			if (DEBUG)
+				System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 		}
-
-		if (DEBUG)
-			System.out.println("No IU found to satisfy optional dependency of " + iu + " req " + req); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private void genericRequirementExpansion(String varIu, IInstallableUnit iu, RequiredCapability req, String value, String negationExpression) {
