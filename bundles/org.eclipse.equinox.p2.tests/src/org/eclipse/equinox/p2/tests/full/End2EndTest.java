@@ -21,8 +21,7 @@ import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifact
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.IDirector;
 import org.eclipse.equinox.internal.provisional.p2.director.ProfileChangeRequest;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
-import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
@@ -122,7 +121,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		Collector collector = rollbackRepo.query(new InstallableUnitQuery(profile2.getProfileId()), new LatestIUVersionCollector(), new NullProgressMonitor());
 		assertEquals(1, collector.size());
 
-		IStatus s = director.revert((IInstallableUnit) collector.iterator().next(), profile2, null, new NullProgressMonitor());
+		IStatus s = director.revert((IInstallableUnit) collector.iterator().next(), profile2, new ProvisioningContext(), new NullProgressMonitor());
 		assertTrue(s.isOK());
 
 		validateInstallContentFor34(installFolder);
