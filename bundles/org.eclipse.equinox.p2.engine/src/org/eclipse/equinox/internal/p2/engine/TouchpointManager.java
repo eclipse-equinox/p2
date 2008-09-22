@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.engine;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.engine.Touchpoint;
@@ -38,25 +39,11 @@ public class TouchpointManager implements IRegistryChangeListener {
 	private class TouchpointEntry {
 
 		private IConfigurationElement element;
-		private boolean createdExtension;
-		private Touchpoint touchpoint;
+		private boolean createdExtension = false;
+		private Touchpoint touchpoint = null;
 
 		public TouchpointEntry(IConfigurationElement element) {
-			super();
 			this.element = element;
-			this.touchpoint = null;
-			this.createdExtension = false;
-		}
-
-		public TouchpointEntry(IConfigurationElement element, Touchpoint touchpoint) {
-			super();
-			this.element = element;
-			this.touchpoint = touchpoint;
-			this.createdExtension = (touchpoint != null ? true : false);
-		}
-
-		public boolean hasTouchpoint() {
-			return (this.touchpoint != null);
 		}
 
 		public Touchpoint getTouchpoint() {
@@ -116,53 +103,6 @@ public class TouchpointManager implements IRegistryChangeListener {
 		}
 		TouchpointEntry entry = (TouchpointEntry) touchpointEntries.get(id.getId());
 		return entry == null ? null : entry.getTouchpoint();
-	}
-
-	public Touchpoint[] getAllTouchpoints() {
-		if (touchpointEntries == null) {
-			initializeTouchpoints();
-		}
-		Collection adapters = touchpointEntries.values();
-
-		ArrayList touchpoints = new ArrayList(adapters.size());
-		for (Iterator iter = adapters.iterator(); iter.hasNext();) {
-			TouchpointEntry entry = (TouchpointEntry) iter.next();
-			Touchpoint touchpoint = entry.getTouchpoint();
-			if (touchpoint != null) {
-				touchpoints.add(touchpoint);
-			}
-		}
-		return (Touchpoint[]) touchpoints.toArray(new Touchpoint[touchpoints.size()]);
-	}
-
-	public Touchpoint[] getCreatedTouchpoints() {
-		if (touchpointEntries == null)
-			return new Touchpoint[0];
-		Collection adapters = touchpointEntries.values();
-
-		ArrayList touchpoints = new ArrayList(adapters.size());
-		for (Iterator iter = adapters.iterator(); iter.hasNext();) {
-			TouchpointEntry entry = (TouchpointEntry) iter.next();
-			if (entry.hasTouchpoint()) {
-				Touchpoint touchpoint = entry.getTouchpoint();
-				if (touchpoint != null) {
-					touchpoints.add(touchpoint);
-				}
-			}
-		}
-		return (Touchpoint[]) touchpoints.toArray(new Touchpoint[touchpoints.size()]);
-	}
-
-	public IStatus validateTouchpoints(String[] requiredTypes) {
-		MultiStatus status = touchpointEntries == null ? initializeTouchpoints() : new MultiStatus(EngineActivator.ID, IStatus.OK, null, null);
-
-		for (int i = 0; i < requiredTypes.length; i++) {
-			TouchpointEntry entry = (TouchpointEntry) touchpointEntries.get(requiredTypes[i]);
-			if (entry == null) {
-				reportError(NLS.bind(Messages.TouchpointManager_Required_Touchpoint_Not_Found, requiredTypes[i]), status);
-			}
-		}
-		return status;
 	}
 
 	/*
