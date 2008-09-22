@@ -34,6 +34,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	static String CONFIG_LOCATION = SimpleConfiguratorManipulatorImpl.CONFIG_LIST;
 	private static final String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+	private static final String COMMA = ","; //$NON-NLS-1$
 
 	private static final BundleInfo[] NULL_BUNDLEINFOS = new BundleInfo[0];
 
@@ -74,7 +75,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 					baseDir = fwConfigLoc.getParentFile();
 			else {
 				// TODO We need to decide whether launcher data configLocation is the location of a file or a directory 
-				if (fwConfigLoc.getName().endsWith(".ini"))
+				if (fwConfigLoc.getName().endsWith(".ini")) //$NON-NLS-1$
 					baseDir = fwConfigLoc.getParentFile();
 				else
 					baseDir = fwConfigLoc;
@@ -301,7 +302,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			sb.append("Missing constraints:\n");
 			String[] missings = state.getUnsatisfiedConstraints(bInfo);
 			for (int i = 0; i < missings.length; i++)
-				sb.append(" " + missings[i] + "\n");
+				sb.append(" " + missings[i] + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			System.out.println(sb.toString());
 		}
 	}
@@ -309,12 +310,6 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	private BundleInfo[] loadConfiguration(URL url, File launcherLocation) throws IOException {
 		if (url == null)
 			return NULL_BUNDLEINFOS;
-
-		try {
-			url.openStream();
-		} catch (FileNotFoundException e) {
-			return NULL_BUNDLEINFOS;
-		}
 
 		List bundleInfoList = readConfiguration(url, launcherLocation);
 		return Utils.getBundleInfosFromList(bundleInfoList);
@@ -325,94 +320,86 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 	 */
 	public static List readConfiguration(URL url, File base) throws IOException {
 		List bundles = new ArrayList();
+		BufferedReader r = null;
 		try {
-			// System.out.println("readConfiguration(URL url):url()=" + url);
-			// URL configFileUrl = getConfigFileUrl();
-			// URL configFileUrl = Utils.getUrl("file",null,
-			// inputFile.getAbsolutePath());
-			BufferedReader r = new BufferedReader(new InputStreamReader(url.openStream()));
-			// BufferedReader r = new BufferedReader(new FileReader(inputFile));
+			r = new BufferedReader(new InputStreamReader(url.openStream()));
+		} catch (IOException e) {
+			//exception opening stream
+			return bundles;
+		}
 
-			String line;
-			try {
-				URL baseUrl = new URL(url, "./");
-				while ((line = r.readLine()) != null) {
-					if (line.startsWith("#"))
-						continue;
-					line = line.trim();// symbolicName,version,location,startlevel,expectedState
-					if (line.length() == 0)
-						continue;
+		// System.out.println("readConfiguration(URL url):url()=" + url);
+		String line;
+		try {
+			URL baseUrl = new URL(url, "./"); //$NON-NLS-1$
+			while ((line = r.readLine()) != null) {
+				if (line.startsWith("#")) //$NON-NLS-1$
+					continue;
+				line = line.trim();// symbolicName,version,location,startlevel,expectedState
+				if (line.length() == 0)
+					continue;
 
-					// (expectedState is an integer).
-					//System.out.println("line=" + line);
-					if (line.startsWith(SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=")) {
-						String baseUrlSt = line.substring((SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=").length());
-						if (!baseUrlSt.endsWith("/"))
-							baseUrlSt += "/";
-						baseUrl = new URL(url, baseUrlSt);
-						continue;
-					}
-					StringTokenizer tok = new StringTokenizer(line, ",", true);
-					String symbolicName = tok.nextToken();
-					if (symbolicName.equals(","))
-						symbolicName = null;
-					else
-						tok.nextToken(); // ,
-
-					String version = tok.nextToken();
-					if (version.equals(","))
-						version = null;
-					else
-						tok.nextToken(); // ,
-
-					String urlSt = tok.nextToken();
-					if (urlSt.equals(",")) {
-						if (symbolicName != null && version != null)
-							urlSt = symbolicName + "_" + version + ".jar";
-						else
-							urlSt = null;
-					} else
-						tok.nextToken(); // ,
-					try {
-						new URL(urlSt);
-						//						if (DEBUG)
-						//							System.out.println("1 urlSt=" + urlSt);
-					} catch (MalformedURLException e) {
-						urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
-						//						if (DEBUG)
-						//							System.out.println("2 urlSt=" + urlSt);
-					}
-
-					int sl = Integer.parseInt(tok.nextToken().trim());
+				// (expectedState is an integer).
+				//System.out.println("line=" + line);
+				if (line.startsWith(SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=")) { //$NON-NLS-1$
+					String baseUrlSt = line.substring((SimpleConfiguratorManipulatorImpl.PARAMETER_BASEURL + "=").length()); //$NON-NLS-1$
+					if (!baseUrlSt.endsWith("/")) //$NON-NLS-1$
+						baseUrlSt += "/"; //$NON-NLS-1$
+					baseUrl = new URL(url, baseUrlSt);
+					continue;
+				}
+				StringTokenizer tok = new StringTokenizer(line, COMMA, true);
+				String symbolicName = tok.nextToken();
+				if (symbolicName.equals(COMMA))
+					symbolicName = null;
+				else
 					tok.nextToken(); // ,
-					boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
-					// URL urlBundle = null;
-					// try {
-					// urlBundle = new URL(urlSt);
-					// } catch (MalformedURLException e) {
-					// urlBundle = Utils.getFullUrl(urlSt, baseUrl);
-					// }
 
-					urlSt = makeAbsolute(urlSt, base != null ? base.toURL() : null);
-					BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
-					bundles.add(bInfo);
-					// System.out.println("tail line=" + line);
-				}
-			} finally {
+				String version = tok.nextToken();
+				if (version.equals(COMMA))
+					version = null;
+				else
+					tok.nextToken(); // ,
+
+				String urlSt = tok.nextToken();
+				if (urlSt.equals(COMMA)) {
+					if (symbolicName != null && version != null)
+						urlSt = symbolicName + "_" + version + ".jar"; //$NON-NLS-1$ //$NON-NLS-2$
+					else
+						urlSt = null;
+				} else
+					tok.nextToken(); // ,
 				try {
-					r.close();
-				} catch (IOException ex) {
-					// ignore
+					new URL(urlSt);
+					//						if (DEBUG)
+					//							System.out.println("1 urlSt=" + urlSt);
+				} catch (MalformedURLException e) {
+					urlSt = Utils.getUrlInFull(urlSt, baseUrl).toExternalForm();
+					//						if (DEBUG)
+					//							System.out.println("2 urlSt=" + urlSt);
 				}
+
+				int sl = Integer.parseInt(tok.nextToken().trim());
+				tok.nextToken(); // ,
+				boolean markedAsStarted = Boolean.valueOf(tok.nextToken()).booleanValue();
+
+				urlSt = makeAbsolute(urlSt, base != null ? base.toURL() : null);
+				BundleInfo bInfo = new BundleInfo(symbolicName, version, urlSt, sl, markedAsStarted);
+				bundles.add(bInfo);
+				// System.out.println("tail line=" + line);
 			}
-		} catch (MalformedURLException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			// TODO log something
 			// bundleInfos = NULL_BUNDLEINFOS;
+		} finally {
+			try {
+				r.close();
+			} catch (IOException ex) {
+				// ignore
+			}
 		}
 		return bundles;
-		// bundleInfos = (BundleInfo[]) bundles.toArray(new
-		// BundleInfo[bundles.size()]);
 	}
 
 	public BundleInfo[] save(Manipulator manipulator, boolean backup) throws IOException {
@@ -432,7 +419,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		//			System.out.println("setToSimpleConfig=\n" + SimpleConfiguratorUtils.getListSt(setToSimpleConfig));
 		//		}
 		URL configuratorConfigUrl = getConfigLocation(manipulator);
-		if (!configuratorConfigUrl.getProtocol().equals("file"))
+		if (!configuratorConfigUrl.getProtocol().equals("file")) //$NON-NLS-1$
 			new IllegalStateException("configuratorConfigUrl should start with \"file\".\nconfiguratorConfigUrl=" + configuratorConfigUrl);
 		File outputFile = new File(configuratorConfigUrl.getFile());
 		saveConfiguration(setToSimpleConfig, outputFile, EquinoxFwConfigFileParser.getOSGiInstallArea(manipulator.getLauncherData()), backup);
@@ -442,7 +429,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	public static void saveConfiguration(List bundleInfoList, File outputFile, File base, boolean backup) throws IOException {
 		if (DEBUG) {
-			System.out.println("saveConfiguration(List bundleInfoList, File outputFile, boolean backup): outFile=" + outputFile.getAbsolutePath());
+			System.out.println("saveConfiguration(List bundleInfoList, File outputFile, boolean backup): outFile=" + outputFile.getAbsolutePath()); //$NON-NLS-1$
 		}
 		BufferedWriter bw;
 		if (backup)
@@ -471,17 +458,17 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 				String location = bInfo.getLocation();
 
 				if (bInfo.getSymbolicName() == null)
-					bw.write(",");
+					bw.write(COMMA);
 				else
-					bw.write(bInfo.getSymbolicName() + ",");
+					bw.write(bInfo.getSymbolicName() + COMMA);
 				if (bInfo.getVersion() == null)
-					bw.write(",");
+					bw.write(COMMA);
 				else
-					bw.write(bInfo.getVersion() + ",");
+					bw.write(bInfo.getVersion() + COMMA);
 
 				location = makeRelative(location, base != null ? base.toURL() : null);
-				bw.write(location + ",");
-				bw.write(bInfo.getStartLevel() + "," + bInfo.isMarkedAsStarted());
+				bw.write(location + COMMA);
+				bw.write(bInfo.getStartLevel() + COMMA + bInfo.isMarkedAsStarted());
 				bw.newLine();
 			}
 			bw.flush();
@@ -617,7 +604,7 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 
 	public void updateBundles(Manipulator manipulator) throws IOException {
 		if (DEBUG)
-			System.out.println("SimpleConfiguratorManipulatorImpl#updateBundles()");
+			System.out.println("SimpleConfiguratorManipulatorImpl#updateBundles()"); //$NON-NLS-1$
 
 		BundlesState bundleState = manipulator.getBundlesState();
 
@@ -632,8 +619,8 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 		Properties properties = new Properties();
 		String[] jvmArgs = manipulator.getLauncherData().getJvmArgs();
 		for (int i = 0; i < jvmArgs.length; i++)
-			if (jvmArgs[i].startsWith("-D")) {
-				int index = jvmArgs[i].indexOf("=");
+			if (jvmArgs[i].startsWith("-D")) { //$NON-NLS-1$
+				int index = jvmArgs[i].indexOf("="); //$NON-NLS-1$
 				if (index > 0 && jvmArgs[i].length() > 2) {
 					String key = jvmArgs[i].substring(2, index);
 					String value = jvmArgs[i].substring(index + 1);
