@@ -12,10 +12,15 @@ package org.eclipse.equinox.p2.tests.engine;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.osgi.framework.ServiceReference;
@@ -44,6 +49,19 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 	private void ungetServices() {
 		registry = null;
 		TestActivator.getContext().ungetService(registryRef);
+	}
+
+	private static void saveProfile(IProfileRegistry iRegistry, Profile profile) {
+		SimpleProfileRegistry registry = (SimpleProfileRegistry) iRegistry;
+		profile.setChanged(false);
+		registry.lockProfile(profile);
+		try {
+			profile.setChanged(true);
+			registry.updateProfile(profile);
+		} finally {
+			registry.unlockProfile(profile);
+			profile.setChanged(false);
+		}
 	}
 
 	private void restart() {
@@ -77,7 +95,7 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
 
-	public void testPeristence() {
+	public void testBasicPeristence() {
 		assertNull(registry.getProfile(PROFILE_NAME));
 		IProfile test = createProfile(PROFILE_NAME);
 		assertEquals(test.getProfileId(), registry.getProfile(PROFILE_NAME).getProfileId());
@@ -87,6 +105,78 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 		assertNotNull(test);
 		registry.removeProfile(PROFILE_NAME);
 
+		restart();
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testPropertyPeristence() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Properties properties = new Properties();
+		properties.put("test", "test");
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME, properties);
+		assertTrue(profile.getProperties().containsKey("test"));
+		restart();
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertNotNull(profile);
+		assertTrue(profile.getProperties().containsKey("test"));
+		profile.removeProperty("test");
+		assertNull(profile.getProperty("test"));
+		saveProfile(registry, profile);
+		restart();
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertNull(profile.getProperty("test"));
+		registry.removeProfile(PROFILE_NAME);
+		restart();
+
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testIUPeristence() throws ProvisionException {
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		assertEquals(0, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		profile.addInstallableUnit(createIU("test"));
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		saveProfile(registry, profile);
+		restart();
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertEquals(1, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		profile.removeInstallableUnit(createIU("test"));
+		assertEquals(0, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		saveProfile(registry, profile);
+		restart();
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertEquals(0, profile.query(InstallableUnitQuery.ANY, new Collector(), null).size());
+		registry.removeProfile(PROFILE_NAME);
+		restart();
+		assertNull(registry.getProfile(PROFILE_NAME));
+	}
+
+	public void testIUPropertyPeristence() throws ProvisionException {
+		Properties properties = new Properties();
+		properties.put("test", "test");
+		assertNull(registry.getProfile(PROFILE_NAME));
+		Profile profile = (Profile) registry.addProfile(PROFILE_NAME);
+		profile.addInstallableUnit(createIU("test"));
+		profile.addInstallableUnitProperties(createIU("test"), properties);
+		assertEquals("test", profile.getInstallableUnitProperty(createIU("test"), "test"));
+		saveProfile(registry, profile);
+		restart();
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertEquals("test", profile.getInstallableUnitProperty(createIU("test"), "test"));
+		profile.removeInstallableUnitProperty(createIU("test"), "test");
+		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
+		saveProfile(registry, profile);
+		restart();
+
+		profile = (Profile) registry.getProfile(PROFILE_NAME);
+		assertNull(profile.getInstallableUnitProperty(createIU("test"), "test"));
+		registry.removeProfile(PROFILE_NAME);
 		restart();
 		assertNull(registry.getProfile(PROFILE_NAME));
 	}
