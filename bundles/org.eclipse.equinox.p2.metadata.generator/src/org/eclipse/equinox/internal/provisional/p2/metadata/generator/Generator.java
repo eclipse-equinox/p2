@@ -881,7 +881,7 @@ public class Generator {
 
 		//Create the artifact descriptor
 		IArtifactDescriptor descriptor = MetadataGeneratorHelper.createArtifactDescriptor(key, root, false, true);
-		publishArtifact(descriptor, root.listFiles(), destination, false);
+		publishArtifact(descriptor, root.listFiles(), destination, false, root);
 	}
 
 	/**
@@ -1337,7 +1337,7 @@ public class Generator {
 				if (root != null)
 					computer = FileUtils.createRootPathComputer(root);
 				else
-					computer = FileUtils.createDynamicPathComputer(0);
+					computer = FileUtils.createDynamicPathComputer(1);
 				FileUtils.zip(files, null, tempFile, computer);
 				if (!destination.contains(descriptor)) {
 					destination.setProperty(IArtifactDescriptor.DOWNLOAD_CONTENTTYPE, IArtifactDescriptor.TYPE_ZIP);
