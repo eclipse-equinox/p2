@@ -20,6 +20,7 @@ import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
 import org.eclipse.osgi.framework.internal.core.FrameworkProperties;
 import org.eclipse.osgi.service.resolver.*;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
 
@@ -30,7 +31,7 @@ public class EquinoxBundlesState implements BundlesState {
 	// this internally to be x86_64.
 	private static final String INTERNAL_AMD64 = "amd64"; //$NON-NLS-1$
 	private static final String INTERNAL_ARCH_I386 = "i386"; //$NON-NLS-1$
-	public static final String[] PROPS = {"osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional", "osgi.genericAliases"};
+	public static final String[] PROPS = {"osgi.os", "osgi.ws", "osgi.nl", "osgi.arch", Constants.FRAMEWORK_SYSTEMPACKAGES, "osgi.resolverMode", Constants.FRAMEWORK_EXECUTIONENVIRONMENT, "osgi.resolveOptional", "osgi.genericAliases"}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 
 	static boolean checkFullySupported() {
 		//TODO - This was previously doing a bogus check by attempting to instantiate a particular class - it's not clear what this is trying to do
@@ -72,9 +73,6 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	private static File getFwJar(LauncherData launcherData, ConfigData configData, boolean checkBundleInfos) {
-		// EclipseLauncherParser launcherParser = new
-		// EclipseLauncherParser(launcherData);
-		// launcherParser.read();
 		if (launcherData.getFwJar() != null) {
 			return launcherData.getFwJar();
 		}
@@ -83,8 +81,8 @@ public class EquinoxBundlesState implements BundlesState {
 		String[] jvmArgs = launcherData.getJvmArgs();
 		String location = null;
 		for (int i = 0; i < jvmArgs.length; i++) {
-			if (jvmArgs[i].endsWith("-D" + "osgi.framework=")) {
-				location = jvmArgs[i].substring(("-D" + "osgi.framework=").length());
+			if (jvmArgs[i].endsWith("-D" + "osgi.framework=")) { //$NON-NLS-1$ //$NON-NLS-2$
+				location = jvmArgs[i].substring(("-D" + "osgi.framework=").length()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		if (location != null) {
@@ -110,29 +108,6 @@ public class EquinoxBundlesState implements BundlesState {
 			}
 		return maxId;
 	}
-
-	//	private static File getSystemBundleBySearching(LauncherData launcherData) {
-	//		File pluginsDir;
-	//		if (launcherData.getLauncher() == null) {
-	//			if (launcherData.getHome() == null)
-	//				return null;
-	//			pluginsDir = new File(launcherData.getHome(), "plugins");
-	//		} else {
-	//			pluginsDir = new File(launcherData.getLauncher().getParentFile(), "plugins");
-	//		}
-	//
-	//		String fullLocation = FileUtils.getEclipsePluginFullLocation(EquinoxConstants.FW_SYMBOLIC_NAME, pluginsDir);
-	//		if (fullLocation == null)
-	//			return null;
-	//		URL url = null;
-	//		try {
-	//			url = new URL(fullLocation);
-	//		} catch (MalformedURLException e) {
-	//			// TODO Auto-generated catch block
-	//			Log.log(LogService.LOG_WARNING, "fullLocation is not in proper format:" + fullLocation);
-	//		}
-	//		return url == null ? null : new File(url.getFile());
-	//	}
 
 	private static File getSystemBundleFromBundleInfos(BundleInfo[] bundleInfos) {
 		for (int i = 0; i < bundleInfos.length; i++) {
@@ -171,12 +146,12 @@ public class EquinoxBundlesState implements BundlesState {
 		String bundleLocation = bundleInfo.getLocation();
 		if (bundleLocation.startsWith(EquinoxConstants.REFERENCE))
 			bundleLocation = bundleLocation.substring(EquinoxConstants.REFERENCE.length());
-		if (bundleLocation.startsWith("file:")) {
+		if (bundleLocation.startsWith("file:")) { //$NON-NLS-1$
 			try {
 				String[] clauses = Utils.getClausesManifestMainAttributes(bundleLocation, Constants.BUNDLE_SYMBOLICNAME);
 				if (bundleLocation.indexOf(EquinoxConstants.FW_SYMBOLIC_NAME) > 0)
 					if (EquinoxConstants.PERSISTENT_DIR_NAME.equals(Utils.getPathFromClause(clauses[0])))
-						return new File(bundleLocation.substring("file:".length()));
+						return new File(bundleLocation.substring("file:".length())); //$NON-NLS-1$
 			} catch (RuntimeException e) {
 				e.printStackTrace();
 			}
@@ -200,7 +175,7 @@ public class EquinoxBundlesState implements BundlesState {
 		platformProperties.setProperty("osgi.os", os); //$NON-NLS-1$
 
 		String ws = EclipseEnvironmentInfo.guessWS(os);
-		platformProperties.setProperty("osgi.ws", ws);
+		platformProperties.setProperty("osgi.ws", ws); //$NON-NLS-1$
 
 		// if the user didn't set the system architecture with a command line
 		// argument then use the default.
@@ -218,7 +193,7 @@ public class EquinoxBundlesState implements BundlesState {
 
 		platformProperties.setProperty(Constants.FRAMEWORK_SYSTEMPACKAGES, FrameworkProperties.getProperty(Constants.FRAMEWORK_SYSTEMPACKAGES));
 		platformProperties.setProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT, FrameworkProperties.getProperty(Constants.FRAMEWORK_EXECUTIONENVIRONMENT));
-		platformProperties.setProperty("osgi.resolveOptional", "" + "true".equals(FrameworkProperties.getProperty("osgi.resolveOptional")));
+		platformProperties.setProperty("osgi.resolveOptional", "" + "true".equals(FrameworkProperties.getProperty("osgi.resolveOptional"))); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		return platformProperties;
 	}
 
@@ -360,8 +335,8 @@ public class EquinoxBundlesState implements BundlesState {
 			maxId = getMaxId(state);
 		}
 		if (DEBUG) {
-			System.out.println("");
-			Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "installBundle():");
+			System.out.println(""); //$NON-NLS-1$
+			Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "installBundle():"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (flagNewState) {
 			int indexSystemBundle = -1;
@@ -382,13 +357,13 @@ public class EquinoxBundlesState implements BundlesState {
 		}
 		for (int j = 0; j < bInfos.length; j++) {
 			if (DEBUG)
-				Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "bInfos[" + j + "]=" + bInfos[j]);
+				Log.log(LogService.LOG_DEBUG, this, "composeExpectedState()", "bInfos[" + j + "]=" + bInfos[j]); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			try {
 				this.installBundle(bInfos[j]);
 				// System.out.println("install bInfos[" + j + "]=" + bInfos[j]);
 			} catch (RuntimeException e) {
 				//catch the exception and continue
-				Log.log(LogService.LOG_ERROR, this, "composeExpectedState()", "BundleInfo:" + bInfos[j], e);
+				Log.log(LogService.LOG_ERROR, this, "composeExpectedState()", "BundleInfo:" + bInfos[j], e); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		return true;
@@ -415,11 +390,9 @@ public class EquinoxBundlesState implements BundlesState {
 				}
 			}
 		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Log.log(LogService.LOG_ERROR, "", e1); //$NON-NLS-1$
 		} catch (FrameworkAdminRuntimeException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Log.log(LogService.LOG_ERROR, "", e1); //$NON-NLS-1$
 		}
 		return createBundleInfo(toConvert, markedAsStarted, sl, location);
 	}
@@ -481,10 +454,9 @@ public class EquinoxBundlesState implements BundlesState {
 			BaseDescription supplier = imports[i].getSupplier();
 			if (supplier == null) {
 				if (!imports[i].getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL))
-					throw new IllegalStateException("Internal error: import supplier should not be null");
+					throw new IllegalStateException("Internal error: import supplier should not be null"); //$NON-NLS-1$
 			} else
 				set.add(supplier.getSupplier());
-			// System.out.println(supplier.getSupplier());
 		}
 		BundleDescription[] requires = bundle.getResolvedRequires();
 		for (int i = 0; i < requires.length; i++) {
@@ -510,12 +482,6 @@ public class EquinoxBundlesState implements BundlesState {
 			// fragment bundle.
 			return null;
 		}
-		// if (DEBUG) {
-		// System.out.println("EquinoxConstants.FW_SYMBOLIC_NAME=" +
-		// EquinoxConstants.FW_SYMBOLIC_NAME);
-		// System.out.println("bundle.getSymbolicName()=" +
-		// bundle.getSymbolicName());
-		// }
 		return (EquinoxConstants.FW_SYMBOLIC_NAME.equals(bundle.getSymbolicName()) ? bundle : null);
 	}
 
@@ -563,20 +529,19 @@ public class EquinoxBundlesState implements BundlesState {
 						installArea = manipulator.getLauncherData().getLauncher().getParentFile();
 					}
 				} else {
-					if (installAreaSt.startsWith("file:"))
-						installArea = new File(installAreaSt.substring("file:".length()));
+					if (installAreaSt.startsWith("file:")) //$NON-NLS-1$
+						installArea = new File(installAreaSt.substring("file:".length())); //$NON-NLS-1$
 					else
-						throw new IllegalStateException("Current implementation assume that property value keyed by " + EquinoxConstants.PROP_INSTALL + " must start with \"file:\". But it was not:" + installAreaSt);
+						throw new IllegalStateException(NLS.bind(Messages.exception_fileURLExpected, EquinoxConstants.PROP_INSTALL, installAreaSt));
 				}
 				if (DEBUG)
-					Log.log(LogService.LOG_DEBUG, this, "initialize(useFwPersistentDat)", "installArea=" + installArea);
-				File fwPersistentDataLocation = new File(installArea, "configuration");
+					Log.log(LogService.LOG_DEBUG, this, "initialize(useFwPersistentDat)", "installArea=" + installArea); //$NON-NLS-1$ //$NON-NLS-2$
+				File fwPersistentDataLocation = new File(installArea, "configuration"); //$NON-NLS-1$
 				manipulator.getLauncherData().setFwPersistentDataLocation(fwPersistentDataLocation, false);
 			}
 			if (!composeState(bInfos, null, manipulator.getLauncherData().getFwPersistentDataLocation()))
 				composeNewState(launcherData, configData, bInfos);
 			resolve(true);
-			// if(this.getSystemBundle()==null)
 		}
 	}
 
@@ -606,7 +571,7 @@ public class EquinoxBundlesState implements BundlesState {
 			addBundleToState(newBundleDescription);
 			manipulator.getConfigData().addBundle(bInfo);
 		} catch (BundleException e) {
-			Log.log(LogService.LOG_WARNING, this, "installBundle(BundleInfo)", e);
+			Log.log(LogService.LOG_WARNING, this, "installBundle(BundleInfo)", e); //$NON-NLS-1$
 		}
 	}
 
@@ -650,7 +615,7 @@ public class EquinoxBundlesState implements BundlesState {
 			}
 		}
 		if (DEBUG)
-			Utils.printoutProperties(System.out, "PlatformProperties[0]", platfromProperties);
+			Utils.printoutProperties(System.out, "PlatformProperties[0]", platfromProperties); //$NON-NLS-1$
 	}
 
 	/**
@@ -687,24 +652,24 @@ public class EquinoxBundlesState implements BundlesState {
 		StringBuffer sb = new StringBuffer();
 		BundleDescription[] bundleDescriptions = state.getBundles();
 		for (int i = 0; i < bundleDescriptions.length; i++) {
-			sb.append(bundleDescriptions[i].getBundleId() + ":");
-			sb.append(bundleDescriptions[i].toString() + "(");
-			sb.append(bundleDescriptions[i].isResolved() + ")");
+			sb.append(bundleDescriptions[i].getBundleId() + ":"); //$NON-NLS-1$
+			sb.append(bundleDescriptions[i].toString() + "("); //$NON-NLS-1$
+			sb.append(bundleDescriptions[i].isResolved() + ")"); //$NON-NLS-1$
 			String[] ees = bundleDescriptions[i].getExecutionEnvironments();
 			for (int j = 0; j < ees.length; j++)
-				sb.append(ees[j] + " ");
-			sb.append("\n");
+				sb.append(ees[j] + " "); //$NON-NLS-1$
+			sb.append("\n"); //$NON-NLS-1$
 		}
-		sb.append("PlatformProperties:\n");
+		sb.append("PlatformProperties:\n"); //$NON-NLS-1$
 		Dictionary[] dics = state.getPlatformProperties();
 		for (int i = 0; i < dics.length; i++) {
 			for (Enumeration enumeration = dics[i].keys(); enumeration.hasMoreElements();) {
 				String key = (String) enumeration.nextElement();
 				String value = (String) dics[i].get(key);
-				sb.append(" (" + key + "," + value + ")\n");
+				sb.append(" (" + key + "," + value + ")\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 		}
-		sb.append("\n");
+		sb.append("\n"); //$NON-NLS-1$
 		return sb.toString();
 	}
 
@@ -720,17 +685,14 @@ public class EquinoxBundlesState implements BundlesState {
 			try {
 				Dictionary manifest = Utils.getOSGiManifest(bInfo.getLocation());
 				if (manifest == null) {
-					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", "Unable to get bundle manifest for: " + bInfo.getLocation());
+					Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", NLS.bind(Messages.exception_bundleManifest, bInfo.getLocation())); //$NON-NLS-1$
 					return;
 				}
 				BundleDescription bundleDescription = soFactory.createBundleDescription(state, manifest, realLocation, id);
 				removeBundleFromState(bundleDescription);
 				manipulator.getConfigData().removeBundle(bInfo);
 			} catch (BundleException e) {
-				Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", e);
-				// throw new ManipulatorException("Fail to
-				// createBundleDescription of bInfo:" + bInfo.toString(), e,
-				// ManipulatorException.OTHERS);
+				Log.log(LogService.LOG_WARNING, this, "uninstallBundle(BundleInfo)", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -740,7 +702,7 @@ public class EquinoxBundlesState implements BundlesState {
 	}
 
 	private BundleDescription getBundleByNameVersion(String bundleSymbolicName, String bundleVersion) {
-		return (BundleDescription) nameVersionStateIndex.get(bundleSymbolicName + ";" + bundleVersion);
+		return (BundleDescription) nameVersionStateIndex.get(bundleSymbolicName + ";" + bundleVersion); //$NON-NLS-1$
 	}
 
 	/**

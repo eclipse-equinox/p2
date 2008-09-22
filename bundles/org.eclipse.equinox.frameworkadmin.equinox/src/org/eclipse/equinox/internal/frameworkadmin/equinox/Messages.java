@@ -19,6 +19,8 @@ public class Messages extends NLS {
 	public static String exception_failedToCreateDir;
 	public static String exception_failedToRename;
 	public static String exception_launcherLocationNotSet;
+	public static String exception_fileURLExpected;
+	public static String exception_bundleManifest;
 
 	public static String log_configFile;
 	public static String log_configProps;
