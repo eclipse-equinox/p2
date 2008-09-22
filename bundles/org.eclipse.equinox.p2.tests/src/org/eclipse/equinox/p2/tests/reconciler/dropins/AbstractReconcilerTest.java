@@ -42,13 +42,21 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 */
 	public void initialize() throws Exception {
 		File file = getPlatformZip();
-		output = getTempFolder();
+		output = getUniqueFolder();
 		toRemove.add(output);
 		try {
 			FileUtils.unzipFile(file, output);
 		} catch (IOException e) {
 			fail("0.99", e);
 		}
+	}
+
+	/*
+	 * Return a file object with a unique name in a temporary location.
+	 */
+	public static File getUniqueFolder() {
+		String tempDir = System.getProperty("java.io.tmpdir");
+		return new File(tempDir, getUniqueString());
 	}
 
 	/*
