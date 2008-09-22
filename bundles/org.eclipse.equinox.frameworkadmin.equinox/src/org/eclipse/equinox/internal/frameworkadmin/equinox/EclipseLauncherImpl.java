@@ -24,24 +24,20 @@ public class EclipseLauncherImpl {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < cmdarray.length; i++) {
 			sb.append(cmdarray[i]);
-			sb.append(" ");
+			sb.append(" "); //$NON-NLS-1$
 		}
 		return sb.toString();
 	}
 
-	//	BundleContext context = null;
-
 	EquinoxFwAdminImpl fwAdmin = null;
 
 	EclipseLauncherImpl(EquinoxFwAdminImpl fwAdmin) {
-		//EclipseLauncherImpl(BundleContext context, EquinoxFwAdminImpl fwAdmin) {
-		//		this.context = context;
 		this.fwAdmin = fwAdmin;
 	}
 
 	public Process launch(Manipulator manipulator, File cwd) throws IllegalArgumentException, IOException, FrameworkAdminRuntimeException {
 		SimpleBundlesState.checkAvailability(fwAdmin);
-		Log.log(LogService.LOG_DEBUG, this, "launch(Manipulator , File )", "");
+		Log.log(LogService.LOG_DEBUG, this, "launch(Manipulator , File )", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		LauncherData launcherData = manipulator.getLauncherData();
 		if (launcherData.getLauncher() == null)
 			return launchInMemory(manipulator, cwd);
@@ -52,38 +48,34 @@ public class EclipseLauncherImpl {
 		LauncherData launcherData = manipulator.getLauncherData();
 
 		if (launcherData.getLauncher() == null)
-			throw new IllegalStateException("launcherData.getLauncher() must be set.");
+			throw new IllegalStateException(Messages.exception_launcherLocationNotSet);
 		String[] cmdarray = new String[] {launcherData.getLauncher().getAbsolutePath()};
-		//		try {
 		if (cwd == null)
 			cwd = launcherData.getLauncher().getParentFile();
 		Process process = Runtime.getRuntime().exec(cmdarray, null, cwd);
-		Log.log(LogService.LOG_DEBUG, "\t" + getStringOfCmd(cmdarray));
+		Log.log(LogService.LOG_DEBUG, "\t" + getStringOfCmd(cmdarray)); //$NON-NLS-1$
 		return process;
 	}
 
 	private Process launchInMemory(Manipulator manipulator, File cwd) throws IOException {
 		LauncherData launcherData = manipulator.getLauncherData();
-		Utils.checkAbsoluteFile(launcherData.getFwJar(), "fwJar");
-		//		this.launcherCInfo.fwJar = fwJar;
-		//		if (cwd == null)
-		//			cwd = fwJar.;
-		Utils.checkAbsoluteDir(cwd, "cwd");
+		Utils.checkAbsoluteFile(launcherData.getFwJar(), "fwJar"); //$NON-NLS-1$
+		Utils.checkAbsoluteDir(cwd, "cwd"); //$NON-NLS-1$
 
 		List cmdList = new LinkedList();
 		if (launcherData.getJvm() != null)
 			cmdList.add(launcherData.getJvm().getAbsolutePath());
 		else
-			cmdList.add("java");
+			cmdList.add("java"); //$NON-NLS-1$
 
 		if (launcherData.getJvmArgs() != null)
 			for (int i = 0; i < launcherData.getJvmArgs().length; i++)
 				cmdList.add(launcherData.getJvmArgs()[i]);
 
-		cmdList.add("-jar");
+		cmdList.add("-jar"); //$NON-NLS-1$
 		cmdList.add(Utils.getRelativePath(launcherData.getFwJar(), cwd));
 
-		EquinoxManipulatorImpl.checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);//checkConsistency(this.launcherCInfo.fwConfigFile, this.launcherCInfo.fwInstancePrivateArea);
+		EquinoxManipulatorImpl.checkConsistencyOfFwConfigLocAndFwPersistentDataLoc(launcherData);
 		cmdList.add(EquinoxConstants.OPTION_CONFIGURATION);
 		cmdList.add(Utils.getRelativePath(launcherData.getFwPersistentDataLocation(), cwd));
 
@@ -92,7 +84,7 @@ public class EclipseLauncherImpl {
 
 		String[] cmdarray = new String[cmdList.size()];
 		cmdList.toArray(cmdarray);
-		Log.log(LogService.LOG_DEBUG, "In CWD = " + cwd + "\n\t" + getStringOfCmd(cmdarray));
+		Log.log(LogService.LOG_DEBUG, "In CWD = " + cwd + "\n\t" + getStringOfCmd(cmdarray)); //$NON-NLS-1$ //$NON-NLS-2$
 		Process process = Runtime.getRuntime().exec(cmdarray, null, cwd);
 		return process;
 	}
