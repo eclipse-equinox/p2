@@ -13,12 +13,14 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.frameworkadmin.utils.Utils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
+import org.eclipse.osgi.util.NLS;
 import org.osgi.service.log.LogService;
 
 public class EclipseLauncherParser {
@@ -58,7 +60,7 @@ public class EclipseLauncherParser {
 		if (!startUpFlag)
 			if (launcherData.getFwJar() != null) {
 				lines.add(EquinoxConstants.OPTION_FW);
-				String path = "";
+				String path = ""; //$NON-NLS-1$
 				//if (relative)
 				//	path = Utils.getRelativePath(launcherData.getFwJar(), outputFile.getParentFile());
 				//else
@@ -125,15 +127,10 @@ public class EclipseLauncherParser {
 
 		for (int i = 0; i < lines.length; i++) {
 			final String line = lines[i].trim();
-			StringTokenizer tokenizer = new StringTokenizer(line, " ");
-			if (line.startsWith("#"))
+			if (line.startsWith("#")) //$NON-NLS-1$
 				continue;
 			if (line.length() == 0)
 				continue;
-			if (tokenizer.countTokens() != 1) {
-				Log.log(LogService.LOG_WARNING, this, "parseCmdLine(String[] lines, File inputFile)", "Illegal Format:line=" + line + "tokenizer.countTokens()=" + tokenizer.countTokens());
-				//throw new IOException("Illegal Format:line=" + line + "tokenizer.countTokens()=" + tokenizer.countTokens());
-			}
 			if (vmArgsFlag) {
 				launcherData.addJvmArg(line);
 				continue;
@@ -184,7 +181,7 @@ public class EclipseLauncherParser {
 	public void read(LauncherData launcherData) throws IOException {
 		final File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
 		if (launcherConfigFile == null)
-			throw new IllegalStateException("launcherData.getLauncherConfigFile() should be set in advance.");
+			throw new IllegalStateException(Messages.exception_launcherLocationNotSet);
 		if (!launcherConfigFile.exists())
 			return;
 
@@ -214,14 +211,14 @@ public class EclipseLauncherParser {
 			if (br != null)
 				br.close();
 		}
-		Log.log(LogService.LOG_INFO, "Launcher Config file(" + launcherConfigFile.getAbsolutePath() + ") is read successfully.");
+		Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_configFile, launcherConfigFile.getAbsolutePath()));
 	}
 
 	private File getLauncher(String[] args) {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals(EquinoxConstants.OPTION_STARTUP) && i + 1 < args.length && args[i + 1].charAt(1) != '-') {
 				IPath parentFolder = new Path(args[i + 1]).removeLastSegments(1);
-				if (parentFolder.lastSegment().equals("plugins"))
+				if (parentFolder.lastSegment().equals("plugins")) //$NON-NLS-1$
 					return parentFolder.removeLastSegments(1).toFile();
 				return parentFolder.toFile();
 			}
@@ -233,7 +230,7 @@ public class EclipseLauncherParser {
 	private String needsPathResolution(String entry, String osgiInstallArea, String launcherFolder) {
 		if (EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(entry))
 			return osgiInstallArea;
-		if ("--launcher.library".equalsIgnoreCase(entry))
+		if ("--launcher.library".equalsIgnoreCase(entry)) //$NON-NLS-1$
 			return launcherFolder;
 		if (EquinoxConstants.OPTION_STARTUP.equalsIgnoreCase(entry))
 			return launcherFolder;
@@ -246,15 +243,15 @@ public class EclipseLauncherParser {
 		File launcherConfigFile = EquinoxManipulatorImpl.getLauncherConfigLocation(launcherData);
 
 		if (launcherConfigFile == null)
-			throw new IllegalStateException("launcherConfigFile cannot be set. launcher file should be set in advance.");
+			throw new IllegalStateException(Messages.exception_launcherLocationNotSet);
 		Utils.createParentDir(launcherConfigFile);
 		// backup file if exists.		
 		if (backup)
 			if (launcherConfigFile.exists()) {
 				File dest = Utils.getSimpleDataFormattedFile(launcherConfigFile);
 				if (!launcherConfigFile.renameTo(dest))
-					throw new IOException("Fail to rename from (" + launcherConfigFile + ") to (" + dest + ")");
-				Log.log(LogService.LOG_INFO, this, "saveConfigs()", "Succeed to rename from (" + launcherConfigFile + ") to (" + dest + ")");
+					throw new IOException(NLS.bind(Messages.exception_failedToRename, launcherConfigFile, dest));
+				Log.log(LogService.LOG_INFO, this, "save()", NLS.bind(Messages.log_renameSuccessful, launcherConfigFile, dest)); //$NON-NLS-1$
 			}
 
 		BufferedWriter bw = null;
@@ -281,11 +278,11 @@ public class EclipseLauncherParser {
 						Path osgiPath = new Path(osgiInstallArea);
 						int commonSegments = osgiPath.matchingFirstSegments(configLocation.removeLastSegments(1));
 						if (commonSegments == configLocation.segmentCount() - 1) {
-							String path = "";
+							String path = ""; //$NON-NLS-1$
 							for (int j = osgiPath.segmentCount() - commonSegments; j != 0; j--) {
-								path += "../";
+								path += "../"; //$NON-NLS-1$
 							}
-							path += "configuration";
+							path += "configuration"; //$NON-NLS-1$
 							lines[i + 1] = path;
 						}
 					}
@@ -294,7 +291,7 @@ public class EclipseLauncherParser {
 				bw.newLine();
 			}
 			bw.flush();
-			Log.log(LogService.LOG_INFO, "Launcher Config file is saved successfully into:" + launcherConfigFile);
+			Log.log(LogService.LOG_INFO, NLS.bind(Messages.log_launcherConfigSave, launcherConfigFile));
 		} finally {
 			if (bw != null)
 				bw.close();
