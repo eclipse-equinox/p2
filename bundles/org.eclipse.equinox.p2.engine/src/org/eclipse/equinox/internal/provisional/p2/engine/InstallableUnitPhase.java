@@ -182,10 +182,6 @@ public abstract class InstallableUnitPhase extends Phase {
 		return result;
 	}
 
-	public ProvisioningAction getAction(String actionId) {
-		return null;
-	}
-
 	protected abstract ProvisioningAction[] getActions(InstallableUnitOperand operand);
 
 	protected boolean isApplicable(InstallableUnitOperand operand) {
