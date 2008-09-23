@@ -22,6 +22,10 @@ public class ProvisioningEventBus implements EventDispatcher, IProvisioningEvent
 	private EventListeners asyncListeners = new EventListeners();
 	private EventManager eventManager = new EventManager("Provisioning Event Dispatcher"); //$NON-NLS-1$
 
+	public ProvisioningEventBus() {
+		super();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus#addListener(org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener)
 	 */
