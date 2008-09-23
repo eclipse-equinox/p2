@@ -123,8 +123,10 @@ public class ConfigData {
 		this.fwDependentProps.clear();
 	}
 
-	public void removeBundle(BundleInfo bundleInfo) {
-		this.bundlesList.remove(bundleInfo);
+	public boolean removeBundle(BundleInfo bundleInfo) {
+		if (bundleInfo == null || bundleInfo.getSymbolicName() == null || bundleInfo.getVersion() == null)
+			throw new IllegalArgumentException("Bundle info can't be null:" + bundleInfo); //$NON-NLS-1$
+		return this.bundlesList.remove(bundleInfo);
 	}
 
 	public void setBeginningFwStartLevel(int startLevel) {
@@ -162,30 +164,30 @@ public class ConfigData {
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Class:" + this.getClass().getName() + "\n");
-		sb.append("============Independent===============\n");
-		sb.append("fwName=" + this.fwName + "\n");
-		sb.append("fwVersion=" + this.fwVersion + "\n");
-		sb.append("launcherName=" + this.launcherName + "\n");
-		sb.append("launcherVersion=" + this.launcherVersion + "\n");
-		sb.append("beginningFwStartLevel=" + this.beginningFwStartLevel + "\n");
-		sb.append("initialBundleStartLevel=" + this.initialBundleStartLevel + "\n");
+		sb.append("Class:" + this.getClass().getName() + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("============Independent===============\n"); //$NON-NLS-1$
+		sb.append("fwName=" + this.fwName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("fwVersion=" + this.fwVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcherName=" + this.launcherName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("launcherVersion=" + this.launcherVersion + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("beginningFwStartLevel=" + this.beginningFwStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append("initialBundleStartLevel=" + this.initialBundleStartLevel + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.bundlesList.size() == 0)
-			sb.append("bundlesList=null\n");
+			sb.append("bundlesList=null\n"); //$NON-NLS-1$
 		else {
-			sb.append("bundlesList=\n");
+			sb.append("bundlesList=\n"); //$NON-NLS-1$
 			int i = 0;
 			for (Iterator iter = this.bundlesList.iterator(); iter.hasNext();) {
-				sb.append("\tbundlesList[" + i + "]=" + iter.next().toString() + "\n");
+				sb.append("\tbundlesList[" + i + "]=" + iter.next().toString() + "\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 				i++;
 			}
 		}
 
-		sb.append("============ Fw Independent Props ===============\n");
-		sb.append("fwIndependentProps=");
+		sb.append("============ Fw Independent Props ===============\n"); //$NON-NLS-1$
+		sb.append("fwIndependentProps="); //$NON-NLS-1$
 		setPropsStrings(sb, fwIndependentProps);
-		sb.append("============ Fw Dependent Props ===============\n");
-		sb.append("fwDependentProps=");
+		sb.append("============ Fw Dependent Props ===============\n"); //$NON-NLS-1$
+		sb.append("fwDependentProps="); //$NON-NLS-1$
 		setPropsStrings(sb, fwDependentProps);
 		return sb.toString();
 	}
