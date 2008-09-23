@@ -1,4 +1,3 @@
-package org.eclipse.equinox.frameworkadmin.tests;
 /*******************************************************************************
  * Copyright (c) 2005, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
@@ -9,13 +8,10 @@ package org.eclipse.equinox.frameworkadmin.tests;
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-
-import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.EclipseVersion;
-
-import java.net.URL;
+package org.eclipse.equinox.frameworkadmin.tests;
 
 import java.io.File;
-
+import java.net.URL;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.FileUtils;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
 
@@ -49,19 +45,5 @@ public class UtilsTest extends AbstractFwkAdminTest {
 		other.mkdirs();
 		manipulator.getConfigData().setFwDependentProp("osgi.syspath", other.getParentFile().getAbsolutePath());
 		assertEquals(new URL(FileUtils.getEclipseRealLocation(manipulator, "org.foo")), other.toURL());
-	}
-	
-	public void testEclipseVersion() throws Exception {
-		EclipseVersion version1 = new EclipseVersion("1.2.0.abc");
-		EclipseVersion version2 = new EclipseVersion("1.2.0.abc");
-		EclipseVersion version3 = new EclipseVersion("1.2.0.def");
-		EclipseVersion version4 = new EclipseVersion("1.3");
-
-		assertEquals(version1, version2);
-		assertEquals(version1.hashCode(), version2.hashCode());
-		assertTrue(version1.compareTo(version3) < 0);
-		assertTrue(version3.compareTo(version2) > 0);
-		assertTrue(version1.compareTo(version2) == 0);
-		assertTrue(version4.compareTo(version2) > 0);
 	}
 }

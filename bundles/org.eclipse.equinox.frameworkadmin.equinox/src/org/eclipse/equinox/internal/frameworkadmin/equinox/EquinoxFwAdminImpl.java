@@ -13,12 +13,10 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox;
 import java.io.File;
 import java.io.IOException;
 import java.util.Dictionary;
-import org.eclipse.equinox.internal.frameworkadmin.equinox.utils.EclipseVersion;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulator;
 import org.eclipse.equinox.internal.provisional.configuratormanipulator.ConfiguratorManipulatorFactory;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
+import org.osgi.framework.*;
 
 public class EquinoxFwAdminImpl implements FrameworkAdmin {
 
@@ -31,20 +29,17 @@ public class EquinoxFwAdminImpl implements FrameworkAdmin {
 	static boolean isRunningFw(BundleContext context) {
 		//TODO implementation for Eclipse.exe and for Equinox
 		String fwVendor = context.getProperty(Constants.FRAMEWORK_VENDOR);
-		if (!"Eclipse".equals(fwVendor))
+		if (!"Eclipse".equals(fwVendor)) //$NON-NLS-1$
 			return false;
 		//TODO decide if this version can be supported by this bundle.
 		Dictionary header = context.getBundle(0).getHeaders();
-		String versionSt = (String) header.get("Bundle-Version");
-		EclipseVersion version = new EclipseVersion(versionSt);
-		int value = version.compareTo(new EclipseVersion(EquinoxConstants.FW_VERSION));
+		String versionSt = (String) header.get(Constants.BUNDLE_VERSION);
+		Version version = new Version(versionSt);
+		int value = version.compareTo(new Version(EquinoxConstants.FW_VERSION));
 		if (value > 0) {
 			return true;
 		}
 		// TODO need to identify the version of eclipse.exe used for this launch, if used. 
-
-		//		String eclipseCommandsSt = context.getProperty(EquinoxConstants.PROP_ECLIPSE_COMMANDS);
-		//	StringTokenizer tokenizer = new StringTokenizer(eclipseCommandsSt,"\n");
 		return false;
 	}
 

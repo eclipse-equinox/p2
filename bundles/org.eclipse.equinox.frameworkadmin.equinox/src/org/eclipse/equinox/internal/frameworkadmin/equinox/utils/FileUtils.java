@@ -16,11 +16,15 @@ import java.net.URL;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
+import org.osgi.framework.Version;
 
 public class FileUtils {
 
+	private static String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
+	private static String REFERENCE_PROTOCOL = "reference:"; //$NON-NLS-1$
+
 	public static String getEclipseRealLocation(final Manipulator manipulator, final String location) {
-		if (location.indexOf(":") >= 0)
+		if (location.indexOf(":") >= 0) //$NON-NLS-1$
 			return location;
 
 		LauncherData launcherData = manipulator.getLauncherData();
@@ -38,7 +42,7 @@ public class FileUtils {
 	}
 
 	private static String getPluginName(final String location) {
-		int position = location.indexOf("_");
+		int position = location.indexOf("_"); //$NON-NLS-1$
 		String pluginName = location;
 		if (position >= 0)
 			pluginName = location.substring(0, position);
@@ -49,16 +53,16 @@ public class FileUtils {
 		if (location == null)
 			return null;
 		String ret = location;
-		if (location.startsWith("reference:")) {
-			ret = location.substring("reference:".length());
-			if (ret.endsWith(".jar/")) {
-				ret = ret.substring(0, ret.length() - "/".length());
-				if (ret.startsWith("file:"))
-					ret = ret.substring("file:".length());
+		if (location.startsWith(REFERENCE_PROTOCOL)) {
+			ret = location.substring(REFERENCE_PROTOCOL.length());
+			if (ret.endsWith(".jar/")) { //$NON-NLS-1$
+				ret = ret.substring(0, ret.length() - "/".length()); //$NON-NLS-1$
+				if (ret.startsWith(FILE_PROTOCOL))
+					ret = ret.substring(FILE_PROTOCOL.length());
 			}
 		}
-		if (location.startsWith("initial@"))
-			ret = location.substring("initial@".length());
+		if (location.startsWith("initial@")) //$NON-NLS-1$
+			ret = location.substring("initial@".length()); //$NON-NLS-1$
 
 		if (ret == location)
 			return useEclipse ? FileUtils.getEclipseRealLocation(manipulator, location) : location;
@@ -85,25 +89,25 @@ public class FileUtils {
 	 */
 	private static String getEclipseNamingVersion(URL url, final String pluginName, boolean isFile) {
 		String location = url.getFile();
-		location = replaceAll(location, File.separator, "/");
+		location = replaceAll(location, File.separator, "/"); //$NON-NLS-1$
 		String filename = null;
-		if (location.indexOf(":") == -1)
+		if (location.indexOf(":") == -1) //$NON-NLS-1$
 			filename = location;
 		else
-			filename = location.substring(location.lastIndexOf(":") + 1);
+			filename = location.substring(location.lastIndexOf(":") + 1); //$NON-NLS-1$
 
 		// filename must be "jarName"_"version".jar
 		if (isFile) {
-			if (!filename.endsWith(".jar"))
+			if (!filename.endsWith(".jar")) //$NON-NLS-1$
 				return null;
-			filename = filename.substring(0, filename.lastIndexOf(".jar"));
+			filename = filename.substring(0, filename.lastIndexOf(".jar")); //$NON-NLS-1$
 		} else {
 			// directory - remove trailing slash
 			filename = filename.substring(0, filename.length() - 1);
 		}
 
-		if (filename.indexOf("/") != -1)
-			filename = filename.substring(filename.lastIndexOf("/") + 1);
+		if (filename.indexOf("/") != -1) //$NON-NLS-1$
+			filename = filename.substring(filename.lastIndexOf("/") + 1); //$NON-NLS-1$
 
 		if (!filename.startsWith(pluginName))
 			return null;
@@ -120,7 +124,7 @@ public class FileUtils {
 			return null;
 		File[] lists = bundlesDir.listFiles();
 		URL ret = null;
-		EclipseVersion maxVersion = null;
+		Version maxVersion = null;
 		if (lists == null)
 			return null;
 
@@ -129,7 +133,7 @@ public class FileUtils {
 				URL url = lists[i].toURL();
 				String version = getEclipseNamingVersion(url, pluginName, lists[i].isFile());
 				if (version != null) {
-					EclipseVersion eclipseVersion = new EclipseVersion(version);
+					Version eclipseVersion = new Version(version);
 					if (maxVersion == null || eclipseVersion.compareTo(maxVersion) > 0) {
 						ret = url;
 						maxVersion = eclipseVersion;
