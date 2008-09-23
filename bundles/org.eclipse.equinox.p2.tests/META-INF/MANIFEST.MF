@@ -59,7 +59,9 @@ Require-Bundle: org.eclipse.equinox.p2.metadata.generator,
  org.eclipse.equinox.frameworkadmin,
  org.eclipse.equinox.common,
  org.junit,
- org.eclipse.core.runtime;bundle-version="3.4.0"
+ org.eclipse.core.runtime;bundle-version="3.4.0",
+ org.sat4j.core;bundle-version="2.0.0",
+ org.sat4j.pb;bundle-version="2.0.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: org.eclipse.equinox.p2.artifact.repository
 Bundle-RequiredExecutionEnvironment: J2SE-1.4
