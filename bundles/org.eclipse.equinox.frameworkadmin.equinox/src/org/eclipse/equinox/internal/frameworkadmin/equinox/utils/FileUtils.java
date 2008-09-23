@@ -13,6 +13,7 @@ package org.eclipse.equinox.internal.frameworkadmin.equinox.utils;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
 import org.eclipse.equinox.internal.frameworkadmin.equinox.EquinoxConstants;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.LauncherData;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.Manipulator;
@@ -22,10 +23,49 @@ public class FileUtils {
 
 	private static String FILE_PROTOCOL = "file:"; //$NON-NLS-1$
 	private static String REFERENCE_PROTOCOL = "reference:"; //$NON-NLS-1$
+	private static String INITIAL_PREFIX = "initial@"; //$NON-NLS-1$
 
-	public static String getEclipseRealLocation(final Manipulator manipulator, final String location) {
-		if (location.indexOf(":") >= 0) //$NON-NLS-1$
+	/**
+	 * locations that are URLs are returned as is.  Otherwise, resolve the location against
+	 * the given Manipulator
+	 * 
+	 * @param manipulator
+	 * @param location
+	 * @return a URL string for the actual location, or null
+	 */
+	// based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchForBundle
+	public static String getEclipseRealLocation(final Manipulator manipulator, String location) {
+		//if this is some form of URL just return it
+		try {
+			new URL(location);
 			return location;
+		} catch (MalformedURLException e) {
+			//expected
+		}
+
+		File base = new File(location);
+		if (!base.isAbsolute()) {
+			String pluginsDir = getSyspath(manipulator);
+			if (pluginsDir == null)
+				return null;
+			base = new File(pluginsDir, location);
+		}
+
+		return getEclipsePluginFullLocation(base.getName(), base.getParentFile());
+	}
+
+	private static String getSyspath(final Manipulator manipulator) {
+		Properties properties = manipulator.getConfigData().getFwDependentProps();
+		String path = (String) properties.get(EquinoxConstants.PROP_OSGI_SYSPATH);
+		if (path != null)
+			return path;
+		path = (String) properties.get(EquinoxConstants.PROP_OSGI_FW);
+		if (path != null) {
+			if (path.startsWith(FILE_PROTOCOL))
+				path = path.substring(FILE_PROTOCOL.length());
+			File file = new File(path);
+			return file.getParentFile().getAbsolutePath();
+		}
 
 		LauncherData launcherData = manipulator.getLauncherData();
 		File home = launcherData.getHome();
@@ -36,47 +76,25 @@ public class FileUtils {
 			pluginsDir = new File(launcherData.getLauncher().getParentFile(), EquinoxConstants.PLUGINS_DIR);
 		else if (launcherData.getFwJar() != null)
 			pluginsDir = launcherData.getFwJar().getParentFile();
-		String pluginName = getPluginName(location);
-		String ret = getEclipsePluginFullLocation(pluginName, pluginsDir);
-		return ret;
-	}
 
-	private static String getPluginName(final String location) {
-		int position = location.indexOf("_"); //$NON-NLS-1$
-		String pluginName = location;
-		if (position >= 0)
-			pluginName = location.substring(0, position);
-		return pluginName;
+		if (pluginsDir != null)
+			return pluginsDir.getAbsolutePath();
+		return null;
 	}
 
 	public static String getRealLocation(Manipulator manipulator, final String location, boolean useEclipse) {
 		if (location == null)
 			return null;
 		String ret = location;
-		if (location.startsWith(REFERENCE_PROTOCOL)) {
+		if (location.startsWith(REFERENCE_PROTOCOL))
 			ret = location.substring(REFERENCE_PROTOCOL.length());
-			if (ret.endsWith(".jar/")) { //$NON-NLS-1$
-				ret = ret.substring(0, ret.length() - "/".length()); //$NON-NLS-1$
-				if (ret.startsWith(FILE_PROTOCOL))
-					ret = ret.substring(FILE_PROTOCOL.length());
-			}
-		}
-		if (location.startsWith("initial@")) //$NON-NLS-1$
-			ret = location.substring("initial@".length()); //$NON-NLS-1$
+		else if (location.startsWith(INITIAL_PREFIX))
+			ret = location.substring(INITIAL_PREFIX.length());
 
-		if (ret == location)
-			return useEclipse ? FileUtils.getEclipseRealLocation(manipulator, location) : location;
-		return getRealLocation(manipulator, ret, useEclipse);
-	}
+		if (!useEclipse)
+			return ret;
 
-	private static String replaceAll(String st, String oldSt, String newSt) {
-		if (oldSt.equals(newSt))
-			return st;
-		int index = -1;
-		while ((index = st.indexOf(oldSt)) != -1) {
-			st = st.substring(0, index) + newSt + st.substring(index + oldSt.length());
-		}
-		return st;
+		return FileUtils.getEclipseRealLocation(manipulator, ret);
 	}
 
 	/**
@@ -87,64 +105,66 @@ public class FileUtils {
 	 * @param pluginName
 	 * @return version string. If invalid format, return null. 
 	 */
-	private static String getEclipseNamingVersion(URL url, final String pluginName, boolean isFile) {
-		String location = url.getFile();
-		location = replaceAll(location, File.separator, "/"); //$NON-NLS-1$
-		String filename = null;
-		if (location.indexOf(":") == -1) //$NON-NLS-1$
-			filename = location;
-		else
-			filename = location.substring(location.lastIndexOf(":") + 1); //$NON-NLS-1$
+	private static Version getVersion(String version) {
+		if (version.length() == 0)
+			return Version.emptyVersion;
 
-		// filename must be "jarName"_"version".jar
-		if (isFile) {
-			if (!filename.endsWith(".jar")) //$NON-NLS-1$
-				return null;
-			filename = filename.substring(0, filename.lastIndexOf(".jar")); //$NON-NLS-1$
-		} else {
-			// directory - remove trailing slash
-			filename = filename.substring(0, filename.length() - 1);
+		if (version.endsWith(".jar")) //$NON-NLS-1$
+			version = version.substring(0, version.length() - 4);
+
+		try {
+			return new Version(version);
+		} catch (IllegalArgumentException e) {
+			// bad format
+			return null;
 		}
-
-		if (filename.indexOf("/") != -1) //$NON-NLS-1$
-			filename = filename.substring(filename.lastIndexOf("/") + 1); //$NON-NLS-1$
-
-		if (!filename.startsWith(pluginName))
-			return null;
-
-		int pluginnameLength = pluginName.length();
-		if (filename.length() <= pluginnameLength || filename.charAt(pluginName.length()) != '_')
-			return null;
-
-		return filename.substring(pluginnameLength + 1);
 	}
 
+	/**
+	 * Find the named plugin in the given bundlesDir
+	 * @param pluginName
+	 * @param bundlesDir
+	 * @return a URL string for the found plugin, or null
+	 */
+	// Based on org.eclipse.core.runtime.adaptor.EclipseStarter#searchFor
 	public static String getEclipsePluginFullLocation(String pluginName, File bundlesDir) {
 		if (bundlesDir == null)
 			return null;
-		File[] lists = bundlesDir.listFiles();
-		URL ret = null;
-		Version maxVersion = null;
-		if (lists == null)
+		File[] candidates = bundlesDir.listFiles();
+		if (candidates == null)
 			return null;
 
-		for (int i = 0; i < lists.length; i++) {
-			try {
-				URL url = lists[i].toURL();
-				String version = getEclipseNamingVersion(url, pluginName, lists[i].isFile());
-				if (version != null) {
-					Version eclipseVersion = new Version(version);
-					if (maxVersion == null || eclipseVersion.compareTo(maxVersion) > 0) {
-						ret = url;
-						maxVersion = eclipseVersion;
-					}
-				}
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return null;
+		File result = null;
+		Version maxVersion = null;
+
+		for (int i = 0; i < candidates.length; i++) {
+			String candidateName = candidates[i].getName();
+			if (!candidateName.startsWith(pluginName))
+				continue;
+
+			if (candidateName.length() > pluginName.length() && candidateName.charAt(pluginName.length()) != '_') {
+				// allow jar file with no _version tacked on the end
+				if (!candidates[i].isFile() || (candidateName.length() != 4 + pluginName.length()) || !candidateName.endsWith(".jar")) //$NON-NLS-1$
+					continue;
+			}
+
+			String candidateVersion = ""; //$NON-NLS-1$
+			if (candidateName.length() > pluginName.length() + 1 && candidateName.charAt(pluginName.length()) == '_')
+				candidateVersion = candidateName.substring(pluginName.length() + 1);
+
+			Version currentVersion = getVersion(candidateVersion);
+			if (currentVersion == null)
+				continue;
+
+			if (maxVersion == null || maxVersion.compareTo(currentVersion) < 0) {
+				maxVersion = currentVersion;
+				result = candidates[i];
 			}
 		}
-		return (ret == null ? null : ret.toExternalForm());
+		try {
+			return result != null ? result.getAbsoluteFile().toURL().toExternalForm() : null;
+		} catch (MalformedURLException e) {
+			return null;
+		}
 	}
 }
