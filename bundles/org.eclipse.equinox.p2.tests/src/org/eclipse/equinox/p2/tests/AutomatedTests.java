@@ -20,22 +20,26 @@ import junit.framework.*;
 public class AutomatedTests extends TestCase {
 	public static Test suite() {
 		TestSuite suite = new TestSuite(AutomatedTests.class.getName());
-		suite.addTest(org.eclipse.equinox.p2.tests.full.AllTests.suite());
+		//disabled until the fwAdmin test bundle is added to the build
+		//		suite.addTest(org.eclipse.equinox.frameworkadmin.tests.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.artifact.processors.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.artifact.repository.processing.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.core.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.director.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.directorywatcher.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.engine.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.extensionlocation.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.generator.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.metadata.repository.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.planner.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.directorywatcher.AllTests.suite());
+		//disabled until easymock bundle is added to the build
+		//		suite.addTest(org.eclipse.equinox.p2.tests.publisher.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.simpleconfigurator.SimpleConfiguratorTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.updatesite.AllTests.suite());
-		suite.addTest(org.eclipse.equinox.p2.tests.extensionlocation.AllTests.suite());
 		suite.addTest(org.eclipse.equinox.p2.tests.touchpoint.eclipse.AllTests.suite());
+		suite.addTest(org.eclipse.equinox.p2.tests.full.AllTests.suite());
 		// disable the reconciler tests until after 3.5 M2 and we get the setup issues sorted out
 		// suite.addTest(org.eclipse.equinox.p2.tests.reconciler.dropins.AllTests.suite());
 		return suite;

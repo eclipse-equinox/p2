@@ -14,9 +14,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.engine.Profile;
 import org.eclipse.equinox.internal.p2.engine.SimpleProfileRegistry;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.ProvisioningListener;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfileRegistry;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
@@ -69,6 +73,10 @@ public class ProfileRegistryTest extends AbstractProvisioningTest {
 			ungetServices();
 			TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup").stop();
 			TestActivator.getBundle("org.eclipse.equinox.p2.exemplarysetup").start();
+			//ensure artifact repository manager is registered with event bus. See bug 247584
+			IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(TestActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+			IArtifactRepositoryManager repoMan = (IArtifactRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IArtifactRepositoryManager.class.getName());
+			bus.addListener((ProvisioningListener) repoMan);
 			getServices();
 		} catch (Exception e) {
 			fail();

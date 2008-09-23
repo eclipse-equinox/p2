@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import org.eclipse.core.runtime.*;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.director.app.LatestIUVersionCollector;
 import org.eclipse.equinox.internal.provisional.frameworkadmin.*;
@@ -82,7 +83,12 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		//Add repository of the release
 		try {
-			metadataRepoManager.loadRepository(new URL("http://download.eclipse.org/eclipse/updates/3.4"), new NullProgressMonitor());
+			URL location = new URL("http://download.eclipse.org/eclipse/updates/3.4");
+			metadataRepoManager.addRepository(location);
+			metadataRepoManager.setEnabled(location, true);
+			metadataRepoManager.loadRepository(location, new NullProgressMonitor());
+			artifactRepoManager.addRepository(location);
+			artifactRepoManager.setEnabled(location, true);
 		} catch (ProvisionException e) {
 			fail("Exception loading the repository.", e);
 		} catch (MalformedURLException e) {
@@ -158,8 +164,10 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 		request.addInstallableUnits(new IInstallableUnit[] {platformIU});
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
-		if (!s.isOK())
+		if (!s.isOK()) {
+			LogHelper.log(s);
 			fail("Installation of the " + id + " " + version + " failed.");
+		}
 
 		assertProfileContainsAll("Platform 3.4 profile", profile2, new IInstallableUnit[] {platformIU});
 		validateInstallContentFor34(installFolder);
