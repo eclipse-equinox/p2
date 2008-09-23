@@ -258,22 +258,27 @@ public class EclipseLauncherParser {
 		try {
 			bw = new BufferedWriter(new FileWriter(launcherConfigFile));
 
+			String launcherFolder = launcherData.getLauncher().getParentFile().getAbsolutePath();
 			String[] lines = this.getConfigFileLines(launcherData, launcherConfigFile, relative);
-			String osgiInstallArea = getLauncher(lines) != null ? EquinoxManipulatorImpl.makeAbsolute(getLauncher(lines).getPath(), launcherData.getLauncher().getParentFile().getAbsolutePath()) : launcherData.getLauncher().getParentFile().getAbsolutePath();
+			String osgiInstallArea = getLauncher(lines) != null ? EquinoxManipulatorImpl.makeAbsolute(getLauncher(lines).getPath(), launcherFolder) : launcherFolder;
 			String resolveNextLine = null;
 			for (int i = 0; i < lines.length; i++) {
 				if (resolveNextLine != null) {
 					lines[i] = EquinoxManipulatorImpl.makeRelative(lines[i], resolveNextLine);
 					resolveNextLine = null;
 				} else {
-					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherData.getLauncher().getParentFile().getAbsolutePath() + File.separator);
-					//We don't write -configuration when it is the default value
+					resolveNextLine = needsPathResolution(lines[i], osgiInstallArea, launcherFolder + File.separator);
 					if (EquinoxConstants.OPTION_CONFIGURATION.equalsIgnoreCase(lines[i])) {
 						resolveNextLine = null;
-						if (new Path(lines[i + 1]).removeLastSegments(1).equals(new Path(osgiInstallArea))) {
+
+						//We don't write -configuration when it is the default value
+						File defaultConfigArea = new File(osgiInstallArea, "configuration"); //$NON-NLS-1$
+						File specifiedArea = new File(lines[i + 1]);
+						if (defaultConfigArea.equals(specifiedArea)) {
 							i++;
 							continue;
 						}
+
 						Path configLocation = new Path(lines[i + 1]);
 						Path osgiPath = new Path(osgiInstallArea);
 						int commonSegments = osgiPath.matchingFirstSegments(configLocation.removeLastSegments(1));
@@ -282,7 +287,7 @@ public class EclipseLauncherParser {
 							for (int j = osgiPath.segmentCount() - commonSegments; j != 0; j--) {
 								path += "../"; //$NON-NLS-1$
 							}
-							path += "configuration"; //$NON-NLS-1$
+							path += configLocation.lastSegment();
 							lines[i + 1] = path;
 						}
 					}
