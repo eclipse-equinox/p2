@@ -17,6 +17,7 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTest(BasicTests.suite());
 		suite.addTest(ConfigurationTests.suite());
+		suite.addTest(FeaturePatchTest.suite());
 		return suite;
 	}
 }
