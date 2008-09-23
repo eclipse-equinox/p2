@@ -55,9 +55,6 @@ public class EngineTest extends AbstractProvisioningTest {
 
 	public EngineTest(String name) {
 		super(name);
-		testProvisioning = new File(System.getProperty("java.io.tmpdir"), "testProvisioining");
-		deleteDirectory(testProvisioning);
-		testProvisioning.mkdir();
 	}
 
 	public EngineTest() {
@@ -81,11 +78,15 @@ public class EngineTest extends AbstractProvisioningTest {
 	protected void setUp() throws Exception {
 		engineRef = TestActivator.getContext().getServiceReference(IEngine.SERVICE_NAME);
 		engine = (IEngine) TestActivator.getContext().getService(engineRef);
+		testProvisioning = new File(System.getProperty("java.io.tmpdir"), "testProvisioning");
+		deleteDirectory(testProvisioning);
+		testProvisioning.mkdir();
 	}
 
 	protected void tearDown() throws Exception {
 		engine = null;
 		TestActivator.getContext().ungetService(engineRef);
+		deleteDirectory(testProvisioning);
 	}
 
 	public void testNullProfile() {
@@ -142,6 +143,7 @@ public class EngineTest extends AbstractProvisioningTest {
 		PhaseSet phaseSet = new PhaseSet(new Phase[] {}) {
 			// empty PhaseSet
 		};
+
 		InstallableUnitOperand op = new InstallableUnitOperand(createResolvedIU(createIU("name")), null);
 		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {op};
 		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
@@ -155,6 +157,53 @@ public class EngineTest extends AbstractProvisioningTest {
 		} catch (RuntimeException e) {
 			//expected
 		}
+	}
+
+	public void testPerformPropertyInstallUninstall() {
+
+		IProfile profile = createProfile("testPerformPropertyInstallUninstall");
+		PhaseSet phaseSet = new DefaultPhaseSet();
+
+		PropertyOperand propOp = new PropertyOperand("test", null, "test");
+		IInstallableUnit testIU = createResolvedIU(createIU("test"));
+		InstallableUnitOperand iuOp = new InstallableUnitOperand(null, testIU);
+		InstallableUnitPropertyOperand iuPropOp = new InstallableUnitPropertyOperand(testIU, "test", null, "test");
+
+		Operand[] operands = new Operand[] {propOp, iuOp, iuPropOp};
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertTrue(result.isOK());
+		assertEquals("test", profile.getProperty("test"));
+		assertEquals("test", profile.getInstallableUnitProperty(testIU, "test"));
+
+		PropertyOperand uninstallPropOp = new PropertyOperand("test", "test", null);
+		InstallableUnitPropertyOperand uninstallIuPropOp = new InstallableUnitPropertyOperand(testIU, "test", "test", null);
+		operands = new Operand[] {uninstallPropOp, uninstallIuPropOp};
+		result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertTrue(result.isOK());
+		assertNull("test", profile.getProperty("test"));
+		assertNull("test", profile.getInstallableUnitProperty(testIU, "test"));
+	}
+
+	// This tests currently does not download anything. We need another sizing test to ensure sizes are retrieved
+	public void testPerformSizingOSGiFrameworkNoArtifacts() {
+		Map properties = new HashMap();
+		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
+
+		IProfile profile = createProfile("testPerformSizing", null, properties);
+		for (Iterator it = getInstallableUnits(profile); it.hasNext();) {
+			PhaseSet phaseSet = new DefaultPhaseSet();
+			IInstallableUnit doomed = (IInstallableUnit) it.next();
+			InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(createResolvedIU(doomed), null)};
+			engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		}
+		final Sizing sizingPhase = new Sizing(100, "sizing");
+		PhaseSet phaseSet = new PhaseSet(new Phase[] {sizingPhase}) {};
+
+		InstallableUnitOperand[] operands = new InstallableUnitOperand[] {new InstallableUnitOperand(null, createOSGiIU())};
+		IStatus result = engine.perform(profile, phaseSet, operands, null, new NullProgressMonitor());
+		assertTrue(result.isOK());
+		assertTrue(sizingPhase.getDiskSize() == 0);
+		assertTrue(sizingPhase.getDlSize() == 0);
 	}
 
 	public void testPerformInstallOSGiFramework() {
@@ -178,7 +227,6 @@ public class EngineTest extends AbstractProvisioningTest {
 	}
 
 	public void testPerformUpdateOSGiFramework() {
-
 		Map properties = new HashMap();
 		properties.put(IProfile.PROP_INSTALL_FOLDER, testProvisioning.getAbsolutePath());
 		IProfile profile = createProfile("testPerformUpdateOSGiFramework", null, properties);
