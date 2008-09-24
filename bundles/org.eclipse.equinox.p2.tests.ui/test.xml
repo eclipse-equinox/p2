@@ -5,8 +5,8 @@
 	<!-- sets the properties eclipse-home, and library-file -->
 	<property name="eclipse-home" value="${basedir}/../../" />
 	<property name="library-file" value="${eclipse-home}/plugins/org.eclipse.test/library.xml" />
-	<property name="p2_location" value="${eclipse-home}/p2_sniff_folder" />
-	<property name="plugin-name" value="org.eclipse.equinox.p2.tests" />
+	<property name="p2ui_location" value="${eclipse-home}/p2_ui_data_dir" />
+	<property name="plugin-name" value="org.eclipse.equinox.p2.tests.ui" />
 
 	<!-- This target holds all initialization code that needs to be done for -->
 	<!-- all tests that are to be run. Initialization for individual tests -->
@@ -18,7 +18,7 @@
 	<!-- This target holds code to cleanup the testing environment after the tests -->
 	<!-- have been run. You can use this to delete temporary files that are created. -->
 	<target name="cleanup">
-		<delete dir="${p2_location}" quiet="true" />
+		<delete dir="${p2ui_location}" quiet="true" />
 	</target>
 
 	<!-- This target runs the test suite. Any actions that need to happen after all -->
@@ -40,10 +40,10 @@
 	</target>
 
 	<target name="p2Tests" depends="init,cleanup">
-		<ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
-			<property name="data-dir" value="${p2_location}" />
-			<property name="plugin-name" value="org.eclipse.equinox.p2.tests" />
-			<property name="classname" value="org.eclipse.equinox.p2.tests.AutomatedTests" />
+		<ant target="ui-test" antfile="${library-file}" dir="${eclipse-home}">
+			<property name="data-dir" value="${p2ui_location}" />
+			<property name="plugin-name" value="org.eclipse.equinox.p2.tests.ui" />
+			<property name="classname" value="org.eclipse.equinox.p2.tests.ui.AutomatedTests" />
 		</ant>
 	</target>
 
