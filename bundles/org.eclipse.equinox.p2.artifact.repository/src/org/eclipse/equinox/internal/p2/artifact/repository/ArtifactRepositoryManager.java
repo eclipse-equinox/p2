@@ -173,10 +173,6 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		}
 	}
 
-	public IArtifactRequest createDownloadRequest(IArtifactKey key, IPath destination) {
-		return new FileDownloadRequest(key, destination);
-	}
-
 	private Object createExecutableExtension(IExtension extension, String element) {
 		IConfigurationElement[] elements = extension.getConfigurationElements();
 		for (int i = 0; i < elements.length; i++) {
@@ -191,10 +187,6 @@ public class ArtifactRepositoryManager extends AbstractRepositoryManager impleme
 		}
 		log("Malformed repository extension: " + extension.getUniqueIdentifier(), null); //$NON-NLS-1$
 		return null;
-	}
-
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination) {
-		return createMirrorRequest(key, destination, null, null);
 	}
 
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties) {

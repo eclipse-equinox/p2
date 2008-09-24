@@ -13,7 +13,6 @@ package org.eclipse.equinox.internal.provisional.p2.artifact.repository;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
@@ -79,27 +78,13 @@ public interface IArtifactRepositoryManager {
 	public void addRepository(URL location);
 
 	/**
-	 * Return a new request to download the given artifact and store it at the given destination.
-	 * @param key the artifact to download
-	 * @param destination the destination where the artifact will be stored
-	 * @return the newly created request object
-	 */
-	public IArtifactRequest createDownloadRequest(IArtifactKey key, IPath destination);
-
-	/**
 	 * Return a new request to mirror the given artifact into the destination repository.
 	 * @param key the artifact to mirror
 	 * @param destination the destination where the artifact will be mirrored
-	 * @return the newly created request object
-	 */
-	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination);
-
-	/**
-	 * Return a new request to mirror the given artifact into the destination repository.
-	 * @param key the artifact to mirror
-	 * @param destination the destination where the artifact will be mirrored
-	 * @param destinationDescriptorProperties additional properties for use in creating the repositor's ArtifactDescriptor
-	 * @param destinationRepositoryProperties additional repository specific properties for use in creating the repositor's ArtifactDescriptor
+	 * @param destinationDescriptorProperties additional properties for use in creating the repository's ArtifactDescriptor, 
+	 * or <code>null</code> to indicate no additional properties are needed
+	 * @param destinationRepositoryProperties additional repository specific properties for use in creating the repositor's ArtifactDescriptor,
+	 * , or <code>null</code> to indicate no additional properties are needed
 	 * @return the newly created request object
 	 */
 	public IArtifactRequest createMirrorRequest(IArtifactKey key, IArtifactRepository destination, Properties destinationDescriptorProperties, Properties destinationRepositoryProperties);
