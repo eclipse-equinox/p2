@@ -42,16 +42,32 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 	private long lastModified = -1l;
 	private Set configRepositories;
 
-	private String toString(String[] list) {
-		if (list == null || list.length == 0)
-			return ""; //$NON-NLS-1$
+	private String toString(Feature[] features, String[] list) {
 		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < list.length; i++) {
-			buffer.append(list[i]);
-			if (i + 1 < list.length)
-				buffer.append(',');
+		if (features != null) {
+			for (int i = 0; i < features.length; i++) {
+				String featureURL = features[i].getUrl();
+				if (featureURL != null)
+					buffer.append(featureURL).append(',');
+				else {
+					String id = features[i].getId();
+					String version = features[i].getVersion();
+					if (id != null && version != null)
+						buffer.append("features/" + id + "_" + version + "/,"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$					
+				}
+			}
 		}
-		return buffer.toString();
+		if (list != null) {
+			for (int i = 0; i < list.length; i++) {
+				buffer.append(list[i]).append(',');
+				if (i + 1 < list.length)
+					buffer.append(',');
+			}
+		}
+		if (buffer.length() == 0)
+			return ""; //$NON-NLS-1$
+
+		return buffer.substring(0, buffer.length() - 1);
 	}
 
 	/*
@@ -181,7 +197,7 @@ public class PlatformXmlListener extends DirectoryChangeListener {
 					URL location = new URL(eclipseExtensionURL);
 					Map properties = new HashMap();
 					properties.put(SiteListener.SITE_POLICY, site.getPolicy());
-					properties.put(SiteListener.SITE_LIST, toString(site.getList()));
+					properties.put(SiteListener.SITE_LIST, toString(site.getFeatures(), site.getList()));
 					properties.put(IRepository.PROP_SYSTEM, Boolean.TRUE.toString());
 
 					// deal with the metadata repository

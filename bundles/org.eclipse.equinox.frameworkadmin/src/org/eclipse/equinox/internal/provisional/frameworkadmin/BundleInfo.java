@@ -124,7 +124,6 @@ public class BundleInfo {
 	public int hashCode() {
 		int result = symbolicName == null ? 0 : symbolicName.hashCode();
 		result = result + (version == null ? 0 : version.hashCode());
-		result = result + (location == null ? 0 : new Path(location).toFile().hashCode());
 		return result;
 	}
 
