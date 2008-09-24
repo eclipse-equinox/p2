@@ -101,8 +101,6 @@ public class FileUtils {
 	 * If a bundle of the specified location is in the Eclipse plugin format (either plugin-name_version.jar 
 	 * or as a folder named plugin-name_version ), return version string.Otherwise, return null;
 	 * 
-	 * @param url
-	 * @param pluginName
 	 * @return version string. If invalid format, return null. 
 	 */
 	private static Version getVersion(String version) {
