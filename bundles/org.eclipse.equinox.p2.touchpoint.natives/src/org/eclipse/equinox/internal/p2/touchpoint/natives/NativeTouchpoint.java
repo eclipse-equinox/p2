@@ -139,7 +139,7 @@ public class NativeTouchpoint extends Touchpoint {
 		int count = 0;
 		for (int i = 0; i < toDownload.length; i++) {
 			//TODO Here there are cases where the download is not necessary again because what needs to be done is just a configuration step
-			requests[count++] = getArtifactRepositoryManager().createMirrorRequest(toDownload[i], destination);
+			requests[count++] = getArtifactRepositoryManager().createMirrorRequest(toDownload[i], destination, null, null);
 		}
 
 		if (requests.length == count)
