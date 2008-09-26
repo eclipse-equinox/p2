@@ -22,11 +22,11 @@ import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class Activator implements BundleActivator {
-	public static final String ID = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
-
 	public static AgentLocation agentDataLocation = null;
+
 	public static BundleContext context;
 	private static final String DEFAULT_AGENT_LOCATION = "../p2"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.equinox.p2.core"; //$NON-NLS-1$
 
 	private static Activator instance;
 	// Data mode constants for user, configuration and data locations.
@@ -87,6 +87,10 @@ public class Activator implements BundleActivator {
 				return null;
 			}
 		}
+	}
+
+	public static BundleContext getContext() {
+		return context;
 	}
 
 	/**
