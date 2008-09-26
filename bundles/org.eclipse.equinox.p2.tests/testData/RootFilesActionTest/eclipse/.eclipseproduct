@@ -1,0 +1,3 @@
+name=Eclipse Platform
+eclipse.product=org.eclipse.platform.ide
+version=3.3.0

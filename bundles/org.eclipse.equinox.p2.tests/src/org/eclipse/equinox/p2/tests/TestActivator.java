@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import org.eclipse.core.runtime.FileLocator;
 import org.osgi.framework.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
@@ -18,6 +22,7 @@ public class TestActivator implements BundleActivator {
 	public static BundleContext context;
 	private static PackageAdmin packageAdmin = null;
 	private static ServiceReference packageAdminRef = null;
+	public static String TEST_DATA_PATH = "testData"; //$NON-NLS-1$
 
 	public static BundleContext getContext() {
 		return context;
@@ -36,6 +41,15 @@ public class TestActivator implements BundleActivator {
 
 	public void stop(BundleContext context) throws Exception {
 		TestActivator.context = null;
+	}
+
+	public static File getTestDataFolder() {
+		try {
+			URL url = context.getBundle().getEntry(TestActivator.TEST_DATA_PATH);
+			return new File(FileLocator.resolve(url).getFile());
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	public static Bundle getBundle(String symbolicName) {
