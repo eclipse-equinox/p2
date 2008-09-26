@@ -228,4 +228,30 @@ public class OperationGenerationTest extends AbstractProvisioningTest {
 		// 1 x uninstall
 		assertEquals(2, operands.length);
 	}
+
+	private IUpdateDescriptor createUpdateDescriptor(String id, Version version) {
+		return MetadataFactory.createUpdateDescriptor(id, new VersionRange(Version.emptyVersion, true, version, false), IUpdateDescriptor.HIGH, "desc");
+	}
+
+	public void _test_248468() {
+		String id = "myBundle";
+		IUpdateDescriptor update = createUpdateDescriptor(id, new Version("1.0.0"));
+		IInstallableUnit one = createIU(id, new Version("1.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+		update = createUpdateDescriptor(id, new Version("2.0.0"));
+		IInstallableUnit two = createIU(id, new Version("2.0.0"), null, NO_REQUIRES, NO_PROVIDES, NO_PROPERTIES, TouchpointType.NONE, NO_TP_DATA, false, update);
+
+		Collection from = new ArrayList();
+		from.add(MetadataFactory.createResolvedInstallableUnit(one, new IInstallableUnitFragment[0]));
+		from.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
+
+		Collection to = new ArrayList();
+		to.add(MetadataFactory.createResolvedInstallableUnit(two, new IInstallableUnitFragment[0]));
+
+		from = new ResolutionHelper(null, null).attachCUs(from);
+		to = new ResolutionHelper(null, null).attachCUs(to);
+		InstallableUnitOperand[] operands = new OperationGenerator().generateOperation(from, to);
+		assertEquals("1.0", 1, operands.length);
+		assertEquals("1.1", one, operands[0].first());
+		assertNull("1.2", operands[0].second());
+	}
 }
