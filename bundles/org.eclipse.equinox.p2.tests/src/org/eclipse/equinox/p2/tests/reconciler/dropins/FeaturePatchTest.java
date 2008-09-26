@@ -70,6 +70,7 @@ public class FeaturePatchTest extends AbstractReconcilerTest {
 
 	/*
 	 * Test the case where the feature patch adds a new bundle (with a new id) to the system.
+	 * For more information see bug 240370.
 	 */
 	public void testAddBundle() {
 		File file = getTestData("1.0", "testData/reconciler/features/myFeature_1.0.0");
