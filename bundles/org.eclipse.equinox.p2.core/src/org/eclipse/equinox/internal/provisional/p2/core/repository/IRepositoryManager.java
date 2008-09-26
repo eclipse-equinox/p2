@@ -57,8 +57,13 @@ public interface IRepositoryManager {
 	/**
 	 * Adds the repository at the given location to the list of repositories tracked by 
 	 * this repository manager.
+	 * <p>
+	 * If there is a known disabled repository at the given location, it will become
+	 * enabled as a result of this method. Thus the caller can be guaranteed that
+	 * there is a known, enabled repository at the given location when this method returns.
 	 * 
 	 * @param location The location of the metadata repository to add
+	 * @see #isEnabled(URL)
 	 */
 	public void addRepository(URL location);
 

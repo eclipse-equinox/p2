@@ -115,7 +115,9 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 	 * @see org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager#addRepository(java.net.URL)
 	 */
 	public void addRepository(URL location) {
-		addRepository(location, true, true);
+		//add the repository, or enable it if already known
+		if (!addRepository(location, true, true))
+			setEnabled(location, true);
 	}
 
 	/**
@@ -172,9 +174,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			return result;
 		} catch (ProvisionException e) {
 			//if we failed to load, make sure the repository is not lost
-			addRepository(location);
-			if (!wasEnabled)
-				setEnabled(location, false);
+			addRepository(location, wasEnabled, true);
 			throw e;
 		}
 	}
@@ -638,7 +638,7 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 			StringTokenizer tokenizer = new StringTokenizer(locationString, ","); //$NON-NLS-1$
 			while (tokenizer.hasMoreTokens()) {
 				try {
-					addRepository(new URL(tokenizer.nextToken()));
+					addRepository(new URL(tokenizer.nextToken()), true, true);
 				} catch (MalformedURLException e) {
 					log("Error while restoring repository " + locationString, e); //$NON-NLS-1$
 				}
