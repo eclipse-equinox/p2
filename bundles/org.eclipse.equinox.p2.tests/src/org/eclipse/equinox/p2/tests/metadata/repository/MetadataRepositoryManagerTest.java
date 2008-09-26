@@ -194,6 +194,32 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		cacheFile.delete();
 	}
 
+	/**
+	 * Tests that trailing slashes do not affect repository identity.
+	 */
+	public void testTrailingSlashes() {
+		File site = getTestData("Repository", "/testData/metadataRepo/good/");
+		URL locationSlash, locationNoSlash;
+		try {
+			locationSlash = site.toURL();
+			String locationString = locationSlash.toExternalForm();
+			locationString = locationString.substring(0, locationString.length() - 1);
+			locationNoSlash = new URL(locationString);
+		} catch (MalformedURLException e) {
+			fail("0.99", e);
+			return;
+		}
+
+		manager.addRepository(locationNoSlash);
+		try {
+			IMetadataRepository repoSlash = manager.loadRepository(locationSlash, null);
+			IMetadataRepository repoNoSlash = manager.loadRepository(locationNoSlash, null);
+			assertTrue("1.0", repoNoSlash == repoSlash);
+		} catch (ProvisionException e) {
+			fail("1.99", e);
+		}
+	}
+
 	private boolean repoAvailable(URL repoLocation) {
 		try {
 			repoLocation.openStream().close();
