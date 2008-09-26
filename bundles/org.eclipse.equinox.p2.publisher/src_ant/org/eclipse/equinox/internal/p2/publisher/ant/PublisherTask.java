@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata.generator.ant;
+package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -25,7 +25,7 @@ import org.osgi.framework.Version;
  * 
  * @since 1.0
  */
-public class GeneratorTask extends Task {
+public class PublisherTask extends Task {
 
 	protected PublisherInfo provider = null;
 

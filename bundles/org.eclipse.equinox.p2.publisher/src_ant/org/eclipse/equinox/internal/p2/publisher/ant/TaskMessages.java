@@ -8,7 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.equinox.internal.p2.metadata.generator.ant;
+package org.eclipse.equinox.internal.p2.publisher.ant;
 
 import org.eclipse.osgi.util.NLS;
 
