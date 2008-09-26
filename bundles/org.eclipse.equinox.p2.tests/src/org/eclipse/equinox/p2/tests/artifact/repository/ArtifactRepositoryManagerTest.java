@@ -35,7 +35,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * Returns whether {@link IMetadataRepositoryManager} contains a reference
+	 * Returns whether {@link IArtifactRepositoryManager} contains a reference
 	 * to a repository at the given location.
 	 */
 	private boolean managerContains(URL location) {
