@@ -50,6 +50,14 @@ public class RepositoryEvent extends EventObject {
 	 */
 	public static final int DISCOVERED = 4;
 
+	/**
+	 * A change kind constant (value 8), indicating the repository's enablement
+	 * was changed.  The {{@link #isRepositoryEnabled()} method can be used
+	 * to find out the new enablement state of the repository, and to deduce
+	 * the previous enablement state.
+	 */
+	public static final int ENABLEMENT = 8;
+
 	private final int kind, type;
 
 	private boolean isEnabled;
