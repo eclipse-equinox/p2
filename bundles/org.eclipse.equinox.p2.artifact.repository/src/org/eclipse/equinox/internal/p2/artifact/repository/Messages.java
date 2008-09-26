@@ -19,7 +19,6 @@ public class Messages extends NLS {
 	public static String available_already_in;
 	public static String downloading;
 	public static String error_closing_stream;
-	public static String FileDownloadError;
 	public static String io_failedRead;
 	public static String io_incompatibleVersion;
 	public static String SignatureVerification_failedRead;
@@ -29,11 +28,7 @@ public class Messages extends NLS {
 	public static String SignatureVerifier_OutOfMemory;
 	public static String io_parseError;
 	public static String mirroring;
-	public static String repoMan_exists;
-	public static String repoMan_failedRead;
 	public static String repoMan_internalError;
-	public static String repoMan_notExists;
-	public static String repoMan_unknownType;
 	public static String repoFailedWrite;
 	public static String repoReadOnly;
 

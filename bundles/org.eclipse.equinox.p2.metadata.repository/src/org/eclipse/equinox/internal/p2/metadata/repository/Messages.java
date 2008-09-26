@@ -28,12 +28,8 @@ public class Messages extends NLS {
 
 	public static String repo_loading;
 
-	public static String repoMan_adding;
-	public static String repoMan_exists;
-	public static String repoMan_failedRead;
 	public static String repoMan_internalError;
 	public static String repoMan_notExists;
-	public static String repoMan_unknownType;
 	public static String repoMan_invalidLocation;
 
 }

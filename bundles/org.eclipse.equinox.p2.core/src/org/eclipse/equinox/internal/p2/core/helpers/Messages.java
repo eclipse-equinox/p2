@@ -12,7 +12,7 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 import org.eclipse.osgi.util.NLS;
 
-public class Messages extends NLS {
+class Messages extends NLS {
 
 	private static final String BUNDLE_NAME = "org.eclipse.equinox.internal.p2.core.helpers.messages"; //$NON-NLS-1$
 
@@ -20,6 +20,17 @@ public class Messages extends NLS {
 		// load message values from bundle file and assign to fields below
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);
 	}
+
+	private Messages() {
+		// Do not instantiate
+	}
+
+	public static String repoMan_adding;
+	public static String repoMan_exists;
+	public static String repoMan_failedRead;
+	public static String repoMan_internalError;
+	public static String repoMan_notExists;
+	public static String repoMan_unknownType;
 
 	public static String Util_Invalid_Zip_File_Format;
 	public static String Util_Error_Unzipping;
