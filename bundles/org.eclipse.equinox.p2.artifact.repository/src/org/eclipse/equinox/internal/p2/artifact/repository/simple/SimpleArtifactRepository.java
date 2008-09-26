@@ -296,8 +296,8 @@ public class SimpleArtifactRepository extends AbstractArtifactRepository impleme
 					initializeMapper();
 				}
 			}
-			save();
 		}
+		save();
 	}
 
 	public synchronized void addDescriptor(IArtifactDescriptor toAdd) {

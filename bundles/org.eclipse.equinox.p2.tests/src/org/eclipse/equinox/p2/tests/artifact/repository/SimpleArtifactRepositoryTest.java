@@ -16,18 +16,20 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.TestCase;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.equinox.internal.p2.artifact.repository.simple.SimpleArtifactRepository;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
+import org.eclipse.equinox.internal.provisional.spi.p2.artifact.repository.SimpleArtifactRepositoryFactory;
+import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
 import org.eclipse.equinox.spi.p2.publisher.PublisherHelper;
 import org.osgi.framework.Version;
 
-public class SimpleArtifactRepositoryTest extends TestCase {
+public class SimpleArtifactRepositoryTest extends AbstractProvisioningTest {
 	//artifact repository to remove on tear down
 	private File repositoryFile = null;
 	private URL repositoryURL = null;
@@ -145,14 +147,19 @@ public class SimpleArtifactRepositoryTest extends TestCase {
 			fail("Repository should create artifact.xml");
 	}
 
-	private boolean delete(File file) {
-		if (!file.exists())
-			return true;
-		if (file.isDirectory()) {
-			File[] children = file.listFiles();
-			for (int i = 0; i < children.length; i++)
-				delete(children[i]);
+	public void test_248772() {
+		SimpleArtifactRepositoryFactory factory = new SimpleArtifactRepositoryFactory();
+		URL location = null;
+		try {
+			location = new File(getTempFolder(), getUniqueString()).toURL();
+		} catch (MalformedURLException e) {
+			fail("1.0", e);
 		}
-		return file.delete();
+		factory.create(location, "test type", null, null);
+		try {
+			factory.load(location, new NullProgressMonitor());
+		} catch (ProvisionException e) {
+			fail("2.0", e);
+		}
 	}
 }
