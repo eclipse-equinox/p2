@@ -40,7 +40,7 @@
 //	public void testProductAction() throws Exception {
 //		testAction.perform(publisherInfo, publisherResult);
 //		verifyAction();
-//		System.out.println("Completed ProductActionTest."); //$NON-NLS-1$
+//		debug("Completed ProductActionTest."); //$NON-NLS-1$
 //	}
 //
 //	private void verifyAction() {

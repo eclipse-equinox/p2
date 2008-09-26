@@ -68,7 +68,7 @@ public class EquinoxExecutableActionTest extends ActionTest {
 		testAction = new EquinoxExecutableAction(executablesDescriptor, config, idBase, version, flavorArg);
 		testAction.perform(publisherInfo, publisherResult);
 		verifyResults(idBase, config);
-		System.out.println("Completed EquinoxExecutableActionTest " + idBase + " test."); //$NON-NLS-1$ //$NON-NLS-2$		
+		debug("Completed EquinoxExecutableActionTest " + idBase + " test."); //$NON-NLS-1$ //$NON-NLS-2$		
 	}
 
 	@SuppressWarnings("hiding")

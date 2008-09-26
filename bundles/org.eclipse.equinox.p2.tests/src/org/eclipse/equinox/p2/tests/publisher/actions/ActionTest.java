@@ -27,6 +27,7 @@ import org.osgi.framework.Version;
 public abstract class ActionTest extends TestCase {
 	protected static final String COMMA_SEPARATOR = ","; //$NON-NLS-1$
 	protected static final String JAR = "jar";//$NON-NLS-1$
+	private static final boolean DEBUG = false;
 
 	protected String os = "win32";//$NON-NLS-1$
 	protected String ws = "win32";//$NON-NLS-1$
@@ -161,5 +162,13 @@ public abstract class ActionTest extends TestCase {
 	public void cleanup() {
 		publisherInfo = null;
 		publisherResult = null;
+	}
+
+	/**
+	 * Prints a message used for debugging tests.
+	 */
+	public void debug(String message) {
+		if (DEBUG)
+			debug(message);
 	}
 }

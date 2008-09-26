@@ -32,7 +32,6 @@ public class RootIUActionTest extends ActionTest {
 	private static final String ADVICE = "advice \t\t\t"; //$NON-NLS-1$
 	private static final String METADATA_REPOSITORY = "metadata repo \t\t"; //$NON-NLS-1$
 	private static final String PUBLISHER_RESULT = "publisher result \t"; //$NON-NLS-1$
-	private static final boolean DEBUG = false;
 	protected static String iu_A = "iuA"; //$NON-NLS-1$
 	protected static String iu_B = "iuB"; //$NON-NLS-1$
 
@@ -299,11 +298,6 @@ public class RootIUActionTest extends ActionTest {
 			if (required[i].getName().equalsIgnoreCase(iu))
 				return true;
 		return false;
-	}
-
-	protected void debug(String message) {
-		if (DEBUG)
-			System.out.println(message);
 	}
 
 	public void setupPublisherResult(int testSpec) {

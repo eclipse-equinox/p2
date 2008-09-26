@@ -42,7 +42,7 @@ public class EquinoxLauncherCUActionTest extends ActionTest {
 	public void testEquinoxLauncherCUAction() throws Exception {
 		testAction.perform(publisherInfo, publisherResult);
 		verifyResults();
-		System.out.println("Completed EquinoxLauncherCUAction test.");//$NON-NLS-1$
+		debug("Completed EquinoxLauncherCUAction test.");//$NON-NLS-1$
 	}
 
 	protected IInstallableUnit mockIU(String id, Version version, boolean fragment) {

@@ -48,7 +48,7 @@ public class AccumulateConfigDataActionTest extends ActionTest {
 		testAction.perform(publisherInfo, publisherResult);
 		verifyConfigAdvice();
 		verifyLaunchAdvice();
-		System.out.println("Completed AccumulateConfigDataActionTest."); //$NON-NLS-1$
+		debug("Completed AccumulateConfigDataActionTest."); //$NON-NLS-1$
 	}
 
 	private void verifyLaunchAdvice() {

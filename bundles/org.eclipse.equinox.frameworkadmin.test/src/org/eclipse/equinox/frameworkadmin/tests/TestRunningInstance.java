@@ -13,9 +13,8 @@ public class TestRunningInstance extends AbstractFwkAdminTest {
 		FrameworkAdmin fwkAdmin = getEquinoxFrameworkAdmin();
 		Manipulator m = fwkAdmin.getRunningManipulator();
 		BundleInfo[] infos = m.getConfigData().getBundles();
-		for (int i = 0; i < infos.length; i++) {
-			System.out.println(infos[i]);
-		}
+//		for (int i = 0; i < infos.length; i++)
+//			System.out.println(infos[i]);
 		
 		Bundle[] bundles = Activator.getContext().getBundles();
 		

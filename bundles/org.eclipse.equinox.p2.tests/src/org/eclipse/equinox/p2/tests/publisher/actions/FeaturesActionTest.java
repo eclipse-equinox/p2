@@ -51,7 +51,7 @@ public class FeaturesActionTest extends ActionTest {
 	public void testStuff() throws Exception {
 		testAction.perform(publisherInfo, publisherResult);
 		verifyRepositoryContents();
-		System.out.println("Completed FeaturesAction."); //$NON-NLS-1$
+		debug("Completed FeaturesAction."); //$NON-NLS-1$
 	}
 
 	private void verifyRepositoryContents() throws Exception {

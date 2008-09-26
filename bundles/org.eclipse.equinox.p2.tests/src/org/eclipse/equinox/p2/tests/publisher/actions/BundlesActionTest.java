@@ -83,7 +83,7 @@ public class BundlesActionTest extends ActionTest {
 		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
 		verifyBundlesAction();
 		cleanup();
-		System.out.println("Completed BundlesActionTest.");//$NON-NLS-1$
+		debug("Completed BundlesActionTest.");//$NON-NLS-1$
 	}
 
 	private void verifyBundlesAction() throws Exception {

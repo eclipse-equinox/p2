@@ -45,7 +45,7 @@ public class ConfigCUsActionTest extends ActionTest {
 	public void testAction() throws Exception {
 		testAction.perform(publisherInfo, publisherResult);
 		verifyAction();
-		System.out.println("Completed ConfigCUsAction test."); //$NON-NLS-1$
+		debug("Completed ConfigCUsAction test."); //$NON-NLS-1$
 	}
 
 	private void verifyAction() {

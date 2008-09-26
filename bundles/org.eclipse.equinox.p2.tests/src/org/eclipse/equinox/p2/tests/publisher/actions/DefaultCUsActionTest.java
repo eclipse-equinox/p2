@@ -27,7 +27,7 @@ public class DefaultCUsActionTest extends ActionTest {
 		setupPublisherInfo();
 		assertEquals(Status.OK_STATUS, testAction.perform(publisherInfo, publisherResult));
 		verifyDefaultCUs();
-		System.out.println("Completed DefaultCUsActionTest."); //$NON-NLS-1$
+		debug("Completed DefaultCUsActionTest."); //$NON-NLS-1$
 	}
 
 	private void verifyDefaultCUs() {
