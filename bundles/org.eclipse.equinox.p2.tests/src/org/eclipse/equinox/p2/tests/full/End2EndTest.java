@@ -136,7 +136,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private void installPlatformSource(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.source.feature.group";
-		final Version version = new Version("3.4.0.v20080610-9I96EhtEm-T_5LxIsybz-3MdGZmOA3uwv7Ka_M");
+		final Version version = new Version("3.4.1.r341_v20080731-9I96EiDElYevwz-p1bP5z-NlAaP7vtX6Utotqsu");
 
 		IInstallableUnit toInstall = getIU(id, version);
 		if (toInstall == null)
@@ -154,7 +154,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 
 	private void installPlatform(IProfile profile2, File installFolder) {
 		final String id = "org.eclipse.platform.ide";
-		final Version version = new Version("3.4.0.I20080617-2000");
+		final Version version = new Version("3.4.0.M20080911-1700");
 
 		//First we install the platform
 		ProfileChangeRequest request = new ProfileChangeRequest(profile2);
@@ -166,7 +166,7 @@ public class End2EndTest extends AbstractProvisioningTest {
 		IStatus s = director.provision(request, null, new NullProgressMonitor());
 		if (!s.isOK()) {
 			LogHelper.log(s);
-			fail("Installation of the " + id + " " + version + " failed.");
+			fail("Installation of the " + id + " " + version + " failed. " + s.toString());
 		}
 
 		assertProfileContainsAll("Platform 3.4 profile", profile2, new IInstallableUnit[] {platformIU});
