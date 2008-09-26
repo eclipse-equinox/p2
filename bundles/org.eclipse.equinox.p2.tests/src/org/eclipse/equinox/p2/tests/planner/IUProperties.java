@@ -9,6 +9,7 @@
 package org.eclipse.equinox.p2.tests.planner;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
@@ -54,9 +55,10 @@ public class IUProperties extends AbstractProvisioningTest {
 		ProvisioningPlan pp1 = planner.getProvisioningPlan(req1, null, null);
 		assertEquals(IStatus.OK, pp1.getStatus().getSeverity());
 		IStatus s = engine.perform(profile, new DefaultPhaseSet(), pp1.getOperands(), null, null);
-		System.out.println(s);
-		Collector c = getProfile(profileId).query(new IUProfilePropertyQuery(getProfile(profileId), "FOO", null), new Collector(), null);
-		assertEquals(1, c.size());
+		if (!s.isOK())
+			LogHelper.log(s);
+		Collector collector = getProfile(profileId).query(new IUProfilePropertyQuery(getProfile(profileId), "FOO", null), new Collector(), null);
+		assertEquals(1, collector.size());
 
 		ProfileChangeRequest req2 = new ProfileChangeRequest(profile);
 		req2.removeInstallableUnitProfileProperty(b1, "FOO");

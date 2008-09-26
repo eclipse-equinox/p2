@@ -8,6 +8,7 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests.planner;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.internal.provisional.p2.director.IPlanner;
 import org.eclipse.equinox.internal.provisional.p2.engine.IEngine;
 import org.eclipse.equinox.internal.provisional.p2.engine.IProfile;
@@ -64,6 +65,7 @@ public class PatchTestUninstall extends AbstractProvisioningTest {
 	}
 
 	public void testUninstall() {
-		System.out.println(uninstall(profile1, new IInstallableUnit[] {pp1}, planner, engine));
+		IStatus result = uninstall(profile1, new IInstallableUnit[] {pp1}, planner, engine);
+		assertTrue("1.0", result.isOK());
 	}
 }
