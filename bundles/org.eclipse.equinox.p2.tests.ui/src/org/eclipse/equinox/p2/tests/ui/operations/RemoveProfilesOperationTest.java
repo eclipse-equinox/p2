@@ -46,7 +46,10 @@ public class RemoveProfilesOperationTest extends AbstractProvisioningTest {
 		assertNull("2.0", profile);
 	}
 
-	public void testRemoveNonExisting() {
+	/**
+	 * Commented out due to bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247540.
+	 */
+	public void _testRemoveNonExisting() {
 		String profileId = "testRemoveNonExisting";
 		IProfile profile = createProfile(profileId);
 		try {
