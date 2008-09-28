@@ -66,6 +66,8 @@ public class InstructionParser {
 	private ProvisioningAction lookupAction(String actionId) {
 		ProvisioningAction action = touchpoint.getAction(actionId);
 		if (action == null)
+			action = ActionManager.getInstance().getAction(actionId);
+		if (action == null)
 			throw new IllegalArgumentException(NLS.bind(Messages.action_not_found, actionId));
 
 		return action;

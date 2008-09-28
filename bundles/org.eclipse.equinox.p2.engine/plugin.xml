@@ -3,6 +3,7 @@
 		id="touchpoints" 
 		name="Touchpoints" 
 		schema="schema/touchpoints.exsd"/>
+<extension-point id="actions" name="Actions" schema="schema/actions.exsd"/>
 		
 	<extension point="org.eclipse.equinox.p2.engine.touchpoints" id="null" name="Null Touchpoint">
 		<touchpoint 
