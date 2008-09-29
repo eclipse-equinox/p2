@@ -83,4 +83,7 @@ public class ProcessingStepDescriptor {
 		return true;
 	}
 
+	public String toString() {
+		return "Processor: " + processorId + (required ? "(req)" : "(notReq)") + " ,data: " + data; //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+	}
 }
