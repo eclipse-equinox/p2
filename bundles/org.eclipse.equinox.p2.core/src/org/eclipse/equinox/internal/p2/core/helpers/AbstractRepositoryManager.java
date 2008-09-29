@@ -213,7 +213,10 @@ public abstract class AbstractRepositoryManager implements IRepositoryManager, P
 		}
 	}
 
-	private boolean contains(URL location) {
+	/**
+	 * TODO make private once API is available. See bug 248269.
+	 */
+	public boolean contains(URL location) {
 		synchronized (repositoryLock) {
 			if (repositories == null)
 				restoreRepositories();
