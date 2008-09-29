@@ -25,7 +25,7 @@ public class ActionManager implements IRegistryChangeListener {
 	private HashMap actionMap;
 
 	private ActionManager() {
-		// do nothing
+		RegistryFactory.getRegistry().addRegistryChangeListener(this);
 	}
 
 	public ProvisioningAction getAction(String actionId) {
