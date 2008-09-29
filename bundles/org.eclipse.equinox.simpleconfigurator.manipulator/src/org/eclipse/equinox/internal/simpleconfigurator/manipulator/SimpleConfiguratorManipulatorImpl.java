@@ -528,7 +528,16 @@ public class SimpleConfiguratorManipulatorImpl implements ConfiguratorManipulato
 			return urlString;
 
 		String rootString = rootURL.toExternalForm();
-		return urlString.substring(0, index) + makeRelative(new Path(urlString.substring(index)), new Path(rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5)));
+		IPath one = new Path(urlString.substring(index));
+		IPath two = new Path(rootString.substring(rootString.indexOf(FILE_PROTOCOL) + 5));
+		String deviceOne = one.getDevice();
+		String deviceTwo = two.getDevice();
+		// do checking here because we want to return the exact string we got initially if
+		// we are unable to make it relative.
+		if (deviceOne != deviceTwo && (deviceOne == null || !deviceOne.equalsIgnoreCase(two.getDevice())))
+			return urlString;
+
+		return urlString.substring(0, index) + makeRelative(one, two);
 	}
 
 	public static String makeAbsolute(String original, String rootPath) {
