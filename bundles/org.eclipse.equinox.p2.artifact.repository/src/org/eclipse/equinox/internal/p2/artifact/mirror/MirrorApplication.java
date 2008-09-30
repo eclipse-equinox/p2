@@ -12,11 +12,10 @@ package org.eclipse.equinox.internal.p2.artifact.mirror;
 
 import java.net.URL;
 import java.util.Map;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
+import org.eclipse.equinox.internal.p2.artifact.repository.ArtifactRepositoryManager;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
@@ -33,6 +32,7 @@ public class MirrorApplication implements IApplication {
 	private IArtifactRepository destination;
 	private boolean append = false;
 	private boolean raw = false;
+	private IArtifactRepositoryManager cachedManager;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
@@ -45,11 +45,21 @@ public class MirrorApplication implements IApplication {
 		return IApplication.EXIT_OK;
 	}
 
-	private IArtifactRepositoryManager getManager() throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		if (manager == null)
-			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Unable to acquire artifact repository manager service."));
-		return manager;
+	/*
+	 * Return the artifact repository manager. We need to check the service here
+	 * as well as creating one manually in case we are running a stand-alone application
+	 * in which no one has registered a manager yet.
+	 */
+	private IArtifactRepositoryManager getManager() {
+		if (cachedManager != null)
+			return cachedManager;
+		IArtifactRepositoryManager result = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		// service not available... create one and hang onto it
+		if (result == null) {
+			cachedManager = new ArtifactRepositoryManager();
+			result = cachedManager;
+		}
+		return result;
 	}
 
 	private void setupRepositories() throws ProvisionException {

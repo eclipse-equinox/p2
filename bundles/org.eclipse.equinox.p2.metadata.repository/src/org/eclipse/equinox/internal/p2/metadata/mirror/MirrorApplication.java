@@ -16,6 +16,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
+import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -32,6 +33,7 @@ public class MirrorApplication implements IApplication {
 	private IMetadataRepository destination;
 	private boolean transitive = false;
 	private boolean append = false;
+	private IMetadataRepositoryManager cachedManager;
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
@@ -70,8 +72,21 @@ public class MirrorApplication implements IApplication {
 		source = getManager().loadRepository(sourceLocation, null);
 	}
 
+	/*
+	 * Return the metadata repository manager. We need to check the service here
+	 * as well as creating one manually in case we are running a stand-alone application
+	 * in which no one has registered a manager yet.
+	 */
 	private IMetadataRepositoryManager getManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		if (cachedManager != null)
+			return cachedManager;
+		IMetadataRepositoryManager result = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+		// service not available... create one and hang onto it
+		if (result == null) {
+			cachedManager = new MetadataRepositoryManager();
+			result = cachedManager;
+		}
+		return result;
 	}
 
 	private IMetadataRepository initializeDestination() throws ProvisionException {
