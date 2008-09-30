@@ -12,6 +12,8 @@ package org.eclipse.equinox.internal.p2.artifact.mirror;
 
 import java.net.URL;
 import java.util.Map;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.artifact.repository.Activator;
@@ -29,32 +31,37 @@ public class MirrorApplication implements IApplication {
 	private URL destinationLocation;
 	private IArtifactRepository source;
 	private IArtifactRepository destination;
-	private boolean append;
+	private boolean append = false;
 	private boolean raw = false;
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
+	 */
 	public Object start(IApplicationContext context) throws Exception {
 		Map args = context.getArguments();
-		initializeFromArguments((String[]) args.get("application.args"));
+		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
 		setupRepositories();
 		new Mirroring(source, destination, raw).run();
-		return null;
+		return IApplication.EXIT_OK;
+	}
+
+	private IArtifactRepositoryManager getManager() throws ProvisionException {
+		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		if (manager == null)
+			throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, "Unable to acquire artifact repository manager service."));
+		return manager;
 	}
 
 	private void setupRepositories() throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
-		if (manager == null)
-			// TODO log here
-			return;
-
-		source = manager.loadRepository(sourceLocation, null);
-		if (destinationLocation != null)
-			destination = initializeDestination();
-		else
+		source = getManager().loadRepository(sourceLocation, null);
+		if (destinationLocation == null)
 			destination = source;
+		else
+			destination = initializeDestination();
 	}
 
 	private IArtifactRepository initializeDestination() throws ProvisionException {
-		IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+		IArtifactRepositoryManager manager = getManager();
 		try {
 			IArtifactRepository repository = manager.loadRepository(destinationLocation, null);
 			if (!repository.isModifiable())
@@ -71,7 +78,11 @@ public class MirrorApplication implements IApplication {
 		return manager.createRepository(destinationLocation, repositoryName, IArtifactRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.equinox.app.IApplication#stop()
+	 */
 	public void stop() {
+		// nothing to do
 	}
 
 	public void initializeFromArguments(String[] args) throws Exception {
@@ -79,8 +90,10 @@ public class MirrorApplication implements IApplication {
 			return;
 		for (int i = 0; i < args.length; i++) {
 			// check for args without parameters (i.e., a flag arg)
-			if (args[i].equals("-raw"))
+			if (args[i].equalsIgnoreCase("-raw")) //$NON-NLS-1$
 				raw = true;
+			if (args[i].equalsIgnoreCase("-append")) //$NON-NLS-1$
+				append = true;
 
 			// check for args with parameters. If we are at the last argument or 
 			// if the next one has a '-' as the first character, then we can't have 
@@ -89,9 +102,9 @@ public class MirrorApplication implements IApplication {
 				continue;
 			String arg = args[++i];
 
-			if (args[i - 1].equalsIgnoreCase("-source"))
+			if (args[i - 1].equalsIgnoreCase("-source")) //$NON-NLS-1$
 				sourceLocation = new URL(arg);
-			if (args[i - 1].equalsIgnoreCase("-destination"))
+			if (args[i - 1].equalsIgnoreCase("-destination")) //$NON-NLS-1$
 				destinationLocation = new URL(arg);
 		}
 	}
