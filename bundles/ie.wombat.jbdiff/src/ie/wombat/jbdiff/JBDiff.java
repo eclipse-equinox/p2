@@ -57,7 +57,7 @@ public class JBDiff {
 	// - added interfaces that allows using of JBDiff with streams and byte
 	// arrays.
 
-	private static final String VERSION = "jbdiff-0.1.0.1";
+//	private static final String VERSION = "jbdiff-0.1.0.1";
 
 	// This is ´jbdiff40´.
 	private static final byte[] MAGIC_BYTES = new byte[] { 0x6a, 0x62, 0x64,

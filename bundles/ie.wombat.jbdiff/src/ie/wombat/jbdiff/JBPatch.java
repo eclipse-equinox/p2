@@ -49,7 +49,7 @@ public class JBPatch {
 	// - added an interface that allows using of JBPatch with streams and byte
 	// arrays
 
-	private static final String VERSION = "jbdiff-0.1.0";
+//	private static final String VERSION = "jbdiff-0.1.0";
 
 	/**
 	 * Run JBPatch from the command line. Params: oldfile newfile patchfile.
