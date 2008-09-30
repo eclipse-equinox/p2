@@ -7,7 +7,6 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
@@ -17,6 +16,7 @@ import java.net.URL;
 import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
@@ -29,10 +29,9 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.metadataRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
-
-	IMetadataRepository metadataRepository;
+	private final IMetadataRepository metadataRepository;
+	private boolean initialized = false;
 	private File base;
-	private Object state = SiteListener.UNINITIALIZED;
 
 	/*
 	 * Return the URL for this repo's nested local repository.
@@ -61,27 +60,17 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	public synchronized void ensureInitialized() {
-		if (state == SiteListener.INITIALIZED || state == SiteListener.INITIALIZING)
+		if (initialized)
 			return;
-		// if the repo has not been synchronized for us already, synchronize it.
-		// Note: this will reload "metadataRepository"
-		SiteListener.synchronizeRepositories(this, null, base);
-	}
-
-	void reload() {
-		try {
-			ExtensionLocationMetadataRepository repo = (ExtensionLocationMetadataRepository) new ExtensionLocationMetadataRepositoryFactory().load(getLocation(), null);
-			metadataRepository = repo.metadataRepository;
-			base = repo.base;
-		} catch (ProvisionException e) {
-			//unexpected
-			e.printStackTrace();
-			throw new IllegalStateException(e.getMessage());
-		}
-	}
-
-	void state(Object value) {
-		state = value;
+		File plugins = new File(base, PLUGINS);
+		File features = new File(base, FEATURES);
+		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
+		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), metadataRepository, null);
+		if (getProperties().get(SiteListener.SITE_POLICY) != null)
+			listener = new SiteListener(getProperties(), location.toExternalForm(), new BundlePoolFilteredListener(listener));
+		watcher.addListener(listener);
+		watcher.poll();
+		initialized = true;
 	}
 
 	/* (non-Javadoc)
@@ -167,7 +156,6 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	 * @see org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository#getProperties()
 	 */
 	public Map getProperties() {
-		ensureInitialized();
 		return metadataRepository.getProperties();
 	}
 
@@ -176,7 +164,6 @@ public class ExtensionLocationMetadataRepository extends AbstractMetadataReposit
 	}
 
 	public String setProperty(String key, String value) {
-		ensureInitialized();
 		return metadataRepository.setProperty(key, value);
 	}
 }

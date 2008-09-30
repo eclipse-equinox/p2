@@ -33,11 +33,6 @@ import org.eclipse.osgi.service.resolver.*;
 import org.eclipse.osgi.util.ManifestElement;
 import org.osgi.framework.*;
 
-/**
- * @deprecated this class has been renamed to PublisherHelper and the vast majority
- * of the function has been deprecated and moved elsewhere.  See the deprecation notices there
- * for more information.
- */
 public class MetadataGeneratorHelper {
 	/**
 	 * A capability namespace representing the type of Eclipse resource (bundle, feature, source bundle, etc)
@@ -138,9 +133,6 @@ public class MetadataGeneratorHelper {
 		return result;
 	}
 
-	/**
-	 * @deprecated moved to AbstractPublishingAction
-	 */
 	public static IArtifactDescriptor createPack200ArtifactDescriptor(IArtifactKey key, File pathOnDisk, String installSize) {
 		final String PACKED_FORMAT = "packed"; //$NON-NLS-1$
 		//TODO this size calculation is bogus
@@ -156,16 +148,10 @@ public class MetadataGeneratorHelper {
 		return result;
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IArtifactKey createBundleArtifactKey(String bsn, String version) {
 		return new ArtifactKey(OSGI_BUNDLE_CLASSIFIER, bsn, new Version(version));
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createBundleConfigurationUnit(String iuId, Version iuVersion, boolean isBundleFragment, GeneratorBundleInfo configInfo, String configurationFlavor, String filter) {
 		if (configInfo == null)
 			return null;
@@ -194,16 +180,10 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key) {
 		return createBundleIU(bd, manifest, isFolderPlugin, key, false);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, boolean useNestedAdvice) {
 		Map manifestLocalizations = null;
 		if (manifest != null && bd.getLocation() != null) {
@@ -213,16 +193,10 @@ public class MetadataGeneratorHelper {
 		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, useNestedAdvice);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations) {
 		return createBundleIU(bd, manifest, isFolderPlugin, key, manifestLocalizations, false);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createBundleIU(BundleDescription bd, Map manifest, boolean isFolderPlugin, IArtifactKey key, Map manifestLocalizations, boolean useNestedAdvice) {
 		boolean isBinaryBundle = true;
 		if (manifest != null && manifest.containsKey("Eclipse-SourceBundle")) { //$NON-NLS-1$
@@ -336,9 +310,6 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static void mergeInstructionsAdvice(Map touchpointData, Map bundleAdvice) {
 		if (touchpointData == null || bundleAdvice == null)
 			return;
@@ -356,9 +327,6 @@ public class MetadataGeneratorHelper {
 		}
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static void createHostLocalizationFragment(IInstallableUnit bundleIU, BundleDescription bd, String hostId, String[] hostBundleManifestValues, Set localizationIUs) {
 		Map hostLocalizations = getHostLocalizations(new File(bd.getLocation()), hostBundleManifestValues);
 		if (hostLocalizations != null) {
@@ -373,9 +341,6 @@ public class MetadataGeneratorHelper {
 	 * @param locale
 	 * @param localizedStrings
 	 * @return installableUnitFragment
-	 */
-	/**
-	 * @deprecated moved to BundlesAction
 	 */
 	private static IInstallableUnitFragment createLocalizationFragmentOfHost(BundleDescription bd, String hostId, String[] hostManifestValues, Map hostLocalizations) {
 		InstallableUnitFragmentDescription fragment = new MetadataFactory.InstallableUnitFragmentDescription();
@@ -421,9 +386,6 @@ public class MetadataGeneratorHelper {
 	 * @return the id for the iu fragment containing localized properties
 	 * 		   for the fragment with the given id.
 	 */
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static String makeHostLocalizationFragmentId(String id) {
 		return id + ".translated_host_properties"; //$NON-NLS-1$
 	}
@@ -438,7 +400,6 @@ public class MetadataGeneratorHelper {
 	 * @param featureIUs The IUs of the features that belong to the category
 	 * @param parentCategory The parent category, or <code>null</code>
 	 * @return an IU representing the category
-	 * @deprecated moved to SiteXMLAction
 	 */
 	public static IInstallableUnit createCategoryIU(SiteCategory category, Set featureIUs, IInstallableUnit parentCategory) {
 		InstallableUnitDescription cat = new MetadataFactory.InstallableUnitDescription();
@@ -486,9 +447,6 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(cat);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static String createConfigScript(GeneratorBundleInfo configInfo, boolean isBundleFragment) {
 		if (configInfo == null)
 			return ""; //$NON-NLS-1$
@@ -508,16 +466,10 @@ public class MetadataGeneratorHelper {
 		return configScript;
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static String createDefaultBundleConfigScript(GeneratorBundleInfo configInfo) {
 		return createConfigScript(configInfo, false);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static IInstallableUnit createDefaultBundleConfigurationUnit(GeneratorBundleInfo configInfo, GeneratorBundleInfo unconfigInfo, String configurationFlavor) {
 		InstallableUnitFragmentDescription cu = new InstallableUnitFragmentDescription();
 		String configUnitId = createDefaultConfigUnitId(OSGI_BUNDLE_CLASSIFIER, configurationFlavor);
@@ -543,9 +495,6 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(cu);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static String createDefaultBundleUnconfigScript(GeneratorBundleInfo unconfigInfo) {
 		return createUnconfigScript(unconfigInfo, false);
 	}
@@ -621,23 +570,14 @@ public class MetadataGeneratorHelper {
 		return (IInstallableUnit[]) (iusCreated.toArray(new IInstallableUnit[iusCreated.size()]));
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static IArtifactKey createFeatureArtifactKey(String fsn, String version) {
 		return new ArtifactKey(ECLIPSE_FEATURE_CLASSIFIER, fsn, new Version(version));
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded) {
 		return createFeatureJarIU(feature, isExploded, null);
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static IInstallableUnit createFeatureJarIU(Feature feature, boolean isExploded, Properties extraProperties) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		String id = getTransformedId(feature.getId(), /*isPlugin*/false, /*isGroup*/false);
@@ -726,16 +666,10 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createInstallableUnit(iu);
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU) {
 		return createGroupIU(feature, featureIU, null);
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static IInstallableUnit createGroupIU(Feature feature, IInstallableUnit featureIU, Properties extraProperties) {
 		return createGroupIU(feature, featureIU, extraProperties, true);
 	}
@@ -917,9 +851,6 @@ public class MetadataGeneratorHelper {
 	 * to the given set, and the resulting artifact descriptor, if any, is returned.
 	 * If the jreLocation is <code>null</code>, default information is generated.
 	 */
-	/**
-	 * @deprecated moved to JREAction
-	 */
 	public static IArtifactDescriptor createJREData(File jreLocation, Set resultantIUs) {
 		InstallableUnitDescription iu = new MetadataFactory.InstallableUnitDescription();
 		iu.setSingleton(false);
@@ -976,7 +907,6 @@ public class MetadataGeneratorHelper {
 	/**
 	 * Creates IUs and artifacts for the Launcher executable. The resulting IUs are added
 	 * to the given set, and the resulting artifact descriptor is returned.
-	 * @deprecated use the EquinoxExecutablesAction instead
 	 */
 	public static IArtifactDescriptor createLauncherIU(File launcher, String configurationFlavor, Set resultantIUs) {
 		if (launcher == null || !launcher.exists())
@@ -1026,9 +956,6 @@ public class MetadataGeneratorHelper {
 		return createArtifactDescriptor(key, launcher, false, true);
 	}
 
-	/**
-	 * @deprecated moved to EquinoxExecutablesAction
-	 */
 	public static IInstallableUnit generateLauncherSetter(String launcherName, String iuId, Version version, String os, String ws, String arch, Set result) {
 		InstallableUnitDescription iud = new MetadataFactory.InstallableUnitDescription();
 		iud.setId(iuId + '.' + launcherName);
@@ -1056,9 +983,6 @@ public class MetadataGeneratorHelper {
 		return MetadataFactory.createProvidedCapability(IU_NAMESPACE, installableUnitId, installableUnitVersion);
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static String createUnconfigScript(GeneratorBundleInfo unconfigInfo, boolean isBundleFragment) {
 		if (unconfigInfo == null)
 			return ""; //$NON-NLS-1$
@@ -1077,9 +1001,6 @@ public class MetadataGeneratorHelper {
 
 	}
 
-	/**
-	 * @deprecated moved to JREAction
-	 */
 	private static ProvidedCapability[] generateJRECapability(String installableUnitId, Version installableUnitVersion, InputStream profileStream) {
 		if (profileStream == null) {
 			//use the 1.6 profile stored in the generator bundle
@@ -1117,9 +1038,6 @@ public class MetadataGeneratorHelper {
 		return new ProvidedCapability[0];
 	}
 
-	/**
-	 * @deprecated moved to JREAction
-	 */
 	private static void generateJREIUData(InstallableUnitDescription iu, String installableUnitId, Version installableUnitVersion, File jreLocation) {
 		//Look for a JRE profile file to set version and capabilities
 		File[] profiles = jreLocation.listFiles(new FileFilter() {
@@ -1150,9 +1068,6 @@ public class MetadataGeneratorHelper {
 		}
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static String getFilter(FeatureEntry entry) {
 		StringBuffer result = new StringBuffer();
 		result.append("(&"); //$NON-NLS-1$
@@ -1172,16 +1087,10 @@ public class MetadataGeneratorHelper {
 		return result.toString();
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static String getTransformedId(String original, boolean isPlugin, boolean isGroup) {
 		return (isPlugin ? original : original + (isGroup ? ".feature.group" : ".feature.jar")); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
-	/**
-	 * @deprecated moved to FeaturesAction
-	 */
 	public static VersionRange getVersionRange(FeatureEntry entry) {
 		String versionSpec = entry.getVersion();
 		if (versionSpec == null)
@@ -1207,9 +1116,6 @@ public class MetadataGeneratorHelper {
 		return null;
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static Map getBundleAdvice(String bundleLocation) {
 		if (bundleLocation == null)
 			return Collections.EMPTY_MAP;
@@ -1273,18 +1179,12 @@ public class MetadataGeneratorHelper {
 		return advice != null ? advice : Collections.EMPTY_MAP;
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static boolean isOptional(ImportPackageSpecification importedPackage) {
 		if (importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_DYNAMIC) || importedPackage.getDirective(Constants.RESOLUTION_DIRECTIVE).equals(ImportPackageSpecification.RESOLUTION_OPTIONAL))
 			return true;
 		return false;
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static String toManifestString(Map p) {
 		if (p == null)
 			return null;
@@ -1302,9 +1202,6 @@ public class MetadataGeneratorHelper {
 	// Return a map from locale to property set for the manifest localizations
 	// from the given bundle directory and given bundle localization path/name
 	// manifest property value.
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	private static Map getManifestLocalizations(Map manifest, File bundleLocation) {
 		Map localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo
@@ -1323,9 +1220,6 @@ public class MetadataGeneratorHelper {
 		return localizations;
 	}
 
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static String[] getManifestCachedValues(Map manifest) {
 		String[] cachedValues = new String[BUNDLE_LOCALIZED_PROPERTIES.length + 1];
 		for (int j = 0; j < MetadataGeneratorHelper.BUNDLE_LOCALIZED_PROPERTIES.length; j++) {
@@ -1342,9 +1236,6 @@ public class MetadataGeneratorHelper {
 	// Return a map from locale to property set for the manifest localizations
 	// from the given bundle directory and given bundle localization path/name
 	// manifest property value.
-	/**
-	 * @deprecated moved to BundlesAction
-	 */
 	public static Map getHostLocalizations(File bundleLocation, String[] hostBundleManifestValues) {
 		Map localizations;
 		Locale defaultLocale = null; // = Locale.ENGLISH; // TODO: get this from GeneratorInfo

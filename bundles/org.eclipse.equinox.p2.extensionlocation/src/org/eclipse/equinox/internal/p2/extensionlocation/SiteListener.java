@@ -7,7 +7,6 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
@@ -19,27 +18,24 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
-import org.eclipse.equinox.internal.p2.publisher.eclipse.FeatureParser;
+import org.eclipse.equinox.internal.p2.metadata.generator.features.FeatureParser;
 import org.eclipse.equinox.internal.p2.update.Site;
-import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
-import org.eclipse.equinox.p2.publisher.eclipse.*;
-import org.eclipse.osgi.service.resolver.BundleDescription;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.Messages;
+import org.eclipse.equinox.internal.provisional.p2.metadata.generator.*;
+import org.eclipse.osgi.service.resolver.*;
+import org.osgi.framework.ServiceReference;
 
 /**
  * @since 1.0
  */
-public class SiteListener extends DirectoryChangeListener {
+public class SiteListener extends RepositoryListener {
 
 	public static final String SITE_POLICY = "org.eclipse.update.site.policy"; //$NON-NLS-1$
 	public static final String SITE_LIST = "org.eclipse.update.site.list"; //$NON-NLS-1$
 	private static final String FEATURES = "features"; //$NON-NLS-1$
 	private static final String PLUGINS = "plugins"; //$NON-NLS-1$
 	private static final String FEATURE_MANIFEST = "feature.xml"; //$NON-NLS-1$
-	public static final Object UNINITIALIZED = "uninitialized"; //$NON-NLS-1$
-	public static final Object INITIALIZING = "initializing"; //$NON-NLS-1$
-	public static final Object INITIALIZED = "initialized"; //$NON-NLS-1$
-
 	private String policy;
 	private String[] list;
 	private String url;
@@ -59,55 +55,11 @@ public class SiteListener extends DirectoryChangeListener {
 		return false;
 	}
 
-	/**
-	 * Given one repo and a base location, ensure cause the other repo to be loaded and then 
-	 * poll the base location once updating the repositories accordingly.  This method is used to 
-	 * ensure that both the metadata and artifact repos corresponding to one location are 
-	 * synchronized in one go.  It is expected that both repos have been previously created
-	 * so simply loading them here will work and that all their properties etc have been configured
-	 * previously.
-	 * @param metadataRepository
-	 * @param artifactRepository
-	 * @param base
-	 */
-	public static synchronized void synchronizeRepositories(ExtensionLocationMetadataRepository metadataRepository, ExtensionLocationArtifactRepository artifactRepository, File base) {
-		try {
-			if (metadataRepository == null) {
-				artifactRepository.reload();
-				ExtensionLocationMetadataRepositoryFactory factory = new ExtensionLocationMetadataRepositoryFactory();
-				metadataRepository = (ExtensionLocationMetadataRepository) factory.load(artifactRepository.getLocation(), null);
-			} else if (artifactRepository == null) {
-				metadataRepository.reload();
-				ExtensionLocationArtifactRepositoryFactory factory = new ExtensionLocationArtifactRepositoryFactory();
-				artifactRepository = (ExtensionLocationArtifactRepository) factory.load(metadataRepository.getLocation(), null);
-			}
-		} catch (ProvisionException e) {
-			// TODO need proper error handling here.  What should we do if there is a failure
-			// when loading "the other" repo?
-			e.printStackTrace();
-			return;
-		}
-
-		artifactRepository.state(INITIALIZING);
-		metadataRepository.state(INITIALIZING);
-		File plugins = new File(base, PLUGINS);
-		File features = new File(base, FEATURES);
-		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
-		//  here we have to sync with the inner repos as the extension location repos are 
-		// read-only wrappers.
-		DirectoryChangeListener listener = new RepositoryListener(metadataRepository.metadataRepository, artifactRepository.artifactRepository);
-		if (metadataRepository.getProperties().get(SiteListener.SITE_POLICY) != null)
-			listener = new SiteListener(metadataRepository.getProperties(), metadataRepository.getLocation().toExternalForm(), new BundlePoolFilteredListener(listener));
-		watcher.addListener(listener);
-		watcher.poll();
-		artifactRepository.state(INITIALIZED);
-		metadataRepository.state(INITIALIZED);
-	}
-
 	/*
 	 * Create a new site listener on the given site.
 	 */
 	public SiteListener(Map properties, String url, DirectoryChangeListener delegate) {
+		super(Activator.getContext(), url, null, true);
 		this.url = url;
 		this.delegate = delegate;
 		this.policy = (String) properties.get(SITE_POLICY);
@@ -125,7 +77,7 @@ public class SiteListener extends DirectoryChangeListener {
 	public boolean isInterested(File file) {
 		// make sure that our delegate and super-class are both interested in 
 		// the file before we consider it
-		if (!delegate.isInterested(file))
+		if (!delegate.isInterested(file) || !super.isInterested(file))
 			return false;
 		if (Site.POLICY_MANAGED_ONLY.equals(policy)) {
 			// we only want plug-ins referenced by features
@@ -135,8 +87,6 @@ public class SiteListener extends DirectoryChangeListener {
 			if (contains(list, file))
 				return false;
 		} else if (Site.POLICY_USER_INCLUDE.equals(policy)) {
-			if (isFeature(file))
-				return true;
 			// we are only interested in plug-ins in the list
 			if (!contains(list, file))
 				return false;
@@ -148,11 +98,6 @@ public class SiteListener extends DirectoryChangeListener {
 		// and we think we are interested in the file. we should first check to
 		// see if it is in the list of things to be removed
 		return !isToBeRemoved(file);
-	}
-
-	private boolean isFeature(File file) {
-		String parent = file.getParent();
-		return parent != null && parent.endsWith(FEATURES);
 	}
 
 	/*
@@ -264,7 +209,7 @@ public class SiteListener extends DirectoryChangeListener {
 			File featureFile = (File) iter.next();
 			// add the feature path
 			result.add(featureFile.toString());
-			Feature feature = (Feature) featureCache.get(featureFile);
+			org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature feature = (org.eclipse.equinox.internal.provisional.p2.metadata.generator.Feature) featureCache.get(featureFile);
 			FeatureEntry[] entries = feature.getEntries();
 			for (int inner = 0; inner < entries.length; inner++) {
 				FeatureEntry entry = entries[inner];
@@ -304,20 +249,32 @@ public class SiteListener extends DirectoryChangeListener {
 	 * plug-in id/version to File locations.
 	 */
 	private Map getPlugins(File siteLocation) {
-		File[] plugins = new File(siteLocation, PLUGINS).listFiles();
-		Map result = new HashMap();
-		for (int i = 0; plugins != null && i < plugins.length; i++) {
-			File bundleLocation = plugins[i];
-			if (bundleLocation.isDirectory() || bundleLocation.getName().endsWith(".jar")) { //$NON-NLS-1$
-				BundleDescription description = BundlesAction.createBundleDescription(bundleLocation);
-				if (description != null) {
-					String id = description.getSymbolicName();
-					String version = description.getVersion().toString();
-					result.put(id + '/' + version, bundleLocation);
+		ServiceReference reference = Activator.getContext().getServiceReference(PlatformAdmin.class.getName());
+		if (reference == null)
+			throw new IllegalStateException(Messages.platformadmin_not_registered);
+		try {
+			PlatformAdmin platformAdmin = (PlatformAdmin) Activator.getContext().getService(reference);
+			if (platformAdmin == null)
+				throw new IllegalStateException(Messages.platformadmin_not_registered);
+			StateObjectFactory stateObjectFactory = platformAdmin.getFactory();
+			BundleDescriptionFactory factory = new BundleDescriptionFactory(stateObjectFactory, null);
+			File[] plugins = new File(siteLocation, PLUGINS).listFiles();
+			Map result = new HashMap();
+			for (int i = 0; plugins != null && i < plugins.length; i++) {
+				File bundleLocation = plugins[i];
+				if (bundleLocation.isDirectory() || bundleLocation.getName().endsWith(".jar")) {
+					BundleDescription description = factory.getBundleDescription(bundleLocation);
+					if (description != null) {
+						String id = description.getSymbolicName();
+						String version = description.getVersion().toString();
+						result.put(id + '/' + version, bundleLocation);
+					}
 				}
 			}
+			return result;
+		} finally {
+			Activator.getContext().ungetService(reference);
 		}
-		return result;
 	}
 
 	/* (non-Javadoc)
@@ -361,4 +318,5 @@ public class SiteListener extends DirectoryChangeListener {
 	public void stopPoll() {
 		delegate.stopPoll();
 	}
+
 }

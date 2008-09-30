@@ -422,7 +422,7 @@ public class FeaturesAction extends AbstractPublisherAction {
 		// TODO its not clear when this would ever be false reasonably.  Features are always 
 		// supposed to be installed unzipped.  It is also not clear what it means to set this prop.
 		// Anyway, in the future it seems reasonable that features be installed as JARs...
-		if (feature.getLocation() != null && !feature.getLocation().endsWith(".jar")) {
+		if (feature.getLocation() == null || !feature.getLocation().endsWith(".jar")) {
 			Map touchpointData = new HashMap();
 			touchpointData.put("zipped", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 			iu.addTouchpointData(MetadataFactory.createTouchpointData(touchpointData));

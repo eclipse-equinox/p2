@@ -19,7 +19,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.extensionlocation.*;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
 import org.eclipse.equinox.internal.p2.update.Configuration;
-import org.eclipse.equinox.internal.p2.update.PathUtil;
+import org.eclipse.equinox.internal.p2.update.Utils;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
@@ -187,7 +187,7 @@ public class Activator implements BundleActivator {
 				OutputStream os = null;
 				try {
 					os = new BufferedOutputStream(new FileOutputStream(configIni));
-					String externalForm = PathUtil.makeRelative(parentConfiguration.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
+					String externalForm = Utils.makeRelative(parentConfiguration.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
 					props.put("osgi.sharedConfiguration.area", externalForm); //$NON-NLS-1$
 					props.store(os, "Linked configuration"); //$NON-NLS-1$
 				} finally {
@@ -429,7 +429,7 @@ public class Activator implements BundleActivator {
 			config.setDate(Long.toString(new Date().getTime()));
 			config.setVersion("3.0"); //$NON-NLS-1$
 			try {
-				String sharedUR = PathUtil.makeRelative(shareConfigFile.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
+				String sharedUR = Utils.makeRelative(shareConfigFile.toURL().toExternalForm(), getOSGiInstallArea()).replace('\\', '/');
 				config.setSharedUR(sharedUR);
 				// ensure that org.eclipse.update directory that holds platform.xml is pre-created.
 				configFile.getParentFile().mkdirs();
@@ -462,7 +462,7 @@ public class Activator implements BundleActivator {
 		if (directories.isEmpty())
 			return;
 
-		DropinsRepositoryListener listener = new DropinsRepositoryListener(DROPINS);
+		DropinsRepositoryListener listener = new DropinsRepositoryListener(Activator.getContext(), DROPINS);
 		DirectoryWatcher watcher = new DirectoryWatcher((File[]) directories.toArray(new File[directories.size()]));
 		watcher.addListener(listener);
 		watcher.poll();
@@ -634,15 +634,4 @@ public class Activator implements BundleActivator {
 		}
 		return null;
 	}
-
-	// TODO Fix this up to get the services in a better way
-	public static IArtifactRepositoryManager getArtifactRepositoryManager() {
-		return (IArtifactRepositoryManager) ServiceHelper.getService(bundleContext, IArtifactRepositoryManager.class.getName());
-	}
-
-	// TODO Fix this up to get the services in a better way
-	public static IMetadataRepositoryManager getMetadataRepositoryManager() {
-		return (IMetadataRepositoryManager) ServiceHelper.getService(bundleContext, IMetadataRepositoryManager.class.getName());
-	}
-
 }

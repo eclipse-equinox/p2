@@ -7,7 +7,6 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Code 9 - ongoing development
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.extensionlocation;
 
@@ -19,6 +18,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.directorywatcher.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IArtifactKey;
 import org.eclipse.equinox.internal.provisional.spi.p2.core.repository.AbstractRepository;
 import org.eclipse.osgi.util.NLS;
@@ -28,10 +28,9 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 
 	public static final String TYPE = "org.eclipse.equinox.p2.extensionlocation.artifactRepository"; //$NON-NLS-1$
 	public static final Integer VERSION = new Integer(1);
-
-	IFileArtifactRepository artifactRepository;
+	private final IFileArtifactRepository artifactRepository;
+	private boolean initialized = false;
 	private File base;
-	private Object state = SiteListener.UNINITIALIZED;
 
 	/*
 	 * Return the location of a local repository based on
@@ -61,27 +60,15 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public synchronized void ensureInitialized() {
-		if (state == SiteListener.INITIALIZED || state == SiteListener.INITIALIZING)
+		if (initialized)
 			return;
-		// if the repo has not been synchronized for us already, synchronize it.
-		// Note: this will reload "artifactRepository"
-		SiteListener.synchronizeRepositories(null, this, base);
-	}
-
-	void reload() {
-		try {
-			ExtensionLocationArtifactRepository repo = (ExtensionLocationArtifactRepository) new ExtensionLocationArtifactRepositoryFactory().load(getLocation(), null);
-			artifactRepository = repo.artifactRepository;
-			base = repo.base;
-		} catch (ProvisionException e) {
-			//unexpected
-			e.printStackTrace();
-			throw new IllegalStateException(e.getMessage());
-		}
-	}
-
-	void state(Object value) {
-		state = value;
+		File plugins = new File(base, PLUGINS);
+		File features = new File(base, FEATURES);
+		DirectoryWatcher watcher = new DirectoryWatcher(new File[] {plugins, features});
+		DirectoryChangeListener listener = new RepositoryListener(Activator.getContext(), null, artifactRepository);
+		watcher.addListener(listener);
+		watcher.poll();
+		initialized = true;
 	}
 
 	public static void validate(URL location, IProgressMonitor monitor) throws ProvisionException {
@@ -200,12 +187,10 @@ public class ExtensionLocationArtifactRepository extends AbstractRepository impl
 	}
 
 	public Map getProperties() {
-		ensureInitialized();
 		return artifactRepository.getProperties();
 	}
 
 	public String setProperty(String key, String value) {
-		ensureInitialized();
 		return artifactRepository.setProperty(key, value);
 	}
 }

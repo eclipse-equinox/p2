@@ -89,10 +89,7 @@ public class SimpleArtifactRepositoryIO {
 					case IStatus.INFO :
 						LogHelper.log(result);
 				}
-				SimpleArtifactRepository repository = repositoryParser.getRepository();
-				if (repository == null)
-					throw new ProvisionException(new Status(IStatus.ERROR, Activator.ID, ProvisionException.REPOSITORY_FAILED_READ, Messages.io_parseError, null));
-				return repository;
+				return repositoryParser.getRepository();
 			} finally {
 				if (bufferedInput != null)
 					bufferedInput.close();

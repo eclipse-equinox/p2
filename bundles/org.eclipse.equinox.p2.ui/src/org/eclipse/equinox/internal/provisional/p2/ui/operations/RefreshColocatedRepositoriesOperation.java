@@ -18,7 +18,9 @@ import org.eclipse.equinox.internal.provisional.p2.ui.ProvUI;
 import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
- * @since 3.5
+ * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=236517
+ * @since 3.4.1
+ *
  */
 public class RefreshColocatedRepositoriesOperation extends RepositoryOperation {
 

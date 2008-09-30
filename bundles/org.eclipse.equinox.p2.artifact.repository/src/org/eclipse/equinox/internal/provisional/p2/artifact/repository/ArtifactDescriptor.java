@@ -137,17 +137,6 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 				return false;
 		} else if (!properties.equals(other.properties))
 			return false;
-		if (properties == null) {
-			if (other.properties != null)
-				return false;
-		} else if (!properties.equals(other.properties))
-			return false;
-		if (repositoryProperties == null) {
-			if (other.repositoryProperties != null)
-				return false;
-		} else if (!repositoryProperties.equals(other.repositoryProperties))
-			return false;
-
 		return true;
 	}
 
@@ -168,7 +157,6 @@ public class ArtifactDescriptor implements IArtifactDescriptor {
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		result = prime * result + hashCode(processingSteps);
 		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-		result = prime * result + ((repositoryProperties == null) ? 0 : repositoryProperties.hashCode());
 		return result;
 	}
 

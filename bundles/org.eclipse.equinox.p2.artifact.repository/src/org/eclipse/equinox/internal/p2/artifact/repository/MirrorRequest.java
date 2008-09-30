@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *		compeople AG (Stefan Liebig) - various ongoing maintenance
- *   	Genuitec LLC - various bug fixes
  *******************************************************************************/
 package org.eclipse.equinox.internal.p2.artifact.repository;
 
