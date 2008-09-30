@@ -8,6 +8,8 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -844,6 +846,12 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		for (int i = 0; i < found.length; i++)
 			if (!found[i])
 				assertTrue(message + ".3." + i, false);
+	}
+
+	protected IProvisioningEventBus getEventBus() {
+		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(TestActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
+		assertNotNull(bus);
+		return bus;
 	}
 
 	protected static void assertEquals(IInstallableUnit iu1, IInstallableUnit iu2) throws AssertionFailedError {

@@ -21,8 +21,7 @@ import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
 import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.*;
 
 /**
  * Tests API of {@link IArtifactRepositoryManager}.
@@ -90,7 +89,7 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 	 * Tests that trailing slashes do not affect repository identity.
 	 */
 	public void testTrailingSlashes() {
-		File site = getTestData("Update site", "/testData/artifactRepo/simple/");
+		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
 		URL locationSlash, locationNoSlash;
 		try {
 			locationSlash = site.toURL();
@@ -121,5 +120,45 @@ public class ArtifactRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(managerContains(location));
 		manager.removeRepository(location);
 		assertTrue(!managerContains(location));
+	}
+
+	public void testEnablement() throws MalformedURLException {
+		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
+		URL location = site.toURL();
+		manager.addRepository(location);
+		assertEquals("1.0", true, manager.isEnabled(location));
+		TestRepositoryListener listener = new TestRepositoryListener(location);
+		getEventBus().addListener(listener);
+
+		manager.setEnabled(location, false);
+		listener.waitForEvent();
+		assertEquals("2.0", false, listener.lastEnablement);
+		assertEquals("2.1", false, manager.isEnabled(location));
+		listener.reset();
+
+		manager.setEnabled(location, true);
+		listener.waitForEvent();
+		assertEquals("3.0", true, listener.lastEnablement);
+		assertEquals("3.1", true, manager.isEnabled(location));
+		listener.reset();
+	}
+
+	/**
+	 * Tests that adding a repository that is already known but disabled
+	 * causes the repository to be enabled. See bug 241307 for discussion.
+	 */
+	public void testEnablementOnAdd() throws MalformedURLException {
+		File site = getTestData("Repository", "/testData/artifactRepo/simple/");
+		URL location = site.toURL();
+		manager.addRepository(location);
+		manager.setEnabled(location, false);
+		TestRepositoryListener listener = new TestRepositoryListener(location);
+		getEventBus().addListener(listener);
+
+		//adding the location again should cause it to be enabled
+		manager.addRepository(location);
+		listener.waitForEvent();
+		assertEquals("1.0", true, listener.lastEnablement);
+		assertEquals("1.1", true, manager.isEnabled(location));
 	}
 }

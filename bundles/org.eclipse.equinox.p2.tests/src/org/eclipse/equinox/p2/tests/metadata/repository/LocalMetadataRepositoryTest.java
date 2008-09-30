@@ -231,10 +231,4 @@ public class LocalMetadataRepositoryTest extends AbstractProvisioningTest {
 			getEventBus().removeListener(listener);
 		}
 	}
-
-	private IProvisioningEventBus getEventBus() {
-		IProvisioningEventBus bus = (IProvisioningEventBus) ServiceHelper.getService(TestActivator.getContext(), IProvisioningEventBus.SERVICE_NAME);
-		assertNotNull(bus);
-		return bus;
-	}
 }

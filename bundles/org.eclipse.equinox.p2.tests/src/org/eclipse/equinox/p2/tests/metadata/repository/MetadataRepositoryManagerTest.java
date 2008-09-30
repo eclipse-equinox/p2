@@ -25,8 +25,7 @@ import org.eclipse.equinox.internal.provisional.p2.core.location.AgentLocation;
 import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
-import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
-import org.eclipse.equinox.p2.tests.TestActivator;
+import org.eclipse.equinox.p2.tests.*;
 
 /**
  * Tests for API of {@link IMetadataRepositoryManager}.
@@ -62,6 +61,46 @@ public class MetadataRepositoryManagerTest extends AbstractProvisioningTest {
 		assertTrue(managerContains(location));
 		manager.removeRepository(location);
 		assertTrue(!managerContains(location));
+	}
+
+	public void testEnablement() throws MalformedURLException {
+		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
+		URL location = site.toURL();
+		manager.addRepository(location);
+		assertEquals("1.0", true, manager.isEnabled(location));
+		TestRepositoryListener listener = new TestRepositoryListener(location);
+		getEventBus().addListener(listener);
+
+		manager.setEnabled(location, false);
+		listener.waitForEvent();
+		assertEquals("2.0", false, listener.lastEnablement);
+		assertEquals("2.1", false, manager.isEnabled(location));
+		listener.reset();
+
+		manager.setEnabled(location, true);
+		listener.waitForEvent();
+		assertEquals("3.0", true, listener.lastEnablement);
+		assertEquals("3.1", true, manager.isEnabled(location));
+		listener.reset();
+	}
+
+	/**
+	 * Tests that adding a repository that is already known but disabled
+	 * causes the repository to be enabled. See bug 241307 for discussion.
+	 */
+	public void testEnablementOnAdd() throws MalformedURLException {
+		File site = getTestData("Repositoy", "/testData/metadataRepo/good/");
+		URL location = site.toURL();
+		manager.addRepository(location);
+		manager.setEnabled(location, false);
+		TestRepositoryListener listener = new TestRepositoryListener(location);
+		getEventBus().addListener(listener);
+
+		//adding the location again should cause it to be enabled
+		manager.addRepository(location);
+		listener.waitForEvent();
+		assertEquals("1.0", true, listener.lastEnablement);
+		assertEquals("1.1", true, manager.isEnabled(location));
 	}
 
 	public void testGetKnownRepositories() throws MalformedURLException, ProvisionException {
