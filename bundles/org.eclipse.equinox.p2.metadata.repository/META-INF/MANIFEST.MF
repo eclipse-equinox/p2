@@ -5,7 +5,8 @@ Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-Version: 1.0.100.qualifier
-Export-Package: org.eclipse.equinox.internal.p2.metadata.repository;
+Export-Package: org.eclipse.equinox.internal.p2.metadata.mirror,
+ org.eclipse.equinox.internal.p2.metadata.repository;
   x-friends:="org.eclipse.equinox.p2.engine,
    org.eclipse.equinox.p2.metadata.generator,
    org.eclipse.equinox.p2.reconciler.dropins,
