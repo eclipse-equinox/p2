@@ -18,10 +18,49 @@ import org.eclipse.osgi.util.NLS;
 
 public class FileUtils {
 
+	private static File[] untarFile(File source, File outputDir) throws IOException, TarException {
+		TarFile tarFile = new TarFile(source);
+		List untarredFiles = new ArrayList();
+		for (Enumeration e = tarFile.entries(); e.hasMoreElements();) {
+			TarEntry entry = (TarEntry) e.nextElement();
+			InputStream input = tarFile.getInputStream(entry);
+			try {
+				File outFile = new File(outputDir, entry.getName());
+				untarredFiles.add(outFile);
+				if (entry.getFileType() == TarEntry.DIRECTORY) {
+					outFile.mkdirs();
+				} else {
+					if (outFile.exists())
+						outFile.delete();
+					else
+						outFile.getParentFile().mkdirs();
+					try {
+						copyStream(input, false, new FileOutputStream(outFile), true);
+					} catch (FileNotFoundException e1) {
+						// TEMP: ignore this for now in case we're trying to replace
+						// a running eclipse.exe
+					}
+					outFile.setLastModified(entry.getTime());
+				}
+			} finally {
+				input.close();
+			}
+		}
+		return (File[]) untarredFiles.toArray(new File[untarredFiles.size()]);
+	}
+
 	/**
 	 * Unzip from a File to an output directory.
 	 */
 	public static File[] unzipFile(File zipFile, File outputDir) throws IOException {
+		// check to see if we have a tar'd and gz'd file
+		if (zipFile.getName().toLowerCase().endsWith(".tar.gz")) {
+			try {
+				return untarFile(zipFile, outputDir);
+			} catch (TarException e) {
+				throw new IOException(e.getMessage());
+			}
+		}
 		InputStream in = new FileInputStream(zipFile);
 		try {
 			return unzipStream(in, zipFile.length(), outputDir, null, null);
