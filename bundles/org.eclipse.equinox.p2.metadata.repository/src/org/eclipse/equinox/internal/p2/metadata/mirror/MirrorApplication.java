@@ -14,7 +14,8 @@ import java.net.URL;
 import java.util.*;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
+import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.p2.metadata.repository.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepository;
 import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
@@ -25,7 +26,6 @@ import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadata
 public class MirrorApplication implements IApplication {
 
 	private String[] rootSpecs;
-	private MetadataRepositoryManager repoManager = new MetadataRepositoryManager();
 	private URL sourceLocation;
 	private URL destinationLocation;
 	private IMetadataRepository source;
@@ -67,12 +67,16 @@ public class MirrorApplication implements IApplication {
 		if (destinationLocation == null || sourceLocation == null)
 			throw new IllegalStateException("Must specify a source and destination"); //$NON-NLS-1$
 		destination = initializeDestination();
-		source = repoManager.loadRepository(sourceLocation, null);
+		source = getManager().loadRepository(sourceLocation, null);
+	}
+
+	private IMetadataRepositoryManager getManager() {
+		return (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 	}
 
 	private IMetadataRepository initializeDestination() throws ProvisionException {
 		try {
-			IMetadataRepository repository = repoManager.loadRepository(destinationLocation, null);
+			IMetadataRepository repository = getManager().loadRepository(destinationLocation, null);
 			if (!repository.isModifiable())
 				throw new IllegalArgumentException("Metadata repository not modifiable: " + destinationLocation); //$NON-NLS-1$
 			if (!append)
@@ -82,7 +86,7 @@ public class MirrorApplication implements IApplication {
 			//fall through and create repo
 		}
 		String repositoryName = destinationLocation + " - metadata"; //$NON-NLS-1$
-		return repoManager.createRepository(destinationLocation, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
+		return getManager().createRepository(destinationLocation, repositoryName, IMetadataRepositoryManager.TYPE_SIMPLE_REPOSITORY, null);
 	}
 
 	/* (non-Javadoc)
