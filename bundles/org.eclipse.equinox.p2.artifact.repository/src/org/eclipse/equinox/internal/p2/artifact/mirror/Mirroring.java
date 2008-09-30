@@ -49,7 +49,7 @@ public class Mirroring {
 		try {
 			OutputStream repositoryStream = null;
 			try {
-				System.out.println("Mirroring: " + descriptor.getArtifactKey()); //$NON-NLS-1$
+				System.out.println("Mirroring: " + descriptor.getArtifactKey() + " (Descriptor: " + descriptor + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				repositoryStream = destination.getOutputStream(newDescriptor);
 				if (repositoryStream == null)
 					return;
