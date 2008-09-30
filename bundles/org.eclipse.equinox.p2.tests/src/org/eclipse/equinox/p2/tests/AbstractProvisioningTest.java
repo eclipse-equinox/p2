@@ -8,8 +8,6 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.tests;
 
-import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
-
 import java.io.*;
 import java.net.URL;
 import java.util.*;
@@ -19,9 +17,10 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.URLUtil;
 import org.eclipse.equinox.internal.p2.metadata.repository.MetadataRepositoryManager;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepository;
-import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.*;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
+import org.eclipse.equinox.internal.provisional.p2.core.eventbus.IProvisioningEventBus;
+import org.eclipse.equinox.internal.provisional.p2.core.repository.IRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.*;
@@ -554,7 +553,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		super(name);
 	}
 
-	protected void assertEquals(String message, byte[] expected, byte[] actual) {
+	protected static void assertEquals(String message, byte[] expected, byte[] actual) {
 		if (expected == null && actual == null)
 			return;
 		if (expected == null)
@@ -567,7 +566,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			assertEquals(message + " arrays differ at position:<" + i + ">", expected[i], actual[i]);
 	}
 
-	protected void assertEquals(String message, Object[] expected, Object[] actual) {
+	protected static void assertEquals(String message, Object[] expected, Object[] actual) {
 		if (expected == null && actual == null)
 			return;
 		if (expected == null)
@@ -711,7 +710,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			}
 			metadataRepos.clear();
 		}
-		URL[] urls = repoMan.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URL[] urls = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < urls.length; i++) {
 			try {
 				if (urls[i].toExternalForm().indexOf("cache") != -1 || urls[i].toExternalForm().indexOf("rollback") != -1)
@@ -754,7 +753,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return null;
 	}
 
-	protected void assertInstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+	protected static void assertInstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
 		Operand[] ops = plan.getOperands();
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
@@ -766,7 +765,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fail("Can't find " + iu + " in the plan");
 	}
 
-	protected void assertUninstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+	protected static void assertUninstallOperand(ProvisioningPlan plan, IInstallableUnit iu) {
 		Operand[] ops = plan.getOperands();
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
@@ -778,7 +777,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		fail("Can't find " + iu + " in the plan");
 	}
 
-	protected void assertNoOperand(ProvisioningPlan plan, IInstallableUnit iu) {
+	protected static void assertNoOperand(ProvisioningPlan plan, IInstallableUnit iu) {
 		Operand[] ops = plan.getOperands();
 		for (int i = 0; i < ops.length; i++) {
 			if (ops[i] instanceof InstallableUnitOperand) {
@@ -794,7 +793,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		MetadataRepositoryManager repoMan = (MetadataRepositoryManager) ServiceHelper.getService(TestActivator.getContext(), IMetadataRepositoryManager.class.getName());
-		URL[] repos = repoMan.getKnownRepositories(IMetadataRepositoryManager.REPOSITORIES_ALL);
+		URL[] repos = repoMan.getKnownRepositories(IRepositoryManager.REPOSITORIES_ALL);
 		for (int i = 0; i < repos.length; i++) {
 			repoMan.removeRepository(repos[i]);
 		}
@@ -821,7 +820,7 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return engine.perform(profile, new DefaultPhaseSet(), plan.getOperands(), null, null);
 	}
 
-	protected void assertEquals(String message, Object[] expected, Object[] actual, boolean orderImportant) {
+	protected static void assertEquals(String message, Object[] expected, Object[] actual, boolean orderImportant) {
 		// if the order in the array must match exactly, then call the other method
 		if (orderImportant) {
 			assertEquals(message, expected, actual);
@@ -854,70 +853,55 @@ public abstract class AbstractProvisioningTest extends TestCase {
 		return bus;
 	}
 
-	protected static void assertEquals(IInstallableUnit iu1, IInstallableUnit iu2) throws AssertionFailedError {
+	protected static void assertEquals(String message, IInstallableUnit iu1, IInstallableUnit iu2) throws AssertionFailedError {
 		if (iu1 == iu2)
 			return;
 		if (iu1 == null || iu2 == null) {
-			fail();
+			fail(message);
 		}
 
 		if (!iu1.equals(iu2))
-			fail(iu1 + " is not equal to " + iu2);
+			fail(message + " " + iu1 + " is not equal to " + iu2);
 
 		if (iu1.isFragment()) {
 			if (!iu2.isFragment())
-				fail(iu1 + " is not a fragment.");
+				fail(message + " " + iu1 + " is not a fragment.");
 			try {
-				assertEquals(((IInstallableUnitFragment) iu1).getHost(), ((IInstallableUnitFragment) iu2).getHost());
+				assertEquals(message, ((IInstallableUnitFragment) iu1).getHost(), ((IInstallableUnitFragment) iu2).getHost());
 			} catch (AssertionFailedError failure) {
-				fail("Unequal hosts: " + failure.getMessage());
+				fail(message + " Unequal hosts: " + failure.getMessage());
 			}
 		} else if (iu2.isFragment()) {
-			fail(iu2 + " is a fragment.");
+			fail(message + " " + iu2 + " is a fragment.");
 		}
 
 		if (iu1.isSingleton()) {
 			if (!iu2.isSingleton())
-				fail(iu2 + " is not a singleton.");
+				fail(message + " " + iu2 + " is not a singleton.");
 		} else if (iu2.isSingleton()) {
-			fail(iu2 + " is a singleton.");
+			fail(message + " " + iu2 + " is a singleton.");
 		}
 
-		assertEquals(iu1.getProvidedCapabilities(), iu2.getProvidedCapabilities());
-		assertEquals(iu1.getRequiredCapabilities(), iu2.getRequiredCapabilities());
-		assertEquals(iu1.getArtifacts(), iu2.getArtifacts());
-		assertEquals(iu1.getTouchpointType(), iu2.getTouchpointType());
-		assertEquals(iu1.getTouchpointData(), iu2.getTouchpointData());
-		assertEquals(iu1.getProperties(), iu2.getProperties());
-		assertEquals(iu1.getLicense(), iu2.getLicense());
-		assertEquals(iu1.getCopyright(), iu2.getCopyright());
-		assertEquals(iu1.getUpdateDescriptor(), iu2.getUpdateDescriptor());
-		assertEquals(iu1.getFilter(), iu2.getFilter());
+		assertEquals(message, iu1.getProvidedCapabilities(), iu2.getProvidedCapabilities());
+		assertEquals(message, iu1.getRequiredCapabilities(), iu2.getRequiredCapabilities());
+		assertEquals(message, iu1.getArtifacts(), iu2.getArtifacts());
+		assertEquals(message, iu1.getTouchpointType(), iu2.getTouchpointType());
+		assertEquals(message, iu1.getTouchpointData(), iu2.getTouchpointData());
+		assertEquals(message, iu1.getProperties(), iu2.getProperties());
+		assertEquals(message, iu1.getLicense(), iu2.getLicense());
+		assertEquals(message, iu1.getCopyright(), iu2.getCopyright());
+		assertEquals(message, iu1.getUpdateDescriptor(), iu2.getUpdateDescriptor());
+		assertEquals(message, iu1.getFilter(), iu2.getFilter());
 
 		if (iu1.isResolved() && iu2.isResolved())
-			assertEquals(iu1.getFragments(), iu2.getFragments());
+			assertEquals(message, iu1.getFragments(), iu2.getFragments());
 	}
 
-	protected static void assertEquals(ProvidedCapability[] provided1, ProvidedCapability[] provided2) throws AssertionFailedError {
-		assertArraysEqual(provided1, provided2);
-	}
-
-	protected static void assertEquals(RequiredCapability[] required1, RequiredCapability[] required2) throws AssertionFailedError {
-		assertArraysEqual(required1, required2);
-	}
-
-	protected static void assertEquals(IArtifactKey[] keys1, IArtifactKey[] keys2) throws AssertionFailedError {
-		assertArraysEqual(keys1, keys2);
-	}
-
-	/**
-	 * This does not account for whitespace in the data.
+	/*
+	 * Return a boolean value indicating whether or not the given arrays of installable
+	 * units representing fragments are considered to be equal.
 	 */
-	protected static void assertEquals(TouchpointData[] data1, TouchpointData[] data2) throws AssertionFailedError {
-		assertArraysEqual(data1, data2);
-	}
-
-	protected static void assertEquals(IInstallableUnitFragment[] fragments1, IInstallableUnitFragment[] fragments2) throws AssertionFailedError {
+	protected static void assertEquals(String message, IInstallableUnitFragment[] fragments1, IInstallableUnitFragment[] fragments2) throws AssertionFailedError {
 		Map map = new HashMap(fragments2.length);
 		for (int i = 0; i < fragments2.length; i++) {
 			map.put(fragments2[i], fragments2[i]);
@@ -925,26 +909,30 @@ public abstract class AbstractProvisioningTest extends TestCase {
 
 		for (int i = 0; i < fragments1.length; i++) {
 			if (!map.containsKey(fragments1))
-				fail("Expected fragment '" + fragments1[i] + "' not present.");
+				fail(message + " Expected fragment '" + fragments1[i] + "' not present.");
 			else {
-				assertEquals(fragments1[i], (IInstallableUnit) map.remove(fragments1[i]));
+				assertEquals(message, fragments1[i], map.remove(fragments1[i]));
 			}
 		}
 
 		if (map.size() > 0)
-			fail("Unexpected fragment '" + map.entrySet().iterator().next() + "'");
+			fail(message + " Unexpected fragment '" + map.entrySet().iterator().next() + "'");
 	}
 
-	protected static void assertEquals(IUpdateDescriptor desc1, IUpdateDescriptor desc2) throws AssertionFailedError {
+	/*
+	 * Return a boolean value indicating whether or not the given update descriptor
+	 * objects are considered to be equal.
+	 */
+	protected static void assertEquals(String message, IUpdateDescriptor desc1, IUpdateDescriptor desc2) throws AssertionFailedError {
 		if (desc1 == desc2)
 			return;
 		if (desc1 == null || desc2 == null)
 			fail();
 
 		try {
-			assertEquals(desc1.getId(), desc2.getId());
-			assertEquals(desc1.getSeverity(), desc2.getSeverity());
-			assertEquals(desc1.getRange(), desc2.getRange());
+			assertEquals(message, desc1.getId(), desc2.getId());
+			assertEquals(message, desc1.getSeverity(), desc2.getSeverity());
+			assertEquals(message, desc1.getRange(), desc2.getRange());
 
 			String d1 = desc1.getDescription();
 			String d2 = desc2.getDescription();
@@ -952,16 +940,16 @@ public abstract class AbstractProvisioningTest extends TestCase {
 				d1 = "";
 			if (d2 == null)
 				d2 = "";
-			assertEquals(d1, d2);
+			assertEquals(message, d1, d2);
 		} catch (AssertionFailedError e) {
-			fail("Unequal Update Descriptors: " + e.getMessage());
+			fail(message + " Unequal Update Descriptors: " + e.getMessage());
 		}
 	}
 
 	/**
 	 * Assumes each array does not contain more than one IU with a given name and version.
 	 */
-	public static void assertEquals(IInstallableUnit[] ius1, IInstallableUnit[] ius2) {
+	public static void assertEquals(String message, IInstallableUnit[] ius1, IInstallableUnit[] ius2) {
 		TreeSet set = new TreeSet(new Comparator() {
 			public int compare(Object o1, Object o2) {
 				return o1.toString().compareTo(o2.toString());
@@ -975,44 +963,97 @@ public abstract class AbstractProvisioningTest extends TestCase {
 			if (subset.size() == 1) {
 				IInstallableUnit candidate = (IInstallableUnit) subset.first();
 				try {
-					assertEquals(ius1[i], candidate);
+					assertEquals(message, ius1[i], candidate);
 				} catch (AssertionFailedError e) {
-					fail("IUs '" + ius1[i] + "' are unequal : " + e.getMessage());
+					fail(message + " IUs '" + ius1[i] + "' are unequal : " + e.getMessage());
 				}
 				subset.remove(candidate);
 			} else if (subset.size() > 1) {
 				//should not happen
-				fail("ERROR: Unexpected failure.");
+				fail(message + " ERROR: Unexpected failure.");
 			} else {
-				fail("Expected IU " + ius1[i] + " not found.");
+				fail(message + " Expected IU " + ius1[i] + " not found.");
 			}
 		}
 		if (set.size() > 0)
-			fail("Unexpected IU " + set.first() + ".");
+			fail(message + " Unexpected IU " + set.first() + ".");
+	}
+
+	/*
+	 * Compare 2 copyright objects and fail if they are not considered equal.
+	 */
+	protected static void assertEquals(String message, Copyright cpyrt1, Copyright cpyrt2) {
+		if (cpyrt1 == cpyrt2)
+			return;
+		if (cpyrt1 == null || cpyrt2 == null) {
+			fail(message);
+		}
+		assertEquals(message, cpyrt1.getBody(), cpyrt2.getBody());
+		assertEquals(message, cpyrt1.getURL().toExternalForm(), cpyrt2.getURL().toExternalForm());
 	}
 
 	/**
-	 * Compare arrays, Elements of the arrays must implement equals and hashCode
-	 * @param objs1
-	 * @param objs2
+	 * matches all descriptors from source in the destination
+	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
 	 */
-	protected static void assertArraysEqual(Object[] objs1, Object[] objs2) throws AssertionFailedError {
-		if (objs1 == objs2)
-			return;
-		if (objs1 == null || objs2 == null)
-			fail("Null array.");
+	protected static void assertContains(String message, IArtifactRepository sourceRepo, IArtifactRepository destinationRepo) {
+		IArtifactKey[] sourceKeys = sourceRepo.getArtifactKeys();
 
-		Set set = new HashSet(objs2.length);
-		set.addAll(Arrays.asList(objs2));
+		for (int i = 0; i < sourceKeys.length; i++) {
+			IArtifactDescriptor[] destinationDescriptors = destinationRepo.getArtifactDescriptors(sourceKeys[i]);
+			if (destinationDescriptors == null || destinationDescriptors.length == 0)
+				fail(message + ": unmatched key: " + sourceKeys[i].toString());
+			//this implicitly verifies the keys are present
 
-		for (int i = 0; i < objs1.length; i++) {
-			if (!set.contains(objs1[i]))
-				fail("Expected element '" + objs1[i] + "' not present.");
-			else
-				set.remove(objs1[i]);
+			IArtifactDescriptor[] sourceDescriptors = sourceRepo.getArtifactDescriptors(sourceKeys[i]);
+			assertEquals(message, sourceDescriptors, destinationDescriptors);
 		}
+	}
 
-		if (set.size() > 0)
-			fail("Unexpected element '" + set.iterator().next() + "'");
+	/**
+	 * Ensures 2 repositories are equal by ensure all items in repo1 are contained
+	 * in repo2 and all items in repo2 are in repo1
+	 */
+	protected static void assertContentEquals(String message, IArtifactRepository repo1, IArtifactRepository repo2) {
+		assertContains(message, repo1, repo2);
+		assertContains(message, repo2, repo1);
+	}
+
+	/**
+	 * matches all metadata from source in the destination
+	 * Note: NOT BICONDITIONAL! assertContains(A, B) is NOT the same as assertContains(B, A)
+	 */
+	protected static void assertContains(String message, IMetadataRepository sourceRepo, IMetadataRepository destinationRepo) {
+		Collector sourceCollector = sourceRepo.query(InstallableUnitQuery.ANY, new Collector(), null);
+		Iterator it = sourceCollector.iterator();
+
+		while (it.hasNext()) {
+			IInstallableUnit sourceIU = (IInstallableUnit) it.next();
+			Collector destinationCollector = destinationRepo.query(new InstallableUnitQuery(sourceIU.getId(), sourceIU.getVersion()), new Collector(), null);
+			assertEquals(message, 1, destinationCollector.size());
+			assertEquals(message, sourceIU, (IInstallableUnit) destinationCollector.iterator().next());
+		}
+	}
+
+	/**
+	 * Ensures 2 repositories are equal by ensure all items in repo1 are contained
+	 * in repo2 and all items in repo2 are in repo1
+	 */
+	protected static void assertContentEquals(String message, IMetadataRepository repo1, IMetadataRepository repo2) {
+		assertContains(message, repo1, repo2);
+		assertContains(message, repo2, repo1);
+	}
+
+	/*
+	 * Return a boolean value indicating whether or not the given installable units
+	 * are considered to be equal.
+	 */
+	protected static boolean isEqual(IInstallableUnit iu1, IInstallableUnit iu2) {
+		try {
+			assertEquals("IUs not equal", iu1, iu2);
+		} catch (AssertionFailedError e) {
+			return false;
+		}
+		return true;
 	}
 }
