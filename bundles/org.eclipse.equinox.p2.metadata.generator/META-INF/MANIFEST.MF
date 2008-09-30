@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.equinox.p2.metadata.generator;singleton:=true
 Bundle-Name: %pluginName
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-Version: 1.0.1.qualifier
+Bundle-Version: 1.0.4.qualifier
 Require-Bundle: org.eclipse.equinox.p2.core,
  org.eclipse.osgi,
  org.eclipse.equinox.common
