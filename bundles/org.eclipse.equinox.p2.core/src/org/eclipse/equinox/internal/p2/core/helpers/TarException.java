@@ -12,7 +12,6 @@ package org.eclipse.equinox.internal.p2.core.helpers;
 
 /**
  * Copied from org.eclipse.ui.internal.wizards.datatransfer.TarException.
- * @since 3.3
  */
 public class TarException extends Exception {
 	/**

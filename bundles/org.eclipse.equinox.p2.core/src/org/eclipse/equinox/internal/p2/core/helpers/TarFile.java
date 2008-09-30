@@ -16,7 +16,6 @@ import java.util.zip.GZIPInputStream;
 
 /**
  * Copied from org.eclipse.ui.internal.wizards.datatransfer.TarFile.
- * @since 3.3
  */
 public class TarFile {
 	private File file;

@@ -14,7 +14,6 @@ import java.io.*;
 
 /**
  * Copied from org.eclipse.ui.internal.wizards.datatransfer.TarInputStream.
- * @since 3.3
  */
 public class TarInputStream extends FilterInputStream {
 	private int nextEntry = 0;
