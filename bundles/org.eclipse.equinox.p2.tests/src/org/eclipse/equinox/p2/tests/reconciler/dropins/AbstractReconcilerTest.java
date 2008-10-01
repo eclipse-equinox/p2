@@ -231,9 +231,12 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the reconciler to discover changes in the drop-ins folder and update the system state.
 	 */
 	public void reconcile(String message) {
-		String java = Activator.getBundleContext().getProperty("java.home");
-		java = java + File.separator + "bin" + File.separator + "java";
-		run(message, output.getAbsolutePath() + "/eclipse/eclipse --launcher.suppressErrors -nosplash -application org.eclipse.equinox.p2.reconciler.application -vm " + java);
+		File root = new File(Activator.getBundleContext().getProperty("java.home"));
+		root = new File(root, "bin");
+		File exe = new File(root, "javaw.exe");
+		if (!exe.exists())
+			exe = new File(root, "java");
+		run(message, output.getAbsolutePath() + "/eclipse/eclipse --launcher.suppressErrors -nosplash -application org.eclipse.equinox.p2.reconciler.application -vm " + exe.getAbsolutePath());
 	}
 
 	/*
