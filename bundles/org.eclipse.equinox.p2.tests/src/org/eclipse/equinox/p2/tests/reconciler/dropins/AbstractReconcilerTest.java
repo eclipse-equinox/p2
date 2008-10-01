@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.equinox.internal.p2.core.helpers.*;
 import org.eclipse.equinox.internal.p2.update.*;
+import org.eclipse.equinox.internal.p2.updatesite.Activator;
 import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.p2.tests.AbstractProvisioningTest;
 import org.eclipse.equinox.p2.tests.TestActivator;
@@ -44,11 +45,42 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 		File file = getPlatformZip();
 		output = getUniqueFolder();
 		toRemove.add(output);
-		try {
-			FileUtils.unzipFile(file, output);
-		} catch (IOException e) {
-			fail("0.99", e);
+		// for now we will exec to un-tar archives to keep the executable bits
+		if (file.getName().toLowerCase().endsWith(".zip")) {
+			try {
+				FileUtils.unzipFile(file, output);
+			} catch (IOException e) {
+				fail("0.99", e);
+			}
+		} else {
+			untar("1.0", file);
 		}
+	}
+
+	/*
+	 * Run the given command.
+	 */
+	private void run(String message, String command) {
+		try {
+			Process process = Runtime.getRuntime().exec(command, null, output);
+			process.waitFor();
+		} catch (IOException e) {
+			fail(message, e);
+		} catch (InterruptedException e) {
+			fail(message, e);
+		}
+	}
+
+	/*
+	 * Untar the given file in the output directory.
+	 */
+	private void untar(String message, File file) {
+		String name = file.getName();
+		File gzFile = new File(output, name);
+		output.mkdirs();
+		run(message, "cp " + file + " " + gzFile);
+		run(message, "tar -zpxf" + gzFile);
+		gzFile.delete();
 	}
 
 	/*
@@ -199,15 +231,9 @@ public class AbstractReconcilerTest extends AbstractProvisioningTest {
 	 * Run the reconciler to discover changes in the drop-ins folder and update the system state.
 	 */
 	public void reconcile(String message) {
-		String command = output.getAbsolutePath() + "/eclipse/eclipse -nosplash -application org.eclipse.equinox.p2.reconciler.application";
-		try {
-			Process process = Runtime.getRuntime().exec(command);
-			process.waitFor();
-		} catch (IOException e) {
-			fail(message, e);
-		} catch (InterruptedException e) {
-			fail(message, e);
-		}
+		String java = Activator.getBundleContext().getProperty("java.home");
+		java = java + File.separator + "bin" + File.separator + "java";
+		run(message, output.getAbsolutePath() + "/eclipse/eclipse --launcher.suppressErrors -nosplash -application org.eclipse.equinox.p2.reconciler.application -vm " + java);
 	}
 
 	/*
