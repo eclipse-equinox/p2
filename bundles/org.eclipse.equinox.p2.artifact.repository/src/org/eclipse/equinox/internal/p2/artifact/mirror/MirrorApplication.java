@@ -33,6 +33,8 @@ public class MirrorApplication implements IApplication {
 	private boolean append = false;
 	private boolean raw = false;
 	private IArtifactRepositoryManager cachedManager;
+	private boolean sourceLoaded = false;
+	private boolean destinationLoaded = false;
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
@@ -42,6 +44,12 @@ public class MirrorApplication implements IApplication {
 		initializeFromArguments((String[]) args.get(IApplicationContext.APPLICATION_ARGS));
 		setupRepositories();
 		new Mirroring(source, destination, raw).run();
+		//if the repository was not already loaded before the mirror application started, close it.
+		if (!sourceLoaded)
+			getManager().removeRepository(sourceLocation);
+		if (!destinationLoaded)
+			getManager().removeRepository(destinationLocation);
+
 		return IApplication.EXIT_OK;
 	}
 
@@ -50,19 +58,27 @@ public class MirrorApplication implements IApplication {
 	 * as well as creating one manually in case we are running a stand-alone application
 	 * in which no one has registered a manager yet.
 	 */
-	private IArtifactRepositoryManager getManager() {
+	private ArtifactRepositoryManager getManager() {
 		if (cachedManager != null)
-			return cachedManager;
+			//TODO remove cast when API is available
+			return (ArtifactRepositoryManager) cachedManager;
 		IArtifactRepositoryManager result = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
 		// service not available... create one and hang onto it
 		if (result == null) {
 			cachedManager = new ArtifactRepositoryManager();
 			result = cachedManager;
 		}
-		return result;
+		//TODO remove cast when API is available
+		return (ArtifactRepositoryManager) result;
 	}
 
 	private void setupRepositories() throws ProvisionException {
+		//Check if repositories are already loaded
+		//TODO modify the contains statement once the API is available
+		sourceLoaded = getManager().contains(sourceLocation);
+		//TODO modify the contains statement once the API is available
+		destinationLoaded = getManager().contains(destinationLocation);
+
 		source = getManager().loadRepository(sourceLocation, null);
 		if (destinationLocation == null)
 			destination = source;

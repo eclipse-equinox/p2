@@ -34,6 +34,8 @@ public class MirrorApplication implements IApplication {
 	private boolean transitive = false;
 	private boolean append = false;
 	private IMetadataRepositoryManager cachedManager;
+	private boolean sourceLoaded = false;
+	private boolean destinationLoaded = false;
 
 	/**
 	 * Convert a list of tokens into an array. The list separator has to be
@@ -62,12 +64,24 @@ public class MirrorApplication implements IApplication {
 		initializeFromArguments((String[]) context.getArguments().get(IApplicationContext.APPLICATION_ARGS));
 		setupRepositories();
 		new Mirroring().mirror(source, destination, rootSpecs, transitive);
+		//if the repository was not already loaded before the mirror application started, close it.
+		if (!sourceLoaded)
+			getManager().removeRepository(sourceLocation);
+		if (!destinationLoaded)
+			getManager().removeRepository(destinationLocation);
 		return IApplication.EXIT_OK;
 	}
 
 	private void setupRepositories() throws ProvisionException {
 		if (destinationLocation == null || sourceLocation == null)
 			throw new IllegalStateException("Must specify a source and destination"); //$NON-NLS-1$
+
+		//Check if repositories are already loaded
+		//TODO modify the contains statement once the API is available
+		sourceLoaded = getManager().contains(sourceLocation);
+		//TODO modify the contains statement once the API is available
+		destinationLoaded = getManager().contains(destinationLocation);
+
 		destination = initializeDestination();
 		source = getManager().loadRepository(sourceLocation, null);
 	}
@@ -77,16 +91,18 @@ public class MirrorApplication implements IApplication {
 	 * as well as creating one manually in case we are running a stand-alone application
 	 * in which no one has registered a manager yet.
 	 */
-	private IMetadataRepositoryManager getManager() {
+	private MetadataRepositoryManager getManager() {
 		if (cachedManager != null)
-			return cachedManager;
+			//TODO remove cast when API is available
+			return (MetadataRepositoryManager) cachedManager;
 		IMetadataRepositoryManager result = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
 		// service not available... create one and hang onto it
 		if (result == null) {
 			cachedManager = new MetadataRepositoryManager();
 			result = cachedManager;
 		}
-		return result;
+		//TODO remove cast when API is available
+		return (MetadataRepositoryManager) result;
 	}
 
 	private IMetadataRepository initializeDestination() throws ProvisionException {
