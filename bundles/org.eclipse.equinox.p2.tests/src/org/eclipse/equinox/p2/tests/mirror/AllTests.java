@@ -21,6 +21,8 @@ public class AllTests extends TestCase {
 		TestSuite suite = new TestSuite(AllTests.class.getName());
 		suite.addTestSuite(ArtifactMirrorApplicationTest.class);
 		suite.addTestSuite(MetadataMirrorApplicationTest.class);
+		suite.addTestSuite(ArtifactRepositoryCleanupTest.class);
+		suite.addTestSuite(MetadataRepositoryCleanupTest.class);
 		return suite;
 	}
 
