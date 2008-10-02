@@ -135,8 +135,6 @@ public class SiteListener extends DirectoryChangeListener {
 			if (contains(list, file))
 				return false;
 		} else if (Site.POLICY_USER_INCLUDE.equals(policy)) {
-			if (isFeature(file))
-				return true;
 			// we are only interested in plug-ins in the list
 			if (!contains(list, file))
 				return false;
@@ -148,11 +146,6 @@ public class SiteListener extends DirectoryChangeListener {
 		// and we think we are interested in the file. we should first check to
 		// see if it is in the list of things to be removed
 		return !isToBeRemoved(file);
-	}
-
-	private boolean isFeature(File file) {
-		String parent = file.getParent();
-		return parent != null && parent.endsWith(FEATURES);
 	}
 
 	/*
