@@ -73,17 +73,17 @@ public class MirrorApplication implements IApplication {
 	}
 
 	private void setupRepositories() throws ProvisionException {
+		if (destinationLocation == null || sourceLocation == null)
+			throw new IllegalStateException("Must specify a source and destination"); //$NON-NLS-1$
+
 		//Check if repositories are already loaded
 		//TODO modify the contains statement once the API is available
 		sourceLoaded = getManager().contains(sourceLocation);
 		//TODO modify the contains statement once the API is available
 		destinationLoaded = getManager().contains(destinationLocation);
 
+		destination = initializeDestination();
 		source = getManager().loadRepository(sourceLocation, null);
-		if (destinationLocation == null)
-			destination = source;
-		else
-			destination = initializeDestination();
 	}
 
 	private IArtifactRepository initializeDestination() throws ProvisionException {

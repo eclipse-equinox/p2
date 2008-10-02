@@ -71,9 +71,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 	}
 
 	/**
-	 * runs default mirror. source is the source repo, destination is the destination repo
+	 * runs the mirror application with arguments args
 	 */
-	private void basicRunMirrorApplication(final String message, final URL source, final URL destination, final boolean append) throws Exception {
+	private void runMirrorApplication(String message, final String[] args) throws Exception {
 		MirrorApplication application = new MirrorApplication();
 		application.start(new IApplicationContext() {
 
@@ -83,7 +83,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			public Map getArguments() {
 				Map arguments = new HashMap();
 
-				arguments.put(IApplicationContext.APPLICATION_ARGS, new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), append ? "-append" : ""});
+				arguments.put(IApplicationContext.APPLICATION_ARGS, args);
 
 				return arguments;
 			}
@@ -112,6 +112,16 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 				return null;
 			}
 		});
+	}
+
+	/**
+	 * runs mirror application with default arguments. source is the source repo, destination is the destination repo, append is if the "-append" argument is needed
+	 */
+	private void basicRunMirrorApplication(String message, URL source, URL destination, boolean append) throws Exception {
+		//set the default arguments
+		String[] args = new String[] {"-source", source.toExternalForm(), "-destination", destination.toExternalForm(), append ? "-append" : ""};
+		//run the mirror application
+		runMirrorApplication(message, args);
 	}
 
 	/**
@@ -542,7 +552,7 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			//we expect a provision exception to be thrown. We should never get here.
 			fail("13.0 ProvisionExpection not thrown");
 		} catch (ProvisionException e) {
-			return; //correct type fo exception has been thrown
+			return; //correct type of exception has been thrown
 		} catch (Exception e) {
 			fail("13.2", e);
 		}
@@ -580,9 +590,9 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			//Setup: create a URL pointing to an unmodifiable place
 			URL invalidDestRepository = new URL("http://foobar.com/abcdefg");
 			basicRunMirrorApplication("15.1", invalidRepository.toURL(), invalidDestRepository, true);
-			//We expect the ProvisionException to be thrown BEFORE an UnsupportedOperationException
-			fail("15.0 ProvisionExpection not thrown");
-		} catch (ProvisionException e) {
+			//We expect the UnsupportedOperationException to be thrown
+			fail("15.0 UnsupportedOperationException not thrown");
+		} catch (UnsupportedOperationException e) {
 			return; //correct type of exception was thrown
 		} catch (Exception e) {
 			fail("15.2", e);
@@ -729,6 +739,70 @@ public class ArtifactMirrorApplicationTest extends AbstractProvisioningTest {
 			fail("20.5", e);
 		} catch (MalformedURLException e) {
 			fail("20.6", e);
+		}
+	}
+
+	/**
+	 * Tests how mirror application handles an unspecified source
+	 */
+	public void testArtifactMirrorNullSource() {
+		String[] args = null;
+		try {
+			//create arguments without a "-source"
+			args = new String[] {"-destination", destRepoLocation.toURL().toExternalForm()};
+		} catch (MalformedURLException e) {
+			fail("21.0", e);
+		}
+
+		try {
+			runMirrorApplication("21.1", args);
+			//We expect the IllegalStateException to be thrown
+			fail("21.3 IllegalStateException not thrown");
+		} catch (IllegalStateException e) {
+			return; //expected type of exception has been thrown
+		} catch (Exception e) {
+			fail("21.2", e);
+		}
+	}
+
+	/**
+	 * Tests how mirror application handles an unspecified destination
+	 */
+	public void testArtifactMirrorNullDestination() {
+		String[] args = null;
+		try {
+			//create arguments without a "-destination"
+			args = new String[] {"-source", sourceRepoLocation.toURL().toExternalForm()};
+		} catch (MalformedURLException e) {
+			fail("22.0", e);
+		}
+
+		try {
+			runMirrorApplication("22.1", args);
+			//We expect the IllegalStateException to be thrown
+			fail("22.3 IllegalStateException not thrown");
+		} catch (IllegalStateException e) {
+			return; //expected type of exception has been thrown
+		} catch (Exception e) {
+			fail("22.2", e);
+		}
+	}
+
+	/**
+	 * Tests how mirror application handles both an unspecified source and an unspecified destination
+	 */
+	public void testArtifactMirrorNullBoth() {
+		//create arguments with neither "-destination" nor "-source"
+		String[] args = new String[] {};
+
+		try {
+			runMirrorApplication("23.0", args);
+			//We expect the IllegalStateException to be thrown
+			fail("23.2 IllegalStateException not thrown");
+		} catch (IllegalStateException e) {
+			return; //expected type of exception has been thrown
+		} catch (Exception e) {
+			fail("23.1", e);
 		}
 	}
 }
