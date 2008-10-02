@@ -13,6 +13,7 @@ Export-Package: org.eclipse.equinox.internal.p2.artifact.mirror;x-internal:=true
  org.eclipse.equinox.internal.provisional.p2.artifact.repository;
   x-friends:="org.eclipse.equinox.p2.artifact.optimizers,
    org.eclipse.equinox.p2.artifact.processors,
+   org.eclipse.equinox.p2.director.app,
    org.eclipse.equinox.p2.directorywatcher,
    org.eclipse.equinox.p2.metadata.generator,
    org.eclipse.equinox.p2.updatesite,

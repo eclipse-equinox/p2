@@ -21,10 +21,13 @@ import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.equinox.internal.p2.console.ProvisioningHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.LogHelper;
 import org.eclipse.equinox.internal.p2.core.helpers.ServiceHelper;
+import org.eclipse.equinox.internal.provisional.p2.artifact.repository.IArtifactRepositoryManager;
+import org.eclipse.equinox.internal.provisional.p2.core.ProvisionException;
 import org.eclipse.equinox.internal.provisional.p2.director.*;
 import org.eclipse.equinox.internal.provisional.p2.engine.*;
 import org.eclipse.equinox.internal.provisional.p2.metadata.IInstallableUnit;
 import org.eclipse.equinox.internal.provisional.p2.metadata.query.InstallableUnitQuery;
+import org.eclipse.equinox.internal.provisional.p2.metadata.repository.IMetadataRepositoryManager;
 import org.eclipse.equinox.internal.provisional.p2.query.Collector;
 import org.eclipse.osgi.service.resolver.VersionRange;
 import org.eclipse.osgi.util.NLS;
@@ -162,20 +165,55 @@ public class Application implements IApplication {
 	}
 
 	private void initializeRepositories(boolean throwException) throws CoreException {
+
 		if (artifactRepositoryLocations == null) {
 			if (throwException)
 				missingArgument("artifactRepository"); //$NON-NLS-1$
 		} else {
-			for (int i = 0; i < artifactRepositoryLocations.length; i++)
-				ProvisioningHelper.addArtifactRepository(artifactRepositoryLocations[i]);
+			IArtifactRepositoryManager manager = (IArtifactRepositoryManager) ServiceHelper.getService(Activator.getContext(), IArtifactRepositoryManager.class.getName());
+			if (manager == null) {
+				if (throwException)
+					throw new ProvisionException(Messages.Application_NoManager);
+			} else {
+				boolean anyValid = false; // do we have any valid repos or did they all fail to load?
+				for (int i = 0; i < artifactRepositoryLocations.length; i++) {
+					try {
+						manager.loadRepository(artifactRepositoryLocations[i], null);
+						anyValid = true;
+					} catch (ProvisionException e) {
+						//one of the repositories did not load
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, artifactRepositoryLocations[i].getPath() + " failed to load", e)); //$NON-NLS-1$
+					}
+				}
+				if (throwException && !anyValid)
+					//all repositories failed to load
+					throw new ProvisionException(Messages.Application_NoRepositories);
+			}
 		}
 
 		if (metadataRepositoryLocations == null) {
 			if (throwException)
 				missingArgument("metadataRepository"); //$NON-NLS-1$
 		} else {
-			for (int i = 0; i < metadataRepositoryLocations.length; i++)
-				ProvisioningHelper.addMetadataRepository(metadataRepositoryLocations[i]);
+			IMetadataRepositoryManager manager = (IMetadataRepositoryManager) ServiceHelper.getService(Activator.getContext(), IMetadataRepositoryManager.class.getName());
+			if (manager == null) {
+				if (throwException)
+					throw new ProvisionException(Messages.Application_NoManager);
+			} else {
+				boolean anyValid = false; // do we have any valid repos or did they all fail to load?
+				for (int i = 0; i < metadataRepositoryLocations.length; i++) {
+					try {
+						manager.loadRepository(metadataRepositoryLocations[i], null);
+						anyValid = true;
+					} catch (ProvisionException e) {
+						//one of the repositories did not load
+						LogHelper.log(new Status(IStatus.ERROR, Activator.ID, metadataRepositoryLocations[i].getPath() + " failed to load", e)); //$NON-NLS-1$
+					}
+				}
+				if (throwException && !anyValid)
+					//all repositories failed to load
+					throw new ProvisionException(Messages.Application_NoRepositories);
+			}
 		}
 	}
 
